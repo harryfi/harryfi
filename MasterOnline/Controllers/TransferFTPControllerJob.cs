@@ -26,6 +26,10 @@ namespace MasterOnline.Controllers
 {
     public class TransferFTPControllerJob : Controller
     {
+        //set parameter network location server IP Private
+        public string IPServerLocation = "\\\\172.31.20.73\\MasterOnline\\";
+        //public string IPServerLocation = "\\\\127.0.0.1\\MasterOnline\\"; // \\127.0.0.1\MasterOnline
+
         private MoDbContext MoDbContext { get; set; }
         private ErasoftContext ErasoftDbContext { get; set; }
         private DatabaseSQL EDB;
@@ -166,11 +170,11 @@ namespace MasterOnline.Controllers
                     #region initial folder
                     //var path = System.IO.Path.Combine(Server.MapPath("~/Content/Uploaded/UploadFTP/"), filename);
                     //var path = "D:\\document_kerja_fauzi\\project\\@MO_source\\MasterOnlineDevelopment\\MasterOnline\\Content\\Uploaded\\UploadFTP\\" + filename;
-                    var path = "C:\\inetpub\\wwwroot\\MasterOnline\\Content\\Uploaded\\UploadFTP\\" + filename;
+                    var path = IPServerLocation + "Content\\Uploaded\\UploadFTP\\" + filename;
                     if (!System.IO.File.Exists(path))
                     {
                         //System.IO.Directory.CreateDirectory("D:\\document_kerja_fauzi\\project\\@MO_source\\MasterOnlineDevelopment\\MasterOnline\\Content\\Uploaded\\UploadFTP\\");
-                        System.IO.Directory.CreateDirectory("C:\\inetpub\\wwwroot\\MasterOnline\\Content\\Uploaded\\UploadFTP\\");
+                        System.IO.Directory.CreateDirectory(IPServerLocation + "Content\\Uploaded\\UploadFTP\\");
 
                         //string output = "D:\\" + "testdoang.csv";
                         StreamWriter csv = new StreamWriter(path, false);

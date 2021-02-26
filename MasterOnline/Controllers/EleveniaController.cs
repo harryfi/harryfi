@@ -21,7 +21,11 @@ namespace MasterOnline.Controllers
 {
     public class EleveniaController : Controller
     {
-        AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+        //set parameter network location server IP Private
+        public string IPServerLocation = "\\\\172.31.20.73\\MasterOnline\\";
+        //public string IPServerLocation = "\\\\127.0.0.1\\MasterOnline\\"; // \\127.0.0.1\MasterOnline
+
+        //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
         public MoDbContext MoDbContext { get; set; }
         public ErasoftContext ErasoftDbContext { get; set; }
         DatabaseSQL EDB;
@@ -30,30 +34,75 @@ namespace MasterOnline.Controllers
         public EleveniaController()
         {
             MoDbContext = new MoDbContext("");
-            var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            if (sessionData?.Account != null)
+            //var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+//            if (sessionData?.Account != null)
+//            {
+//                if (sessionData.Account.UserId == "admin_manage")
+//                {
+//                    ErasoftDbContext = new ErasoftContext();
+//                }
+//                else
+//                {
+//#if (Debug_AWS)
+//                    dbSourceEra = sessionData.Account.DataSourcePathDebug;
+//#else
+//                    dbSourceEra = sessionData.Account.DataSourcePath;
+//#endif
+//                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionData.Account.DatabasePathErasoft);
+//                }
+
+//                EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
+//            }
+//            else
+//            {
+//                if (sessionData?.User != null)
+//                {
+//                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+//#if (Debug_AWS)
+//                    dbSourceEra = accFromUser.DataSourcePathDebug;
+//#else
+//                    dbSourceEra = accFromUser.DataSourcePath;
+//#endif
+//                    ErasoftDbContext = new ErasoftContext(dbSourceEra, accFromUser.DatabasePathErasoft);
+//                    EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
+//                }
+//            }
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+
+            if (sessionAccount != null)
             {
-                if (sessionData.Account.UserId == "admin_manage")
+                if (sessionAccountUserID.ToString() == "admin_manage")
                 {
                     ErasoftDbContext = new ErasoftContext();
                 }
                 else
                 {
 #if (Debug_AWS)
-                    dbSourceEra = sessionData.Account.DataSourcePathDebug;
+                    dbSourceEra = sessionAccountDataSourcePathDebug.ToString();
 #else
-                    dbSourceEra = sessionData.Account.DataSourcePath;
+                    dbSourceEra = sessionAccountDataSourcePath.ToString();
 #endif
-                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionData.Account.DatabasePathErasoft);
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionAccountDatabasePathErasoft.ToString());
                 }
 
-                EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
+                EDB = new DatabaseSQL(sessionAccountDatabasePathErasoft.ToString());
             }
             else
             {
-                if (sessionData?.User != null)
+                if (sessionUser != null)
                 {
-                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                    var userAccID = Convert.ToInt64(sessionUserAccountID);
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == userAccID);
 #if (Debug_AWS)
                     dbSourceEra = accFromUser.DataSourcePathDebug;
 #else
@@ -67,8 +116,8 @@ namespace MasterOnline.Controllers
         [Route("ele/image/{id?}")]
         public ActionResult Image(string id)
         {
-            var dir = Server.MapPath("~/Content/Uploaded");
-            var dirNotFound = Server.MapPath("~/Content/Images");
+            var dir = IPServerLocation + "Content\\Uploaded";
+            var dirNotFound = IPServerLocation + "Content\\Images";
             var path = Path.Combine(dir, id); //validate the path for security or use other means to generate the path.
             path = path + ".jpg";
             if (!System.IO.File.Exists(path))

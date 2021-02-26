@@ -13,6 +13,10 @@ namespace MasterOnline.Controllers
 {
     public class ScrapperController : Controller
     {
+        //set parameter network location server IP Private
+        public string IPServerLocation = "\\\\172.31.20.73\\MasterOnline\\";
+        //public string IPServerLocation = "\\\\127.0.0.1\\MasterOnline\\"; // \\127.0.0.1\MasterOnline
+
         public MoDbContext MoDbContext { get; set; }
         public ErasoftContext ErasoftDbContext { get; set; }
         private AccountUserViewModel _viewModel;
@@ -172,9 +176,9 @@ namespace MasterOnline.Controllers
             {
                 StartInfo =
                 {
-                    WorkingDirectory = Server.MapPath("~/Services/thzalyvuspulzjyhwwlymvskly/"),
+                    WorkingDirectory = IPServerLocation + "Services\\thzalyvuspulzjyhwwlymvskly\\",
                     UseShellExecute = false,
-                    FileName = Server.MapPath("~/Services/thzalyvuspulzjyhwwlymvskly/thzalyvuspulzjyhwwlyiha.bat"),
+                    FileName = IPServerLocation + "Services\\thzalyvuspulzjyhwwlymvskly\\thzalyvuspulzjyhwwlyiha.bat",
                     Arguments = $"{moe} {mop} {$"databarang_{moai}.csv"}",
                     CreateNoWindow = true,
                     RedirectStandardInput = true,

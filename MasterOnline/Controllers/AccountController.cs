@@ -29,6 +29,10 @@ namespace MasterOnline.Controllers
 {
     public class AccountController : Controller
     {
+        //set parameter network location server IP Private
+        public string IPServerLocation = "\\\\172.31.20.73\\MasterOnline\\";
+        //public string IPServerLocation = "\\\\127.0.0.1\\MasterOnline\\"; // \\127.0.0.1\MasterOnline
+
         private MoDbContext MoDbContext;
         private AccountUserViewModel _viewModel;
         //add by calvin 1 april 2019
@@ -1744,8 +1748,8 @@ namespace MasterOnline.Controllers
                 {
                     //var fileName = Path.GetFileName(file.FileName);
                     var fileName = account.Email.Replace(".", "_").Replace("@", "_") + ".jpg";
-                    var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), fileName);
-                    account.PhotoKtpUrl = "~/Content/Uploaded/" + fileName;
+                    var path = Path.Combine(IPServerLocation + "Content\\Uploaded\\", fileName);
+                    account.PhotoKtpUrl = IPServerLocation + "Content\\Uploaded\\" + fileName;
                     file.SaveAs(path);
                 }
             }
@@ -2301,13 +2305,13 @@ namespace MasterOnline.Controllers
                     //var fileName = partner.Email.Replace(".", "_");
                     var fileName = "partner_" + partner.Email.Replace(".", "_").Replace("@", "_") + ".jpg";
                     //end add by nurul 29/10/2019
-                    var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), fileName);
-                    partner.PhotoKtpUrl = "~/Content/Uploaded/" + fileName;
+                    var path = Path.Combine(IPServerLocation + "Content\\Uploaded\\", fileName);
+                    partner.PhotoKtpUrl = IPServerLocation + "Content\\Uploaded\\" + fileName;
                     file.SaveAs(path);
 
                     //var fileName = account.Email.Replace(".", "_").Replace("@", "_") + ".jpg";
-                    //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), fileName);
-                    //account.PhotoKtpUrl = "~/Content/Uploaded/" + fileName;
+                    //var path = Path.Combine(IPServerLocation + "Content\\Uploaded\\", fileName);
+                    //account.PhotoKtpUrl = IPServerLocation + "Content\\Uploaded\\" + fileName;
                     //file.SaveAs(path);
                 }
             }
@@ -2365,7 +2369,7 @@ namespace MasterOnline.Controllers
                 message.To.Add(email);
                 message.From = new MailAddress("csmasteronline@gmail.com");
                 message.Subject = "SELAMAT! Anda telah menjadi partner dari MasterOnline!";
-                message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/PartnerApproval.html"))
+                message.Body = System.IO.File.ReadAllText(IPServerLocation + "Content\\admin\\PartnerApproval.html")
                     .Replace("LINKREF", Request.Url.GetLeftPart(UriPartial.Authority) + Url.Action("Index", "Home", new { @ref = partnerInDb.KodeRefPilihan }))
                     .Replace("TIPEPARTNER", partnerInDb.NamaTipe);
                 message.IsBodyHtml = true;

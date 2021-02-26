@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Hosting;
 using Erasoft.Function;
 using Hangfire;
+using Hangfire.Pro.Redis;
 using Hangfire.SqlServer;
 using Hangfire.Storage;
 
@@ -37,15 +38,19 @@ namespace MasterOnline.Utils
                 var testing = "";
 #elif (DEV)
                 // START SETTING HANGFIRE PRO REDIS
-                Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("contoso5.redis.cache.windows.net,abortConnect=false,ssl=true,password=...");
+                //Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("mo-prod-redis.df2l2v.0001.apse1.cache.amazonaws.com,abortConnect=false,ssl=true,password=...");
+                //Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("127.0.0.1,abortConnect=false,ssl=true,password=...");
 
-                var optionsPrefix = new Hangfire.Pro.Redis.RedisStorageOptions
-                {
-                    Prefix = "hangfire:app1:"
-                };
+                //var optionsPrefix = new Hangfire.Pro.Redis.RedisStorageOptions
+                //{
+                //    Prefix = "hangfire:app1:",
+                //};
 
-                //Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("localhost:6379", optionsPrefix);
-                Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("mo-prod-redis.df2l2v.0001.apse1.cache.amazonaws.com:6379", optionsPrefix);
+                //Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("127.0.0.1:6379",
+                //    new RedisStorageOptions { Prefix = "{hangfire-1}:" });
+
+                //Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("127.0.0.1:6379", optionsPrefix);
+                //Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("mo-prod-redis.df2l2v.0001.apse1.cache.amazonaws.com:6379", optionsPrefix);
 
                 // END SETTING HANGFIRE PRO REDIS
 
@@ -67,16 +72,31 @@ namespace MasterOnline.Utils
                     if (!string.IsNullOrEmpty(item.DataSourcePath) && !string.IsNullOrEmpty(item.DatabasePathErasoft))
                     {
                         var EDB = new DatabaseSQL(item.DatabasePathErasoft);
-
+                        var erasoft = new ErasoftContext(item.DataSourcePath, item.DatabasePathErasoft);
+                        string sSQL = "select * from hangfire.server";
+                        var check = erasoft.Database.SqlQuery<HANGFIRE_SERVER>(sSQL).ToList();
                         string EDBConnID = EDB.GetConnectionString("ConnID");
                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
                         var monitoringApi = sqlStorage.GetMonitoringApi();
                         var serverList = monitoringApi.Servers();
 
-                        if (serverList.Count() == 0)
+                        if (check.Count() == 0)
                         {
-                            startHangfireServer(sqlStorage);
+                            //if (serverList.Count() == 0)
+                            //{
+                            //    startHangfireServer(sqlStorage);
+                            //}
+                            //else
+                            //{
+                                foreach (var server in serverList)
+                                {
+                                    var serverConnection = sqlStorage.GetConnection();
+                                    serverConnection.RemoveServer(server.Name);
+                                    serverConnection.Dispose();
+                                }
+                                startHangfireServer(sqlStorage);
+                            //}
                         }
                         else
                         {
@@ -221,5 +241,12 @@ namespace MasterOnline.Utils
         {
             Stop();
         }
+    }
+
+    public partial class HANGFIRE_SERVER
+    {
+        public string Id { get; set; }
+        public string Data { get; set; }
+        public DateTime LastHeartbeat { get; set; }
     }
 }

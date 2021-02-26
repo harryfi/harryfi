@@ -27,6 +27,10 @@ namespace MasterOnline.Controllers
 {
     public class AdminController : Controller
     {
+        //set parameter network location server IP Private
+        //public string IPServerLocation = "\\\\172.31.20.73\\MasterOnline\\";
+        public string IPServerLocation = "\\\\127.0.0.1\\MasterOnline\\"; // \\127.0.0.1\MasterOnline
+
         private readonly MoDbContext MoDbContext;
 
         //add for support MO by fauzi 24 November 2020
@@ -773,7 +777,7 @@ namespace MasterOnline.Controllers
                     message.To.Add(email);
                     message.From = new MailAddress("csmasteronline@gmail.com");
                     message.Subject = "Email Payment Subscription";
-                    message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/PaymentSubscription.html"))
+                    message.Body = System.IO.File.ReadAllText(IPServerLocation + "Content\\admin\\PaymentSubscription.html")
                         .Replace("EMAIL", Convert.ToString(email))
                         .Replace("TODAY", today)
                         .Replace("NAMA", nama)
@@ -859,8 +863,8 @@ namespace MasterOnline.Controllers
                 if (file != null && file.ContentLength > 0)
                 {
                     var fileName = Path.GetFileName(file.FileName);
-                    var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), fileName);
-                    marketVm.Marketplace.LokasiLogo = "~/Content/Uploaded/" + fileName;
+                    var path = Path.Combine(IPServerLocation + "Content\\Uploaded\\", fileName);
+                    marketVm.Marketplace.LokasiLogo = IPServerLocation + "\\Content\\Uploaded\\" + fileName;
                     file.SaveAs(path);
                 }
             }
@@ -2015,7 +2019,7 @@ namespace MasterOnline.Controllers
                 message.To.Add(email);
                 message.From = new MailAddress("csmasteronline@gmail.com");
                 message.Subject = "Pendaftaran Partner MasterOnline berhasil!";
-                message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/AffiliateTerms.html"))
+                message.Body = System.IO.File.ReadAllText(IPServerLocation + "Content\\admin\\AffiliateTerms.html")
                     .Replace("LINKPERSETUJUAN", Request.Url.GetLeftPart(UriPartial.Authority) + Url.Action("PartnerApproval", "Account", new { partnerId }));
                 message.IsBodyHtml = true;
 
@@ -3781,7 +3785,7 @@ namespace MasterOnline.Controllers
                 message.To.Add(email);
                 message.From = new MailAddress("csmasteronline@gmail.com");
                 message.Subject = "Pendaftaran Partner MasterOnline berhasil!";
-                message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/AffiliateTerms.html"))
+                message.Body = System.IO.File.ReadAllText(IPServerLocation + "Content\\admin\\AffiliateTerms.html")
                     .Replace("LINKPERSETUJUAN", Request.Url.GetLeftPart(UriPartial.Authority) + Url.Action("PartnerApproval", "Account", new { partnerId }));
                 message.IsBodyHtml = true;
 
@@ -4206,7 +4210,7 @@ namespace MasterOnline.Controllers
                     message.To.Add(email);
                     message.From = new MailAddress("csmasteronline@gmail.com");
                     message.Subject = "Email Payment Subscription";
-                    message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/PaymentSubscription.html"))
+                    message.Body = System.IO.File.ReadAllText(IPServerLocation + "Content\\admin\\PaymentSubscription.html")
                         .Replace("EMAIL", Convert.ToString(email))
                         .Replace("TODAY", today)
                         .Replace("NAMA", nama)

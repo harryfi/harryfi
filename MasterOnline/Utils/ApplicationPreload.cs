@@ -10,7 +10,7 @@ namespace MasterOnline.Utils
         public void Preload(string[] parameters)
         {
 #if (DEBUG || Debug_AWS)
-
+            HangfireBootstrapper.Instance.Start();
 #else
             HangfireBootstrapper.Instance.Start();
 #endif
