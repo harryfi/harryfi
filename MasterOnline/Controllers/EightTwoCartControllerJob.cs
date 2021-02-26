@@ -363,7 +363,14 @@ namespace MasterOnline.Controllers
             //Required parameters, other parameters can be add
             var postData = "apiKey=" + Uri.EscapeDataString(iden.API_key);
             postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
-            postData += "&name=" + Uri.EscapeDataString(brgInDb.NAMA);
+            if (!string.IsNullOrEmpty(brgInDb.NAMA2))
+            {
+                postData += "&name=" + Uri.EscapeDataString(brgInDb.NAMA + " " + brgInDb.NAMA2);
+            }
+            else
+            {
+                postData += "&name=" + Uri.EscapeDataString(brgInDb.NAMA);
+            }
             postData += "&reference=" + Uri.EscapeDataString(brgInDb.BRG);
             postData += "&active=" + Uri.EscapeDataString("1");
             postData += "&visibility=" + Uri.EscapeDataString("both");
@@ -700,7 +707,14 @@ namespace MasterOnline.Controllers
             var postData = "apiKey=" + Uri.EscapeDataString(iden.API_key);
             postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
             postData += "&id_product=" + Uri.EscapeDataString(splitBrg[0]);
-            postData += "&name=" + Uri.EscapeDataString(brgInDb.NAMA);
+            if (!string.IsNullOrEmpty(brgInDb.NAMA2))
+            {
+                postData += "&name=" + Uri.EscapeDataString(brgInDb.NAMA + " " + brgInDb.NAMA2);
+            }
+            else
+            {
+                postData += "&name=" + Uri.EscapeDataString(brgInDb.NAMA);
+            }
             postData += "&reference=" + Uri.EscapeDataString(brgInDb.BRG.Replace(";", ""));
             postData += "&active=" + Uri.EscapeDataString("1");
             postData += "&visibility=" + Uri.EscapeDataString("both");

@@ -1252,6 +1252,7 @@
                         document.getElementById("file_upload_excel").value = "";
 
                         if (response.statusSuccess == true && response.Errors.length > 0) {
+                            $('#loading_upload').hide();
                             var err = "";
                             for (i = 0; i < response.Errors.length; i++) {
                                 err += response.Errors[i] + "\n";
@@ -1264,6 +1265,7 @@
                         }
                     },
                     error: function (xhr, status, error) {
+                        $('#loading_upload').hide();
                         var err = "";
                         for (i = 0; i < response.Errors.length; i++) {
                             err += response.Errors[i] + "\n";
@@ -1278,7 +1280,7 @@
                         $('#pBar_uploadFile').html('0% Complete');
                     }
                 });
-
+                $('#loading_upload').hide();
             }
         }
 
