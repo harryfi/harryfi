@@ -1444,14 +1444,19 @@
 
         function refreshTableRekapBarang($pageAwal) {
             var $setPage = "";
-            if ($pageAwal == undefined) {
-                $setPage = $('#txt_last_page_2').val();
+            //if ($pageAwal == undefined) {
+            //    $setPage = $('#txt_last_page_2').val();
+            //} else {
+            //    if ($('#txt_last_page_2').val() == undefined) {
+            //        $setPage = $pageAwal;
+            //    } else {
+            //        $setPage = $('#txt_last_page_2').val();
+            //    }
+            //}
+            if ($pageAwal != undefined) {
+                $setPage = $pageAwal;
             } else {
-                if ($('#txt_last_page_2').val() == undefined) {
-                    $setPage = $pageAwal;
-                } else {
-                    $setPage = $('#txt_last_page_2').val();
-                }
+                $setPage = $('#txt_last_page_2').val();
             }
             var $link = '@Html.Raw(Url.Action("refreshTablePackinglistRekapBrg", "Manage", new { take = "replaceLastTake", page = "replaceLastPage", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter", drTgl = "replacedrTgl", sdTgl = "replacesdTgl" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_rekapbarang').val()));
@@ -1513,14 +1518,19 @@
 
         function refreshTablePackingList2($pageAwal) {
             var $setPage = "";
-            if ($pageAwal == undefined) {
-                $setPage = $('#txt_last_page').val();
+            //if ($pageAwal == undefined) {
+            //    $setPage = $('#txt_last_page').val();
+            //} else {
+            //    if ($('#txt_last_page').val() == undefined) {
+            //        $setPage = $pageAwal;
+            //    } else {
+            //        $setPage = $('#txt_last_page').val();
+            //    }
+            //}
+            if ($pageAwal != undefined) {
+                $setPage = $pageAwal;
             } else {
-                if ($('#txt_last_page').val() == undefined) {
-                    $setPage = $pageAwal;
-                } else {
-                    $setPage = $('#txt_last_page').val();
-                }
+                $setPage = $('#txt_last_page').val();
             }
             var $link = '@Html.Raw(Url.Action("refreshTablePackinglistV2", "Manage", new { take = "replaceLastTake", page = "replaceLastPage", search = "replaceSearch", drTgl = "replacedrTgl", sdTgl = "replacesdTgl" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_packing2list').val()));
