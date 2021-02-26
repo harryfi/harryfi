@@ -3325,6 +3325,356 @@ namespace MasterOnline.Controllers
         }
         //end add by fauzi
 
+        //add by fauzi 25 Februari 2021, download example template for upload invoice pembelian
+        public ActionResult ExampleTemplateInvoicePembelianExcel()
+        {
+            var ret = new BindDownloadExcel
+            {
+                Errors = new List<string>()
+            };
+
+            try
+            {
+                var dateNow = DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd");
+                var dateTGLTempo = DateTime.UtcNow.AddDays(3).AddHours(7).AddDays(2).ToString("yyyy-MM-dd");
+
+                using (var package = new OfficeOpenXml.ExcelPackage())
+                {
+                    ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("INVOICE_PEMBELIAN");
+
+                    // SHEET 1
+                    //initial for protected
+                    worksheet.Protection.IsProtected = true;
+                    worksheet.Column(1).Style.Locked = true;
+                    worksheet.Column(2).Style.Locked = false;
+                    worksheet.Column(3).Style.Locked = false;
+                    worksheet.Column(4).Style.Locked = false;
+                    worksheet.Column(5).Style.Locked = false;
+                    worksheet.Column(6).Style.Locked = false;
+                    worksheet.Column(7).Style.Locked = false;
+                    worksheet.Column(8).Style.Locked = false;
+                    worksheet.Column(9).Style.Locked = false;
+                    worksheet.Column(10).Style.Locked = false;
+                    worksheet.Column(11).Style.Locked = false;
+                    worksheet.Column(12).Style.Locked = false;
+                    worksheet.Column(13).Style.Locked = false;
+                    worksheet.Column(14).Style.Locked = false;
+                    worksheet.Column(15).Style.Locked = false;
+                    worksheet.Column(16).Style.Locked = false;
+                    worksheet.Column(17).Style.Locked = false;
+                    worksheet.Column(18).Style.Locked = false;
+                    worksheet.Column(19).Style.Locked = false;
+                    worksheet.Column(20).Style.Locked = false;
+                    worksheet.Column(21).Style.Locked = false;
+                    worksheet.Column(22).Style.Locked = false;
+                    worksheet.Column(23).Style.Locked = false;
+                    //worksheet.Column(24).Style.Locked = false;
+
+                    using (var rangePackage = worksheet.Cells[2, 1])
+                    {
+                        rangePackage.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Yellow);
+                    }
+
+                    using (var rangePackage = worksheet.Cells[4, 1])
+                    {
+                        rangePackage.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Silver);
+                    }
+
+                    using (var rangePackage = worksheet.Cells[4, 2, 4, 9])
+                    {
+                        rangePackage.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Yellow);
+                    }
+
+                    using (var rangePackage = worksheet.Cells[4, 11])
+                    {
+                        rangePackage.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Yellow);
+                    }
+
+                    using (var rangePackage = worksheet.Cells[4, 15, 4, 17])
+                    {
+                        rangePackage.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Yellow);
+                    }
+
+                    using (var rangePackage = worksheet.Cells[4, 19, 4, 20])
+                    {
+                        rangePackage.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Yellow);
+                    }
+
+                    using (var rangePackage = worksheet.Cells[4, 22])
+                    {
+                        rangePackage.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Yellow);
+                    }
+
+                    worksheet.Cells["A2"].Value = "Contoh Pengisian";
+                    worksheet.Cells["A3"].Value = "Nomor Bukti";
+                    worksheet.Cells["B3"].Value = "Tanggal";
+                    worksheet.Cells["C3"].Value = "KODE SUPPLIER";
+                    worksheet.Cells["D3"].Value = "TERM OF PAYMENT";
+                    worksheet.Cells["E3"].Value = "PPN (%)";
+                    worksheet.Cells["F3"].Value = "NILAI PPN";
+                    worksheet.Cells["G3"].Value = "ONGKOS KIRIM";
+                    worksheet.Cells["H3"].Value = "KODE BARANG";
+                    worksheet.Cells["I3"].Value = "NAMA BARANG";
+                    worksheet.Cells["J3"].Value = "GUDANG";
+                    worksheet.Cells["K3"].Value = "QTY";
+                    worksheet.Cells["L3"].Value = "HARGA SATUAN";
+                    worksheet.Cells["M3"].Value = "TOTAL NILAI DISC";
+                    worksheet.Cells["N3"].Value = "TOTAL";
+
+                    //ISI ROW 1
+                    worksheet.Cells["A3"].Value = "PB2100001";
+                    worksheet.Cells["B3"].Value = "2021-01-07";
+                    worksheet.Cells["C3"].Value = "PT X";
+                    worksheet.Cells["D3"].Value = "10";
+                    worksheet.Cells["E3"].Value = "10";
+                    worksheet.Cells["F3"].Value = "2900";
+                    worksheet.Cells["G3"].Value = "10000";
+                    worksheet.Cells["H3"].Value = "ABC";
+                    worksheet.Cells["I3"].Value = "BATERE ABC";
+                    worksheet.Cells["J3"].Value = "001";
+                    worksheet.Cells["K3"].Value = "1";
+                    worksheet.Cells["L3"].Value = "15000";
+                    worksheet.Cells["M3"].Value = "0";
+                    worksheet.Cells["N3"].Value = "15000";
+
+                    //ISI ROW 2
+                    worksheet.Cells["A3"].Value = "PB2100001";
+                    worksheet.Cells["B3"].Value = "2021-01-07";
+                    worksheet.Cells["C3"].Value = "PT X";
+                    worksheet.Cells["D3"].Value = "10";
+                    worksheet.Cells["E3"].Value = "10";
+                    worksheet.Cells["F3"].Value = "2900";
+                    worksheet.Cells["G3"].Value = "10000";
+                    worksheet.Cells["H3"].Value = "ALKALINE";
+                    worksheet.Cells["I3"].Value = "BATERE ALKALINE";
+                    worksheet.Cells["J3"].Value = "001";
+                    worksheet.Cells["K3"].Value = "1";
+                    worksheet.Cells["L3"].Value = "14000";
+                    worksheet.Cells["M3"].Value = "0";
+                    worksheet.Cells["N3"].Value = "14000";
+
+                    //ISI ROW 3
+                    worksheet.Cells["A3"].Value = "PB2100002";
+                    worksheet.Cells["B3"].Value = "2021-01-07";
+                    worksheet.Cells["C3"].Value = "PT X";
+                    worksheet.Cells["D3"].Value = "10";
+                    worksheet.Cells["E3"].Value = "0";
+                    worksheet.Cells["F3"].Value = "0";
+                    worksheet.Cells["G3"].Value = "9000";
+                    worksheet.Cells["H3"].Value = "ALKALINE";
+                    worksheet.Cells["I3"].Value = "BATERE ABC";
+                    worksheet.Cells["J3"].Value = "001";
+                    worksheet.Cells["K3"].Value = "1";
+                    worksheet.Cells["L3"].Value = "15000";
+                    worksheet.Cells["M3"].Value = "0";
+                    worksheet.Cells["N3"].Value = "15000";
+
+                    //add formula
+
+
+                    for (int i = 0; i < 5; i++)
+                    {
+                        //worksheet.Cells["X" + (5 + i)].Formula = "=S" + (5 + i) + "*R" + (5 + i) + "";
+                        //worksheet.Cells["U" + (5 + i)].Formula = "=S" + (5 + i) + "*T" + (5 + i) + "/100";
+                        //worksheet.Cells["W" + (5 + i)].Formula = "=S" + (5 + i) + "*V" + (5 + i) + "/100";
+
+
+                        worksheet.Cells[5 + i, 1].Value = "-"; //NO_PESANAN
+                        worksheet.Cells[5 + i, 2].Value = ""; //NO_REFERENSI
+                        worksheet.Cells[5 + i, 3].Value = dateNow; //TGL 
+                        worksheet.Cells[5 + i, 4].Value = "-- Silahkan Pilih Marketplace --"; //MARKETPLACE
+                        //worksheet.Cells[5 + i, 5].Value = "001028"; //KODE_PEMBELI
+                        worksheet.Cells[5 + i, 5].Value = ""; //PEMBELI
+                        worksheet.Cells[5 + i, 6].Value = ""; //ALAMAT_KIRIM
+                        worksheet.Cells[5 + i, 7].Value = ""; //NO TELEPHONE
+                        worksheet.Cells[5 + i, 8].Value = "-- Silahkan Pilih Kurir --"; //KURIR
+                        worksheet.Cells[5 + i, 9].Value = "2"; //TOP
+                        //worksheet.Cells[5 + i, 9].Value = dateTGLTempo; //TGL_JATUH_TEMPO
+                        worksheet.Cells[5 + i, 10].Value = ""; //KETERANGAN
+                        worksheet.Cells[5 + i, 11].Value = 0; //BRUTO
+                        worksheet.Cells[5 + i, 12].Value = 0; //DISC
+                        worksheet.Cells[5 + i, 13].Value = 0; //PPN
+                        worksheet.Cells[5 + i, 14].Value = 0; //NILAI_PPN
+                        worksheet.Cells[5 + i, 15].Value = 0; //ONGKOS_KIRIM
+                        worksheet.Cells[5 + i, 16].Value = 0; //NETTO
+                        //worksheet.Cells[5 + i, 17].Value = "SUDAH BAYAR"; //STATUS_PESANAN
+                        worksheet.Cells[5 + i, 17].Value = ""; //KODE_BRG
+                        worksheet.Cells[5 + i, 18].Value = ""; //NAMA_BARANG
+                        worksheet.Cells[5 + i, 19].Value = 0; //QTY
+                        worksheet.Cells[5 + i, 20].Value = 0; //HARGA_SATUAN
+                        //worksheet.Cells[5 + i, 21].Value = 20; //DISC1
+                        worksheet.Cells[5 + i, 21].Value = 0; //NDISC1
+                        //worksheet.Cells[5 + i, 22].Value = 30; //DISC2
+                        //worksheet.Cells[5 + i, 23].Value = 0; //NDISC2
+                        worksheet.Cells[5 + i, 22].Value = 0;//TOTAL
+                    }
+
+                    ExcelRange rg0 = worksheet.Cells[4, 1, worksheet.Dimension.End.Row, 22];
+                    string tableName0 = "TablePesanan";
+                    ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
+
+                    table0.Columns[0].Name = "NO PESANAN";
+                    table0.Columns[1].Name = "NO REFERENSI";
+                    table0.Columns[2].Name = "TGL";
+                    table0.Columns[3].Name = "MARKETPLACE";
+                    //table0.Columns[4].Name = "KODE PEMBELI";
+                    table0.Columns[4].Name = "PEMBELI";
+                    table0.Columns[5].Name = "ALAMAT KIRIM";
+                    table0.Columns[6].Name = "NO TELP PEMBELI";
+                    table0.Columns[7].Name = "KURIR";
+                    table0.Columns[8].Name = "TOP";
+                    //table0.Columns[8].Name = "TGL JATUH TEMPO";
+                    table0.Columns[9].Name = "KETERANGAN";
+                    table0.Columns[10].Name = "BRUTO";
+                    table0.Columns[11].Name = "DISC";
+                    table0.Columns[12].Name = "PPN";
+                    table0.Columns[13].Name = "NILAI PPN";
+                    table0.Columns[14].Name = "ONGKOS KIRIM";
+                    table0.Columns[15].Name = "NETTO";
+                    //table0.Columns[16].Name = "STATUS PESANAN";
+                    table0.Columns[16].Name = "KODE BRG";
+                    table0.Columns[17].Name = "NAMA BARANG";
+                    table0.Columns[18].Name = "QTY";
+                    table0.Columns[19].Name = "HARGA SATUAN";
+                    //table0.Columns[20].Name = "DISC1";
+                    table0.Columns[20].Name = "NDISC1";
+                    //table0.Columns[22].Name = "DISC2";
+                    //table0.Columns[23].Name = "NDISC2";
+                    table0.Columns[21].Name = "TOTAL";
+
+                    using (var range = worksheet.Cells[4, 1, 4, 22])
+                    {
+                        range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                        range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                        range.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                        range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    }
+
+                    table0.ShowHeader = true;
+                    table0.ShowFilter = true;
+                    table0.ShowRowStripes = false;
+                    worksheet.Cells.AutoFitColumns(0);
+                    //END SHEET 1
+
+
+                    // SHEET 2
+                    var sheet2 = worksheet.Workbook.Worksheets.Add("master_marketplace_kurir");
+
+                    sheet2.Cells[2, 1].Value = "MARKETPLACES";
+                    sheet2.Cells[2, 6].Value = "EXPEDITIONS";
+
+                    // MARKETPLACES
+                    var sSQL = "SELECT ISNULL(A.CUST, '') AS KODE_MP, ISNULL(B.NAMAMARKET, '') + '(' + ISNULL(A.PERSO, '') + ')' AS MARKETPLACE " +
+                        "FROM ARF01 A (NOLOCK) " +
+                        "LEFT JOIN MO..MARKETPLACE B(NOLOCK) ON A.NAMA = B.IDMARKET";
+
+                    var resultMarketplace = EDB.GetDataSet("CString", "ARF01", sSQL);
+                    if (resultMarketplace.Tables[0].Rows.Count > 0)
+                    {
+                        for (int j = 0; j < resultMarketplace.Tables[0].Rows.Count; j++)
+                        {
+                            sheet2.Cells[4 + j, 1].Value = resultMarketplace.Tables[0].Rows[j]["KODE_MP"];
+                            sheet2.Cells[4 + j, 2].Value = resultMarketplace.Tables[0].Rows[j]["KODE_MP"] + ";" + resultMarketplace.Tables[0].Rows[j]["MARKETPLACE"];
+                        }
+                    }
+
+                    var validation = worksheet.DataValidations.AddListValidation(worksheet.Cells[5, 4, worksheet.Dimension.End.Row, 4].Address);
+                    validation.ShowErrorMessage = true;
+                    validation.ErrorStyle = ExcelDataValidationWarningStyle.warning;
+                    validation.ErrorTitle = "An invalid value was entered";
+                    validation.Formula.ExcelFormula = string.Format("=master_marketplace_kurir!${0}${1}:${2}${3}", "B", 4, "B", 3 + resultMarketplace.Tables[0].Rows.Count);
+
+                    using (var range = sheet2.Cells[3, 1, 3, 2])
+                    {
+                        range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                        range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                        range.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                        range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                        range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        range.Style.Fill.BackgroundColor.SetColor(Color.Orange);
+                    }
+
+                    ExcelRange rg = sheet2.Cells[3, 1, worksheet.Dimension.End.Row, 2];
+                    string tableName = "TableMarketplace";
+                    ExcelTable table = sheet2.Tables.Add(rg, tableName);
+                    table.Columns[0].Name = "KODE_MP";
+                    table.Columns[1].Name = "MARKETPLACE";
+                    table.ShowHeader = true;
+                    table.ShowFilter = true;
+                    table.ShowRowStripes = false;
+                    // END MARKETPLACES
+
+                    // EXPEDITIONS
+                    var dataKurir = MoDbContext.Ekspedisi.ToList();
+                    if (dataKurir != null)
+                    {
+                        var j = 0;
+                        foreach (var itemKurir in dataKurir)
+                        {
+                            sheet2.Cells[4 + j, 6].Value = itemKurir.RecNum;
+                            sheet2.Cells[4 + j, 7].Value = itemKurir.RecNum + ";" + itemKurir.NamaEkspedisi;
+                            j += 1;
+                        }
+                    }
+
+                    var validation2 = worksheet.DataValidations.AddListValidation(worksheet.Cells[5, 8, worksheet.Dimension.End.Row, 8].Address);
+                    validation2.ShowErrorMessage = true;
+                    validation2.ErrorStyle = ExcelDataValidationWarningStyle.warning;
+                    validation2.ErrorTitle = "An invalid value was entered";
+                    validation2.Formula.ExcelFormula = string.Format("=master_marketplace_kurir!${0}${1}:${2}${3}", "G", 4, "G", 3 + dataKurir.Count());
+
+                    using (var range = sheet2.Cells[3, 6, 3, 7])
+                    {
+                        range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                        range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                        range.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                        range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                        range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        range.Style.Fill.BackgroundColor.SetColor(Color.Orange);
+                    }
+
+                    ExcelRange rg2 = sheet2.Cells[3, 6, worksheet.Dimension.End.Row, 8];
+                    string tableName2 = "TableExpeditions";
+                    ExcelTable table2 = sheet2.Tables.Add(rg2, tableName2);
+                    table2.Columns[0].Name = "KODE KURIR";
+                    table2.Columns[1].Name = "NAMA KURIR";
+                    table2.ShowHeader = true;
+                    table2.ShowFilter = true;
+                    table2.ShowRowStripes = false;
+                    //END EXPEDITIONS
+
+                    ret.byteExcel = package.GetAsByteArray();
+                    ret.namaFile = username + "_template_upload_pesanan.xlsx";
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+            }
+
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(ret),
+                ContentType = "application/json"
+            };
+
+            return result;
+
+        }
+        //end add by fauzi
+
         //add by Indra 03 apr 2020, download faktur
         public ActionResult ListFakturtoExcel(string drtgl, string sdtgl)
         {
