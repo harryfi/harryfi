@@ -77,6 +77,12 @@ namespace MasterOnline.ViewModels
         public List<listBarangMarket_NotFound> ListBarangMarket_NotFound { get; set; } = new List<listBarangMarket_NotFound>();
         public bool notfoundBundling { get; set; }
         //end add by nurul 24/3/2020
+
+        //add by nurul 25/2/2021
+        public string urlTlp_faktur { get; set; }
+        public string urlalamat_faktur { get; set; }
+        public string urlKet_faktur { get; set; }
+        //add by nurul 25/2/2021
     }
 
     public class CetakLabelViewModel

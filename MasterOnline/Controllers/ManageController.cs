@@ -19407,11 +19407,12 @@ namespace MasterOnline.Controllers
             public string STATUS { get; set; }
         }
 
-        public ActionResult RefreshTableFaktur1(int? page, string search = "", string filter = "", string filtervalue = "")
+        public ActionResult RefreshTableFaktur1(string take, int? page, string search = "", string filter = "", string filtervalue = "")
         {
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
+            ViewData["takeRecord"] = take;
 
             //ADD BY NURUL 27/9/2019
             string[] getkata = search.Split(' ');
@@ -19618,8 +19619,10 @@ namespace MasterOnline.Controllers
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_FAKTUR DESC ";
             }
             //end add by nurul 16/6/2020
-            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
-            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+            //sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            //sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * Convert.ToInt32(take)) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT " + take + " ROWS ONLY ";
 
             var listFakturNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLTemp + sSQLFirstSelect + sSQLSelect + sSQL2 + sSQLWhere + sSQLEndSelect + sSQLSelect2).ToList();
             //var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
@@ -19647,7 +19650,8 @@ namespace MasterOnline.Controllers
                 }
             }
 
-            IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listFakturNew, pagenumber + 1, 10, totalCount.JUMLAH);
+            //IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listFakturNew, pagenumber + 1, 10, totalCount.JUMLAH);
+            IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listFakturNew, pagenumber + 1, Convert.ToInt32(take), totalCount.JUMLAH);
             return PartialView("TableFakturPartial", pageOrders);
         }
 
@@ -27633,7 +27637,7 @@ namespace MasterOnline.Controllers
         }
 
         //add by nurul 10/1/2020, cetak label di faktur
-        public ActionResult CetakLabelMoFaktur(string[] rows_selected, string toko, string tlpToko, string kertas, string ctkFaktur, string ctkLabel, string alLink, string noLink, string mpLink, string nobukLink, string totalLink, string namaLink, string ketLink, string logoLink, string refLink)
+        public ActionResult CetakLabelMoFaktur(string[] rows_selected, string toko, string tlpToko, string kertas, string ctkFaktur, string ctkLabel, string alLink, string noLink, string mpLink, string nobukLink, string totalLink, string namaLink, string ketLink, string logoLink, string refLink, string tlp_fakturLink, string alamat_fakturLink, string ket_fakturLink)
         {
             try
             {
@@ -27684,7 +27688,7 @@ namespace MasterOnline.Controllers
                 //sSQL2 += "LEFT JOIN ARF01C J ON J.BUYER_CODE = D.PEMESAN ";
                 sSQL2 += "LEFT JOIN (SELECT A.BUYER_CODE,A.NAMA,A.TLP,ISNULL(A.NAMA_KABKOT,ISNULL(C.NAMAKABKOT,''))NAMA_KABKOT,ISNULL(A.NAMA_PROV,ISNULL(B.NAMAPROV,'')) NAMA_PROV,ISNULL(A.KODEPOS,'')KODEPOS,ISNULL(A.AL,'')AL FROM ARF01C A LEFT JOIN MO..PROVINSI B ON A.KODEPROV=B.KODEPROV LEFT JOIN MO..KabupatenKota C ON A.KODEKABKOT=C.KODEKABKOT) J ON J.BUYER_CODE = D.PEMESAN ";
                 string sSQLSelect2 = "";
-                sSQLSelect2 += "WHERE A.RECNUM IN (" + string_recnum + ") ";
+                sSQLSelect2 += "WHERE A.RECNUM IN (" + string_recnum + ") AND ISNULL(A.STATUS,'') <>'2' ";
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
 
                 var ListSot01a = ErasoftDbContext.Database.SqlQuery<tempLabel>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
@@ -27720,6 +27724,10 @@ namespace MasterOnline.Controllers
                     urlLabel = ctkLabel,
                     urlKet = ketLink,
                     urlLogo = logoLink,
+
+                    urlTlp_faktur = tlp_fakturLink,
+                    urlalamat_faktur = alamat_fakturLink,
+                    urlKet_faktur = ket_fakturLink,
                 };
 
                 var listSi = ListSot01a.Select(p => p.si_bukti).ToList();
@@ -27946,6 +27954,12 @@ namespace MasterOnline.Controllers
                         {
                             logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-SAP-LAND.jpg";
                         }
+                        //add by nurul 25/2/2021
+                        else
+                        {
+                            logoKurir = "-";
+                        }
+                        //end add by nurul 25/2/2021
                     }
                     //end add by nurul 5/2/2021
 
@@ -60738,7 +60752,7 @@ namespace MasterOnline.Controllers
         //end by fauzi
 
         //add by nurul 11/12/2019, cetak label pesanan
-        public ActionResult CetakLabelMo(string cust, string bukti, string[] rows_selected, string toko, string tlpToko, string ctkLabel, string alLink, string noLink, string namaLink, string mpLink, string nobukLink, string totalLink, string portLink, string refLink, List<tempBarcodeLazada> data, string ketLink, string logoLink)
+        public ActionResult CetakLabelMo(string cust, string bukti, string[] rows_selected, string toko, string tlpToko, string ctkLabel, string alLink, string noLink, string namaLink, string mpLink, string nobukLink, string totalLink, string portLink, string refLink, List<tempBarcodeLazada> data, string ketLink, string logoLink, string tlp_fakturLink, string alamat_fakturLink, string ket_fakturLink, string ctkFaktur)
         {
             try
             {
@@ -60822,6 +60836,11 @@ namespace MasterOnline.Controllers
                     urlLabel = ctkLabel,
                     urlKet = ketLink,
                     urlLogo = logoLink,
+                    
+                    urlFaktur = ctkFaktur,
+                    urlTlp_faktur = tlp_fakturLink,
+                    urlalamat_faktur = alamat_fakturLink,
+                    urlKet_faktur = ket_fakturLink,
                 };
 
                 var listSi = ListSot01a.Select(p => p.si_bukti).ToList();
@@ -61060,6 +61079,12 @@ namespace MasterOnline.Controllers
                         {
                             logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-SAP-LAND.jpg";
                         }
+                        //add by nurul 25/2/2021
+                        else
+                        {
+                            logoKurir = "-";
+                        }
+                        //end add by nurul 25/2/2021
                     }
                     //end add by nurul 5/2/2021
 

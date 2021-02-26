@@ -119,7 +119,14 @@
                 }
                 <tr data-barang-id="@order.no_bukti">
                     <td style="text-align:center">
-                        <input type="checkbox" class="dt-checkboxes center checkbox_packing_82cart" data-cust="@order.CUST" data-recnum="@order.so_recnum" data-bukti="@order.no_bukti" style="align-self:flex-start; width:30px; height:28px;" />
+                        @if (order.status_kirim == "5")
+                        {
+                            <input type="checkbox" class="dt-checkboxes center" style="align-self:flex-start; width:30px; height:28px;" disabled="disabled" />
+                        }
+                        else
+                        {
+                            <input type="checkbox" class="dt-checkboxes center checkbox_packing_82cart" data-cust="@order.CUST" data-recnum="@order.so_recnum" data-bukti="@order.no_bukti" style="align-self:flex-start; width:30px; height:28px;" />
+                        }
                     </td>
                     <td>@order.no_bukti</td>
                     <td>@order.no_referensi</td>
