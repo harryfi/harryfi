@@ -100,6 +100,106 @@
         });
     }
 
+    //add by nurul 26/2/2021
+    function TokopediaGetFakturPerPacking(cust) {
+        var rows_selected = [];
+        var row_bukti = [];
+        $('.checkbox_packing_tokped').each(function () {
+            if ($(this).attr("data-cust") == cust && $(this).is(":checked")) {
+                rows_selected.push($(this).attr("data-recnum"));
+                var bukti = $(this).attr("data-bukti") + " ";
+                row_bukti.push(bukti);
+            }
+        });
+
+        if (row_bukti.length > 0) {
+
+            $('#modalPrintFakturOption__' + cust).modal({
+                show: true,
+                backdrop: 'static',
+                keyboard: false
+            });
+            $('#cetak_faktur__' + cust).text(row_bukti.length);
+            $('#ctk_alamat_faktur__' + cust).attr('checked', true);
+            $('#ctk_tlp_faktur__' + cust).attr('checked', true);
+            $('#ctk_ket_faktur__' + cust).attr('checked', true);
+
+            $('#btn-print-faktur2__' + cust).off('click').on('click', function () {
+                var toko = $('#nama_toko_faktur__' + cust).val();
+                var tlpToko = $('#tlp_toko_faktur__' + cust).val();
+                var alamat_faktur = "0";
+                var tlp_faktur = "0";
+                var ket_faktur = "0";
+
+                if ($("#ctk_alamat_faktur__" + cust).is(":checked") == true) {
+                    alamat_faktur = "1";
+                } else if ($("#ctk_alamat_faktur__" + cust).is(":checked") == false) {
+                    alamat_faktur = "0";
+                }
+                if ($('#ctk_tlp_faktur__' + cust).is(":checked") == true) {
+                    tlp_faktur = "1";
+                } else if ($('#ctk_tlp_faktur__' + cust).is(":checked") == false) {
+                    tlp_faktur = "0";
+                }
+                if ($('#ctk_ket_faktur__' + cust).is(":checked") == true) {
+                    ket_faktur = "1";
+                } else if ($('#ctk_ket_faktur__' + cust).is(":checked") == false) {
+                    ket_faktur = "0";
+                }
+                
+                $('#modalPrintTokped__faktur__' + cust).html('Print Faktur MasterOnline');
+                $('#modalPrintTokped__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
+                $('#modalPrintTokped__' + cust).modal({
+                    show: true,
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                
+                $postdata2 = {
+                    cust: cust,
+                    bukti: $('#packingList_NO_BUKTI').val(),
+                    rows_selected: rows_selected,
+                    toko: toko,
+                    tlptoko: tlpToko,
+                    ctkFaktur: "1",
+                    tlp_fakturLink: tlp_faktur,
+                    alamat_fakturLink: alamat_faktur,
+                    ket_fakturLink: ket_faktur
+                };
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("CetakLabelMo", "Manage")',
+                    contentType: "application/json; charset=UTF-8",
+                    cache: false,
+                    data: JSON.stringify($postdata2),
+                    success: function (response) {
+                        if (response != null) {
+                            if (response.mo_error == null) {
+                                $('#modalPrintFakturOption__' + cust).modal('hide');
+                                $('#modalPrintTokped__' + cust).modal('hide');
+                                var w = window.open('about:blank');
+                                w.document.open();
+                                w.document.write(response);
+                                w.document.close();
+                            } else {
+                                $('#modalPrintFakturOption__' + cust).modal('hide');
+                                $('#modalPrintTokped__textarea__' + cust).html(response.mo_error);
+                                alert(response.mo_error);
+                            }
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#modalPrintFakturOption__' + cust).modal('hide');
+                        console.log(error);
+                    }
+                });
+            });
+
+        } else {
+            alert("Mohon pilih pesanan yang mau diproses.");
+        }
+    }
+    //end add by nurul 26/2/2021
     //add by nurul
     function TokopediaGetLabelPerPacking(cust, label) {
 
@@ -292,7 +392,8 @@
                         backdrop: 'static',
                         keyboard: false
                     });
-                    $('#cetak_label__' + cust).text(row_bukti);
+                    //$('#cetak_label__' + cust).text(row_bukti);
+                    $('#cetak_label__' + cust).text(row_bukti.length);
                     $('#ctk_alamat__' + cust).attr('checked', true);
                     $('#ctk_tlp__' + cust).attr('checked', true);
                     $('#ctk_nama__' + cust).attr('checked', true);
@@ -1051,16 +1152,16 @@
                         <div class="modal-content " style="margin:auto;height:470px;width:650px;overflow-y:auto">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                <h4 class="modal-title" id="printOptionLabel__@(item.CUST)">Cetak Label</h4>
+                                <h4 class="modal-title" id="printOptionLabel__@(item.CUST)">Print Label</h4>
                                 <hr />
                                 <div>
-                                    <h5>Apakah Anda yakin ingin mencetak label <span class="cetak_label" id="cetak_label__@(item.CUST)"></span>?</h5>
+                                    <h5>Apakah Anda yakin ingin mencetak <span class="cetak_label" id="cetak_label__@(item.CUST)"></span> label?</h5>
                                 </div>
                             </div>
                             <div class="modal-body">
                                 <div class="row">
                                     <div class="col-md-4" style="text-align:left">
-                                        <label>Nama Toko(Dropship) </label>
+                                        <label>Nama Toko (Dropship) </label>
                                     </div>
                                     <div class="col-md-6" style="text-align:left">
                                         <input id="nama_toko__@(item.CUST)" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
@@ -1070,7 +1171,7 @@
                                 <br />
                                 <div class="row">
                                     <div class="col-md-4" style="text-align:left">
-                                        <label>No Telepon Toko(Dropship) </label>
+                                        <label>No Telepon Toko (Dropship) </label>
                                     </div>
                                     <div class="col-md-6" style="text-align:left">
                                         <input id="tlp_toko__@(item.CUST)" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
@@ -1080,7 +1181,7 @@
                                 <br />
                                 <div class="row">
                                     <div class="col-md-4" style="text-align:left">
-                                        <label>Pilihan Cetak : </label>
+                                        <label>Pengaturan Label : </label>
                                     </div>
                                     <div class="col-md-8"></div>
                                 </div>
@@ -1186,7 +1287,98 @@
                                     <div class="col-md-1">
                                     </div>
                                     <div class="col-md-10" style="padding-top:10px">
-                                        <button id="btn-print-faktur__@(item.CUST)" type="button" class="btn btn-success btn-block">Cetak</button>
+                                        <button id="btn-print-faktur__@(item.CUST)" type="button" class="btn btn-success btn-block">Print</button>
+                                    </div>
+                                    <div class="col-md-1">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="modalPrintFakturOption__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="printOptionFaktur__@(item.CUST)">
+                    <div class="modal-dialog" id="modal-print-option" role="document">
+                        <div class="modal-content " style="margin:auto;height:350px;width:650px;overflow-y:auto">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="printOptionFaktur__@(item.CUST)">Print Faktur</h4>
+                                <hr />
+                                <div>
+                                    <h5>Apakah Anda yakin ingin mencetak <span class="cetak_label" id="cetak_faktur__@(item.CUST)"></span> faktur?</h5>
+                                </div>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-4" style="text-align:left">
+                                        <label>Nama Toko (Dropship) </label>
+                                    </div>
+                                    <div class="col-md-6" style="text-align:left">
+                                        <input id="nama_toko_faktur__@(item.CUST)" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
+                                    </div>
+                                    <div class="col-md-2"></div>
+                                </div>
+                                <br />
+                                <div class="row">
+                                    <div class="col-md-4" style="text-align:left">
+                                        <label>No Telepon Toko (Dropship) </label>
+                                    </div>
+                                    <div class="col-md-6" style="text-align:left">
+                                        <input id="tlp_toko_faktur__@(item.CUST)" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
+                                    </div>
+                                    <div class="col-md-2"></div>
+                                </div>
+                                <br />
+                                <div class="row">
+                                    <div class="col-md-4" style="text-align:left">
+                                        <label>Pengaturan Faktur : </label>
+                                    </div>
+                                    <div class="col-md-8"></div>
+                                </div>
+                                <div class="row option-cetak-faktur">
+                                    <div class="col-md-2">
+                                    </div>
+                                    <div class="col-md-1" style="padding-bottom:10px">
+                                        <label class="checkbox-container">
+                                            <input id="ctk_alamat_faktur__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                            <span id="ctk_alamat_faktur__@(item.CUST)" class="checkmark"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-3" style="padding-top: 7px;">
+                                        Alamat Toko
+                                    </div>
+                                    <div class="col-md-1" style="padding-bottom:10px">
+                                        <label class="checkbox-container">
+                                            <input id="ctk_tlp_faktur__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                            <span id="ctk_tlp_faktur__@(item.CUST)" class="checkmark"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-3" style="padding-top: 7px;">
+                                        Telepon Toko
+                                    </div>
+                                    <div class="col-md-2">
+                                    </div>
+                                </div>
+                                <div class="row option-cetak-faktur">
+                                    <div class="col-md-2">
+                                    </div>
+                                    <div class="col-md-1" style="padding-bottom:10px">
+                                        <label class="checkbox-container">
+                                            <input id="ctk_ket_faktur__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                            <span id="ctk_ket_faktur__@(item.CUST)" class="checkmark"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-3" style="padding-top: 7px;">
+                                        Catatan Pembeli
+                                    </div>
+                                    <div class="col-md-1">
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="row">
+                                    <div class="col-md-1">
+                                    </div>
+                                    <div class="col-md-10" style="padding-top:10px">
+                                        <button id="btn-print-faktur2__@(item.CUST)" type="button" class="btn btn-success btn-block">Print</button>
                                     </div>
                                     <div class="col-md-1">
                                     </div>
@@ -1264,6 +1456,9 @@
                                     </button>
                                     <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnPrintMOTokopedia__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="TokopediaGetLabelPerPacking('@(item.CUST)','2')">
                                         <span aria-hidden="true"> Label MasterOnline</span>
+                                    </button>
+                                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnPrintFakturMOTokopedia__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="TokopediaGetFakturPerPacking('@(item.CUST)')">
+                                        <span aria-hidden="true"> Faktur MasterOnline</span>
                                     </button>
                                 </div>
                             </div>

@@ -67,6 +67,7 @@
         @*<table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">*@
         <thead>
             <tr role="row">
+                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 40px; align-self:flex-start"><input type="checkbox" class="dt-checkboxes-select-all" id="all_checkbox_print" style="margin-top: 20px; align-self:flex-start; width:30px; height:28px;" /></th>
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 90px;">No. Faktur</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tanggal Faktur</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 90px;">Marketplace</th>
@@ -82,7 +83,7 @@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 60px;">Posting</th>
                 <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 60px;">Edit / Lihat</th>
                 @*add by nurul 3/12/2018*@
-                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 90px; ">Cetak Faktur</th>
+                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 90px; ">Print</th>
                 @*end add by nurul*@
                 <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px;">Hapus</th>
             </tr>
@@ -125,6 +126,16 @@
 
 
             <tr>
+                <td style="text-align:center;">
+                    @if (faktur.STATUS == "11")
+                    {
+                        <input type="checkbox" class="dt-checkboxes center" id="chekbox-@(faktur.RECNUM)" style="align-self:flex-start; width:30px; height:28px;" disabled="disabled" />
+                    }
+                    else
+                    {
+                        <input type="checkbox" class="dt-checkboxes center checkbox_print" id="chekbox-@(faktur.RECNUM)" data-recnum="@faktur.RECNUM" data-bukti="@faktur.NO_FAKTUR" style="align-self:flex-start; width:30px; height:28px;" />
+                    }
+                </td>
                 <td>@faktur.NO_FAKTUR</td>
                 <td>@(faktur.TGL?.ToString("dd/MM/yyyy"))</td>
                 @*<td>@NamaMarket</td>*@
@@ -190,29 +201,41 @@
                 </td>
                 <td class="edit-hapus-col">
                     @*@if (generatedFaktur == null)
-            {
-                <button class="btn btn-primary buat_faktur" onclick="buatFaktur(@pesanan.RecNum)">
-                    <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
-                </button>
-            }
-            else
-            {*@
-                    <button class="btn btn-primary lihat_faktur" onclick="cetakFaktur('@(faktur.NO_FAKTUR)', '@(faktur.RECNUM)')">
-                        @*<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>*@
-                        <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
-                    </button>
+        {
+            <button class="btn btn-primary buat_faktur" onclick="buatFaktur(@pesanan.RecNum)">
+                <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+            </button>
+        }
+        else
+        {*@
+                    @*<button class="btn btn-primary lihat_faktur" onclick="cetakFaktur('@(faktur.NO_FAKTUR)', '@(faktur.RECNUM)', '1')">
+            <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
+        </button>*@
                     @*}*@
+
+                    @if (faktur.STATUS == "11")
+                    {
+                        <button class="btn btn-primary" disabled="disabled">
+                            <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-primary lihat_faktur" onclick="cetakFaktur('@(faktur.NO_FAKTUR)', '@(faktur.RECNUM)', '1')">
+                            <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
+                        </button>
+                    }
                 </td>
                 <td class="edit-hapus-col">
                     @if (faktur.STATUS == "04" || Convert.ToString(faktur.POSTING) == "Y" || faktur.PEMBAYARAN != "")
                     {
-                        <button class="btn btn-danger" onclick="undeleteableFaktur()">
+                        <button class="btn btn-danger hapus-faktur" onclick="undeleteableFaktur()">
                             <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                         </button>
                     }
                     else
                     {
-                        <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusFaktur" onclick="pass(@faktur.RECNUM)">
+                        <button class="btn btn-danger hapus-faktur" data-toggle="modal" data-target="#konfHapusFaktur" onclick="pass(@faktur.RECNUM)">
                             <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                         </button>
                     }
@@ -230,7 +253,8 @@
             @Html.PagedListPager(Model, page => Url.Action("RefreshTableFaktur1", new
        {
            page,
-           search = ViewData["searchParam"]
+           search = ViewData["searchParam"],
+           take = ViewData["takeRecord"],
        }),
             new PagedListRenderOptions
             {
@@ -246,7 +270,58 @@
     }
 </div>
     <script type="text/javascript">
-        $(function () {
+        $(document).ready(function () {
+            $("#all_checkbox_print").click(function () {
+                $(".checkbox_print").prop('checked',
+                    $(this).prop('checked'));
+                var countCheck = $(".checkbox_print").length;
+                if ($("#all_checkbox_print").prop('checked') == true) {
+                    $(".hapus-faktur").attr('disabled', 'disabled');
+                    $(".lihat_faktur").attr('disabled', 'disabled');
+                    $('#text-check-faktur').text(countCheck + ' Faktur Terpilih');
+                } else {
+                    $(".hapus-faktur").removeAttr('disabled');
+                    $(".lihat_faktur").removeAttr('disabled');
+                    $('#text-check-faktur').text('');
+                }
+            });
+            $(".checkbox_print").each(function (i, item) {
+                $(item).off('click').on('click', function () {
+                    var countCheckDetail = 0;
+                    if ($(item).prop('checked') == true) {
+                        $(".hapus-faktur").attr('disabled', 'disabled');
+                        $(".lihat_faktur").attr('disabled', 'disabled');
+                        var cekTrue = [];
+                        $(".checkbox_print").each(function (z, chk) {
+                            if ($(chk).prop('checked') == true) {
+                                cekTrue.push($(chk).attr("data-recnum"));
+                            }
+                        });
+                        if (cekTrue.length == 0) {
+                            $('#text-check-faktur').text('');
+                        } else {
+                            countCheckDetail = cekTrue.length;
+                            $('#text-check-faktur').text(countCheckDetail + ' Faktur Terpilih');
+                        }
+                    } else {
+                        var cekTrue = [];
+                        $(".checkbox_print").each(function (z, chk) {
+                            if ($(chk).prop('checked') == true) {
+                                cekTrue.push($(chk).attr("data-recnum"));
+                            }
+                        });
+                        if (cekTrue.length == 0) {
+                            $(".hapus-faktur").removeAttr('disabled');
+                            $(".lihat_faktur").removeAttr('disabled');
+                            $('#text-check-faktur').text('');
+                        } else {
+                            countCheckDetail = cekTrue.length;
+                            $('#text-check-faktur').text(countCheckDetail + ' Faktur Terpilih');
+                        }
+                    }
+                });
+            });
+
             $('#tabelfakturpartialpager').on('click', 'a', function () {
                 if (this.href != "") {
                     //add by nurul 16/6/2020
@@ -275,6 +350,36 @@
                 return false;
 
             });
+        });
+        $(function () {
+            //$('#tabelfakturpartialpager').on('click', 'a', function () {
+            //    if (this.href != "") {
+            //        //add by nurul 16/6/2020
+            //        var filterby = get_faktur_filterby();
+            //        var filtervalue = get_faktur_filtervalue(filterby);
+            //        var link = this.href;
+            //        link += "&filter=replaceFilter&filtervalue=replaceValueFilter";
+            //        link = link.replace("replaceFilter", encodeURIComponent(filterby));
+            //        link = link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+            //        //end add by nurul 16/6/2020
+
+            //        $.ajax({
+            //            //url: this.href,
+            //            url: link,
+            //            type: 'GET',
+            //            cache: false,
+            //            beforeSend: function () {
+            //                $('#loading_faktur_tab').show();
+            //            },
+            //            success: function (response) {
+            //                $('#table-faktur-partial').html(response);
+            //                $('#loading_faktur_tab').hide();
+            //            }
+            //        });
+            //    }
+            //    return false;
+
+            //});
         });
     </script>
     @* end add by nurul 15/5/2019, paging *@

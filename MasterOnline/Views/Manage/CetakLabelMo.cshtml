@@ -93,6 +93,7 @@
         .fake_page {
             background-color: #fff;
             padding: 10px;
+            padding-top:5px;
         }
 
         .bold_title {
@@ -207,7 +208,7 @@
                                     <div class="row fake_page" id="fake_page">
                                         <div class="row" hidden="hidden">
                                             <div class="col-md-12">
-                                                <button id="print-btn" class="btn btn-success pull-right">Cetak</button>
+                                                <button id="print-btn" class="btn btn-success pull-right">Print</button>
                                             </div>
                                         </div>
                                         <div hidden="hidden">
@@ -217,261 +218,835 @@
                                         </div>
                                         @if (CetakFaktur == "1")
                                         {
-                                        <div class="div_faktur ">
-                                            <div class="row" style="width:650px !important;">
-                                                <div class="col-md-12">
-                                                    <table cellpadding="0">
+                                            if (CetakLabel == "1")
+                                            {
+                                                <div class="div_faktur">
+                                                    <div class="row" style="width:650px !important;">
+                                                        <div class="col-md-12">
+                                                            <table cellpadding="0" style="width:619px !important;">
+                                                                <tr>
+                                                                    <td>
+                                                                        <table class="table-hover" style="width:619px !important;">
+                                                                            @*<tr style="width:650px !important;">*@
+                                                                            <tr>
+                                                                                @*@if (labelList.linktoko != null && labelList.linktoko != "")
+                                                {
+                                                    <td style="text-align:left; width:325px !important; padding-left:10px !important;">
+                                                        <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.linktoko)</span></h1></div>
+                                                    </td>
+                                                }
+                                                else
+                                                {
+                                                    <td style="text-align:left; width:325px !important; padding-left:10px !important;">
+                                                        <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.NamaToko)</span></h1></div>
+                                                    </td>
+                                                }
+                                                <td style="text-align:right; width:325px !important">
+                                                    <h1 class="bold_title_invoice" style="margin-right:10px; padding-top:unset">INVOICE</h1>
+                                                </td>*@
+                                                                                <td>
+                                                                                    <div class="col-md-9" style="width: 440px !important;">
+                                                                                        @if (labelList.linktoko != null && labelList.linktoko != "")
+                                                                                        {
+                                                                                            <div style="text-align:left; ">
+                                                                                                <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.linktoko)</span></h1></div>
+                                                                                            </div>
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            <div style="text-align:left; ">
+                                                                                                <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.NamaToko)</span></h1></div>
+                                                                                            </div>
+                                                                                        }
+                                                                                    </div>
+                                                                                    <div class="col-md-3 pull-right">
+                                                                                        <div style="text-align:right;">
+                                                                                            <h1 class="bold_title_invoice" style="margin-right:10px; padding-top:unset">INVOICE</h1>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                            @if (Model?.urlalamat_faktur != null && Model?.urlalamat_faktur == "1")
+                                                                            {
+                                                                                <tr style="width:650px !important;">
+                                                                                    <td colspan="2">
+                                                                                        <div id="alamat_faktur" class="col-md-12 alamat_faktur"><span>@labelList.AlamatToko</span></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            }
+                                                                            @if (Model?.urlTlp_faktur != null && Model?.urlTlp_faktur == "1")
+                                                                            {
+                                                                                <tr style="width:650px !important;">
+                                                                                    @if (labelList.linktlptoko != null && labelList.linktlptoko != "")
+                                                                                    {
+                                                                                        <td colspan="2">
+                                                                                            <div id="tlp_faktur" class="col-md-12 tlp_faktur"><span class="tlp_toko"> @(labelList.linktlptoko == null ? "" : labelList.linktlptoko)</span></div>
+                                                                                        </td>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <td colspan="2">
+                                                                                            <div id="tlp_faktur" class="col-md-12 tlp_faktur"><span class="tlp_toko"> @(labelList.TlpToko == null ? "" : labelList.TlpToko)</span></div>
+                                                                                        </td>
+                                                                                    }
+                                                                                </tr>
+                                                                            }
+                                                                        </table>
+                                                                    </td>
+                                                                </tr>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                    @*<br />*@
+                                                    <table style="width:619px !important;">
                                                         <tr>
                                                             <td>
                                                                 <table class="table-hover">
-                                                                    <tr style="width:650px !important;">
-                                                                        @if (labelList.linktoko != null && labelList.linktoko != "")
-                                                                        {
-                                                                            <td style="text-align:left; width:325px !important; padding-left:10px !important;">
-                                                                                <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.linktoko)</span></h1></div>
-                                                                            </td>
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            <td style="text-align:left; width:325px !important; padding-left:10px !important;">
-                                                                                <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.NamaToko)</span></h1></div>
-                                                                            </td>
-                                                                        }
-                                                                        <td style="text-align:right; width:325px !important">
-                                                                            <h1 class="bold_title_invoice" style="margin-right:10px; padding-top:unset">INVOICE</h1>
+                                                                    <tr>
+                                                                        <td style="text-align:left; background-color:lightskyblue; width:300px  !important;">
+                                                                            <span class="block_subtitle" style="color:white;  font-size:16px; text-decoration-line:underline; margin-left:10px">BILL TO</span>
+                                                                        </td>
+                                                                        <td style="text-align:center; width:19px  !important;"></td>
+                                                                        <td style="width:150px  !important; background-color:lightskyblue; text-align:center">
+                                                                            <span class="block_subtitle" style="color:white;  font-size:16px; text-decoration-line:underline">INVOICE #</span>
+                                                                        </td>
+                                                                        <td style="width:150px  !important; background-color:lightskyblue ; text-align:center">
+                                                                            <span class="block_subtitle" style="color:white; font-size:16px; text-decoration-line:underline">DATE</span>
                                                                         </td>
                                                                     </tr>
-                                                                    @if (Model?.urlAl != null && Model?.urlAl == "1")
-                                                                    {
-                                                                        <tr style="width:650px !important;">
-                                                                            <td colspan="2">
-                                                                                <div id="alamat_faktur" class="col-md-12 alamat_faktur"><span>@labelList.AlamatToko</span></div>
-                                                                            </td>
-                                                                        </tr>
-                                                                    }
-                                                                    @if (Model?.urlTlp != null && Model?.urlTlp == "1")
-                                                                    {
-                                                                        <tr style="width:650px !important;">
-                                                                            @if (labelList.linktlptoko != null && labelList.linktlptoko != "")
-                                                                            {
-                                                                                <td colspan="2">
-                                                                                    <div id="tlp_faktur" class="col-md-12 tlp_faktur"><span class="tlp_toko"> @(labelList.linktlptoko == null ? "" : labelList.linktlptoko)</span></div>
-                                                                                </td>
-                                                                            }
-                                                                            else
-                                                                            {
-                                                                                <td colspan="2">
-                                                                                    <div id="tlp_faktur" class="col-md-12 tlp_faktur"><span class="tlp_toko"> @(labelList.TlpToko == null ? "" : labelList.TlpToko)</span></div>
-                                                                                </td>
-                                                                            }
-                                                                        </tr>
-                                                                    }
+                                                                    <tr>
+                                                                        <td style="width:300px  !important;">
+                                                                            <span class="block_subtitle" style="margin-left:10px">Pembeli</span> @(labelList.namaPembeli)
+                                                                        </td>
+                                                                        <td style="text-align:center; width:19px !important;"></td>
+                                                                        <td style="width:150px !important; text-align:center">
+                                                                            <span class="block_subtitle">@(labelList.Faktur.NO_BUKTI)</span>
+                                                                        </td>
+                                                                        <td style="width:150px !important; text-align:center">
+                                                                            <span class="block_subtitle">@(labelList.Faktur.TGL.ToString("dd/MM/yyyy"))</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>
+                                                                            <span class="block_subtitle" style="margin-left:10px">Telepon</span> @(labelList.tlpPembeli)
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="text-align:left; background-color:lightskyblue; width:300px !important;">
+                                                                            <span class="block_subtitle" style="color:white; width:100px; font-size:16px; text-decoration-line:underline; margin-left:10px">NO REFERENSI</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>
+                                                                            <span class="block_subtitle" style="margin-left:10px">Nomor</span> @(labelList.noRef == null || labelList.noRef == "" ? "-" : labelList.noRef)
+                                                                        </td>
+                                                                    </tr>
                                                                 </table>
                                                             </td>
                                                         </tr>
                                                     </table>
+                                                    <table class="table" style="width:619px !important;">
+                                                        <tr style="width:619px !important;">
+                                                            <th>No</th>
+                                                            <th>Nama Barang</th>
+                                                            <th>Lokasi Rak</th>
+                                                            <th style="text-align: right;">Jumlah Barang</th>
+                                                            <th style="text-align: right;">Harga Barang</th>
+                                                            <th style="text-align: right;">Diskon</th>
+                                                            <th style="text-align: right;">Subtotal</th>
+                                                        </tr>
+                                                        <tbody class="barang-faktur" style="width:619px !important;">
+                                                            @foreach (var fakturDetail in labelList.ListFakturDetail)
+                                                            {
+                                                                //change by nurul 15/9/2020
+                                                                //var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA;
+                                                                //var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA2;
+                                                                //var discTotal = fakturDetail.NILAI_DISC ?? 0;
+                                                                //var merk = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.Sort2;
+                                                                //var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.STN2;
+                                                                //var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail);
+
+                                                                var tempBrgBaru = fakturDetail.BRG_MULTISKU != null && fakturDetail.BRG_MULTISKU != "" ? fakturDetail.BRG_MULTISKU : fakturDetail.BRG;
+                                                                var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA;
+                                                                var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA2;
+                                                                var discTotal = fakturDetail.NILAI_DISC ?? 0;
+                                                                var merk = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.Sort2;
+                                                                var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.STN2;
+                                                                var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail);
+                                                                //end change by nurul 15/9/2020
+                                                                fakturNo = fakturNo + 1;
+
+                                                                //add by nurul 5/2/2021
+                                                                var rak = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.LKS;
+                                                                //end add by nurul 5/2/2021
+                                                                <tr>
+                                                                    <td>@fakturNo</td>
+                                                                    <td style="width:219px !important;">
+                                                                        @namaBarang1
+                                                                        @if (!String.IsNullOrWhiteSpace(namaBarang2))
+                                                                        {
+                                                                            @namaBarang2
+                                                                        }
+                                                                    </td>
+                                                                    <td>
+                                                                        @if (!string.IsNullOrEmpty(rak))
+                                                                        {
+                                                                            @rak
+                                                                        }
+                                                                    </td>
+                                                                    <td style="text-align: right;width:100px !important;">
+                                                                        @fakturDetail.QTY @satuan
+                                                                    </td>
+                                                                    <td style="text-align: right;width:100px !important;">
+                                                                        @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", fakturDetail.H_SATUAN)
+                                                                    </td>
+                                                                    <td style="text-align: right;width:100px !important;">
+                                                                        @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", discTotal)
+                                                                    </td>
+                                                                    <td style="text-align: right;width:100px !important;">
+                                                                        @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", fakturDetail.HARGA)
+                                                                    </td>
+                                                                </tr>
+                                                                if (labelList.Marketplace.ToUpper() == "TOKOPEDIA" && ketTokped != "-")
+                                                                {
+                                                                    if (Model.urlKet_faktur != null && Model?.urlKet_faktur == "1")
+                                                                    {
+                                                                        <tr style="border-top:hidden;">
+                                                                            <td colspan="6">
+                                                                                <table>
+                                                                                    <tr>
+                                                                                        <th width="60px">Catatan</th>
+                                                                                        <td>@ketTokped</td>
+                                                                                    </tr>
+                                                                                </table>
+                                                                            </td>
+                                                                        </tr>
+                                                                    }
+                                                                }
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                    <hr style="width:619px !important;" />
+                                                    @*//ADD BY NURUL 15/5/2020*@
+                                                    @if (labelList.Marketplace.ToUpper() == "SHOPEE" && !string.IsNullOrEmpty(labelList.Ket) && labelList.Ket.Length > 0)
+                                                    {
+                                                        if (Model.urlKet != null && Model?.urlKet == "1")
+                                                        {
+                                                            <diV>
+                                                                @*<span class="block_subtitle_label">Catatan</span> @(labelList.Ket == null || labelList.Ket == "" ? "-" : labelList.Ket)*@
+                                                                <table>
+                                                                    <tr>
+                                                                        <th width="60px">Catatan</th>
+                                                                        <td>@(labelList.Ket == null || labelList.Ket == "" ? "-" : labelList.Ket)</td>
+                                                                    </tr>
+                                                                </table>
+                                                            </diV>
+                                                            <hr style="width:619px !important;" />
+                                                        }
+                                                    }
+                                                    @*//END ADD BY NURUL 15/5/2020*@
+                                                    <table class="table-hover rincian_faktur" id="rincian_faktur" style="width:619px !important;">
+                                                        <thead>
+                                                            <tr>
+                                                                <td style="width: 160px; "></td>
+                                                                <td style="width: 160px;"></td>
+                                                                <td style="width: 100px; ">Subtotal</td>
+                                                                <td style="width: 100px; "></td>
+                                                                <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", labelList?.Faktur?.BRUTO)</td>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td style="width: 160px; "></td>
+                                                                <td style="width: 160px;"></td>
+                                                                <td style="width: 100px; ">Nilai Diskon</td>
+                                                                <td style="width: 100px; "></td>
+                                                                <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "- {0:N}", labelList?.Faktur?.NILAI_DISC)</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="width: 160px; "></td>
+                                                                <td style="width: 160px;"></td>
+                                                                <td style="width: 100px; ">Nilai PPN (@(Model?.Faktur?.PPN)%)</td>
+                                                                <td style="width: 100px; "></td>
+                                                                <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "+ {0:N}", labelList?.Faktur?.NILAI_PPN)</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="width: 160px; "></td>
+                                                                <td style="width: 160px;"></td>
+                                                                <td style="width: 100px; border-bottom:groove;">Ongkos Kirim</td>
+                                                                <td style="width: 100px; border-bottom:groove;"></td>
+                                                                <td style="width: 109px; border-bottom:groove; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "+ {0:N}", labelList?.Faktur?.MATERAI)</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="width: 160px; "></td>
+                                                                <td style="width: 160px;"></td>
+                                                                <td style="width: 100px; border-bottom:groove;">TOTAL</td>
+                                                                <td style="width: 100px; border-bottom:groove;"></td>
+                                                                <td style="width: 109px; border-bottom:groove; text-align: right; ">Rp. @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", labelList?.Faktur?.NETTO)</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
                                                 </div>
-                                            </div>
-                                            <br />
-                                            <table style="width:619px !important;">
-                                                <tr>
-                                                    <td>
-                                                        <table class="table-hover">
-                                                            <tr>
-                                                                <td style="text-align:left; background-color:lightskyblue; width:300px  !important;">
-                                                                    <span class="block_subtitle" style="color:white;  font-size:16px; text-decoration-line:underline; margin-left:10px">BILL TO</span>
-                                                                </td>
-                                                                <td style="text-align:center; width:19px  !important;"></td>
-                                                                <td style="width:150px  !important; background-color:lightskyblue; text-align:center">
-                                                                    <span class="block_subtitle" style="color:white;  font-size:16px; text-decoration-line:underline">INVOICE #</span>
-                                                                </td>
-                                                                <td style="width:150px  !important; background-color:lightskyblue ; text-align:center">
-                                                                    <span class="block_subtitle" style="color:white; font-size:16px; text-decoration-line:underline">DATE</span>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td style="width:300px  !important;">
-                                                                    <span class="block_subtitle" style="margin-left:10px">Pembeli</span> @(labelList.namaPembeli)
-                                                                </td>
-                                                                <td style="text-align:center; width:19px !important;"></td>
-                                                                <td style="width:150px !important; text-align:center">
-                                                                    <span class="block_subtitle">@(labelList.Faktur.NO_BUKTI)</span>
-                                                                </td>
-                                                                <td style="width:150px !important; text-align:center">
-                                                                    <span class="block_subtitle">@(labelList.Faktur.TGL.ToString("dd/MM/yyyy"))</span>
-                                                                </td>
-                                                            </tr>
+                                                <br />
+                                                
+                                                    <div id="div_gunting" class="row div_gunting" style="width:650px !important;">
+                                                        <div class="col-md-1">
+                                                            <span style="font-size: 20px">&#9986;</span>
+                                                        </div>
+                                                        <div class="col-md-11">
+                                                            <hr id="garis_potong" />
+                                                        </div>
+                                                        <br />
+                                                    </div>
+                                                
+                                            }
+                                            else
+                                            {
+                                                if (cekLastOrder == labelList.Faktur.NO_SO)
+                                                {
+                                                    <div class="div_faktur" style="page-break-after:avoid;">
+                                                        <div class="row" style="width:650px !important;">
+                                                            <div class="col-md-12">
+                                                                <table cellpadding="0" style="width:619px !important;">
+                                                                    <tr>
+                                                                        <td>
+                                                                            <table class="table-hover" style="width:619px !important;">
+                                                                                @*<tr style="width:650px !important;">*@
+                                                                                <tr>
+                                                                                    @*@if (labelList.linktoko != null && labelList.linktoko != "")
+                                                    {
+                                                        <td style="text-align:left; width:325px !important; padding-left:10px !important;">
+                                                            <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.linktoko)</span></h1></div>
+                                                        </td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td style="text-align:left; width:325px !important; padding-left:10px !important;">
+                                                            <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.NamaToko)</span></h1></div>
+                                                        </td>
+                                                    }
+                                                    <td style="text-align:right; width:325px !important">
+                                                        <h1 class="bold_title_invoice" style="margin-right:10px; padding-top:unset">INVOICE</h1>
+                                                    </td>*@
+                                                                                    <td>
+                                                                                        <div class="col-md-9" style="width: 440px !important;">
+                                                                                            @if (labelList.linktoko != null && labelList.linktoko != "")
+                                                                                            {
+                                                                                                <div style="text-align:left; ">
+                                                                                                    <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.linktoko)</span></h1></div>
+                                                                                                </div>
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                <div style="text-align:left; ">
+                                                                                                    <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.NamaToko)</span></h1></div>
+                                                                                                </div>
+                                                                                            }
+                                                                                        </div>
+                                                                                        <div class="col-md-3 pull-right">
+                                                                                            <div style="text-align:right;">
+                                                                                                <h1 class="bold_title_invoice" style="margin-right:10px; padding-top:unset">INVOICE</h1>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                @if (Model?.urlalamat_faktur != null && Model?.urlalamat_faktur == "1")
+                                                                                {
+                                                                                    <tr style="width:650px !important;">
+                                                                                        <td colspan="2">
+                                                                                            <div id="alamat_faktur" class="col-md-12 alamat_faktur"><span>@labelList.AlamatToko</span></div>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                }
+                                                                                @if (Model?.urlTlp_faktur != null && Model?.urlTlp_faktur == "1")
+                                                                                {
+                                                                                    <tr style="width:650px !important;">
+                                                                                        @if (labelList.linktlptoko != null && labelList.linktlptoko != "")
+                                                                                        {
+                                                                                            <td colspan="2">
+                                                                                                <div id="tlp_faktur" class="col-md-12 tlp_faktur"><span class="tlp_toko"> @(labelList.linktlptoko == null ? "" : labelList.linktlptoko)</span></div>
+                                                                                            </td>
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            <td colspan="2">
+                                                                                                <div id="tlp_faktur" class="col-md-12 tlp_faktur"><span class="tlp_toko"> @(labelList.TlpToko == null ? "" : labelList.TlpToko)</span></div>
+                                                                                            </td>
+                                                                                        }
+                                                                                    </tr>
+                                                                                }
+                                                                            </table>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                        @*<br />*@
+                                                        <table style="width:619px !important;">
                                                             <tr>
                                                                 <td>
-                                                                    <span class="block_subtitle" style="margin-left:10px">Telepon</span> @(labelList.tlpPembeli)
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td style="text-align:left; background-color:lightskyblue; width:300px !important;">
-                                                                    <span class="block_subtitle" style="color:white; width:100px; font-size:16px; text-decoration-line:underline; margin-left:10px">NO REFERENSI</span>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>
-                                                                    <span class="block_subtitle" style="margin-left:10px">Nomor</span> @(labelList.noRef == null || labelList.noRef == "" ? "-" : labelList.noRef)
+                                                                    <table class="table-hover">
+                                                                        <tr>
+                                                                            <td style="text-align:left; background-color:lightskyblue; width:300px  !important;">
+                                                                                <span class="block_subtitle" style="color:white;  font-size:16px; text-decoration-line:underline; margin-left:10px">BILL TO</span>
+                                                                            </td>
+                                                                            <td style="text-align:center; width:19px  !important;"></td>
+                                                                            <td style="width:150px  !important; background-color:lightskyblue; text-align:center">
+                                                                                <span class="block_subtitle" style="color:white;  font-size:16px; text-decoration-line:underline">INVOICE #</span>
+                                                                            </td>
+                                                                            <td style="width:150px  !important; background-color:lightskyblue ; text-align:center">
+                                                                                <span class="block_subtitle" style="color:white; font-size:16px; text-decoration-line:underline">DATE</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td style="width:300px  !important;">
+                                                                                <span class="block_subtitle" style="margin-left:10px">Pembeli</span> @(labelList.namaPembeli)
+                                                                            </td>
+                                                                            <td style="text-align:center; width:19px !important;"></td>
+                                                                            <td style="width:150px !important; text-align:center">
+                                                                                <span class="block_subtitle">@(labelList.Faktur.NO_BUKTI)</span>
+                                                                            </td>
+                                                                            <td style="width:150px !important; text-align:center">
+                                                                                <span class="block_subtitle">@(labelList.Faktur.TGL.ToString("dd/MM/yyyy"))</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td>
+                                                                                <span class="block_subtitle" style="margin-left:10px">Telepon</span> @(labelList.tlpPembeli)
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td style="text-align:left; background-color:lightskyblue; width:300px !important;">
+                                                                                <span class="block_subtitle" style="color:white; width:100px; font-size:16px; text-decoration-line:underline; margin-left:10px">NO REFERENSI</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td>
+                                                                                <span class="block_subtitle" style="margin-left:10px">Nomor</span> @(labelList.noRef == null || labelList.noRef == "" ? "-" : labelList.noRef)
+                                                                            </td>
+                                                                        </tr>
+                                                                    </table>
                                                                 </td>
                                                             </tr>
                                                         </table>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                            <table class="table" style="width:619px !important;">
-                                                <tr style="width:619px !important;">
-                                                    <th>No</th>
-                                                    <th>Nama Barang</th>
-                                                    <th>Lokasi Rak</th>
-                                                    <th style="text-align: right;">Jumlah Barang</th>
-                                                    <th style="text-align: right;">Harga Barang</th>
-                                                    <th style="text-align: right;">Diskon</th>
-                                                    <th style="text-align: right;">Subtotal</th>
-                                                </tr>
-                                                <tbody class="barang-faktur" style="width:619px !important;">
-                                                    @foreach (var fakturDetail in labelList.ListFakturDetail)
-                                                    {
-                                                        //change by nurul 15/9/2020
-                                                        //var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA;
-                                                        //var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA2;
-                                                        //var discTotal = fakturDetail.NILAI_DISC ?? 0;
-                                                        //var merk = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.Sort2;
-                                                        //var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.STN2;
-                                                        //var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail);
-
-                                                        var tempBrgBaru = fakturDetail.BRG_MULTISKU != null && fakturDetail.BRG_MULTISKU != "" ? fakturDetail.BRG_MULTISKU : fakturDetail.BRG;
-                                                        var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA;
-                                                        var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA2;
-                                                        var discTotal = fakturDetail.NILAI_DISC ?? 0;
-                                                        var merk = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.Sort2;
-                                                        var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.STN2;
-                                                        var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail);
-                                                        //end change by nurul 15/9/2020
-                                                        fakturNo = fakturNo + 1;
-
-                                                        //add by nurul 5/2/2021
-                                                        var rak = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.LKS;
-                                                        //end add by nurul 5/2/2021
-                                                        <tr>
-                                                            <td>@fakturNo</td>
-                                                            <td style="width:219px !important;">
-                                                                @namaBarang1
-                                                                @if (!String.IsNullOrWhiteSpace(namaBarang2))
+                                                        <table class="table" style="width:619px !important;">
+                                                            <tr style="width:619px !important;">
+                                                                <th>No</th>
+                                                                <th>Nama Barang</th>
+                                                                <th>Lokasi Rak</th>
+                                                                <th style="text-align: right;">Jumlah Barang</th>
+                                                                <th style="text-align: right;">Harga Barang</th>
+                                                                <th style="text-align: right;">Diskon</th>
+                                                                <th style="text-align: right;">Subtotal</th>
+                                                            </tr>
+                                                            <tbody class="barang-faktur" style="width:619px !important;">
+                                                                @foreach (var fakturDetail in labelList.ListFakturDetail)
                                                                 {
-                                                                    @namaBarang2
+                                                                    //change by nurul 15/9/2020
+                                                                    //var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA;
+                                                                    //var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA2;
+                                                                    //var discTotal = fakturDetail.NILAI_DISC ?? 0;
+                                                                    //var merk = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.Sort2;
+                                                                    //var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.STN2;
+                                                                    //var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail);
+
+                                                                    var tempBrgBaru = fakturDetail.BRG_MULTISKU != null && fakturDetail.BRG_MULTISKU != "" ? fakturDetail.BRG_MULTISKU : fakturDetail.BRG;
+                                                                    var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA;
+                                                                    var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA2;
+                                                                    var discTotal = fakturDetail.NILAI_DISC ?? 0;
+                                                                    var merk = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.Sort2;
+                                                                    var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.STN2;
+                                                                    var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail);
+                                                                    //end change by nurul 15/9/2020
+                                                                    fakturNo = fakturNo + 1;
+
+                                                                    //add by nurul 5/2/2021
+                                                                    var rak = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.LKS;
+                                                                    //end add by nurul 5/2/2021
+                                                                    <tr>
+                                                                        <td>@fakturNo</td>
+                                                                        <td style="width:219px !important;">
+                                                                            @namaBarang1
+                                                                            @if (!String.IsNullOrWhiteSpace(namaBarang2))
+                                                                            {
+                                                                                @namaBarang2
+                                                                            }
+                                                                        </td>
+                                                                        <td>
+                                                                            @if (!string.IsNullOrEmpty(rak))
+                                                                            {
+                                                                                @rak
+                                                                            }
+                                                                        </td>
+                                                                        <td style="text-align: right;width:100px !important;">
+                                                                            @fakturDetail.QTY @satuan
+                                                                        </td>
+                                                                        <td style="text-align: right;width:100px !important;">
+                                                                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", fakturDetail.H_SATUAN)
+                                                                        </td>
+                                                                        <td style="text-align: right;width:100px !important;">
+                                                                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", discTotal)
+                                                                        </td>
+                                                                        <td style="text-align: right;width:100px !important;">
+                                                                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", fakturDetail.HARGA)
+                                                                        </td>
+                                                                    </tr>
+                                                                    if (labelList.Marketplace.ToUpper() == "TOKOPEDIA" && ketTokped != "-")
+                                                                    {
+                                                                        if (Model.urlKet_faktur != null && Model?.urlKet_faktur == "1")
+                                                                        {
+                                                                            <tr style="border-top:hidden;">
+                                                                                <td colspan="6">
+                                                                                    <table>
+                                                                                        <tr>
+                                                                                            <th width="60px">Catatan</th>
+                                                                                            <td>@ketTokped</td>
+                                                                                        </tr>
+                                                                                    </table>
+                                                                                </td>
+                                                                            </tr>
+                                                                        }
+                                                                    }
                                                                 }
-                                                            </td>
-                                                            <td>
-                                                                @if (!string.IsNullOrEmpty(rak))
-                                                                {
-                                                                    @rak
-                                                                }
-                                                            </td>
-                                                            <td style="text-align: right;width:100px !important;">
-                                                                @fakturDetail.QTY @satuan
-                                                            </td>
-                                                            <td style="text-align: right;width:100px !important;">
-                                                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", fakturDetail.H_SATUAN)
-                                                            </td>
-                                                            <td style="text-align: right;width:100px !important;">
-                                                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", discTotal)
-                                                            </td>
-                                                            <td style="text-align: right;width:100px !important;">
-                                                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", fakturDetail.HARGA)
-                                                            </td>
-                                                        </tr>
-                                                        if (labelList.Marketplace.ToUpper() == "TOKOPEDIA" && ketTokped != "-")
+                                                            </tbody>
+                                                        </table>
+                                                        <hr style="width:619px !important;" />
+                                                        @*//ADD BY NURUL 15/5/2020*@
+                                                        @if (labelList.Marketplace.ToUpper() == "SHOPEE" && !string.IsNullOrEmpty(labelList.Ket) && labelList.Ket.Length > 0)
                                                         {
                                                             if (Model.urlKet != null && Model?.urlKet == "1")
                                                             {
-                                                                <tr style="border-top:hidden;">
-                                                                    <td colspan="6">
-                                                                        <table>
-                                                                            <tr>
-                                                                                <th width="60px">Catatan</th>
-                                                                                <td>@ketTokped</td>
-                                                                            </tr>
-                                                                        </table>
-                                                                    </td>
-                                                                </tr>
+                                                                <diV>
+                                                                    @*<span class="block_subtitle_label">Catatan</span> @(labelList.Ket == null || labelList.Ket == "" ? "-" : labelList.Ket)*@
+                                                                    <table>
+                                                                        <tr>
+                                                                            <th width="60px">Catatan</th>
+                                                                            <td>@(labelList.Ket == null || labelList.Ket == "" ? "-" : labelList.Ket)</td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </diV>
+                                                                <hr style="width:619px !important;" />
                                                             }
                                                         }
-                                                    }
-                                                </tbody>
-                                            </table>
-                                            <hr style="width:619px !important;" />
-                                            @*//ADD BY NURUL 15/5/2020*@
-                                            @if (labelList.Marketplace.ToUpper() == "SHOPEE" && labelList.Ket.Length > 0)
-                                            {
-                                                if (Model.urlKet != null && Model?.urlKet == "1")
+                                                        @*//END ADD BY NURUL 15/5/2020*@
+                                                        <table class="table-hover rincian_faktur" id="rincian_faktur" style="width:619px !important;">
+                                                            <thead>
+                                                                <tr>
+                                                                    <td style="width: 160px; "></td>
+                                                                    <td style="width: 160px;"></td>
+                                                                    <td style="width: 100px; ">Subtotal</td>
+                                                                    <td style="width: 100px; "></td>
+                                                                    <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", labelList?.Faktur?.BRUTO)</td>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td style="width: 160px; "></td>
+                                                                    <td style="width: 160px;"></td>
+                                                                    <td style="width: 100px; ">Nilai Diskon</td>
+                                                                    <td style="width: 100px; "></td>
+                                                                    <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "- {0:N}", labelList?.Faktur?.NILAI_DISC)</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="width: 160px; "></td>
+                                                                    <td style="width: 160px;"></td>
+                                                                    <td style="width: 100px; ">Nilai PPN (@(Model?.Faktur?.PPN)%)</td>
+                                                                    <td style="width: 100px; "></td>
+                                                                    <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "+ {0:N}", labelList?.Faktur?.NILAI_PPN)</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="width: 160px; "></td>
+                                                                    <td style="width: 160px;"></td>
+                                                                    <td style="width: 100px; border-bottom:groove;">Ongkos Kirim</td>
+                                                                    <td style="width: 100px; border-bottom:groove;"></td>
+                                                                    <td style="width: 109px; border-bottom:groove; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "+ {0:N}", labelList?.Faktur?.MATERAI)</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="width: 160px; "></td>
+                                                                    <td style="width: 160px;"></td>
+                                                                    <td style="width: 100px; border-bottom:groove;">TOTAL</td>
+                                                                    <td style="width: 100px; border-bottom:groove;"></td>
+                                                                    <td style="width: 109px; border-bottom:groove; text-align: right; ">Rp. @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", labelList?.Faktur?.NETTO)</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                    <br />
+                                                    
+                                                }
+                                                else
                                                 {
-                                                    <diV>
-                                                        @*<span class="block_subtitle_label">Catatan</span> @(labelList.Ket == null || labelList.Ket == "" ? "-" : labelList.Ket)*@
-                                                        <table>
+                                                    <div class="div_faktur" style="page-break-after:always;">
+                                                        <div class="row" style="width:650px !important;">
+                                                            <div class="col-md-12">
+                                                                <table cellpadding="0" style="width:619px !important;">
+                                                                    <tr>
+                                                                        <td>
+                                                                            <table class="table-hover" style="width:619px !important;">
+                                                                                @*<tr style="width:650px !important;">*@
+                                                                                <tr>
+                                                                                    @*@if (labelList.linktoko != null && labelList.linktoko != "")
+                                                    {
+                                                        <td style="text-align:left; width:325px !important; padding-left:10px !important;">
+                                                            <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.linktoko)</span></h1></div>
+                                                        </td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td style="text-align:left; width:325px !important; padding-left:10px !important;">
+                                                            <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.NamaToko)</span></h1></div>
+                                                        </td>
+                                                    }
+                                                    <td style="text-align:right; width:325px !important">
+                                                        <h1 class="bold_title_invoice" style="margin-right:10px; padding-top:unset">INVOICE</h1>
+                                                    </td>*@
+                                                                                    <td>
+                                                                                        <div class="col-md-9" style="width:440px !important;">
+                                                                                            @if (labelList.linktoko != null && labelList.linktoko != "")
+                                                                                            {
+                                                                                                <div style="text-align:left; ">
+                                                                                                    <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.linktoko)</span></h1></div>
+                                                                                                </div>
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                <div style="text-align:left; ">
+                                                                                                    <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.NamaToko)</span></h1></div>
+                                                                                                </div>
+                                                                                            }
+                                                                                        </div>
+                                                                                        <div class="col-md-3 pull-right">
+                                                                                            <div style="text-align:right;">
+                                                                                                <h1 class="bold_title_invoice" style="margin-right:10px; padding-top:unset">INVOICE</h1>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                @if (Model?.urlalamat_faktur != null && Model?.urlalamat_faktur == "1")
+                                                                                {
+                                                                                    <tr style="width:650px !important;">
+                                                                                        <td colspan="2">
+                                                                                            <div id="alamat_faktur" class="col-md-12 alamat_faktur"><span>@labelList.AlamatToko</span></div>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                }
+                                                                                @if (Model?.urlTlp_faktur != null && Model?.urlTlp_faktur == "1")
+                                                                                {
+                                                                                    <tr style="width:650px !important;">
+                                                                                        @if (labelList.linktlptoko != null && labelList.linktlptoko != "")
+                                                                                        {
+                                                                                            <td colspan="2">
+                                                                                                <div id="tlp_faktur" class="col-md-12 tlp_faktur"><span class="tlp_toko"> @(labelList.linktlptoko == null ? "" : labelList.linktlptoko)</span></div>
+                                                                                            </td>
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            <td colspan="2">
+                                                                                                <div id="tlp_faktur" class="col-md-12 tlp_faktur"><span class="tlp_toko"> @(labelList.TlpToko == null ? "" : labelList.TlpToko)</span></div>
+                                                                                            </td>
+                                                                                        }
+                                                                                    </tr>
+                                                                                }
+                                                                            </table>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                        @*<br />*@
+                                                        <table style="width:619px !important;">
                                                             <tr>
-                                                                <th width="60px">Catatan</th>
-                                                                <td>@(labelList.Ket == null || labelList.Ket == "" ? "-" : labelList.Ket)</td>
+                                                                <td>
+                                                                    <table class="table-hover">
+                                                                        <tr>
+                                                                            <td style="text-align:left; background-color:lightskyblue; width:300px  !important;">
+                                                                                <span class="block_subtitle" style="color:white;  font-size:16px; text-decoration-line:underline; margin-left:10px">BILL TO</span>
+                                                                            </td>
+                                                                            <td style="text-align:center; width:19px  !important;"></td>
+                                                                            <td style="width:150px  !important; background-color:lightskyblue; text-align:center">
+                                                                                <span class="block_subtitle" style="color:white;  font-size:16px; text-decoration-line:underline">INVOICE #</span>
+                                                                            </td>
+                                                                            <td style="width:150px  !important; background-color:lightskyblue ; text-align:center">
+                                                                                <span class="block_subtitle" style="color:white; font-size:16px; text-decoration-line:underline">DATE</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td style="width:300px  !important;">
+                                                                                <span class="block_subtitle" style="margin-left:10px">Pembeli</span> @(labelList.namaPembeli)
+                                                                            </td>
+                                                                            <td style="text-align:center; width:19px !important;"></td>
+                                                                            <td style="width:150px !important; text-align:center">
+                                                                                <span class="block_subtitle">@(labelList.Faktur.NO_BUKTI)</span>
+                                                                            </td>
+                                                                            <td style="width:150px !important; text-align:center">
+                                                                                <span class="block_subtitle">@(labelList.Faktur.TGL.ToString("dd/MM/yyyy"))</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td>
+                                                                                <span class="block_subtitle" style="margin-left:10px">Telepon</span> @(labelList.tlpPembeli)
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td style="text-align:left; background-color:lightskyblue; width:300px !important;">
+                                                                                <span class="block_subtitle" style="color:white; width:100px; font-size:16px; text-decoration-line:underline; margin-left:10px">NO REFERENSI</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td>
+                                                                                <span class="block_subtitle" style="margin-left:10px">Nomor</span> @(labelList.noRef == null || labelList.noRef == "" ? "-" : labelList.noRef)
+                                                                            </td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </td>
                                                             </tr>
                                                         </table>
-                                                    </diV>
-                                                    <hr style="width:619px !important;" />
+                                                        <table class="table" style="width:619px !important;">
+                                                            <tr style="width:619px !important;">
+                                                                <th>No</th>
+                                                                <th>Nama Barang</th>
+                                                                <th>Lokasi Rak</th>
+                                                                <th style="text-align: right;">Jumlah Barang</th>
+                                                                <th style="text-align: right;">Harga Barang</th>
+                                                                <th style="text-align: right;">Diskon</th>
+                                                                <th style="text-align: right;">Subtotal</th>
+                                                            </tr>
+                                                            <tbody class="barang-faktur" style="width:619px !important;">
+                                                                @foreach (var fakturDetail in labelList.ListFakturDetail)
+                                                                {
+                                                                    //change by nurul 15/9/2020
+                                                                    //var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA;
+                                                                    //var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA2;
+                                                                    //var discTotal = fakturDetail.NILAI_DISC ?? 0;
+                                                                    //var merk = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.Sort2;
+                                                                    //var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.STN2;
+                                                                    //var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail);
+
+                                                                    var tempBrgBaru = fakturDetail.BRG_MULTISKU != null && fakturDetail.BRG_MULTISKU != "" ? fakturDetail.BRG_MULTISKU : fakturDetail.BRG;
+                                                                    var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA;
+                                                                    var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA2;
+                                                                    var discTotal = fakturDetail.NILAI_DISC ?? 0;
+                                                                    var merk = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.Sort2;
+                                                                    var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.STN2;
+                                                                    var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail);
+                                                                    //end change by nurul 15/9/2020
+                                                                    fakturNo = fakturNo + 1;
+
+                                                                    //add by nurul 5/2/2021
+                                                                    var rak = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.LKS;
+                                                                    //end add by nurul 5/2/2021
+                                                                    <tr>
+                                                                        <td>@fakturNo</td>
+                                                                        <td style="width:219px !important;">
+                                                                            @namaBarang1
+                                                                            @if (!String.IsNullOrWhiteSpace(namaBarang2))
+                                                                            {
+                                                                                @namaBarang2
+                                                                            }
+                                                                        </td>
+                                                                        <td>
+                                                                            @if (!string.IsNullOrEmpty(rak))
+                                                                            {
+                                                                                @rak
+                                                                            }
+                                                                        </td>
+                                                                        <td style="text-align: right;width:100px !important;">
+                                                                            @fakturDetail.QTY @satuan
+                                                                        </td>
+                                                                        <td style="text-align: right;width:100px !important;">
+                                                                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", fakturDetail.H_SATUAN)
+                                                                        </td>
+                                                                        <td style="text-align: right;width:100px !important;">
+                                                                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", discTotal)
+                                                                        </td>
+                                                                        <td style="text-align: right;width:100px !important;">
+                                                                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", fakturDetail.HARGA)
+                                                                        </td>
+                                                                    </tr>
+                                                                    if (labelList.Marketplace.ToUpper() == "TOKOPEDIA" && ketTokped != "-")
+                                                                    {
+                                                                        if (Model.urlKet_faktur != null && Model?.urlKet_faktur == "1")
+                                                                        {
+                                                                            <tr style="border-top:hidden;">
+                                                                                <td colspan="6">
+                                                                                    <table>
+                                                                                        <tr>
+                                                                                            <th width="60px">Catatan</th>
+                                                                                            <td>@ketTokped</td>
+                                                                                        </tr>
+                                                                                    </table>
+                                                                                </td>
+                                                                            </tr>
+                                                                        }
+                                                                    }
+                                                                }
+                                                            </tbody>
+                                                        </table>
+                                                        <hr style="width:619px !important;" />
+                                                        @*//ADD BY NURUL 15/5/2020*@
+                                                        @if (labelList.Marketplace.ToUpper() == "SHOPEE" && !string.IsNullOrEmpty(labelList.Ket) && labelList.Ket.Length > 0)
+                                                        {
+                                                            if (Model.urlKet != null && Model?.urlKet == "1")
+                                                            {
+                                                                <diV>
+                                                                    @*<span class="block_subtitle_label">Catatan</span> @(labelList.Ket == null || labelList.Ket == "" ? "-" : labelList.Ket)*@
+                                                                    <table>
+                                                                        <tr>
+                                                                            <th width="60px">Catatan</th>
+                                                                            <td>@(labelList.Ket == null || labelList.Ket == "" ? "-" : labelList.Ket)</td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </diV>
+                                                                <hr style="width:619px !important;" />
+                                                            }
+                                                        }
+                                                        @*//END ADD BY NURUL 15/5/2020*@
+                                                        <table class="table-hover rincian_faktur" id="rincian_faktur" style="width:619px !important;">
+                                                            <thead>
+                                                                <tr>
+                                                                    <td style="width: 160px; "></td>
+                                                                    <td style="width: 160px;"></td>
+                                                                    <td style="width: 100px; ">Subtotal</td>
+                                                                    <td style="width: 100px; "></td>
+                                                                    <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", labelList?.Faktur?.BRUTO)</td>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td style="width: 160px; "></td>
+                                                                    <td style="width: 160px;"></td>
+                                                                    <td style="width: 100px; ">Nilai Diskon</td>
+                                                                    <td style="width: 100px; "></td>
+                                                                    <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "- {0:N}", labelList?.Faktur?.NILAI_DISC)</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="width: 160px; "></td>
+                                                                    <td style="width: 160px;"></td>
+                                                                    <td style="width: 100px; ">Nilai PPN (@(Model?.Faktur?.PPN)%)</td>
+                                                                    <td style="width: 100px; "></td>
+                                                                    <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "+ {0:N}", labelList?.Faktur?.NILAI_PPN)</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="width: 160px; "></td>
+                                                                    <td style="width: 160px;"></td>
+                                                                    <td style="width: 100px; border-bottom:groove;">Ongkos Kirim</td>
+                                                                    <td style="width: 100px; border-bottom:groove;"></td>
+                                                                    <td style="width: 109px; border-bottom:groove; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "+ {0:N}", labelList?.Faktur?.MATERAI)</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="width: 160px; "></td>
+                                                                    <td style="width: 160px;"></td>
+                                                                    <td style="width: 100px; border-bottom:groove;">TOTAL</td>
+                                                                    <td style="width: 100px; border-bottom:groove;"></td>
+                                                                    <td style="width: 109px; border-bottom:groove; text-align: right; ">Rp. @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", labelList?.Faktur?.NETTO)</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                    <br />
+                                                    
                                                 }
                                             }
-                                            @*//END ADD BY NURUL 15/5/2020*@
-                                            <table class="table-hover rincian_faktur" id="rincian_faktur" style="width:619px !important;">
-                                                <thead>
-                                                    <tr>
-                                                        <td style="width: 160px; "></td>
-                                                        <td style="width: 160px;"></td>
-                                                        <td style="width: 100px; ">Subtotal</td>
-                                                        <td style="width: 100px; "></td>
-                                                        <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", labelList?.Faktur?.BRUTO)</td>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td style="width: 160px; "></td>
-                                                        <td style="width: 160px;"></td>
-                                                        <td style="width: 100px; ">Nilai Diskon</td>
-                                                        <td style="width: 100px; "></td>
-                                                        <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "- {0:N}", labelList?.Faktur?.NILAI_DISC)</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td style="width: 160px; "></td>
-                                                        <td style="width: 160px;"></td>
-                                                        <td style="width: 100px; ">Nilai PPN (@(Model?.Faktur?.PPN)%)</td>
-                                                        <td style="width: 100px; "></td>
-                                                        <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "+ {0:N}", labelList?.Faktur?.NILAI_PPN)</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td style="width: 160px; "></td>
-                                                        <td style="width: 160px;"></td>
-                                                        <td style="width: 100px; border-bottom:groove;">Ongkos Kirim</td>
-                                                        <td style="width: 100px; border-bottom:groove;"></td>
-                                                        <td style="width: 109px; border-bottom:groove; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "+ {0:N}", labelList?.Faktur?.MATERAI)</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td style="width: 160px; "></td>
-                                                        <td style="width: 160px;"></td>
-                                                        <td style="width: 100px; border-bottom:groove;">TOTAL</td>
-                                                        <td style="width: 100px; border-bottom:groove;"></td>
-                                                        <td style="width: 109px; border-bottom:groove; text-align: right; ">Rp. @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", labelList?.Faktur?.NETTO)</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                            <br />
-                                            <div id="div_gunting" class="row div_gunting" style="width:650px !important;">
-                                                <div class="col-md-1">
-                                                    <span style="font-size: 20px">&#9986;</span>
-                                                </div>
-                                                <div class="col-md-11">
-                                                    <hr id="garis_potong" />
-                                                </div>
-                                                <br />
-                                            </div>
                                         }
                                         @if (CetakLabel == "1")
                                         {
@@ -481,25 +1056,25 @@
                                                     @if (labelList.KdBooking != "" && labelList.KdBooking != " ")
                                                     {
                                                         @*<div class="row">
-                                                            <div class="col-md-2 block_subtitle_label pull-left">
-                                                                <p class="sub_title">
-                                                                    <span class="block_subtitle_label pull-left">Kode Booking</span>
-                                                                </p>
-                                                            </div>
-                                                            <div class="col-md-8">
-                                                                <div class="resiyes">
-                                                                    <p class="sub_title">
-                                                                        <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.KdBooking, market = labelList.Marketplace })" alt="" class="pull-left" />
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                            @if(Model.urlLogo != null && Model?.urlLogo == "1" && !string.IsNullOrEmpty(labelList.logoToko))
-                                                            {
-                                                                <div class="col-md-2">
-                                                                    <img src="@labelList.logoToko" alt="" style="width:50px;height:50px;" />
-                                                                </div>
-                                                            }
-                                                        </div>*@
+                            <div class="col-md-2 block_subtitle_label pull-left">
+                                <p class="sub_title">
+                                    <span class="block_subtitle_label pull-left">Kode Booking</span>
+                                </p>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="resiyes">
+                                    <p class="sub_title">
+                                        <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.KdBooking, market = labelList.Marketplace })" alt="" class="pull-left" />
+                                    </p>
+                                </div>
+                            </div>
+                            @if(Model.urlLogo != null && Model?.urlLogo == "1" && !string.IsNullOrEmpty(labelList.logoToko))
+                            {
+                                <div class="col-md-2">
+                                    <img src="@labelList.logoToko" alt="" style="width:50px;height:50px;" />
+                                </div>
+                            }
+                        </div>*@
 
                                                         <div class="row">
                                                             <div class="col-md-9">
@@ -513,13 +1088,13 @@
                                                             {
                                                                 if (labelList.typeLogo == "2")
                                                                 {
-                                                                    <div class="col-md-3">
+                                                                    <div class="col-md-3 pull-right">
                                                                         <img src="@labelList.logoToko" alt="" style="width:130px;height:60px;" />
                                                                     </div>
                                                                 }
                                                                 else
                                                                 {
-                                                                    <div class="col-md-3">
+                                                                    <div class="col-md-3 pull-right">
                                                                         <img src="@labelList.logoToko" alt="" style="width:100px;height:100px;" />
                                                                     </div>
                                                                 }
@@ -529,36 +1104,36 @@
                                                     else
                                                     {
                                                         @*<div class="row">
-                                                            <div class="col-md-2 block_subtitle_label pull-left">
-                                                                <p class="sub_title">
-                                                                    <span class="block_subtitle_label pull-left">No Resi</span>
-                                                                </p>
-                                                            </div>
-                                                            <div class="col-md-8">
-                                                                @if (no_resi != "-")
-                                                                {
-                                                                    <div class="resiyes">
-                                                                        <p class="sub_title">
-                                                                            <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi, market = labelList.Marketplace })" alt="" class="pull-left" />
-                                                                        </p>
-                                                                    </div>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <div class="resino">
-                                                                        <p class="sub_title">
-                                                                            @(labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi)
-                                                                        </p>
-                                                                    </div>
-                                                                }
-                                                            </div>
-                                                            @if (Model.urlLogo != null && Model?.urlLogo == "1" && !string.IsNullOrEmpty(labelList.logoToko))
-                                                            {
-                                                                <div class="col-md-2">
-                                                                    <img src="@labelList.logoToko" alt="" style="width:50px;height:50px;" />
-                                                                </div>
-                                                            }
-                                                        </div>*@
+                            <div class="col-md-2 block_subtitle_label pull-left">
+                                <p class="sub_title">
+                                    <span class="block_subtitle_label pull-left">No Resi</span>
+                                </p>
+                            </div>
+                            <div class="col-md-8">
+                                @if (no_resi != "-")
+                                {
+                                    <div class="resiyes">
+                                        <p class="sub_title">
+                                            <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi, market = labelList.Marketplace })" alt="" class="pull-left" />
+                                        </p>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="resino">
+                                        <p class="sub_title">
+                                            @(labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi)
+                                        </p>
+                                    </div>
+                                }
+                            </div>
+                            @if (Model.urlLogo != null && Model?.urlLogo == "1" && !string.IsNullOrEmpty(labelList.logoToko))
+                            {
+                                <div class="col-md-2">
+                                    <img src="@labelList.logoToko" alt="" style="width:50px;height:50px;" />
+                                </div>
+                            }
+                        </div>*@
 
                                                         <div class="row">
                                                             <div class="col-md-9">
@@ -583,13 +1158,13 @@
                                                             {
                                                                 if (labelList.typeLogo == "2")
                                                                 {
-                                                                    <div class="col-md-3">
+                                                                    <div class="col-md-3 pull-right">
                                                                         <img src="@labelList.logoToko" alt="" style="width:130px;height:60px;" />
                                                                     </div>
                                                                 }
                                                                 else
                                                                 {
-                                                                    <div class="col-md-3">
+                                                                    <div class="col-md-3 pull-right">
                                                                         <img src="@labelList.logoToko" alt="" style="width:100px;height:100px;" />
                                                                     </div>
                                                                 }
@@ -653,10 +1228,23 @@
                                                                         <div class="sub_title">
                                                                             @*<span class="block_subtitle_label">Marketplace</span>: @(labelList.Marketplace)*@
                                                                             @*<h3><strong>@(labelList.Marketplace.ToUpper())</strong></h3>*@
-                                                                            @if (labelList.LogoMarket != null && labelList.LogoMarket != "" && labelList.Marketplace.ToUpper() != "OFFLINE")
+                                                                            @if (labelList.LogoMarket != null && labelList.LogoMarket != "" && !labelList.Marketplace.ToUpper().Contains("OFFLINE"))
                                                                             {
                                                                                 <img src="@labelList.LogoMarket" alt="" style="width:90px;height:40px;" />
                                                                             }
+                                                                            @*add by nurul 25/2/2021*@
+                                                                            else if (labelList.Marketplace.ToUpper().Contains("OFFLINE"))
+                                                                            {
+                                                                                if (labelList.linktoko != null && labelList.linktoko != "")
+                                                                                {
+                                                                                    <h3><strong>@(labelList.linktoko.ToUpper())</strong></h3>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <h3><strong>@(labelList.NamaToko == null ? "" : labelList.NamaToko.ToUpper())</strong></h3>
+                                                                                }
+                                                                            }
+                                                                            @*end add by nurul 25/2/2021*@
                                                                             else
                                                                             {
                                                                                 <h3><strong>@(labelList.Marketplace.ToUpper())</strong></h3>
@@ -687,13 +1275,13 @@
                                                                 if (labelList.linktoko != null && labelList.linktoko != "")
                                                                 {
                                                                     <td class="sub_title col-md-6" style="width:300px !important">
-                                                                        <span class="block_subtitle_label">Nama Penjual</span> <span class="nama_toko_label"> @(labelList.linktoko)</span>
+                                                                        <span class="block_subtitle_label">Nama Toko</span> <span class="nama_toko_label"> @(labelList.linktoko)</span>
                                                                     </td>
                                                                 }
                                                                 else
                                                                 {
                                                                     <td class="sub_title col-md-6" style="width:300px !important">
-                                                                        <span class="block_subtitle_label">Nama Penjual</span> <span class="nama_toko_label"> @(labelList.NamaToko == null ? "" : labelList.NamaToko)</span>
+                                                                        <span class="block_subtitle_label">Nama Toko</span> <span class="nama_toko_label"> @(labelList.NamaToko == null ? "" : labelList.NamaToko)</span>
                                                                     </td>
                                                                 }
                                                             }
@@ -708,7 +1296,7 @@
                                                                 {
                                                                     <td class="sub_title col-md-6" style="width:300px !important">
                                                                         <div class="tlp_label">
-                                                                            <span class="block_subtitle_label">No. Telepon Penjual</span> <span class="tlp_toko_label"> @(labelList.linktlptoko == null ? "" : labelList.linktlptoko)</span>
+                                                                            <span class="block_subtitle_label">No. Telepon Toko</span> <span class="tlp_toko_label"> @(labelList.linktlptoko == null ? "" : labelList.linktlptoko)</span>
                                                                         </div>
                                                                     </td>
                                                                 }
@@ -716,7 +1304,7 @@
                                                                 {
                                                                     <td class="sub_title col-md-6" style="width:300px !important">
                                                                         <div class="tlp_label">
-                                                                            <span class="block_subtitle_label">No. Telepon Penjual</span> <span class="tlp_toko_label"> @(labelList.TlpToko == null ? "" : labelList.TlpToko)</span>
+                                                                            <span class="block_subtitle_label">No. Telepon Toko</span> <span class="tlp_toko_label"> @(labelList.TlpToko == null ? "" : labelList.TlpToko)</span>
                                                                         </div>
                                                                     </td>
                                                                 }
@@ -730,13 +1318,13 @@
                                                             {
                                                                 <td class="sub_title col-md-6" style="width:300px !important">
                                                                     <div class="alamat_label">
-                                                                        <span class="block_subtitle_label">Alamat Penjual</span> @(labelList.AlamatToko)
+                                                                        <span class="block_subtitle_label">Alamat Toko</span> @(labelList.AlamatToko)
                                                                     </div>
                                                                 </td>
                                                             }
                                                         </tr>
                                                     </table>
-                                                    <br />
+                                                    @*<br />*@
                                                     <table>
                                                         <tr class="col-md-12" style="width:650px  !important;">
                                                             @if (Model.urlTotal != null && Model?.urlTotal == "1")
@@ -818,62 +1406,62 @@
                         }
                     </table>*@
 
-                                                @*add by nurul 28/1/2019*@
-                                                <br />
-                                                <table class="table" style="width:620px  !important;">
-                                                    @*<thead>*@
-                                                    <tr>
-                                                        <th style="width:20px">No</th>
-                                                        <th style="width:200px">Kode Barang</th>
-                                                        <th style="width:100px">Lokasi Rak</th>
-                                                        <th style="width:450px">Nama Barang</th>
-                                                        <th style="text-align: right; width:150px">Jumlah Barang</th>
-                                                    </tr>
-                                                    @*</thead>*@
-                                                    <tbody class="barang-faktur">                                                              
-                                                        @foreach (var fakturDetail in labelList.ListFakturDetail)
-                                                        {
-                                                            //change by nurul 15/9/2020
-                                                            //var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA;
-                                                            //var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA2;
-                                                            //var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.STN2;
-                                                            //var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail);
+                                                    @*add by nurul 28/1/2019*@
+                                                    @*<br />*@
+                                                    <table class="table" style="width:620px  !important;">
+                                                        @*<thead>*@
+                                                        <tr>
+                                                            <th style="width:20px">No</th>
+                                                            <th style="width:200px">Kode Barang</th>
+                                                            <th style="width:100px">Lokasi Rak</th>
+                                                            <th style="width:450px">Nama Barang</th>
+                                                            <th style="text-align: right; width:150px">Jumlah Barang</th>
+                                                        </tr>
+                                                        @*</thead>*@
+                                                        <tbody class="barang-faktur">
+                                                            @foreach (var fakturDetail in labelList.ListFakturDetail)
+                                                            {
+                                                                //change by nurul 15/9/2020
+                                                                //var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA;
+                                                                //var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA2;
+                                                                //var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.STN2;
+                                                                //var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail);
 
-                                                            var tempBrgBaru = fakturDetail.BRG_MULTISKU != null && fakturDetail.BRG_MULTISKU != "" ? fakturDetail.BRG_MULTISKU : fakturDetail.BRG;
-                                                            var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA;
-                                                            var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA2;
-                                                            var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.STN2;
-                                                            var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail);
-                                                            //end change by nurul 15/9/2020
+                                                                var tempBrgBaru = fakturDetail.BRG_MULTISKU != null && fakturDetail.BRG_MULTISKU != "" ? fakturDetail.BRG_MULTISKU : fakturDetail.BRG;
+                                                                var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA;
+                                                                var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA2;
+                                                                var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.STN2;
+                                                                var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail);
+                                                                //end change by nurul 15/9/2020
 
-                                                            labelNo = labelNo + 1;
+                                                                labelNo = labelNo + 1;
 
-                                                            //add by nurul 5/2/2021
-                                                            var rak = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.LKS;
-                                                            //end add by nurul 5/2/2021
-                                                            <tr>
-                                                                <td>@labelNo</td>
-                                                                <td>
-                                                                    @*@fakturDetail.BRG*@
-                                                                    @tempBrgBaru
-                                                                </td>
-                                                                <td>
-                                                                    @if (!string.IsNullOrEmpty(rak))
-                                                                    {
-                                                                        @rak
-                                                                    }    
-                                                                </td>
-                                                                <td>
-                                                                    @namaBarang1
-                                                                    @if (!String.IsNullOrWhiteSpace(namaBarang2))
-                                                                    {
-                                                                        @namaBarang2
-                                                                    }
-                                                                </td>
-                                                                <td style="text-align: right;">
-                                                                    @fakturDetail.QTY @satuan
-                                                                </td>
-                                                            </tr>
+                                                                //add by nurul 5/2/2021
+                                                                var rak = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.LKS;
+                                                                //end add by nurul 5/2/2021
+                                                                <tr>
+                                                                    <td>@labelNo</td>
+                                                                    <td>
+                                                                        @*@fakturDetail.BRG*@
+                                                                        @tempBrgBaru
+                                                                    </td>
+                                                                    <td>
+                                                                        @if (!string.IsNullOrEmpty(rak))
+                                                                        {
+                                                                            @rak
+                                                                        }
+                                                                    </td>
+                                                                    <td>
+                                                                        @namaBarang1
+                                                                        @if (!String.IsNullOrWhiteSpace(namaBarang2))
+                                                                        {
+                                                                            @namaBarang2
+                                                                        }
+                                                                    </td>
+                                                                    <td style="text-align: right;">
+                                                                        @fakturDetail.QTY @satuan
+                                                                    </td>
+                                                                </tr>
 
                                                                 if (labelList.Marketplace.ToUpper() == "TOKOPEDIA" && ketTokped != "-")
                                                                 {
@@ -921,25 +1509,25 @@
                                                     @if (labelList.KdBooking != "" && labelList.KdBooking != " ")
                                                     {
                                                         @*<div class="row">
-                <div class="col-md-2 block_subtitle_label pull-left">
-                    <p class="sub_title">
-                        <span class="block_subtitle_label pull-left">Kode Booking</span>
-                    </p>
-                </div>
-                <div class="col-md-8">
-                    <div class="resiyes">
-                        <p class="sub_title">
-                            <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.KdBooking, market = labelList.Marketplace })" alt="" class="pull-left" />
-                        </p>
-                    </div>
-                </div>
-                @if(Model.urlLogo != null && Model?.urlLogo == "1" && !string.IsNullOrEmpty(labelList.logoToko))
-                {
-                    <div class="col-md-2">
-                        <img src="@labelList.logoToko" alt="" style="width:50px;height:50px;" />
-                    </div>
-                }
-            </div>*@
+                            <div class="col-md-2 block_subtitle_label pull-left">
+                                <p class="sub_title">
+                                    <span class="block_subtitle_label pull-left">Kode Booking</span>
+                                </p>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="resiyes">
+                                    <p class="sub_title">
+                                        <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.KdBooking, market = labelList.Marketplace })" alt="" class="pull-left" />
+                                    </p>
+                                </div>
+                            </div>
+                            @if(Model.urlLogo != null && Model?.urlLogo == "1" && !string.IsNullOrEmpty(labelList.logoToko))
+                            {
+                                <div class="col-md-2">
+                                    <img src="@labelList.logoToko" alt="" style="width:50px;height:50px;" />
+                                </div>
+                            }
+                        </div>*@
 
                                                         <div class="row">
                                                             <div class="col-md-9">
@@ -953,13 +1541,13 @@
                                                             {
                                                                 if (labelList.typeLogo == "2")
                                                                 {
-                                                                    <div class="col-md-3">
+                                                                    <div class="col-md-3 pull-right">
                                                                         <img src="@labelList.logoToko" alt="" style="width:130px;height:60px;" />
                                                                     </div>
                                                                 }
                                                                 else
                                                                 {
-                                                                    <div class="col-md-3">
+                                                                    <div class="col-md-3 pull-right">
                                                                         <img src="@labelList.logoToko" alt="" style="width:100px;height:100px;" />
                                                                     </div>
                                                                 }
@@ -969,36 +1557,36 @@
                                                     else
                                                     {
                                                         @*<div class="row">
-                                                            <div class="col-md-2 block_subtitle_label pull-left">
-                                                                <p class="sub_title">
-                                                                    <span class="block_subtitle_label pull-left">No Resi</span>
-                                                                </p>
-                                                            </div>
-                                                            <div class="col-md-8">
-                                                                @if (no_resi != "-")
-                                                                {
-                                                                    <div class="resiyes">
-                                                                        <p class="sub_title">
-                                                                            <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi, market = labelList.Marketplace })" alt="" class="pull-left" />
-                                                                        </p>
-                                                                    </div>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <div class="resino">
-                                                                        <p class="sub_title">
-                                                                            @(labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi)
-                                                                        </p>
-                                                                    </div>
-                                                                }
-                                                            </div>
-                                                            @if (Model.urlLogo != null && Model?.urlLogo == "1" && !string.IsNullOrEmpty(labelList.logoToko))
-                                                            {
-                                                                <div class="col-md-2">
-                                                                    <img src="@labelList.logoToko" alt="" style="width:50px;height:50px;" />
-                                                                </div>
-                                                            }
-                                                        </div>*@
+                            <div class="col-md-2 block_subtitle_label pull-left">
+                                <p class="sub_title">
+                                    <span class="block_subtitle_label pull-left">No Resi</span>
+                                </p>
+                            </div>
+                            <div class="col-md-8">
+                                @if (no_resi != "-")
+                                {
+                                    <div class="resiyes">
+                                        <p class="sub_title">
+                                            <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi, market = labelList.Marketplace })" alt="" class="pull-left" />
+                                        </p>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="resino">
+                                        <p class="sub_title">
+                                            @(labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi)
+                                        </p>
+                                    </div>
+                                }
+                            </div>
+                            @if (Model.urlLogo != null && Model?.urlLogo == "1" && !string.IsNullOrEmpty(labelList.logoToko))
+                            {
+                                <div class="col-md-2">
+                                    <img src="@labelList.logoToko" alt="" style="width:50px;height:50px;" />
+                                </div>
+                            }
+                        </div>*@
 
                                                         <div class="row">
                                                             <div class="col-md-9">
@@ -1023,13 +1611,13 @@
                                                             {
                                                                 if (labelList.typeLogo == "2")
                                                                 {
-                                                                    <div class="col-md-3">
+                                                                    <div class="col-md-3 pull-right">
                                                                         <img src="@labelList.logoToko" alt="" style="width:130px;height:60px;" />
                                                                     </div>
                                                                 }
                                                                 else
                                                                 {
-                                                                    <div class="col-md-3">
+                                                                    <div class="col-md-3 pull-right">
                                                                         <img src="@labelList.logoToko" alt="" style="width:100px;height:100px;" />
                                                                     </div>
                                                                 }
@@ -1092,10 +1680,23 @@
                                                                     <div class="market">
                                                                         <div class="sub_title">
                                                                             @*<h3><strong>@(labelList.Marketplace.ToUpper())</strong></h3>*@
-                                                                            @if (labelList.LogoMarket != null && labelList.LogoMarket != "" && labelList.Marketplace.ToUpper() != "OFFLINE")
+                                                                            @if (labelList.LogoMarket != null && labelList.LogoMarket != "" && !labelList.Marketplace.ToUpper().Contains("OFFLINE"))
                                                                             {
                                                                                 <img src="@labelList.LogoMarket" alt="" style="width:90px;height:40px;" />
                                                                             }
+                                                                            @*add by nurul 25/2/2021*@
+                                                                            else if (labelList.Marketplace.ToUpper().Contains("OFFLINE"))
+                                                                            {
+                                                                                if (labelList.linktoko != null && labelList.linktoko != "")
+                                                                                {
+                                                                                    <h3><strong>@(labelList.linktoko.ToUpper())</strong></h3>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <h3><strong>@(labelList.NamaToko == null ? "" : labelList.NamaToko.ToUpper())</strong></h3>
+                                                                                }
+                                                                            }
+                                                                            @*end add by nurul 25/2/2021*@
                                                                             else
                                                                             {
                                                                                 <h3><strong>@(labelList.Marketplace.ToUpper())</strong></h3>
@@ -1125,13 +1726,13 @@
                                                                 if (labelList.linktoko != null && labelList.linktoko != "")
                                                                 {
                                                                     <td class="sub_title col-md-6" style="width:300px !important">
-                                                                        <span class="block_subtitle_label">Nama Penjual</span> <span class="nama_toko_label"> @(labelList.linktoko)</span>
+                                                                        <span class="block_subtitle_label">Nama Toko</span> <span class="nama_toko_label"> @(labelList.linktoko)</span>
                                                                     </td>
                                                                 }
                                                                 else
                                                                 {
                                                                     <td class="sub_title col-md-6" style="width:300px !important">
-                                                                        <span class="block_subtitle_label">Nama Penjual</span> <span class="nama_toko_label"> @(labelList.NamaToko == null ? "" : labelList.NamaToko)</span>
+                                                                        <span class="block_subtitle_label">Nama Toko</span> <span class="nama_toko_label"> @(labelList.NamaToko == null ? "" : labelList.NamaToko)</span>
                                                                     </td>
                                                                 }
                                                             }
@@ -1146,7 +1747,7 @@
                                                                 {
                                                                     <td class="sub_title col-md-6" style="width:300px !important">
                                                                         <div class="tlp_label">
-                                                                            <span class="block_subtitle_label">No. Telepon Penjual</span> <span class="tlp_toko_label"> @(labelList.linktlptoko == null ? "" : labelList.linktlptoko)</span>
+                                                                            <span class="block_subtitle_label">No. Telepon Toko</span> <span class="tlp_toko_label"> @(labelList.linktlptoko == null ? "" : labelList.linktlptoko)</span>
                                                                         </div>
                                                                     </td>
                                                                 }
@@ -1154,7 +1755,7 @@
                                                                 {
                                                                     <td class="sub_title col-md-6" style="width:300px !important">
                                                                         <div class="tlp_label">
-                                                                            <span class="block_subtitle_label">No. Telepon Penjual</span> <span class="tlp_toko_label"> @(labelList.TlpToko == null ? "" : labelList.TlpToko)</span>
+                                                                            <span class="block_subtitle_label">No. Telepon Toko</span> <span class="tlp_toko_label"> @(labelList.TlpToko == null ? "" : labelList.TlpToko)</span>
                                                                         </div>
                                                                     </td>
                                                                 }
@@ -1168,13 +1769,13 @@
                                                             {
                                                                 <td class="sub_title col-md-6" style="width:300px !important">
                                                                     <div class="alamat_label">
-                                                                        <span class="block_subtitle_label">Alamat Penjual</span> @(labelList.AlamatToko)
+                                                                        <span class="block_subtitle_label">Alamat Toko</span> @(labelList.AlamatToko)
                                                                     </div>
                                                                 </td>
                                                             }
                                                         </tr>
                                                     </table>
-                                                    <br />
+                                                    @*<br />*@
                                                     <table>
                                                         <tr class="col-md-12" style="width:650px  !important;">
                                                             @if (Model.urlTotal != null && Model?.urlTotal == "1")
@@ -1186,7 +1787,7 @@
                                                         </tr>
                                                         @*===========================================================================*@
                                                     </table>
-                                                    <br />
+                                                    @*<br />*@
                                                     <table class="table" style="width:620px  !important;">
                                                         <tr>
                                                             <th style="width:20px">No</th>
@@ -1222,10 +1823,10 @@
                                                                         @tempBrgBaru
                                                                     </td>
                                                                     <td>
-                                                                    @if (!string.IsNullOrEmpty(rak))
-                                                                    {
-                                                                        @rak
-                                                                    }    
+                                                                        @if (!string.IsNullOrEmpty(rak))
+                                                                        {
+                                                                            @rak
+                                                                        }
                                                                     </td>
                                                                     <td>
                                                                         @namaBarang1
@@ -1259,7 +1860,7 @@
                                                         </tbody>
                                                     </table>
                                                     <hr style="width:620px !important;" />
-                                                    @if (labelList.Marketplace.ToUpper() == "SHOPEE" && labelList.Ket.Length > 0)
+                                                    @if (labelList.Marketplace.ToUpper() == "SHOPEE" && !string.IsNullOrEmpty(labelList.Ket) && labelList.Ket.Length > 0)
                                                     {
                                                         if (Model.urlKet != null && Model?.urlKet == "1")
                                                         {

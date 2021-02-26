@@ -1384,22 +1384,51 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-lg-1 col-sm-12"></div>
+                        @*<div class="col-lg-1 col-sm-12"></div>*@
                         @*//add by nurul 16/6/2020*@
                         <div class="col-lg-6 col-sm-6">
                             <div class="pull-right">
-                                <div class="pull-right" id="tambah_baru_tombol_section" style="margin-top:13px;">
-                                    <button id="excelFaktur" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        Excel Faktur <span class="caret"></span>
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        <button type="button" onclick="$('#downloadFaktur').modal('show');" id="btn_download_faktur" class="btn btn-primary" data-style="expand-right" style="width:100%; background-color:white; border-color:Highlight; color:black !important">
-                                            <span>Download Faktur </span>
-                                        </button>
-                                        <button type="button" id="btn-upload-faktur" class="btn btn-primary" data-toggle="modal" data-style="expand-right" data-target="#modalUploadFaktur" style="width:100%; background-color:white; border-color:Highlight; color:black !important">
-                                            <span>Upload Faktur</span>
+                                <div>
+                                    <div class="pull-right" id="tambah_baru_tombol_section" style="margin-top:13px;">
+                                        <div class=" btn-group" role="group" style="vertical-align: top;">
+                                            <button id="excelFaktur" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                Excel Faktur <span class="caret"></span>
+                                            </button>
+                                            <div class="dropdown-menu">
+                                                <button type="button" onclick="$('#downloadFaktur').modal('show');" id="btn_download_faktur" class="btn btn-primary" data-style="expand-right" style="width:100%; background-color:white; border-color:Highlight; color:black !important">
+                                                    <span>Download Faktur </span>
+                                                </button>
+                                                <button type="button" id="btn-upload-faktur" class="btn btn-primary" data-toggle="modal" data-style="expand-right" data-target="#modalUploadFaktur" style="width:100%; background-color:white; border-color:Highlight; color:black !important">
+                                                    <span>Upload Faktur</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <button type="button" id="btn_print_massal" class="btn btn-primary" data-style="expand-right">
+                                            <span>Print</span>
                                         </button>
                                     </div>
+                                </div>
+                                @*<div class="pull-right">
+                                    <div class="col-lg-1 col-sm-1">
+                                        <select class="form-control" style="width:80px !important;" id="TakeRecordFaktur" name="TakeRecordFaktur" required="required">
+                                            <option value="10">10</option>
+                                            <option value="20">20</option>
+                                            <option value="50">50</option>
+                                            <option value="100">100</option>
+                                        </select>
+                                    </div>
+                                </div>*@
+                            </div>
+                        </div>
+                        <div class="col-lg-1">
+                            <div class="pull-right">
+                                <div class="input-group text" style="padding-top:13px; padding-left:5px;">
+                                    <select class="form-control" style="width:80px !important;" id="TakeRecordFaktur" name="TakeRecordFaktur" required="required">
+                                        <option value="10">10</option>
+                                        <option value="20">20</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -1418,6 +1447,9 @@
                             <div class="col-md-10"></div>
                         </div>*@
                     @*end add by nurul 10/1/2019 //tambah tgl*@
+                    <div class="row">
+                        <label id="text-check-faktur" class="pull-left" style="margin-left:10px;"></label>
+                    </div>
                     <div class="row faktur_table_section" style="margin-top: 5px;">
                         <div class="col-sm-12" id="table-faktur-partial">
                             @*@Html.Partial("TableFakturPartial")*@
@@ -1946,20 +1978,21 @@
     <div class="modal-dialog" id="modal-print-option" role="document">
         @*//change by nurul 25/6/2019*@
         @*<div class="modal-content modalresponsive" style="margin:auto">*@
-        <div class="modal-content " style="margin:auto;height:450px;width:650px;">
+        <div class="modal-content " style="margin:auto;height:600px;width:630px;">
             @*//end change by nurul 25/6/2019*@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="printOptionLabel">Cetak Faktur / Label</h4>
+                <h4 class="modal-title" id="printOptionLabel">Print Faktur / Label</h4>
             </div>
             <div class="modal-body">
-                <h5>Apakah Anda yakin ingin mencetak Faktur dengan No. Faktur <span id="cetakfaktur_label"></span>?</h5>
+                @*<h5>Apakah Anda yakin ingin mencetak Faktur dengan <span id="cetakfaktur_hitung"></span> No. Faktur <span id="cetakfaktur_label"></span>?</h5>*@
+                <h5><span id="cetakfaktur_hitung"></span><span id="cetakfaktur_label"></span>?</h5>
                 <br />
                 <div class="row">
                     @*<div class="col-md-1">
                         </div>*@
                     <div class="col-md-4" style="text-align:left">
-                        <label>Nama Toko </label>
+                        <label>Nama Toko (Dropship) </label>
                     </div>
                     <div class="col-md-6" style="text-align:left">
                         <input id="nama_toko" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
@@ -1972,7 +2005,7 @@
                     @*<div class="col-md-2">
                         </div>*@
                     <div class="col-md-4" style="text-align:left">
-                        <label>No Telepon Toko </label>
+                        <label>No Telepon Toko (Dropship) </label>
                     </div>
                     <div class="col-md-6" style="text-align:left">
                         <input id="tlp_toko" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
@@ -1997,15 +2030,15 @@
                 @*//end add by nurul 2/5/2019*@
                 <div class="row">
                     <div class="col-md-4" style="text-align:left">
-                        <label>Pilihan Cetak : </label>
+                        <label>Pilihan Print : </label>
                     </div>
                     <div class="col-md-8"></div>
                 </div>
                 <div id="cetakA4Form">
                     <div class="row">
-                        <div class="col-md-1">
+                        <div class="col-md-2">
                         </div>
-                        <div class="col-md-2" style="padding-bottom:10px">
+                        <div class="col-md-1" style="padding-bottom:10px">
                             <label class="checkbox-container">
                                 <input id="ctk_faktur" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
                                 <span id="ctk_faktur" class="checkmark"></span>
@@ -2014,7 +2047,7 @@
                         <div class="col-md-3" style="padding-top: 7px;">
                             Faktur
                         </div>
-                        <div class="col-md-2" style="padding-bottom:10px">
+                        <div class="col-md-1" style="padding-bottom:10px">
                             <label class="checkbox-container">
                                 <input id="ctk_label" type="checkbox" class="cbx" name="cbx-print-label-only" />
                                 <span id="ctk_label" class="checkmark"></span>
@@ -2023,13 +2056,68 @@
                         <div class="col-md-3" style="padding-top: 7px;">
                             Label
                         </div>
+                        <div class="col-md-2">
+                        </div>
+                    </div>
+                    <br />
+                    @*---------------------------------------------------------------------------------------------*@
+                    <div class="row option-cetak-faktur">
+                        <div class="col-md-4" style="text-align:left">
+                            <label>Pengaturan Faktur : </label>
+                        </div>
+                        <div class="col-md-8"></div>
+                    </div>
+                    <div class="row option-cetak-faktur">
+                        <div class="col-md-2">
+                        </div>
+                        <div class="col-md-1" style="padding-bottom:10px">
+                            <label class="checkbox-container">
+                                <input id="ctk_alamat_faktur" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                <span id="ctk_alamat_faktur" class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="col-md-3" style="padding-top: 7px;">
+                            Alamat Toko
+                        </div>
+                        <div class="col-md-1" style="padding-bottom:10px">
+                            <label class="checkbox-container">
+                                <input id="ctk_tlp_faktur" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                <span id="ctk_tlp_faktur" class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="col-md-3" style="padding-top: 7px;">
+                            Telepon Toko
+                        </div>
+                        <div class="col-md-2">
+                        </div>
+                    </div>
+                    <div class="row option-cetak-faktur">
+                        <div class="col-md-2">
+                        </div>
+                        <div class="col-md-1" style="padding-bottom:10px">
+                            <label class="checkbox-container">
+                                <input id="ctk_ket_faktur" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                <span id="ctk_ket_faktur" class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="col-md-3" style="padding-top: 7px;">
+                            Catatan Pembeli
+                        </div>
                         <div class="col-md-1">
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-1">
+                    <br />
+                    @*---------------------------------------------------------------------------------------------*@
+                    <div class="row option-cetak-label">
+                        <div class="col-md-4" style="text-align:left">
+                            <label>Pengaturan Label : </label>
                         </div>
-                        <div class="col-md-2" style="padding-bottom:10px">
+                        <div class="col-md-8"></div>
+                    </div>
+                    <div class="row option-cetak-label">
+                        <div class="col-md-2">
+                        </div>
+                        <div class="col-md-1" style="padding-bottom:10px">
                             <label class="checkbox-container">
                                 <input id="ctk_mp" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
                                 <span id="ctk_mp" class="checkmark"></span>
@@ -2038,7 +2126,7 @@
                         <div class="col-md-3" style="padding-top: 7px;">
                             Nama Marketplace
                         </div>
-                        <div class="col-md-2" style="padding-bottom:10px">
+                        <div class="col-md-1" style="padding-bottom:10px">
                             <label class="checkbox-container">
                                 <input id="ctk_alamat" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
                                 <span id="ctk_alamat" class="checkmark"></span>
@@ -2047,13 +2135,13 @@
                         <div class="col-md-3" style="padding-top: 7px;">
                             Alamat Toko
                         </div>
-                        <div class="col-md-1">
+                        <div class="col-md-2">
                         </div>
                     </div>
-                    <div class="row" style="margin-top:5px">
-                        <div class="col-md-1">
+                    <div class="row option-cetak-label" style="margin-top:5px">
+                        <div class="col-md-2">
                         </div>
-                        <div class="col-md-2" style="padding-bottom:10px">
+                        <div class="col-md-1" style="padding-bottom:10px">
                             <label class="checkbox-container">
                                 <input id="ctk_tlp" type="checkbox" class="cbx" name="cbx-print-label-only" />
                                 <span id="ctk_tlp" class="checkmark"></span>
@@ -2062,46 +2150,46 @@
                         <div class="col-md-3" style="padding-top: 7px;">
                             Telepon Toko
                         </div>
-                        <div class="col-md-2" style="padding-bottom:10px">
+                        <div class="col-md-1" style="padding-bottom:10px">
                             <label class="checkbox-container">
                                 <input id="ctk_nama" type="checkbox" class="cbx" name="cbx-print-label-only" />
                                 <span id="ctk_nama" class="checkmark"></span>
                             </label>
                         </div>
                         <div class="col-md-3" style="padding-top: 7px;">
-                            Nama Toko di Label
+                            Nama Toko
                         </div>
-                        <div class="col-md-1">
+                        <div class="col-md-2">
                         </div>
                     </div>
-                    <div class="row" style="margin-top:5px">
-                        <div class="col-md-1">
+                    <div class="row option-cetak-label" style="margin-top:5px">
+                        <div class="col-md-2">
                         </div>
-                        <div class="col-md-2" style="padding-bottom:10px">
+                        <div class="col-md-1" style="padding-bottom:10px">
                             <label class="checkbox-container">
                                 <input id="ctk_nobuk" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
                                 <span id="ctk_nobuk" class="checkmark"></span>
                             </label>
                         </div>
                         <div class="col-md-3" style="padding-top: 7px;">
-                            No Pesanan di Label
+                            No Pesanan
                         </div>
-                        <div class="col-md-2" style="padding-bottom:10px">
+                        <div class="col-md-1" style="padding-bottom:10px">
                             <label class="checkbox-container">
                                 <input id="ctk_total" type="checkbox" class="cbx" name="cbx-print-label-only" />
                                 <span id="ctk_total" class="checkmark"></span>
                             </label>
                         </div>
                         <div class="col-md-3" style="padding-top: 7px;">
-                            Total Harga di Label
+                            Total Harga
                         </div>
-                        <div class="col-md-1">
+                        <div class="col-md-2">
                         </div>
                     </div>
-                    <div class="row" style="margin-top:5px">
-                        <div class="col-md-1">
+                    <div class="row option-cetak-label" style="margin-top:5px">
+                        <div class="col-md-2">
                         </div>
-                        <div class="col-md-2" style="padding-bottom:10px">
+                        <div class="col-md-1" style="padding-bottom:10px">
                             <label class="checkbox-container">
                                 <input id="ctk_ket" type="checkbox" class="cbx" name="cbx-print-label-only" />
                                 <span id="ctk_ket" class="checkmark"></span>
@@ -2110,7 +2198,7 @@
                         <div class="col-md-3" style="padding-top: 7px;">
                             Catatan Pembeli
                         </div>
-                        <div class="col-md-2" style="padding-bottom:10px">
+                        <div class="col-md-1" style="padding-bottom:10px">
                             <label class="checkbox-container">
                                 <input id="ctk_logo" type="checkbox" class="cbx" name="cbx-print-label-only" />
                                 <span id="ctk_logo" class="checkmark"></span>
@@ -2119,10 +2207,11 @@
                         <div class="col-md-3" style="padding-top: 7px;">
                             Logo Toko
                         </div>
-                        <div class="col-md-1">
+                        <div class="col-md-2">
                         </div>
                     </div>
                 </div>
+                <br />
                 @*//add by nurul 2/5/2019*@
                 @*<div id="cetakA5Form">
                         <div class="row">
@@ -2782,6 +2871,28 @@
                 searchTableFakturTempo();
             });
             //add by nurul 16/6/2020
+
+            //add by nurul 25/2/2021
+            $('#btn_print_massal').click(function () {
+                var rows_selected_recnum = [];
+                var rows_selected_nobuk = [];
+                $('.checkbox_print').each(function (i, item) {
+                    if ($(item).is(":checked")) {
+                        rows_selected_recnum.push($(item).attr("data-recnum"));
+                        rows_selected_nobuk.push($(item).attr("data-bukti"))
+                    }
+                });
+                if (rows_selected_recnum.length < 1) {
+                    alert('Mohon pilih faktur yg mau dicetak.');
+                    return false;
+                } else {
+                    cetakFaktur(rows_selected_nobuk, rows_selected_recnum, "2");
+                }
+            });
+            $('#TakeRecordFaktur').change(function () {
+                refreshTableFaktur1("1");
+            });
+            //end add by nurul 25/2/2021
         });
 
         //add by Tri, call midtrans api get token
@@ -3664,7 +3775,7 @@
                     if (flagBundling != "True") {
                         $('.cm-bundling').attr('readonly', 'readonly').css('background-color', '#eee').css('cursor', 'not-allowed');
                     }
-                    
+                    $('#text-check-faktur').text('');
                     //end add by nurul 18/1/2021, bundling
                     $('#loading_spinner').hide();
                 },
@@ -5031,6 +5142,7 @@
                     //end change by nurul 20/02/2019
 
                     $nettoSebelumnya += $bakalNetto;
+                    $('#text-check-faktur').text('');
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
@@ -5070,7 +5182,7 @@
                     //refreshTableFaktur1();
                     refreshTableFaktur1($savePage);
                     $('#loading_spinner').hide();
-
+                    $('#text-check-faktur').text('');
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -5175,20 +5287,25 @@
                 }
             });
         }*@
-        function refreshTableFaktur1($savePage) {
+        function refreshTableFaktur1($pageAwal) {
             //add by nurul 27/6/2019
             var $tpPage = "";
-            if ($savePage == undefined) {
-                $tpPage = $('#txt_last_page').val();
+            //if ($pageAwal == undefined) {
+            //    $tpPage = $('#txt_last_page').val();
+            //} else {
+            //    if ($('#txt_last_page').val() == undefined) {
+            //        $tpPage = $pageAwal;
+            //    } else {
+            //        $tpPage = $('#txt_last_page').val();
+            //    }
+            //}
+            if ($pageAwal != undefined) {
+                $tpPage = $pageAwal;
             } else {
-                if ($('#txt_last_page').val() == undefined) {
-                    $tpPage = $savePage;
-                } else {
-                    $tpPage = $('#txt_last_page').val();
-                }
+                $tpPage = $('#txt_last_page').val();
             }
             //end add by nurul 27/6/2019
-            var $link = '@Html.Raw(Url.Action("RefreshTableFaktur1", "Manage", new { page = "replaceLastPage", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
+            var $link = '@Html.Raw(Url.Action("RefreshTableFaktur1", "Manage", new { take = "replaceLastTake", page = "replaceLastPage", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_faktur').val()));
             //$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
             $link = $link.replace("replaceLastPage", encodeURIComponent($tpPage));
@@ -5196,6 +5313,7 @@
             var filtervalue = get_faktur_filtervalue(filterby);
             $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
             $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordFaktur').val()));
 
             $.ajax({
                 type: "GET",
@@ -5209,7 +5327,7 @@
                     cekJumlahPesananBulanIni();
                     $('#loading_faktur_tab').hide();
                     $('#table-faktur-partial').show();
-
+                    $('#text-check-faktur').text('');
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -5240,7 +5358,7 @@
         }
         //end add by nurul 16/6/2020
         function searchTableFaktur1(){
-            var $link = '@Html.Raw(Url.Action("RefreshTableFaktur1", "Manage", new { search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
+            var $link = '@Html.Raw(Url.Action("RefreshTableFaktur1", "Manage", new { take = "replaceLastTake", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_faktur').val()));
             //add by nurul 16/6/2020
             var filterby = get_faktur_filterby();
@@ -5248,6 +5366,7 @@
             $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
             $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
             //end add by nurul 16/6/2020
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordFaktur').val()));
 
             $.ajax({
                 type: "GET",
@@ -5260,6 +5379,7 @@
                     $('#search_faktur_click')[0].disabled = false;
                     $('#table-faktur-partial').html(response);
                     $('#loading_faktur_tab').hide();
+                    $('#text-check-faktur').text('');
                 },
                 error: function (xhr, status, error) {
                     $('#search_faktur_click')[0].disabled = false;
@@ -5774,12 +5894,17 @@
         //END ADD BY CALVIN 21 Maret 2019
 
         //add by nurul 3/12/2018
-        function cetakFaktur(nobuk, rec) {
+        function cetakFaktur(nobuk, rec, mode) {
             var rows_selected = [];
             var row_bukti = [];
-            rows_selected.push(rec);
-            row_bukti.push(nobuk);
-
+            if (mode == "2") {
+                rows_selected = rec;
+                row_bukti = nobuk;
+            } else {
+                rows_selected.push(rec);
+                row_bukti.push(nobuk);
+            }
+            
             //change by calvin 28 nov 2018, print dialog
             @*var link = '@Url.Action("LihatFaktur", "Manage", new {noBukPesanan = "replaceNoBuk"})';
             link = link.replace('replaceNoBuk', nobuk);
@@ -5791,7 +5916,13 @@
                 alert('Please allow popups for this website');
             }*@
             //add by nurul 29/11/2018
-            $('#cetakfaktur_label').text(nobuk);
+            if (row_bukti.length == 1) {
+                $('#cetakfaktur_hitung').text("Apakah Anda yakin ingin mencetak Faktur dengan No. Bukti ");
+                $('#cetakfaktur_label').text(nobuk);
+            } else {
+                $('#cetakfaktur_hitung').text("Apakah Anda yakin ingin mencetak " + row_bukti.length + " Faktur");
+                $('#cetakfaktur_label').text('');
+            }
             //end add
 
             $('#modalPrintOption').modal('show');
@@ -5842,6 +5973,25 @@
             //$('#ctk_total1').attr('checked', true);
             //end add by nurul 10/1/2020
 
+            $('#ctk_tlp_faktur').attr('checked', true);
+            $('#ctk_alamat_faktur').attr('checked', true);
+            $('#ctk_ket_faktur').attr('checked', true);
+
+            $('#ctk_faktur').off('click').on('click', function () {
+                if ($("#ctk_faktur").is(":checked") == true) {
+                    $('.option-cetak-faktur').show();
+                } else {
+                    $('.option-cetak-faktur').hide();
+                }
+            });
+            $('#ctk_label').off('click').on('click', function () {
+                if ($("#ctk_label").is(":checked") == true) {
+                    $('.option-cetak-label').show();
+                } else {
+                    $('.option-cetak-label').hide();
+                }
+            });
+
             $('#btn-print-faktur').off('click').on('click', function () {
                 var toko = $('#nama_toko').val();
                 //var $toko = '&toko=' + encodeURIComponent(toko);
@@ -5860,6 +6010,10 @@
                 var jenisKertas = "0";
                 var ket = "0";
                 var logo = "0";
+
+                var tlp_faktur = "0";
+                var alamat_faktur = "0";
+                var ket_faktur = "0";
                 //if ($('#LayoutSize').val() == "1") {
                     @*var link = '@Url.Action("LihatFaktur", "Manage", new {noBukPesanan = "replaceNoBuk"})';
                     link = link.replace('replaceNoBuk', encodeURIComponent(nobuk));*@
@@ -5914,6 +6068,22 @@
                     logo = "1";
                 } else if ($('#ctk_logo').is(":checked") == false) {
                     logo = "0";
+                }
+
+                if ($("#ctk_tlp_faktur").is(":checked") == true) {
+                    tlp_faktur = "1";
+                } else if ($("#ctk_tlp_faktur").is(":checked") == false) {
+                    tlp_faktur = "0";
+                }
+                if ($("#ctk_alamat_faktur").is(":checked") == true) {
+                    alamat_faktur = "1";
+                } else if ($("#ctk_alamat_faktur").is(":checked") == false) {
+                    alamat_faktur = "0";
+                }
+                if ($("#ctk_ket_faktur").is(":checked") == true) {
+                    ket_faktur = "1";
+                } else if ($("#ctk_ket_faktur").is(":checked") == false) {
+                    ket_faktur = "0";
                 }
                 @*} else if ($('#LayoutSize').val() == "2") {
                     var link = '@Url.Action("LihatFakturA5", "Manage", new {noBukPesanan = "replaceNoBuk"})';
@@ -5995,7 +6165,10 @@
                                             namaLink: nama,
                                             ketLink: ket,
                                             logoLink: logo,
-                                            refLink:"1"
+                                            refLink: "1",
+                                            tlp_fakturLink: tlp_faktur,
+                                            alamat_fakturLink: alamat_faktur,
+                                            ket_fakturLink: ket_faktur
                                         };
 
                                         $.ajax({

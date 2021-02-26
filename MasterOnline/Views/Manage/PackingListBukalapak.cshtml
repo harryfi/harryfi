@@ -427,6 +427,107 @@
             }
         });
     }
+
+    //add by nurul 26/2/2021
+    function BukalapakGetFakturPerPacking(cust) {
+        var rows_selected = [];
+        var row_bukti = [];
+        $('.checkbox_packing_bukalapak').each(function () {
+            if ($(this).attr("data-cust") == cust && $(this).is(":checked")) {
+                rows_selected.push($(this).attr("data-recnum"));
+                var bukti = $(this).attr("data-bukti") + " ";
+                row_bukti.push(bukti);
+            }
+        });
+
+        if (row_bukti.length > 0) {
+
+            $('#modalPrintFakturOption__' + cust).modal({
+                show: true,
+                backdrop: 'static',
+                keyboard: false
+            });
+            $('#cetak_faktur__' + cust).text(row_bukti.length);
+            $('#ctk_alamat_faktur__' + cust).attr('checked', true);
+            $('#ctk_tlp_faktur__' + cust).attr('checked', true);
+            $('#ctk_ket_faktur__' + cust).attr('checked', true);
+
+            $('#btn-print-faktur2__' + cust).off('click').on('click', function () {
+                var toko = $('#nama_toko_faktur__' + cust).val();
+                var tlpToko = $('#tlp_toko_faktur__' + cust).val();
+                var alamat_faktur = "0";
+                var tlp_faktur = "0";
+                var ket_faktur = "0";
+
+                if ($("#ctk_alamat_faktur__" + cust).is(":checked") == true) {
+                    alamat_faktur = "1";
+                } else if ($("#ctk_alamat_faktur__" + cust).is(":checked") == false) {
+                    alamat_faktur = "0";
+                }
+                if ($('#ctk_tlp_faktur__' + cust).is(":checked") == true) {
+                    tlp_faktur = "1";
+                } else if ($('#ctk_tlp_faktur__' + cust).is(":checked") == false) {
+                    tlp_faktur = "0";
+                }
+                if ($('#ctk_ket_faktur__' + cust).is(":checked") == true) {
+                    ket_faktur = "1";
+                } else if ($('#ctk_ket_faktur__' + cust).is(":checked") == false) {
+                    ket_faktur = "0";
+                }
+                
+                $('#modalPrintBukalapak__faktur__' + cust).html('Print Faktur MasterOnline');
+                $('#modalPrintBukalapak__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
+                $('#modalPrintBukalapak__' + cust).modal({
+                    show: true,
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                
+                $postdata2 = {
+                    cust: cust,
+                    bukti: $('#packingList_NO_BUKTI').val(),
+                    rows_selected: rows_selected,
+                    toko: toko,
+                    tlptoko: tlpToko,
+                    ctkFaktur: "1",
+                    tlp_fakturLink: tlp_faktur,
+                    alamat_fakturLink: alamat_faktur,
+                    ket_fakturLink: ket_faktur
+                };
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("CetakLabelMo", "Manage")',
+                    contentType: "application/json; charset=UTF-8",
+                    cache: false,
+                    data: JSON.stringify($postdata2),
+                    success: function (response) {
+                        if (response != null) {
+                            if (response.mo_error == null) {
+                                $('#modalPrintFakturOption__' + cust).modal('hide');
+                                $('#modalPrintBukalapak__' + cust).modal('hide');
+                                var w = window.open('about:blank');
+                                w.document.open();
+                                w.document.write(response);
+                                w.document.close();
+                            } else {
+                                $('#modalPrintFakturOption__' + cust).modal('hide');
+                                $('#modalPrintBukalapak__textarea__' + cust).html(response.mo_error);
+                                alert(response.mo_error);
+                            }
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#modalPrintFakturOption__' + cust).modal('hide');
+                        console.log(error);
+                    }
+                });
+            });
+
+        } else {
+            alert("Mohon pilih pesanan yang mau diproses.");
+        }
+    }
+    //end add by nurul 26/2/2021
     function BukalapakGetLabelPerPacking(cust, label) {
 
         var rows_selected = [];
@@ -533,7 +634,8 @@
                         backdrop: 'static',
                         keyboard: false
                     });
-                    $('#cetak_label__' + cust).text(row_bukti);
+                    //$('#cetak_label__' + cust).text(row_bukti);
+                    $('#cetak_label__' + cust).text(row_bukti.length);
                     $('#ctk_alamat__' + cust).attr('checked', true);
                     $('#ctk_tlp__' + cust).attr('checked', true);
                     $('#ctk_mp__' + cust).attr('checked', true);
@@ -1044,281 +1146,375 @@
             @Html.TextBox("PackingListBukalapakFound", PackingListBukalapakFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
             @foreach (var item in distinctCust)
             {
-                <div id="bukalapak_tab_content__@(item.CUST)" class="tab-pane fade in">
-                    <input id="txt_last_page__@(item.CUST)" type="hidden" class="form-control" value="@ViewData["LastPage"]">
-                    @*add by nurul 13/12/2019*@
-                    <div class="modal fade" id="modalPrintLabelOption__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel__@(item.CUST)">
-                        <div class="modal-dialog" id="modal-print-option" role="document">
-                            <div class="modal-content " style="margin:auto;height:470px;width:650px;overflow-y:auto">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                    <h4 class="modal-title" id="printOptionLabel__@(item.CUST)">Cetak Label</h4>
-                                    <hr />
-                                    <div>
-                                        <h5>Apakah Anda yakin ingin mencetak label <span class="cetak_label" id="cetak_label__@(item.CUST)"></span>?</h5>
-                                    </div>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="row">
-                                        <div class="col-md-4" style="text-align:left">
-                                            <label>Nama Toko(Dropship) </label>
-                                        </div>
-                                        <div class="col-md-6" style="text-align:left">
-                                            <input id="nama_toko__@(item.CUST)" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
-                                        </div>
-                                        <div class="col-md-2"></div>
-                                    </div>
-                                    <br />
-                                    <div class="row">
-                                        <div class="col-md-4" style="text-align:left">
-                                            <label>No Telepon Toko(Dropship) </label>
-                                        </div>
-                                        <div class="col-md-6" style="text-align:left">
-                                            <input id="tlp_toko__@(item.CUST)" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
-                                        </div>
-                                        <div class="col-md-2"></div>
-                                    </div>
-                                    <br />
-                                    <div class="row">
-                                        <div class="col-md-4" style="text-align:left">
-                                            <label>Pilihan Cetak : </label>
-                                        </div>
-                                        <div class="col-md-8"></div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-1">
-                                        </div>
-                                        <div class="col-md-2" style="padding-bottom:10px">
-                                            <label class="checkbox-container">
-                                                <input id="ctk_mp__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
-                                                <span id="ctk_mp__@(item.CUST)" class="checkmark"></span>
-                                            </label>
-                                        </div>
-                                        <div class="col-md-3" style="padding-top: 7px;">
-                                            Nama Marketplace
-                                        </div>
-                                        <div class="col-md-2" style="padding-bottom:10px">
-                                            <label class="checkbox-container">
-                                                <input id="ctk_alamat__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
-                                                <span id="ctk_alamat__@(item.CUST)" class="checkmark"></span>
-                                            </label>
-                                        </div>
-                                        <div class="col-md-3" style="padding-top: 7px;">
-                                            Alamat Toko
-                                        </div>
-                                        <div class="col-md-1">
-                                        </div>
-                                    </div>
-                                    <div class="row" style="margin-top:5px">
-                                        <div class="col-md-1">
-                                        </div>
-                                        <div class="col-md-2" style="padding-bottom:10px">
-                                            <label class="checkbox-container">
-                                                <input id="ctk_tlp__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
-                                                <span id="ctk_tlp__@(item.CUST)" class="checkmark"></span>
-                                            </label>
-                                        </div>
-                                        <div class="col-md-3" style="padding-top: 7px;">
-                                            Telepon Toko
-                                        </div>
-                                        <div class="col-md-2" style="padding-bottom:10px">
-                                            <label class="checkbox-container">
-                                                <input id="ctk_nama__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
-                                                <span id="ctk_nama__@(item.CUST)" class="checkmark"></span>
-                                            </label>
-                                        </div>
-                                        <div class="col-md-3" style="padding-top: 7px;">
-                                            Nama Toko
-                                        </div>
-                                        <div class="col-md-1">
-                                        </div>
-                                    </div>
-                                    <div class="row" style="margin-top:5px">
-                                        <div class="col-md-1">
-                                        </div>
-                                        <div class="col-md-2" style="padding-bottom:10px">
-                                            <label class="checkbox-container">
-                                                <input id="ctk_nobuk__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
-                                                <span id="ctk_nobuk__@(item.CUST)" class="checkmark"></span>
-                                            </label>
-                                        </div>
-                                        <div class="col-md-3" style="padding-top: 7px;">
-                                            No Bukti Pesanan
-                                        </div>
-                                        <div class="col-md-2" style="padding-bottom:10px">
-                                            <label class="checkbox-container">
-                                                <input id="ctk_total__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
-                                                <span id="ctk_total__@(item.CUST)" class="checkmark"></span>
-                                            </label>
-                                        </div>
-                                        <div class="col-md-3" style="padding-top: 7px;">
-                                            Total Harga
-                                        </div>
-                                        <div class="col-md-1">
-                                        </div>
-                                    </div>
-                                    <div class="row" style="margin-top:5px">
-                                        <div class="col-md-1">
-                                        </div>
-                                        <div class="col-md-2" style="padding-bottom:10px">
-                                            <label class="checkbox-container">
-                                                <input id="ctk_ket__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
-                                                <span id="ctk_ket__@(item.CUST)" class="checkmark"></span>
-                                            </label>
-                                        </div>
-                                        <div class="col-md-3" style="padding-top: 7px;">
-                                            Catatan Pembeli
-                                        </div>
-                                        <div class="col-md-2" style="padding-bottom:10px">
-                                            <label class="checkbox-container">
-                                                <input id="ctk_logo__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
-                                                <span id="ctk_logo__@(item.CUST)" class="checkmark"></span>
-                                            </label>
-                                        </div>
-                                        <div class="col-md-3" style="padding-top: 7px;">
-                                            Logo Toko
-                                        </div>
-                                        <div class="col-md-1">
-                                        </div>
-                                    </div>
-                                    <br />
-                                    <div class="row">
-                                        <div class="col-md-1">
-                                        </div>
-                                        <div class="col-md-10" style="padding-top:10px">
-                                            <button id="btn-print-faktur__@(item.CUST)" type="button" class="btn btn-success btn-block">Cetak</button>
-                                        </div>
-                                        <div class="col-md-1">
-                                        </div>
-                                    </div>
+            <div id="bukalapak_tab_content__@(item.CUST)" class="tab-pane fade in">
+                <input id="txt_last_page__@(item.CUST)" type="hidden" class="form-control" value="@ViewData["LastPage"]">
+                @*add by nurul 13/12/2019*@
+                <div class="modal fade" id="modalPrintLabelOption__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel__@(item.CUST)">
+                    <div class="modal-dialog" id="modal-print-option" role="document">
+                        <div class="modal-content " style="margin:auto;height:470px;width:650px;overflow-y:auto">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="printOptionLabel__@(item.CUST)">Print Label</h4>
+                                <hr />
+                                <div>
+                                    <h5>Apakah Anda yakin ingin mencetak <span class="cetak_label" id="cetak_label__@(item.CUST)"></span> label?</h5>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    @*end add by nurul 13/12/2019*@
-                    <div class="modal fade" id="modalPrintBukalapak__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="modalPrintBukalapak__label__@(item.CUST)">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    @* <button type="button" class="close btn_modal_hide" aria-label="Close"><span aria-hidden="true">&times;</span></button> *@
-                                    <h4 class="modal-title" id="modalPrintBukalapak__label__@(item.CUST)">Print Pesanan Bukalapak</h4>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-4" style="text-align:left">
+                                        <label>Nama Toko (Dropship) </label>
+                                    </div>
+                                    <div class="col-md-6" style="text-align:left">
+                                        <input id="nama_toko__@(item.CUST)" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
+                                    </div>
+                                    <div class="col-md-2"></div>
                                 </div>
-                                <div class="modal-body">
-                                    <div class="row">
-                                        <div class="col-md-12" id="modalPrintBukalapak__textarea__@(item.CUST)">
-                                        </div>
+                                <br />
+                                <div class="row">
+                                    <div class="col-md-4" style="text-align:left">
+                                        <label>No Telepon Toko (Dropship) </label>
+                                    </div>
+                                    <div class="col-md-6" style="text-align:left">
+                                        <input id="tlp_toko__@(item.CUST)" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
+                                    </div>
+                                    <div class="col-md-2"></div>
+                                </div>
+                                <br />
+                                <div class="row">
+                                    <div class="col-md-4" style="text-align:left">
+                                        <label>Pengaturan Label : </label>
+                                    </div>
+                                    <div class="col-md-8"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-1">
+                                    </div>
+                                    <div class="col-md-2" style="padding-bottom:10px">
+                                        <label class="checkbox-container">
+                                            <input id="ctk_mp__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                            <span id="ctk_mp__@(item.CUST)" class="checkmark"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-3" style="padding-top: 7px;">
+                                        Nama Marketplace
+                                    </div>
+                                    <div class="col-md-2" style="padding-bottom:10px">
+                                        <label class="checkbox-container">
+                                            <input id="ctk_alamat__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                            <span id="ctk_alamat__@(item.CUST)" class="checkmark"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-3" style="padding-top: 7px;">
+                                        Alamat Toko
+                                    </div>
+                                    <div class="col-md-1">
                                     </div>
                                 </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-danger" onclick="$('#modalPrintBukalapak__@(item.CUST)').modal('hide');">Tutup</button>
-                                    @*<button type="button" class="btn btn-success" onclick="printRekap();">Print</button>*@
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="input-group">
-                                <input id="search_table_packing_pesanan_bukalapak__@(item.CUST)" type="text" class="form-control" placeholder="Pencarian">
-                                <span class="input-group-btn">
-                                    <button type="button" id="search_table_packing_pesanan_bukalapak_button__@(item.CUST)" class="btn btn-primary">
-                                        <i class="fa fa-search"></i>
-                                    </button>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                @*<input id="txtShipment__@(item.CUST)" disabled="disabled" placeholder="Jasa Pengiriman" required="required" class="form-control" maxlength="30" data_val_length_max="30">
-        <span class="input-group-btn">
-            <button id="btnShipment__@(item.CUST)" class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryProvBukalapak('@(item.CUST)')">
-                <span class="glyphicon glyphicon-option-horizontal"></span>
-            </button>
-        </span>*@
-                                    <select id="txtShipment__@(item.CUST)" class="BukalapakShipment" data-kodecust="@(item.CUST)" placeholder="Jasa Pengiriman untuk Drop Off Manual" required="required"></select>                               
-                            </div>
-                        </div>
-                        @*<div class="col-md-1" style="text-align:right">
-                            <div class="input-group">
-                                <div id="bukalapak-service-type-@(item.CUST)">
-                                    <select id="cbServiceType-@(item.CUST)" class="BukalapakServiceType" data-kodecust="@(item.CUST)" placeholder="Service Type" required="required"></select>
-                                </div>
-                            </div>
-                        </div>*@
-                        <div class="col-md-1"></div>
-                        <div class="col-md-1 pull-left">
-                            <button id="btnRefreshBukalapak_@(item.CUST)" type="button" class="btn btn-default" onclick="RefreshPackingBukalapak('@(item.CUST)')" style="width:75px">Refresh</button>
-                        </div>
-                        <div class="col-md-2 pull-right" style="text-align:right">
-                            <div class="col-md-6" style="text-align:right">
-                                <div class="btn-group pull-right" role="group">
-                                    <button id="pl_bukalapak_btnGroup1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:75px">
-                                        Proses <span class="caret"></span>
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnProsesPackingBukalapak__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="cekValidasiPackingBukalapak('@(item.CUST)', '2')">
-                                            <span aria-hidden="true"> Request Pick Up</span>
-                                        </button>
-                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnProsesDropoffBukalapak__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="cekValidasiPackingBukalapak('@(item.CUST)', '1')">
-                                            <span aria-hidden="true"> Drop Off Otomatis</span>
-                                        </button>
-                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnProsesBukalapak__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="cekValidasiRTSBukalapak('@(item.CUST)')">
-                                            <span aria-hidden="true"> Drop Off Manual</span>
-                                        </button>
+                                <div class="row" style="margin-top:5px">
+                                    <div class="col-md-1">
+                                    </div>
+                                    <div class="col-md-2" style="padding-bottom:10px">
+                                        <label class="checkbox-container">
+                                            <input id="ctk_tlp__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                            <span id="ctk_tlp__@(item.CUST)" class="checkmark"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-3" style="padding-top: 7px;">
+                                        Telepon Toko
+                                    </div>
+                                    <div class="col-md-2" style="padding-bottom:10px">
+                                        <label class="checkbox-container">
+                                            <input id="ctk_nama__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                            <span id="ctk_nama__@(item.CUST)" class="checkmark"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-3" style="padding-top: 7px;">
+                                        Nama Toko
+                                    </div>
+                                    <div class="col-md-1">
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6 pull-right" style="text-align:right">
-                                <div class="btn-group pull-right" role="group">
-                                    <button id="pl_bukalapak_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:75px">
-                                        Print <span class="caret"></span>
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnPrintBukalapak__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="BukalapakGetLabelPerPacking('@(item.CUST)','1')">
-                                            <span aria-hidden="true"> Label Marketplace</span>
-                                        </button>
-                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnPrintMOBukalapak__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="BukalapakGetLabelPerPacking('@(item.CUST)','2')">
-                                            <span aria-hidden="true"> Label MasterOnline</span>
-                                        </button>
+                                <div class="row" style="margin-top:5px">
+                                    <div class="col-md-1">
+                                    </div>
+                                    <div class="col-md-2" style="padding-bottom:10px">
+                                        <label class="checkbox-container">
+                                            <input id="ctk_nobuk__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                            <span id="ctk_nobuk__@(item.CUST)" class="checkmark"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-3" style="padding-top: 7px;">
+                                        No Bukti Pesanan
+                                    </div>
+                                    <div class="col-md-2" style="padding-bottom:10px">
+                                        <label class="checkbox-container">
+                                            <input id="ctk_total__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                            <span id="ctk_total__@(item.CUST)" class="checkmark"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-3" style="padding-top: 7px;">
+                                        Total Harga
+                                    </div>
+                                    <div class="col-md-1">
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top:5px">
+                                    <div class="col-md-1">
+                                    </div>
+                                    <div class="col-md-2" style="padding-bottom:10px">
+                                        <label class="checkbox-container">
+                                            <input id="ctk_ket__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                            <span id="ctk_ket__@(item.CUST)" class="checkmark"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-3" style="padding-top: 7px;">
+                                        Catatan Pembeli
+                                    </div>
+                                    <div class="col-md-2" style="padding-bottom:10px">
+                                        <label class="checkbox-container">
+                                            <input id="ctk_logo__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                            <span id="ctk_logo__@(item.CUST)" class="checkmark"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-3" style="padding-top: 7px;">
+                                        Logo Toko
+                                    </div>
+                                    <div class="col-md-1">
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="row">
+                                    <div class="col-md-1">
+                                    </div>
+                                    <div class="col-md-10" style="padding-top:10px">
+                                        <button id="btn-print-faktur__@(item.CUST)" type="button" class="btn btn-success btn-block">Print</button>
+                                    </div>
+                                    <div class="col-md-1">
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                  
-                    <div class="row">
-                        <label class="col-lg-1 col-sm-6 col-md-1" style="margin-top:10px;">Filter</label>
-                        <div class="col-lg-2 col-sm-6 col-md-2">
-                            <select class="form-control" id="filter_packing_field_bukalapak__@(item.CUST)" required="required">
-                                <option>Harap Pilih</option>
-                                <option value="kirim">Status Kirim</option>
-                                <option value="print">Status Print</option>
-                            </select>
-                        </div>
-                        <div class="col-lg-2 col-sm-6 col-md-2">
-                            <div class="col-12" id="filter_packing_kirim_field_option_div_bukalapak__@(item.CUST)" style="display:none">
-                                <select class="form-control" id="filter_packing_kirim_bukalapak__@(item.CUST)" required="required">
-                                    <option>Harap Pilih</option>
-                                    <option value="0">Dalam Proses</option>
-                                    <option value="1">Gagal Proses</option>
-                                    <option value="2">Siap Kirim</option>
-                                    <option value="5">Batal</option>
-                                </select>
-                            </div>
-                            <div class="col-12" id="filter_packing_print_field_option_div_bukalapak__@(item.CUST)" style="display:none">
-                                <select class="form-control" id="filter_packing_print_bukalapak__@(item.CUST)" required="required">
-                                    <option>Harap Pilih</option>
-                                    <option value="1">Sudah</option>
-                                    <option value="0">Belum</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <br />
-                    <div id="table_packing_bukalapak__@(item.CUST)" >
-                       
                     </div>
                 </div>
+                <div class="modal fade" id="modalPrintFakturOption__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="printOptionFaktur__@(item.CUST)">
+                    <div class="modal-dialog" id="modal-print-option" role="document">
+                        <div class="modal-content " style="margin:auto;height:350px;width:650px;overflow-y:auto">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="printOptionFaktur__@(item.CUST)">Print Faktur</h4>
+                                <hr />
+                                <div>
+                                    <h5>Apakah Anda yakin ingin mencetak <span class="cetak_label" id="cetak_faktur__@(item.CUST)"></span> faktur?</h5>
+                                </div>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-4" style="text-align:left">
+                                        <label>Nama Toko (Dropship) </label>
+                                    </div>
+                                    <div class="col-md-6" style="text-align:left">
+                                        <input id="nama_toko_faktur__@(item.CUST)" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
+                                    </div>
+                                    <div class="col-md-2"></div>
+                                </div>
+                                <br />
+                                <div class="row">
+                                    <div class="col-md-4" style="text-align:left">
+                                        <label>No Telepon Toko (Dropship) </label>
+                                    </div>
+                                    <div class="col-md-6" style="text-align:left">
+                                        <input id="tlp_toko_faktur__@(item.CUST)" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
+                                    </div>
+                                    <div class="col-md-2"></div>
+                                </div>
+                                <br />
+                                <div class="row">
+                                    <div class="col-md-4" style="text-align:left">
+                                        <label>Pengaturan Faktur : </label>
+                                    </div>
+                                    <div class="col-md-8"></div>
+                                </div>
+                                <div class="row option-cetak-faktur">
+                                    <div class="col-md-2">
+                                    </div>
+                                    <div class="col-md-1" style="padding-bottom:10px">
+                                        <label class="checkbox-container">
+                                            <input id="ctk_alamat_faktur__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                            <span id="ctk_alamat_faktur__@(item.CUST)" class="checkmark"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-3" style="padding-top: 7px;">
+                                        Alamat Toko
+                                    </div>
+                                    <div class="col-md-1" style="padding-bottom:10px">
+                                        <label class="checkbox-container">
+                                            <input id="ctk_tlp_faktur__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                            <span id="ctk_tlp_faktur__@(item.CUST)" class="checkmark"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-3" style="padding-top: 7px;">
+                                        Telepon Toko
+                                    </div>
+                                    <div class="col-md-2">
+                                    </div>
+                                </div>
+                                <div class="row option-cetak-faktur">
+                                    <div class="col-md-2">
+                                    </div>
+                                    <div class="col-md-1" style="padding-bottom:10px">
+                                        <label class="checkbox-container">
+                                            <input id="ctk_ket_faktur__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                            <span id="ctk_ket_faktur__@(item.CUST)" class="checkmark"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-3" style="padding-top: 7px;">
+                                        Catatan Pembeli
+                                    </div>
+                                    <div class="col-md-1">
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="row">
+                                    <div class="col-md-1">
+                                    </div>
+                                    <div class="col-md-10" style="padding-top:10px">
+                                        <button id="btn-print-faktur2__@(item.CUST)" type="button" class="btn btn-success btn-block">Print</button>
+                                    </div>
+                                    <div class="col-md-1">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @*end add by nurul 13/12/2019*@
+                <div class="modal fade" id="modalPrintBukalapak__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="modalPrintBukalapak__label__@(item.CUST)">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                @* <button type="button" class="close btn_modal_hide" aria-label="Close"><span aria-hidden="true">&times;</span></button> *@
+                                <h4 class="modal-title" id="modalPrintBukalapak__label__@(item.CUST)">Print Pesanan Bukalapak</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-12" id="modalPrintBukalapak__textarea__@(item.CUST)">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" onclick="$('#modalPrintBukalapak__@(item.CUST)').modal('hide');">Tutup</button>
+                                @*<button type="button" class="btn btn-success" onclick="printRekap();">Print</button>*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <input id="search_table_packing_pesanan_bukalapak__@(item.CUST)" type="text" class="form-control" placeholder="Pencarian">
+                            <span class="input-group-btn">
+                                <button type="button" id="search_table_packing_pesanan_bukalapak_button__@(item.CUST)" class="btn btn-primary">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            @*<input id="txtShipment__@(item.CUST)" disabled="disabled" placeholder="Jasa Pengiriman" required="required" class="form-control" maxlength="30" data_val_length_max="30">
+                    <span class="input-group-btn">
+                        <button id="btnShipment__@(item.CUST)" class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryProvBukalapak('@(item.CUST)')">
+                            <span class="glyphicon glyphicon-option-horizontal"></span>
+                        </button>
+                    </span>*@
+                            <select id="txtShipment__@(item.CUST)" class="BukalapakShipment" data-kodecust="@(item.CUST)" placeholder="Jasa Pengiriman untuk Drop Off Manual" required="required"></select>
+                        </div>
+                    </div>
+                    @*<div class="col-md-1" style="text-align:right">
+                <div class="input-group">
+                    <div id="bukalapak-service-type-@(item.CUST)">
+                        <select id="cbServiceType-@(item.CUST)" class="BukalapakServiceType" data-kodecust="@(item.CUST)" placeholder="Service Type" required="required"></select>
+                    </div>
+                </div>
+            </div>*@
+                    <div class="col-md-1"></div>
+                    <div class="col-md-1 pull-left">
+                        <button id="btnRefreshBukalapak_@(item.CUST)" type="button" class="btn btn-default" onclick="RefreshPackingBukalapak('@(item.CUST)')" style="width:75px">Refresh</button>
+                    </div>
+                    <div class="col-md-2 pull-right" style="text-align:right">
+                        <div class="col-md-6" style="text-align:right">
+                            <div class="btn-group pull-right" role="group">
+                                <button id="pl_bukalapak_btnGroup1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:75px">
+                                    Proses <span class="caret"></span>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnProsesPackingBukalapak__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="cekValidasiPackingBukalapak('@(item.CUST)', '2')">
+                                        <span aria-hidden="true"> Request Pick Up</span>
+                                    </button>
+                                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnProsesDropoffBukalapak__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="cekValidasiPackingBukalapak('@(item.CUST)', '1')">
+                                        <span aria-hidden="true"> Drop Off Otomatis</span>
+                                    </button>
+                                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnProsesBukalapak__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="cekValidasiRTSBukalapak('@(item.CUST)')">
+                                        <span aria-hidden="true"> Drop Off Manual</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 pull-right" style="text-align:right">
+                            <div class="btn-group pull-right" role="group">
+                                <button id="pl_bukalapak_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:75px">
+                                    Print <span class="caret"></span>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnPrintBukalapak__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="BukalapakGetLabelPerPacking('@(item.CUST)','1')">
+                                        <span aria-hidden="true"> Label Marketplace</span>
+                                    </button>
+                                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnPrintMOBukalapak__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="BukalapakGetLabelPerPacking('@(item.CUST)','2')">
+                                        <span aria-hidden="true"> Label MasterOnline</span>
+                                    </button>
+                                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnPrintFakturMOBukalapak__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="BukalapakGetFakturPerPacking('@(item.CUST)')">
+                                        <span aria-hidden="true"> Faktur MasterOnline</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <label class="col-lg-1 col-sm-6 col-md-1" style="margin-top:10px;">Filter</label>
+                    <div class="col-lg-2 col-sm-6 col-md-2">
+                        <select class="form-control" id="filter_packing_field_bukalapak__@(item.CUST)" required="required">
+                            <option>Harap Pilih</option>
+                            <option value="kirim">Status Kirim</option>
+                            <option value="print">Status Print</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-2 col-sm-6 col-md-2">
+                        <div class="col-12" id="filter_packing_kirim_field_option_div_bukalapak__@(item.CUST)" style="display:none">
+                            <select class="form-control" id="filter_packing_kirim_bukalapak__@(item.CUST)" required="required">
+                                <option>Harap Pilih</option>
+                                <option value="0">Dalam Proses</option>
+                                <option value="1">Gagal Proses</option>
+                                <option value="2">Siap Kirim</option>
+                                <option value="5">Batal</option>
+                            </select>
+                        </div>
+                        <div class="col-12" id="filter_packing_print_field_option_div_bukalapak__@(item.CUST)" style="display:none">
+                            <select class="form-control" id="filter_packing_print_bukalapak__@(item.CUST)" required="required">
+                                <option>Harap Pilih</option>
+                                <option value="1">Sudah</option>
+                                <option value="0">Belum</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div id="table_packing_bukalapak__@(item.CUST)">
+
+                </div>
+            </div>
             }
         </div>
     </div>
