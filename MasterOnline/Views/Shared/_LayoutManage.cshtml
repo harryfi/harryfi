@@ -5,6 +5,7 @@
     MoDbContext context = new MoDbContext("");
     ErasoftContext erasoftContext = null;
     //var dataSession = HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+    string IPSERVER = System.Web.HttpContext.Current.Request.ServerVariables["SERVER_NAME"];
 
     var nama = "";
 
@@ -679,6 +680,7 @@
                             @*//add by nurul 26/7/2019*@
                             <li class="center">
                                 <a class="member-profile center">
+                                    IP SERVER @IPSERVER
                                     @if (member == "01")
                                     {
                                         <label>@nmMember </label>
@@ -714,6 +716,7 @@
 
                                         <label> @(sdTgl?.ToString("dd/MM/yyyy"))</label>
                                     }
+
                                 </a>
                             </li>
                             @*//end add by nurul 26/7/2019*@
