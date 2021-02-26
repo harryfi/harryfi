@@ -1570,6 +1570,11 @@ namespace MasterOnline.Controllers
                                         }
                                     }
 
+                                    if (category.name.Contains("Home"))
+                                    {
+                                        newrecord.ID_PARENT = "0";
+                                    }
+
                                     listNewRecord.Add(newrecord);
                                     MoDbContext.Category82Cart.AddRange(listNewRecord);
                                     MoDbContext.SaveChanges();
