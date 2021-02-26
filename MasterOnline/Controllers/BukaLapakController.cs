@@ -2596,7 +2596,7 @@ namespace MasterOnline.Controllers
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data.code, currentLog);
             try
             {
-                string urll = "https://api.bukalapak.com/stores/me/products?limit=10&offset=" + (page * 10) + "&product_type=";
+                string urll = "https://api.bukalapak.com/stores/me/products?limit=50&offset=" + (page * 50) + "&product_type=";
                 //Utils.HttpRequest req = new Utils.HttpRequest();
                 //string nonaktifUrl = "&not_for_sale_only=1";
                 if (display)
@@ -2652,7 +2652,7 @@ namespace MasterOnline.Controllers
 
                             }
                             ret.status = 1;
-                            if (resListProd.data.Length == 10)
+                            if (resListProd.data.Length == 50)
                             {
                                 //ret.message = (page + 1).ToString();
                                 ret.nextPage = 1;
@@ -2665,6 +2665,22 @@ namespace MasterOnline.Controllers
                                 {
                                     ret.message = "MOVE_TO_INACTIVE_PRODUCTS";
                                     ret.nextPage = 1;
+                                }
+                            }
+                            if(resListProd.meta.total < (page * 50) || page == 100)
+                            {
+                                if (display)
+                                {
+                                    ret.status = 1;
+                                    ret.nextPage = 1;
+                                    ret.message = "MOVE_TO_INACTIVE_PRODUCTS";
+                                }
+                                else
+                                {
+                                    ret.status = 0;
+                                    ret.nextPage = 0;
+                                    ret.message = "";
+                                    return ret;
                                 }
                             }
                             int IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(data.cust)).FirstOrDefault().RecNum.Value;
@@ -2751,8 +2767,13 @@ namespace MasterOnline.Controllers
                                 sSQL = sSQL + sSQL_Value;
                                 sSQL = sSQL.Substring(0, sSQL.Length - 1);
                                 var a = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                                if(a < 1)
+                                {
+                                    currentLog.REQUEST_EXCEPTION = sSQL.Replace("'", "\'\'");
+                                }
                                 ret.recordCount += a;
                             }
+                            //currentLog.REQUEST_RESULT = sSQL.Replace("'", "\'\'");//add 23 feb 2021, cek failed to move to inactive product
                             manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data.code, currentLog);
                         }
                         else
@@ -2963,10 +2984,34 @@ namespace MasterOnline.Controllers
                 string brand = "";
                 if (brg.specs != null)
                 {
-                    brand = brg.specs.merek;
-                    if (string.IsNullOrEmpty(brand))
+                    //brand = brg.specs.merek;
+                    //if (string.IsNullOrEmpty(brand))
+                    if (brg.specs.Brand != null)
                     {
-                        brand = brg.specs.brand;
+                        brand = brg.specs.Brand;
+                    }
+                    if (brg.specs.brand != null)
+                    {
+                        bool getBrand = true;
+                        try
+                        {
+                            brand = brg.specs.brand;
+                        }
+                        catch(Exception ex)
+                        {
+                            getBrand = false;
+                        }
+                        if (!getBrand)
+                        {
+                            try
+                            {
+                                brand = brg.specs.brand[0];
+                            }
+                            catch (Exception ex)
+                            {
+                                getBrand = false;
+                            }
+                        }
                     }
                 }
                 int p = 0;
@@ -2978,16 +3023,18 @@ namespace MasterOnline.Controllers
                     l = brg.dimensions.width;
                     t = brg.dimensions.height;
                 }
-                string desc = brg.description.Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`');
+                //string desc = brg.description.Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`');
+                string desc = brg.description.Replace("\r\n", "<br />").Replace("\n", "<br />").Replace('\'', '`');
                 if (!string.IsNullOrEmpty(brg.description_bb))
                 {
-                    desc = brg.description_bb.Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`');
+                    //desc = brg.description_bb.Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`');
+                    desc = brg.description_bb.Replace("\r\n", "<br />").Replace("\n", "<br />").Replace('\'', '`');
                 }
                 sSQL_Value += nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
                 sSQL_Value += brg.weight + " , " + p + ", " + l + ", " + t + ", '" + cust + "' , '" + brg.url + "' , '" + (namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg) + "' , '";
                 sSQL_Value += desc + "' , " + idMarket;
                 sSQL_Value += " , " + itemPrice + " , " + itemPrice + " , " + (display ? "1" : "0") + ", '";
-                sSQL_Value += brg.category.id + "' , '" + brg.category.name + "' , '" + brand;
+                sSQL_Value += brg.category.id + "' , '" + brg.category.name.Replace('\'', '`') + "' , '" + brand.Replace('\'', '`');
                 sSQL_Value += "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "','" + urlImage4 + "' , '" + urlImage5 + "','";
                 sSQL_Value += (type == 2 ? kdBrgInduk : "") + "','" + (type == 1 ? "4" : "3") + /*"') ,"*/ "'";
                 #region attribute
@@ -3017,7 +3064,7 @@ namespace MasterOnline.Controllers
                         {
                             attrBL.Remove(listAttr.FIELDNAME_1);
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_1 + "','" + listAttr.DISPLAYNAME_1.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_1.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_1.Replace("\'", "\'\'") + "','" + val + "'";
 
                     }
                     else
@@ -3035,7 +3082,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_2 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_2 + "','" + listAttr.DISPLAYNAME_2.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_2.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_2.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3052,7 +3099,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_3 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_3 + "','" + listAttr.DISPLAYNAME_3.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_3.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_3.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3069,7 +3116,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_4 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_4 + "','" + listAttr.DISPLAYNAME_4.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_4.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_4.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3086,7 +3133,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_5 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_5 + "','" + listAttr.DISPLAYNAME_5.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_5.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_5.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3103,7 +3150,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_6 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_6 + "','" + listAttr.DISPLAYNAME_6.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_6.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_6.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3120,7 +3167,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_7 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_7 + "','" + listAttr.DISPLAYNAME_7.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_7.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_7.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3137,7 +3184,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_8 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_8 + "','" + listAttr.DISPLAYNAME_8.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_8.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_8.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3154,7 +3201,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_9 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_9 + "','" + listAttr.DISPLAYNAME_9.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_9.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_9.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3171,7 +3218,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_10 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_10 + "','" + listAttr.DISPLAYNAME_10.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_10.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_10.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3188,7 +3235,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_11 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_11 + "','" + listAttr.DISPLAYNAME_11.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_11.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_11.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3205,7 +3252,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_12 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_12 + "','" + listAttr.DISPLAYNAME_12.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_12.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_12.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3222,7 +3269,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_13 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_13 + "','" + listAttr.DISPLAYNAME_13.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_13.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_13.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3239,7 +3286,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_14 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_14 + "','" + listAttr.DISPLAYNAME_14.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_14.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_14.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3256,7 +3303,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_15 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_15 + "','" + listAttr.DISPLAYNAME_15.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_15.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_15.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3273,7 +3320,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_16 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_16 + "','" + listAttr.DISPLAYNAME_16.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_16.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_16.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3290,7 +3337,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_17 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_17 + "','" + listAttr.DISPLAYNAME_17.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_17.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_17.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3307,7 +3354,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_18 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_18 + "','" + listAttr.DISPLAYNAME_18.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_18.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_18.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3324,7 +3371,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_19 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_19 + "','" + listAttr.DISPLAYNAME_19.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_19.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_19.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3341,7 +3388,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_20 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_20 + "','" + listAttr.DISPLAYNAME_20.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_20.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_20.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3358,7 +3405,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_21 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_21 + "','" + listAttr.DISPLAYNAME_21.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_21.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_21.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3375,7 +3422,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_22 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_22 + "','" + listAttr.DISPLAYNAME_22.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_22.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_22.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3392,7 +3439,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_23 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_23 + "','" + listAttr.DISPLAYNAME_23.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_23.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_23.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3409,7 +3456,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_24 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_24 + "','" + listAttr.DISPLAYNAME_24.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_24.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_24.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3426,7 +3473,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_25 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_25 + "','" + listAttr.DISPLAYNAME_25.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_25.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_25.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3443,7 +3490,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_26 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_26 + "','" + listAttr.DISPLAYNAME_26.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_26.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_26.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3460,7 +3507,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_27 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_27 + "','" + listAttr.DISPLAYNAME_27.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_27.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_27.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3477,7 +3524,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_28 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_28 + "','" + listAttr.DISPLAYNAME_28.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_28.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_28.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3494,7 +3541,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_29 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_29 + "','" + listAttr.DISPLAYNAME_29.Replace("\'", "\'\'") + "','" + val + "'";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_29.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_29.Replace("\'", "\'\'") + "','" + val + "'";
                     }
                     else
                     {
@@ -3511,7 +3558,7 @@ namespace MasterOnline.Controllers
                         {
                             val = (attrBL.TryGetValue(listAttr.FIELDNAME_30 + "2", out value) ? value.Replace("\'", "\'\'") : "");
                         }
-                        sSQL_Value += ", '" + listAttr.FIELDNAME_30 + "','" + listAttr.DISPLAYNAME_30.Replace("\'", "\'\'") + "','" + val + "') ,";
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_30.Replace("\'", "\'\'") + "','" + listAttr.DISPLAYNAME_30.Replace("\'", "\'\'") + "','" + val + "') ,";
                     }
                     else
                     {

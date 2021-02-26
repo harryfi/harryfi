@@ -31,6 +31,7 @@
         RefreshSemuaPesananMPPacking();
 
         $('#pesanan_detail_tab_focus').click();
+        RefreshPackingTabRekapBrg();
     });
 
     function RefreshSemuaPesananMPPacking() {
@@ -373,6 +374,35 @@
         });
     }
 
+    //add by nurul 17/2/2021
+    function RefreshPackingTabRekapBrg() {
+        //$('#search_packing').val('');
+        //$('#filter_packing_field').val('Harap Pilih').change();
+        var $link = '@Html.Raw(Url.Action("refreshTablePackingTabRekapBrg", "Manage", new { bukti = "replacebukti" }))';
+        $link = $link.replace("replacebukti", encodeURIComponent($('#packingList_NO_BUKTI').val()));
+        //$link = $link.replace("replacesearch", encodeURIComponent($('#search_packing').val()));
+        //$link = $link.replace("replacefilter", encodeURIComponent(null));
+        //$link = $link.replace("replacefiltervalue", encodeURIComponent(null));
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                $('#table-packing-tab-rekap-brg').hide();
+            },
+            success: function (response) {
+                $('#table-packing-tab-rekap-brg').html(response);
+                $('#table-packing-tab-rekap-brg').show();
+
+
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+    //end add by nurul 17/2/2021
+
 </script>
 <div class="form-horizontal" id="header-packing">
     <div class="row">
@@ -543,6 +573,7 @@
                                 <option value="0">Dalam Proses</option>
                                 <option value="1">Gagal Proses</option>
                                 <option value="2">Siap Kirim</option>
+                                <option value="5">Batal</option>
                             </select>
                         </div>
                         <div class="col-12" id="filter_packing_print_field_option_div" style="display:none">
@@ -675,9 +706,12 @@
             <div id="rekap_barang_tab" class="tab-pane fade in">
                 <div class="row">
                     <div class="col-lg-12">
-                        <div class="col-md-9"></div>
+                        <div class="col-md-8"></div>
+                        <div class="col-md-1">
+                            <button id="btnRefreshTabRekapBrg" type="button" class="btn btn-default" onclick="RefreshPackingTabRekapBrg()" style="width:75px">Refresh</button>
+                        </div>
                         <div class="col-md-2">
-                            <button type="button" id="btnPickingBarang" class="btn btn-primary pull-right" onclick="openModalPicking();">Scan Barcode Picking</button>
+                            <button type="button" id="btnPickingBarang" class="btn btn-primary" onclick="openModalPicking();">Scan Barcode Picking</button>
                         </div>
                         <div class="col-md-1">
                             @if (Model.listRekapBarang.Count > 0)
@@ -693,7 +727,8 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-12">
-                        <div class="hscroll table-responsive brgtblpromofrm">
+                        <div id="table-packing-tab-rekap-brg"></div>
+                        @*<div class="hscroll table-responsive brgtblpromofrm">
                             <table id="table_rekap_packinglist" class="table table-bordered" role="grid">
                                 <thead>
                                     <tr>
@@ -720,7 +755,7 @@
                                     }
                                 </tbody>
                             </table>
-                        </div>
+                        </div>*@
                     </div>
                 </div>
             </div>

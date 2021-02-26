@@ -2560,10 +2560,10 @@ namespace MasterOnline.Controllers
 
                             foreach (var listKodeBaru in splitlistBRGBaru)
                             {
-                                var checkBarangBaru = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == listKodeBaru.ToUpper()).ToList();
+                                var checkBarangBaru = ErasoftDbContext.STF02.Where(p => p.BRG.ToLower() == listKodeBaru.ToLower()).ToList();
                                 var kodeBrgLamaCheck = splitlistBRGLama[iurutan].ToString();
-                                var checkBarangLama = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == kodeBrgLamaCheck.ToUpper()).ToList();
-                                var checkBarangVariant = ErasoftDbContext.STF02.Where(p => p.PART.ToUpper() == kodeBrgLamaCheck.ToUpper()).ToList();
+                                var checkBarangLama = ErasoftDbContext.STF02.Where(p => p.BRG == kodeBrgLamaCheck).ToList();
+                                var checkBarangVariant = ErasoftDbContext.STF02.Where(p => p.PART.ToLower() == kodeBrgLamaCheck.ToLower()).ToList();
 
                                 if (checkBarangBaru.Count() == 0 && checkBarangLama.Count() > 0)
                                 {
@@ -2571,7 +2571,7 @@ namespace MasterOnline.Controllers
 
                                     var resultCekSI = (from a in ErasoftDbContext.SIT01B
                                                        join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
-                                                       where a.BRG.ToUpper() == kodeBrgLamaCheck.ToUpper()
+                                                       where a.BRG.ToLower() == kodeBrgLamaCheck.ToLower()
                                                        select new
                                                        {
                                                            a.NO_BUKTI,
@@ -2582,7 +2582,7 @@ namespace MasterOnline.Controllers
 
                                     var resultCekST = (from a in ErasoftDbContext.STT01B
                                                        join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
-                                                       where a.Kobar.ToUpper() == kodeBrgLamaCheck.ToUpper()
+                                                       where a.Kobar.ToLower() == kodeBrgLamaCheck.ToLower()
                                                        select new
                                                        {
                                                            a.Nobuk,
@@ -2601,7 +2601,7 @@ namespace MasterOnline.Controllers
                                     {
                                         // kondisi kalau belum posting
                                         sqlListKodeLama += "'" + listKodeBaru + "',";
-
+                                        
                                         EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, " " +
                                             "update stf02 set brg='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
                                             "update stf02h set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
@@ -2612,6 +2612,37 @@ namespace MasterOnline.Controllers
                                             "update pbt01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
                                             "update detailpromosis set KODE_BRG ='" + listKodeBaru + "' where KODE_BRG ='" + kodeBrgLamaCheck + "'; " +
                                             "update sot03c set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
+
+                                        string sSQL = "SELECT GD,BRG,TAHUN, ISNULL(SUM(QAWAL+(QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12)-(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12)), 0) as JUMLAH " +
+                                                        " FROM STF08A WHERE BRG = '" + listKodeBaru + "' GROUP BY GD,BRG,TAHUN ORDER BY GD ASC";
+                                        var ListQOHPerGD = ErasoftDbContext.Database.SqlQuery<STOCK_AKHIRTAHUN>(sSQL).ToList();
+                                        double dqtyTemp = 0;
+                                        var vTahun = Convert.ToInt16(DateTime.UtcNow.AddHours(7).ToString("yyyy").ToString());
+                                        foreach (var dataStock in ListQOHPerGD)
+                                        {
+                                            if (dataStock.TAHUN != vTahun)
+                                            {
+                                                if (dataStock.TAHUN < vTahun)
+                                                {
+                                                    dqtyTemp += dataStock.JUMLAH;
+                                                }
+                                                else
+                                                {
+                                                    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF08A SET QAWAL = '0' " +
+                                                    "WHERE BRG = '" + listKodeBaru + "' AND GD = '" + dataStock.GD + "' AND TAHUN = '" + dataStock.TAHUN + "'");
+                                                }
+                                            }
+                                            else
+                                            {
+                                                EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF08A SET QAWAL = '" + dqtyTemp + "' " +
+                                                    "WHERE BRG = '" + listKodeBaru + "' AND GD = '" + dataStock.GD + "' AND TAHUN = '" + vTahun + "'");
+
+                                                EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF08A SET QAWAL = '0' " +
+                                                    "WHERE BRG = '" + kodeBrgLamaCheck + "' AND GD = '" + dataStock.GD + "' AND TAHUN = '" + vTahun + "'");
+
+                                                dqtyTemp = 0;
+                                            }
+                                        }
 
                                         resultEdit = true;
                                     }
@@ -2863,8 +2894,6 @@ namespace MasterOnline.Controllers
                                         EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "update detailpromosis set KODE_BRG ='" + listKodeBaru + "' where KODE_BRG ='" + kodeBrgLamaCheck + "';");
                                         EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "update sot03c set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
 
-
-
                                         //if (checkBarangMPBaru.Count() >= checkBarangMPLama.Count())
                                         //{
                                         var checkBarangLama2 = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == kodeBrgLamaCheck.ToUpper()).ToList();
@@ -2880,6 +2909,37 @@ namespace MasterOnline.Controllers
                                         //{
                                         //    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + listKodeBaru + "';");
                                         //}
+
+                                        string sSQL = "SELECT GD,BRG,TAHUN, ISNULL(SUM(QAWAL+(QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12)-(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12)), 0) as JUMLAH " +
+                                                        " FROM STF08A(NOLOCK) WHERE BRG = '" + listKodeBaru + "' GROUP BY GD,BRG,TAHUN ORDER BY GD ASC";
+                                        var ListQOHPerGD = ErasoftDbContext.Database.SqlQuery<STOCK_AKHIRTAHUN>(sSQL).ToList();
+                                        double dqtyTemp = 0;
+                                        var vTahun = Convert.ToInt16(DateTime.UtcNow.AddHours(7).ToString("yyyy").ToString());
+                                        foreach (var dataStock in ListQOHPerGD)
+                                        {
+                                            if (dataStock.TAHUN != vTahun)
+                                            {
+                                                if(dataStock.TAHUN < vTahun)
+                                                {
+                                                    dqtyTemp += dataStock.JUMLAH;
+                                                }
+                                                else
+                                                {
+                                                    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF08A SET QAWAL = '0' " +
+                                                    "WHERE BRG = '" + listKodeBaru + "' AND GD = '" + dataStock.GD + "' AND TAHUN = '" + dataStock.TAHUN + "'");
+                                                }
+                                            }
+                                            else
+                                            {
+                                                EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF08A SET QAWAL = '" + dqtyTemp + "' " +
+                                                    "WHERE BRG = '" + listKodeBaru + "' AND GD = '" + dataStock.GD + "' AND TAHUN = '" + vTahun + "'");
+
+                                                EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF08A SET QAWAL = '0' " +
+                                                    "WHERE BRG = '" + kodeBrgLamaCheck + "' AND GD = '" + dataStock.GD + "' AND TAHUN = '" + vTahun + "'");
+
+                                                dqtyTemp = 0;
+                                            }
+                                        }
 
                                         var checkDuplicateBrgMP = ErasoftDbContext.STF02H.Where(p => p.BRG.ToUpper() == listKodeBaru.ToUpper()).GroupBy(x => x.IDMARKET).Where(p => p.Count() > 1).ToList();
                                         //foreach(var tes in checkDuplicateBrgMP)
