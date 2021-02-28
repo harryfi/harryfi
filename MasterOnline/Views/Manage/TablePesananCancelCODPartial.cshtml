@@ -1,0 +1,243 @@
+﻿@using System.Globalization
+@*@model MasterOnline.ViewModels.PesananViewModel*@
+@using PagedList.Mvc
+@model PagedList.IPagedList<mdlPesanan>
+@{
+    string currentFilter = ViewBag.CurrentFilter;
+    string currentSort = ViewBag.CurrentSort;
+
+}
+<style>
+    #loading_pesanan_cancel_cod_tab {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        z-index: 100;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0,0,0,0);
+    }
+
+    #loading_pesanan_cancel_cod_tab_image {
+        width: 20px;
+        height: 20px;
+        margin-top: -90px;
+        margin-left: -90px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        border-width: 30px;
+        border-radius: 50%;
+    }
+
+    @@media screen and (max-width: 445px) {
+        .pesanantbatal {
+            width: 55%;
+        }
+    }
+
+    @@media screen and (max-width: 375px) {
+        .pesanantbatal {
+            width: 46%;
+        }
+    }
+
+    @@media screen and (max-width: 325px) {
+        .pesanantbatal {
+            width: 37%;
+        }
+    }
+</style>
+<div id="loading_pesanan_cancel_cod_tab">
+    <div id="loading_pesanan_cancel_cod_tab_image">
+        <img src="~/Content/Images/spinner.gif" />
+    </div>
+</div>
+<input id="txt_last_page_6" type="hidden" class="form-control" value="@ViewData["LastPage"]">
+<div class="hscroll table-responsive pesanantbatal">
+    <table class="table table-striped table-bordered table-hover">
+        @*<table id="datatable_cancel" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">*@
+        <thead>
+            <tr role="row">
+                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 100px;">No. Pesanan</th>
+                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 100px;">No. Referensi</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 130px;">Tanggal Pesanan</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 70px;">No. Retur Batal</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 127px;">Marketplace</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 120px;">Pembeli</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 50px;">Tipe Pesanan</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 100px;">Kurir</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Reason: activate to sort column ascending" style="width: 150px;">Alasan Batal</th>
+                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 80px;">Konfirmasi Batal</th>
+            </tr>
+        </thead>
+        <tbody>
+            @*@foreach (var pesanan in Model.ListPesanan)*@
+            @foreach (var pesanan in Model)
+            {
+                //var buyer = Model.ListPembeli.Single(m => m.BUYER_CODE == pesanan.PEMESAN);
+                //var pelanggan = Model.ListPelanggan.FirstOrDefault(m => m.CUST == pesanan.CUST);
+                //var idMarket = 0;
+                //if (pelanggan != null)
+                //{
+                //    idMarket = Convert.ToInt32(pelanggan.NAMA);
+                //}
+                //var market = Model.ListMarketplace.FirstOrDefault(m => m.IdMarket == idMarket);
+                //var NamaMarket = "";
+                //if (market != null)
+                //{
+                //    NamaMarket = market.NamaMarket;
+                //}
+                var req_ex = "";
+                if (!string.IsNullOrEmpty(pesanan.CancelReason))
+                {
+                    if (pesanan.CancelReason.Length < 100)
+                    {
+                        req_ex = pesanan.CancelReason;
+                    }
+                    else
+                    {
+                        req_ex = pesanan.CancelReason.Substring(0, 100) + "...";
+                    }
+                }
+                //add by Tri 17 feb 2021
+                var tipe_pesanan = "";
+                if (pesanan.TIPE_KIRIM.Value == 1)
+                {
+                    tipe_pesanan = "COD";
+                }
+                else if (pesanan.TIPE_KIRIM.Value == 2)
+                {
+                    tipe_pesanan = "Preorder";
+                }
+                if (pesanan.N_UCAPAN != "" && pesanan.N_UCAPAN != "-" && pesanan.N_UCAPAN != " ")
+                {
+                    if (tipe_pesanan != "")
+                    {
+                        tipe_pesanan += " " + pesanan.N_UCAPAN;
+                    }
+                    else
+                    {
+                        tipe_pesanan = pesanan.N_UCAPAN;
+                    }
+                }
+                //end add by Tri 17 feb 2021
+            <tr>
+                <td>@pesanan.NOSO</td>
+                <td>@pesanan.REFERENSI</td>
+                <td>@(pesanan.TGL?.ToString("dd/MM/yyyy HH:mm"))</td>
+                <td></td>
+                @*<td>@NamaMarket</td> 'change by nurul 14/2/2019*@
+                <td>
+                    @if (pesanan?.PERSO != "")
+                    {
+                        @(pesanan.MARKET + " (" + pesanan.PERSO + ")")
+                    }
+                    else
+                    {
+                        @pesanan.MARKET
+                    }
+                </td>
+                <td>
+                    @*remark by nurul 24/9/2018 @(buyer.NAMA + " (" + buyer.PERSO + ")")*@
+                    @*@(buyer.NAMA + " (" + pelanggan.PERSO + ")")*@
+                    @*@(buyer == null ? "" : buyer.NAMA)*@
+                    @pesanan.PEMBELI
+                </td>
+                <td>@tipe_pesanan</td>
+                <td>@pesanan.SHIPMENT</td>
+                <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.TOTAL)</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(pesanan.CancelReason))
+                    {
+                        @*if (pesanan.CancelReason.Length < 100)
+                {
+                    @pesanan.CancelReason
+                }
+                else
+                {
+                    @(pesanan.CancelReason.Substring(0, 97) + "...")
+                    <button onclick="alert('Alasan batal :' + '@pesanan.CancelReason')"><span class="glyphicon glyphicon-option-horizontal"></span></button>
+                }*@
+                        <div data-tip="'@req_ex' + ' KLIK UNTUK LIHAT DETAIL'">
+                            <a class="user-link" href="#" data-toggle="modal" data-target="#modalError" onclick="LihatException('@pesanan.NOSO')">@req_ex</a>
+                        </div>
+                    }
+                </td>
+                <td class="edit-hapus-col">
+                    @if (pesanan.MARKET != "")
+                    {
+                        <button class="btn btn-warning" data-toggle="modal" data-target="#konfStatusBatalCOD" onclick="passRecStatus(@pesanan.RECNUM, '12', '@pesanan.NOSO')">
+                            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+                        </button>
+                    }
+                    else
+                    {
+                        <button style="background-color:darkgray; cursor:not-allowed">
+                            <span class="glyphicon glyphicon-arrow-left" aria-hidden="false"></span>
+                        </button>
+                    }
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+    @* add by nurul 7/5/2019, paging *@
+    @if (Model.PageCount > 1)
+    {
+        <div id="tabelpesanancancelcodpartialpager" class="pager">
+            @Html.PagedListPager(Model, page => Url.Action("RefreshTablePesananCancelCOD", new
+            {
+                page,
+                search = ViewData["searchParam"]
+            }),
+             new PagedListRenderOptions
+             {
+                 LinkToFirstPageFormat = "<<",
+                 LinkToPreviousPageFormat = "prev",
+                 LinkToNextPageFormat = "next",
+                 LinkToLastPageFormat = ">>",
+                 DisplayEllipsesWhenNotShowingAllPageNumbers = false
+             })
+            Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+        </div>
+    }
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('#tabelpesanancancelcodpartialpager').on('click', 'a', function () {
+            if (this.href != "") {
+                //add by nurul 4/12/2019
+                var filterby = get_pesanan_cancel_cod_filterby();
+                var filtervalue = get_pesanan_cancel_cod_filtervalue(filterby);
+                var link = this.href;
+                link += "&filter=replaceFilter&filtervalue=replaceValueFilter";
+                link = link.replace("replaceFilter", encodeURIComponent(filterby));
+                link = link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+                //end add by nurul 4/12/2019
+
+                $.ajax({
+                    //url: this.href,
+                    url: link,
+                    type: 'GET',
+                    cache: false,
+                    beforeSend: function () {
+                        $('#loading_pesanan_cancel_cod_tab').show();
+                    },
+                    success: function (response) {
+                        $('#table-pesanan-cancel-cod-partial').html(response);
+                        $('#loading_pesanan_cancel_cod_tab').hide();
+                    }
+                });
+            }
+            return false;
+        });
+    });
+</script>
+@* end add by nurul 30/4/2019, paging *@
+
+

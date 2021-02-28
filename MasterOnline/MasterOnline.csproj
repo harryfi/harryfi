@@ -6607,6 +6607,7 @@
     <Content Include="Views\Manage\PackingListBukalapak.cshtml" />
     <Content Include="Views\Manage\ListDetailPackingListBukalapak.cshtml" />
     <Content Include="Views\Manage\PromptDeliveryProviderBukalapak.cshtml" />
+    <Content Include="Views\Manage\TablePesananCancelCODPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

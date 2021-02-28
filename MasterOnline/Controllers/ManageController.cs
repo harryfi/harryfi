@@ -24428,11 +24428,11 @@ namespace MasterOnline.Controllers
                             sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) ";
                             if (filtervalue == "cod")
                             {
-                                sSQLTemp += "WHERE ISNULL(TIPE_KIRIM,0) = 1; ";
+                                sSQLTemp += "WHERE STATUS_TRANSAKSI = '01' AND ISNULL(TIPE_KIRIM,0) = 1; ";
                             }
                             if (filtervalue == "preorder")
                             {
-                                sSQLTemp += "WHERE ISNULL(N_UCAPAN,'') = 'preorder'; ";
+                                sSQLTemp += "WHERE STATUS_TRANSAKSI = '01' AND ISNULL(N_UCAPAN,'') = 'preorder'; ";
                             }
                             sSQL2 += "FROM #SOT01A A (NOLOCK) ";
                         }
@@ -24859,11 +24859,11 @@ namespace MasterOnline.Controllers
                             sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) ";
                             if (filtervalue == "cod")
                             {
-                                sSQLTemp += "WHERE ISNULL(TIPE_KIRIM,0) = 1; ";
+                                sSQLTemp += "WHERE STATUS_TRANSAKSI = '02' AND ISNULL(TIPE_KIRIM,0) = 1; ";
                             }
                             if (filtervalue == "preorder")
                             {
-                                sSQLTemp += "WHERE ISNULL(N_UCAPAN,'') = 'preorder'; ";
+                                sSQLTemp += "WHERE STATUS_TRANSAKSI = '02' AND ISNULL(N_UCAPAN,'') = 'preorder'; ";
                             }
                             sSQL2 += "FROM #SOT01A A (NOLOCK) ";
                         }
@@ -25095,11 +25095,11 @@ namespace MasterOnline.Controllers
                             sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) ";
                             if (filtervalue == "cod")
                             {
-                                sSQLTemp += "WHERE ISNULL(TIPE_KIRIM,0) = 1; ";
+                                sSQLTemp += "WHERE STATUS_TRANSAKSI = '03' AND ISNULL(TIPE_KIRIM,0) = 1; ";
                             }
                             if (filtervalue == "preorder")
                             {
-                                sSQLTemp += "WHERE ISNULL(N_UCAPAN,'') = 'preorder'; ";
+                                sSQLTemp += "WHERE STATUS_TRANSAKSI = '03' AND ISNULL(N_UCAPAN,'') = 'preorder'; ";
                             }
                             sSQL2 += "FROM #SOT01A A (NOLOCK) ";
                         }
@@ -25303,11 +25303,11 @@ namespace MasterOnline.Controllers
                             sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) ";
                             if (filtervalue == "cod")
                             {
-                                sSQLTemp += "WHERE ISNULL(TIPE_KIRIM,0) = 1; ";
+                                sSQLTemp += "WHERE STATUS_TRANSAKSI = '04' AND ISNULL(TIPE_KIRIM,0) = 1; ";
                             }
                             if (filtervalue == "preorder")
                             {
-                                sSQLTemp += "WHERE ISNULL(N_UCAPAN,'') = 'preorder'; ";
+                                sSQLTemp += "WHERE STATUS_TRANSAKSI = '04' AND ISNULL(N_UCAPAN,'') = 'preorder'; ";
                             }
                             sSQL2 += "FROM #SOT01A A (NOLOCK) ";
                         }
@@ -25491,11 +25491,11 @@ namespace MasterOnline.Controllers
                             sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) ";
                             if (filtervalue == "cod")
                             {
-                                sSQLTemp += "WHERE ISNULL(TIPE_KIRIM,0) = 1; ";
+                                sSQLTemp += "WHERE STATUS_TRANSAKSI = '11' AND ISNULL(TIPE_KIRIM,0) = 1; ";
                             }
                             if (filtervalue == "preorder")
                             {
-                                sSQLTemp += "WHERE ISNULL(N_UCAPAN,'') = 'preorder'; ";
+                                sSQLTemp += "WHERE STATUS_TRANSAKSI = '11' AND ISNULL(N_UCAPAN,'') = 'preorder'; ";
                             }
                             sSQL2 += "FROM #SOT01A A (NOLOCK) ";
                         }
@@ -25518,6 +25518,196 @@ namespace MasterOnline.Controllers
             sSQL2 += "LEFT JOIN SOT01D D(NOLOCK) ON A.NO_BUKTI = D.NO_BUKTI ";
             //end add by Tri 2 Des 2019, tambah cancel reason
             sSQL2 += "WHERE A.STATUS_TRANSAKSI='11' ";
+            if (search != "")
+            {
+                //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%') ";
+                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ";
+
+                if (searchCOD && searchPreorder)
+                {
+                    sSQL2 += " OR (TIPE_KIRIM = 1 AND N_UCAPAN = 'Preorder') ";
+                }
+                else
+                {
+                    if (searchCOD)
+                    {
+                        sSQL2 += " OR TIPE_KIRIM = 1 ";
+                    }
+                    if (searchPreorder)
+                    {
+                        sSQL2 += " OR N_UCAPAN = 'Preorder' ";
+                    }
+                }
+                sSQL2 += ")";
+            }
+            string sSQLSelect2 = "";
+            //ADD BY NURUL 4/12/2019
+            if (filter == "tanggal" && filtervalue == "asc")
+            {
+                sSQLSelect2 += "ORDER BY A.TGL ASC, A.NO_BUKTI ASC ";
+            }
+            else
+            {
+                sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+            }
+            //END ADD BY NURUL 4/12/2019
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLTemp + sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLTemp + sSQLCount + sSQL2).Single();
+
+            IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listOrderNew, pagenumber + 1, 10, totalCount.JUMLAH);
+            //IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listPesanan, pagenumber + 1, 10, totalCount);
+
+            SetNoLockOff(ErasoftDbContext);
+
+            return PartialView("TablePesananCancelPartial", pageOrders);
+
+            //end change by nurul 8/5/2019, paging
+        }
+
+        public ActionResult RefreshTablePesananCancelCOD(int? page, string search = "", string filter = "", string filtervalue = "")
+        {
+            // change by nurul 8/5/2019, paging
+            //var vm = new PesananViewModel()
+            //{
+            //    ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.STATUS_TRANSAKSI == "11").ToList(),
+            //    //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
+            //    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+            //    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+            //    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+            //    ListMarketplace = MoDbContext.Marketplaces.ToList()
+            //};
+
+            //return PartialView("TablePesananCancelPartial", vm);
+            SetNoLockOn(ErasoftDbContext);
+
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+
+            //ADD BY NURUL 27/9/2019
+            string[] getkata = search.Split(' ');
+            string sSQLkode = "";
+            string sSQLmarket = "";
+            string sSQLnetto = "";
+            string sSQLpembeli = "";
+            string sSQLkurir = "";
+            string sSQLreferensi = "";
+            bool searchCOD = false;
+            bool searchPreorder = false;
+            if (!string.IsNullOrEmpty(search))
+            {
+                if (search.ToUpper().Contains("COD"))
+                {
+                    searchCOD = true;
+                }
+                if (search.ToUpper().Contains("PREORDER"))
+                {
+                    searchPreorder = true;
+                }
+            }
+            if (getkata.Length > 0)
+            {
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sSQLkode += " AND ";
+                            sSQLmarket += " AND ";
+                            sSQLnetto += " AND ";
+                            sSQLpembeli += " AND ";
+                            sSQLkurir += " and ";
+                            sSQLreferensi += " and ";
+                        }
+
+                        sSQLkode += " A.NO_BUKTI like '%" + getkata[i] + "%' ";
+                        sSQLmarket += "  (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ";
+                        sSQLnetto += "  A.NETTO like '%" + getkata[i] + "%' ";
+                        sSQLpembeli += "  A.NAMAPEMESAN like '%" + getkata[i] + "%' ";
+                        sSQLkurir += "  A.SHIPMENT like '%" + getkata[i] + "%' ";
+                        sSQLreferensi += "  A.NO_REFERENSI like '%" + getkata[i] + "%' ";
+
+                    }
+                }
+            }
+            //END ADD BY NURUL 27/9/2019
+
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ,ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT], D.CATATAN_1 AS CancelReason ";
+            sSQLSelect += " ,ISNULL(A.TIPE_KIRIM, 0) TIPE_KIRIM, ISNULL(A.N_UCAPAN, 0) N_UCAPAN ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            //ADD BY NURUL 4/12/2019
+            string sSQLTemp = "";
+            switch (filter)
+            {
+                case "marketplace":
+                    {
+                        if (filtervalue != null && filtervalue != "Harap Pilih")
+                        {
+                            var listCustSesuaiFilter = ErasoftDbContext.ARF01.Where(p => p.NAMA == filtervalue).Select(p => p.CUST).ToList();
+                            var queryfilter = "";
+                            foreach (var item in listCustSesuaiFilter)
+                            {
+                                if (queryfilter != "") { queryfilter += ","; }
+                                queryfilter += "'" + item + "'";
+                            }
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) WHERE STATUS_TRANSAKSI = '12' AND ";
+                            if (queryfilter != "")
+                            {
+                                sSQLTemp += " CUST IN(" + queryfilter + "); " + Environment.NewLine;
+                            }
+                            else
+                            {
+                                sSQLTemp += " 0 = 1; " + Environment.NewLine;
+                            }
+                            sSQL2 += "FROM #SOT01A A (NOLOCK) ";
+                        }
+                        else
+                        {
+                            sSQL2 += "FROM SOT01A A (NOLOCK) ";
+                        }
+                    }
+                    break;
+                case "tipe":
+                    {
+                        if (filtervalue != null && filtervalue != "Harap Pilih")
+                        {
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) ";
+                            if (filtervalue == "cod")
+                            {
+                                sSQLTemp += "WHERE STATUS_TRANSAKSI = '12' AND ISNULL(TIPE_KIRIM,0) = 1; ";
+                            }
+                            if (filtervalue == "preorder")
+                            {
+                                sSQLTemp += "WHERE STATUS_TRANSAKSI = '12' AND ISNULL(N_UCAPAN,'') = 'preorder'; ";
+                            }
+                            sSQL2 += "FROM #SOT01A A (NOLOCK) ";
+                        }
+                        else
+                        {
+                            sSQL2 += "FROM SOT01A A (NOLOCK) ";
+                        }
+                    }
+                    break;
+                default:
+                    {
+                        sSQL2 += "FROM SOT01A A (NOLOCK) ";
+                    }
+                    break;
+            }
+            //END ADD BY NURUL 4/12/2019
+            sSQL2 += "LEFT JOIN ARF01 B(NOLOCK) ON A.CUST = B.CUST ";
+            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C(NOLOCK) ON B.NAMA = C.IdMarket ";
+            //add by Tri 2 Des 2019, tambah cancel reason
+            sSQL2 += "LEFT JOIN SOT01D D(NOLOCK) ON A.NO_BUKTI = D.NO_BUKTI ";
+            //end add by Tri 2 Des 2019, tambah cancel reason
+            sSQL2 += "WHERE A.STATUS_TRANSAKSI='12' ";
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%') ";
