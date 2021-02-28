@@ -4061,9 +4061,9 @@ namespace MasterOnline.Controllers
                             //    "WHERE A.NO_BUKTI = '" + noPackingList + "' GROUP BY A.NO_PESANAN,A.BRG,B.NAMA,B.NAMA2,QTY, PEMBELI, MARKETPLACE,D.NO_REFERENSI ,E.BRG_MULTISKU,E.NAMA_BRG_MULTISKU ORDER BY A.NO_PESANAN, NAMA_BARANG ";
 
                             string sSQL = "SELECT A.NO_BUKTI AS NO_PESANAN, B.BRG,C.NAMA + ' ' + (ISNULL(C.NAMA2, '')) NAMA_BARANG,B.QTY,A.NAMAPEMESAN AS PEMBELI,F.NAMAMARKET + ' (' + E.PERSO +')' AS MARKETPLACE, ISNULL(A.NO_REFERENSI,'')NO_REFERENSI, ISNULL(B.BRG_MULTISKU,'')BRG_MULTISKU, ISNULL(D.NAMA + ' ' + (ISNULL(D.NAMA2, '')),'') NAMA_BRG_MULTISKU " +
-                            "FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI=B.NO_BUKTI LEFT JOIN STF02 C ON B.BRG=C.BRG LEFT JOIN STF02 D ON D.BRG=B.BRG_MULTISKU  " +
-                            "LEFT JOIN ARF01 E ON A.CUST=E.CUST LEFT JOIN MO..MARKETPLACE F ON E.NAMA=F.IDMARKET " +
-                            "WHERE A.NO_BUKTI IN (SELECT NO_PESANAN FROM SOT03C WHERE NO_BUKTI='" + noPackingList + "')";
+                            "FROM SOT01A A(nolock) INNER JOIN SOT01B B(nolock) ON A.NO_BUKTI=B.NO_BUKTI LEFT JOIN STF02 C(nolock) ON B.BRG=C.BRG LEFT JOIN STF02 D ON D.BRG=B.BRG_MULTISKU  " +
+                            "LEFT JOIN ARF01 E(nolock) ON A.CUST=E.CUST LEFT JOIN MO..MARKETPLACE F(nolock) ON E.NAMA=F.IDMARKET " +
+                            "WHERE A.NO_BUKTI IN (SELECT NO_PESANAN FROM SOT03C WHERE NO_BUKTI='" + noPackingList + "')  and isnull(A.status_kirim,'') <> '5' ";
                             //end change by nurul 27/9/2020
                             var lsPacking = EDB.GetDataSet("CString", "SO", sSQL);
                             if (lsPacking.Tables[0].Rows.Count > 0)
@@ -4125,9 +4125,9 @@ namespace MasterOnline.Controllers
                         else
                         {
                             ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Picking List");
-                            string sSQL = "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(A.RAK,'') as RAK " +
-                                "from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG " +
-                                "WHERE NO_BUKTI = '" + noPackingList + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE, A.RAK ";
+                            string sSQL = "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(B.LKS,'') as RAK " +
+                                "from SOT03C A (nolock) INNER JOIN STF02 B(nolock) ON A.BRG = B.BRG LEFT JOIN SOT01A C(NOLOCK) ON A.NO_PESANAN=C.NO_BUKTI " +
+                                "WHERE A.NO_BUKTI = '" + noPackingList + "' and isnull(C.status_kirim,'') <> '5' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE, B.LKS ";
                             var lsPicking = EDB.GetDataSet("CString", "SO", sSQL);
                             if (lsPicking.Tables[0].Rows.Count > 0)
                             {
@@ -4225,6 +4225,166 @@ namespace MasterOnline.Controllers
 
         }
         //END ADD BY NURUL 23/7/2020
+
+        //add by nurul 24/2/2021
+        public ActionResult ListRekapBarangToExcel(string search, string filter, string filtervalue, string drTgl, string sdTgl)
+        {
+            var ret = new BindDownloadExcel
+            {
+                Errors = new List<string>()
+            };
+
+            try
+            {
+                using (var package = new OfficeOpenXml.ExcelPackage())
+                {
+                    ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Rekap Barang");
+                    var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
+                        System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today);
+                    var Sdtgl = (sdTgl != "" ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy",
+                        System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today);
+                    var tempDrtgl = Drtgl.ToString("yyyy-MM-dd") + " 00:00:00.000";
+                    var tempSdtgl = Sdtgl.ToString("yyyy-MM-dd") + " 23:59:59.999";
+
+                    string[] getkata = search.Split(' ');
+                    string sSQLnama = "";
+                    string sSQLkode = "";
+                    string sSQLrak = "";
+                    if (getkata.Length > 0)
+                    {
+                        if (search != "")
+                        {
+                            for (int i = 0; i < getkata.Length; i++)
+                            {
+                                if (i > 0)
+                                {
+                                    sSQLkode += " and ";
+                                    sSQLnama += " and ";
+                                    sSQLrak += " and ";
+                                }
+
+                                sSQLkode += " ( A.BRG like '%" + getkata[i] + "%' ) ";
+                                sSQLnama += "  ( (ISNULL(B.NAMA,'') + ' ' + ISNULL(B.NAMA2,'')) like '%" + getkata[i] + "%' ) ";
+                                sSQLrak += " ( B.LKS like '%" + getkata[i] + "%' ) ";
+                            }
+                        }
+                    }
+
+                    string sSQL = "";
+                    sSQL += "SELECT A.BRG, (ISNULL(B.NAMA,'') + ' ' + ISNULL(B.NAMA2,'')) AS NAMA_BARANG, ISNULL(sum(ISNULL(QTY,0)),0) QTY, ISNULL(B.LKS,'') as RAK ";
+                    sSQL += "from SOT03A C(NOLOCK) INNER JOIN SOT03C A(NOLOCK) ON A.NO_BUKTI=C.NO_BUKTI INNER JOIN STF02 B(NOLOCK) ON A.BRG = B.BRG ";
+                    sSQL += "LEFT JOIN SOT01A D(NOLOCK) ON A.NO_PESANAN=D.NO_BUKTI ";
+                    sSQL += "WHERE C.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND ISNULL(D.STATUS,'') <> '2' AND ISNULL(STATUS_KIRIM,'') <> '5' ";
+                    if (search != "")
+                    {
+                        sSQL += " AND ( " + sSQLkode + " or " + sSQLnama + " or " + sSQLrak + " ) ";
+                    }
+                    var sSQLGrouping = "GROUP BY A.BRG, B.NAMA, B.NAMA2, B.LKS ";
+                    string ssqlOrder = "";
+                    switch (filter)
+                    {
+                        case "kode":
+                            {
+                                ssqlOrder += "order by A.BRG ";
+                            }
+                            break;
+                        case "nama":
+                            {
+                                ssqlOrder += "order by (ISNULL(B.NAMA,'') + ' ' + ISNULL(B.NAMA2,'')) ";
+                            }
+                            break;
+                        case "rak":
+                            {
+                                ssqlOrder += "order by B.LKS ";
+                            }
+                            break;
+                        case "qty":
+                            {
+                                ssqlOrder += "order by sum(QTY) ";
+                            }
+                            break;
+                        default:
+                            {
+                                ssqlOrder += "order by B.LKS ";
+                            }
+                            break;
+                    }
+                    if (filtervalue == "desc")
+                    {
+                        ssqlOrder += " DESC ";
+                    }
+                    else if (filtervalue == "asc")
+                    {
+                        ssqlOrder += " ASC ";
+                    }
+                    else
+                    {
+                        ssqlOrder += ", A.BRG ASC ";
+                    }
+                    var lsRekapBrg = EDB.GetDataSet("CString", "SO", sSQL + sSQLGrouping + ssqlOrder);
+                    if (lsRekapBrg.Tables[0].Rows.Count > 0)
+                    {
+                        worksheet.Cells["A1"].Value = "REKAP BARANG";
+                        worksheet.Cells["A2"].Value = "Dari Tanggal    : " + Drtgl.ToString("dd/MM/yyyy");
+                        worksheet.Cells["A3"].Value = "S/d Tanggal      : " + Sdtgl.ToString("dd/MM/yyyy");
+                        for (int i = 0; i < lsRekapBrg.Tables[0].Rows.Count; i++)
+                        {
+                            worksheet.Cells[6 + i, 1].Value = lsRekapBrg.Tables[0].Rows[i]["BRG"];
+                            worksheet.Cells[6 + i, 2].Value = lsRekapBrg.Tables[0].Rows[i]["NAMA_BARANG"];
+                            worksheet.Cells[6 + i, 3].Value = lsRekapBrg.Tables[0].Rows[i]["RAK"];
+                            worksheet.Cells[6 + i, 4].Value = lsRekapBrg.Tables[0].Rows[i]["QTY"];
+                        }
+                        ExcelRange rg0 = worksheet.Cells[5, 1, worksheet.Dimension.End.Row, 4];
+                        string tableName0 = "TableRekapBarang";
+                        ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
+
+                        table0.Columns[0].Name = "KODE BARANG";
+                        table0.Columns[1].Name = "NAMA BARANG";
+                        table0.Columns[2].Name = "LOKASI RAK";
+                        table0.Columns[3].Name = "QTY";
+
+                        using (var range = worksheet.Cells[5, 1, 5, 4])
+                        {
+                            range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                            range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                            range.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                            range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                        }
+
+                        table0.ShowHeader = true;
+                        table0.ShowFilter = true;
+                        table0.ShowRowStripes = false;
+                        worksheet.Cells.AutoFitColumns(0);
+
+                        ret.byteExcel = package.GetAsByteArray();
+                        ret.namaFile = username + "_RekapBarang_" + Drtgl.ToString("dd-MM-yyyy") + "_To_" + Sdtgl.ToString("dd-MM-yyyy") + ".xlsx";
+
+                    }
+                    else
+                    {
+                        ret.Errors.Add("Tidak ada data rekap barang");
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+            }
+
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(ret),
+                ContentType = "application/json"
+            };
+
+            return result;
+
+        }
+        //end add by nurul 24/2/2021
 
         public ActionResult DownloadExcelHJual(string cust)
         {

@@ -6607,6 +6607,10 @@
     <Content Include="Views\Manage\PackingListBukalapak.cshtml" />
     <Content Include="Views\Manage\ListDetailPackingListBukalapak.cshtml" />
     <Content Include="Views\Manage\PromptDeliveryProviderBukalapak.cshtml" />
+    <Content Include="Views\Manage\ListDetailPackingListRekapBrg.cshtml" />
+    <Content Include="Views\Manage\PackingListPartial.cshtml" />
+    <Content Include="Views\Manage\TablePackinglistPartialView2.cshtml" />
+    <Content Include="Views\Manage\PackingListRekapBrgPartial.cshtml" />
     <Content Include="Views\Manage\TablePesananCancelCODPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>

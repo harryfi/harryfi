@@ -363,7 +363,14 @@ namespace MasterOnline.Controllers
             //Required parameters, other parameters can be add
             var postData = "apiKey=" + Uri.EscapeDataString(iden.API_key);
             postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
-            postData += "&name=" + Uri.EscapeDataString(brgInDb.NAMA);
+            if (!string.IsNullOrEmpty(brgInDb.NAMA2))
+            {
+                postData += "&name=" + Uri.EscapeDataString(brgInDb.NAMA + " " + brgInDb.NAMA2);
+            }
+            else
+            {
+                postData += "&name=" + Uri.EscapeDataString(brgInDb.NAMA);
+            }
             postData += "&reference=" + Uri.EscapeDataString(brgInDb.BRG);
             postData += "&active=" + Uri.EscapeDataString("1");
             postData += "&visibility=" + Uri.EscapeDataString("both");
@@ -700,7 +707,14 @@ namespace MasterOnline.Controllers
             var postData = "apiKey=" + Uri.EscapeDataString(iden.API_key);
             postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
             postData += "&id_product=" + Uri.EscapeDataString(splitBrg[0]);
-            postData += "&name=" + Uri.EscapeDataString(brgInDb.NAMA);
+            if (!string.IsNullOrEmpty(brgInDb.NAMA2))
+            {
+                postData += "&name=" + Uri.EscapeDataString(brgInDb.NAMA + " " + brgInDb.NAMA2);
+            }
+            else
+            {
+                postData += "&name=" + Uri.EscapeDataString(brgInDb.NAMA);
+            }
             postData += "&reference=" + Uri.EscapeDataString(brgInDb.BRG.Replace(";", ""));
             postData += "&active=" + Uri.EscapeDataString("1");
             postData += "&visibility=" + Uri.EscapeDataString("both");
@@ -711,7 +725,7 @@ namespace MasterOnline.Controllers
             postData += "&wholesale_price=" + Uri.EscapeDataString("0");
             postData += "&price=" + Uri.EscapeDataString(detailBrg.HJUAL.ToString());
             postData += "&on_sale=" + Uri.EscapeDataString("1");
-            postData += "&link_rewrite=" + Uri.EscapeDataString(brgInDb.NAMA.Replace(" ", "-").ToLower());
+            postData += "&link_rewrite=" + Uri.EscapeDataString(brgInDb.NAMA.Replace(" ", "-").Replace("+", "plus").ToLower());
             postData += "&width=" + Uri.EscapeDataString(brgInDb.LEBAR.ToString());
             postData += "&height=" + Uri.EscapeDataString(brgInDb.TINGGI.ToString());
             postData += "&depth=" + Uri.EscapeDataString("0");
@@ -2064,12 +2078,17 @@ namespace MasterOnline.Controllers
                         {
                             ordersn = ordersn.Substring(0, ordersn.Length - 1);
                             var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connID + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "'");
-                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
+                            //change by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
+                            //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
+                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
+                            //change by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
                             if (rowAffected > 0)
                             {
                                 //add by Tri 1 sep 2020, hapus packing list
-                                var delPL = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03B WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN (" + ordersn + ")  AND STATUS_TRANSAKSI = '11' AND CUST = '" + CUST + "')");
-                                var delPLDetail = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03C WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN (" + ordersn + ")  AND STATUS_TRANSAKSI = '11' AND CUST = '" + CUST + "')");
+                                //remark by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
+                                //var delPL = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03B WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN (" + ordersn + ")  AND STATUS_TRANSAKSI = '11' AND CUST = '" + CUST + "')");
+                                //var delPLDetail = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03C WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN (" + ordersn + ")  AND STATUS_TRANSAKSI = '11' AND CUST = '" + CUST + "')");
+                                //END remark by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
                                 //end add by Tri 1 sep 2020, hapus packing list
                                 //add by Tri 4 Des 2019, isi cancel reason
                                 var sSQL1 = "";

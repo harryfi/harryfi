@@ -102,6 +102,9 @@
                     case "2":
                         status_kirim = "Siap Kirim";
                         break;
+                    case "5":
+                        status_kirim = "Batal";
+                        break;
                     default:
                         status_kirim = "";
                         break;
@@ -115,7 +118,7 @@
                         st_print = "Belum";
                         break;
                 }
-                //add by Tri 17 feb 2021
+             //add by Tri 17 feb 2021
                 var tipe_pesanan = "";
                 if (order.TIPE_KIRIM.Value == 1)
                 {
@@ -137,27 +140,34 @@
                     }
                 }
                 //end add by Tri 17 feb 2021
-            <tr data-barang-id="@order.no_bukti">
-                <td style="text-align:center">
-                    <input type="checkbox" class="dt-checkboxes center checkbox_packing_82cart" data-cust="@order.CUST" data-recnum="@order.so_recnum" data-bukti="@order.no_bukti" style="align-self:flex-start; width:30px; height:28px;" />
-                </td>
-                <td>@order.no_bukti</td>
-                <td>@order.no_referensi</td>
-                @*<td>
-            <input type="text" class="noresi-input-box" style="display: none; width: 150px;" />
-            <span class="noresi-initial">@order.tracking_no</span>
-        </td>*@
-                <td>@order.nama_pemesan</td>
-                <td>@tipe_pesanan</td>
-                <td>@status_kirim</td>
-                <td>@st_print</td>
-                <td>@order.kurir</td>
-                @*<td class="edit-hapus-col">
-            <button type="button" class="btn btn-primary" onclick="editNoResi('@order.no_bukti')">
-                <span class="icon-btn-edit glyphicon glyphicon-pencil" aria-hidden="true"></span>
-            </button>
-        </td>*@
-            </tr>
+                <tr data-barang-id="@order.no_bukti">
+                    <td style="text-align:center">
+                        @if (order.status_kirim == "5")
+                        {
+                            <input type="checkbox" class="dt-checkboxes center" style="align-self:flex-start; width:30px; height:28px;" disabled="disabled" />
+                        }
+                        else
+                        {
+                            <input type="checkbox" class="dt-checkboxes center checkbox_packing_82cart" data-cust="@order.CUST" data-recnum="@order.so_recnum" data-bukti="@order.no_bukti" style="align-self:flex-start; width:30px; height:28px;" />
+                        }
+                    </td>
+                    <td>@order.no_bukti</td>
+                    <td>@order.no_referensi</td>
+                    @*<td>
+                        <input type="text" class="noresi-input-box" style="display: none; width: 150px;" />
+                        <span class="noresi-initial">@order.tracking_no</span>
+                    </td>*@
+                    <td>@order.nama_pemesan</td>
+                    <td>@tipe_pesanan</td>
+                    <td>@status_kirim</td>
+                    <td>@st_print</td>
+                    <td>@order.kurir</td>
+                    @*<td class="edit-hapus-col">
+                        <button type="button" class="btn btn-primary" onclick="editNoResi('@order.no_bukti')">
+                            <span class="icon-btn-edit glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                        </button>
+                    </td>*@
+                </tr>
             }
         </tbody>
     </table>
