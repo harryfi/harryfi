@@ -153,16 +153,25 @@
                         case "kirim":
                             $('#filter_packing_kirim_field_option_div').show();
                             $('#filter_packing_print_field_option_div').hide();
+                            $('#filter_packing_field_tipe_div').hide();
                             $('#filter_packing_kirim').val('Harap Pilih');
                             break;
                         case "print":
                             $('#filter_packing_kirim_field_option_div').hide();
                             $('#filter_packing_print_field_option_div').show();
+                            $('#filter_packing_field_tipe_div').hide();
+                            $('#filter_packing_print').val('Harap Pilih');
+                            break;
+                        case "tipe":
+                            $('#filter_packing_kirim_field_option_div').hide();
+                            $('#filter_packing_print_field_option_div').hide();
+                            $('#filter_packing_field_tipe_div').show();
                             $('#filter_packing_print').val('Harap Pilih');
                             break;
                         default:
                             $('#filter_packing_kirim_field_option_div').hide();
                             $('#filter_packing_print_field_option_div').hide();
+                            $('#filter_packing_field_tipe_div').hide();
                             break;
                     }
 
@@ -174,6 +183,11 @@
                 });
                 $('#filter_packing_print').change(function () {
                     if ($('#filter_packing_print').val() != "Harap Pilih" && $('#filter_packing_field').val() != "Harap Pilih") {
+                        SearchTablePackingListTabPesanan();
+                    }
+                });
+                $('#filter_packing_tipe').change(function () {
+                    if ($('#filter_packing_tipe').val() != "Harap Pilih" && $('#filter_packing_field').val() != "Harap Pilih") {
                         SearchTablePackingListTabPesanan();
                     }
                 });
@@ -212,6 +226,9 @@
                 break;
             case "print":
                 filtervalue = $('#filter_packing_print').val();
+                break;
+            case "tipe":
+                filtervalue = $('#filter_packing_tipe').val();
                 break;
             default:
                 break;
@@ -552,6 +569,13 @@
                                 <option>Harap Pilih</option>
                                 <option value="1">Sudah</option>
                                 <option value="0">Belum</option>
+                            </select>
+                        </div>
+                        <div class="col-12" id="filter_packing_field_tipe_div" style="display:none">
+                            <select class="form-control" id="filter_packing_tipe" required="required">
+                                <option>Harap Pilih</option>
+                                <option value="cod">COD</option>
+                                <option value="preorder">Preorder</option>
                             </select>
                         </div>
                     </div>

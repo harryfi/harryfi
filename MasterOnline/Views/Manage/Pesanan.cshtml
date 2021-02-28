@@ -1729,34 +1729,34 @@
             <div id="myTabContent" class="tab-content">
                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="pesanan-tab">
                     @*<div class="row pesanan_table_section form-group">
-                            @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12", @style = "padding-top:15px; width:315px;" })
-                            @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-3 col-sm-3 col-xs-12", @style = "padding-top:20px; width:280px;" })
-                            <div class="col-md-2 col-sm-2 col-xs-12">
-                                @Html.HiddenFor(m => m.DataUsaha.JTRAN_RETUR)
-                                <select style="margin-top: 13px;" class="form-control" id="DataUsaha_JtranRetur" name="DataUsaha.JtranRetur" required="required">
-                                    <option value="default">Harap pilih</option>
-                                    @if (Model?.DataUsaha != null)
-                                    {
-                                        if (Model.DataUsaha.JTRAN_RETUR == "1")
-                                        {
-                                            <option value="1" selected>Aktif</option>
-                                            <option value="0">Tidak Aktif</option>
-                                        }
-                                        else
-                                        {
-                                            <option value="1">Aktif</option>
-                                            <option value="0" selected>Tidak Aktif</option>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <option value="1">Aktif</option>
-                                        <option value="0" selected>Tidak Aktif</option>
-                                    }
-                                </select>
-                            </div>
-                             //remark by calvin 22 mei 2019 <input type="button" class="btn btn-primary" value="Simpan" id="simpan_btn" onclick="simpanUpdate();" />
-                        </div>*@
+                @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12", @style = "padding-top:15px; width:315px;" })
+                @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-3 col-sm-3 col-xs-12", @style = "padding-top:20px; width:280px;" })
+                <div class="col-md-2 col-sm-2 col-xs-12">
+                    @Html.HiddenFor(m => m.DataUsaha.JTRAN_RETUR)
+                    <select style="margin-top: 13px;" class="form-control" id="DataUsaha_JtranRetur" name="DataUsaha.JtranRetur" required="required">
+                        <option value="default">Harap pilih</option>
+                        @if (Model?.DataUsaha != null)
+                        {
+                            if (Model.DataUsaha.JTRAN_RETUR == "1")
+                            {
+                                <option value="1" selected>Aktif</option>
+                                <option value="0">Tidak Aktif</option>
+                            }
+                            else
+                            {
+                                <option value="1">Aktif</option>
+                                <option value="0" selected>Tidak Aktif</option>
+                            }
+                        }
+                        else
+                        {
+                            <option value="1">Aktif</option>
+                            <option value="0" selected>Tidak Aktif</option>
+                        }
+                    </select>
+                </div>
+                 //remark by calvin 22 mei 2019 <input type="button" class="btn btn-primary" value="Simpan" id="simpan_btn" onclick="simpanUpdate();" />
+            </div>*@
                     <div class="row pesanan_table_section" style="margin-top:13px;">
                         <div class="col-lg-4 col-sm-6 mrgbttmpesanan">
                             <div class="input-group">
@@ -1810,20 +1810,20 @@
                         </div>
                         <div class="col-lg-1 col-sm-12"></div>
                         @*<div class="col-lg-6 col-sm-6" style="margin-top:13px;">
-                                <div class="pull-right" id="tambah_baru_tombol_section">
-                                    <button type="button" id="btn_refresh_pesanan" class="btn btn-default" data-style="expand-right">
-                                        <span>Refresh</span>
-                                    </button>
-                                    <button id="excelPesanan" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        Excel Pesanan <span class="caret"></span>
-                                    </button>
-                                    <div class="dropdown-menu" style="right: 130px">
-                                        <button type="button" onclick="$('#downloadPesanan').modal('show');" id="btn_download_pesanan" class="btn btn-primary" data-style="expand-right" style="width:100%; background-color:white; border-color:Highlight; color:black !important">
-                                            <span>Download Pesanan</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>*@
+                    <div class="pull-right" id="tambah_baru_tombol_section">
+                        <button type="button" id="btn_refresh_pesanan" class="btn btn-default" data-style="expand-right">
+                            <span>Refresh</span>
+                        </button>
+                        <button id="excelPesanan" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Excel Pesanan <span class="caret"></span>
+                        </button>
+                        <div class="dropdown-menu" style="right: 130px">
+                            <button type="button" onclick="$('#downloadPesanan').modal('show');" id="btn_download_pesanan" class="btn btn-primary" data-style="expand-right" style="width:100%; background-color:white; border-color:Highlight; color:black !important">
+                                <span>Download Pesanan</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>*@
                         <div class="col-lg-6 col-sm-6" style="margin-top:13px;">
                             @*<div class="col-lg-8 col-sm-6">*@
                             <div class="pull-right" id="tambah_baru_tombol_section">
@@ -1836,8 +1836,8 @@
                                 </button>
                                 <div class="dropdown-menu">
                                     @*<button type="button" onclick="$('#downloadPesanan').modal('show');" id="btn_download_pesanan" class="btn btn-primary" data-style="expand-right" style="width:100%; background-color:white; border-color:Highlight; color:black !important">
-                                        <span>Download Pesanan</span>
-                                        </button>*@
+                            <span>Download Pesanan</span>
+                            </button>*@
                                     <button type="button" style="width:100%;background-color:white; border-color:Highlight; color:black !important" id="btn_download_pesanan" class="btn btn-primary" data-style="expand-right" data-toggle="modal" onclick="$('#downloadPesanan').modal('show');">
                                         <span> Download Pesanan</span>
                                     </button>
@@ -1850,12 +1850,12 @@
                         </div>
                     </div>
                     @*<div class="row pesanan_table_section">
-                            @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12"})
-                        </div>*@
+                @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12"})
+            </div>*@
                     <div class="row pesanan_table_section" style="margin-top: 5px;">
                         @*<div id="loading_pesanan_tab" class="text-center">
-                                <img src="~/Content/Images/spinner.gif" width="100" />
-                            </div>*@
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>*@
                         <div class="col-sm-12" id="table-pesanan-partial">
                             @*@Html.Partial("TablePesananPartial")*@
                         </div>
@@ -1915,6 +1915,7 @@
                                 <option value="tanggal">Tgl. Pesanan</option>
                                 <option value="marketplace">Marketplace</option>
                                 <option value="exp_tgl">Tgl. Expired Pesanan</option>
+                                <option value="tipe">Tipe Pesanan</option>
                             </select>
                         </div>
                         <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
@@ -1939,6 +1940,13 @@
                                     <option value="18">Offline</option>
                                 </select>
                             </div>
+                            <div class="col-12" id="filter_pesanan_dibayar_field_tipe_div" style="display:none">
+                                <select class="form-control" id="filter_pesanan_dibayar_field_tipe" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="cod">COD</option>
+                                    <option value="preorder">Preorder</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="col-lg-2 col-sm-12"></div>
                         <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
@@ -1948,8 +1956,8 @@
                                     <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Ubah Status</span>
                                 </button>
                                 @*<button type="button" id="btn_refresh_pesanan_dibayar" class="btn btn-default" data-style="expand-right">
-                                    <span>Refresh</span>
-                                </button>*@
+                            <span>Refresh</span>
+                        </button>*@
 
                             </div>
                         </div>
@@ -1958,7 +1966,7 @@
                             <div class="input-group text" style="padding-top:13px">
                                 <select class="form-control" id="TakeRecordDibayar" name="TakeRecordDibayar" required="required">
                                     @*
-                                        <option>--Pilih--</option>*@
+                            <option>--Pilih--</option>*@
                                     <option value="10">10</option>
                                     <option value="20">20</option>
                                     <option value="50">50</option>
@@ -1973,8 +1981,8 @@
                     </div>
                     <div class="row pesanan_sudah_dibayar_section" style="margin-top: 5px;">
                         @*<div id="loading_sudah_dibayar_tab" class="text-center">
-                                <img src="~/Content/Images/spinner.gif" width="100" />
-                            </div>*@
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>*@
                         <div class="col-sm-12" id="table-pesanan-sudah-dibayar-partial">
                             @*@Html.Partial("TablePesananSudahDibayarPartial")*@
                         </div>
@@ -2028,6 +2036,7 @@
                                 <option value="tanggal">Tgl. Pesanan</option>
                                 <option value="marketplace">Marketplace</option>
                                 <option value="exp_tgl">Tgl. Expired Pesanan</option>
+                                <option value="tipe">Tipe Pesanan</option>
                             </select>
                         </div>
                         <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
@@ -2052,6 +2061,13 @@
                                     <option value="18">Offline</option>
                                 </select>
                             </div>
+                            <div class="col-12" id="filter_pesanan_packing_field_tipe_div" style="display:none">
+                                <select class="form-control" id="filter_pesanan_packing_field_tipe" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="cod">COD</option>
+                                    <option value="preorder">Preorder</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="col-lg-5 col-sm-12"></div>
                         <div class="col-lg-1 col-sm-6" style="margin-top:13px;">
@@ -2062,16 +2078,16 @@
                                 </button>
                                 @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
-                                        <span>Refresh</span>
-                                    </button>*@
+                            <span>Refresh</span>
+                        </button>*@
 
                             </div>
                             @* remark 16/9/19, function pindah ke modal ubah status *@
                             @*<div class="pull-right">
-                                    <button type="button" id="btn_ubahStatusmulti_pesanan_packinglist" class="btn btn-success" data-style="expand-right" onclick="packinglistpesanan()">
-                                        <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px">Packing List</span>
-                                    </button>
-                                </div>*@
+                        <button type="button" id="btn_ubahStatusmulti_pesanan_packinglist" class="btn btn-success" data-style="expand-right" onclick="packinglistpesanan()">
+                            <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px">Packing List</span>
+                        </button>
+                    </div>*@
                             @* end remark 16/9/19, function pindah ke modal ubah status *@
                         </div>
                         @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
@@ -2079,7 +2095,7 @@
                             <div class="input-group text" style="padding-top:13px">
                                 <select class="form-control" id="TakeRecordPacking" name="TakeRecordPacking" required="required">
                                     @*
-                                        <option>--Pilih--</option>*@
+                            <option>--Pilih--</option>*@
                                     <option value="10">10</option>
                                     <option value="20">20</option>
                                     <option value="50">50</option>
@@ -2094,8 +2110,8 @@
                     </div>
                     <div class="row" style="margin-top: 5px;">
                         @*<div id="loading_siap_kirim_tab" class="text-center">
-                                <img src="~/Content/Images/spinner.gif" width="100" />
-                            </div>*@
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>*@
                         <div class="col-sm-12" id="table-pesanan-siap-kirim-partial">
                             @*@Html.Partial("TablePesananSiapKirimPartial")*@
                         </div>
@@ -2125,6 +2141,7 @@
                                 <option value="exp_tgl">Tgl. Expired Pesanan</option>
                                 <option value="statuskirim">Status Kirim</option>
                                 <option value="statusprint">Status Print</option>
+                                <option value="tipe">Tipe Pesanan</option>
                             </select>
                         </div>
                         <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
@@ -2161,18 +2178,25 @@
                                     <option value="1">Sudah</option>
                                 </select>
                             </div>
+                            <div class="col-12" id="filter_pesanan_faktur_field_tipe_div" style="display:none">
+                                <select class="form-control" id="filter_pesanan_faktur_field_tipe" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="cod">COD</option>
+                                    <option value="preorder">Preorder</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="col-lg-5 col-sm-12"></div>
                         <div class="col-lg-1 col-sm-6" style="margin-top:13px;">
                             <div class="pull-right">
                                 @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
-                                        <span>Refresh</span>
-                                    </button>*@
+                            <span>Refresh</span>
+                        </button>*@
                                 @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
                                 @*<button type="button" id="btn_generateFaktur" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalGenerateFaktur" onclick="passRecStatusMultiDibayar()">
-                                        <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Buat Faktur</span>
-                                    </button>*@
+                            <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Buat Faktur</span>
+                        </button>*@
                                 @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
                                 <div class="btn-group" role="group">
                                     <button id="pesanan_faktur_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -2193,7 +2217,7 @@
                             <div class="input-group text">
                                 <select class="form-control" id="TakeRecordInvoicing" name="TakeRecordInvoicing" required="required">
                                     @*
-                                        <option>--Pilih--</option>*@
+                            <option>--Pilih--</option>*@
                                     <option value="10">10</option>
                                     <option value="20">20</option>
                                     <option value="50">50</option>
@@ -2206,8 +2230,8 @@
                     </div>
                     <div class="row" style="margin-top: 5px;">
                         @*<div id="loading_sudah_kirim_tab" class="text-center">
-                                <img src="~/Content/Images/spinner.gif" width="100" />
-                            </div>*@
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>*@
                         <div class="col-sm-12" id="table-pesanan-sudah-kirim-partial">
                             @*@Html.Partial("TablePesananSudahKirimPartial")*@
                         </div>
@@ -2234,6 +2258,7 @@
                             <select class="form-control" id="filter_pesanan_selesai_field" required="required">
                                 <option value="tanggal">Tgl. Pesanan</option>
                                 <option value="marketplace">Marketplace</option>
+                                <option value="tipe">Tipe Pesanan</option>
                             </select>
                         </div>
                         <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
@@ -2258,6 +2283,13 @@
                                     <option value="18">Offline</option>
                                 </select>
                             </div>
+                            <div class="col-12" id="filter_pesanan_selesai_field_tipe_div" style="display:none">
+                                <select class="form-control" id="filter_pesanan_selesai_field_tipe" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="cod">COD</option>
+                                    <option value="preorder">Preorder</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="col-lg-5 col-sm-12"></div>
                         <div class="col-lg-1 col-sm-6" style="margin-top:13px;">
@@ -2265,15 +2297,15 @@
                             <div class="pull-right">
                                 @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
-                                        <span>Refresh</span>
-                                    </button>*@
+                            <span>Refresh</span>
+                        </button>*@
                             </div>
                         </div>
                     </div>
                     <div class="row pesanan_selesai_section" style="margin-top: 5px;">
                         @*<div id="loading_selesai_tab" class="text-center">
-                                <img src="~/Content/Images/spinner.gif" width="100" />
-                            </div>*@
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>*@
                         <div class="col-sm-12" id="table-pesanan-selesai-partial">
                             @*@Html.Partial("TablePesananSelesaiPartial")*@
                         </div>
@@ -2326,6 +2358,7 @@
                             <select class="form-control" id="filter_pesanan_cancel_field" required="required">
                                 <option value="tanggal">Tgl. Pesanan</option>
                                 <option value="marketplace">Marketplace</option>
+                                <option value="tipe">Tipe Pesanan</option>
                             </select>
                         </div>
                         <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
@@ -2350,6 +2383,13 @@
                                     <option value="18">Offline</option>
                                 </select>
                             </div>
+                            <div class="col-12" id="filter_pesanan_cancel_field_tipe_div" style="display:none">
+                                <select class="form-control" id="filter_pesanan_cancel_field_tipe" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="cod">COD</option>
+                                    <option value="preorder">Preorder</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="col-lg-5 col-sm-12"></div>
                         <div class="col-lg-1 col-sm-6" style="margin-top:13px;">
@@ -2357,16 +2397,90 @@
                             <div class="pull-right">
                                 @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
-                                        <span>Refresh</span>
-                                    </button>*@
+                            <span>Refresh</span>
+                        </button>*@
                             </div>
                         </div>
                     </div>
                     <div class="row" style="margin-top: 5px;">
                         @*<div id="loading_cancel_tab" class="text-center">
-                                <img src="~/Content/Images/spinner.gif" width="100" />
-                            </div>*@
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>*@
                         <div class="col-sm-12" id="table-pesanan-cancel-partial">
+                            @*@Html.Partial("TablePesananCancelPartial")*@
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content_cc" aria-labelledby="cancel-cod-tab">
+                    <div class="row">
+                        <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
+                            <div class="input-group">
+                                <input id="search_cancel_cod" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_cancel_cod_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-sm-12" style="text-align:left">
+                        </div>
+                    </div>
+                    <div class="row ">
+                        <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <select class="form-control" id="filter_pesanan_cancel_cod_field" required="required">
+                                <option value="tanggal">Tgl. Pesanan</option>
+                                <option value="marketplace">Marketplace</option>
+                                <option value="tipe">Tipe Pesanan</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <div class="col-12" id="filter_pesanan_cancel_cod_field_tanggal_div">
+                                <select class="form-control" id="filter_pesanan_cancel_cod_field_tanggal" required="required">
+                                    <option value="desc">Terbaru</option>
+                                    <option value="asc">Terlama</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_pesanan_cancel_cod_field_marketplace_div" style="display:none">
+                                <select class="form-control" id="filter_pesanan_cancel_cod_field_marketplace" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="7">Lazada</option>
+                                    <option value="8">Bukalapak</option>
+                                    <option value="9">Elevenia</option>
+                                    <option value="15">Tokopedia</option>
+                                    <option value="16">Blibli</option>
+                                    <option value="17">Shopee</option>
+                                    <option value="19">JD.ID</option>
+                                    <option value="20">82Cart</option>
+                                    <option value="21">Shopify</option>
+                                    <option value="18">Offline</option>
+                                </select>
+                            </div>
+                            @*<div class="col-12" id="filter_pesanan_cancel_field_tipe_div" style="display:none">
+                                <select class="form-control" id="filter_pesanan_cancel_field_tipe" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="cod">COD</option>
+                                    <option value="preorder">Preorder</option>
+                                </select>
+                            </div>*@
+                        </div>
+                        <div class="col-lg-5 col-sm-12"></div>
+                        <div class="col-lg-1 col-sm-6" style="margin-top:13px;">
+                            @*<div class="col-lg-8 col-sm-6" style="margin-top:13px;">*@
+                            <div class="pull-right">
+                                @*//remark by nurul 17/6/2019*@
+                                @*<button type="button" class="btn btn-default" data-style="expand-right">
+                            <span>Refresh</span>
+                        </button>*@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top: 5px;">
+                        @*<div id="loading_cancel_tab" class="text-center">
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>*@
+                        <div class="col-sm-12" id="table-pesanan-cancel-cod-partial">
                             @*@Html.Partial("TablePesananCancelPartial")*@
                         </div>
                     </div>
@@ -4901,23 +5015,35 @@
                     case "tanggal":
                         $('#filter_pesanan_dibayar_field_tanggal_div').show();
                         $('#filter_pesanan_dibayar_field_marketplace_div').hide();
+                        $('#filter_pesanan_dibayar_field_tipe_div').hide();
                         searchTablePesananSudahDibayar();
                         break;
                     case "exp_tgl":
                         $('#filter_pesanan_dibayar_field_tanggal_div').show();
                         $('#filter_pesanan_dibayar_field_marketplace_div').hide();
+                        $('#filter_pesanan_dibayar_field_tipe_div').hide
                         searchTablePesananSudahDibayar();
                         break;
                     case "marketplace":
                         $('#filter_pesanan_dibayar_field_tanggal_div').hide();
                         $('#filter_pesanan_dibayar_field_marketplace_div').show();
+                        $('#filter_pesanan_dibayar_field_tipe_div').hide
                         if ($('#filter_pesanan_dibayar_field_marketplace').val() != "Harap Pilih") {
+                            searchTablePesananSudahDibayar();
+                        }
+                        break;
+                    case "tipe":
+                        $('#filter_pesanan_dibayar_field_tanggal_div').hide();
+                        $('#filter_pesanan_dibayar_field_marketplace_div').hide();
+                        $('#filter_pesanan_dibayar_field_tipe_div').show();
+                        if ($('#filter_pesanan_dibayar_field_tipe').val() != "Harap Pilih") {
                             searchTablePesananSudahDibayar();
                         }
                         break;
                     default:
                         $('#filter_pesanan_dibayar_field_tanggal_div').hide();
                         $('#filter_pesanan_dibayar_field_marketplace_div').hide();
+                        $('#filter_pesanan_dibayar_field_tipe_div').hide
                         break;
                 }
 
@@ -4928,6 +5054,9 @@
             $('#filter_pesanan_dibayar_field_marketplace').change(function () {
                 searchTablePesananSudahDibayar();
             });
+            $('#filter_pesanan_dibayar_field_tipe').change(function () {
+                searchTablePesananSudahDibayar();
+            });
 
             $('#filter_pesanan_packing_field').change(function () {
                 var filterBy = $(this).val();
@@ -4935,23 +5064,35 @@
                     case "tanggal":
                         $('#filter_pesanan_packing_field_tanggal_div').show();
                         $('#filter_pesanan_packing_field_marketplace_div').hide();
+                        $('#filter_pesanan_packing_field_tipe_div').hide();
                         searchTablePesananPacking();
                         break;
                     case "exp_tgl":
                         $('#filter_pesanan_packing_field_tanggal_div').show();
                         $('#filter_pesanan_packing_field_marketplace_div').hide();
+                        $('#filter_pesanan_packing_field_tipe_div').hide();
                         searchTablePesananPacking();
                         break;
                     case "marketplace":
                         $('#filter_pesanan_packing_field_tanggal_div').hide();
                         $('#filter_pesanan_packing_field_marketplace_div').show();
+                        $('#filter_pesanan_packing_field_tipe_div').hide();
                         if ($('#filter_pesanan_packing_field_marketplace').val() != "Harap Pilih") {
+                            searchTablePesananPacking();
+                        }
+                        break;
+                    case "tipe":
+                        $('#filter_pesanan_packing_field_tanggal_div').hide();
+                        $('#filter_pesanan_packing_field_marketplace_div').hide();
+                        $('#filter_pesanan_packing_field_tipe_div').show();
+                        if ($('#filter_pesanan_packing_field_tipe').val() != "Harap Pilih") {
                             searchTablePesananPacking();
                         }
                         break;
                     default:
                         $('#filter_pesanan_packing_field_tanggal_div').hide();
                         $('#filter_pesanan_packing_field_marketplace_div').hide();
+                        $('#filter_pesanan_packing_field_tipe_div').hide();
                         break;
                 }
 
@@ -4960,6 +5101,9 @@
                 searchTablePesananPacking();
             });
             $('#filter_pesanan_packing_field_marketplace').change(function () {
+                searchTablePesananPacking();
+            });
+            $('#filter_pesanan_packing_field_tipe').change(function () {
                 searchTablePesananPacking();
             });
 
@@ -4972,36 +5116,52 @@
                         $('#filter_pesanan_faktur_field_marketplace_div').hide();
                         $('#filter_pesanan_faktur_field_statuskirim_div').hide();
                         $('#filter_pesanan_faktur_field_statusprint_div').hide();
+                        $('#filter_pesanan_faktur_field_tipe_div').hide();
                         break;
                     case "exp_tgl":
                         $('#filter_pesanan_faktur_field_tanggal_div').show();
                         $('#filter_pesanan_faktur_field_marketplace_div').hide();
                         $('#filter_pesanan_faktur_field_statuskirim_div').hide();
                         $('#filter_pesanan_faktur_field_statusprint_div').hide();
+                        $('#filter_pesanan_faktur_field_tipe_div').hide();
                         break;
                     case "marketplace":
                         $('#filter_pesanan_faktur_field_tanggal_div').hide();
                         $('#filter_pesanan_faktur_field_marketplace_div').show();
                         $('#filter_pesanan_faktur_field_statuskirim_div').hide();
                         $('#filter_pesanan_faktur_field_statusprint_div').hide();
+                        $('#filter_pesanan_faktur_field_tipe_div').hide();
                         break;
                     case "statuskirim":
                         $('#filter_pesanan_faktur_field_tanggal_div').hide();
                         $('#filter_pesanan_faktur_field_marketplace_div').hide();
                         $('#filter_pesanan_faktur_field_statuskirim_div').show();
                         $('#filter_pesanan_faktur_field_statusprint_div').hide();
+                        $('#filter_pesanan_faktur_field_tipe_div').hide();
                         break;
                     case "statusprint":
                         $('#filter_pesanan_faktur_field_tanggal_div').hide();
                         $('#filter_pesanan_faktur_field_marketplace_div').hide();
                         $('#filter_pesanan_faktur_field_statuskirim_div').hide();
                         $('#filter_pesanan_faktur_field_statusprint_div').show();
+                        $('#filter_pesanan_faktur_field_tipe_div').hide();
+                        break;
+                    case "tipe":
+                        $('#filter_pesanan_faktur_field_tanggal_div').hide();
+                        $('#filter_pesanan_faktur_field_marketplace_div').hide();
+                        $('#filter_pesanan_faktur_field_statuskirim_div').hide();
+                        $('#filter_pesanan_faktur_field_statusprint_div').hide();
+                        $('#filter_pesanan_faktur_field_tipe_div').show();
+                        //if ($('#filter_pesanan_faktur_field_tipe').val() != "Harap Pilih") {
+                        //    searchTablePesanan();
+                        //}
                         break;
                     default:
                         $('#filter_pesanan_faktur_field_tanggal_div').hide();
                         $('#filter_pesanan_faktur_field_marketplace_div').hide();
                         $('#filter_pesanan_faktur_field_statuskirim_div').hide();
                         $('#filter_pesanan_faktur_field_statusprint_div').hide();
+                        $('#filter_pesanan_faktur_field_tipe_div').hide();
                         break;
                 }
                 $('#search_invoicing_click').click();
@@ -5009,7 +5169,8 @@
             $('#filter_pesanan_faktur_field_tanggal, ' +
                 '#filter_pesanan_faktur_field_marketplace, ' +
                 '#filter_pesanan_faktur_field_statuskirim, ' +
-                '#filter_pesanan_faktur_field_statusprint').change(function () {
+                '#filter_pesanan_faktur_field_statusprint, ' +
+                '#filter_pesanan_faktur_field_tipe').change(function () {
                     $('#search_invoicing_click').click();
                 });
             //end add by calvin 29 nov 2019
@@ -5020,18 +5181,29 @@
                     case "tanggal":
                         $('#filter_pesanan_selesai_field_tanggal_div').show();
                         $('#filter_pesanan_selesai_field_marketplace_div').hide();
+                        $('#filter_pesanan_selesai_field_tipe_div').hide();
                         searchTablePesananSelesai();
                         break;
                     case "marketplace":
                         $('#filter_pesanan_selesai_field_tanggal_div').hide();
                         $('#filter_pesanan_selesai_field_marketplace_div').show();
+                        $('#filter_pesanan_selesai_field_tipe_div').hide();
                         if ($('#filter_pesanan_selesai_field_marketplace').val() != "Harap Pilih") {
+                            searchTablePesananSelesai();
+                        }
+                        break;
+                    case "tipe":
+                        $('#filter_pesanan_selesai_field_tanggal_div').hide();
+                        $('#filter_pesanan_selesai_field_marketplace_div').hide();
+                        $('#filter_pesanan_selesai_field_tipe_div').show();
+                        if ($('#filter_pesanan_selesai_field_tipe').val() != "Harap Pilih") {
                             searchTablePesananSelesai();
                         }
                         break;
                     default:
                         $('#filter_pesanan_selesai_field_tanggal_div').hide();
                         $('#filter_pesanan_selesai_field_marketplace_div').hide();
+                        $('#filter_pesanan_selesai_field_tipe_div').hide();
                         break;
                 }
             });
@@ -5041,6 +5213,9 @@
             $('#filter_pesanan_selesai_field_marketplace').change(function () {
                 searchTablePesananSelesai();
             });
+            $('#filter_pesanan_selesai_field_tipe').change(function () {
+                searchTablePesananSelesai();
+            });
 
             $('#filter_pesanan_cancel_field').change(function () {
                 var filterBy = $(this).val();
@@ -5048,18 +5223,29 @@
                     case "tanggal":
                         $('#filter_pesanan_cancel_field_tanggal_div').show();
                         $('#filter_pesanan_cancel_field_marketplace_div').hide();
+                        $('#filter_pesanan_cancel_field_tipe_div').hide();
                         searchTablePesananCancel();
                         break;
                     case "marketplace":
                         $('#filter_pesanan_cancel_field_tanggal_div').hide();
                         $('#filter_pesanan_cancel_field_marketplace_div').show();
+                        $('#filter_pesanan_cancel_field_tipe_div').hide();
                         if ($('#filter_pesanan_cancel_field_marketplace').val() != "Harap Pilih") {
+                            searchTablePesananCancel();
+                        }
+                        break;
+                    case "tipe":
+                        $('#filter_pesanan_cancel_field_tanggal_div').hide();
+                        $('#filter_pesanan_cancel_field_marketplace_div').hide();
+                        $('#filter_pesanan_cancel_field_tipe_div').show();
+                        if ($('#filter_pesanan_cancel_field_tipe').val() != "Harap Pilih") {
                             searchTablePesananCancel();
                         }
                         break;
                     default:
                         $('#filter_pesanan_cancel_field_tanggal_div').hide();
                         $('#filter_pesanan_cancel_field_marketplace_div').hide();
+                        $('#filter_pesanan_cancel_field_tipe_div').hide();
                         break;
                 }
             });
@@ -5069,7 +5255,52 @@
             $('#filter_pesanan_cancel_field_marketplace').change(function () {
                 searchTablePesananCancel();
             });
+            $('#filter_pesanan_cancel_field_tipe').change(function () {
+                searchTablePesananCancel();
+            });
             //end add by nurul 4/12/2019
+
+            $('#filter_pesanan_cancel_cod_field').change(function () {
+                var filterBy = $(this).val();
+                switch (filterBy) {
+                    case "tanggal":
+                        $('#filter_pesanan_cancel_cod_field_tanggal_div').show();
+                        $('#filter_pesanan_cancel_cod_field_marketplace_div').hide();
+                        //$('#filter_pesanan_cancel_cod_field_tipe_div').hide();
+                        searchTablePesananCancelCOD();
+                        break;
+                    case "marketplace":
+                        $('#filter_pesanan_cancel_cod_field_tanggal_div').hide();
+                        $('#filter_pesanan_cancel_cod_cod_field_marketplace_div').show();
+                        //$('#filter_pesanan_cancel_cod_field_tipe_div').hide();
+                        if ($('#filter_pesanan_cancel_cod_field_marketplace').val() != "Harap Pilih") {
+                            searchTablePesananCancelCOD();
+                        }
+                        break;
+                    //case "tipe":
+                    //    $('#filter_pesanan_cancel_cod_field_tanggal_div').hide();
+                    //    $('#filter_pesanan_cancel_cod_field_marketplace_div').hide();
+                    //    $('#filter_pesanan_cancel_cod_field_tipe_div').show();
+                    //    if ($('#filter_pesanan_cancel_cod_field_tipe').val() != "Harap Pilih") {
+                    //        searchTablePesananCancelCOD();
+                    //    }
+                    //    break;
+                    default:
+                        $('#filter_pesanan_cancel_cod_field_tanggal_div').hide();
+                        $('#filter_pesanan_cancel_cod_field_marketplace_div').hide();
+                        //$('#filter_pesanan_cancel_cod_field_tipe_div').hide();
+                        break;
+                }
+            });
+            $('#filter_pesanan_cancel_cod_field_tanggal').change(function () {
+                searchTablePesananCancelCOD();
+            });
+            $('#filter_pesanan_cancel_cod_field_marketplace').change(function () {
+                searchTablePesananCancelCOD();
+            });
+            $('#filter_pesanan_cancel_cod_field_tipe').change(function () {
+                searchTablePesananCancelCOD();
+            });
 
             $('#dtTokpedCancelOpenDate').datepicker({
                 format: 'dd/mm/yyyy',
@@ -8472,6 +8703,9 @@
                 case "marketplace":
                     filtervalue = $('#filter_pesanan_dibayar_field_marketplace').val();
                     break;
+                case "tipe":
+                    filtervalue = $('#filter_pesanan_dibayar_field_tipe').val();
+                    break;
                 default:
                     break;
             }
@@ -8738,6 +8972,9 @@
                 case "marketplace":
                     filtervalue = $('#filter_pesanan_packing_field_marketplace').val();
                     break;
+                case "tipe":
+                    filtervalue = $('#filter_pesanan_packing_field_tipe').val();
+                    break;
                 default:
                     break;
             }
@@ -8996,6 +9233,9 @@
                 case "statusprint":
                     filtervalue = $('#filter_pesanan_faktur_field_statusprint').val();
                     break;
+                case "tipe":
+                    filtervalue = $('#filter_pesanan_faktur_field_tipe').val();
+                    break;
                 default:
                     break;
             }
@@ -9136,6 +9376,9 @@
                 case "marketplace":
                     filtervalue = $('#filter_pesanan_selesai_field_marketplace').val();
                     break;
+                case "tipe":
+                    filtervalue = $('#filter_pesanan_selesai_field_tipe').val();
+                    break;
                 default:
                     break;
             }
@@ -9252,6 +9495,9 @@
                 case "marketplace":
                     filtervalue = $('#filter_pesanan_cancel_field_marketplace').val();
                     break;
+                case "tipe":
+                    filtervalue = $('#filter_pesanan_cancel_field_tipe').val();
+                    break;
                 default:
                     break;
             }
@@ -9289,6 +9535,57 @@
             });
         }
         //end add by nurul 7/5/2019
+
+    function get_pesanan_cancel_cod_filterby() {
+        return $('#filter_pesanan_cancel_cod_field').val();
+    }
+    function get_pesanan_cancel_cod_filtervalue(filterby) {
+        var filtervalue = "";
+        switch (filterby) {
+            case "tanggal":
+                filtervalue = $('#filter_pesanan_cancel_cod_field_tanggal').val();
+                break;
+            case "marketplace":
+                filtervalue = $('#filter_pesanan_cancel_cod_field_marketplace').val();
+                break;
+            //case "tipe":
+            //    filtervalue = $('#filter_pesanan_cancel_cod_field_tipe').val();
+            //    break;
+            default:
+                break;
+        }
+        return filtervalue;
+    }
+
+        function searchTablePesananCancelCOD(){
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesananCancelCOD", "Manage", new { search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_cancel').val()));
+            //add by nurul 4/12/2019
+            var filterby = get_pesanan_cancel_cod_filterby();
+            var filtervalue = get_pesanan_cancel_cod_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+            //end add by nurul 4/12/2019
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_cancel_cod_click')[0].disabled = true;
+                    $('#loading_pesanan_cancel_cod_tab').show();
+                },
+                success: function (response) {
+                    $('#search_cancel_click')[0].disabled = false;
+                    $('#table-pesanan-cancel-cod-partial').html(response);
+
+                    $('#loading_pesanan_cancel_cod_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_cancel_cod_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
 
         function refreshForm1() {
             refreshInputan();

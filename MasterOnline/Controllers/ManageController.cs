@@ -23303,32 +23303,32 @@ namespace MasterOnline.Controllers
                     searchPreorder = true;
                 }
             }
-            if (search.ToUpper() == "BELUM BAYAR")
+            if (search.ToUpper().Contains("BELUM BAYAR"))
             {
                 search = "0";
                 searchStatus = true;
             }
-            else if (search.ToUpper() == "SUDAH BAYAR")
+            else if (search.ToUpper().Contains("SUDAH BAYAR"))
             {
                 search = "01";
                 searchStatus = true;
             }
-            else if (search.ToUpper() == "PACKING")
+            else if (search.ToUpper().Contains("PACKING"))
             {
                 search = "02";
                 searchStatus = true;
             }
-            else if (search.ToUpper() == "FAKTUR")
+            else if (search.ToUpper().Contains("FAKTUR"))
             {
                 search = "03";
                 searchStatus = true;
             }
-            else if (search.ToUpper() == "SELESAI")
+            else if (search.ToUpper().Contains("SELESAI"))
             {
                 search = "04";
                 searchStatus = true;
             }
-            else if (search.ToUpper() == "BATAL")
+            else if (search.ToUpper().Contains("BATAL"))
             {
                 search = "11";
 
@@ -23447,18 +23447,40 @@ namespace MasterOnline.Controllers
                 if (searchStatus)
                 {
                     sSQL2 += " WHERE ( A.STATUS_TRANSAKSI = '" + search + "' )";
+                    if (searchCOD && searchPreorder)
+                    {
+                        sSQL2 += " OR (TIPE_KIRIM = 1 AND N_UCAPAN = 'Preorder') ";
+                    }
+                    else
+                    {
+                        if (searchCOD)
+                        {
+                            sSQL2 += " AND TIPE_KIRIM = 1 ";
+                        }
+                        if (searchPreorder)
+                        {
+                            sSQL2 += " AND N_UCAPAN = 'Preorder' ";
+                        }
+                    }
                 }
                 else
                 {
                     sSQL2 += " WHERE ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
-                }
-                if (searchCOD)
-                {
-                    sSQL2 += " OR TIPE_KIRIM = 1 ";
-                }
-                if (searchPreorder)
-                {
-                    sSQL2 += " OR N_UCAPAN = 'Preorder' ";
+                    if (searchCOD && searchPreorder)
+                    {
+                        sSQL2 += " OR (TIPE_KIRIM = 1 AND N_UCAPAN = 'Preorder') ";
+                    }
+                    else
+                    {
+                        if (searchCOD)
+                        {
+                            sSQL2 += " OR TIPE_KIRIM = 1 ";
+                        }
+                        if (searchPreorder)
+                        {
+                            sSQL2 += " OR N_UCAPAN = 'Preorder' ";
+                        }
+                    }
                 }
             }
 
@@ -24314,7 +24336,19 @@ namespace MasterOnline.Controllers
             string sSQLpembeli = "";
             string sSQLkurir = "";
             string sSQLreferensi = "";
-
+            bool searchCOD = false;
+            bool searchPreorder = false;
+            if (!string.IsNullOrEmpty(search))
+            {
+                if (search.ToUpper().Contains("COD"))
+                {
+                    searchCOD = true;
+                }
+                if (search.ToUpper().Contains("PREORDER"))
+                {
+                    searchPreorder = true;
+                }
+            }
             if (getkata.Length > 0)
             {
                 if (search != "")
@@ -24387,6 +24421,27 @@ namespace MasterOnline.Controllers
                         }
                     }
                     break;
+                case "tipe":
+                    {
+                        if (filtervalue != null && filtervalue != "Harap Pilih")
+                        {
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) ";
+                            if (filtervalue == "cod")
+                            {
+                                sSQLTemp += "WHERE ISNULL(TIPE_KIRIM,0) = 1; ";
+                            }
+                            if (filtervalue == "preorder")
+                            {
+                                sSQLTemp += "WHERE ISNULL(N_UCAPAN,'') = 'preorder'; ";
+                            }
+                            sSQL2 += "FROM #SOT01A A (NOLOCK) ";
+                        }
+                        else
+                        {
+                            sSQL2 += "FROM SOT01A A (NOLOCK) ";
+                        }
+                    }
+                    break;
                 default:
                     {
                         sSQL2 += "FROM SOT01A A (NOLOCK) ";
@@ -24400,7 +24455,24 @@ namespace MasterOnline.Controllers
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%') ";
-                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
+                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ";
+
+                if (searchCOD && searchPreorder)
+                {
+                    sSQL2 += " OR (TIPE_KIRIM = 1 AND N_UCAPAN = 'Preorder') ";
+                }
+                else
+                {
+                    if (searchCOD)
+                    {
+                        sSQL2 += " OR TIPE_KIRIM = 1 ";
+                    }
+                    if (searchPreorder)
+                    {
+                        sSQL2 += " OR N_UCAPAN = 'Preorder' ";
+                    }
+                }
+                sSQL2 += ")";
             }
             string sSQLSelect2 = "";
             //ADD BY NURUL 4/12/2019
@@ -24695,7 +24767,19 @@ namespace MasterOnline.Controllers
             string sSQLpembeli = "";
             string sSQLkurir = "";
             string sSQLreferensi = "";
-
+            bool searchCOD = false;
+            bool searchPreorder = false;
+            if (!string.IsNullOrEmpty(search))
+            {
+                if (search.ToUpper().Contains("COD"))
+                {
+                    searchCOD = true;
+                }
+                if (search.ToUpper().Contains("PREORDER"))
+                {
+                    searchPreorder = true;
+                }
+            }
             if (getkata.Length > 0)
             {
                 if (search != "")
@@ -24768,6 +24852,27 @@ namespace MasterOnline.Controllers
                         }
                     }
                     break;
+                case "tipe":
+                    {
+                        if (filtervalue != null && filtervalue != "Harap Pilih")
+                        {
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) ";
+                            if (filtervalue == "cod")
+                            {
+                                sSQLTemp += "WHERE ISNULL(TIPE_KIRIM,0) = 1; ";
+                            }
+                            if (filtervalue == "preorder")
+                            {
+                                sSQLTemp += "WHERE ISNULL(N_UCAPAN,'') = 'preorder'; ";
+                            }
+                            sSQL2 += "FROM #SOT01A A (NOLOCK) ";
+                        }
+                        else
+                        {
+                            sSQL2 += "FROM SOT01A A (NOLOCK) ";
+                        }
+                    }
+                    break;
                 default:
                     {
                         sSQL2 += "FROM SOT01A A (NOLOCK) ";
@@ -24781,7 +24886,24 @@ namespace MasterOnline.Controllers
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%') ";
-                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
+                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ";
+
+                if (searchCOD && searchPreorder)
+                {
+                    sSQL2 += " OR (TIPE_KIRIM = 1 AND N_UCAPAN = 'Preorder') ";
+                }
+                else
+                {
+                    if (searchCOD)
+                    {
+                        sSQL2 += " OR TIPE_KIRIM = 1 ";
+                    }
+                    if (searchPreorder)
+                    {
+                        sSQL2 += " OR N_UCAPAN = 'Preorder' ";
+                    }
+                }
+                sSQL2 += ")";
             }
             string sSQLSelect2 = "";
             //ADD BY NURUL 4/12/2019
@@ -24872,7 +24994,20 @@ namespace MasterOnline.Controllers
             string sSQLresi = "";
             string sSQLnetto = "";
             string sSQLkurir = "";
-            string sSQLreferensi = "";
+            string sSQLreferensi = ""; 
+            bool searchCOD = false;
+            bool searchPreorder = false;
+            if (!string.IsNullOrEmpty(search))
+            {
+                if (search.ToUpper().Contains("COD"))
+                {
+                    searchCOD = true;
+                }
+                if (search.ToUpper().Contains("PREORDER"))
+                {
+                    searchPreorder = true;
+                }
+            }
             if (getkata.Length > 0)
             {
                 if (search != "")
@@ -24953,6 +25088,27 @@ namespace MasterOnline.Controllers
                         sSQL2 += " FROM #SOT01A A (NOLOCK) ";
                     }
                     break;
+                case "tipe":
+                    {
+                        if (filtervalue != null && filtervalue != "Harap Pilih")
+                        {
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) ";
+                            if (filtervalue == "cod")
+                            {
+                                sSQLTemp += "WHERE ISNULL(TIPE_KIRIM,0) = 1; ";
+                            }
+                            if (filtervalue == "preorder")
+                            {
+                                sSQLTemp += "WHERE ISNULL(N_UCAPAN,'') = 'preorder'; ";
+                            }
+                            sSQL2 += "FROM #SOT01A A (NOLOCK) ";
+                        }
+                        else
+                        {
+                            sSQL2 += "FROM SOT01A A (NOLOCK) ";
+                        }
+                    }
+                    break;
                 default:
                     {
                         sSQL2 += "FROM SOT01A A (NOLOCK) ";
@@ -24968,7 +25124,24 @@ namespace MasterOnline.Controllers
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%' OR D.NO_BUKTI LIKE '%" + search + "%' OR A.TRACKING_SHIPMENT LIKE '%" + search + "%') ";
-                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLfaktur + ") or (" + sSQLresi + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
+                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLfaktur + ") or (" + sSQLresi + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ";
+
+                if (searchCOD && searchPreorder)
+                {
+                    sSQL2 += " OR (TIPE_KIRIM = 1 AND A.N_UCAPAN = 'Preorder') ";
+                }
+                else
+                {
+                    if (searchCOD)
+                    {
+                        sSQL2 += " OR TIPE_KIRIM = 1 ";
+                    }
+                    if (searchPreorder)
+                    {
+                        sSQL2 += " OR A.N_UCAPAN = 'Preorder' ";
+                    }
+                }
+                sSQL2 += ")";
             }
             string sSQLSelect2 = "";
             if (filter == "tanggal" && filtervalue == "asc")
@@ -25040,7 +25213,20 @@ namespace MasterOnline.Controllers
             string sSQLpembeli = "";
             string sSQLfaktur = "";
             string sSQLkurir = "";
-            string sSQLreferensi = "";
+            string sSQLreferensi = ""; 
+            bool searchCOD = false;
+            bool searchPreorder = false;
+            if (!string.IsNullOrEmpty(search))
+            {
+                if (search.ToUpper().Contains("COD"))
+                {
+                    searchCOD = true;
+                }
+                if (search.ToUpper().Contains("PREORDER"))
+                {
+                    searchPreorder = true;
+                }
+            }
             if (getkata.Length > 0)
             {
                 if (search != "")
@@ -25110,6 +25296,27 @@ namespace MasterOnline.Controllers
                         }
                     }
                     break;
+                case "tipe":
+                    {
+                        if (filtervalue != null && filtervalue != "Harap Pilih")
+                        {
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) ";
+                            if (filtervalue == "cod")
+                            {
+                                sSQLTemp += "WHERE ISNULL(TIPE_KIRIM,0) = 1; ";
+                            }
+                            if (filtervalue == "preorder")
+                            {
+                                sSQLTemp += "WHERE ISNULL(N_UCAPAN,'') = 'preorder'; ";
+                            }
+                            sSQL2 += "FROM #SOT01A A (NOLOCK) ";
+                        }
+                        else
+                        {
+                            sSQL2 += "FROM SOT01A A (NOLOCK) ";
+                        }
+                    }
+                    break;
                 default:
                     {
                         sSQL2 += "FROM SOT01A A (NOLOCK) ";
@@ -25124,7 +25331,24 @@ namespace MasterOnline.Controllers
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%' OR D.NO_BUKTI LIKE '%" + search + "%') ";
-                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLfaktur + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
+                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLfaktur + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ";
+
+                if (searchCOD && searchPreorder)
+                {
+                    sSQL2 += " OR (TIPE_KIRIM = 1 AND A.N_UCAPAN = 'Preorder') ";
+                }
+                else
+                {
+                    if (searchCOD)
+                    {
+                        sSQL2 += " OR TIPE_KIRIM = 1 ";
+                    }
+                    if (searchPreorder)
+                    {
+                        sSQL2 += " OR A.N_UCAPAN = 'Preorder' ";
+                    }
+                }
+                sSQL2 += ")";
             }
             string sSQLSelect2 = "";
             //ADD BY NURUL 4/12/2019
@@ -25180,7 +25404,20 @@ namespace MasterOnline.Controllers
             string sSQLnetto = "";
             string sSQLpembeli = "";
             string sSQLkurir = "";
-            string sSQLreferensi = "";
+            string sSQLreferensi = ""; 
+            bool searchCOD = false;
+            bool searchPreorder = false;
+            if (!string.IsNullOrEmpty(search))
+            {
+                if (search.ToUpper().Contains("COD"))
+                {
+                    searchCOD = true;
+                }
+                if (search.ToUpper().Contains("PREORDER"))
+                {
+                    searchPreorder = true;
+                }
+            }
             if (getkata.Length > 0)
             {
                 if (search != "")
@@ -25247,6 +25484,27 @@ namespace MasterOnline.Controllers
                         }
                     }
                     break;
+                case "tipe":
+                    {
+                        if (filtervalue != null && filtervalue != "Harap Pilih")
+                        {
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) ";
+                            if (filtervalue == "cod")
+                            {
+                                sSQLTemp += "WHERE ISNULL(TIPE_KIRIM,0) = 1; ";
+                            }
+                            if (filtervalue == "preorder")
+                            {
+                                sSQLTemp += "WHERE ISNULL(N_UCAPAN,'') = 'preorder'; ";
+                            }
+                            sSQL2 += "FROM #SOT01A A (NOLOCK) ";
+                        }
+                        else
+                        {
+                            sSQL2 += "FROM SOT01A A (NOLOCK) ";
+                        }
+                    }
+                    break;
                 default:
                     {
                         sSQL2 += "FROM SOT01A A (NOLOCK) ";
@@ -25263,7 +25521,24 @@ namespace MasterOnline.Controllers
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%') ";
-                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
+                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ";
+
+                if (searchCOD && searchPreorder)
+                {
+                    sSQL2 += " OR (TIPE_KIRIM = 1 AND N_UCAPAN = 'Preorder') ";
+                }
+                else
+                {
+                    if (searchCOD)
+                    {
+                        sSQL2 += " OR TIPE_KIRIM = 1 ";
+                    }
+                    if (searchPreorder)
+                    {
+                        sSQL2 += " OR N_UCAPAN = 'Preorder' ";
+                    }
+                }
+                sSQL2 += ")";
             }
             string sSQLSelect2 = "";
             //ADD BY NURUL 4/12/2019
@@ -62511,6 +62786,19 @@ namespace MasterOnline.Controllers
                 string sSQLkurir = "";
                 string sSQLreferensi = "";
                 string sSQLjob = "";
+                bool searchCOD = false;
+                bool searchPreorder = false;
+                if (!string.IsNullOrEmpty(search))
+                {
+                    if (search.ToUpper().Contains("COD"))
+                    {
+                        searchCOD = true;
+                    }
+                    if (search.ToUpper().Contains("PREORDER"))
+                    {
+                        searchPreorder = true;
+                    }
+                }
                 if (getkata.Length > 0)
                 {
                     if (search != "")
@@ -62590,24 +62878,42 @@ namespace MasterOnline.Controllers
                     {
                         if (marketplace == "TOKOPEDIA" || marketplace == "SHOPEE" || marketplace == "BLIBLI")
                         {
-                            sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLkdbooking + ") or (" + sSQLpembeli + ") or (" + sSQLresi + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") or (" + sSQLjob + ") ) ";
+                            sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLkdbooking + ") or (" + sSQLpembeli + ") or (" + sSQLresi + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") or (" + sSQLjob + ") ";
                         }
                         else
                         {
-                            sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLkdbooking + ") or (" + sSQLpembeli + ") or (" + sSQLresi + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
+                            sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLkdbooking + ") or (" + sSQLpembeli + ") or (" + sSQLresi + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ";
                         }
                     }
                     else
                     {
                         if (marketplace == "TOKOPEDIA" || marketplace == "SHOPEE" || marketplace == "BLIBLI")
                         {
-                            sSQL2 += " WHERE ( (" + sSQLkode + ") or (" + sSQLkdbooking + ") or (" + sSQLpembeli + ") or (" + sSQLresi + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") or (" + sSQLjob + ") ) ";
+                            sSQL2 += " WHERE ( (" + sSQLkode + ") or (" + sSQLkdbooking + ") or (" + sSQLpembeli + ") or (" + sSQLresi + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") or (" + sSQLjob + ") ";
                         }
                         else
                         {
-                            sSQL2 += " WHERE ( (" + sSQLkode + ") or (" + sSQLkdbooking + ") or (" + sSQLpembeli + ") or (" + sSQLresi + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
+                            sSQL2 += " WHERE ( (" + sSQLkode + ") or (" + sSQLkdbooking + ") or (" + sSQLpembeli + ") or (" + sSQLresi + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ";
                         }
                     }
+                    if(searchCOD && searchPreorder)
+                    {
+                        sSQL2 += " OR (TIPE_KIRIM = 1 AND N_UCAPAN = 'Preorder') ";
+                    }
+                    else
+                    {
+                        if (searchCOD)
+                        {
+                            sSQL2 += " OR TIPE_KIRIM = 1 ";
+                        }
+                        if (searchPreorder)
+                        {
+                            sSQL2 += " OR N_UCAPAN = 'Preorder' ";
+                        }
+
+                    }
+                    sSQL2 += ")";
+
                 }
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -62632,6 +62938,19 @@ namespace MasterOnline.Controllers
                 string sSQLresi = "";
                 string sSQLpembeli = "";
                 string sSQLreferensi = "";
+                bool searchCOD = false;
+                bool searchPreorder = false;
+                if (!string.IsNullOrEmpty(search))
+                {
+                    if (search.ToUpper().Contains("COD"))
+                    {
+                        searchCOD = true;
+                    }
+                    if (search.ToUpper().Contains("PREORDER"))
+                    {
+                        searchPreorder = true;
+                    }
+                }
                 if (getkata.Length > 0)
                 {
                     if (search != "")
@@ -62659,7 +62978,7 @@ namespace MasterOnline.Controllers
                 string sSQLSelect = "";
                 sSQLSelect += "select a.RecNum, a.NO_BUKTI, a.PEMBELI, a.TGL_INPUT, a.USERNAME, a.NO_PESANAN, a.TGL_PESANAN, a.MARKETPLACE, ";
                 sSQLSelect += "ISNULL(b.STATUS_KIRIM,'0') AS SO_STATUS_KIRIM, ISNULL(b.TRACKING_SHIPMENT,'') AS SO_TRACKING_NUMBER, ISNULL(b.NO_REFERENSI,'') AS NO_REFERENSI, ISNULL(b.STATUS_PRINT,'0') AS STATUS_PRINT, ISNULL(a.SCAN_BARCODE,0) AS BARCODE  ";
-                sSQLSelect += ", ISNULL(B.TIPE_KIRIM, 0) TIPE_KIRIM, ISNULL(A.N_UCAPAN, 0) N_UCAPAN ";
+                sSQLSelect += ", ISNULL(B.TIPE_KIRIM, 0) TIPE_KIRIM, ISNULL(B.N_UCAPAN, 0) N_UCAPAN ";
                 string sSQLCount = "";
                 sSQLCount += "SELECT COUNT(A.NO_BUKTI) AS JUMLAH ";
                 string sSQL2 = "";
@@ -62681,11 +63000,11 @@ namespace MasterOnline.Controllers
                         {
                             if (filtervalue == "cod")
                             {
-                                sSQLTemp = "WHERE ISNULL(TIPE_KIRIM,0) = 1 ";
+                                sSQLTemp = "AND ISNULL(TIPE_KIRIM,0) = 1 ";
                             }
                             if (filtervalue == "preorder")
                             {
-                                sSQLTemp = "WHERE ISNULL(N_UCAPAN,'') = 'preorder' ";
+                                sSQLTemp = "AND ISNULL(N_UCAPAN,'') = 'preorder' ";
                             }
                         }
                         break;
@@ -62698,6 +63017,22 @@ namespace MasterOnline.Controllers
                 if (search != "")
                 {
                     sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLpembeli + ") or (" + sSQLmarket + ") or (" + sSQLreferensi + ") ) ";
+
+                    if (searchCOD && searchPreorder)
+                    {
+                        sSQL2 += " OR (TIPE_KIRIM = 1 AND N_UCAPAN = 'Preorder') ";
+                    }
+                    else
+                    {
+                        if (searchCOD)
+                        {
+                            sSQL2 += " AND TIPE_KIRIM = 1 ";
+                        }
+                        if (searchPreorder)
+                        {
+                            sSQL2 += " AND N_UCAPAN = 'Preorder' ";
+                        }
+                    }
                 }
                 string sSQLSelect2 = "";
                 //sSQLSelect2 += "ORDER BY A.RecNum asc ";
