@@ -69,86 +69,86 @@
                 {
                     tipe_pesanan = "Preorder";
                 }
-                if (pesanan.N_UCAPAN != "" && pesanan.N_UCAPAN != "-" && orpesanander.N_UCAPAN != " ")
+                if (detPackinglist.N_UCAPAN != "" && detPackinglist.N_UCAPAN != "-" && detPackinglist.N_UCAPAN != " ")
                 {
                     if (tipe_pesanan != "")
                     {
-                        tipe_pesanan += " " + pesanan.N_UCAPAN;
+                        tipe_pesanan += " " + detPackinglist.N_UCAPAN;
                     }
                     else
                     {
-                        tipe_pesanan = pesanan.N_UCAPAN;
+                        tipe_pesanan = detPackinglist.N_UCAPAN;
                     }
                 }
                 //end add by Tri 17 feb 2021
-            <tr data-packing-id="brg-@detPackinglist.RecNum">
-                <td>
-                    @detPackinglist.NO_PESANAN
-                </td>
-                <td>@detPackinglist.NO_REFERENSI</td>
-                <td>
-                    @(detPackinglist.TGL_PESANAN?.ToString("dd/MM/yyyy"))  @(detPackinglist.TGL_PESANAN?.ToString("HH:mm"))
-                </td>
-                <td>
-                    @detPackinglist.MARKETPLACE
-                </td>
-                <td>
-                    @detPackinglist.PEMBELI
-                </td>
-                <td>@tipe_pesanan</td>
-                @*<td>
-            @detPackinglist.SO_TRACKING_NUMBER
-        </td>*@
-                <td>
-                    @status_kirim
-                </td>
-                <td>@status_print</td>
-                @*<td>@tempCode</td>*@
+                <tr data-packing-id="brg-@detPackinglist.RecNum">
+                    <td>
+                        @detPackinglist.NO_PESANAN
+                    </td>
+                    <td>@detPackinglist.NO_REFERENSI</td>
+                    <td>
+                        @(detPackinglist.TGL_PESANAN?.ToString("dd/MM/yyyy"))  @(detPackinglist.TGL_PESANAN?.ToString("HH:mm"))
+                    </td>
+                    <td>
+                        @detPackinglist.MARKETPLACE
+                    </td>
+                    <td>
+                        @detPackinglist.PEMBELI
+                    </td>
+                    <td>@tipe_pesanan</td>
+                    @*<td>
+                    @detPackinglist.SO_TRACKING_NUMBER
+                </td>*@
+                    <td>
+                        @status_kirim
+                    </td>
+                    <td>@status_print</td>
+                    @*<td>@tempCode</td>*@
 
-                @if (detPackinglist.BARCODE ?? false)
-                {
-                    <td>VALID</td>
-                }
-                else
-                {
-                    <td></td>
-                }
-                @*<td class="edit-hapus-col">
-            <button type="button" class="btn btn-primary" disabled="disabled">
-                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
-            </button>
-        </td>*@
-                @* <td class="edit-hapus-col"> *@
-                @*     <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusPesanan" onclick="passKodeInDb('@detPackinglist.RecNum')"> *@
-                @*         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> *@
-                @*     </button> *@
-                @* </td> *@
-            </tr>
-            }
-            @*<tr data-packing-id="0" id="trNewData" style="display:none">
-                @Html.HiddenFor(m => m.detailPackingList.NO_BUKTI)
-                @Html.HiddenFor(m => m.detailPackingList.RecNum)
-                @Html.HiddenFor(m => m.detailPackingList.TGL_PESANAN)
-                @Html.HiddenFor(m => m.detailPackingList.PEMBELI)
-                @Html.HiddenFor(m => m.detailPackingList.MARKETPLACE)
-                <td style="width: 140px; max-width: 140px;">
-                    <div id="PESANAN" class="selectivity-input" tabindex="0"></div>
-                    @Html.HiddenFor(m => m.detailPackingList.NO_PESANAN)
-                </td>
-                <td class="tgl-pesanan" style="width: 130px; max-width: 130px;"></td>
-                <td class="pembeli-pesanan" style="width: 130px; max-width: 130px;"></td>
-                <td class="marketplace-pesanan" style="width: 30px; max-width: 30px;"></td>
-                <td class="edit-hapus-col">
-                    <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpanpesanan('pesanan-0')">
+                    @if (detPackinglist.BARCODE ?? false)
+                    {
+                        <td>VALID</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @*<td class="edit-hapus-col">
+                    <button type="button" class="btn btn-primary" disabled="disabled">
                         <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
                     </button>
-                </td>
-                <td class="edit-hapus-col">
-                    <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusBarang">
-                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                    </button>
-                </td>
-            </tr>*@
+                </td>*@
+                    @* <td class="edit-hapus-col"> *@
+                    @*     <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusPesanan" onclick="passKodeInDb('@detPackinglist.RecNum')"> *@
+                    @*         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> *@
+                    @*     </button> *@
+                    @* </td> *@
+                </tr>
+            }
+            @*<tr data-packing-id="0" id="trNewData" style="display:none">
+            @Html.HiddenFor(m => m.detailPackingList.NO_BUKTI)
+            @Html.HiddenFor(m => m.detailPackingList.RecNum)
+            @Html.HiddenFor(m => m.detailPackingList.TGL_PESANAN)
+            @Html.HiddenFor(m => m.detailPackingList.PEMBELI)
+            @Html.HiddenFor(m => m.detailPackingList.MARKETPLACE)
+            <td style="width: 140px; max-width: 140px;">
+                <div id="PESANAN" class="selectivity-input" tabindex="0"></div>
+                @Html.HiddenFor(m => m.detailPackingList.NO_PESANAN)
+            </td>
+            <td class="tgl-pesanan" style="width: 130px; max-width: 130px;"></td>
+            <td class="pembeli-pesanan" style="width: 130px; max-width: 130px;"></td>
+            <td class="marketplace-pesanan" style="width: 30px; max-width: 30px;"></td>
+            <td class="edit-hapus-col">
+                <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpanpesanan('pesanan-0')">
+                    <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                </button>
+            </td>
+            <td class="edit-hapus-col">
+                <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusBarang">
+                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                </button>
+            </td>
+        </tr>*@
         </tbody>
     </table>
 </div>
