@@ -1725,6 +1725,9 @@
                 <li role="presentation" class="">
                     <a href="#tab_content8" role="tab" id="cancel-tab" data-toggle="tab" aria-expanded="false">Batal</a>
                 </li>
+                <li role="presentation" class="">
+                    <a href="#tab_content_cc" role="tab" id="cancel-cod-tab" data-toggle="tab" aria-expanded="false">Batal COD</a>
+                </li>
             </ul>
             <div id="myTabContent" class="tab-content">
                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="pesanan-tab">
@@ -4587,6 +4590,11 @@
             $('#cancel-tab').click(function () {
                 $TabAktif = 5;
                 refreshTableCancel();
+            });
+
+            $('#cancel-cod-tab').click(function () {
+                $TabAktif = 6;
+                refreshTableCancelCOD();
             });
 
             $(".hover").mouseleave(
@@ -9535,6 +9543,38 @@
             });
         }
         //end add by nurul 7/5/2019
+
+        function refreshTableCancelCOD() {
+            //var link = '@Url.Action("RefreshTablePesananCancelCOD", "Manage")';
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesananCancelCOD", "Manage", new { page = "replaceLastPage", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_cancel_cod').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_7').val()));
+            //add by nurul 4/12/2019
+            var filterby = get_pesanan_cancel_cod_filterby();
+            var filtervalue = get_pesanan_cancel_cod_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+            //end add by nurul 4/12/2019
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-pesanan-cancel-cod-partial').hide();
+                    $('#loading_pesanan_cancel_cod_tab').show();
+                },
+                success: function (response) {
+                    $('#table-pesanan-cancel-cod-partial').html(response);
+
+                    $('#table-pesanan-cancel-cod-partial').show();
+
+                    $('#loading_pesanan_cancel_cod_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
 
     function get_pesanan_cancel_cod_filterby() {
         return $('#filter_pesanan_cancel_cod_field').val();

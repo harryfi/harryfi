@@ -25760,7 +25760,7 @@ namespace MasterOnline.Controllers
 
             SetNoLockOff(ErasoftDbContext);
 
-            return PartialView("TablePesananCancelPartial", pageOrders);
+            return PartialView("TablePesananCancelCODPartial", pageOrders);
 
             //end change by nurul 8/5/2019, paging
         }
