@@ -19596,7 +19596,7 @@ namespace MasterOnline.Controllers
                 }
             }
             string sSQLEndCount = ")A ";
-            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var minimal_harus_ada_item_untuk_current_page = (page * Convert.ToInt32(take)) - (Convert.ToInt32(take) - 1);
             var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLTemp + sSQLCount + sSQLFirstSelect + sSQLSelect + sSQL2 + sSQLWhere + sSQLEndSelect + sSQLEndCount).Single();
             if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
             {
@@ -45701,7 +45701,7 @@ namespace MasterOnline.Controllers
                 sSQL2 += "AND (NO_BUKTI LIKE '%" + search + "%' ) ";
             }
 
-            var minimal_harus_ada_item_untuk_current_page = (page * Convert.ToInt32(take)) - 9;
+            var minimal_harus_ada_item_untuk_current_page = (page * Convert.ToInt32(take)) - (Convert.ToInt32(take) - 1);
             var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
             if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
             {
@@ -45817,7 +45817,7 @@ namespace MasterOnline.Controllers
 
             
             
-            var minimal_harus_ada_item_untuk_current_page = (page * Convert.ToInt32(take)) - 9;
+            var minimal_harus_ada_item_untuk_current_page = (page * Convert.ToInt32(take)) - (Convert.ToInt32(take) - 1);
             var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQLSelect + sSQL2 + sSQLGrouping + sSQLCount2).Single();
             if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
             {
@@ -61007,7 +61007,7 @@ namespace MasterOnline.Controllers
                     }
 
                     //logo kurir 
-                    if(so.namamarket.ToUpper() != "LAZADA")
+                    if(so.namamarket.ToUpper() != "LAZADA" || (so.namamarket.ToUpper() == "LAZADA" && string.IsNullOrEmpty(logoKurir)))
                     {
                         if (so.kurir.ToUpper().Contains("GO-JEK") || so.kurir.ToUpper().Contains("GO-SEND") || so.kurir.ToUpper().Contains("GOJEK") || so.kurir.ToUpper().Contains("GOSEND"))
                         {
