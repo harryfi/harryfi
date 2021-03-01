@@ -27880,7 +27880,7 @@ namespace MasterOnline.Controllers
                     }
 
                     //logo kurir 
-                    if (so.namamarket.ToUpper() != "LAZADA")
+                    if (so.namamarket.ToUpper() != "LAZADA" || (so.namamarket.ToUpper() == "LAZADA" && string.IsNullOrEmpty(logoKurir)))
                     {
                         if (so.kurir.ToUpper().Contains("GO-JEK") || so.kurir.ToUpper().Contains("GO-SEND") || so.kurir.ToUpper().Contains("GOJEK") || so.kurir.ToUpper().Contains("GOSEND"))
                         {
@@ -60941,17 +60941,20 @@ namespace MasterOnline.Controllers
 
                     if (so.namamarket.ToUpper() == "LAZADA")
                     {
-                        if (data.Count() > 0)
+                        if (ctkFaktur != "")
                         {
-                            var cekDataLazada = data.Where(a => a.referensiApi == so.so_referensi).Count();
-                            if (cekDataLazada > 0)
+                            if (data.Count() > 0)
                             {
-                                resi = data.Single(a => a.referensiApi == so.so_referensi).ResiApi;
-                                port = data.Single(a => a.referensiApi == so.so_referensi).PortCodeApi;
-                                ref1 = data.Single(a => a.referensiApi == so.so_referensi).referensiApi;
-                                netto = Convert.ToDouble(data.Single(a => a.referensiApi == so.so_referensi).HargaApi);
-                                logoKurir = data.Single(a => a.referensiApi == so.so_referensi).urlLogoKurirApi;
-                                tgl = Convert.ToDateTime(data.Single(a => a.referensiApi == so.so_referensi).tglApi).ToString("dd/MM/yyyy");
+                                var cekDataLazada = data.Where(a => a.referensiApi == so.so_referensi).Count();
+                                if (cekDataLazada > 0)
+                                {
+                                    resi = data.Single(a => a.referensiApi == so.so_referensi).ResiApi;
+                                    port = data.Single(a => a.referensiApi == so.so_referensi).PortCodeApi;
+                                    ref1 = data.Single(a => a.referensiApi == so.so_referensi).referensiApi;
+                                    netto = Convert.ToDouble(data.Single(a => a.referensiApi == so.so_referensi).HargaApi);
+                                    logoKurir = data.Single(a => a.referensiApi == so.so_referensi).urlLogoKurirApi;
+                                    tgl = Convert.ToDateTime(data.Single(a => a.referensiApi == so.so_referensi).tglApi).ToString("dd/MM/yyyy");
+                                }
                             }
                         }
                     }
