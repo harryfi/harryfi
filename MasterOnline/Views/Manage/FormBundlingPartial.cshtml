@@ -217,11 +217,18 @@
                                         @nm @nm2
                                     </td>
                                     <td class="qty-barang">@sku_bundling.Qty</td>
-                                    <td class="harga-barang">@sku_bundling.HARGA</td>
+                                    <td class="harga-barang">
+                                        @*@sku_bundling.HARGA*@
+                                        <input type="text" class="harga-input-box" style="display: none; width: 150px;" />
+                                        <span class="harga-initial">@sku_bundling.HARGA</span>
+                                    </td>
                                     <td class="total-harga">@sku_bundling.TOTALHARGA</td>
                                     <td class="edit-hapus-col">
-                                        <button type="button" class="btn btn-primary" disabled="disabled">
-                                            <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                                        @*<button type="button" class="btn btn-primary" disabled="disabled">
+            <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+        </button>*@
+                                        <button type="button" class="btn btn-primary" onclick="editHargaKomponen('@sku_bundling.Brg', '@sku_bundling.No')">
+                                            <span class="icon-btn-edit glyphicon glyphicon-pencil" aria-hidden="true"></span>
                                         </button>
                                     </td>
                                     <td class="edit-hapus-col">

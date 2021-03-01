@@ -30112,6 +30112,18 @@ namespace MasterOnline.Controllers
         {
 
 #if (DEBUG || Debug_AWS)
+            //var HargaBundling = 0d;
+            ////HargaBundling = HargaBundling + Convert.ToDouble(dataVm.Bundling.TOTALHARGA);
+            //var cekListKomponen = ErasoftDbContext.STF03.Where(a => a.Unit == "BUND8010680107n1").Select(a => a.TOTALHARGA).ToList();
+            //for (int i = 0; i < cekListKomponen.Count(); i++)
+            //{
+            //    HargaBundling = HargaBundling + Convert.ToDouble(cekListKomponen[i]);
+            //}
+            ////cekBarangBundling.HJUAL = HargaBundling;
+            
+            ////ErasoftDbContext.SaveChanges();
+            //updateHargaJualAllMarketplace(HargaBundling, "BUND8010680107n1");
+
             //var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == "002052").FirstOrDefault();
             //BukaLapakKey iden = new BukaLapakKey
             //{
@@ -30360,14 +30372,14 @@ namespace MasterOnline.Controllers
             //new LazadaControllerJob().GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
             //new LazadaControllerJob().GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
 #else
-                                                //string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                                //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+            //string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+            //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
 
-                                                //connId_JobId = dbPathEra + "_lazada_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                                //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+            //connId_JobId = dbPathEra + "_lazada_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+            //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
 
-                                                //connId_JobId = dbPathEra + "_lazada_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                                //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+            //connId_JobId = dbPathEra + "_lazada_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+            //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
 #endif
             //        }
             //    }
@@ -30380,7 +30392,7 @@ namespace MasterOnline.Controllers
             //                }
             //            }
 
-#region fix pemesan null di pesanan shopee
+            #region fix pemesan null di pesanan shopee
             //var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
             //var listShopeeShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
             //if (listShopeeShop.Count > 0)
@@ -30408,7 +30420,7 @@ namespace MasterOnline.Controllers
             //    }
             //}
 
-#endregion
+            #endregion
 #endif
 
             return View();
@@ -66007,6 +66019,89 @@ namespace MasterOnline.Controllers
 
             return PartialView("FormBundlingPartial", Vm);
         }
+
+        //add by nurul 1/3/2021
+        public ActionResult saveHargaKomponenBundling(string idKomponen, double hargaBaru)
+        {
+            var Vm = new BundlingViewModel();
+            try
+            {
+                if (!string.IsNullOrEmpty(idKomponen))
+                {
+                    var cekKomponen = ErasoftDbContext.STF03.Where(a => a.No == Convert.ToInt32(idKomponen)).FirstOrDefault();
+                    if (cekKomponen != null)
+                    {
+                        var cekMasterBarangBundling = ErasoftDbContext.STF02.Where(a => a.BRG == cekKomponen.Unit).FirstOrDefault();
+                        if (cekMasterBarangBundling != null)
+                        {
+                            cekKomponen.HARGA = hargaBaru;
+                            ErasoftDbContext.SaveChanges();
+                                                        
+                            var HargaBundling = 0d;
+                            //HargaBundling = HargaBundling + Convert.ToDouble(dataVm.Bundling.TOTALHARGA);
+                            var cekListKomponen = ErasoftDbContext.STF03.Where(a => a.Unit == cekKomponen.Unit).Select(a => a.TOTALHARGA).ToList();
+                            for (int i = 0; i < cekListKomponen.Count(); i++)
+                            {
+                                HargaBundling = HargaBundling + Convert.ToDouble(cekListKomponen[i]);
+                            }
+                            cekMasterBarangBundling.HJUAL = HargaBundling;
+                            cekMasterBarangBundling.Tgl_Input = DateTime.Now;
+                            ErasoftDbContext.SaveChanges();
+                            updateHargaJualAllMarketplace(HargaBundling, cekKomponen.Unit);
+
+                            ModelState.Clear();
+                            var default_gudang = "";
+                            var cekGudangBundling = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang == "GB" && a.Nama_Gudang == "Gudang Bundling" && a.KD_HARGA_JUAL != "1").FirstOrDefault();
+                            if (cekGudangBundling != null)
+                            {
+                                default_gudang = cekGudangBundling.Kode_Gudang;
+                            }
+                            else
+                            {
+                                var gudang_parsys = ErasoftDbContext.SIFSYS.FirstOrDefault().GUDANG;
+                                var cekgudang = ErasoftDbContext.STF18.Where(a => a.KD_HARGA_JUAL != "1").ToList();
+                                if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys && p.KD_HARGA_JUAL != "1").Count() > 0)
+                                {
+                                    default_gudang = gudang_parsys;
+                                }
+                                else
+                                {
+                                    default_gudang = cekgudang.FirstOrDefault().Kode_Gudang;
+                                }
+                            }
+                            var listMultiSKU = ErasoftDbContext.STF03.Where(b => b.Unit == cekKomponen.Unit).ToList();
+                            var getBrgFromlistMultiSKU = listMultiSKU.Select(a => a.Brg).ToList();
+                            getBrgFromlistMultiSKU.Add(cekKomponen.Unit);
+                            var qtyBundling = ErasoftDbContext.STF08A.Where(a => a.BRG == cekKomponen.Unit && a.GD == default_gudang).Select(a => a.QAwal).FirstOrDefault();
+                            
+                            Vm.listBundling = listMultiSKU;
+                            Vm.Brg_Bundling = cekKomponen.Unit;
+                            Vm.Bundling = ErasoftDbContext.STF03.Where(a => a.Unit == cekKomponen.Unit).FirstOrDefault();
+                            Vm.listDetailBundling = ErasoftDbContext.STF02.Where(a => getBrgFromlistMultiSKU.Contains(a.BRG)).ToList();
+                            Vm.Qty_Bundling = qtyBundling;
+                        }
+                        else
+                        {
+                            Vm.Errors.Add("Barang bundling " + cekKomponen.Unit + " tidak ditemukan di master barang.");
+                            return Json(Vm, JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                }
+                else
+                {
+                    Vm.Errors.Add("Komponen tidak ditemukan.");
+                    return Json(Vm, JsonRequestBehavior.AllowGet);
+                }
+            }catch(Exception ex)
+            {
+                Vm.Errors.Add("Gagal ubah harga karena : " + ex.Message + ", silahkan hubungi support.");
+                return Json(Vm, JsonRequestBehavior.AllowGet);
+            }
+
+            
+            return PartialView("FormBundlingPartial", Vm);
+        }
+        //end add by nurul 1/3/2021
 
         public ActionResult updateHargaJualAllMarketplace(double hJualBrg, string kdBrgBundling)
         {

@@ -1121,5 +1121,68 @@
                 if (objEvent.keyCode == 9) { }
             });
         }
+
+        function editHargaKomponen($brgKomponen, $idKomponen) {
+
+            var $tr = 'tr[data-barang-id="' + $brgKomponen + '"]';
+            var $hargaInitialSpan = $($tr + ' .harga-initial');
+            var $hargaInputBox = $($tr + ' .harga-input-box');
+            var $btnEdit = $($tr + ' .icon-btn-edit');
+            var $hargaAwal = $hargaInitialSpan.text();
+
+            if ($btnEdit.hasClass('glyphicon-pencil')) {
+                $btnEdit.parent().removeClass('btn-primary').addClass('btn-success');
+                $btnEdit.removeClass('glyphicon-pencil').addClass('glyphicon-floppy-disk');
+                $hargaInitialSpan.hide();
+                $hargaInputBox.val($hargaAwal).show();
+            } else {
+                if ($hargaInputBox.val() != '') {
+                    var hargaInitialBeforeValidation = $hargaInitialSpan.val();
+                    $hargaInitialSpan.text($hargaInputBox.val());//.show();
+                    simpanHargaKomponen($idKomponen, $hargaInputBox, $btnEdit, $hargaInitialSpan, hargaInitialBeforeValidation);
+                } else {
+                    alert('Field Harga Harus diisi!');
+                    $hargaInputBox.focus();
+                }
+            }
+        }
+
+        function simpanHargaKomponen($idKomponen, $hargaInputBox, $btnEdit, $hargaInitialSpan, hargaInitialBeforeValidation) {
+            
+                $postdata = {
+                    idKomponen: $idKomponen,
+                    hargaBaru: $hargaInputBox.val()
+                };
+
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/json; charset=UTF-8",
+                    url: '@Url.Action("saveHargaKomponenBundling", "Manage")',
+                    data: JSON.stringify($postdata),
+                    cache: false,
+                    beforeSend: function() {
+                        $('#loading_spinner').show();
+                    },
+                    success: function (response) {
+
+                        if (response.Errors == null) {
+                            $modeEdit = 1; // 0 new, 1 edit
+                            $btnEdit.parent().removeClass('btn-success').addClass('btn-primary');
+                            $btnEdit.removeClass('glyphicon-floppy-disk').addClass('glyphicon-pencil');
+                            $harganitialSpan.show();
+                            $hargaInputBox.hide();
+                            $('#loading_spinner').hide();
+                        } else {
+                            $hargaInitialSpan.text(hargaInitialBeforeValidation);
+                            console.log(response.Errors);
+                            alert(response.Errors);
+                            $('#loading_spinner').hide();
+                        }
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+        }
     </script>
 }
