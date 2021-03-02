@@ -112,7 +112,7 @@ namespace MasterOnline.Controllers
         }
 
         //[AutomaticRetry(Attempts = 0)]
-        [AutomaticRetry(Attempts = 3, DelaysInSeconds = new int[] { 300, 300, 300 })]
+        [AutomaticRetry(Attempts = 3, DelaysInSeconds = new int[] { 300, 300, 300 }, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Product {obj} ke Tokopedia Gagal.")]
         public async Task<string> CreateProductGetStatus(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, string brg, int upload_id, string log_request_id)
@@ -297,7 +297,7 @@ namespace MasterOnline.Controllers
         }
 
         //[AutomaticRetry(Attempts = 0)]
-        [AutomaticRetry(Attempts = 3, DelaysInSeconds = new int[] { 300, 300, 300 })]
+        [AutomaticRetry(Attempts = 3, DelaysInSeconds = new int[] { 300, 300, 300 }, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Edit Product {obj} ke Tokopedia Gagal.")]
         public async Task<string> EditProductGetStatus(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, string brg, int upload_id, string log_request_id, string product_id)
