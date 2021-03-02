@@ -3541,6 +3541,7 @@ namespace MasterOnline.Controllers
 
                                             Tempbruto = 0;
                                             Tempnetto = 0;
+                                            TempPPNPersen = 0;
                                             TempPPN = 0;
                                             TempOngkir = 0;
                                             TempTotalHargaBarang = 0;
@@ -4313,6 +4314,11 @@ namespace MasterOnline.Controllers
                     }
 
                     worksheet.Cells["A7"].AddComment("Untuk nomor bukti invoice pembelian yang sama ongkos kirim cukup isi 1x di kode barang pertama dalam no bukti tersebut.", "MasterOnline");
+                    var comment = worksheet.Cells["A7"].Comment;
+                    comment.Text = "Untuk nomor bukti invoice pembelian yang sama ongkos kirim cukup isi 1x di kode barang pertama dalam no bukti tersebut.";
+                    comment.Author = "MasterOnline";
+                    comment.Visible = true;
+
 
                     worksheet.Cells["A8"].Value = "Keterangan: Kolom warna kuning harus diisi.";
 
