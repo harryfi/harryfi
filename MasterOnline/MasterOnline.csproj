@@ -6608,6 +6608,7 @@
     <Content Include="Views\Manage\ListDetailPackingListBukalapak.cshtml" />
     <Content Include="Views\Manage\PromptDeliveryProviderBukalapak.cshtml" />
     <Content Include="Views\Manage\ListDetailPackingListRekapBrg.cshtml" />
+    <Content Include="Views\Manage\LogErrorUploadInvoicePembelian.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

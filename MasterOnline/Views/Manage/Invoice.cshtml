@@ -883,6 +883,16 @@
             border-radius: 0;
         }
 
+        .modal-dialog-invoice-pembelian {
+            padding-left:250px;
+            width: 75%;
+            margin: auto;
+        }
+
+        .modal-content-invoice-pembelian {
+            width: 75%;
+        }
+
         .videoBox {
             position: relative;
             padding-bottom: 30.25%; /* 16:9 */
@@ -1195,33 +1205,32 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-lg-6 col-sm-6" style="margin-top:13px;">
-                            @*<div class="col-lg-8 col-sm-6">*@
+                        @*<div class="col-lg-6 col-sm-6" style="margin-top:13px;">
                             <div class="pull-right" id="tambah_baru_tombol_section">
-                                @*<button type="button" id="btn_refresh_pesanan" class="btn btn-default" data-style="expand-right">
-                                    <span>Refresh</span>
-                                </button>*@
-                                @*<div class="btn-group" role="group">*@
                                 <button id="excelInvoicePembelian" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     Excel Invoice Pembelian <span class="caret"></span>
                                 </button>
                                 <div class="dropdown-menu">
-                                    @*<button type="button" style="width:100%;background-color:white; border-color:Highlight; color:black !important" id="btn_download_pesanan" class="btn btn-primary" data-style="expand-right" data-toggle="modal" onclick="$('#downloadPesanan').modal('show');">
-                                        <span> Download Pesanan</span>
-                                    </button>*@
                                     <button type="button" style="width:100%;background-color:white; border-color:Highlight; color:black !important" id="btn_upload_invoice_pembelian" class="btn btn-primary" data-toggle="modal" onclick="$('#uploadInvoicePembelian').modal('show');">
                                         <span> Upload Invoice Pembelian</span>
                                     </button>
                                 </div>
-                                @*</div>*@
                             </div>
-                        </div>
+                        </div>*@
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
+                                <button id="excelInvoicePembelian" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Excel Invoice Pembelian <span class="caret"></span>
+                                </button>
+                                <div class="dropdown-menu" style="right: 125px">
+                                    <button type="button" style="width:100%;background-color:white; border-color:Highlight; color:black !important" id="btn_upload_invoice_pembelian" class="btn btn-primary" data-toggle="modal" onclick="$('#uploadInvoicePembelian').modal('show');">
+                                        <span> Upload Invoice Pembelian</span>
+                                    </button>
+                                </div>
                                 <div class="pull-right" id="tambah_baru_tombol_section">
                                     @*<button type="button" class=" btn btn-default" data-style="expand-right">
-                        <span>Refresh</span>
-                    </button>*@
+                <span>Refresh</span>
+            </button>*@
                                 </div>
                             </div>
                         </div>
@@ -1537,11 +1546,11 @@
 </div>
 
 <div class="modal fade" id="uploadInvoicePembelian" tabindex="-1" role="dialog" aria-labelledby="labelUploadInvoicePembelian">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
+    <div class="modal-dialog modal-dialog-invoice-pembelian" role="document">
+        <div class="modal-content modal-content-invoice-pembelian">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="labelUploadPesanan">Upload Excel Invoice Pembelian</h4>
+                <h4 class="modal-title" id="labelUploadInvoicePembelian">Upload Excel Invoice Pembelian</h4>
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -1609,14 +1618,36 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="openLogError();">Log Error</button>
-                <button type="button" class="btn btn-danger" onclick="closeUploadPesanan()">Tutup</button>
+                <button type="button" class="btn btn-primary" onclick="openLogErrorInvoicePembelian();">Log Error</button>
+                <button type="button" class="btn btn-danger" onclick="closeUploadInvoicePembelian()">Tutup</button>
                 @*<button type="button" class="btn btn-success" onclick="closeEditor()">Ya</button>*@
             </div>
         </div>
     </div>
 </div>
+<div class="modal fade" id="LogErroruploadInvoicePembelian" tabindex="-1" role="dialog" aria-labelledby="labelUploadInvoicePembelian">
+    <div class="modal-dialog modal-dialog-invoice-pembelian" role="document">
+        <div class="modal-content modal-content-invoice-pembelian">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="labelLogErrorUploadInvoicePembelian">Log Error Upload Excel Invoice Pembelian</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="logErroruploadinvoicepembelianviewdiv">
+                        </div>
+                    </div>
+                </div>
+            </div>
 
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="closeLogErrorUploadInvoicePembelian()">Tutup</button>
+                @*<button type="button" class="btn btn-success" onclick="closeEditor()">sYa</button>*@
+            </div>
+        </div>
+    </div>
+</div>
 <div class="modal fade" id="konfHapusInvoice" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content modalresponsiveivc addmarginleftinvoice">
@@ -1813,6 +1844,44 @@
             }
         }
 
+         function openLogErrorInvoicePembelian() {
+            $('#uploadInvoicePembelian').modal('hide');
+            $('#LogErroruploadInvoicePembelian').modal('show');
+
+            var link = '@Url.Action("ListLogErrorUploadInvoicePembelian", "Manage")';
+            link += '?cust=' + encodeURIComponent($('#Pesanan_CUST').val());
+            $.ajax({
+                cache: false,
+                url: link,
+                success: function (response) {
+                    $('#logErroruploadinvoicepembelianviewdiv').html(response);
+                }
+            })
+        }
+
+        function closeLogErrorUploadInvoicePembelian() {
+            document.getElementById("file_upload_excel_invoice_pembelian").value = "";
+            $('#uploadInvoicePembelian').modal('show');
+            $('#LogErroruploadInvoicePembelian').modal('hide');
+            $('#progressBarUpload').hide();
+            $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+            $('#pBar_uploadFile').html('0% Complete');
+        }
+
+        function downloadLogErrorUploadInvoicePembelian(txt){
+            window.open('/Manage/DownloadLogErrorUploadExcelInvoicePembelian?filename=' + txt,'_blank');
+
+        }
+
+        function closeUploadInvoicePembelian() {
+            document.getElementById("file_upload_excel_invoice_pembelian").value = "";
+            $('#uploadInvoicePembelian').modal('hide');
+            $('#LogErroruploadInvoicePembelian').modal('hide');
+            $('#progressBarUpload').hide();
+            $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+            $('#pBar_uploadFile').html('0% Complete');
+        }
+
         function uploadExcelInvoicePembelian() {
             if ($('#file_upload_excel_invoice_pembelian')[0].files.length < 1) {
                 $('#file_upload_excel_invoice_pembelian').click();
@@ -1822,7 +1891,7 @@
                 $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
                 $('#pBar_uploadFile').html('0% Complete');
                 $('#progressBarUpload').show();
-                uploadFileExcelInvoicePembelian(null, 0, "5;0", "false;false");
+                uploadFileExcelInvoicePembelian(null, 0, "10;0", "false;false");
             }
         }
 
