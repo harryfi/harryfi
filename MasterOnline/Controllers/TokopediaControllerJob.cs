@@ -112,7 +112,7 @@ namespace MasterOnline.Controllers
         }
 
         //[AutomaticRetry(Attempts = 0)]
-        [AutomaticRetry(DelaysInSeconds = new[] { 300, 300, 300 })]
+        [AutomaticRetry(Attempts = 3, DelaysInSeconds = new int[] { 300, 300, 300 })]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Product {obj} ke Tokopedia Gagal.")]
         public async Task<string> CreateProductGetStatus(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, string brg, int upload_id, string log_request_id)
@@ -248,6 +248,7 @@ namespace MasterOnline.Controllers
                                 {
                                     manageAPI_LOG_MARKETPLACE(api_status.RePending, ErasoftDbContext, iden, currentLog);
                                 }
+                                throw new Exception("Create/Edit Product still unprocessed.");
                             }
                             else if (result.data.success_rows > 0)
                             {
@@ -296,7 +297,7 @@ namespace MasterOnline.Controllers
         }
 
         //[AutomaticRetry(Attempts = 0)]
-        [AutomaticRetry(DelaysInSeconds = new[] { 300, 300, 300 })]
+        [AutomaticRetry(Attempts = 3, DelaysInSeconds = new int[] { 300, 300, 300 })]
         [Queue("1_create_product")]
         [NotifyOnFailed("Edit Product {obj} ke Tokopedia Gagal.")]
         public async Task<string> EditProductGetStatus(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, string brg, int upload_id, string log_request_id, string product_id)
@@ -385,6 +386,7 @@ namespace MasterOnline.Controllers
                                 {
                                     manageAPI_LOG_MARKETPLACE(api_status.RePending, ErasoftDbContext, iden, currentLog);
                                 }
+                                throw new Exception("Create/Edit Product still unprocessed.");
                             }
                             else if (result.data.success_rows > 0)
                             {
@@ -4785,7 +4787,7 @@ namespace MasterOnline.Controllers
                 string queryParam = "";
                 //queryParam = "shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&rows=" + Uri.EscapeDataString(Convert.ToString(rows)) + "&start=" + Uri.EscapeDataString(Convert.ToString(Rowsstart)) + "&product_id=&order_by=9&keyword=&exclude_keyword=&sku=&price_min=1&price_max=500000000&preorder=false&free_return=false&wholesale=false";
                 //queryParam = "shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&rows=" + Uri.EscapeDataString(Convert.ToString(rows)) + "&start=" + Uri.EscapeDataString(Convert.ToString(Rowsstart)) + "&order_by=9";
-                queryParam = "shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&page=" + Uri.EscapeDataString(Convert.ToString(page)) + "&per_page=50&sort=3";
+                queryParam = "shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&page=" + Uri.EscapeDataString(Convert.ToString(page)) + "&per_page=50&sort=2";
                 string responseFromServer = "";
                 var client = new HttpClient();
                 client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
