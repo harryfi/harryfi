@@ -212,7 +212,7 @@ namespace MasterOnline.Controllers
                         foreach(var lis in listBrg.items)
                         {
                             listBrgMP.Add(lis.item_id.ToString() + ";0");
-                            if(lis.variations.Length > 1)
+                            if(lis.variations.Length > 0)
                             {
                                 foreach(var listVar in lis.variations)
                                 {
