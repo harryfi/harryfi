@@ -6612,6 +6612,7 @@
     <Content Include="Views\Manage\TablePackinglistPartialView2.cshtml" />
     <Content Include="Views\Manage\PackingListRekapBrgPartial.cshtml" />
     <Content Include="Views\Manage\TablePesananCancelCODPartial.cshtml" />
+    <Content Include="Views\Manage\ListBrgForReturCODPopUp.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -25646,7 +25646,7 @@ namespace MasterOnline.Controllers
 
             string sSQLSelect = "";
             sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ,ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT], D.CATATAN_1 AS CancelReason ";
-            sSQLSelect += " ,ISNULL(A.TIPE_KIRIM, 0) TIPE_KIRIM, ISNULL(A.N_UCAPAN, 0) N_UCAPAN ";
+            sSQLSelect += " ,ISNULL(A.TIPE_KIRIM, 0) TIPE_KIRIM, ISNULL(A.N_UCAPAN, 0) N_UCAPAN, ISNULL(E.NO_BUKTI,'') AS NO_FAKTUR , ISNULL(E.NO_FA_OUTLET,'-') AS NO_FAKTUR_RETUR ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -25715,6 +25715,7 @@ namespace MasterOnline.Controllers
             //add by Tri 2 Des 2019, tambah cancel reason
             sSQL2 += "LEFT JOIN SOT01D D(NOLOCK) ON A.NO_BUKTI = D.NO_BUKTI ";
             //end add by Tri 2 Des 2019, tambah cancel reason
+            sSQL2 += "LEFT JOIN SIT01A E(NOLOCK) ON A.NO_BUKTI = E.NO_SO ";
             sSQL2 += "WHERE A.STATUS_TRANSAKSI='12' ";
             if (search != "")
             {

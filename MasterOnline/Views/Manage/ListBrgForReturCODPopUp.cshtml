@@ -1,0 +1,289 @@
+﻿@using MasterOnline.ViewModels
+@model FakturViewModel
+@{
+    ViewBag.Title = "Prompt Barang";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    var username = "";
+    if (dataSession?.User != null)
+    {
+        var context = new MoDbContext("");
+        var accId = context.User.Single(u => u.Email == dataSession.User.Email).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account.Username;
+    }
+    if (username.Length > 20)
+    {
+        username = username.Substring(0, 17) + "...";
+    }
+
+    var noFaktur = Model?.noFaktur;
+}
+
+@section styles
+{
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+    <link href="~/Content/selectize.css" rel="stylesheet" />
+    <style>
+        .dont_validate_empty {
+            height: 100px;
+        }
+    </style>
+    <style>
+        #pembeli-section > div {
+            background-color: #fff;
+            padding: 20px;
+        }
+
+        #hapus_label {
+            color: orange;
+            font-weight: bold;
+        }
+    </style>
+    <style>
+        .top_nav {
+            display: none !important;
+        }
+
+        .left_col {
+            display: none !important;
+        }
+
+        .right_col {
+            margin-left: 0 !important;
+        }
+
+        footer {
+            display: none !important;
+        }
+    </style>
+
+}
+
+<div class="row" id="pembeli-section">
+    <div>
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(m => m.setGd, "Masuk ke Gudang", new { @class = "col-md-3 col-sm-3 col-xs-12 control-label" })
+                <div class="col-md-4 col-sm-4 col-xs-12">
+                    @Html.HiddenFor(m => m.setGd)
+                    <select id="GUDANG" placeholder="Harap Pilih" required="required"></select>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="form-group" style="margin-top: 5px;">
+                <label class="control-label" style="margin-left:10px">Pilih barang yang akan dilakukan retur</label>
+            </div>
+        </div>
+        <div class="row pembeli_table_section">
+            <div id="table-barang-popup" class="col-sm-12" style="overflow-y:auto">
+            </div>
+        </div>
+        <div class="row">
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="window.close()">Batal</button>
+                <button type="button" class="btn btn-success" onclick="ProsesRetur()">Proses</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts
+{
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    <script src="~/Content/vendors/moment/min/moment.min.js" type="text/javascript"></script>
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        var FAKTUR = @Html.Raw(Json.Encode(noFaktur));
+        $pembeliId = "";
+        var get_selected = [];
+
+        $(document).on('ready',
+            function () {
+                refreshTableBarang();
+                getGudang();
+                Initialize();
+
+            });
+
+        function Initialize() {
+            //$('#search_faktur').keypress(function (e) {
+            //    var key = e.which;
+            //    if (key == 13)// the enter key code
+            //    {
+            //        searchTableFaktur();
+            //        return false;
+            //    }
+            //});
+            //$('#search_faktur_click').click(function () {
+            //    searchTableFaktur();
+            //});
+
+        }
+
+        //end add by nurul
+        function pilihPrompt($value) {
+            self.window.close();
+            window.onunload = refreshTextBox;
+            function refreshTextBox() {
+                window.opener.afterPromptFaktur($value);
+            }
+        }
+
+        //add by nurul 30/4/2019
+        function refreshTableBarang() {
+            var $link = '@Html.Raw(Url.Action("RefreshBrgForReturPopUp", "Manage", new { noFaktur = "replaceFaktur" }))';
+            $link = $link.replace("replaceFaktur", encodeURIComponent(FAKTUR));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-barang-popup').hide();
+                    //$('#loading_barang_tab').show();
+                },
+                success: function (response) {
+                    $('#table-barang-popup').html(response);
+                    //$('#loading_barang_tab').hide();
+                    $('#table-barang-popup').show();
+
+                    $("#all_checkbox_barang").click(function () {
+                        $(".checkbox_barang").prop('checked',
+                            $(this).prop('checked'));
+                    });
+
+                    $(".checkbox_barang").each(function (i, item) {
+                        $(item).off('click').on('click', function () {
+                            if ($(item).prop('checked') == true) {
+
+                            } else {
+                                var cekTrue = [];
+                                $(".checkbox_barang").each(function (z, chk) {
+                                    if ($(chk).prop('checked') == true) {
+                                        cekTrue.push($(chk).attr("data-recnum"));
+                                    }
+                                });
+                            }
+                        });
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+       
+        function getGudang() {
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetGudang", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var gudangList = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            gudangList[i] = {
+                                id: item.Kode_Gudang,
+                                text: item.Nama_Gudang,
+                            };
+                        });
+
+                    var gdSelect = $('#GUDANG').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: gudangList,
+                        onChange: function(value) {
+                            var $objSup = $.grep(gudangList, function (data) { return data.id == value });
+
+                            if (value == null) {
+                                $("#setGd").val(null);
+                            } else {
+                                $("#setGd").val(value);
+                            }
+                        }
+                    });
+
+                    gdSelect[0].selectize.setValue($('#setGd').val());
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function ProsesRetur() {
+            if ($("#setGd").val() != "" && $("#setGd").val() != null && $("#setGd").val() != undefined) {
+
+                var listError = "";
+                var cekTrue = [];
+                cekTrue.length = 0;
+                var cekQty = [];
+                cekQty.length = 0;
+                var lanjut = true;
+                var _noref = "";
+                $(".checkbox_barang").each(function (z, chk) {
+                    if ($(chk).prop('checked') == true) {
+                        var tempRec = $(chk).attr("data-recnum");
+                        cekTrue.push($(chk).attr("data-recnum"));
+                        cekQty.push($('#table-barang-popup #Qty-' + tempRec).val())
+                        if (parseInt($('#table-barang-popup #Qty-' + tempRec).val()) > parseInt($('#table-barang-popup #QtyRetur-' + tempRec).text())) {
+                            //alert('Kuantitas retur brg (' + $(chk).attr("data-brg") + ') tidak boleh melebihi kuantitas awal invoice (' + $('#table-barang-popup #QtyRetur-' + tempRec).text() + ')!');
+                            listError += "Kuantitas retur brg (" + $(chk).attr("data-brg") + ") tidak boleh melebihi kuantitas awal invoice (" + $("#table-barang-popup #QtyRetur-" + tempRec).text() + ")! \n";
+                            lanjut = false;
+                        }
+                        _noref = $(chk).attr("data-ref");
+                    }
+                });
+                if (lanjut == true) {
+                    if (cekTrue.length > 0) {
+                        var tempBrg = "";
+                        var tempQty = "";
+                        cekTrue.forEach(function (item) {
+                            if (item != null && item != "") {
+                                if (tempBrg != "") {
+                                    tempBrg += ","
+                                }
+                                tempBrg += item;
+                            }
+                        });
+                        cekQty.forEach(function (item) {
+                            if (item != null && item != "") {
+                                if (tempQty != "") {
+                                    tempQty += ";"
+                                }
+                                tempQty += item;
+                            }
+                        });
+
+                        var temp_Value = $("#setGd").val() + "|" + tempBrg + "|" + tempQty;
+                        self.window.close();
+                        window.onunload = refreshTextBox;
+                        function refreshTextBox() {
+                            window.opener.ProsesReturAfterPrompt(temp_Value);
+                        }
+                        ProsesReturAfterPrompt(temp_Value);
+                        //validasi(temp_Value, _noref);
+                    } else {
+                        alert('Silahkan Pilih barang yang akan di retur.');
+                    }
+                }
+                else {
+                    alert(listError);
+                }
+            } else {
+                alert('Silahkan pilih gudang terlebih dahulu.');
+            }
+        }
+        //end add by nurul 30/4/2019
+    </script>
+}

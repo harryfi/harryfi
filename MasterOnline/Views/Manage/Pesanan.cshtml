@@ -6158,6 +6158,9 @@
                                 $('#footer_info_pesananSudahBayar').show();
                             }
                             //end add by calvin 17 desember 2018
+                            if ($statusPesanan == "11") {
+                                GetCancelReasons(response.ID_MARKETPLACE, response.listBrg);
+                            }
                         },
                         error: function(xhr, status, error) {
                             console.log(error);

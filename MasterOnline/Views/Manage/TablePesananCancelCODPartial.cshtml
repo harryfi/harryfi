@@ -130,7 +130,7 @@
                 <td>@pesanan.NOSO</td>
                 <td>@pesanan.REFERENSI</td>
                 <td>@(pesanan.TGL?.ToString("dd/MM/yyyy HH:mm"))</td>
-                <td></td>
+                <td>@pesanan.NO_FAKTUR_RETUR</td>
                 @*<td>@NamaMarket</td> 'change by nurul 14/2/2019*@
                 <td>
                     @if (pesanan?.PERSO != "")
@@ -169,16 +169,16 @@
                     }
                 </td>
                 <td class="edit-hapus-col">
-                    @if (pesanan.MARKET != "")
+                    @if (pesanan.NO_FAKTUR != "")
                     {
-                        <button class="btn btn-warning" data-toggle="modal" data-target="#konfStatusBatalCOD" onclick="passRecStatus(@pesanan.RECNUM, '12', '@pesanan.NOSO')">
+                        <button class="btn btn-warning" id="btnReturCOD" onclick="passNoFaktur(@pesanan.NO_FAKTUR);">
                             <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
                         </button>
                     }
                     else
                     {
-                        <button style="background-color:darkgray; cursor:not-allowed">
-                            <span class="glyphicon glyphicon-arrow-left" aria-hidden="false"></span>
+                        <button class="btn btn-warning" onclick="alert('Pesanan ini belum dibuat Faktur. Silahkan buat transaksi masuk barang.')">
+                            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
                         </button>
                     }
                 </td>
@@ -208,6 +208,12 @@
     }
 </div>
 <script type="text/javascript">
+    var $idFaktur = "";
+    var promptFaktur = "";
+    function passNoFaktur(value) {
+        this.$idFaktur = value;
+
+    }
     $(function () {
         $('#tabelpesanancancelcodpartialpager').on('click', 'a', function () {
             if (this.href != "") {
@@ -236,6 +242,23 @@
             }
             return false;
         });
+    });
+
+    $(function () {
+        $('#btnReturCOD').click(function () {
+            if (this.$idFaktur != '' ) {
+                    
+                promptFaktur = "1";
+                var link = '@Url.Action("ListBrgForReturPopUp", "Manage", new { noFaktur = "replaceId" })';
+                link = link.replace("replaceId", this.$idFaktur);
+                window.open(link,
+                    "popupWindow",
+                    "width=850, height=400, scrollbars=yes, resizable=no");
+                 
+                } else {
+                alert('Pesanan ini belum dibuat Faktur. Silahkan buat transaksi masuk barang.');
+                }
+            });
     });
 </script>
 @* end add by nurul 30/4/2019, paging *@
