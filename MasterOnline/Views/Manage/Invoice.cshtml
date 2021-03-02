@@ -1960,7 +1960,7 @@
                             $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
                             $('#pBar_uploadFile').html('100% Complete');
                             $('#btnUploadExcelInvoicePembelian').removeAttr('disabled');
-                            alert("Proses upload excel Invoice Pembelian sudah selesai!");
+                            setTimeout(popupAlertUploadInvoicePembelian, 500);
                         }
                     },
                     error: function (xhr, status, error) {
@@ -1979,6 +1979,10 @@
                 });
 
             }
+        }
+
+        function popupAlertUploadInvoicePembelian() {
+            alert("Proses upload excel Invoice Pembelian sudah selesai!");
         }
 
         $(document).ready(function () {

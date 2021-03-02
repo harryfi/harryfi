@@ -4226,6 +4226,10 @@
         }
     }
 
+    function popupAlertUploadPesanan() {
+            alert("Proses upload excel Pesanan sudah selesai!");
+        }
+
     function uploadExcelPesanan() {
         if ($('#file_upload_excel_pesanan')[0].files.length < 1) {
             $('#file_upload_excel_pesanan').click();
@@ -4305,7 +4309,7 @@
                             $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
                             $('#pBar_uploadFile').html('100% Complete');
                             $('#btnUploadExcelPesanan').removeAttr('disabled');
-                            alert("Proses upload excel Pesanan sudah selesai!");
+                            setTimeout(popupAlertUploadPesanan, 500);
                         }
 
 
@@ -4359,6 +4363,8 @@
 
             }
     }
+
+
         $(function () {
             // Reference the auto-generated proxy for the hub.
             var progress = $.connection.progressHub;

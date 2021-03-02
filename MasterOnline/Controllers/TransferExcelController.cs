@@ -2875,6 +2875,7 @@ namespace MasterOnline.Controllers
 
                                 var Tempbruto = 0;
                                 var Tempnetto = 0;
+                                var TempPPNPersen = 0;
                                 var TempPPN = 0;
                                 var TempOngkir = 0;
                                 var TempTotalHargaBarang = 0;
@@ -2994,8 +2995,9 @@ namespace MasterOnline.Controllers
                                                                                                     TempTotalHargaBarang = Convert.ToInt32(harga_satuan) * Convert.ToInt32(qty);
                                                                                                 }
                                                                                                 Tempbruto += TempTotalHargaBarang;
-                                                                                                if(TempPPN == 0 && TempOngkir == 0)
+                                                                                                if(TempPPNPersen == 0 && TempPPN == 0 && TempOngkir == 0)
                                                                                                 {
+                                                                                                    TempPPNPersen = Convert.ToInt32(ppn);
                                                                                                     TempPPN = Convert.ToInt32(nilai_ppn);
                                                                                                     TempOngkir = Convert.ToInt32(ongkir);
                                                                                                 }
@@ -3026,7 +3028,6 @@ namespace MasterOnline.Controllers
                                                                                                         VLT = "IDR",
                                                                                                         TERM = Convert.ToInt16(top),
                                                                                                         BIAYA_LAIN = Convert.ToInt32(ongkir),
-                                                                                                        NDISC1 = Convert.ToInt32(total_nilaidisc),
                                                                                                         PPN = Convert.ToInt32(ppn),
                                                                                                         NPPN = Convert.ToInt32(nilai_ppn),
                                                                                                         BRUTO = 0,
@@ -3528,12 +3529,12 @@ namespace MasterOnline.Controllers
 
                                                 } // end looping
 
-
+                                                TempPPN = Tempbruto * (TempPPNPersen / 100);
                                                 Tempnetto = Tempbruto + TempPPN + TempOngkir;
                                                 var checkheader = eraDB.PBT01A.Where(p => p.INV == noBuktiPB).ToList();
                                                 if (checkheader.Count() > 0)
                                                 {
-                                                    EDB.ExecuteSQL("Constring", CommandType.Text, "UPDATE PBT01A SET BRUTO = " + Tempbruto + " , NETTO = " + Tempnetto + " WHERE INV = '" + noBuktiPB + "'");
+                                                    EDB.ExecuteSQL("Constring", CommandType.Text, "UPDATE PBT01A SET BRUTO = " + Tempbruto + " , NETTO = " + Tempnetto + " , PPN = " + TempPPNPersen + " , NPPN = " + TempPPN + " WHERE INV = '" + noBuktiPB + "'");
                                                 }
 
                                             }
