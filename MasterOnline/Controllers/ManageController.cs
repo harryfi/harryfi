@@ -66028,7 +66028,8 @@ namespace MasterOnline.Controllers
             {
                 if (!string.IsNullOrEmpty(idKomponen))
                 {
-                    var cekKomponen = ErasoftDbContext.STF03.Where(a => a.No == Convert.ToInt32(idKomponen)).FirstOrDefault();
+                    var rec = Convert.ToInt32(idKomponen);
+                    var cekKomponen = ErasoftDbContext.STF03.Where(a => a.No == rec).FirstOrDefault();
                     if (cekKomponen != null)
                     {
                         var cekMasterBarangBundling = ErasoftDbContext.STF02.Where(a => a.BRG == cekKomponen.Unit).FirstOrDefault();

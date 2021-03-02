@@ -1124,7 +1124,7 @@
 
         function editHargaKomponen($brgKomponen, $idKomponen) {
 
-            var $tr = 'tr[data-barang-id="' + $brgKomponen + '"]';
+            var $tr = 'tr[data-barang-id="brg-' + $idKomponen + '"]';
             var $hargaInitialSpan = $($tr + ' .harga-initial');
             var $hargaInputBox = $($tr + ' .harga-input-box');
             var $btnEdit = $($tr + ' .icon-btn-edit');
@@ -1134,9 +1134,22 @@
                 $btnEdit.parent().removeClass('btn-primary').addClass('btn-success');
                 $btnEdit.removeClass('glyphicon-pencil').addClass('glyphicon-floppy-disk');
                 $hargaInitialSpan.hide();
-                $hargaInputBox.val($hargaAwal).show();
+                $hargaInputBox.val($hargaAwal)
+                    //.show();
+                    .change(function () {
+                        if ($hargaInputBox.val() == "0" || $hargaInputBox.val() == "") {
+                            alert('Harga tidak boleh 0!');
+                            $hargaInputBox.val($hargaAwal);
+                            refreshNettoBarangEditKomponen($idKomponen);
+                            return false;
+                        }
+                        //end unremark by calvin 8 nov 2018, proteksi qty
+                        refreshNettoBarangEditKomponen($idKomponen);
+                    })
+                    .show();
+                
             } else {
-                if ($hargaInputBox.val() != '') {
+                if ($hargaInputBox.val() != '' && $hargaInputBox.val() != '0') {
                     var hargaInitialBeforeValidation = $hargaInitialSpan.val();
                     $hargaInitialSpan.text($hargaInputBox.val());//.show();
                     simpanHargaKomponen($idKomponen, $hargaInputBox, $btnEdit, $hargaInitialSpan, hargaInitialBeforeValidation);
@@ -1145,6 +1158,17 @@
                     $hargaInputBox.focus();
                 }
             }
+        }
+
+        function refreshNettoBarangEditKomponen($trId) {
+            var $trElement = 'tr[data-barang-id="brg-' + $trId + '"]';
+            var $hargaBarang = convertToAngka($($trElement + ' .harga-input-box').val());
+            var $total = ($($trElement + ' .qty-barang').text() * $hargaBarang);
+
+            $($trElement + ' .total-barang').html(convertToRupiah($total) + '<input data-val="true" data-val-number="The field Harga must be a number." data-val-required="The Harga field is required." id="Bundling_TOTALHARGA" name="Bundling.TOTALHARGA" type="hidden" value="">');
+
+            $('#Bundling_Qty').val($($trElement + ' .qty-barang').text());
+            $('#Bundling_TOTALHARGA').val(convertToAngka($($trElement + ' .total-barang').text()));
         }
 
         function simpanHargaKomponen($idKomponen, $hargaInputBox, $btnEdit, $hargaInitialSpan, hargaInitialBeforeValidation) {
@@ -1169,7 +1193,7 @@
                             $modeEdit = 1; // 0 new, 1 edit
                             $btnEdit.parent().removeClass('btn-success').addClass('btn-primary');
                             $btnEdit.removeClass('glyphicon-floppy-disk').addClass('glyphicon-pencil');
-                            $harganitialSpan.show();
+                            $hargaInitialSpan.show();
                             $hargaInputBox.hide();
                             $('#loading_spinner').hide();
                         } else {

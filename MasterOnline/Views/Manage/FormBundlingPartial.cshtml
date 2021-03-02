@@ -200,7 +200,7 @@
                             }
                             @foreach (var sku_bundling in Model.listBundling.Where(pb => pb.Unit == Model?.Brg_Bundling).ToList())
                             {
-                                <tr data-barang-id="brg-@sku_bundling.Brg">
+                                <tr data-barang-id="brg-@sku_bundling.No">
                                     <td style="width: 150px !important; max-width: 150px !important;padding:5px !important">
                                         @sku_bundling.Brg
                                     </td>
@@ -222,7 +222,7 @@
                                         <input type="text" class="harga-input-box" style="display: none; width: 150px;" />
                                         <span class="harga-initial">@sku_bundling.HARGA</span>
                                     </td>
-                                    <td class="total-harga">@sku_bundling.TOTALHARGA</td>
+                                    <td class="total-barang">@sku_bundling.TOTALHARGA</td>
                                     <td class="edit-hapus-col">
                                         @*<button type="button" class="btn btn-primary" disabled="disabled">
             <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
