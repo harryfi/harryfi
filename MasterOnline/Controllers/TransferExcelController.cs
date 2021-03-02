@@ -3118,6 +3118,14 @@ namespace MasterOnline.Controllers
                                                                                                 {
                                                                                                     eraDB.PBT01B.Add(pbt01b);
                                                                                                     eraDB.SaveChanges();
+
+                                                                                                    string sSQLValues = "";
+                                                                                                    sSQLValues = sSQLValues + "('" + kode_brg + "', '" + connID + "')";
+                                                                                                    if (sSQLValues != "")
+                                                                                                    {
+                                                                                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + sSQLValues);
+                                                                                                        new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                                                    }
                                                                                                 }
                                                                                                 catch (Exception ex)
                                                                                                 {
