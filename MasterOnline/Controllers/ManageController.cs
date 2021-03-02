@@ -66036,6 +66036,7 @@ namespace MasterOnline.Controllers
                         if (cekMasterBarangBundling != null)
                         {
                             cekKomponen.HARGA = hargaBaru;
+                            cekKomponen.TOTALHARGA = cekKomponen.HARGA * cekKomponen.Qty;
                             ErasoftDbContext.SaveChanges();
                                                         
                             var HargaBundling = 0d;

@@ -1169,6 +1169,7 @@
 
             $('#Bundling_Qty').val($($trElement + ' .qty-barang').text());
             $('#Bundling_TOTALHARGA').val(convertToAngka($($trElement + ' .total-barang').text()));
+            hitungTotalHeader();
         }
 
         function simpanHargaKomponen($idKomponen, $hargaInputBox, $btnEdit, $hargaInitialSpan, hargaInitialBeforeValidation) {
