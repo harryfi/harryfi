@@ -60941,7 +60941,7 @@ namespace MasterOnline.Controllers
 
                     if (so.namamarket.ToUpper() == "LAZADA")
                     {
-                        if (ctkFaktur != "")
+                        if (ctkFaktur != "1")
                         {
                             if (data.Count() > 0)
                             {
