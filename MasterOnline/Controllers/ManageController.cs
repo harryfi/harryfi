@@ -62638,6 +62638,36 @@ namespace MasterOnline.Controllers
 
             return PartialView("TableBarangForReturPenj", vm);
         }
+        public ActionResult ListBrgForReturCODPopUp(string noFaktur)
+        {
+            //var sSQL = "select no_urut, a.brg, nama + ' ' + isnull(nama2,'') as nama, qty, gudang from sit01b a inner join stf02 b on a.brg=b.brg where a.no_bukti='" + noFaktur + "' and b.type='3'";
+            //var getDetail = ErasoftDbContext.Database.SqlQuery<brgForReturPrompt>(sSQL).ToList();
+            //var getDetail = ErasoftDbContext.SIT01B.Where(a => a.NO_BUKTI == noFaktur && a.JENIS_FORM == "2").ToList();
+            var fakturInDB = ErasoftDbContext.SIT01A.Where(m => m.NO_BUKTI == noFaktur).FirstOrDefault();
+            var vm = new FakturViewModel()
+            {
+                noFaktur = noFaktur,
+                noCust = fakturInDB.CUST,
+                noRef = fakturInDB.NO_REF,
+                //listGudang = ErasoftDbContext.STF18.ToList()
+                //listBarangRetur = getDetail,
+            };
+
+            return View(vm);
+        }
+        //public ActionResult RefreshBrgForReturCODPopUp(string noFaktur)
+        //{
+        //    var sSQL = "select no_urut as recnum, a.brg, nama + ' ' + isnull(nama2,'') as nama, qty, gudang from sit01b a inner join stf02 b on a.brg=b.brg where a.no_bukti='" + noFaktur + "' and b.type='3'";
+        //    var getDetail = ErasoftDbContext.Database.SqlQuery<brgForReturPrompt>(sSQL).ToList();
+        //    //var getDetail = ErasoftDbContext.SIT01B.Where(a => a.NO_BUKTI == noFaktur && a.JENIS_FORM == "2").ToList();
+        //    var vm = new FakturViewModel()
+        //    {
+        //        noFaktur = noFaktur,
+        //        listBarangRetur = getDetail,
+        //    };
+
+        //    return PartialView("TableBarangForReturPenj", vm);
+        //}
         //region retur pembelian 
         public ActionResult ListFakturForReturInvPopUp(string noCust)
         {

@@ -3995,7 +3995,8 @@
             nppn: 0,
             ongkir: 0
         };
-        var $scrolling = false;
+    var $scrolling = false;
+    var $idFaktur = "";
 
         var tableSiapProses = $('#datatable_siapproses').DataTable({
             columnDefs: [
@@ -4095,6 +4096,19 @@
         $('#search_cancel_click').click(function () {
             searchTablePesananCancel();
         });
+
+    $('#search_cancel_cod').keypress(function (e) {
+        var key = e.which;
+        if (key == 13)// the enter key code
+        {
+            searchTablePesananCancelCOD();
+            return false;
+        }
+    });
+
+    $('#search_cancel_cod_click').click(function () {
+        searchTablePesananCancelCOD();
+    });
 
         $('#search_nunggu').keypress(function (e) {
             var key = e.which;
@@ -9602,7 +9616,7 @@
 
         function searchTablePesananCancelCOD(){
             var $link = '@Html.Raw(Url.Action("RefreshTablePesananCancelCOD", "Manage", new { search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
-            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_cancel').val()));
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_cancel_cod').val()));
             //add by nurul 4/12/2019
             var filterby = get_pesanan_cancel_cod_filterby();
             var filtervalue = get_pesanan_cancel_cod_filtervalue(filterby);
@@ -9618,7 +9632,7 @@
                     $('#loading_pesanan_cancel_cod_tab').show();
                 },
                 success: function (response) {
-                    $('#search_cancel_click')[0].disabled = false;
+                    $('#search_cancel_cod_click')[0].disabled = false;
                     $('#table-pesanan-cancel-cod-partial').html(response);
 
                     $('#loading_pesanan_cancel_cod_tab').hide();

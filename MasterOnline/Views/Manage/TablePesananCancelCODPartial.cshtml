@@ -171,7 +171,7 @@
                 <td class="edit-hapus-col">
                     @if (pesanan.NO_FAKTUR != "")
                     {
-                        <button class="btn btn-warning" id="btnReturCOD" onclick="passNoFaktur(@pesanan.NO_FAKTUR);">
+                        <button class="btn btn-warning btnReturCOD" onclick="passNoFaktur('@pesanan.NO_FAKTUR');">
                             <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
                         </button>
                     }
@@ -208,10 +208,9 @@
     }
 </div>
 <script type="text/javascript">
-    var $idFaktur = "";
     var promptFaktur = "";
     function passNoFaktur(value) {
-        this.$idFaktur = value;
+        window.$idFaktur = value;
 
     }
     $(function () {
@@ -245,20 +244,31 @@
     });
 
     $(function () {
-        $('#btnReturCOD').click(function () {
-            if (this.$idFaktur != '' ) {
-                    
+        $('.btnReturCOD').click(function () {
+            if (window.$idFaktur != '' ) {
+                //alert(window.$idFaktur);
                 promptFaktur = "1";
-                var link = '@Url.Action("ListBrgForReturPopUp", "Manage", new { noFaktur = "replaceId" })';
-                link = link.replace("replaceId", this.$idFaktur);
-                window.open(link,
-                    "popupWindow",
-                    "width=850, height=400, scrollbars=yes, resizable=no");
-                 
-                } else {
+                var link = '@Url.Action("ListBrgForReturCODPopUp", "Manage", new { noFaktur = "replaceId" })';
+                link = link.replace("replaceId", window.$idFaktur);
+                //window.open(link,
+                //    "popupWindow",
+                //    "width=850, height=400, scrollbars=yes, resizable=no");
+                var returCODPopUp = window.open(link, "Retur Faktur COD", "width=850, height=400, scrollbars=yes, resizable=no");
+                    var timer = setInterval(function () {
+                        if (returCODPopUp.closed) {
+                            clearInterval(timer);
+                            $('#loading_spinner').hide();
+                            //window.location.href = '@Url.Action("order", "Manage")';
+                            refreshTableCancelCOD();
+                        }
+                    }, 1000);
+
+            }
+            else
+            {
                 alert('Pesanan ini belum dibuat Faktur. Silahkan buat transaksi masuk barang.');
-                }
-            });
+            }
+        });
     });
 </script>
 @* end add by nurul 30/4/2019, paging *@

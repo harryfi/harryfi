@@ -22,6 +22,8 @@
     }
 
     var noFaktur = Model?.noFaktur;
+    var noRef = Model?.noRef;
+    var noCust = Model?.noCust;
 }
 
 @section styles
@@ -101,7 +103,9 @@
     <script src="~/Content/vendors/moment/min/moment.min.js" type="text/javascript"></script>
     <script src="~/Content/selectize.js" type="text/javascript"></script>
     <script type="text/javascript">
-        var FAKTUR = @Html.Raw(Json.Encode(noFaktur));
+        var FAKTUR_COD = @Html.Raw(Json.Encode(noFaktur));
+        var NOREF_COD = @Html.Raw(Json.Encode(noRef));
+        var CUST_COD = @Html.Raw(Json.Encode(noCust));
         $pembeliId = "";
         var get_selected = [];
 
@@ -140,7 +144,7 @@
         //add by nurul 30/4/2019
         function refreshTableBarang() {
             var $link = '@Html.Raw(Url.Action("RefreshBrgForReturPopUp", "Manage", new { noFaktur = "replaceFaktur" }))';
-            $link = $link.replace("replaceFaktur", encodeURIComponent(FAKTUR));
+            $link = $link.replace("replaceFaktur", encodeURIComponent(FAKTUR_COD));
 
             $.ajax({
                 type: "GET",
@@ -179,7 +183,7 @@
                 }
             });
         }
-       
+
         function getGudang() {
 
             $.ajax({
@@ -266,12 +270,15 @@
                         });
 
                         var temp_Value = $("#setGd").val() + "|" + tempBrg + "|" + tempQty;
-                        self.window.close();
-                        window.onunload = refreshTextBox;
-                        function refreshTextBox() {
-                            window.opener.ProsesReturAfterPrompt(temp_Value);
-                        }
-                        ProsesReturAfterPrompt(temp_Value);
+                        ProsesReturCODAfterPrompt(temp_Value);
+                        //alert(temp_Value);
+                        //self.window.close();
+                        //window.onunload = refreshTextBox;
+                        //function refreshTextBox() {
+                        //    window.opener.ProsesReturAfterPrompt(temp_Value);
+                        //}
+                        //ProsesReturAfterPrompt(temp_Value);
+
                         //validasi(temp_Value, _noref);
                     } else {
                         alert('Silahkan Pilih barang yang akan di retur.');
@@ -285,5 +292,119 @@
             }
         }
         //end add by nurul 30/4/2019
+        function ProsesReturCODAfterPrompt(tempValue) {
+            if (tempValue != "" && tempValue != null && tempValue != undefined) {
+                var splitValue = tempValue.split('|');
+                var get_gudang = splitValue[0];
+                var get_brg = splitValue[1];
+                var get_qty = splitValue[2];
+                if (get_gudang != "" && get_brg != "" && get_qty != "") {
+                    //$('#FakturDetail_QTY').val(0);
+                    //$("#Faktur_BRUTO").val(convertToAngka($("#Faktur_BRUTO").val()));
+                    //$("#Faktur_NILAI_DISC").val(convertToAngka($("#Faktur_NILAI_DISC").val()));
+                    //$("#Faktur_NILAI_PPN").val(convertToAngka($("#Faktur_NILAI_PPN").val()));
+                    //$("#Faktur_MATERAI").val(convertToAngka($("#Faktur_MATERAI").val()));
+                    //$("#Faktur_NETTO").val($bakalNetto);
+                    //$('#Faktur_NO_REF').val($('#Faktur_NO_REF').val());
+                    $faktur = {
+                        RecNum: null,
+                        NO_REF: NOREF_COD,
+                        CUST: CUST_COD,
+                        TGL: '@DateTime.UtcNow.AddHours(7)',
+                        NO_BUKTI: FAKTUR_COD,
+
+                    };
+                    $postdata = {
+                        Faktur: $faktur,
+                        Errors: new string[],
+
+                    };
+
+                    $totalAwal = 0;
+
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("SaveHeaderReturFaktur", "Manage")',
+                        data: JSON.stringify($postdata),
+                        beforeSend: function () {
+                            $('#loading_spinner').show();
+                        },
+                        success: function (response) {
+                            if (response.mo_success == true) {
+                                if (response.mo_bukti != "" && response.mo_ref != "") {
+                                    var link = '@Url.Action("SaveDetailReturFaktur", "Manage")';
+
+                                    $.ajax({
+                                        type: "POST",
+                                        url: link,
+                                        data: JSON.stringify({ get_selected: get_brg, bukti: response.mo_bukti, noref: response.mo_ref, gudang: get_gudang, get_selected_qty: get_qty }),
+                                        contentType: 'application/json; charset=UTF-8',
+                                        cache: false,
+                                        beforeSend: function () {
+                                            //$('#loading_spinner').show();
+                                        },
+                                        success: function (last_response) {
+                                            if (last_response != null && last_response != undefined) {
+                                                if (last_response.mo_error != null && last_response != undefined) {
+                                                    console.log(last_response.mo_error);
+                                                    alert(last_response.mo_error);
+                                                    $('#loading_spinner').hide();
+                                                } else {
+                                                    //$modeEdit = 1; // 0 new, 1 edit
+                                                    //$('#form-partial').html(last_response);
+                                                    //$totalAwal = convertToAngka($('#Faktur_BRUTO').val());
+                                                    //refreshInputan();
+                                                    //getTanggal();
+                                                    //getMarketplace();
+                                                    //$('.faktur_table_section').hide();
+                                                    //$('.faktur_editor_section').show();
+                                                    //$nettoSebelumnya += $bakalNetto;
+
+                                                    //$(' select ').each(function () {
+                                                    //    $(this).attr('disabled', 'disabled');
+                                                    //});
+
+                                                    //$('tr[data-faktur-id="0"]').hide();
+                                                    //$('#btn-simpan-perubahan-row').hide();
+                                                    //$("#btn-autoload-row").hide();
+                                                    $('#loading_spinner').hide();
+                                                    self.window.close();
+                                                }
+                                            } else {
+                                                if (last_response.Errors[0] == "") {
+                                                    console.log(last_response.Errors);
+                                                    alert('Ada data yang tidak valid!');
+                                                } else {
+                                                    alert(last_response.Errors[0]);
+                                                }
+                                                $('#loading_spinner').hide();
+                                            }
+                                        },
+                                        error: function (xhr) {
+                                            console.log(xhr);
+                                            $('#loading_spinner').hide();
+                                        }
+                                    });
+                                }
+                            } else {
+                                if (response.mo_error != "" && response.mo_error != undefined && response.mo_error != null) {
+                                    console.log(response.Errors);
+                                    alert(response.mo_error);
+                                } else {
+                                    alert('Gagal memproses retur. Mohon hubungi support.');
+                                }
+                                $('#loading_spinner').hide();
+                            }
+                        },
+                        error: function (xhr) {
+                            console.log(xhr);
+                            $('#loading_spinner').hide();
+                            alert('Gagal memproses retur. Mohon hubungi support.');
+                            self.window.close();
+                        }
+                    });
+                }
+            }
+        }
     </script>
 }
