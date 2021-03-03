@@ -62771,6 +62771,19 @@ namespace MasterOnline.Controllers
             return PartialView("TableBarangForReturInvPenj", vm);
         }
 
+        public ActionResult SaveHeaderReturFakturCOD(string NO_REF, string NO_BUKTI, string CUST)
+        {
+            var data = new FakturViewModel();
+            data.Faktur = new SIT01A
+            {
+                NO_REF = NO_BUKTI,//no ref adalah no bukti faktur yg akan di retur
+                NO_BUKTI = NO_BUKTI,
+                CUST = CUST,
+                TGL = DateTime.UtcNow.AddHours(7)
+            };
+            var ret = SaveHeaderReturFaktur(data);
+            return ret;
+        }
         public ActionResult SaveHeaderReturFaktur(FakturViewModel dataVm)
         {
             try

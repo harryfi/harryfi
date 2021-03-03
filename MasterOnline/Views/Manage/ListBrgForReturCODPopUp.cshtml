@@ -306,26 +306,32 @@
                     //$("#Faktur_MATERAI").val(convertToAngka($("#Faktur_MATERAI").val()));
                     //$("#Faktur_NETTO").val($bakalNetto);
                     //$('#Faktur_NO_REF').val($('#Faktur_NO_REF').val());
-                    $faktur = {
-                        RecNum: null,
+                    $postdata = {
+                        //RecNum: null,
                         NO_REF: NOREF_COD,
                         CUST: CUST_COD,
-                        TGL: '@DateTime.UtcNow.AddHours(7)',
+                        //TGL: '@DateTime.UtcNow.AddHours(7)',
                         NO_BUKTI: FAKTUR_COD,
 
                     };
-                    $postdata = {
-                        Faktur: $faktur,
-                        Errors: new string[],
+                    //var listErr = [""];
+                    //dataVm = {
+                    //    Faktur: $faktur,
+                    //    Errors: listErr,
+                    //};
+                    //$postdata = {
+                    //    dataVm: dataVm
 
-                    };
+                    //};
 
                     $totalAwal = 0;
 
                     $.ajax({
                         type: "POST",
-                        url: '@Url.Action("SaveHeaderReturFaktur", "Manage")',
+                        url: '@Url.Action("SaveHeaderReturFakturCOD", "Manage")',
                         data: JSON.stringify($postdata),
+                        contentType: 'application/json; charset=UTF-8',
+                        cache: false,
                         beforeSend: function () {
                             $('#loading_spinner').show();
                         },
