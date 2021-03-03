@@ -1537,6 +1537,8 @@ namespace MasterOnline.Controllers
                                             {
                                                 messageErrorLog = "No Referensi pesanan " + resNoref + " dan Kode Customer toko " + resNocust + " sudah pernah dimasukan.Proses Upload Pesanan dibatalkan.";
                                                 tw.WriteLine(messageErrorLog);
+                                                tw.Close();
+                                                tw.Dispose();
 
                                                 var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
                                                 if (cekLog == null)
@@ -2829,7 +2831,7 @@ namespace MasterOnline.Controllers
                                 {
                                     string tgl = worksheet.Cells[i, 2].Value == null ? "" : worksheet.Cells[i, 2].Value.ToString();
                                     string kode_supplier = worksheet.Cells[i, 3].Value == null ? "" : worksheet.Cells[i, 3].Value.ToString();
-                                    string kode_barang = worksheet.Cells[i, 8].Value == null ? "" : worksheet.Cells[i, 8].Value.ToString();
+                                    string kode_barang = worksheet.Cells[i, 7].Value == null ? "" : worksheet.Cells[i, 7].Value.ToString();
                                     if (!string.IsNullOrEmpty(tgl) && !string.IsNullOrEmpty(kode_supplier) && !string.IsNullOrEmpty(kode_barang))
                                     {
                                         tgl = Convert.ToDateTime(tgl).ToString("yyyy-MM-dd");
@@ -2851,8 +2853,13 @@ namespace MasterOnline.Controllers
                                         tw.WriteLine(messageErrorLog);
                                     }
 
+                                    
+
                                     if (!string.IsNullOrEmpty(messageErrorLog))
                                     {
+                                        tw.Close();
+                                        tw.Dispose();
+
                                         var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Invoice Pembelian" && p.REQUEST_ID == connID).FirstOrDefault();
                                         if (cekLog == null)
                                         {
@@ -2873,12 +2880,12 @@ namespace MasterOnline.Controllers
                                     }
                                 }
 
-                                var Tempbruto = 0;
-                                var Tempnetto = 0;
-                                var TempPPNPersen = 0;
-                                var TempPPN = 0;
-                                var TempOngkir = 0;
-                                var TempTotalHargaBarang = 0;
+                                double Tempbruto = 0;
+                                double Tempnetto = 0;
+                                double TempPPNPersen = 0;
+                                double TempPPN = 0;
+                                double TempOngkir = 0;
+                                double TempTotalHargaBarang = 0;
 
                                 if (dataNoBuktiCodeSupplier.Count() > 0)
                                 {
@@ -2896,6 +2903,8 @@ namespace MasterOnline.Controllers
                                             {
                                                 messageErrorLog = "Tanggal invoice pembelian " + resTgl + " dan Kode Supplier " + resCodeSupplier + " sudah pernah dimasukan. Proses Upload dibatalkan.";
                                                 tw.WriteLine(messageErrorLog);
+                                                tw.Close();
+                                                tw.Dispose();
 
                                                 var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Invoice Pembelian" && p.REQUEST_ID == connID).FirstOrDefault();
                                                 if (cekLog == null)
@@ -2929,15 +2938,15 @@ namespace MasterOnline.Controllers
                                                     string kode_supplier = worksheet.Cells[i, 3].Value == null ? "" : worksheet.Cells[i, 3].Value.ToString();
                                                     string top = worksheet.Cells[i, 4].Value == null ? "" : worksheet.Cells[i, 4].Value.ToString();
                                                     string ppn = worksheet.Cells[i, 5].Value == null ? "0" : worksheet.Cells[i, 5].Value.ToString();
-                                                    string nilai_ppn = worksheet.Cells[i, 6].Value == null ? "0" : worksheet.Cells[i, 6].Value.ToString();
-                                                    string ongkir = worksheet.Cells[i, 7].Value == null ? "0" : worksheet.Cells[i, 7].Value.ToString();
-                                                    string kode_brg = worksheet.Cells[i, 8].Value == null ? "" : worksheet.Cells[i, 8].Value.ToString();
-                                                    string nama_brg = worksheet.Cells[i, 9].Value == null ? "" : worksheet.Cells[i, 9].Value.ToString();
-                                                    string gudang = worksheet.Cells[i, 10].Value == null ? "" : worksheet.Cells[i, 10].Value.ToString();
-                                                    string qty = worksheet.Cells[i, 11].Value == null ? "0" : worksheet.Cells[i, 11].Value.ToString();
-                                                    string harga_satuan = worksheet.Cells[i, 12].Value == null ? "0" : worksheet.Cells[i, 12].Value.ToString();
-                                                    string total_nilaidisc = worksheet.Cells[i, 13].Value == null ? "0" : worksheet.Cells[i, 13].Value.ToString();
-                                                    string total = worksheet.Cells[i, 14].Value == null ? "0" : worksheet.Cells[i, 14].Value.ToString();
+                                                    //string nilai_ppn = worksheet.Cells[i, 6].Value == null ? "0" : worksheet.Cells[i, 6].Value.ToString();
+                                                    string ongkir = worksheet.Cells[i, 6].Value == null ? "0" : worksheet.Cells[i, 6].Value.ToString();
+                                                    string kode_brg = worksheet.Cells[i, 7].Value == null ? "" : worksheet.Cells[i, 7].Value.ToString();
+                                                    string nama_brg = worksheet.Cells[i, 8].Value == null ? "" : worksheet.Cells[i, 8].Value.ToString();
+                                                    string gudang = worksheet.Cells[i, 9].Value == null ? "" : worksheet.Cells[i, 9].Value.ToString();
+                                                    string qty = worksheet.Cells[i, 10].Value == null ? "0" : worksheet.Cells[i, 10].Value.ToString();
+                                                    string harga_satuan = worksheet.Cells[i, 11].Value == null ? "0" : worksheet.Cells[i, 11].Value.ToString();
+                                                    string total_nilaidisc = worksheet.Cells[i, 12].Value == null ? "0" : worksheet.Cells[i, 12].Value.ToString();
+                                                    string total = worksheet.Cells[i, 13].Value == null ? "0" : worksheet.Cells[i, 13].Value.ToString();
 
 
                                                     if (kode_supplier.Contains("Silahkan"))
@@ -2964,9 +2973,9 @@ namespace MasterOnline.Controllers
 
                                                                     if (!string.IsNullOrEmpty(gudang))
                                                                     {
-                                                                        if (!top.Contains(".") || !ppn.Contains(".") || !nilai_ppn.Contains(".") || !ongkir.Contains(".") || !qty.Contains(".") || !harga_satuan.Contains(".") || !total_nilaidisc.Contains(".") || !total.Contains("."))
+                                                                        if (!top.Contains(".") || !ppn.Contains(".") || !ongkir.Contains(".") || !qty.Contains(".") || !harga_satuan.Contains(".") || !total_nilaidisc.Contains(".") || !total.Contains("."))
                                                                         {
-                                                                            if (!top.Contains(",") || !ppn.Contains(",") || !nilai_ppn.Contains(",") || !ongkir.Contains(",") || !qty.Contains(",") || !harga_satuan.Contains(",") || !total_nilaidisc.Contains(",") || !total.Contains(","))
+                                                                            if (!top.Contains(",") || !ppn.Contains(",") || !ongkir.Contains(",") || !qty.Contains(",") || !harga_satuan.Contains(",") || !total_nilaidisc.Contains(",") || !total.Contains(","))
                                                                             {
                                                                                 if (!string.IsNullOrEmpty(kode_brg))
                                                                                 {
@@ -2994,11 +3003,17 @@ namespace MasterOnline.Controllers
                                                                                                 {
                                                                                                     TempTotalHargaBarang = Convert.ToInt32(harga_satuan) * Convert.ToInt32(qty);
                                                                                                 }
+
                                                                                                 Tempbruto += TempTotalHargaBarang;
-                                                                                                if(TempPPNPersen == 0 && TempPPN == 0 && TempOngkir == 0)
+
+                                                                                                if(TempPPNPersen == 0)
                                                                                                 {
                                                                                                     TempPPNPersen = Convert.ToInt32(ppn);
-                                                                                                    TempPPN = Convert.ToInt32(nilai_ppn);
+                                                                                                    //TempPPN = Convert.ToInt32(nilai_ppn);
+                                                                                                }
+
+                                                                                                if(TempOngkir == 0)
+                                                                                                {
                                                                                                     TempOngkir = Convert.ToInt32(ongkir);
                                                                                                 }
 
@@ -3029,12 +3044,14 @@ namespace MasterOnline.Controllers
                                                                                                         TERM = Convert.ToInt16(top),
                                                                                                         BIAYA_LAIN = Convert.ToInt32(ongkir),
                                                                                                         PPN = Convert.ToInt32(ppn),
-                                                                                                        NPPN = Convert.ToInt32(nilai_ppn),
+                                                                                                        //NPPN = Convert.ToInt32(nilai_ppn),
+                                                                                                        NPPN = 0,
                                                                                                         BRUTO = 0,
                                                                                                         NETTO = 0,
                                                                                                         USERNAME = username,
                                                                                                         TGLINPUT = DateTime.Now.AddHours(7),
                                                                                                         TGJT = DateTime.Now.AddHours(7).AddDays(Convert.ToInt32(top)),
+                                                                                                        KET = "-",
                                                                                                         APP = "-",
                                                                                                         REF = "-",
                                                                                                         NO_INVOICE_SUPP = "-",
@@ -3086,7 +3103,6 @@ namespace MasterOnline.Controllers
                                                                                                     if (checkDetailPB.Count() > 0)
                                                                                                     {
                                                                                                         EDB.ExecuteSQL("Constring", CommandType.Text, "UPDATE PBT01B SET THARGA = " + TempTotalHargaBarang + " WHERE TGL = '" + dttgl.ToString("yyyy-MM-dd") + "' AND SUPP = '" + kode_supplier + "' AND INV = '" + noBuktiPB + "'");
-                                                                                                        EDB.ExecuteSQL("Constring", CommandType.Text, "UPDATE PBT01A SET BIAYA_LAIN = " + TempOngkir + " , NPPN = " + TempPPN + " WHERE TGL = '" + dttgl.ToString("yyyy-MM-dd") + "' AND SUPP = '" + kode_supplier + "' AND INV = '" + noBuktiPB + "'");
                                                                                                     }
                                                                                                 }
 
@@ -3566,6 +3582,7 @@ namespace MasterOnline.Controllers
                             }
 
                             tw.Close();
+                            tw.Dispose();
                             //}
                         }
                     }
@@ -4295,29 +4312,33 @@ namespace MasterOnline.Controllers
                         rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Yellow);
                     }
 
-                    using (var rangePackage = worksheet.Cells[9, 8])
+                    using (var rangePackage = worksheet.Cells[9, 7])
                     {
                         rangePackage.Style.Fill.PatternType = ExcelFillStyle.Solid;
                         rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Yellow);
                     }
 
-                    using (var rangePackage = worksheet.Cells[9, 10, 9, 12])
+                    using (var rangePackage = worksheet.Cells[9, 9, 9, 11])
                     {
                         rangePackage.Style.Fill.PatternType = ExcelFillStyle.Solid;
                         rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Yellow);
                     }
 
-                    using (var rangePackage = worksheet.Cells[9, 14])
+                    using (var rangePackage = worksheet.Cells[9, 13])
                     {
                         rangePackage.Style.Fill.PatternType = ExcelFillStyle.Solid;
                         rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Yellow);
                     }
 
-                    worksheet.Cells["A7"].AddComment("Untuk nomor bukti invoice pembelian yang sama ongkos kirim cukup isi 1x di kode barang pertama dalam no bukti tersebut.", "MasterOnline");
-                    var comment = worksheet.Cells["A7"].Comment;
+                    worksheet.Cells["F9"].AddComment("Untuk nomor bukti invoice pembelian yang sama ongkos kirim cukup isi 1x di kode barang pertama dalam no bukti tersebut.", "MasterOnline");
+                    var comment = worksheet.Cells["F9"].Comment;
                     comment.Text = "Untuk nomor bukti invoice pembelian yang sama ongkos kirim cukup isi 1x di kode barang pertama dalam no bukti tersebut.";
                     comment.Author = "MasterOnline";
-                    comment.Visible = true;
+
+                    worksheet.Cells["E9"].AddComment("Untuk nomor bukti invoice pembelian yang sama ongkos kirim cukup isi 1x di kode barang pertama dalam no bukti tersebut.", "MasterOnline");
+                    var comment2 = worksheet.Cells["E9"].Comment;
+                    comment2.Text = "Untuk nomor bukti invoice pembelian yang sama PPN % cukup isi 1x di kode barang pertama dalam no bukti tersebut.";
+                    comment2.Author = "MasterOnline";
 
 
                     worksheet.Cells["A8"].Value = "Keterangan: Kolom warna kuning harus diisi.";
@@ -4328,15 +4349,15 @@ namespace MasterOnline.Controllers
                     worksheet.Cells["C3"].Value = "KODE SUPPLIER";
                     worksheet.Cells["D3"].Value = "TERM OF PAYMENT";
                     worksheet.Cells["E3"].Value = "PPN (%)";
-                    worksheet.Cells["F3"].Value = "NILAI PPN";
-                    worksheet.Cells["G3"].Value = "ONGKOS KIRIM";
-                    worksheet.Cells["H3"].Value = "KODE BARANG";
-                    worksheet.Cells["I3"].Value = "NAMA BARANG";
-                    worksheet.Cells["J3"].Value = "GUDANG";
-                    worksheet.Cells["K3"].Value = "QTY";
-                    worksheet.Cells["L3"].Value = "HARGA SATUAN";
-                    worksheet.Cells["M3"].Value = "TOTAL NILAI DISC";
-                    worksheet.Cells["N3"].Value = "TOTAL";
+                    //worksheet.Cells["F3"].Value = "NILAI PPN";
+                    worksheet.Cells["F3"].Value = "ONGKOS KIRIM";
+                    worksheet.Cells["G3"].Value = "KODE BARANG";
+                    worksheet.Cells["H3"].Value = "NAMA BARANG";
+                    worksheet.Cells["I3"].Value = "GUDANG";
+                    worksheet.Cells["J3"].Value = "QTY";
+                    worksheet.Cells["K3"].Value = "HARGA SATUAN";
+                    worksheet.Cells["L3"].Value = "TOTAL NILAI DISC";
+                    worksheet.Cells["M3"].Value = "TOTAL";
 
                     //ISI ROW 1
                     worksheet.Cells["A4"].Value = "PB2100001";
@@ -4344,15 +4365,15 @@ namespace MasterOnline.Controllers
                     worksheet.Cells["C4"].Value = "PT X";
                     worksheet.Cells["D4"].Value = "10";
                     worksheet.Cells["E4"].Value = "10";
-                    worksheet.Cells["F4"].Value = "2900";
-                    worksheet.Cells["G4"].Value = "10000";
-                    worksheet.Cells["H4"].Value = "ABC";
-                    worksheet.Cells["I4"].Value = "BATERE ABC";
-                    worksheet.Cells["J4"].Value = "001";
-                    worksheet.Cells["K4"].Value = "1";
-                    worksheet.Cells["L4"].Value = "15000";
-                    worksheet.Cells["M4"].Value = "0";
-                    worksheet.Cells["N4"].Value = "15000";
+                    //worksheet.Cells["F4"].Value = "2900";
+                    worksheet.Cells["F4"].Value = "10000";
+                    worksheet.Cells["G4"].Value = "ABC";
+                    worksheet.Cells["H4"].Value = "BATERE ABC";
+                    worksheet.Cells["I4"].Value = "001";
+                    worksheet.Cells["J4"].Value = "1";
+                    worksheet.Cells["K4"].Value = "15000";
+                    worksheet.Cells["L4"].Value = "0";
+                    worksheet.Cells["M4"].Value = "15000";
 
                     //ISI ROW 2
                     worksheet.Cells["A5"].Value = "PB2100001";
@@ -4360,15 +4381,15 @@ namespace MasterOnline.Controllers
                     worksheet.Cells["C5"].Value = "PT X";
                     worksheet.Cells["D5"].Value = "10";
                     worksheet.Cells["E5"].Value = "10";
-                    worksheet.Cells["F5"].Value = "2900";
-                    worksheet.Cells["G5"].Value = "10000";
-                    worksheet.Cells["H5"].Value = "ALKALINE";
-                    worksheet.Cells["I5"].Value = "BATERE ALKALINE";
-                    worksheet.Cells["J5"].Value = "001";
-                    worksheet.Cells["K5"].Value = "1";
-                    worksheet.Cells["L5"].Value = "14000";
-                    worksheet.Cells["M5"].Value = "0";
-                    worksheet.Cells["N5"].Value = "14000";
+                    //worksheet.Cells["F5"].Value = "2900";
+                    worksheet.Cells["F5"].Value = "10000";
+                    worksheet.Cells["G5"].Value = "ALKALINE";
+                    worksheet.Cells["H5"].Value = "BATERE ALKALINE";
+                    worksheet.Cells["I5"].Value = "001";
+                    worksheet.Cells["J5"].Value = "1";
+                    worksheet.Cells["K5"].Value = "14000";
+                    worksheet.Cells["L5"].Value = "0";
+                    worksheet.Cells["M5"].Value = "14000";
 
                     //ISI ROW 3
                     worksheet.Cells["A6"].Value = "PB2100002";
@@ -4376,15 +4397,15 @@ namespace MasterOnline.Controllers
                     worksheet.Cells["C6"].Value = "PT X";
                     worksheet.Cells["D6"].Value = "10";
                     worksheet.Cells["E6"].Value = "0";
-                    worksheet.Cells["F6"].Value = "0";
-                    worksheet.Cells["G6"].Value = "9000";
-                    worksheet.Cells["H6"].Value = "ALKALINE";
-                    worksheet.Cells["I6"].Value = "BATERE ABC";
-                    worksheet.Cells["J6"].Value = "001";
-                    worksheet.Cells["K6"].Value = "1";
-                    worksheet.Cells["L6"].Value = "15000";
-                    worksheet.Cells["M6"].Value = "0";
-                    worksheet.Cells["N6"].Value = "15000";
+                    //worksheet.Cells["F6"].Value = "0";
+                    worksheet.Cells["F6"].Value = "9000";
+                    worksheet.Cells["G6"].Value = "ALKALINE";
+                    worksheet.Cells["H6"].Value = "BATERE ABC";
+                    worksheet.Cells["I6"].Value = "001";
+                    worksheet.Cells["J6"].Value = "1";
+                    worksheet.Cells["K6"].Value = "15000";
+                    worksheet.Cells["L6"].Value = "0";
+                    worksheet.Cells["M6"].Value = "15000";
 
                     
                     
@@ -4404,18 +4425,18 @@ namespace MasterOnline.Controllers
                         worksheet.Cells[10 + i, 3].Value = "-- Silahkan Pilih Supplier --"; //KODE SUPPLIER 
                         worksheet.Cells[10 + i, 4].Value = ""; //TERM OF PAYMENT
                         worksheet.Cells[10 + i, 5].Value = 0; //PPN
-                        worksheet.Cells[10 + i, 6].Value = 0; //NILAI PPN
-                        worksheet.Cells[10 + i, 7].Value = 0; //ONGKOS KIRIM
-                        worksheet.Cells[10 + i, 8].Value = ""; //KODE BARANG
-                        worksheet.Cells[10 + i, 9].Value = ""; //NAMA BARANG
-                        worksheet.Cells[10 + i, 10].Value = "-- Silahkan Pilih Gudang --"; //GUDANG
-                        worksheet.Cells[10 + i, 11].Value = 0; //QTY
-                        worksheet.Cells[10 + i, 12].Value = 0; //HARGA SATUAN
-                        worksheet.Cells[10 + i, 13].Value = 0; //TOTAL NILAI DISC
-                        worksheet.Cells[10 + i, 14].Value = 0; //TOTAL
+                        //worksheet.Cells[10 + i, 6].Value = 0; //NILAI PPN
+                        worksheet.Cells[10 + i, 6].Value = 0; //ONGKOS KIRIM
+                        worksheet.Cells[10 + i, 7].Value = ""; //KODE BARANG
+                        worksheet.Cells[10 + i, 8].Value = ""; //NAMA BARANG
+                        worksheet.Cells[10 + i, 9].Value = "-- Silahkan Pilih Gudang --"; //GUDANG
+                        worksheet.Cells[10 + i, 10].Value = 0; //QTY
+                        worksheet.Cells[10 + i, 11].Value = 0; //HARGA SATUAN
+                        worksheet.Cells[10 + i, 12].Value = 0; //TOTAL NILAI DISC
+                        worksheet.Cells[10 + i, 13].Value = 0; //TOTAL
                     }
 
-                    ExcelRange rg0 = worksheet.Cells[9, 1, worksheet.Dimension.End.Row, 14];
+                    ExcelRange rg0 = worksheet.Cells[9, 1, worksheet.Dimension.End.Row, 13];
                     string tableName0 = "TableInvoicePembelian";
                     ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
 
@@ -4424,17 +4445,17 @@ namespace MasterOnline.Controllers
                     table0.Columns[2].Name = "KODE SUPPLIER";
                     table0.Columns[3].Name = "TERM OF PAYMENT";
                     table0.Columns[4].Name = "PPN (%)";
-                    table0.Columns[5].Name = "NILAI PPN";
-                    table0.Columns[6].Name = "ONGKOS KIRIM";
-                    table0.Columns[7].Name = "KODE BARANG";
-                    table0.Columns[8].Name = "NAMA BARANG";
-                    table0.Columns[9].Name = "GUDANG";
-                    table0.Columns[10].Name = "QTY";
-                    table0.Columns[11].Name = "HARGA SATUAN";
-                    table0.Columns[12].Name = "TOTAL NILAI DISC";
-                    table0.Columns[13].Name = "TOTAL";
+                    //table0.Columns[5].Name = "NILAI PPN";
+                    table0.Columns[5].Name = "ONGKOS KIRIM";
+                    table0.Columns[6].Name = "KODE BARANG";
+                    table0.Columns[7].Name = "NAMA BARANG";
+                    table0.Columns[8].Name = "GUDANG";
+                    table0.Columns[9].Name = "QTY";
+                    table0.Columns[10].Name = "HARGA SATUAN";
+                    table0.Columns[11].Name = "TOTAL NILAI DISC";
+                    table0.Columns[12].Name = "TOTAL";
 
-                    using (var range = worksheet.Cells[9, 1, 9, 14])
+                    using (var range = worksheet.Cells[9, 1, 9, 13])
                     {
                         range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
                         range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
@@ -4511,7 +4532,7 @@ namespace MasterOnline.Controllers
                         }
                     }
 
-                    var validation2 = worksheet.DataValidations.AddListValidation(worksheet.Cells[10, 10, worksheet.Dimension.End.Row, 10].Address);
+                    var validation2 = worksheet.DataValidations.AddListValidation(worksheet.Cells[10, 9, worksheet.Dimension.End.Row, 9].Address);
                     validation2.ShowErrorMessage = true;
                     validation2.ErrorStyle = ExcelDataValidationWarningStyle.warning;
                     validation2.ErrorTitle = "An invalid value was entered";

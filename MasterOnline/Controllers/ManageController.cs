@@ -34883,14 +34883,27 @@ namespace MasterOnline.Controllers
         {
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
-
-            byte[] data = System.IO.File.ReadAllBytes(path);
-            string contentType = MimeMapping.GetMimeMapping(path);
-            var cd = new System.Net.Mime.ContentDisposition
+            byte[] data = null;
+            string contentType = null;
+            try
             {
-                FileName = filename,
-                Inline = true,
-            };
+                if (System.IO.File.Exists(path))
+                {
+                    data = System.IO.File.ReadAllBytes(path);
+                    contentType = MimeMapping.GetMimeMapping(path);
+                    var cd = new System.Net.Mime.ContentDisposition
+                    {
+                        FileName = filename,
+                        Inline = true,
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                
+            }
+            
+            
             //Response.AppendHeader("Content-Disposition", cd.ToString());
 
             return File(data, contentType, filename);
