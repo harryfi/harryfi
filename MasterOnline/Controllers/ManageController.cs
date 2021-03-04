@@ -62804,7 +62804,9 @@ namespace MasterOnline.Controllers
                 JENIS = "1",
                 NILAI_PPNBM = 0,
                 NAMAPEMESAN = "",
-                USERNAME = usernameLogin
+                USERNAME = usernameLogin,
+                TERM = 1,
+                TGL_JT_TEMPO = DateTime.UtcNow.AddHours(7).AddDays(1),
             };
             var ret = SaveHeaderReturFaktur(data);
             return ret;
