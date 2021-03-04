@@ -2413,7 +2413,7 @@ namespace MasterOnline.Controllers
                             #region handle cancel COD
                             string qrycod = "SELECT P.NO_REFERENSI, ISNULL(F.NO_REF, '') NO_REF FROM SIT01A F RIGHT JOIN SOT01A P ON P.NO_BUKTI = F.NO_SO AND F.JENIS_FORM = '2' ";
                             qrycod += "WHERE P.NO_REFERENSI IN (" + ordersn + ") AND ISNULL(F.NO_FA_OUTLET, '-') LIKE '%-%' AND P.CUST = '" 
-                                + CUST + "' AND ISNULL(P.TIPE_KIRIM,0) = 1";
+                                + CUST + "' AND ISNULL(P.TIPE_KIRIM,0) = 1 AND P.STATUS_TRANSAKSI NOT IN ('11', '12')";
                             var dsOrderCOD = EDB.GetDataSet("MOConnectionString", "COD", qrycod);
                             if (dsOrderCOD.Tables[0].Rows.Count > 0)
                             {
@@ -2461,7 +2461,8 @@ namespace MasterOnline.Controllers
                                     //pesanan COD belum ada faktur -> cancel(11)
                                     brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connID
                                                 + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + listPesananCODTanpaFaktur
-                                                + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1");
+                                                + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1 "
+                                                + "AND BRG NOT IN ( SELECT BRG FROM TEMP_ALL_MP_ORDER_ITEM (NOLOCK) WHERE CONN_ID = '" + connID+"')");
                                     var rowAffected_1 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ("
                                                 + listPesananCODTanpaFaktur + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1");
                                     rowAffected += rowAffected_1;
@@ -2493,9 +2494,49 @@ namespace MasterOnline.Controllers
                                     }
                                     //listPesananCODAdaFaktur = listPesananCODAdaFaktur.Substring(0, listPesananCODAdaFaktur.Length - 1);
                                     var fData = ordersDetail.Where(m => listNoRefCOD.Contains(m.ordersn)).ToList();
+                                    var listPesananCODAdaFaktur_11 = "";
+                                    var listPesananCODAdaFaktur_12 = "";
+
                                     foreach (var ord in fData)
                                     {
+                                        if (ord.is_actual_shipping_fee_confirmed)//sudah kirim
+                                        {
+                                            listPesananCODAdaFaktur_12 += "'" + ord.ordersn + "',";
+                                        }
+                                        else
+                                        {
+                                            listPesananCODAdaFaktur_11 += "'" + ord.ordersn + "',";
+                                        }
+                                    }
+                                    if(listPesananCODAdaFaktur_11 != "")//pesanan cod batal tapi belum di kirim
+                                    {
+                                        listPesananCODAdaFaktur_11 = listPesananCODAdaFaktur_11.Substring(0, listPesananCODAdaFaktur_11.Length - 1);
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connID
+                                                + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + listPesananCODAdaFaktur_11
+                                                + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1 "
+                                                + "AND BRG NOT IN ( SELECT BRG FROM TEMP_ALL_MP_ORDER_ITEM (NOLOCK) WHERE CONN_ID = '" + connID + "')");
 
+                                       var rowAffected_2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ("
+                                                        + listPesananCODAdaFaktur_11 + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1");
+                                        if(rowAffected_2 > 0)
+                                        {
+                                            var rowAffectedSI_2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" 
+                                                + listPesananCODAdaFaktur_11 + ") AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + CUST + "'");
+                                            rowAffected += rowAffected_2;
+                                        }
+
+                                    }
+                                    if (listPesananCODAdaFaktur_12 != "")//pesanan cod batal sudah di kirim
+                                    {
+                                        listPesananCODAdaFaktur_12 = listPesananCODAdaFaktur_12.Substring(0, listPesananCODAdaFaktur_12.Length - 1);
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connID
+                                                + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + listPesananCODAdaFaktur_12
+                                                + ") AND STATUS_TRANSAKSI <> '12' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1 "
+                                                + "AND BRG NOT IN ( SELECT BRG FROM TEMP_ALL_MP_ORDER_ITEM (NOLOCK) WHERE CONN_ID = '" + connID + "')");
+
+                                        var rowAffected_3 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '12' WHERE NO_REFERENSI IN ("
+                                                         + listPesananCODAdaFaktur_12 + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1");
+                                        rowAffected += rowAffected_3;
                                     }
                                 }
 
@@ -9255,6 +9296,7 @@ namespace MasterOnline.Controllers
             public string buyer_username { get; set; }
             public string cancel_reason { get; set; }//add by Tri 9 Des 2019
             public long ship_by_date { get; set; }//add by Tri 27 okt 2020
+            public bool is_actual_shipping_fee_confirmed { get; set; }
         }
 
         public class ShopeeGetOrderDetailsResultRecipient_Address

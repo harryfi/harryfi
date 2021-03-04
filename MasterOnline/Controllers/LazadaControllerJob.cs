@@ -3421,7 +3421,9 @@ namespace MasterOnline.Controllers
                                        //change by nurul 10/10/2019, cari semua status kecuali cancel (11)
                                        //where a.USER_NAME == "Auto Lazada" && a.STATUS_TRANSAKSI == "0"
                                        //where a.USER_NAME == "Auto Lazada" && a.STATUS_TRANSAKSI != "11"
-                                   where a.USER_NAME == "Auto Lazada" && a.STATUS_TRANSAKSI != "11" && a.CUST == cust && a.TGL < toDt && a.TGL > fromDt
+                                   //where a.USER_NAME == "Auto Lazada" && a.STATUS_TRANSAKSI != "11" && a.CUST == cust && a.TGL < toDt && a.TGL > fromDt
+                                   where a.USER_NAME == "Auto Lazada" && a.STATUS_TRANSAKSI != "11" && a.STATUS_TRANSAKSI != "12"
+                                   && a.CUST == cust && a.TGL < toDt && a.TGL > fromDt
                                    //end change by nurul 10/10/2019, cari semua status kecuali cancel (11)
                                    //select new { a.NO_REFERENSI }).ToList();
                                    select a.NO_REFERENSI).ToList();
@@ -3500,10 +3502,28 @@ namespace MasterOnline.Controllers
                     {
                         if (orderUnpaidList.Contains(order.order_id))
                         {
+                            var dsOrder = EDB.GetDataSet("MOConnectionString", "ORDER", "SELECT P.NO_BUKTI, ISNULL(F.NO_BUKTI, '') NO_FAKTUR, ISNULL(TIPE_KIRIM,0) TIPE_KIRIM "
+                                + ",ISNULL(F.NO_FA_OUTLET, '-') NO_FA_OUTLET FROM SOT01A (NOLOCK) P LEFT JOIN SIT01A (NOLOCK) F ON P.NO_BUKTI = F.NO_SO "
+                                + "WHERE NO_REFERENSI = '" + order.order_id + "' AND CUST = '" + cust + "'");
+                            int rowAffected = 0;
+                            bool cekSudahKirim = false;
                             //change by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
                             //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.order_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + cust + "'");
-                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('" + order.order_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + cust + "'");
+                            //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('" + order.order_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + cust + "'");                            
                             //END change by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
+                            if(dsOrder.Tables[0].Rows.Count > 0)
+                            {
+                                if(dsOrder.Tables[0].Rows[0]["TIPE_KIRIM"].ToString() != "1")
+                                {
+                                    rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, 
+                                        "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('" 
+                                        + order.order_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + cust + "'");
+                                }
+                                else
+                                {
+
+                                }
+                            }
                             if (rowAffected > 0)
                             {
                                 //add by Tri 1 sep 2020, hapus packing list
