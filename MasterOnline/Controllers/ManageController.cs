@@ -62777,9 +62777,34 @@ namespace MasterOnline.Controllers
             data.Faktur = new SIT01A
             {
                 NO_REF = NO_BUKTI,//no ref adalah no bukti faktur yg akan di retur
-                NO_BUKTI = NO_BUKTI,
+                NO_BUKTI = "",
                 CUST = CUST,
-                TGL = DateTime.UtcNow.AddHours(7)
+                TGL = DateTime.UtcNow.AddHours(7),
+                JENIS_RETUR = "2",
+                JENIS_FORM = "3",
+                STATUS = "1",
+                ST_POSTING = "T",
+                VLT = "IDR",
+                NO_FA_OUTLET = "-",
+                NO_LPB = "-",
+                GROUP_LIMIT = "-",
+                KODE_ANGKUTAN = "-",
+                JENIS_MOBIL = "-",
+                NAMA_CUST = "-",
+                TUKAR = 1,
+                TUKAR_PPN = 1,
+                SOPIR = "-",
+                KET = "-",
+                PPNBM = 0,
+                KODE_SALES = "",
+                KODE_WIL = "",
+                U_MUKA = 0,
+                U_MUKA_FA = 0,
+                JTRAN = "SI",
+                JENIS = "1",
+                NILAI_PPNBM = 0,
+                NAMAPEMESAN = "",
+                USERNAME = usernameLogin
             };
             var ret = SaveHeaderReturFaktur(data);
             return ret;
