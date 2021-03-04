@@ -30380,7 +30380,7 @@ namespace MasterOnline.Controllers
             //                }
             //            }
 
-#region fix pemesan null di pesanan shopee
+            #region fix pemesan null di pesanan shopee
             //var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
             //var listShopeeShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
             //if (listShopeeShop.Count > 0)
@@ -30408,7 +30408,28 @@ namespace MasterOnline.Controllers
             //    }
             //}
 
-#endregion
+            //var kdJDID = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "JD.ID");
+            //var listJDIDShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdJDID.IdMarket.ToString()).ToList();
+            //if (listJDIDShop.Count > 0)
+            //{
+            //    foreach (ARF01 tblCustomer in listJDIDShop)
+            //    {
+            //        JDIDControllerJob.JDIDAPIDataJob iden = new JDIDControllerJob.JDIDAPIDataJob();
+            //        iden.no_cust = tblCustomer.CUST;
+            //        iden.accessToken = tblCustomer.TOKEN;
+            //        iden.appKey = tblCustomer.API_KEY;
+            //        iden.appSecret = tblCustomer.API_CLIENT_U;
+            //        iden.username = usernameLogin;
+            //        iden.nama_cust = tblCustomer.PERSO;
+            //        iden.email = tblCustomer.EMAIL;
+            //        iden.DatabasePathErasoft = dbPathEra;
+                    
+            //        await new JDIDControllerJob().getKurir(iden, "1046690839", "SO21000118");
+            //    }
+            //}
+            
+
+            #endregion
 #endif
 
             return View();
@@ -60502,6 +60523,10 @@ namespace MasterOnline.Controllers
 
                             //var sql = "update SOT01A set status_print = '1' where no_bukti in ('" + so.no_bukti + "')";
                             //ErasoftDbContext.Database.ExecuteSqlCommand(sql);
+
+                            //add by nurul 4/3/2021
+                            Task.Run(() => new JDIDControllerJob().getKurir(data, so.no_referensi, so.no_bukti).Wait());
+                            //end add by nurul 4/3/2021
                         }
                         else
                         {

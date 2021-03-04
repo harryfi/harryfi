@@ -3408,6 +3408,48 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        //add by nurul 4/3/2021
+        public async Task<string> getKurir(JDIDAPIDataJob data, string listOrderIds, string nobuk)
+        {
+            string ret = "";
+            SetupContext(data.DatabasePathErasoft, data.username);
+            try
+            {
+                if (!string.IsNullOrEmpty(listOrderIds) && !string.IsNullOrEmpty(nobuk))
+                {
+                    string sMethod = "epi.popOrder.getOrderInfoListForBatch";
+                    string sParamJson = "[" + listOrderIds + "]";
+                    var response = Call(data.appKey, data.accessToken, data.appSecret, sMethod, sParamJson);
+                    var retData = JsonConvert.DeserializeObject(response, typeof(JDID_RESJob)) as JDID_RESJob;
+                    if (retData.openapi_code == 0)
+                    {
+                        var listOrderId = JsonConvert.DeserializeObject(retData.openapi_data, typeof(Data_OrderDetailJob)) as Data_OrderDetailJob;
+                        if (listOrderId.success)
+                        {
+                            var str = "{\"data\":" + listOrderId.model + "}";
+                            var listDetails = JsonConvert.DeserializeObject(str, typeof(ModelOrderJob)) as ModelOrderJob;
+                            if (listDetails != null)
+                            {
+                                long orderId = Convert.ToInt64(listOrderIds);
+                                var cekDetailOrder = listDetails.data.Where(a => a.orderId == orderId).FirstOrDefault();
+                                if (!string.IsNullOrEmpty(cekDetailOrder.carrierCompany))
+                                {
+                                    string sSQL = "UPDATE SOT01A SET SHIPMENT = '" + cekDetailOrder.carrierCompany + "' WHERE NO_BUKTI = '" + nobuk + "'";
+                                    var resultUpdateKurirPesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+
+            }
+            return ret;
+        }
+        //end add by nurul 4/3/2021
+
         public BindingBase GetOrderDetail(JDIDAPIDataJob data, string listOrderIds, string cust, string conn_id_arf01c, string conn_id_order)
         {
             //var ret = new List<long>();
