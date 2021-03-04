@@ -2370,7 +2370,7 @@ namespace MasterOnline.Controllers
                                 }
                                 sSQL2 += sSQL1 + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
                                 sSQL2 += " SELECT A.NO_BUKTI, ALASAN, 'AUTO_SHOPEE' FROM SOT01A A INNER JOIN #TEMP T ON A.NO_REFERENSI = T.NO_REFERENSI ";
-                                sSQL2 += " LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = ''";
+                                sSQL2 += " LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = ''; DROP TABLE #TEMP";
                                 EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL2);
                                 //var nobuk = ErasoftDbContext.SOT01A.Where(m => m.NO_REFERENSI == ordersn && m.CUST == CUST).Select(m => m.NO_BUKTI).FirstOrDefault();
                                 //if (!string.IsNullOrEmpty(nobuk))
@@ -2418,12 +2418,14 @@ namespace MasterOnline.Controllers
                             if (dsOrderCOD.Tables[0].Rows.Count > 0)
                             {
                                 var listPesananCODTanpaFaktur = "";
-                                var listPesananCODAdaFaktur = "";
+                                //var listPesananCODAdaFaktur = "";
+                                var listNoRefCOD = new List<string>();
                                 for (int k = 0; k < dsOrderCOD.Tables[0].Rows.Count; k++)
                                 {
                                     if (!string.IsNullOrEmpty(dsOrderCOD.Tables[0].Rows[k]["NO_REF"].ToString()))
                                     {
-                                        listPesananCODAdaFaktur += "'" + dsOrderCOD.Tables[0].Rows[k]["NO_REFERENSI"].ToString() + "',";
+                                        //listPesananCODAdaFaktur += "'" + dsOrderCOD.Tables[0].Rows[k]["NO_REFERENSI"].ToString() + "',";
+                                        listNoRefCOD.Add(dsOrderCOD.Tables[0].Rows[k]["NO_REFERENSI"].ToString());
                                     }
                                     else
                                     {
@@ -2435,24 +2437,24 @@ namespace MasterOnline.Controllers
                                     if(ordersDetail.Count == 0)
                                     {
                                         ordersDetail = await GetOrderDetailsForCancelReasonAPIV2(iden, ordersn_list);
-                                        var sSQL1 = "";
-                                        var sSQL2 = "SELECT * INTO #TEMP FROM (";
+                                        var sSQL11 = "";
+                                        var sSQL21 = "SELECT * INTO #TEMP FROM (";
                                         foreach (var order in listOrder.orders)
                                         {
                                             var currentOrder = ordersDetail.Where(m => m.ordersn == order.ordersn).FirstOrDefault();
                                             if (currentOrder != null)
                                             {
-                                                if (!string.IsNullOrEmpty(sSQL1))
+                                                if (!string.IsNullOrEmpty(sSQL11))
                                                 {
-                                                    sSQL1 += " UNION ALL ";
+                                                    sSQL11 += " UNION ALL ";
                                                 }
-                                                sSQL1 += " SELECT '" + order.ordersn + "' NO_REFERENSI, '" + (currentOrder.cancel_reason ?? "") + "' ALASAN ";
+                                                sSQL11 += " SELECT '" + order.ordersn + "' NO_REFERENSI, '" + (currentOrder.cancel_reason ?? "") + "' ALASAN ";
                                             }
                                         }
-                                        sSQL2 += sSQL1 + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
-                                        sSQL2 += " SELECT A.NO_BUKTI, ALASAN, 'AUTO_SHOPEE' FROM SOT01A A INNER JOIN #TEMP T ON A.NO_REFERENSI = T.NO_REFERENSI ";
-                                        sSQL2 += " LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = ''";
-                                        EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL2);
+                                        sSQL21 += sSQL11 + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
+                                        sSQL21 += " SELECT A.NO_BUKTI, ALASAN, 'AUTO_SHOPEE' FROM SOT01A A INNER JOIN #TEMP T ON A.NO_REFERENSI = T.NO_REFERENSI ";
+                                        sSQL21 += " LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = ''; DROP TABLE #TEMP";
+                                        EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL21);
 
                                     }
                                     listPesananCODTanpaFaktur = listPesananCODTanpaFaktur.Substring(0, listPesananCODTanpaFaktur.Length - 1);
@@ -2464,10 +2466,37 @@ namespace MasterOnline.Controllers
                                                 + listPesananCODTanpaFaktur + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1");
                                     rowAffected += rowAffected_1;
                                 }
-                                if (listPesananCODAdaFaktur != "")
+                                if (listNoRefCOD.Count > 0)
                                 {
-                                    listPesananCODAdaFaktur = listPesananCODAdaFaktur.Substring(0, listPesananCODAdaFaktur.Length - 1);
+                                    if (ordersDetail.Count == 0)
+                                    {
+                                        ordersDetail = await GetOrderDetailsForCancelReasonAPIV2(iden, ordersn_list);
+                                        var sSQL12 = "";
+                                        var sSQL22 = "SELECT * INTO #TEMP FROM (";
+                                        foreach (var order in listOrder.orders)
+                                        {
+                                            var currentOrder = ordersDetail.Where(m => m.ordersn == order.ordersn).FirstOrDefault();
+                                            if (currentOrder != null)
+                                            {
+                                                if (!string.IsNullOrEmpty(sSQL12))
+                                                {
+                                                    sSQL12 += " UNION ALL ";
+                                                }
+                                                sSQL12 += " SELECT '" + order.ordersn + "' NO_REFERENSI, '" + (currentOrder.cancel_reason ?? "") + "' ALASAN ";
+                                            }
+                                        }
+                                        sSQL22 += sSQL12 + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
+                                        sSQL22 += " SELECT A.NO_BUKTI, ALASAN, 'AUTO_SHOPEE' FROM SOT01A A INNER JOIN #TEMP T ON A.NO_REFERENSI = T.NO_REFERENSI ";
+                                        sSQL22 += " LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = ''; DROP TABLE #TEMP";
+                                        EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL22);
 
+                                    }
+                                    //listPesananCODAdaFaktur = listPesananCODAdaFaktur.Substring(0, listPesananCODAdaFaktur.Length - 1);
+                                    var fData = ordersDetail.Where(m => listNoRefCOD.Contains(m.ordersn)).ToList();
+                                    foreach (var ord in fData)
+                                    {
+
+                                    }
                                 }
 
                             }
