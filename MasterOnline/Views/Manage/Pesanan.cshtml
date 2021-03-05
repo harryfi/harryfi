@@ -7980,15 +7980,15 @@
                 cache: false,
                 success: function(response) {
                     if (response.Errors == null) {
-                        refreshTableSiapKirim();
-                        refreshTablePesanan();
-                        refreshTableCancel();
+                        //refreshTableSiapKirim();
+                        //refreshTablePesanan();
+                        //refreshTableCancel();
                         refreshTableSudahDibayar();
                         alert('Semua kode pesanan berhasil ubah status');
                     } else {
-                        refreshTableSiapKirim();
-                        refreshTablePesanan();
-                        refreshTableCancel();
+                        //refreshTableSiapKirim();
+                        //refreshTablePesanan();
+                        //refreshTableCancel();
                         refreshTableSudahDibayar();
                         alert('Kode barang pada pesanan (' + response.Errors + ') belum terdaftar di Master Online, silahkan cek detail pesanan anda !');
 
@@ -11165,17 +11165,17 @@
                 success: function(response) {
                     if (response.Errors == null) {
                         if ($statusPesanan == '01') {
-                            refreshTableSiapKirim();
+                            //refreshTableSiapKirim();
                             refreshTablePesanan();
-                            refreshTableCancel();
-                            refreshTableSudahDibayar();
+                            //refreshTableCancel();
+                            //refreshTableSudahDibayar();
                         } else if ($statusPesanan == '02' || $statusPesanan == '11') {
                             refreshTableSudahDibayar();
-                            refreshTableSudahKirim();
+                            //refreshTableSudahKirim();
                             $('#konfBatalPesanan').modal('hide');
                         } else if ($statusPesanan == '03' || $statusPesanan == '03-undo') {
                             refreshTableSiapKirim();
-                            refreshTableSelesai();
+                            //refreshTableSelesai();
                         } else if ($statusPesanan == '04') {
                             refreshTableSudahKirim();
                         }
