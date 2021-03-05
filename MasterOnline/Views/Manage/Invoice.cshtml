@@ -42,9 +42,9 @@
             width: 70px !important;
         }
 
-        #table_tambah_invoice > tbody > tr > .gd-barang .selectize-dropdown {
-            width: 250px !important;
-        }
+            #table_tambah_invoice > tbody > tr > .gd-barang .selectize-dropdown {
+                width: 250px !important;
+            }
         /*//end change by nurul 16/8/2019*/
 
         .input-group {
@@ -610,6 +610,7 @@
         .btn-pindah-paket:hover {
             cursor: pointer;
         }
+
         .hscroll {
             overflow-x: auto; /* Horizontal */
         }
@@ -881,6 +882,16 @@
             height: auto;
             min-height: 100%;
             border-radius: 0;
+        }
+
+        .modal-dialog-invoice-pembelian {
+            padding-left: 200px;
+            width: 75%;
+            margin: auto;
+        }
+
+        .modal-content-invoice-pembelian {
+            width: 75%;
         }
 
         .videoBox {
@@ -1182,7 +1193,7 @@
                         <a href="#tab_content7" role="tab" id="selesai-tab" data-toggle="tab" aria-expanded="false">Selesai</a>
                     </li>*@
             </ul>
-            <div id="myTabContent" class="tab-content"style="padding-top:10px">
+            <div id="myTabContent" class="tab-content" style="padding-top:10px">
                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="invoice-tab">
                     <div class="row invoice_table_section">
                         <div class="col-lg-4 col-sm-6" style="margin-bottom:7px">
@@ -1195,12 +1206,32 @@
                                 </span>
                             </div>
                         </div>
+                        @*<div class="col-lg-6 col-sm-6" style="margin-top:13px;">
+                                <div class="pull-right" id="tambah_baru_tombol_section">
+                                    <button id="excelInvoicePembelian" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Excel Invoice Pembelian <span class="caret"></span>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <button type="button" style="width:100%;background-color:white; border-color:Highlight; color:black !important" id="btn_upload_invoice_pembelian" class="btn btn-primary" data-toggle="modal" onclick="$('#uploadInvoicePembelian').modal('show');">
+                                            <span> Upload Invoice Pembelian</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>*@
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
+                                <button id="excelInvoicePembelian" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Excel Invoice Pembelian <span class="caret"></span>
+                                </button>
+                                <div class="dropdown-menu" style="right: 125px">
+                                    <button type="button" style="width:100%;background-color:white; border-color:Highlight; color:black !important" id="btn_upload_invoice_pembelian" class="btn btn-primary" data-toggle="modal" onclick="$('#uploadInvoicePembelian').modal('show');">
+                                        <span> Upload Invoice Pembelian</span>
+                                    </button>
+                                </div>
                                 <div class="pull-right" id="tambah_baru_tombol_section">
                                     @*<button type="button" class=" btn btn-default" data-style="expand-right">
-                                        <span>Refresh</span>
-                                    </button>*@
+                                            <span>Refresh</span>
+                                        </button>*@
                                 </div>
                             </div>
                         </div>
@@ -1273,8 +1304,8 @@
                             <div class="pull-right">
                                 @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class=" btn btn-default" data-style="expand-right">
-                                    <span>Refresh</span>
-                                </button>*@
+                                        <span>Refresh</span>
+                                    </button>*@
                             </div>
                         </div>
                     </div>
@@ -1300,8 +1331,8 @@
                             <div class="pull-right">
                                 @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class=" btn btn-default" data-style="expand-right">
-                                    <span>Refresh</span>
-                                </button>*@
+                                        <span>Refresh</span>
+                                    </button>*@
                             </div>
                         </div>
                     </div>
@@ -1515,6 +1546,109 @@
     </div>
 </div>
 
+<div class="modal fade" id="uploadInvoicePembelian" tabindex="-1" role="dialog" aria-labelledby="labelUploadInvoicePembelian">
+    <div class="modal-dialog modal-dialog-invoice-pembelian" role="document">
+        <div class="modal-content modal-content-invoice-pembelian">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="labelUploadInvoicePembelian">Upload Excel Invoice</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>
+                            Anda dapat menggunakan fitur ini untuk membantu mengisi data invoice.<br />Dengan cara :
+                        </label>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="col-md-7">
+                            <label>1. Download template excel upload invoice. </label>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="button" class="btn btn-primary" onclick="DownloadExcelExampleInvoicePembelian()">Download</button>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="col-md-12">
+                            <label>2. Isi data invoice pada excel. </label>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="col-md-12">
+                            <label>3. Upload file excel invoice yang sudah Anda edit.</label>
+                            <div class="row" style="margin-top:10px;">
+                                <div class="col-md-7 file_upload_section">
+                                    <input type='file' id='file_upload_excel_invoice_pembelian' name="file_upload_excel_invoice_pembelian" onchange="checkfile(this);"
+                                           accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="button" class="btn btn-primary" style="width:88.67px;" id="btnUploadExcelInvoicePembelian" onclick="uploadExcelInvoicePembelian();" data-style="expand-right">
+                                        <span>Upload</span>
+                                    </button>
+                                </div>
+                                <div class="col-md-2">
+                                    <div id="loading_upload_excel_invoice_pembelian" class="text-center" hidden="hidden">
+                                        <div id="loading_upload_image">
+                                            <img style="width: 40px;" src="~/Content/Images/spinner.gif" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div id="progressBarUpload" class="text-center" style="display:none;">
+                            @*<div id="progressBarUpload" class="text-center" >*@
+                            <table class="col-md-12" id="tbl_progbar2">
+                                <tr>
+                                    <td class="col-md-2">
+                                        <label id="lblPBUpload"></label>
+                                    </td>
+                                    <td class="col-md-10">
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" id="pBar_uploadFileInvoice"
+                                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+                                                0% Complete (success)
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="openLogErrorInvoicePembelian();">Log Error</button>
+                <button type="button" class="btn btn-danger" onclick="closeUploadInvoicePembelian()">Tutup</button>
+                @*<button type="button" class="btn btn-success" onclick="closeEditor()">Ya</button>*@
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="LogErroruploadInvoicePembelian" tabindex="-1" role="dialog" aria-labelledby="labelUploadInvoicePembelian">
+    <div class="modal-dialog modal-dialog-invoice-pembelian" role="document">
+        <div class="modal-content modal-content-invoice-pembelian">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="labelLogErrorUploadInvoicePembelian">Log Error Upload Excel Invoice</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="logErroruploadinvoicepembelianviewdiv">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="closeLogErrorUploadInvoicePembelian()">Tutup</button>
+                @*<button type="button" class="btn btn-success" onclick="closeEditor()">sYa</button>*@
+            </div>
+        </div>
+    </div>
+</div>
 <div class="modal fade" id="konfHapusInvoice" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content modalresponsiveivc addmarginleftinvoice">
@@ -1648,6 +1782,208 @@
                 $('#divSubExpired').show();
             }
 
+        }
+
+        function DownloadExcelExampleInvoicePembelian() {
+            var link = '@Html.Raw(Url.Action("ExampleTemplateInvoicePembelianExcel", "TransferExcel"))';
+            //link += "?cust=" + cust;
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                async: false,
+                beforeSend: function () {
+                    //$('#loading_spinner_btn').show();
+                    //$('#lblRecord_' + cust).show();
+                    //$('#spinner_' + cust).show();
+                },
+                success: function (response) {
+                    //$('#loading_spinner_btn').hide();
+                    if (response.Errors.length == 0) {
+                        var bytes = new Uint8Array(response.byteExcel);
+                        saveByteArray(response.namaFile, bytes);
+                        //document.getElementById('lblRecord_' + cust).innerText = 'sukses download';
+                    } else {
+                        alert(response.Errors[0]);
+                        //document.getElementById('lblRecord_' + cust).innerText = 'gagal download : ' + response.Errors[0];
+                    }
+
+                },
+                error: function (xhr) {
+                    //$('#loading_spinner_btn').hide();
+                    console.log(xhr);
+
+                }
+            });
+        }
+
+        function saveByteArray(reportName, byte) {
+            var blob = new Blob([byte], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            var fileName = reportName;
+            link.download = fileName;
+            //document.body.appendChild(link);
+            link.click();
+            //document.body.removeChild(link);
+        };
+
+        function checkfile(s) {
+            var validExts = new Array(".xlsx", ".xls");
+            var fileExt = s.value;
+            if (fileExt != null && fileExt != "") {
+                fileExt = fileExt.substring(fileExt.lastIndexOf('.'));
+                if (validExts.indexOf(fileExt) < 0) {
+                    alert("Invalid file selected, valid files are of " +
+                        validExts.toString() + " types.");
+                    document.getElementById("file_upload_excel_invoice_pembelian").value = "";
+                    return false;
+                }
+                //updateList();
+            }
+        }
+
+         function openLogErrorInvoicePembelian() {
+            $('#uploadInvoicePembelian').modal('hide');
+            $('#LogErroruploadInvoicePembelian').modal('show');
+
+            var link = '@Url.Action("ListLogErrorUploadInvoicePembelian", "Manage")';
+            link += '?cust=' + encodeURIComponent($('#Pesanan_CUST').val());
+            $.ajax({
+                cache: false,
+                url: link,
+                success: function (response) {
+                    $('#logErroruploadinvoicepembelianviewdiv').html(response);
+                }
+            })
+        }
+
+        function closeLogErrorUploadInvoicePembelian() {
+            document.getElementById("file_upload_excel_invoice_pembelian").value = "";
+            $('#uploadInvoicePembelian').modal('show');
+            $('#LogErroruploadInvoicePembelian').modal('hide');
+            $('#progressBarUpload').hide();
+            $('#pBar_uploadFileInvoice').css('width', '0%').attr('aria-valuenow', 0);
+            $('#pBar_uploadFileInvoice').html('0% Complete');
+        }
+
+        function downloadLogErrorUploadInvoicePembelian(txt){
+            window.open('/Manage/DownloadLogErrorUploadExcelInvoicePembelian?filename=' + txt,'_blank');
+
+        }
+
+        function closeUploadInvoicePembelian() {
+            document.getElementById("file_upload_excel_invoice_pembelian").value = "";
+            $('#uploadInvoicePembelian').modal('hide');
+            $('#LogErroruploadInvoicePembelian').modal('hide');
+            $('#progressBarUpload').hide();
+            $('#pBar_uploadFileInvoice').css('width', '0%').attr('aria-valuenow', 0);
+            $('#pBar_uploadFileInvoice').html('0% Complete');
+        }
+
+        function uploadExcelInvoicePembelian() {
+            if ($('#file_upload_excel_invoice_pembelian')[0].files.length < 1) {
+                $('#file_upload_excel_invoice_pembelian').click();
+                $('#progressBarUpload').hide();
+            }
+            else {
+                $('#pBar_uploadFileInvoice').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_uploadFileInvoice').html('0% Complete');
+                $('#progressBarUpload').show();
+                uploadFileExcelInvoicePembelian(null, 0, "10;0", "false;false");
+            }
+        }
+
+        function uploadFileExcelInvoicePembelian(vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess) {
+
+            var splitpro = vpercentvprogress.split(';');
+            var vpercent = splitpro[0];
+            var vprogress = splitpro[1];
+
+            var splitStatus = vstatusLoopvSuccess.split(';');
+            var vstatusLoop = splitStatus[0];
+            var vstatusSuccess = splitStatus[1];
+
+            if ($('#file_upload_excel_invoice_pembelian')[0].files.length <= 0) {
+                $('#progressBarUpload').hide();
+                $('#pBar_uploadFileInvoice').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_uploadFileInvoice').html('0% Complete');
+                $('#loading_upload').hide();
+            }
+            else
+            {
+                $('#btnUploadExcelInvoicePembelian').attr('disabled', 'disabled');
+
+                var formdata = new FormData(); //FormData object
+                var fileInput = document.getElementById('file_upload_excel_invoice_pembelian');
+                //Iterating through each files selected in fileInput
+                for (i = 0; i < fileInput.files.length; i++) {
+                    //Appending each file to FormData object
+                    if (i == 0) {
+                        formdata.append(fileInput.files[i].name, fileInput.files[i]);
+                        $('#lblPBUpload').text('Uploading File : ' + fileInput.files[i].name);
+                    }
+                }
+
+                var $urlProgress = '@Html.Raw(Url.Action("UploadXcelInvoicePembelian", "TransferExcel", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success" }))';
+                $urlProgress = $urlProgress.replace("rep1", vnobuk);
+                $urlProgress = $urlProgress.replace("rep2", vcountAll);
+                $urlProgress = $urlProgress.replace("rep3percent", vpercent);
+                $urlProgress = $urlProgress.replace("rep4progress", vprogress);
+                $urlProgress = $urlProgress.replace("rep5loop", String(vstatusLoop));
+                $urlProgress = $urlProgress.replace("rep6success", String(vstatusSuccess));
+
+                @*var url1 = '@Url.Action("UploadXcelSaldoAwal", "TransferExcel")';*@
+                $.ajax({
+                    type: "POST",
+                    url: $urlProgress,
+                    data: formdata,
+                    processData: false,  // tell jQuery not to process the data
+                    contentType: false,  // tell jQuery not to set contentType
+                    beforeSend: function () {
+                        $('#loading_upload_excel_invoice_pembelian').show();
+                    },
+                    success: function (response) {
+                        $('#loading_upload_excel_invoice_pembelian').hide();
+                        if (response.Errors.length > 0) {
+                            var err = "";
+                            for (i = 0; i < response.Errors.length; i++) {
+                                err += response.Errors[i] + "\n";
+                            }
+                            $('#pBar_uploadFileInvoice').css('width', '0%').attr('aria-valuenow', 0);
+                            $('#pBar_uploadFileInvoice').html('0% Complete');
+                            $('#btnUploadExcelInvoicePembelian').removeAttr('disabled');
+                            alert(err);
+                        } else {
+                            document.getElementById("file_upload_excel_invoice_pembelian").value = "";
+                            $('#pBar_uploadFileInvoice').css('width', '100%').attr('aria-valuenow', 100);
+                            $('#pBar_uploadFileInvoice').html('100% Complete');
+                            $('#btnUploadExcelInvoicePembelian').removeAttr('disabled');
+                            setTimeout(popupAlertUploadInvoicePembelian, 500);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        var err = "";
+                        if (error != null) {
+                            err = error;
+                        }
+                        alert(err);
+                        console.log(error);
+                        $('#loading_upload_excel_invoice_pembelian').hide();
+                        $('#pBar_uploadFileInvoice').css('width', '100%').attr('aria-valuenow', 100);
+                        $('#pBar_uploadFileInvoice').html('0% Complete');
+                        $('#btnUploadExcelInvoicePembelian').removeAttr('disabled');
+                        document.getElementById("file_upload_excel_invoice_pembelian").value = "";
+                    }
+                });
+
+            }
+        }
+
+        function popupAlertUploadInvoicePembelian() {
+            alert("Proses upload excel Invoice Pembelian sudah selesai!");
         }
 
         $(document).ready(function () {
@@ -1829,7 +2165,7 @@
                         $(this).attr('data-toggle', 'tab');
                         $(this).removeClass('disabled-tab');
                     });
-                    
+
                     //end add
 
                     //refreshForm1();
@@ -2054,7 +2390,7 @@
                 $(this).attr('data-toggle', 'tab');
                 $(this).removeClass('disabled-tab');
             });
-            
+
             //end add by nurul 6/11/2018
             $bakalNetto = 0;
             $totalAwal = 0;
@@ -2079,7 +2415,7 @@
             //$('#search_invoice').keyup(function () {
             //    table.search($(this).val()).draw();
             //});
-            
+
             //$('#search_invoice').keypress(function (e) {
             //    var key = e.which;
             //    if (key == 13)// the enter key code
@@ -2710,13 +3046,13 @@
         function refreshNetto() {
             //$bakalNetto = parseInt(convertToAngka($('#Invoice_BRUTO').val()));
             //$bakalNetto = parseFloat(convertToAngka($('#Invoice_BRUTO').val()));
-            
+
             //add by calvin 2 agustus 2019
             hitungUlangBruto();
             //end add by calvin 2 agustus 2019
 
             $bakalNetto = convertToAngka($('#Invoice_BRUTO').val());
-            
+
             //CHANGE BY NURUL 26/10/2018   var $nPpn = Math.ceil($bakalNetto * parseInt($('#Invoice_PPN').val()) / 100);
             //var $nPpn = Math.ceil(($bakalNetto - parseInt(convertToAngka($('#Invoice_NDISC1').val()))) * parseInt($('#Invoice_PPN').val()) / 100);
             //$('#Invoice_NPPN').val(convertToRupiah($nPpn));
@@ -2856,7 +3192,7 @@
                                     .css('pointer-events', 'auto')
                                     .html("0" + '<input data-val="true" data-val-number="The field DISCOUNT_2 must be a number." data-val-required="The DISCOUNT_2 field is required." id="InvoiceDetail_DISCOUNT_2" name="InvoiceDetail.DISCOUNT_2" type="hidden" value="">');
                             }
-                            
+
                             refreshNettoBarang($trId);
                         } else {
                             var $hargaBarang = convertToAngka($($trElement + ' .harga-barang').text());
@@ -3283,20 +3619,20 @@
                                     },
                                     success: function (response) {
                             //end add by nurul 27/5/2019
-                                        
-                                        
-                                        
-                                        
+
+
+
+
                                         $('#form-partial').html(response);
                                         getTanggal();
                                         $('#form-partial').show();
                                         $('#form_subs').hide();
                                         getSupplier();
                                         //getPesanan();
-                                        
+
                                         getDataBarang();
                                         getGudang();
-                                        
+
                                         $('.invoice_table_section').hide();
                                         $('.invoice_editor_section').show();
                             //add by nurul 17/10/2018
@@ -3454,14 +3790,14 @@
                             $('#gudang-select').hide();
                             $('#gudang-kode').show();
 
-                            //ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0 
+                            //ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0
                             $beforeState.brutto = $('#Invoice_BRUTO').val();
                             $beforeState.netto = $('#Invoice_NETTO').val();
                             $beforeState.ndisc = $('#Invoice_NILAI_DISC').val();
                             $beforeState.ppn = $('#Invoice_PPN').val();
                             $beforeState.nppn = $('#Invoice_NILAI_PPN').val();
                             $beforeState.ongkir = $('#Invoice_BIAYA_LAIN').val();
-                            //END ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0 
+                            //END ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0
 
                             if ($('#Invoice_RecNum').val() == null) {
                                 $('#Invoice_NETTO').val(convertToRupiah(0));
@@ -3562,7 +3898,7 @@
                     //end add by Tri 11 Maret 2019
                     $totalAwal = convertToAngka($('#Invoice_BRUTO').val());
                     refreshInputan();
-                    
+
                     if ($("#cbxDropshipper").is(":checked") == true) {
                         $('#KODE_PESANAN_SECTION').show();
                         $('#Invoice_DROPSHIPPER').val(true);
@@ -3950,7 +4286,7 @@
         }
 
         @*function refreshTableInvoiceTempo() {
-            
+
             var link = '@Url.Action("RefreshTableInvoiceTempo", "Manage", new { tgl = "replacetgl" })';
             link = link.replace("replacetgl", $('#Tanggal').val());
 
@@ -4196,6 +4532,31 @@
                 }
             }
         }
+    </script>
+
+    <script type="text/javascript">
+
+        $(function () {
+            // Reference the auto-generated proxy for the hub.
+            var progress = $.connection.progressHub;
+            //console.log(progress);
+
+            // Create a function that the hub can call back to display messages.
+            progress.client.AddProgress = function (message, percentage) {
+                $('#lblPBUpload').text(message);
+                $('#pBar_uploadFileInvoice').width(percentage);
+                $('#pBar_uploadFileInvoice').attr('aria-valuenow', percentage);
+                $('#pBar_uploadFileInvoice').html(percentage + ' Complete');
+
+            };
+
+            $.connection.hub.start().done(function () {
+                var connectionId = $.connection.hub.id;
+                console.log(connectionId);
+            });
+
+        });
+
     </script>
 
     <script>

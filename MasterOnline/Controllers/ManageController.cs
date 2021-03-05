@@ -34893,6 +34893,37 @@ namespace MasterOnline.Controllers
         }
 
         [HttpGet]
+        public FileResult DownloadLogErrorUploadExcelInvoicePembelian(string filename)
+        {
+            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
+            byte[] data = null;
+            string contentType = null;
+            try
+            {
+                if (System.IO.File.Exists(path))
+                {
+                    data = System.IO.File.ReadAllBytes(path);
+                    contentType = MimeMapping.GetMimeMapping(path);
+                    var cd = new System.Net.Mime.ContentDisposition
+                    {
+                        FileName = filename,
+                        Inline = true,
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                
+            }
+            
+            
+            //Response.AppendHeader("Content-Disposition", cd.ToString());
+
+            return File(data, contentType, filename);
+        }
+
+        [HttpGet]
         public FileResult Download_PrintLabel(string path)
         {
             byte[] fileBytes = System.IO.File.ReadAllBytes(path);
@@ -34908,6 +34939,18 @@ namespace MasterOnline.Controllers
             //    ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == cust).OrderByDescending(a => a.UPLOAD_DATETIME).ToList()
             //};
             ActionResult ret = RefreshTableUploadFaktur(1, cust);
+            return ret;
+        }
+
+        [HttpGet]
+        public ActionResult ListLogErrorUploadInvoicePembelian(string cust)
+        {
+            //var partialVm = new FakturViewModel()
+            //{
+            //    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+            //    ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == cust).OrderByDescending(a => a.UPLOAD_DATETIME).ToList()
+            //};
+            ActionResult ret = RefreshTableLogErrorUploadInvoicePembelian(1, cust);
             return ret;
         }
 
@@ -36622,6 +36665,52 @@ namespace MasterOnline.Controllers
             //return File(path, System.Net.Mime.MediaTypeNames.Application.Octet, Path.GetFileName(path));
         }
         //add by Tri 3 Juli 2019, upload faktur bl
+
+        public ActionResult RefreshTableLogErrorUploadInvoicePembelian(int? page, string cust = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = cust;
+            ViewData["LastPage"] = page;
+            string sSQLSelect = "SELECT A.REQUEST_ID," +
+                "(SELECT TOP 1 ISNULL(B.CUST_ATTRIBUTE_1, 'Anonim') FROM API_LOG_MARKETPLACE B(NOLOCK) WHERE A.REQUEST_ID = B.REQUEST_ID) AS CUST_ATTRIBUTE_1, " +
+                "(SELECT TOP 1 B.REQUEST_DATETIME FROM API_LOG_MARKETPLACE B(NOLOCK) WHERE A.REQUEST_ID = B.REQUEST_ID ORDER BY B.REQUEST_DATETIME DESC) AS REQUEST_DATETIME, " +
+                "(SELECT TOP 1 ISNULL(B.REQUEST_RESULT, 'Kosong') FROM API_LOG_MARKETPLACE B(NOLOCK) WHERE A.REQUEST_ID = B.REQUEST_ID ORDER BY B.REQUEST_DATETIME DESC) AS REQUEST_RESULT, " +
+                "(SELECT TOP 1 ISNULL(B.REQUEST_EXCEPTION, 'Kosong') FROM API_LOG_MARKETPLACE B(NOLOCK) WHERE A.REQUEST_ID = B.REQUEST_ID ORDER BY B.REQUEST_DATETIME DESC) AS REQUEST_EXCEPTION " +
+                "FROM API_LOG_MARKETPLACE A(NOLOCK) WHERE A.REQUEST_ACTION like '%Upload Excel Invoice Pembelian%' " +
+                "GROUP BY A.REQUEST_ID ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(DISTINCT(REQUEST_ID)) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM API_LOG_MARKETPLACE (NOLOCK) ";
+            //sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
+            //if (cust != "")
+            //{
+            //sSQL2 += "WHERE (A.CUST LIKE '%" + cust + "%' ) ";
+            sSQL2 += "WHERE (REQUEST_ACTION LIKE '%Upload Excel Invoice Pembelian%' ) ";
+            //}
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 5) - 4;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+                if (pagenumber <= 0)
+                {
+                    pagenumber = 0;
+                }
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY REQUEST_DATETIME DESC  ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 5) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 5 ROWS ONLY ";
+
+            var listPromosi = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_HANGFIRE>(sSQLSelect + sSQLSelect2).ToList();
+            //var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+            IPagedList<API_LOG_MARKETPLACE_HANGFIRE> pageOrders = new StaticPagedList<API_LOG_MARKETPLACE_HANGFIRE>(listPromosi, pagenumber + 1, 5, totalCount.JUMLAH);
+            return PartialView("LogErrorUploadInvoicePembelian", pageOrders);
+        }
 
         public ActionResult RefreshTableLogErrorUploadPesanan(int? page, string cust = "")
         {

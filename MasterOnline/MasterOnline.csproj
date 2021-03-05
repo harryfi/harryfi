@@ -1082,6 +1082,7 @@
     <Compile Include="Models\TEMP_ALL_MP_ORDER_ITEM.cs" />
     <Compile Include="Models\Subscription.cs" />
     <Compile Include="Models\TEMP_BRG_MP.cs" />
+    <Compile Include="Models\TEMP_UPLOAD_EXCEL_INVOICE_PEMBELIAN.cs" />
     <Compile Include="Models\TransaksiMidtrans.cs" />
     <Compile Include="Models\Tutorial_Detail.cs" />
     <Compile Include="Models\Tutorial_Header.cs" />
@@ -6611,6 +6612,7 @@
     <Content Include="Views\Manage\PackingListPartial.cshtml" />
     <Content Include="Views\Manage\TablePackinglistPartialView2.cshtml" />
     <Content Include="Views\Manage\PackingListRekapBrgPartial.cshtml" />
+    <Content Include="Views\Manage\LogErrorUploadInvoicePembelian.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -7040,11 +7042,11 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>False</UseIIS>
+          <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>50108</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:50108/</IISUrl>
+          <IISUrl>http://localhost:50109/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
