@@ -19596,7 +19596,7 @@ namespace MasterOnline.Controllers
                 }
             }
             string sSQLEndCount = ")A ";
-            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var minimal_harus_ada_item_untuk_current_page = (page * Convert.ToInt32(take)) - (Convert.ToInt32(take) - 1);
             var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLTemp + sSQLCount + sSQLFirstSelect + sSQLSelect + sSQL2 + sSQLWhere + sSQLEndSelect + sSQLEndCount).Single();
             if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
             {
@@ -27880,7 +27880,7 @@ namespace MasterOnline.Controllers
                     }
 
                     //logo kurir 
-                    if (so.namamarket.ToUpper() != "LAZADA")
+                    if (so.namamarket.ToUpper() != "LAZADA" || (so.namamarket.ToUpper() == "LAZADA" && string.IsNullOrEmpty(logoKurir)))
                     {
                         if (so.kurir.ToUpper().Contains("GO-JEK") || so.kurir.ToUpper().Contains("GO-SEND") || so.kurir.ToUpper().Contains("GOJEK") || so.kurir.ToUpper().Contains("GOSEND"))
                         {
@@ -45701,7 +45701,7 @@ namespace MasterOnline.Controllers
                 sSQL2 += "AND (NO_BUKTI LIKE '%" + search + "%' ) ";
             }
 
-            var minimal_harus_ada_item_untuk_current_page = (page * Convert.ToInt32(take)) - 9;
+            var minimal_harus_ada_item_untuk_current_page = (page * Convert.ToInt32(take)) - (Convert.ToInt32(take) - 1);
             var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
             if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
             {
@@ -45817,7 +45817,7 @@ namespace MasterOnline.Controllers
 
             
             
-            var minimal_harus_ada_item_untuk_current_page = (page * Convert.ToInt32(take)) - 9;
+            var minimal_harus_ada_item_untuk_current_page = (page * Convert.ToInt32(take)) - (Convert.ToInt32(take) - 1);
             var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQLSelect + sSQL2 + sSQLGrouping + sSQLCount2).Single();
             if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
             {
@@ -60941,17 +60941,20 @@ namespace MasterOnline.Controllers
 
                     if (so.namamarket.ToUpper() == "LAZADA")
                     {
-                        if (data.Count() > 0)
+                        if (ctkFaktur != "1")
                         {
-                            var cekDataLazada = data.Where(a => a.referensiApi == so.so_referensi).Count();
-                            if (cekDataLazada > 0)
+                            if (data.Count() > 0)
                             {
-                                resi = data.Single(a => a.referensiApi == so.so_referensi).ResiApi;
-                                port = data.Single(a => a.referensiApi == so.so_referensi).PortCodeApi;
-                                ref1 = data.Single(a => a.referensiApi == so.so_referensi).referensiApi;
-                                netto = Convert.ToDouble(data.Single(a => a.referensiApi == so.so_referensi).HargaApi);
-                                logoKurir = data.Single(a => a.referensiApi == so.so_referensi).urlLogoKurirApi;
-                                tgl = Convert.ToDateTime(data.Single(a => a.referensiApi == so.so_referensi).tglApi).ToString("dd/MM/yyyy");
+                                var cekDataLazada = data.Where(a => a.referensiApi == so.so_referensi).Count();
+                                if (cekDataLazada > 0)
+                                {
+                                    resi = data.Single(a => a.referensiApi == so.so_referensi).ResiApi;
+                                    port = data.Single(a => a.referensiApi == so.so_referensi).PortCodeApi;
+                                    ref1 = data.Single(a => a.referensiApi == so.so_referensi).referensiApi;
+                                    netto = Convert.ToDouble(data.Single(a => a.referensiApi == so.so_referensi).HargaApi);
+                                    logoKurir = data.Single(a => a.referensiApi == so.so_referensi).urlLogoKurirApi;
+                                    tgl = Convert.ToDateTime(data.Single(a => a.referensiApi == so.so_referensi).tglApi).ToString("dd/MM/yyyy");
+                                }
                             }
                         }
                     }
@@ -61007,7 +61010,7 @@ namespace MasterOnline.Controllers
                     }
 
                     //logo kurir 
-                    if(so.namamarket.ToUpper() != "LAZADA")
+                    if(so.namamarket.ToUpper() != "LAZADA" || (so.namamarket.ToUpper() == "LAZADA" && string.IsNullOrEmpty(logoKurir)))
                     {
                         if (so.kurir.ToUpper().Contains("GO-JEK") || so.kurir.ToUpper().Contains("GO-SEND") || so.kurir.ToUpper().Contains("GOJEK") || so.kurir.ToUpper().Contains("GOSEND"))
                         {

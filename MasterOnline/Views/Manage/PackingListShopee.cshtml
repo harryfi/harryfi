@@ -816,6 +816,7 @@
                                     var textareaValue = "";
                                     var adaError = false;
                                     var errorValue = "";
+                                    var tempRecnumError = [];
                                     //response.ret.batch_result.errors.forEach(function (item) {
                                     //    adaError = true;
                                     //    errorValue += item.ordersn + " : " + item.error_description + ". </br>";
@@ -823,6 +824,7 @@
                                     response.listErrors.forEach(function (item) {
                                         adaError = true;
                                         errorValue += item.errorMessage + ". </br>";
+                                        tempRecnumError.push(item.recnum);
                                     });
                                     if (adaError) {
                                         textareaValue += "</br>";
