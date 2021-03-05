@@ -3511,16 +3511,21 @@ namespace MasterOnline.Controllers
                             //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.order_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + cust + "'");
                             //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('" + order.order_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + cust + "'");                            
                             //END change by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
-                            if(dsOrder.Tables[0].Rows.Count > 0)
+                            var nobuk = "";
+                            if (dsOrder.Tables[0].Rows.Count > 0)
                             {
-                                if(dsOrder.Tables[0].Rows[0]["TIPE_KIRIM"].ToString() != "1")
+                                nobuk = dsOrder.Tables[0].Rows[0]["NO_BUKTI"].ToString();
+                                if (dsOrder.Tables[0].Rows[0]["TIPE_KIRIM"].ToString() != "1")
                                 {
                                     rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, 
                                         "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('" 
                                         + order.order_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + cust + "'");
                                 }
-                                else
+                                else//pesanan cod
                                 {
+                                    rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
+                                        "UPDATE SOT01A SET STATUS_TRANSAKSI = '12', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('"
+                                        + order.order_id + "') AND STATUS_TRANSAKSI <> '12' AND CUST = '" + cust + "'");
 
                                 }
                             }
@@ -3534,7 +3539,12 @@ namespace MasterOnline.Controllers
                                 //end add by Tri 1 sep 2020, hapus packing list
                                 jmlhOrder = jmlhOrder + rowAffected;
                                 //add by Tri 4 Des 2019, isi cancel reason
-                                var nobuk = ErasoftDbContext.SOT01A.Where(m => m.NO_REFERENSI == order.order_id && m.CUST == cust).Select(m => m.NO_BUKTI).FirstOrDefault();
+                                
+                                //var nobuk = ErasoftDbContext.SOT01A.Where(m => m.NO_REFERENSI == order.order_id && m.CUST == cust).Select(m => m.NO_BUKTI).FirstOrDefault();
+                                if(nobuk == "")
+                                {
+                                    nobuk = ErasoftDbContext.SOT01A.Where(m => m.NO_REFERENSI == order.order_id && m.CUST == cust).Select(m => m.NO_BUKTI).FirstOrDefault();
+                                }
                                 if (!string.IsNullOrEmpty(nobuk))
                                 {
                                     var sot01d = ErasoftDbContext.SOT01D.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
@@ -3549,11 +3559,14 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                                 //end add by Tri 4 Des 2019, isi cancel reason
-                                var fakturInDB = ErasoftDbContext.SIT01A.Where(m => m.CUST == cust && m.NO_REF == order.order_id).FirstOrDefault();
-                                if(fakturInDB != null)
+                                //var fakturInDB = ErasoftDbContext.SIT01A.Where(m => m.CUST == cust && m.NO_REF == order.order_id).FirstOrDefault();
+                                //if(fakturInDB != null)
+                                if(!string.IsNullOrEmpty(dsOrder.Tables[0].Rows[0]["NO_FAKTUR"].ToString()))
                                 {
-                                    var returFaktur = ErasoftDbContext.SIT01A.Where(m => m.JENIS_FORM == "3" && m.NO_REF == fakturInDB.NO_BUKTI).FirstOrDefault();
-                                    if(returFaktur == null)
+                                    //var returFaktur = ErasoftDbContext.SIT01A.Where(m => m.JENIS_FORM == "3" && m.NO_REF == fakturInDB.NO_BUKTI).FirstOrDefault();
+                                    //if(returFaktur == null)
+                                    var no_retur = dsOrder.Tables[0].Rows[0]["NO_FAKTUR"].ToString() ;
+                                    if (!no_retur.Contains("-"))
                                     {
                                         var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + order.order_id + "') AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + cust + "'");
                                     }
