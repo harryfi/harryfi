@@ -38607,9 +38607,9 @@ namespace MasterOnline.Controllers
                 }
                 else if (customer.NAMA.Equals(kdBL))
                 {
-                    var blApi = new BukaLapakController();
-                    if (!string.IsNullOrEmpty(customer.TOKEN))//add by Tri, 24-06-2019
-                        blApi.updateProduk(hJualInDb.BRG, hJualInDb.BRG_MP, hargaJualBaru.ToString(), "", customer.API_KEY, customer.TOKEN);
+                    //var blApi = new BukaLapakController();
+                    //if (!string.IsNullOrEmpty(customer.TOKEN))//add by Tri, 24-06-2019
+                    //    blApi.updateProduk(hJualInDb.BRG, hJualInDb.BRG_MP, hargaJualBaru.ToString(), "", customer.API_KEY, customer.TOKEN);
                 }
                 else if (customer.NAMA.Equals(kdBlibli))
                 {
@@ -66083,9 +66083,9 @@ namespace MasterOnline.Controllers
                                         }
                                         else if (customer.NAMA.Equals(kdBL))
                                         {
-                                            var blApi = new BukaLapakController();
-                                            if (!string.IsNullOrEmpty(customer.TOKEN))//add by Tri, 24-06-2019
-                                                blApi.updateProduk(hJualInDb.BRG, hJualInDb.BRG_MP, HargaBundling.ToString(), "", customer.API_KEY, customer.TOKEN);
+                                            //var blApi = new BukaLapakController();
+                                            //if (!string.IsNullOrEmpty(customer.TOKEN))//add by Tri, 24-06-2019
+                                            //    blApi.updateProduk(hJualInDb.BRG, hJualInDb.BRG_MP, HargaBundling.ToString(), "", customer.API_KEY, customer.TOKEN);
                                         }
                                         //                                        else if (customer.NAMA.Equals(kdBlibli))
                                         //                                        {
