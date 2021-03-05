@@ -3409,13 +3409,20 @@ namespace MasterOnline.Controllers
         }
 
         //add by nurul 4/3/2021
-        public async Task<string> getKurir(JDIDAPIDataJob data, string listOrderIds, string nobuk)
+        public class listOrderNobuk
+        {
+            public string noref { get; set; }
+            public string nobuk { get; set; }
+        }
+        //[AutomaticRetry(Attempts = 2)]
+        //[Queue("3_general")]
+        public async Task<string> getKurirJDID(JDIDAPIDataJob data, string listOrderIds, List<listOrderNobuk> ListOrderNobuk)
         {
             string ret = "";
             SetupContext(data.DatabasePathErasoft, data.username);
             try
             {
-                if (!string.IsNullOrEmpty(listOrderIds) && !string.IsNullOrEmpty(nobuk))
+                if (!string.IsNullOrEmpty(listOrderIds) && ListOrderNobuk.Count() > 0)
                 {
                     string sMethod = "epi.popOrder.getOrderInfoListForBatch";
                     string sParamJson = "[" + listOrderIds + "]";
@@ -3430,12 +3437,30 @@ namespace MasterOnline.Controllers
                             var listDetails = JsonConvert.DeserializeObject(str, typeof(ModelOrderJob)) as ModelOrderJob;
                             if (listDetails != null)
                             {
-                                long orderId = Convert.ToInt64(listOrderIds);
-                                var cekDetailOrder = listDetails.data.Where(a => a.orderId == orderId).FirstOrDefault();
-                                if (!string.IsNullOrEmpty(cekDetailOrder.carrierCompany))
+                                if (listDetails.data.Count() > 0)
                                 {
-                                    string sSQL = "UPDATE SOT01A SET SHIPMENT = '" + cekDetailOrder.carrierCompany + "' WHERE NO_BUKTI = '" + nobuk + "'";
-                                    var resultUpdateKurirPesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                                    foreach (var order in listDetails.data)
+                                    {
+                                        //long orderId = Convert.ToInt64(listOrderIds);
+                                        //var cekDetailOrder = listDetails.data.Where(a => a.orderId == orderId).FirstOrDefault();
+                                        //if (!string.IsNullOrEmpty(cekDetailOrder.carrierCompany))
+                                        //{
+                                        //    string sSQL = "UPDATE SOT01A SET SHIPMENT = '" + cekDetailOrder.carrierCompany + "' WHERE NO_BUKTI = '" + nobuk + "'";
+                                        //    var resultUpdateKurirPesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                                        //}
+                                        if (!string.IsNullOrEmpty(order.carrierCompany))
+                                        {
+                                            var getNobuk = ListOrderNobuk.Where(a => a.noref == order.orderId.ToString()).FirstOrDefault();
+                                            if(getNobuk != null)
+                                            {
+                                                if (!string.IsNullOrEmpty(getNobuk.nobuk))
+                                                {
+                                                    string sSQL = "UPDATE SOT01A SET SHIPMENT = '" + order.carrierCompany + "' WHERE NO_BUKTI = '" + getNobuk.nobuk + "'";
+                                                    var resultUpdateKurirPesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
