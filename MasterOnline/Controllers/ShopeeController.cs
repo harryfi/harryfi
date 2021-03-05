@@ -212,7 +212,7 @@ namespace MasterOnline.Controllers
                         foreach(var lis in listBrg.items)
                         {
                             listBrgMP.Add(lis.item_id.ToString() + ";0");
-                            if(lis.variations.Length > 1)
+                            if(lis.variations.Length > 0)
                             {
                                 foreach(var listVar in lis.variations)
                                 {
@@ -251,7 +251,7 @@ namespace MasterOnline.Controllers
                                 var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
                                 //end change 13 Feb 2019, tuning
 
-                                if ((tempbrginDB == null && brgInDB == null) || item.variations.Length > 1)
+                                if ((tempbrginDB == null && brgInDB == null) || item.variations.Length > 0)
                                 {
                                     //var getDetailResult = await GetItemDetail(iden, item.item_id);
                                     //var getDetailResult = await GetItemDetail(iden, item.item_id, new List<tempBrg_local>(), new List<stf02h_local>(), IdMarket);
