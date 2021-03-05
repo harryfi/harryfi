@@ -1551,18 +1551,18 @@
         <div class="modal-content modal-content-invoice-pembelian">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="labelUploadInvoicePembelian">Upload Excel Invoice Pembelian</h4>
+                <h4 class="modal-title" id="labelUploadInvoicePembelian">Upload Excel Invoice</h4>
             </div>
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-12">
                         <label>
-                            Anda dapat menggunakan fitur ini untuk membantu mengisi data invoice pembelian.<br />Dengan cara :
+                            Anda dapat menggunakan fitur ini untuk membantu mengisi data invoice.<br />Dengan cara :
                         </label>
                     </div>
                     <div class="col-md-12">
                         <div class="col-md-7">
-                            <label>1. Download template excel upload invoice pembelian. </label>
+                            <label>1. Download template excel upload invoice. </label>
                         </div>
                         <div class="col-md-4">
                             <button type="button" class="btn btn-primary" onclick="DownloadExcelExampleInvoicePembelian()">Download</button>
@@ -1570,12 +1570,12 @@
                     </div>
                     <div class="col-md-12">
                         <div class="col-md-12">
-                            <label>2. Isi data invoice pembelian pada excel. </label>
+                            <label>2. Isi data invoice pada excel. </label>
                         </div>
                     </div>
                     <div class="col-md-12">
                         <div class="col-md-12">
-                            <label>3. Upload file excel invoice pembelian yang sudah Anda edit.</label>
+                            <label>3. Upload file excel invoice yang sudah Anda edit.</label>
                             <div class="row" style="margin-top:10px;">
                                 <div class="col-md-7 file_upload_section">
                                     <input type='file' id='file_upload_excel_invoice_pembelian' name="file_upload_excel_invoice_pembelian" onchange="checkfile(this);"
@@ -1631,7 +1631,7 @@
         <div class="modal-content modal-content-invoice-pembelian">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="labelLogErrorUploadInvoicePembelian">Log Error Upload Excel Invoice Pembelian</h4>
+                <h4 class="modal-title" id="labelLogErrorUploadInvoicePembelian">Log Error Upload Excel Invoice</h4>
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -4543,6 +4543,7 @@
 
             // Create a function that the hub can call back to display messages.
             progress.client.AddProgress = function (message, percentage) {
+                $('#lblPBUpload').text(message);
                 $('#pBar_uploadFileInvoice').width(percentage);
                 $('#pBar_uploadFileInvoice').attr('aria-valuenow', percentage);
                 $('#pBar_uploadFileInvoice').html(percentage + ' Complete');

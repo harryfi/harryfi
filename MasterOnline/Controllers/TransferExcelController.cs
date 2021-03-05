@@ -3598,12 +3598,13 @@ namespace MasterOnline.Controllers
                                     string qty = worksheet.Cells[i, 10].Value == null ? "" : worksheet.Cells[i, 10].Value.ToString();
                                     string harga_satuan = worksheet.Cells[i, 11].Value == null ? "" : worksheet.Cells[i, 11].Value.ToString();
                                     string total_nilaidisc = worksheet.Cells[i, 12].Value == null ? "" : worksheet.Cells[i, 12].Value.ToString();
-                                    string total = worksheet.Cells[i, 13].Value == null ? "" : worksheet.Cells[i, 13].Value.ToString();
+                                    //string total = worksheet.Cells[i, 13].Value == null ? "" : worksheet.Cells[i, 13].Value.ToString();
 
 
                                     if (!string.IsNullOrEmpty(tgl) && !string.IsNullOrEmpty(kode_supplier) && !string.IsNullOrEmpty(kode_barang)
                                          && !string.IsNullOrEmpty(top) && !string.IsNullOrEmpty(gudang) && !string.IsNullOrEmpty(qty) && !string.IsNullOrEmpty(harga_satuan)
-                                          && !string.IsNullOrEmpty(total))
+                                          //&& !string.IsNullOrEmpty(total)
+                                          )
                                     {
                                         iCountProcessInsertTemp += 1;
                                         vCountInTemp += 1;
@@ -3621,43 +3622,68 @@ namespace MasterOnline.Controllers
                                         newTempUploadExcelInvoicePembelian.QTY = Convert.ToInt32(qty);
                                         newTempUploadExcelInvoicePembelian.HARGA_SATUAN = Convert.ToDouble(harga_satuan);
                                         newTempUploadExcelInvoicePembelian.TOTAL_NILAI_DISC = Convert.ToDouble(total_nilaidisc);
-                                        newTempUploadExcelInvoicePembelian.TOTAL = Convert.ToDouble(total);
+                                        //newTempUploadExcelInvoicePembelian.TOTAL = Convert.ToDouble(total);
                                         listTempUploadExcelInvoicePembelian.Add(newTempUploadExcelInvoicePembelian);
                                     }
                                     else if (string.IsNullOrEmpty(tgl) && string.IsNullOrEmpty(kode_supplier) && string.IsNullOrEmpty(kode_barang)
                                          && string.IsNullOrEmpty(top) && string.IsNullOrEmpty(gudang) && string.IsNullOrEmpty(qty) && string.IsNullOrEmpty(harga_satuan)
-                                          && string.IsNullOrEmpty(total))
+                                          //&& string.IsNullOrEmpty(total)
+                                          )
                                     {
                                         checklastRow = true;
                                     }
 
-                                    if (string.IsNullOrEmpty(tgl) && checklastRow == false)
+                                    if (string.IsNullOrEmpty(tgl))
                                     {
-                                        messageErrorLog = "Tanggal invoice pembelian kosong. Proses Upload dibatalkan.";
+                                        checklastRow = false;
+                                        messageErrorLog = "Tanggal invoice pembelian kosong pada row " + i + ". Proses Upload dibatalkan.";
                                         tw.WriteLine(messageErrorLog);
                                     }
 
-                                    if (string.IsNullOrEmpty(kode_supplier) && checklastRow == false)
+                                    if (string.IsNullOrEmpty(kode_supplier))
                                     {
-                                        messageErrorLog = "Kode Supplier invoice pembelian kosong. Proses Upload dibatalkan.";
+                                        checklastRow = false;
+                                        messageErrorLog = "Terdapat kolom Kode Supplier kosong pada row " + i + ". Proses Upload dibatalkan.";
                                         tw.WriteLine(messageErrorLog);
                                     }
 
-                                    if (string.IsNullOrEmpty(kode_barang) && checklastRow == false)
+                                    if (string.IsNullOrEmpty(kode_barang))
                                     {
-                                        messageErrorLog = "Kode barang invoice pembelian kosong. Proses Upload dibatalkan.";
+                                        checklastRow = false;
+                                        messageErrorLog = "Terdapat kolom Kode barang kosong pada row " + i + ". Proses Upload dibatalkan.";
+                                        tw.WriteLine(messageErrorLog);
+                                    }
+
+                                    if (string.IsNullOrEmpty(top))
+                                    {
+                                        checklastRow = false;
+                                        messageErrorLog = "Terdapat kolom Term of payment invoice pembelian kosong pada row " + i + ". Proses Upload dibatalkan.";
+                                        tw.WriteLine(messageErrorLog);
+                                    }
+
+                                    if (string.IsNullOrEmpty(gudang))
+                                    {
+                                        checklastRow = false;
+                                        messageErrorLog = "Terdapat kolom Gudang kosong pada row " + i + ". Proses Upload dibatalkan.";
+                                        tw.WriteLine(messageErrorLog);
+                                    }
+
+                                    if (string.IsNullOrEmpty(harga_satuan))
+                                    {
+                                        checklastRow = false;
+                                        messageErrorLog = "Terdapat kolom Harga satuan kosong pada row " + i + ". Proses Upload dibatalkan.";
                                         tw.WriteLine(messageErrorLog);
                                     }
 
                                     Functions.SendProgress("Process uploading to Temporary...", iCountProcessInsertTemp, Convert.ToInt32(ret.countAll));
 
-                                    if (!string.IsNullOrEmpty(messageErrorLog) && checklastRow == false)
+                                    if (!string.IsNullOrEmpty(messageErrorLog) && checklastRow == false && i == worksheet.Dimension.End.Row)
                                     {
                                         dataNoBuktiCodeSupplier.Clear();
                                         listTempUploadExcelInvoicePembelian.Clear();
                                         eraDB.Database.ExecuteSqlCommand("delete from TEMP_UPLOAD_EXCEL_INVOICE_PEMBELIAN");
                                         tw.Close();
-                                        tw.Dispose();
+                                        //tw.Dispose();
 
                                         var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Invoice Pembelian" && p.REQUEST_ID == connID).FirstOrDefault();
                                         if (cekLog == null)
@@ -3666,9 +3692,9 @@ namespace MasterOnline.Controllers
                                         (""),
                                         (connID),
                                         ("Upload Excel Invoice Pembelian"),
-                                        (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                        (DateTime.Now.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                         ("FAILED"),
-                                        (success + " / " + Convert.ToInt32(ret.countAll)),
+                                        (iCountProcessInsertTemp + " / " + Convert.ToInt32(ret.countAll)),
                                         (username),
                                         (filename));
                                             var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -3718,10 +3744,10 @@ namespace MasterOnline.Controllers
                                             var checkDB = eraDB.PBT01A.AsNoTracking().Where(c => c.TGL == resTgl && c.SUPP == resCodeSupplier).SingleOrDefault();
                                             if (checkDB != null)
                                             {
-                                                messageErrorLog = "Tanggal invoice pembelian " + resTgl + " dan Kode Supplier " + resCodeSupplier + " sudah pernah dimasukan. Proses Upload dibatalkan.";
+                                                messageErrorLog = "Tanggal invoice pembelian " + resTgl.ToString() + " dan Kode Supplier " + resCodeSupplier + " sudah pernah dimasukan. Proses Upload dibatalkan.";
                                                 tw.WriteLine(messageErrorLog);
                                                 tw.Close();
-                                                tw.Dispose();
+                                                //tw.Dispose();
 
                                                 var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Invoice Pembelian" && p.REQUEST_ID == connID).FirstOrDefault();
                                                 if (cekLog == null)
@@ -3730,15 +3756,15 @@ namespace MasterOnline.Controllers
                                                 (resCodeSupplier),
                                                 (connID),
                                                 ("Upload Excel Invoice Pembelian"),
-                                                (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                (DateTime.Now.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                 ("FAILED"),
-                                                (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                 (username),
                                                 (filename));
                                                     var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
                                                     // error log terjadi error pada insert header pesanan
                                                 }
-                                                ret.Errors.Add("Tanggal invoice pembelian " + resTgl + " dan Kode Supplier " + resCodeSupplier + " sudah pernah dimasukan. Proses Upload dibatalkan.");
+                                                ret.Errors.Add("Tanggal invoice pembelian " + resTgl.ToString() + " dan Kode Supplier " + resCodeSupplier + " sudah pernah dimasukan. Proses Upload dibatalkan.");
                                                 return Json(ret, JsonRequestBehavior.AllowGet);
                                             }
                                             else
@@ -3792,7 +3818,7 @@ namespace MasterOnline.Controllers
                                                     string qty = Convert.ToString(itemTemp.QTY);
                                                     string harga_satuan = Convert.ToString(itemTemp.HARGA_SATUAN);
                                                     string total_nilaidisc = Convert.ToString(itemTemp.TOTAL_NILAI_DISC);
-                                                    string total = Convert.ToString(itemTemp.TOTAL);
+                                                    //string total = Convert.ToString(itemTemp.TOTAL);
 
 
                                                     if (kode_supplier.Contains("Silahkan"))
@@ -3822,9 +3848,9 @@ namespace MasterOnline.Controllers
 
                                                                     if (!string.IsNullOrEmpty(gudang))
                                                                     {
-                                                                        if (!top.Contains(".") || !ongkir.Contains(".") || !qty.Contains(".") || !harga_satuan.Contains(".") || !total_nilaidisc.Contains(".") || !total.Contains("."))
+                                                                        if (!top.Contains(".") || !ongkir.Contains(".") || !qty.Contains(".") || !harga_satuan.Contains(".") || !total_nilaidisc.Contains("."))
                                                                         {
-                                                                            if (!top.Contains(",") || !ongkir.Contains(",") || !qty.Contains(",") || !harga_satuan.Contains(",") || !total_nilaidisc.Contains(",") || !total.Contains(","))
+                                                                            if (!top.Contains(",") || !ongkir.Contains(",") || !qty.Contains(",") || !harga_satuan.Contains(",") || !total_nilaidisc.Contains(","))
                                                                             {
                                                                                 if (!string.IsNullOrEmpty(kode_brg))
                                                                                 {
@@ -3836,10 +3862,10 @@ namespace MasterOnline.Controllers
                                                                                             var checkBarang = dataMasterSTF02.Where(p => p.BRG == kode_brg).FirstOrDefault();
                                                                                             if (checkBarang != null)
                                                                                             {
-                                                                                                if (string.IsNullOrEmpty(total_nilaidisc) || string.IsNullOrEmpty(total) || string.IsNullOrEmpty(harga_satuan) || string.IsNullOrEmpty(qty))
+                                                                                                if (string.IsNullOrEmpty(total_nilaidisc) || string.IsNullOrEmpty(harga_satuan) || string.IsNullOrEmpty(qty))
                                                                                                 {
                                                                                                     total_nilaidisc = "0";
-                                                                                                    total = "0";
+                                                                                                    //total = "0";
                                                                                                     harga_satuan = "0";
                                                                                                     qty = "0";
                                                                                                     //total = "0";
@@ -3925,9 +3951,9 @@ namespace MasterOnline.Controllers
                                                                                                         (kode_supplier),
                                                                                                         (connID),
                                                                                                         ("Upload Excel Invoice Pembelian"),
-                                                                                                        (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                                        (DateTime.Now.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                                         ("FAILED"),
-                                                                                                        (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                                        (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                                                                         (username),
                                                                                                         (filename));
                                                                                                             var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -3987,7 +4013,7 @@ namespace MasterOnline.Controllers
                                                                                                     eraDB.PBT01B.Add(pbt01b);
                                                                                                     await eraDB.SaveChangesAsync();
 
-                                                                                                    sSQLValues = sSQLValues + "('" + kode_brg + "', '" + connID + "'), ";
+                                                                                                    sSQLValues = sSQLValues + "('" + kode_brg + "', '" + connID + "'),";
                                                                                                     
                                                                                                 }
                                                                                                 catch (Exception ex)
@@ -4001,9 +4027,9 @@ namespace MasterOnline.Controllers
                                                                                                         (kode_supplier),
                                                                                                         (connID),
                                                                                                         ("Upload Excel Invoice Pembelian"),
-                                                                                                        (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                                        (DateTime.Now.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                                         ("FAILED"),
-                                                                                                        (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                                        (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                                                                         (username),
                                                                                                         (filename));
                                                                                                         var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -4091,9 +4117,9 @@ namespace MasterOnline.Controllers
                                                                                                      (kode_supplier),
                                                                                                      (connID),
                                                                                                      ("Upload Excel Invoice Pembelian"),
-                                                                                                     (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                                     (DateTime.Now.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                                      ("FAILED"),
-                                                                                                     (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                                     (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                                                                      (username),
                                                                                                      (filename));
                                                                                                     var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -4129,9 +4155,9 @@ namespace MasterOnline.Controllers
                                                                                                 (kode_supplier),
                                                                                                 (idRequest),
                                                                                                 ("Upload Excel Invoice Pembelian"),
-                                                                                                (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                                (DateTime.Now.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                                 ("FAILED"),
-                                                                                                (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                                (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                                                                 (username),
                                                                                                 (filename));
                                                                                                 var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -4175,9 +4201,9 @@ namespace MasterOnline.Controllers
                                                                                             (kode_supplier),
                                                                                             (idRequest),
                                                                                             ("Upload Excel Invoice Pembelian"),
-                                                                                            (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                            (DateTime.Now.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                             ("FAILED"),
-                                                                                            (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                            (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                                                             (username),
                                                                                             (filename));
                                                                                             var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -4212,9 +4238,9 @@ namespace MasterOnline.Controllers
                                                                                         (kode_supplier),
                                                                                         (idRequest),
                                                                                         ("Upload Excel Invoice Pembelian"),
-                                                                                        (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                        (DateTime.Now.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                         ("FAILED"),
-                                                                                        (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                        (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                                                         (username),
                                                                                         (filename));
                                                                                         var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -4249,9 +4275,9 @@ namespace MasterOnline.Controllers
                                                                                     (kode_supplier),
                                                                                     (idRequest),
                                                                                     ("Upload Excel Invoice Pembelian"),
-                                                                                    (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                    (DateTime.Now.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                     ("FAILED"),
-                                                                                    (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                    (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                                                     (username),
                                                                                     (filename));
                                                                                     var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -4286,9 +4312,9 @@ namespace MasterOnline.Controllers
                                                                                 (kode_supplier),
                                                                                 (idRequest),
                                                                                 ("Upload Excel Invoice Pembelian"),
-                                                                                (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                (DateTime.Now.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                 ("FAILED"),
-                                                                                (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                                                 (username),
                                                                                 (filename));
                                                                                 var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -4326,9 +4352,9 @@ namespace MasterOnline.Controllers
                                                                             (kode_supplier),
                                                                             (idRequest),
                                                                             ("Upload Excel Invoice Pembelian"),
-                                                                            (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                            (DateTime.Now.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                             ("FAILED"),
-                                                                            (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                            (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                                             (username),
                                                                             (filename));
                                                                             var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -4364,9 +4390,9 @@ namespace MasterOnline.Controllers
                                                                     (kode_supplier),
                                                                     (idRequest),
                                                                     ("Upload Excel Invoice Pembelian"),
-                                                                    (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                    (DateTime.Now.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                     ("FAILED"),
-                                                                    (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                    (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                                     (username),
                                                                     (filename));
                                                                     var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -4392,9 +4418,9 @@ namespace MasterOnline.Controllers
                                                                 (kode_supplier),
                                                                 (idRequest),
                                                                 ("Upload Excel Invoice Pembelian"),
-                                                                (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                (DateTime.Now.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                 ("FAILED"),
-                                                                (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                                 (username),
                                                                 (filename));
                                                                 var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -4420,9 +4446,9 @@ namespace MasterOnline.Controllers
                                                             (kode_supplier),
                                                             (idRequest),
                                                             ("Upload Excel Invoice Pembelian"),
-                                                            (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                            (DateTime.Now.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                             ("FAILED"),
-                                                            (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                            (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                             (username),
                                                             (filename));
                                                             var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -4437,7 +4463,7 @@ namespace MasterOnline.Controllers
                                                 var checkheader = eraDB.PBT01A.Where(p => p.INV == noBuktiPB).ToList();
                                                 if (checkheader.Count() > 0)
                                                 {
-                                                    EDB.ExecuteSQL("Constring", CommandType.Text, "UPDATE PBT01A SET BRUTO = " + Tempbruto + " , NETTO = " + Tempnetto + " , PPN = " + TempPPNPersen + " , NPPN = " + TempPPN + " WHERE INV = '" + noBuktiPB + "'");
+                                                    EDB.ExecuteSQL("Constring", CommandType.Text, "UPDATE PBT01A SET BIAYA_LAIN = " + TempOngkir + " , BRUTO = " + Tempbruto + " , NETTO = " + Tempnetto + " , PPN = " + TempPPNPersen + " , NPPN = " + TempPPN + " WHERE INV = '" + noBuktiPB + "'");
                                                 }
 
                                             }
@@ -4475,7 +4501,7 @@ namespace MasterOnline.Controllers
                             }
 
                             tw.Close();
-                            tw.Dispose();
+                            //tw.Dispose();
                             //}
                         }
                     }
@@ -5217,7 +5243,7 @@ namespace MasterOnline.Controllers
                         rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Yellow);
                     }
 
-                    using (var rangePackage = worksheet.Cells[9, 13])
+                    using (var rangePackage = worksheet.Cells[9, 12])
                     {
                         rangePackage.Style.Fill.PatternType = ExcelFillStyle.Solid;
                         rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Yellow);
@@ -5250,7 +5276,7 @@ namespace MasterOnline.Controllers
                     worksheet.Cells["J3"].Value = "QTY";
                     worksheet.Cells["K3"].Value = "HARGA SATUAN";
                     worksheet.Cells["L3"].Value = "TOTAL NILAI DISC";
-                    worksheet.Cells["M3"].Value = "TOTAL";
+                    //worksheet.Cells["M3"].Value = "TOTAL";
 
                     //ISI ROW 1
                     worksheet.Cells["A4"].Value = "PB2100001";
@@ -5266,7 +5292,7 @@ namespace MasterOnline.Controllers
                     worksheet.Cells["J4"].Value = "1";
                     worksheet.Cells["K4"].Value = "15000";
                     worksheet.Cells["L4"].Value = "0";
-                    worksheet.Cells["M4"].Value = "15000";
+                    //worksheet.Cells["M4"].Value = "15000";
 
                     //ISI ROW 2
                     worksheet.Cells["A5"].Value = "PB2100001";
@@ -5282,7 +5308,7 @@ namespace MasterOnline.Controllers
                     worksheet.Cells["J5"].Value = "1";
                     worksheet.Cells["K5"].Value = "14000";
                     worksheet.Cells["L5"].Value = "0";
-                    worksheet.Cells["M5"].Value = "14000";
+                    //worksheet.Cells["M5"].Value = "14000";
 
                     //ISI ROW 3
                     worksheet.Cells["A6"].Value = "PB2100002";
@@ -5298,7 +5324,7 @@ namespace MasterOnline.Controllers
                     worksheet.Cells["J6"].Value = "1";
                     worksheet.Cells["K6"].Value = "15000";
                     worksheet.Cells["L6"].Value = "0";
-                    worksheet.Cells["M6"].Value = "15000";
+                    //worksheet.Cells["M6"].Value = "15000";
 
                     
                     
@@ -5326,10 +5352,10 @@ namespace MasterOnline.Controllers
                         worksheet.Cells[10 + i, 10].Value = 0; //QTY
                         worksheet.Cells[10 + i, 11].Value = 0; //HARGA SATUAN
                         worksheet.Cells[10 + i, 12].Value = 0; //TOTAL NILAI DISC
-                        worksheet.Cells[10 + i, 13].Value = 0; //TOTAL
+                        //worksheet.Cells[10 + i, 13].Value = 0; //TOTAL
                     }
 
-                    ExcelRange rg0 = worksheet.Cells[9, 1, worksheet.Dimension.End.Row, 13];
+                    ExcelRange rg0 = worksheet.Cells[9, 1, worksheet.Dimension.End.Row, 12];
                     string tableName0 = "TableInvoicePembelian";
                     ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
 
@@ -5346,9 +5372,9 @@ namespace MasterOnline.Controllers
                     table0.Columns[9].Name = "QTY";
                     table0.Columns[10].Name = "HARGA SATUAN";
                     table0.Columns[11].Name = "TOTAL NILAI DISC";
-                    table0.Columns[12].Name = "TOTAL";
+                    //table0.Columns[12].Name = "TOTAL";
 
-                    using (var range = worksheet.Cells[9, 1, 9, 13])
+                    using (var range = worksheet.Cells[9, 1, 9, 12])
                     {
                         range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
                         range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
