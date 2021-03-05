@@ -60491,12 +60491,6 @@ namespace MasterOnline.Controllers
                 };
                 List<JDIDControllerJob.listOrderNobuk> listSuccessData = new List<JDIDControllerJob.listOrderNobuk>();
 
-                //nanti harus d hapus
-                for (int i = 1; i <= 48; i++)
-                {
-                    ListStt01a.Add(ListStt01a.First());
-                }
-                //nanti harus d hapus
                 foreach (var so in ListStt01a)
                 {
                     if (listNobuk != "")
