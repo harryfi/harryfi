@@ -2386,7 +2386,7 @@ namespace MasterOnline.Controllers
                                 //var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + ordersn + ") AND STATUS <> '2' AND ST_POSTING = 'T'");
                                 //string qry_Retur = "SELECT F.NO_REF FROM SIT01A F LEFT JOIN SIT01A R ON R.NO_REF = F.NO_BUKTI AND R.JENIS_FORM = '3' AND F.JENIS_FORM = '2' ";
                                 //qry_Retur += "WHERE F.NO_REF IN (" + ordersn + ") AND ISNULL(R.NO_BUKTI, '') = '' AND F.CUST = '" + CUST + "'";
-                                string qry_Retur = "SELECT F.NO_REF FROM SIT01A F INNER JOIN SOT01A P ON P.NO_BUKTI = F.NO_SO AND F.JENIS_FORM = '2' ";
+                                string qry_Retur = "SELECT F.NO_REF FROM SIT01A (NOLOCK) F INNER JOIN SOT01A (NOLOCK) P ON P.NO_BUKTI = F.NO_SO AND F.JENIS_FORM = '2' ";
                                 qry_Retur += "WHERE P.NO_REFERENSI IN (" + ordersn + ") AND ISNULL(F.NO_FA_OUTLET, '-') LIKE '%-%' AND P.CUST = '" + CUST + "' AND ISNULL(P.TIPE_KIRIM,0) <> 1";
                                 var dsFaktur = EDB.GetDataSet("MOConnectionString", "RETUR", qry_Retur);
                                 if (dsFaktur.Tables[0].Rows.Count > 0)
@@ -2411,7 +2411,7 @@ namespace MasterOnline.Controllers
                                 //end moved to after checking order cod
                             }
                             #region handle cancel COD
-                            string qrycod = "SELECT P.NO_REFERENSI, ISNULL(F.NO_REF, '') NO_REF FROM SIT01A F RIGHT JOIN SOT01A P ON P.NO_BUKTI = F.NO_SO AND F.JENIS_FORM = '2' ";
+                            string qrycod = "SELECT P.NO_REFERENSI, ISNULL(F.NO_REF, '') NO_REF FROM SIT01A (NOLOCK) F RIGHT JOIN SOT01A (NOLOCK) P ON P.NO_BUKTI = F.NO_SO AND F.JENIS_FORM = '2' ";
                             qrycod += "WHERE P.NO_REFERENSI IN (" + ordersn + ") AND ISNULL(F.NO_FA_OUTLET, '-') LIKE '%-%' AND P.CUST = '" 
                                 + CUST + "' AND ISNULL(P.TIPE_KIRIM,0) = 1 AND P.STATUS_TRANSAKSI NOT IN ('11', '12')";
                             var dsOrderCOD = EDB.GetDataSet("MOConnectionString", "COD", qrycod);
