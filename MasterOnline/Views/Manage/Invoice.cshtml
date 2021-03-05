@@ -42,9 +42,9 @@
             width: 70px !important;
         }
 
-        #table_tambah_invoice > tbody > tr > .gd-barang .selectize-dropdown {
-            width: 250px !important;
-        }
+            #table_tambah_invoice > tbody > tr > .gd-barang .selectize-dropdown {
+                width: 250px !important;
+            }
         /*//end change by nurul 16/8/2019*/
 
         .input-group {
@@ -610,6 +610,7 @@
         .btn-pindah-paket:hover {
             cursor: pointer;
         }
+
         .hscroll {
             overflow-x: auto; /* Horizontal */
         }
@@ -884,7 +885,7 @@
         }
 
         .modal-dialog-invoice-pembelian {
-            padding-left:200px;
+            padding-left: 200px;
             width: 75%;
             margin: auto;
         }
@@ -1192,7 +1193,7 @@
                         <a href="#tab_content7" role="tab" id="selesai-tab" data-toggle="tab" aria-expanded="false">Selesai</a>
                     </li>*@
             </ul>
-            <div id="myTabContent" class="tab-content"style="padding-top:10px">
+            <div id="myTabContent" class="tab-content" style="padding-top:10px">
                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="invoice-tab">
                     <div class="row invoice_table_section">
                         <div class="col-lg-4 col-sm-6" style="margin-bottom:7px">
@@ -1206,17 +1207,17 @@
                             </div>
                         </div>
                         @*<div class="col-lg-6 col-sm-6" style="margin-top:13px;">
-                            <div class="pull-right" id="tambah_baru_tombol_section">
-                                <button id="excelInvoicePembelian" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Excel Invoice Pembelian <span class="caret"></span>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <button type="button" style="width:100%;background-color:white; border-color:Highlight; color:black !important" id="btn_upload_invoice_pembelian" class="btn btn-primary" data-toggle="modal" onclick="$('#uploadInvoicePembelian').modal('show');">
-                                        <span> Upload Invoice Pembelian</span>
+                                <div class="pull-right" id="tambah_baru_tombol_section">
+                                    <button id="excelInvoicePembelian" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Excel Invoice Pembelian <span class="caret"></span>
                                     </button>
+                                    <div class="dropdown-menu">
+                                        <button type="button" style="width:100%;background-color:white; border-color:Highlight; color:black !important" id="btn_upload_invoice_pembelian" class="btn btn-primary" data-toggle="modal" onclick="$('#uploadInvoicePembelian').modal('show');">
+                                            <span> Upload Invoice Pembelian</span>
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>*@
+                            </div>*@
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
                                 <button id="excelInvoicePembelian" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -1229,8 +1230,8 @@
                                 </div>
                                 <div class="pull-right" id="tambah_baru_tombol_section">
                                     @*<button type="button" class=" btn btn-default" data-style="expand-right">
-                <span>Refresh</span>
-            </button>*@
+                                            <span>Refresh</span>
+                                        </button>*@
                                 </div>
                             </div>
                         </div>
@@ -1303,8 +1304,8 @@
                             <div class="pull-right">
                                 @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class=" btn btn-default" data-style="expand-right">
-                                    <span>Refresh</span>
-                                </button>*@
+                                        <span>Refresh</span>
+                                    </button>*@
                             </div>
                         </div>
                     </div>
@@ -1330,8 +1331,8 @@
                             <div class="pull-right">
                                 @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class=" btn btn-default" data-style="expand-right">
-                                    <span>Refresh</span>
-                                </button>*@
+                                        <span>Refresh</span>
+                                    </button>*@
                             </div>
                         </div>
                     </div>
@@ -1605,7 +1606,7 @@
                                     </td>
                                     <td class="col-md-10">
                                         <div class="progress">
-                                            <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" id="pBar_uploadFile"
+                                            <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" id="pBar_uploadFileInvoice"
                                                  aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
                                                 0% Complete (success)
                                             </div>
@@ -1864,8 +1865,8 @@
             $('#uploadInvoicePembelian').modal('show');
             $('#LogErroruploadInvoicePembelian').modal('hide');
             $('#progressBarUpload').hide();
-            $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
-            $('#pBar_uploadFile').html('0% Complete');
+            $('#pBar_uploadFileInvoice').css('width', '0%').attr('aria-valuenow', 0);
+            $('#pBar_uploadFileInvoice').html('0% Complete');
         }
 
         function downloadLogErrorUploadInvoicePembelian(txt){
@@ -1878,8 +1879,8 @@
             $('#uploadInvoicePembelian').modal('hide');
             $('#LogErroruploadInvoicePembelian').modal('hide');
             $('#progressBarUpload').hide();
-            $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
-            $('#pBar_uploadFile').html('0% Complete');
+            $('#pBar_uploadFileInvoice').css('width', '0%').attr('aria-valuenow', 0);
+            $('#pBar_uploadFileInvoice').html('0% Complete');
         }
 
         function uploadExcelInvoicePembelian() {
@@ -1888,8 +1889,8 @@
                 $('#progressBarUpload').hide();
             }
             else {
-                $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
-                $('#pBar_uploadFile').html('0% Complete');
+                $('#pBar_uploadFileInvoice').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_uploadFileInvoice').html('0% Complete');
                 $('#progressBarUpload').show();
                 uploadFileExcelInvoicePembelian(null, 0, "10;0", "false;false");
             }
@@ -1907,8 +1908,8 @@
 
             if ($('#file_upload_excel_invoice_pembelian')[0].files.length <= 0) {
                 $('#progressBarUpload').hide();
-                $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
-                $('#pBar_uploadFile').html('0% Complete');
+                $('#pBar_uploadFileInvoice').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_uploadFileInvoice').html('0% Complete');
                 $('#loading_upload').hide();
             }
             else
@@ -1951,14 +1952,14 @@
                             for (i = 0; i < response.Errors.length; i++) {
                                 err += response.Errors[i] + "\n";
                             }
-                            $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
-                            $('#pBar_uploadFile').html('0% Complete');
+                            $('#pBar_uploadFileInvoice').css('width', '0%').attr('aria-valuenow', 0);
+                            $('#pBar_uploadFileInvoice').html('0% Complete');
                             $('#btnUploadExcelInvoicePembelian').removeAttr('disabled');
                             alert(err);
                         } else {
                             document.getElementById("file_upload_excel_invoice_pembelian").value = "";
-                            $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
-                            $('#pBar_uploadFile').html('100% Complete');
+                            $('#pBar_uploadFileInvoice').css('width', '100%').attr('aria-valuenow', 100);
+                            $('#pBar_uploadFileInvoice').html('100% Complete');
                             $('#btnUploadExcelInvoicePembelian').removeAttr('disabled');
                             setTimeout(popupAlertUploadInvoicePembelian, 500);
                         }
@@ -1971,8 +1972,8 @@
                         alert(err);
                         console.log(error);
                         $('#loading_upload_excel_invoice_pembelian').hide();
-                        $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
-                        $('#pBar_uploadFile').html('0% Complete');
+                        $('#pBar_uploadFileInvoice').css('width', '100%').attr('aria-valuenow', 100);
+                        $('#pBar_uploadFileInvoice').html('0% Complete');
                         $('#btnUploadExcelInvoicePembelian').removeAttr('disabled');
                         document.getElementById("file_upload_excel_invoice_pembelian").value = "";
                     }
@@ -2164,7 +2165,7 @@
                         $(this).attr('data-toggle', 'tab');
                         $(this).removeClass('disabled-tab');
                     });
-                    
+
                     //end add
 
                     //refreshForm1();
@@ -2389,7 +2390,7 @@
                 $(this).attr('data-toggle', 'tab');
                 $(this).removeClass('disabled-tab');
             });
-            
+
             //end add by nurul 6/11/2018
             $bakalNetto = 0;
             $totalAwal = 0;
@@ -2414,7 +2415,7 @@
             //$('#search_invoice').keyup(function () {
             //    table.search($(this).val()).draw();
             //});
-            
+
             //$('#search_invoice').keypress(function (e) {
             //    var key = e.which;
             //    if (key == 13)// the enter key code
@@ -3045,13 +3046,13 @@
         function refreshNetto() {
             //$bakalNetto = parseInt(convertToAngka($('#Invoice_BRUTO').val()));
             //$bakalNetto = parseFloat(convertToAngka($('#Invoice_BRUTO').val()));
-            
+
             //add by calvin 2 agustus 2019
             hitungUlangBruto();
             //end add by calvin 2 agustus 2019
 
             $bakalNetto = convertToAngka($('#Invoice_BRUTO').val());
-            
+
             //CHANGE BY NURUL 26/10/2018   var $nPpn = Math.ceil($bakalNetto * parseInt($('#Invoice_PPN').val()) / 100);
             //var $nPpn = Math.ceil(($bakalNetto - parseInt(convertToAngka($('#Invoice_NDISC1').val()))) * parseInt($('#Invoice_PPN').val()) / 100);
             //$('#Invoice_NPPN').val(convertToRupiah($nPpn));
@@ -3191,7 +3192,7 @@
                                     .css('pointer-events', 'auto')
                                     .html("0" + '<input data-val="true" data-val-number="The field DISCOUNT_2 must be a number." data-val-required="The DISCOUNT_2 field is required." id="InvoiceDetail_DISCOUNT_2" name="InvoiceDetail.DISCOUNT_2" type="hidden" value="">');
                             }
-                            
+
                             refreshNettoBarang($trId);
                         } else {
                             var $hargaBarang = convertToAngka($($trElement + ' .harga-barang').text());
@@ -3618,20 +3619,20 @@
                                     },
                                     success: function (response) {
                             //end add by nurul 27/5/2019
-                                        
-                                        
-                                        
-                                        
+
+
+
+
                                         $('#form-partial').html(response);
                                         getTanggal();
                                         $('#form-partial').show();
                                         $('#form_subs').hide();
                                         getSupplier();
                                         //getPesanan();
-                                        
+
                                         getDataBarang();
                                         getGudang();
-                                        
+
                                         $('.invoice_table_section').hide();
                                         $('.invoice_editor_section').show();
                             //add by nurul 17/10/2018
@@ -3789,14 +3790,14 @@
                             $('#gudang-select').hide();
                             $('#gudang-kode').show();
 
-                            //ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0 
+                            //ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0
                             $beforeState.brutto = $('#Invoice_BRUTO').val();
                             $beforeState.netto = $('#Invoice_NETTO').val();
                             $beforeState.ndisc = $('#Invoice_NILAI_DISC').val();
                             $beforeState.ppn = $('#Invoice_PPN').val();
                             $beforeState.nppn = $('#Invoice_NILAI_PPN').val();
                             $beforeState.ongkir = $('#Invoice_BIAYA_LAIN').val();
-                            //END ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0 
+                            //END ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0
 
                             if ($('#Invoice_RecNum').val() == null) {
                                 $('#Invoice_NETTO').val(convertToRupiah(0));
@@ -3897,7 +3898,7 @@
                     //end add by Tri 11 Maret 2019
                     $totalAwal = convertToAngka($('#Invoice_BRUTO').val());
                     refreshInputan();
-                    
+
                     if ($("#cbxDropshipper").is(":checked") == true) {
                         $('#KODE_PESANAN_SECTION').show();
                         $('#Invoice_DROPSHIPPER').val(true);
@@ -4285,7 +4286,7 @@
         }
 
         @*function refreshTableInvoiceTempo() {
-            
+
             var link = '@Url.Action("RefreshTableInvoiceTempo", "Manage", new { tgl = "replacetgl" })';
             link = link.replace("replacetgl", $('#Tanggal').val());
 
@@ -4531,6 +4532,30 @@
                 }
             }
         }
+    </script>
+
+    <script type="text/javascript">
+
+        $(function () {
+            // Reference the auto-generated proxy for the hub.
+            var progress = $.connection.progressHub;
+            //console.log(progress);
+
+            // Create a function that the hub can call back to display messages.
+            progress.client.AddProgress = function (message, percentage) {
+                $('#pBar_uploadFileInvoice').width(percentage);
+                $('#pBar_uploadFileInvoice').attr('aria-valuenow', percentage);
+                $('#pBar_uploadFileInvoice').html(percentage + ' Complete');
+
+            };
+
+            $.connection.hub.start().done(function () {
+                var connectionId = $.connection.hub.id;
+                console.log(connectionId);
+            });
+
+        });
+
     </script>
 
     <script>
