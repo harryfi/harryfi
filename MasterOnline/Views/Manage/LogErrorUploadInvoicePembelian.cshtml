@@ -1,0 +1,105 @@
+﻿@using System.Globalization
+@using PagedList.Mvc
+@using MasterOnline.ViewModels
+@*<style>
+    @@media screen and (max-width: 767px) {
+        .fakturtoped {
+            width: 50%;
+        }
+    }
+</style>*@
+
+@model PagedList.IPagedList<API_LOG_MARKETPLACE_HANGFIRE>
+@{
+    string currentFilter = ViewBag.CurrentFilter;
+    string currentSort = ViewBag.CurrentSort;
+}
+<div class="row">
+    <div class="col-md-12">
+        <label class="control-label">History Upload Excel Invoice Pembelian</label>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <input id="txt_last_page_upload_faktur" type="hidden" class="form-control" value="@ViewData["LastPage"]">
+        <table id="table_history_upload" class="table table-bordered" role="grid">
+            <thead>
+                <tr role="row">
+                    <th width="100">Username</th>
+                    <th width="150">Tanggal Upload</th>
+                    <th width="100">Jumlah Proses Berhasil</th>
+                    <th width="45">Log Error</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var importLog in Model.ToList())
+                {
+                    DateTime dateReq = Convert.ToDateTime(@importLog.REQUEST_DATETIME);
+                    var waktuasli = dateReq.AddHours(7).ToString("dd MMMM yyyy HH:mm tt");
+
+                <tr data-log-recnum="log-@importLog.REQUEST_ID">
+                    <td class="log-akun">
+                        @importLog.CUST_ATTRIBUTE_1
+                    </td>
+                    <td class="log-tanggal">
+                        @*@importLog.REQUEST_DATETIME*@
+                        @waktuasli
+                    </td>
+                    <td class="log-akun">
+                        @importLog.REQUEST_RESULT
+                    </td>
+                    <td class="log-history" style="text-align:center">
+                        <button type="button" class="btn btn-primary" onclick="downloadLogErrorUploadInvoicePembelian('@importLog.REQUEST_EXCEPTION')">
+                            <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+        @* add by calvin 15 juli 2019, paging *@
+        @if (Model.PageCount > 1)
+        {
+            <div id="tabeluploadfakturpartialpager" class="pager">
+                @Html.PagedListPager(Model, page => Url.Action("RefreshTableLogErrorUploadInvoicePembelian", new
+                {
+                    page,
+                    cust = ViewData["searchParam"]
+                }),
+                new PagedListRenderOptions
+                {
+                    LinkToFirstPageFormat = "<<",
+                    LinkToPreviousPageFormat = "prev",
+                    LinkToNextPageFormat = "next",
+                    LinkToLastPageFormat = ">>",
+                    DisplayEllipsesWhenNotShowingAllPageNumbers = false
+                })
+                Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+            </div>
+        }
+        <script type="text/javascript">
+        $(function () {
+            $('#tabeluploadfakturpartialpager').on('click', 'a', function () {
+                if (this.href != "") {
+                    $.ajax({
+                        url: this.href,
+                        type: 'GET',
+                        cache: false,
+                        beforeSend: function () {
+                            //$('#table-barang-1-partial').hide();
+                            $('#loading_spinner').show();
+                        },
+                        success: function (response) {
+                            $('#logErroruploadinvoicepembelianviewdiv').html(response);
+                            $('#loading_spinner').hide();
+                            //$('#table-barang-1-partial').show();
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+        </script>
+        @* end add by calvin 15 juli 2019, paging *@
+    </div>
+</div>

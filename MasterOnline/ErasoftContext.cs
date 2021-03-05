@@ -456,6 +456,10 @@ namespace MasterOnline
         public virtual DbSet<TEMP_UPLOAD_EXCEL_BAYAR> TEMP_UPLOAD_EXCEL_BAYAR { get; set; }
         //end add by nurul 9/4/2020
 
+        //add by fauzi fitur Upload Excel Invoice Pembelian 04/03/2021
+        public virtual DbSet<TEMP_UPLOAD_EXCEL_INVOICE_PEMBELIAN> TEMP_UPLOAD_EXCEL_INVOICE_PEMBELIAN { get; set; }
+        //end add by fauzi 04/03/2021
+
         //add by Tri harga jual massal
         public virtual DbSet<LOG_HARGAJUAL_A> LOG_HARGAJUAL_A { get; set; }
         public virtual DbSet<LOG_HARGAJUAL_B> LOG_HARGAJUAL_B { get; set; }
