@@ -3523,6 +3523,7 @@ namespace MasterOnline.Controllers
                                 }
                                 else//pesanan cod
                                 {
+                                    //check order delivered or not here
                                     rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
                                         "UPDATE SOT01A SET STATUS_TRANSAKSI = '12', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('"
                                         + order.order_id + "') AND STATUS_TRANSAKSI <> '12' AND CUST = '" + cust + "'");
@@ -3565,8 +3566,8 @@ namespace MasterOnline.Controllers
                                 {
                                     //var returFaktur = ErasoftDbContext.SIT01A.Where(m => m.JENIS_FORM == "3" && m.NO_REF == fakturInDB.NO_BUKTI).FirstOrDefault();
                                     //if(returFaktur == null)
-                                    var no_retur = dsOrder.Tables[0].Rows[0]["NO_FAKTUR"].ToString() ;
-                                    if (!no_retur.Contains("-"))
+                                    var no_retur = dsOrder.Tables[0].Rows[0]["NO_FA_OUTLET"].ToString() ;
+                                    if (no_retur.Contains("-"))
                                     {
                                         var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + order.order_id + "') AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + cust + "'");
                                     }

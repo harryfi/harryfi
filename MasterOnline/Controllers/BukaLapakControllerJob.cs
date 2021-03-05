@@ -1329,7 +1329,8 @@ namespace MasterOnline.Controllers
 
             var orderList = (from a in ErasoftDbContext.SOT01A
                                    where a.USER_NAME == "Auto Bukalapak" && a.STATUS_TRANSAKSI != "11" && a.CUST == CUST && a.TGL >= dtNow
-                                   select a.NO_REFERENSI).ToList();
+                                    && a.STATUS_TRANSAKSI != "12"
+                             select a.NO_REFERENSI).ToList();
 
             while (loop)
             {
@@ -1438,10 +1439,44 @@ namespace MasterOnline.Controllers
                                 {
                                     if (orderList.Contains(order.transaction_id))
                                     {
+                                        var dsOrder = EDB.GetDataSet("MOConnectionString", "ORDER", "SELECT P.NO_BUKTI, ISNULL(F.NO_BUKTI, '') NO_FAKTUR, ISNULL(TIPE_KIRIM,0) TIPE_KIRIM "
+                                            + ",ISNULL(F.NO_FA_OUTLET, '-') NO_FA_OUTLET FROM SOT01A (NOLOCK) P LEFT JOIN SIT01A (NOLOCK) F ON P.NO_BUKTI = F.NO_SO "
+                                            + "WHERE NO_REFERENSI = '" + order.transaction_id + "' AND CUST = '" + CUST + "'");
+                                        int rowAffected = 0;
+                                        var nobuk = "";
+                                        bool cekSudahKirimCOD = false;
                                         //change by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
                                         //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.transaction_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
-                                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('" + order.transaction_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
+                                        //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('" + order.transaction_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
                                         //END change by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
+
+                                        if (dsOrder.Tables[0].Rows.Count > 0)
+                                        {
+                                            nobuk = dsOrder.Tables[0].Rows[0]["NO_BUKTI"].ToString();
+                                            if (dsOrder.Tables[0].Rows[0]["TIPE_KIRIM"].ToString() != "1")
+                                            {
+                                                rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
+                                                    "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('"
+                                                    + order.transaction_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
+                                            }
+                                            else//pesanan cod
+                                            {
+                                                if (order.state_changed_at.delivered_at.HasValue)
+                                                {
+                                                    rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
+                                                        "UPDATE SOT01A SET STATUS_TRANSAKSI = '12', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('"
+                                                        + order.transaction_id + "') AND STATUS_TRANSAKSI <> '12' AND CUST = '" + CUST + "'");
+                                                    cekSudahKirimCOD = true;
+                                                }
+                                                else
+                                                {
+                                                    rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
+                                                        "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('"
+                                                        + order.transaction_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
+                                                }
+
+                                            }
+                                        }
                                         if (rowAffected > 0)
                                         {
                                             //add by Tri 1 sep 2020, hapus packing list
@@ -1452,7 +1487,8 @@ namespace MasterOnline.Controllers
                                             //end add by Tri 1 sep 2020, hapus packing list
                                             jmlhOrder = jmlhOrder + rowAffected;
                                             //add by Tri 4 Des 2019, isi cancel reason
-                                            var nobuk = ErasoftDbContext.SOT01A.Where(m => m.NO_REFERENSI == order.transaction_id && m.CUST == CUST).Select(m => m.NO_BUKTI).FirstOrDefault();
+                                            if (nobuk == "")
+                                                nobuk = ErasoftDbContext.SOT01A.Where(m => m.NO_REFERENSI == order.transaction_id && m.CUST == CUST).Select(m => m.NO_BUKTI).FirstOrDefault();
                                             if (!string.IsNullOrEmpty(nobuk))
                                             {
                                                 var sot01d = ErasoftDbContext.SOT01D.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
@@ -1473,17 +1509,22 @@ namespace MasterOnline.Controllers
                                                 }
                                             }
                                             //end add by Tri 4 Des 2019, isi cancel reason
-                                            var fakturInDB = ErasoftDbContext.SIT01A.Where(m => m.CUST == CUST && m.NO_REF == order.transaction_id).FirstOrDefault();
-                                            if (fakturInDB != null)
+                                            //var fakturInDB = ErasoftDbContext.SIT01A.Where(m => m.CUST == CUST && m.NO_REF == order.transaction_id).FirstOrDefault();
+                                            //if (fakturInDB != null)
+                                            if (!cekSudahKirimCOD)
                                             {
-                                                var returFaktur = ErasoftDbContext.SIT01A.Where(m => m.JENIS_FORM == "3" && m.NO_REF == fakturInDB.NO_BUKTI).FirstOrDefault();
-                                                if (returFaktur == null)
+                                                if (!string.IsNullOrEmpty(dsOrder.Tables[0].Rows[0]["NO_FAKTUR"].ToString()))
                                                 {
-                                                    var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + order.transaction_id + "') AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + CUST + "'");
+                                                    //var returFaktur = ErasoftDbContext.SIT01A.Where(m => m.JENIS_FORM == "3" && m.NO_REF == fakturInDB.NO_BUKTI).FirstOrDefault();
+                                                    //if (returFaktur == null)
+                                                    var no_retur = dsOrder.Tables[0].Rows[0]["NO_FA_OUTLET"].ToString();
+                                                    if (no_retur.Contains("-"))
+                                                    {
+                                                        var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + order.transaction_id + "') AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + CUST + "'");
+                                                    }
+
                                                 }
-
                                             }
-
                                             var orderDetail = (from a in ErasoftDbContext.SOT01A
                                                                join b in ErasoftDbContext.SOT01B on a.NO_BUKTI equals b.NO_BUKTI
                                                                //where a.NO_REFERENSI == order.order_id
