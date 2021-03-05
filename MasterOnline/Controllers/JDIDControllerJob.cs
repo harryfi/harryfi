@@ -3414,9 +3414,9 @@ namespace MasterOnline.Controllers
             public string noref { get; set; }
             public string nobuk { get; set; }
         }
-        //[AutomaticRetry(Attempts = 2)]
-        //[Queue("3_general")]
-        public async Task<string> getKurirJDID(JDIDAPIDataJob data, string listOrderIds, List<listOrderNobuk> ListOrderNobuk)
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("1_manage_pesanan")]
+        public async Task<string> getKurirJDID(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data, string listOrderIds, List<listOrderNobuk> ListOrderNobuk)
         {
             string ret = "";
             SetupContext(data.DatabasePathErasoft, data.username);

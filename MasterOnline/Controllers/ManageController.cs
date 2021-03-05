@@ -60577,7 +60577,13 @@ namespace MasterOnline.Controllers
                                 email = marketPlace.EMAIL,
                                 DatabasePathErasoft = dbPathEra
                             };
-                            Task.Run(() => new JDIDControllerJob().getKurirJDID(iden, tempNoref.Substring(0, tempNoref.Length - 1), listData).Wait());
+#if (DEBUG || Debug_AWS)
+                            Task.Run(() => new JDIDControllerJob().getKurirJDID(dbPathEra, bukti, cust, "Pesanan", "Get Kurir", iden, tempNoref.Substring(0, tempNoref.Length - 1), listData).Wait());
+#else
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                clientJobServer.Enqueue<JDIDControllerJob>(x => x.getKurirJDID(dbPathEra, bukti, cust, "Pesanan", "Get Kurir", iden, tempNoref.Substring(0, tempNoref.Length - 1), listData));
+#endif
                             listData = new List<JDIDControllerJob.listOrderNobuk>();
                         }
                     }
