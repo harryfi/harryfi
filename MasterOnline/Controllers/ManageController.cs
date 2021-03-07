@@ -25267,7 +25267,7 @@ namespace MasterOnline.Controllers
 
             string sSQLSelect = "";
             sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, ISNULL(D.NO_BUKTI,'') AS NO_FAKTUR, A.STATUS_TRANSAKSI AS [STATUS] ,ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT] ";
-            sSQLSelect += " ,ISNULL(A.TIPE_KIRIM, 0) TIPE_KIRIM, ISNULL(A.N_UCAPAN, 0) N_UCAPAN ";
+            sSQLSelect += " ,ISNULL(A.TIPE_KIRIM, 0) TIPE_KIRIM, ISNULL(A.N_UCAPAN, 0) N_UCAPAN, ISNULL(E.NO_BUKTI,'') AS PACKINGNO ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -25335,6 +25335,7 @@ namespace MasterOnline.Controllers
             sSQL2 += "LEFT JOIN ARF01 B(NOLOCK) ON A.CUST = B.CUST ";
             sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C(NOLOCK) ON B.NAMA = C.IdMarket ";
             sSQL2 += "LEFT JOIN SIT01A D(NOLOCK) ON A.NO_BUKTI = D.NO_SO ";
+            sSQL2 += "LEFT JOIN SOT03B E(NOLOCK) ON A.NO_BUKTI = E.NO_PESANAN ";
             sSQL2 += "WHERE A.STATUS_TRANSAKSI='04' ";
             if (search != "")
             {

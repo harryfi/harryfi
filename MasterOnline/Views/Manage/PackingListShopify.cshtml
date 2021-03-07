@@ -287,6 +287,9 @@
             case "print":
                 filtervalueshopify = $('#filter_packing_print_shopify__' + cust).val();
                 break;
+            case "tipe":
+                filtervalueshopify = $('#filter_packing_tipe_shopify__' + cust).val();
+                break;
             default:
                 break;
         }
@@ -323,16 +326,25 @@
                         case "kirim":
                             $('#filter_packing_kirim_field_option_div_shopify__' + cust).show();
                             $('#filter_packing_print_field_option_div_shopify__' + cust).hide();
+                            $('#filter_packing_field_tipe_div_shopify__' + cust).hide();
                             $('#filter_packing_kirim_shopify__' + cust).val('Harap Pilih');
                             break;
                         case "print":
                             $('#filter_packing_kirim_field_option_div_shopify__' + cust).hide();
                             $('#filter_packing_print_field_option_div_shopify__' + cust).show();
+                            $('#filter_packing_field_tipe_div_shopify__' + cust).hide();
                             $('#filter_packing_print_shopify__' + cust).val('Harap Pilih');
+                            break;
+                        case "tipe":
+                            $('#filter_packing_kirim_field_option_div_shopify__' + cust).hide();
+                            $('#filter_packing_print_field_option_div_shopify__' + cust).hide();
+                            $('#filter_packing_field_tipe_div_shopify__' + cust).show();
+                            $('#filter_packing_tipe_shopify__' + cust).val('Harap Pilih');
                             break;
                         default:
                             $('#filter_packing_kirim_field_option_div_shopify__' + cust).hide();
                             $('#filter_packing_print_field_option_div_shopify__' + cust).hide();
+                            $('#filter_packing_field_tipe_div_shopify__' + cust).hide();
                             break;
                     }
 
@@ -344,6 +356,11 @@
                 });
                 $('#filter_packing_print_shopify__' + cust).change(function () {
                     if ($('#filter_packing_print_shopify__' + cust).val() != "Harap Pilih" && $('#filter_packing_field_shopify__' + cust).val() != "Harap Pilih") {
+                        SearchTablePackingListPerAkunshopify(cust);
+                    }
+                });
+                $('#filter_packing_tipe_shopify__' + cust).change(function () {
+                    if ($('#filter_packing_tipe_shopify__' + cust).val() != "Harap Pilih" && $('#filter_packing_field_shopify__' + cust).val() != "Harap Pilih") {
                         SearchTablePackingListPerAkunshopify(cust);
                     }
                 });
@@ -935,6 +952,13 @@
                                     <option>Harap Pilih</option>
                                     <option value="1">Sudah</option>
                                     <option value="0">Belum</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_packing_field_tipe_div_shopify__@(item.CUST)" style="display:none">
+                                <select class="form-control" id="filter_packing_tipe_shopify__@(item.CUST)" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="cod">COD</option>
+                                    <option value="preorder">Preorder</option>
                                 </select>
                             </div>
                         </div>

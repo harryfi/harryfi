@@ -65,7 +65,8 @@
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 100px;">No. Pesanan</th>
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 100px;">No. Referensi</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 130px;">Tanggal Pesanan</th>
-                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 70px;">No. Retur Batal</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 70px;">No. Faktur</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 70px;">No. Retur</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 127px;">Marketplace</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 120px;">Pembeli</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 50px;">Tipe Pesanan</th>
@@ -130,6 +131,7 @@
                 <td>@pesanan.NOSO</td>
                 <td>@pesanan.REFERENSI</td>
                 <td>@(pesanan.TGL?.ToString("dd/MM/yyyy HH:mm"))</td>
+                <td>@pesanan.NO_FAKTUR</td>
                 <td>@pesanan.NO_FAKTUR_RETUR</td>
                 @*<td>@NamaMarket</td> 'change by nurul 14/2/2019*@
                 <td>
@@ -171,14 +173,23 @@
                 <td class="edit-hapus-col">
                     @if (pesanan.NO_FAKTUR != "")
                     {
-                        <button class="btn btn-warning btnReturCOD" onclick="passNoFaktur('@pesanan.NO_FAKTUR');">
-                            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
-                        </button>
+                        if (!pesanan.NO_FAKTUR_RETUR.Contains("-"))
+                        {
+                            <button class="btn btn-warning btnReturCOD" disabled>
+                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-warning btnReturCOD" onclick="passNoFaktur('@pesanan.NO_FAKTUR');">
+                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                            </button>
+                        }
                     }
                     else
                     {
                         <button class="btn btn-warning" onclick="alert('Pesanan ini belum dibuat Faktur. Silahkan buat transaksi masuk barang.')">
-                            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                         </button>
                     }
                 </td>
@@ -253,7 +264,7 @@
                 //window.open(link,
                 //    "popupWindow",
                 //    "width=850, height=400, scrollbars=yes, resizable=no");
-                var returCODPopUp = window.open(link, "Retur Faktur COD", "width=850, height=400, scrollbars=yes, resizable=no");
+                var returCODPopUp = window.open(link, "Konfirmasi Retur Penjualan", "width=850, height=400, scrollbars=yes, resizable=no");
                     var timer = setInterval(function () {
                         if (returCODPopUp.closed) {
                             clearInterval(timer);

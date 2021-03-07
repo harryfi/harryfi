@@ -990,6 +990,7 @@
                         case "kirim":
                             $('#filter_packing_kirim_field_option_div_tokped__' + cust).show();
                             $('#filter_packing_print_field_option_div_tokped__' + cust).hide();
+                            $('#filter_packing_field_tipe_div_tokped__' + cust).hide();
                             $('#filter_packing_kirim_tokped__' + cust).val('Harap Pilih');
                             //if ($('#filter_packing_kirim_tokped').val() != "Harap Pilih") {
                             //    SearchTablePackingListPerAkunTokped(cust);
@@ -997,15 +998,23 @@
                             break;
                         case "print":
                             $('#filter_packing_kirim_field_option_div_tokped__' + cust).hide();
-                            $('#filter_packing_print_field_option_div_tokped__' + cust).show();
+                            $('#filter_packing_print_field_option_div_tokped__' + cust).hide();
+                            $('#filter_packing_field_tipe_div_tokped__' + cust).show();
                             $('#filter_packing_print_tokped__' + cust).val('Harap Pilih');
                             //if ($('#filter_packing_print_tokped').val() != "Harap Pilih") {
                             //    SearchTablePackingListPerAkunTokped(cust);
                             //}
                             break;
+                        case "tipe":
+                            $('#filter_packing_kirim_field_option_div_tokped__' + cust).hide();
+                            $('#filter_packing_print_field_option_div_tokped__' + cust).hide();
+                            $('#filter_packing_field_tipe_div_tokped__' + cust).show();
+                            $('#filter_packing_tipe_tokped__' + cust).val('Harap Pilih');
+                            break;
                         default:
                             $('#filter_packing_kirim_field_option_div_tokped__' + cust).hide();
                             $('#filter_packing_print_field_option_div_tokped__' + cust).hide();
+                            $('#filter_packing_field_tipe_div_tokped__' + cust).hide();
                             break;
                     }
 
@@ -1017,6 +1026,11 @@
                 });
                 $('#filter_packing_print_tokped__' + cust).change(function () {
                     if ($('#filter_packing_print_tokped__' + cust).val() != "Harap Pilih" && $('#filter_packing_field_tokped__' + cust).val() != "Harap Pilih") {
+                        SearchTablePackingListPerAkunTokped(cust);
+                    }
+                });
+                $('#filter_packing_tipe_tokped__' + cust).change(function () {
+                    if ($('#filter_packing_tipe_tokped__' + cust).val() != "Harap Pilih" && $('#filter_packing_field_tokped__' + cust).val() != "Harap Pilih") {
                         SearchTablePackingListPerAkunTokped(cust);
                     }
                 });
@@ -1051,6 +1065,9 @@
                 break;
             case "print":
                 filtervalueTokped = $('#filter_packing_print_tokped__' + cust).val();
+                break;
+            case "tipe":
+                filtervalueTokped = $('#filter_packing_tipe_tokped__' + cust).val();
                 break;
             default:
                 break;
@@ -1490,6 +1507,13 @@
                                 <option>Harap Pilih</option>
                                 <option value="1">Sudah</option>
                                 <option value="0">Belum</option>
+                            </select>
+                        </div>
+                        <div class="col-12" id="filter_packing_field_tipe_div_tokped__@(item.CUST)" style="display:none">
+                            <select class="form-control" id="filter_packing_tipe_tokped__@(item.CUST)" required="required">
+                                <option>Harap Pilih</option>
+                                <option value="cod">COD</option>
+                                <option value="preorder">Preorder</option>
                             </select>
                         </div>
                     </div>

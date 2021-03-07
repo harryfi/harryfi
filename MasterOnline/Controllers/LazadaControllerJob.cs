@@ -3504,7 +3504,7 @@ namespace MasterOnline.Controllers
                         {
                             var dsOrder = EDB.GetDataSet("MOConnectionString", "ORDER", "SELECT P.NO_BUKTI, ISNULL(F.NO_BUKTI, '') NO_FAKTUR, ISNULL(TIPE_KIRIM,0) TIPE_KIRIM "
                                 + ",ISNULL(F.NO_FA_OUTLET, '-') NO_FA_OUTLET FROM SOT01A (NOLOCK) P LEFT JOIN SIT01A (NOLOCK) F ON P.NO_BUKTI = F.NO_SO "
-                                + "WHERE NO_REFERENSI = '" + order.order_id + "' AND CUST = '" + cust + "'");
+                                + "WHERE NO_REFERENSI = '" + order.order_id + "' AND CUST = '" + cust + "' AND STATUS_TRANSAKSI NOT IN ('11', '12')");
                             int rowAffected = 0;
                             bool cekSudahKirim = false;
                             //change by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
@@ -3514,6 +3514,7 @@ namespace MasterOnline.Controllers
                             var nobuk = "";
                             if (dsOrder.Tables[0].Rows.Count > 0)
                             {
+                                var orderDetail = GetSingleOrder(order.order_id, accessToken);
                                 nobuk = dsOrder.Tables[0].Rows[0]["NO_BUKTI"].ToString();
                                 if (dsOrder.Tables[0].Rows[0]["TIPE_KIRIM"].ToString() != "1")
                                 {
@@ -3524,9 +3525,40 @@ namespace MasterOnline.Controllers
                                 else//pesanan cod
                                 {
                                     //check order delivered or not here
-                                    rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
-                                        "UPDATE SOT01A SET STATUS_TRANSAKSI = '12', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('"
-                                        + order.order_id + "') AND STATUS_TRANSAKSI <> '12' AND CUST = '" + cust + "'");
+                                    if(orderDetail.code == "0")
+                                    {
+                                        foreach(var ordDetail in orderDetail.data)
+                                        {
+                                            if (string.IsNullOrEmpty(order.reason))
+                                            {
+                                                if (ordDetail.status.ToString() == "canceled")
+                                                {
+                                                    order.reason = ordDetail.reason;
+                                                }
+                                            }
+                                            if (!cekSudahKirim)
+                                            {
+                                                if (!string.IsNullOrEmpty(ordDetail.shipment_provider))
+                                                {
+                                                    cekSudahKirim = true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (cekSudahKirim)
+                                    {
+                                        rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
+                                            "UPDATE SOT01A SET STATUS_TRANSAKSI = '12' WHERE NO_REFERENSI IN ('"
+                                            + order.order_id + "') AND STATUS_TRANSAKSI <> '12' AND CUST = '" + cust + "'");
+
+                                    }
+                                    else
+                                    {
+                                        rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
+                                            "UPDATE SOT01A SET STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('"
+                                            + order.order_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + cust + "'");
+
+                                    }
 
                                 }
                             }
@@ -3889,6 +3921,28 @@ namespace MasterOnline.Controllers
             if (!cancel)
             {
                 ret = "";
+            }
+            return ret;
+        }
+        public LazadaGetOrderItem GetSingleOrder(string orderid, string accessToken)
+        {
+            var ret = new LazadaGetOrderItem();
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/order/items/get");
+            request.SetHttpMethod("GET");
+            request.AddApiParameter("order_id", orderid);
+            LazopResponse response = client.Execute(request, accessToken);
+            try
+            {
+                var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaGetOrderItem)) as LazadaGetOrderItem;
+                if (bindOrder != null)
+                {
+                    ret = bindOrder;
+                }
+            }
+            catch (Exception ex)
+            {
             }
             return ret;
         }

@@ -1003,16 +1003,25 @@
                         case "kirim":
                             $('#filter_packing_kirim_field_option_div_lazada__' + cust).show();
                             $('#filter_packing_print_field_option_div_lazada__' + cust).hide();
+                            $('#filter_packing_field_tipe_div_lazada__' + cust).hide();
                             $('#filter_packing_kirim_lazada__' + cust).val('Harap Pilih');
                             break;
                         case "print":
                             $('#filter_packing_kirim_field_option_div_lazada__' + cust).hide();
                             $('#filter_packing_print_field_option_div_lazada__' + cust).show();
+                            $('#filter_packing_field_tipe_div_lazada__' + cust).hide();
                             $('#filter_packing_print_lazada__' + cust).val('Harap Pilih');
+                            break;
+                        case "tipe":
+                            $('#filter_packing_kirim_field_option_div_lazada__' + cust).hide();
+                            $('#filter_packing_print_field_option_div_lazada__' + cust).hide();
+                            $('#filter_packing_field_tipe_div_lazada__' + cust).show();
+                            $('#filter_packing_tipe_lazada__' + cust).val('Harap Pilih');
                             break;
                         default:
                             $('#filter_packing_kirim_field_option_div_lazada__' + cust).hide();
                             $('#filter_packing_print_field_option_div_lazada__' + cust).hide();
+                            $('#filter_packing_field_tipe_div_lazada__' + cust).hide();
                             break;
                     }
 
@@ -1024,6 +1033,11 @@
                 });
                 $('#filter_packing_print_lazada__' + cust).change(function () {
                     if ($('#filter_packing_print_lazada__' + cust).val() != "Harap Pilih" && $('#filter_packing_field_lazada__' + cust).val() != "Harap Pilih") {
+                        SearchTablePackingListPerAkunLazada(cust);
+                    }
+                });
+                $('#filter_packing_tipe_lazada__' + cust).change(function () {
+                    if ($('#filter_packing_tipe_lazada__' + cust).val() != "Harap Pilih" && $('#filter_packing_field_lazada__' + cust).val() != "Harap Pilih") {
                         SearchTablePackingListPerAkunLazada(cust);
                     }
                 });
@@ -1058,6 +1072,9 @@
                 break;
             case "print":
                 filtervalueLazada = $('#filter_packing_print_lazada__' + cust).val();
+                break;
+            case "tipe":
+                filtervalueLazada = $('#filter_packing_tipe_lazada__' + cust).val();
                 break;
             default:
                 break;
@@ -1539,6 +1556,13 @@
                                 <option>Harap Pilih</option>
                                 <option value="1">Sudah</option>
                                 <option value="0">Belum</option>
+                            </select>
+                        </div>
+                        <div class="col-12" id="filter_packing_field_tipe_div_lazada__@(item.CUST)" style="display:none">
+                            <select class="form-control" id="filter_packing_tipe_lazada__@(item.CUST)" required="required">
+                                <option>Harap Pilih</option>
+                                <option value="cod">COD</option>
+                                <option value="preorder">Preorder</option>
                             </select>
                         </div>
                     </div>
