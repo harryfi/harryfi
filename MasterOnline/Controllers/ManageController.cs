@@ -24467,17 +24467,17 @@ namespace MasterOnline.Controllers
 
                 if (searchCOD && searchPreorder)
                 {
-                    sSQL2 += " OR (TIPE_KIRIM = 1 AND N_UCAPAN = 'Preorder') ";
+                    sSQL2 += " OR (A.TIPE_KIRIM = 1 AND A.N_UCAPAN = 'Preorder') ";
                 }
                 else
                 {
                     if (searchCOD)
                     {
-                        sSQL2 += " OR TIPE_KIRIM = 1 ";
+                        sSQL2 += " OR A.TIPE_KIRIM = 1 ";
                     }
                     if (searchPreorder)
                     {
-                        sSQL2 += " OR N_UCAPAN = 'Preorder' ";
+                        sSQL2 += " OR A.N_UCAPAN = 'Preorder' ";
                     }
                 }
                 sSQL2 += ")";
@@ -24898,17 +24898,17 @@ namespace MasterOnline.Controllers
 
                 if (searchCOD && searchPreorder)
                 {
-                    sSQL2 += " OR (TIPE_KIRIM = 1 AND N_UCAPAN = 'Preorder') ";
+                    sSQL2 += " OR (A.TIPE_KIRIM = 1 AND A.N_UCAPAN = 'Preorder') ";
                 }
                 else
                 {
                     if (searchCOD)
                     {
-                        sSQL2 += " OR TIPE_KIRIM = 1 ";
+                        sSQL2 += " OR A.TIPE_KIRIM = 1 ";
                     }
                     if (searchPreorder)
                     {
-                        sSQL2 += " OR N_UCAPAN = 'Preorder' ";
+                        sSQL2 += " OR A.N_UCAPAN = 'Preorder' ";
                     }
                 }
                 sSQL2 += ")";
@@ -25136,13 +25136,13 @@ namespace MasterOnline.Controllers
 
                 if (searchCOD && searchPreorder)
                 {
-                    sSQL2 += " OR (TIPE_KIRIM = 1 AND A.N_UCAPAN = 'Preorder') ";
+                    sSQL2 += " OR (A.TIPE_KIRIM = 1 AND A.N_UCAPAN = 'Preorder') ";
                 }
                 else
                 {
                     if (searchCOD)
                     {
-                        sSQL2 += " OR TIPE_KIRIM = 1 ";
+                        sSQL2 += " OR A.TIPE_KIRIM = 1 ";
                     }
                     if (searchPreorder)
                     {
@@ -25344,13 +25344,13 @@ namespace MasterOnline.Controllers
 
                 if (searchCOD && searchPreorder)
                 {
-                    sSQL2 += " OR (TIPE_KIRIM = 1 AND A.N_UCAPAN = 'Preorder') ";
+                    sSQL2 += " OR (A.TIPE_KIRIM = 1 AND A.N_UCAPAN = 'Preorder') ";
                 }
                 else
                 {
                     if (searchCOD)
                     {
-                        sSQL2 += " OR TIPE_KIRIM = 1 ";
+                        sSQL2 += " OR A.TIPE_KIRIM = 1 ";
                     }
                     if (searchPreorder)
                     {
@@ -25534,17 +25534,17 @@ namespace MasterOnline.Controllers
 
                 if (searchCOD && searchPreorder)
                 {
-                    sSQL2 += " OR (TIPE_KIRIM = 1 AND N_UCAPAN = 'Preorder') ";
+                    sSQL2 += " OR (A.TIPE_KIRIM = 1 AND A.N_UCAPAN = 'Preorder') ";
                 }
                 else
                 {
                     if (searchCOD)
                     {
-                        sSQL2 += " OR TIPE_KIRIM = 1 ";
+                        sSQL2 += " OR A.TIPE_KIRIM = 1 ";
                     }
                     if (searchPreorder)
                     {
-                        sSQL2 += " OR N_UCAPAN = 'Preorder' ";
+                        sSQL2 += " OR A.N_UCAPAN = 'Preorder' ";
                     }
                 }
                 sSQL2 += ")";
@@ -25725,7 +25725,7 @@ namespace MasterOnline.Controllers
 
                 if (searchCOD && searchPreorder)
                 {
-                    sSQL2 += " OR (TIPE_KIRIM = 1 AND N_UCAPAN = 'Preorder') ";
+                    sSQL2 += " OR (TIPE_KIRIM = 1 AND A.N_UCAPAN = 'Preorder') ";
                 }
                 else
                 {
@@ -25735,7 +25735,7 @@ namespace MasterOnline.Controllers
                     }
                     if (searchPreorder)
                     {
-                        sSQL2 += " OR N_UCAPAN = 'Preorder' ";
+                        sSQL2 += " OR A.N_UCAPAN = 'Preorder' ";
                     }
                 }
                 sSQL2 += ")";
@@ -63693,11 +63693,11 @@ namespace MasterOnline.Controllers
                         {
                             if (filtervalue == "cod")
                             {
-                                sSQLTemp = "WHERE ISNULL(TIPE_KIRIM,0) = 1 ";
+                                sSQLTemp = "WHERE ISNULL(A.TIPE_KIRIM,0) = 1 ";
                             }
                             if (filtervalue == "preorder")
                             {
-                                sSQLTemp = "WHERE ISNULL(N_UCAPAN,'') = 'preorder' ";
+                                sSQLTemp = "WHERE ISNULL(A.N_UCAPAN,'') = 'preorder' ";
                             }
                         }
                         break;
@@ -63733,17 +63733,17 @@ namespace MasterOnline.Controllers
                     }
                     if(searchCOD && searchPreorder)
                     {
-                        sSQL2 += " OR (TIPE_KIRIM = 1 AND N_UCAPAN = 'Preorder') ";
+                        sSQL2 += " OR (A.TIPE_KIRIM = 1 AND A.N_UCAPAN = 'Preorder') ";
                     }
                     else
                     {
                         if (searchCOD)
                         {
-                            sSQL2 += " OR TIPE_KIRIM = 1 ";
+                            sSQL2 += " OR A.TIPE_KIRIM = 1 ";
                         }
                         if (searchPreorder)
                         {
-                            sSQL2 += " OR N_UCAPAN = 'Preorder' ";
+                            sSQL2 += " OR A.N_UCAPAN = 'Preorder' ";
                         }
 
                     }
@@ -63851,7 +63851,7 @@ namespace MasterOnline.Controllers
                 }
                 if (search != "")
                 {
-                    sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLpembeli + ") or (" + sSQLmarket + ") or (" + sSQLreferensi + ") ) ";
+                    sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLpembeli + ") or (" + sSQLmarket + ") or (" + sSQLreferensi + ") ";
 
                     if (searchCOD && searchPreorder)
                     {
@@ -63861,13 +63861,14 @@ namespace MasterOnline.Controllers
                     {
                         if (searchCOD)
                         {
-                            sSQL2 += " AND TIPE_KIRIM = 1 ";
+                            sSQL2 += " OR TIPE_KIRIM = 1 ";
                         }
                         if (searchPreorder)
                         {
-                            sSQL2 += " AND N_UCAPAN = 'Preorder' ";
+                            sSQL2 += " OR N_UCAPAN = 'Preorder' ";
                         }
                     }
+                    sSQL2 += ")";
                 }
                 string sSQLSelect2 = "";
                 //sSQLSelect2 += "ORDER BY A.RecNum asc ";
