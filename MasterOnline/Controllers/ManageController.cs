@@ -60551,6 +60551,7 @@ namespace MasterOnline.Controllers
                         if(listData.Count() == 10 || listNorefSudahProses.Count() == listSuccessData.Count())
                         {
                             var tempNoref = listNoref;
+                            var tempData = listData;
                             listNoref = "";
                             JDIDControllerJob.JDIDAPIDataJob iden = new JDIDControllerJob.JDIDAPIDataJob
                             {
@@ -60563,11 +60564,11 @@ namespace MasterOnline.Controllers
                                 DatabasePathErasoft = dbPathEra
                             };
 #if (DEBUG || Debug_AWS)
-                            Task.Run(() => new JDIDControllerJob().getKurirJDID(dbPathEra, bukti, cust, "Pesanan", "Get Kurir", iden, tempNoref.Substring(0, tempNoref.Length - 1), listData).Wait());
+                            Task.Run(() => new JDIDControllerJob().getKurirJDID(dbPathEra, bukti, cust, "Pesanan", "Get Kurir", iden, tempNoref.Substring(0, tempNoref.Length - 1), tempData).Wait());
 #else
                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                 var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                clientJobServer.Enqueue<JDIDControllerJob>(x => x.getKurirJDID(dbPathEra, bukti, cust, "Pesanan", "Get Kurir", iden, tempNoref.Substring(0, tempNoref.Length - 1), listData));
+                                clientJobServer.Enqueue<JDIDControllerJob>(x => x.getKurirJDID(dbPathEra, bukti, cust, "Pesanan", "Get Kurir", iden, tempNoref.Substring(0, tempNoref.Length - 1), tempData));
 #endif
                             listData = new List<JDIDControllerJob.listOrderNobuk>();
                         }
