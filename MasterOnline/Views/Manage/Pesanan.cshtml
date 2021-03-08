@@ -2460,13 +2460,13 @@
                                     <option value="18">Offline</option>
                                 </select>
                             </div>
-                            @*<div class="col-12" id="filter_pesanan_cancel_field_tipe_div" style="display:none">
-                                <select class="form-control" id="filter_pesanan_cancel_field_tipe" required="required">
+                            <div class="col-12" id="filter_pesanan_cancel_cod_field_tipe_div" style="display:none">
+                                <select class="form-control" id="filter_pesanan_cancel_cod_field_tipe" required="required">
                                     <option>Harap Pilih</option>
                                     <option value="cod">COD</option>
                                     <option value="preorder">Preorder</option>
                                 </select>
-                            </div>*@
+                            </div>
                         </div>
                         <div class="col-lg-5 col-sm-12"></div>
                         <div class="col-lg-1 col-sm-6" style="margin-top:13px;">
@@ -5288,29 +5288,29 @@
                     case "tanggal":
                         $('#filter_pesanan_cancel_cod_field_tanggal_div').show();
                         $('#filter_pesanan_cancel_cod_field_marketplace_div').hide();
-                        //$('#filter_pesanan_cancel_cod_field_tipe_div').hide();
+                        $('#filter_pesanan_cancel_cod_field_tipe_div').hide();
                         searchTablePesananCancelCOD();
                         break;
                     case "marketplace":
                         $('#filter_pesanan_cancel_cod_field_tanggal_div').hide();
                         $('#filter_pesanan_cancel_cod_cod_field_marketplace_div').show();
-                        //$('#filter_pesanan_cancel_cod_field_tipe_div').hide();
+                        $('#filter_pesanan_cancel_cod_field_tipe_div').hide();
                         if ($('#filter_pesanan_cancel_cod_field_marketplace').val() != "Harap Pilih") {
                             searchTablePesananCancelCOD();
                         }
                         break;
-                    //case "tipe":
-                    //    $('#filter_pesanan_cancel_cod_field_tanggal_div').hide();
-                    //    $('#filter_pesanan_cancel_cod_field_marketplace_div').hide();
-                    //    $('#filter_pesanan_cancel_cod_field_tipe_div').show();
-                    //    if ($('#filter_pesanan_cancel_cod_field_tipe').val() != "Harap Pilih") {
-                    //        searchTablePesananCancelCOD();
-                    //    }
-                    //    break;
+                    case "tipe":
+                        $('#filter_pesanan_cancel_cod_field_tanggal_div').hide();
+                        $('#filter_pesanan_cancel_cod_field_marketplace_div').hide();
+                        $('#filter_pesanan_cancel_cod_field_tipe_div').show();
+                        if ($('#filter_pesanan_cancel_cod_field_tipe').val() != "Harap Pilih") {
+                            searchTablePesananCancelCOD();
+                        }
+                        break;
                     default:
                         $('#filter_pesanan_cancel_cod_field_tanggal_div').hide();
                         $('#filter_pesanan_cancel_cod_field_marketplace_div').hide();
-                        //$('#filter_pesanan_cancel_cod_field_tipe_div').hide();
+                        $('#filter_pesanan_cancel_cod_field_tipe_div').hide();
                         break;
                 }
             });
@@ -9605,9 +9605,9 @@
             case "marketplace":
                 filtervalue = $('#filter_pesanan_cancel_cod_field_marketplace').val();
                 break;
-            //case "tipe":
-            //    filtervalue = $('#filter_pesanan_cancel_cod_field_tipe').val();
-            //    break;
+            case "tipe":
+                filtervalue = $('#filter_pesanan_cancel_cod_field_tipe').val();
+                break;
             default:
                 break;
         }
