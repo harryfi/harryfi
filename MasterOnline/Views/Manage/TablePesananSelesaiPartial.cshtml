@@ -50,6 +50,8 @@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 130px;">Tgl. Pesanan</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 127px;">Marketplace</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 120px;">Pembeli</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 50px;">Tipe Pesanan</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 90px;">Packing List</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 100px;">Kurir</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total</th>
                 <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 100px;">Undo Status</th>
@@ -74,50 +76,81 @@
                 //    NamaMarket = market.NamaMarket;
                 //}
                 //var faktur = Model.ListFaktur.SingleOrDefault(f => f.NO_SO == pesanan.NO_BUKTI);
-                <tr>
-                    <td>@pesanan.NOSO</td>
-                    <td>@pesanan.REFERENSI</td>
-                    <td>@(pesanan.NO_FAKTUR != null ? pesanan.NO_FAKTUR : "-")</td>
-                    <td>@(pesanan.TGL?.ToString("dd/MM/yyyy HH:mm"))</td>
-                    @*<td>@NamaMarket</td> 'change by nurul 14/2/2019*@
-                    <td>
-                        @if (pesanan.PERSO != "")
-                        {
-                            @(pesanan.MARKET + " (" + pesanan.PERSO + ")")
-                        }
-                        else
-                        {
-                            @pesanan.MARKET
-                        }
-                    </td>
-                    <td>
-                        @*remark by nurul 24/9/2018 @(buyer.NAMA + " (" + buyer.PERSO + ")")*@
-                        @*@(buyer == null ? "" : buyer.NAMA + " (" + pelanggan?.PERSO + ")")*@
-                        @*@(buyer == null ? "" : buyer.NAMA)*@
-                        @pesanan.PEMBELI
-                    </td>
-                    <td>@pesanan.SHIPMENT</td>
-                    <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.TOTAL)</td>
-                    <td class="edit-hapus-col">
-                        @if (pesanan.MARKET != "")
-                        {
-                            <button class="btn btn-warning" data-toggle="modal" data-target="#konfUndoStatusSelesai" onclick="passRecStatus(@pesanan.RECNUM, '03-undo', '@pesanan.NOSO')">
-                                <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
-                            </button>
-                        }
-                        else
-                        {
-                            <button style="background-color:darkgray; cursor:not-allowed">
-                                <span class="glyphicon glyphicon-arrow-left" aria-hidden="false"></span>
-                            </button>
-                        }
-                    </td>
-                    <td class="edit-hapus-col">
-                        <button class="btn btn-primary" onclick="lihatPesanan(@(pesanan.RECNUM))">
-                            <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                //add by Tri 17 feb 2021
+                var tipe_pesanan = "";
+                if (pesanan.TIPE_KIRIM.Value == 1)
+                {
+                    tipe_pesanan = "COD";
+                }
+                else if (pesanan.TIPE_KIRIM.Value == 2)
+                {
+                    tipe_pesanan = "Preorder";
+                }
+                if (pesanan.N_UCAPAN != "" && pesanan.N_UCAPAN != "-" && pesanan.N_UCAPAN != " ")
+                {
+                    if (tipe_pesanan != "")
+                    {
+                        tipe_pesanan += " " + pesanan.N_UCAPAN;
+                    }
+                    else
+                    {
+                        tipe_pesanan = pesanan.N_UCAPAN;
+                    }
+                }
+                //end add by Tri 17 feb 2021
+            <tr>
+                <td>@pesanan.NOSO</td>
+                <td>@pesanan.REFERENSI</td>
+                <td>@(pesanan.NO_FAKTUR != null ? pesanan.NO_FAKTUR : "-")</td>
+                <td>@(pesanan.TGL?.ToString("dd/MM/yyyy HH:mm"))</td>
+                @*<td>@NamaMarket</td> 'change by nurul 14/2/2019*@
+                <td>
+                    @if (pesanan.PERSO != "")
+                    {
+                        @(pesanan.MARKET + " (" + pesanan.PERSO + ")")
+                    }
+                    else
+                    {
+                        @pesanan.MARKET
+                    }
+                </td>
+                <td>
+                    @*remark by nurul 24/9/2018 @(buyer.NAMA + " (" + buyer.PERSO + ")")*@
+                    @*@(buyer == null ? "" : buyer.NAMA + " (" + pelanggan?.PERSO + ")")*@
+                    @*@(buyer == null ? "" : buyer.NAMA)*@
+                    @pesanan.PEMBELI
+                </td>
+                <td>@tipe_pesanan</td>
+                <td>
+                    @if (!string.IsNullOrWhiteSpace(pesanan.PACKINGNO))
+                    {
+                        <div onclick="lihatPackingList('@(pesanan.PACKINGNO)')">
+                            <u>@pesanan.PACKINGNO</u>
+                        </div>
+                    }
+                </td>
+                <td>@pesanan.SHIPMENT</td>
+                <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.TOTAL)</td>
+                <td class="edit-hapus-col">
+                    @if (pesanan.MARKET != "")
+                    {
+                        <button class="btn btn-warning" data-toggle="modal" data-target="#konfUndoStatusSelesai" onclick="passRecStatus(@pesanan.RECNUM, '03-undo', '@pesanan.NOSO')">
+                            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
                         </button>
-                    </td>
-                </tr>
+                    }
+                    else
+                    {
+                        <button style="background-color:darkgray; cursor:not-allowed">
+                            <span class="glyphicon glyphicon-arrow-left" aria-hidden="false"></span>
+                        </button>
+                    }
+                </td>
+                <td class="edit-hapus-col">
+                    <button class="btn btn-primary" onclick="lihatPesanan(@(pesanan.RECNUM))">
+                        <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                    </button>
+                </td>
+            </tr>
             }
         </tbody>
     </table>

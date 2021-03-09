@@ -2297,11 +2297,19 @@ namespace MasterOnline.Controllers
                         if (ordersn_list.Count() > 0)
                         {
                             ordersn = ordersn.Substring(0, ordersn.Length - 1);
-                            var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connID + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "'");
+                            //var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connID + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "'");
+                            var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connID 
+                                + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn 
+                                + ") AND STATUS_TRANSAKSI  NOT IN ('11', '12') AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) <> 1");
+
                             //change by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
                             //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
-                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
+                            //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
+                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN (" 
+                                + ordersn + ") AND STATUS_TRANSAKSI  NOT IN ('11', '12') AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) <> 1");
                             //end change by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
+
+                            var ordersDetail = new List<ShopeeGetOrderDetailsResultOrder>();
                             if (rowAffected > 0)
                             {
                                 //add by Tri 1 sep 2020, hapus packing list
@@ -2313,7 +2321,7 @@ namespace MasterOnline.Controllers
                                 //add by Tri 4 Des 2019, isi cancel reason
                                 var sSQL1 = "";
                                 var sSQL2 = "SELECT * INTO #TEMP FROM (";
-                                var listReason = new Dictionary<string, string>();
+                                //var listReason = new Dictionary<string, string>();
                                 //if (ordersn_list.Count() > 50)
                                 //{
                                 //    var order50 = new string[50];
@@ -2333,23 +2341,36 @@ namespace MasterOnline.Controllers
                                 //}
                                 //else
                                 //{
-                                listReason = await GetOrderDetailsForCancelReason(iden, ordersn_list);
+                                //listReason = await GetOrderDetailsForCancelReason(iden, ordersn_list);
+                                ordersDetail = await GetOrderDetailsForCancelReasonAPIV2(iden, ordersn_list);
+                                //}
+                                //foreach (var order in listOrder.orders)
+                                //{
+                                //    string reasonValue;
+                                //    if (listReason.TryGetValue(order.ordersn, out reasonValue))
+                                //    {
+                                //        if (!string.IsNullOrEmpty(sSQL1))
+                                //        {
+                                //            sSQL1 += " UNION ALL ";
+                                //        }
+                                //        sSQL1 += " SELECT '" + order.ordersn + "' NO_REFERENSI, '" + listReason[order.ordersn] + "' ALASAN ";
+                                //    }
                                 //}
                                 foreach (var order in listOrder.orders)
                                 {
-                                    string reasonValue;
-                                    if (listReason.TryGetValue(order.ordersn, out reasonValue))
+                                    var currentOrder = ordersDetail.Where(m => m.ordersn == order.ordersn).FirstOrDefault();
+                                    if (currentOrder != null)
                                     {
                                         if (!string.IsNullOrEmpty(sSQL1))
                                         {
                                             sSQL1 += " UNION ALL ";
                                         }
-                                        sSQL1 += " SELECT '" + order.ordersn + "' NO_REFERENSI, '" + listReason[order.ordersn] + "' ALASAN ";
+                                        sSQL1 += " SELECT '" + order.ordersn + "' NO_REFERENSI, '" + (currentOrder.cancel_reason ?? "") + "' ALASAN ";
                                     }
                                 }
                                 sSQL2 += sSQL1 + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
                                 sSQL2 += " SELECT A.NO_BUKTI, ALASAN, 'AUTO_SHOPEE' FROM SOT01A A INNER JOIN #TEMP T ON A.NO_REFERENSI = T.NO_REFERENSI ";
-                                sSQL2 += " LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = ''";
+                                sSQL2 += " LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = ''; DROP TABLE #TEMP";
                                 EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL2);
                                 //var nobuk = ErasoftDbContext.SOT01A.Where(m => m.NO_REFERENSI == ordersn && m.CUST == CUST).Select(m => m.NO_BUKTI).FirstOrDefault();
                                 //if (!string.IsNullOrEmpty(nobuk))
@@ -2363,8 +2384,10 @@ namespace MasterOnline.Controllers
                                 //end add by Tri 4 Des 2019, isi cancel reason
 
                                 //var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + ordersn + ") AND STATUS <> '2' AND ST_POSTING = 'T'");
-                                string qry_Retur = "SELECT F.NO_REF FROM SIT01A F LEFT JOIN SIT01A R ON R.NO_REF = F.NO_BUKTI AND R.JENIS_FORM = '3' AND F.JENIS_FORM = '2' ";
-                                qry_Retur += "WHERE F.NO_REF IN (" + ordersn + ") AND ISNULL(R.NO_BUKTI, '') = '' AND F.CUST = '" + CUST + "'";
+                                //string qry_Retur = "SELECT F.NO_REF FROM SIT01A F LEFT JOIN SIT01A R ON R.NO_REF = F.NO_BUKTI AND R.JENIS_FORM = '3' AND F.JENIS_FORM = '2' ";
+                                //qry_Retur += "WHERE F.NO_REF IN (" + ordersn + ") AND ISNULL(R.NO_BUKTI, '') = '' AND F.CUST = '" + CUST + "'";
+                                string qry_Retur = "SELECT F.NO_REF FROM SIT01A (NOLOCK) F INNER JOIN SOT01A (NOLOCK) P ON P.NO_BUKTI = F.NO_SO AND F.JENIS_FORM = '2' ";
+                                qry_Retur += "WHERE P.NO_REFERENSI IN (" + ordersn + ") AND ISNULL(F.NO_FA_OUTLET, '-') LIKE '%-%' AND P.CUST = '" + CUST + "' AND ISNULL(P.TIPE_KIRIM,0) <> 1";
                                 var dsFaktur = EDB.GetDataSet("MOConnectionString", "RETUR", qry_Retur);
                                 if (dsFaktur.Tables[0].Rows.Count > 0)
                                 {
@@ -2376,15 +2399,162 @@ namespace MasterOnline.Controllers
                                     listFaktur = listFaktur.Substring(0, listFaktur.Length - 1);
                                     var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + listFaktur + ") AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + CUST + "'");
                                 }
-                                //add by nurul 25/1/2021, bundling
-                                var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + connID + "')").ToList();
-                                if (listBrgKomponen.Count() > 0)
-                                {
-                                    ret1.AdaKomponen = true;
-                                }
-                                //end add by nurul 25/1/2021, bundling
-                                new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
+                                //moved to after checking order cod
+                                ////add by nurul 25/1/2021, bundling
+                                //var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + connID + "')").ToList();
+                                //if (listBrgKomponen.Count() > 0)
+                                //{
+                                //    ret1.AdaKomponen = true;
+                                //}
+                                ////end add by nurul 25/1/2021, bundling
+                                //new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
+                                //end moved to after checking order cod
                             }
+                            #region handle cancel COD
+                            string qrycod = "SELECT P.NO_REFERENSI, ISNULL(F.NO_REF, '') NO_REF FROM SIT01A (NOLOCK) F RIGHT JOIN SOT01A (NOLOCK) P ON P.NO_BUKTI = F.NO_SO AND F.JENIS_FORM = '2' ";
+                            qrycod += "WHERE P.NO_REFERENSI IN (" + ordersn + ") AND ISNULL(F.NO_FA_OUTLET, '-') LIKE '%-%' AND P.CUST = '" 
+                                + CUST + "' AND ISNULL(P.TIPE_KIRIM,0) = 1 AND P.STATUS_TRANSAKSI NOT IN ('11', '12')";
+                            var dsOrderCOD = EDB.GetDataSet("MOConnectionString", "COD", qrycod);
+                            if (dsOrderCOD.Tables[0].Rows.Count > 0)
+                            {
+                                //var listPesananCODTanpaFaktur = "";
+                                //var listPesananCODAdaFaktur = "";
+                                var listNoRefCOD = new List<string>();
+                                for (int k = 0; k < dsOrderCOD.Tables[0].Rows.Count; k++)
+                                {
+                                    //if (!string.IsNullOrEmpty(dsOrderCOD.Tables[0].Rows[k]["NO_REF"].ToString()))
+                                    //{
+                                    //    //listPesananCODAdaFaktur += "'" + dsOrderCOD.Tables[0].Rows[k]["NO_REFERENSI"].ToString() + "',";
+                                    //    listNoRefCOD.Add(dsOrderCOD.Tables[0].Rows[k]["NO_REFERENSI"].ToString());
+                                    //}
+                                    //else
+                                    //{
+                                    //    listPesananCODTanpaFaktur += "'" + dsOrderCOD.Tables[0].Rows[k]["NO_REFERENSI"].ToString() + "',";
+                                    //}
+                                    listNoRefCOD.Add(dsOrderCOD.Tables[0].Rows[k]["NO_REFERENSI"].ToString());
+
+                                }
+                                #region remark
+                                //if(listPesananCODTanpaFaktur != "")
+                                //{
+                                //    if(ordersDetail.Count == 0)
+                                //    {
+                                //        ordersDetail = await GetOrderDetailsForCancelReasonAPIV2(iden, ordersn_list);
+                                //        var sSQL11 = "";
+                                //        var sSQL21 = "SELECT * INTO #TEMP FROM (";
+                                //        foreach (var order in listOrder.orders)
+                                //        {
+                                //            var currentOrder = ordersDetail.Where(m => m.ordersn == order.ordersn).FirstOrDefault();
+                                //            if (currentOrder != null)
+                                //            {
+                                //                if (!string.IsNullOrEmpty(sSQL11))
+                                //                {
+                                //                    sSQL11 += " UNION ALL ";
+                                //                }
+                                //                sSQL11 += " SELECT '" + order.ordersn + "' NO_REFERENSI, '" + (currentOrder.cancel_reason ?? "") + "' ALASAN ";
+                                //            }
+                                //        }
+                                //        sSQL21 += sSQL11 + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
+                                //        sSQL21 += " SELECT A.NO_BUKTI, ALASAN, 'AUTO_SHOPEE' FROM SOT01A A INNER JOIN #TEMP T ON A.NO_REFERENSI = T.NO_REFERENSI ";
+                                //        sSQL21 += " LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = ''; DROP TABLE #TEMP";
+                                //        EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL21);
+
+                                //    }
+                                //    listPesananCODTanpaFaktur = listPesananCODTanpaFaktur.Substring(0, listPesananCODTanpaFaktur.Length - 1);
+                                //    //pesanan COD belum ada faktur -> cancel(11)
+                                //    brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connID
+                                //                + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + listPesananCODTanpaFaktur
+                                //                + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1 "
+                                //                + "AND BRG NOT IN ( SELECT BRG FROM TEMP_ALL_MP_ORDER_ITEM (NOLOCK) WHERE CONN_ID = '" + connID+"')");
+                                //    var rowAffected_1 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ("
+                                //                + listPesananCODTanpaFaktur + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1");
+                                //    rowAffected += rowAffected_1;
+                                //}
+                                #endregion
+                                if (listNoRefCOD.Count > 0)
+                                {
+                                    if (ordersDetail.Count == 0)
+                                    {
+                                        ordersDetail = await GetOrderDetailsForCancelReasonAPIV2(iden, ordersn_list);
+                                        var sSQL12 = "";
+                                        var sSQL22 = "SELECT * INTO #TEMP FROM (";
+                                        foreach (var order in listOrder.orders)
+                                        {
+                                            var currentOrder = ordersDetail.Where(m => m.ordersn == order.ordersn).FirstOrDefault();
+                                            if (currentOrder != null)
+                                            {
+                                                if (!string.IsNullOrEmpty(sSQL12))
+                                                {
+                                                    sSQL12 += " UNION ALL ";
+                                                }
+                                                sSQL12 += " SELECT '" + order.ordersn + "' NO_REFERENSI, '" + (currentOrder.cancel_reason ?? "") + "' ALASAN ";
+                                            }
+                                        }
+                                        sSQL22 += sSQL12 + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
+                                        sSQL22 += " SELECT A.NO_BUKTI, ALASAN, 'AUTO_SHOPEE' FROM SOT01A A INNER JOIN #TEMP T ON A.NO_REFERENSI = T.NO_REFERENSI ";
+                                        sSQL22 += " LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = ''; DROP TABLE #TEMP";
+                                        EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL22);
+
+                                    }
+                                    //listPesananCODAdaFaktur = listPesananCODAdaFaktur.Substring(0, listPesananCODAdaFaktur.Length - 1);
+                                    var fData = ordersDetail.Where(m => listNoRefCOD.Contains(m.ordersn)).ToList();
+                                    var listPesananCOD_11 = "";
+                                    var listPesananCOD_12 = "";
+
+                                    foreach (var ord in fData)
+                                    {
+                                        if (ord.is_actual_shipping_fee_confirmed)//sudah kirim
+                                        {
+                                            listPesananCOD_12 += "'" + ord.ordersn + "',";
+                                        }
+                                        else
+                                        {
+                                            listPesananCOD_11 += "'" + ord.ordersn + "',";
+                                        }
+                                    }
+                                    if(listPesananCOD_11 != "")//pesanan cod batal tapi belum di kirim
+                                    {
+                                        listPesananCOD_11 = listPesananCOD_11.Substring(0, listPesananCOD_11.Length - 1);
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connID
+                                                + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + listPesananCOD_11
+                                                + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1 "
+                                                + "AND BRG NOT IN ( SELECT BRG FROM TEMP_ALL_MP_ORDER_ITEM (NOLOCK) WHERE CONN_ID = '" + connID + "')");
+
+                                       var rowAffected_2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ("
+                                                        + listPesananCOD_11 + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1");
+                                        if(rowAffected_2 > 0)
+                                        {
+                                            var rowAffectedSI_2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" 
+                                                + listPesananCOD_11 + ") AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + CUST 
+                                                + "' AND ISNULL(NO_FA_OUTLET, '-') LIKE '%-%' ");
+                                            rowAffected += rowAffected_2;
+                                        }
+
+                                    }
+                                    if (listPesananCOD_12 != "")//pesanan cod batal sudah di kirim
+                                    {
+                                        listPesananCOD_12 = listPesananCOD_12.Substring(0, listPesananCOD_12.Length - 1);
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connID
+                                                + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + listPesananCOD_12
+                                                + ") AND STATUS_TRANSAKSI <> '12' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1 "
+                                                + "AND BRG NOT IN ( SELECT BRG FROM TEMP_ALL_MP_ORDER_ITEM (NOLOCK) WHERE CONN_ID = '" + connID + "')");
+
+                                        var rowAffected_3 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '12' WHERE NO_REFERENSI IN ("
+                                                         + listPesananCOD_12 + ") AND STATUS_TRANSAKSI <> '12' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1");
+                                        rowAffected += rowAffected_3;
+                                    }
+                                }
+
+                            }
+
+                            #endregion
+                            var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + connID + "')").ToList();
+                            if (listBrgKomponen.Count() > 0)
+                            {
+                                ret1.AdaKomponen = true;
+                            }
+                            new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
+
                             jmlhNewOrder = jmlhNewOrder + rowAffected;
                             if (listOrder.more)
                             {
@@ -2892,6 +3062,66 @@ namespace MasterOnline.Controllers
                 //    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
                 //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                 //}
+            }
+            return ret;
+        }
+
+        public async Task<List<ShopeeGetOrderDetailsResultOrder>> GetOrderDetailsForCancelReasonAPIV2(ShopeeAPIData iden, string[] ordersn_list)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            //Dictionary<string, string> ret = new Dictionary<string, string>();
+            var ret = new List<ShopeeGetOrderDetailsResultOrder>();
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/orders/detail";
+
+            GetOrderDetailsData HttpBody = new GetOrderDetailsData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                ordersn_list = ordersn_list
+                //ordersn_list = ordersn_list_test.ToArray()
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+
+            if (responseFromServer != "")
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderDetailsResult)) as ShopeeGetOrderDetailsResult;
+                if(result.orders != null)
+                {
+                    if(result.orders.Length > 0)
+                    {
+                        ret.AddRange(result.orders.ToList());
+                    }
+                }
+                
             }
             return ret;
         }
@@ -9071,6 +9301,7 @@ namespace MasterOnline.Controllers
             public string buyer_username { get; set; }
             public string cancel_reason { get; set; }//add by Tri 9 Des 2019
             public long ship_by_date { get; set; }//add by Tri 27 okt 2020
+            public bool is_actual_shipping_fee_confirmed { get; set; }
         }
 
         public class ShopeeGetOrderDetailsResultRecipient_Address

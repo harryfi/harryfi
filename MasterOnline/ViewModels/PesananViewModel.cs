@@ -46,7 +46,7 @@ namespace MasterOnline.ViewModels
         public int? JumlahPesananBatal { get; set; }
         public double? NilaiPesananBatal { get; set; }
         //end add by nurul 2/12/2019, tambah dashboard pesanan    
-
+        public int? JumlahBatalCOD { get; set; }//add by Tri 9 mar 2021
         //add by nurul 24/3/2020
         public PesananDetail_NotFound PesananDetail_NotFound { get; set; }
         public List<listBarang_NotFound> ListBarang_NotFound { get; set; } = new List<listBarang_NotFound>();

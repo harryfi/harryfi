@@ -192,7 +192,7 @@ namespace MasterOnline
         //public string UCAPAN { get; set; }
 
         //[StringLength(255)]
-        //public string N_UCAPAN { get; set; }
+        public string N_UCAPAN { get; set; }
 
         //[StringLength(10)]
         //public string PEMESAN { get; set; }
@@ -211,7 +211,7 @@ namespace MasterOnline
         //[StringLength(10)]
         //public string EXPEDISI { get; set; }
 
-        //public double? TIPE_KIRIM { get; set; }
+        public double? TIPE_KIRIM { get; set; }
 
         //public double? TOTAL_TITIPAN { get; set; }
 
@@ -255,6 +255,7 @@ namespace MasterOnline
         //[JsonIgnore]
         //public virtual SOT01D SOT01D { get; set; }
         public DateTime? ORDER_EXPIRED_DATE { get; set; }
+        public string NO_FAKTUR_RETUR { get; set; }
 
     }
 
