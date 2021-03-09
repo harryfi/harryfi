@@ -48,48 +48,96 @@ namespace MasterOnline.Controllers
         {
             MoDbContext = new MoDbContext("");
             usernameLogin = "";
-            var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            if (sessionData?.Account != null)
-            {
-                dbPathEra = sessionData.Account.DatabasePathErasoft;
-                //dbSourceEra = sessionData.Account.DataSourcePath;
-#if (Debug_AWS)
-                dbSourceEra = sessionData.Account.DataSourcePathDebug;
-#else
-                dbSourceEra = sessionData.Account.DataSourcePath;
-#endif
+            //var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+//            if (sessionData?.Account != null)
+//            {
+//                dbPathEra = sessionData.Account.DatabasePathErasoft;
+//                //dbSourceEra = sessionData.Account.DataSourcePath;
+//#if (Debug_AWS)
+//                dbSourceEra = sessionData.Account.DataSourcePathDebug;
+//#else
+//                dbSourceEra = sessionData.Account.DataSourcePath;
+//#endif
 
-                if (sessionData.Account.UserId == "admin_manage")
+//                if (sessionData.Account.UserId == "admin_manage")
+//                {
+//                    ErasoftDbContext = new ErasoftContext();
+//                }
+//                else
+//                {
+//                    ErasoftDbContext = new ErasoftContext(dbSourceEra, dbPathEra);
+//                }
+                
+//                EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
+//                EDBConnID = EDB.GetConnectionString("ConnID");
+//                usernameLogin = sessionData.Account.Username;
+
+//            }
+//            else
+//            {
+//                if (sessionData?.User != null)
+//                {
+//                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+//                    dbPathEra = accFromUser.DatabasePathErasoft;
+//                    //dbSourceEra = accFromUser.DataSourcePath;
+//#if (Debug_AWS)
+//                    dbSourceEra = accFromUser.DataSourcePathDebug;
+//#else
+//                    dbSourceEra = accFromUser.DataSourcePath;
+//#endif
+//                    ErasoftDbContext = new ErasoftContext(dbSourceEra, dbPathEra);
+
+//                    EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
+//                    EDBConnID = EDB.GetConnectionString("ConnID");
+//                    usernameLogin = sessionData.User.Username;
+//                }
+//            }
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+
+            if (sessionAccount != null)
+            {
+                if (sessionAccountUserID.ToString() == "admin_manage")
                 {
                     ErasoftDbContext = new ErasoftContext();
                 }
                 else
                 {
-                    ErasoftDbContext = new ErasoftContext(dbSourceEra, dbPathEra);
+#if (Debug_AWS)
+                    dbSourceEra = sessionAccountDataSourcePathDebug.ToString(); 
+#else
+                    dbSourceEra = sessionAccountDataSourcePath.ToString();
+#endif
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionAccountDatabasePathErasoft.ToString());
                 }
-                
-                EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
-                EDBConnID = EDB.GetConnectionString("ConnID");
-                usernameLogin = sessionData.Account.Username;
-
+                dbPathEra = sessionAccountDatabasePathErasoft.ToString();
+                EDB = new DatabaseSQL(sessionAccountDatabasePathErasoft.ToString());
+                username = sessionAccountUserName.ToString();
             }
             else
             {
-                if (sessionData?.User != null)
+                if (sessionUser != null)
                 {
-                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
-                    dbPathEra = accFromUser.DatabasePathErasoft;
-                    //dbSourceEra = accFromUser.DataSourcePath;
+                    var userAccID = Convert.ToInt64(sessionUserAccountID);
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == userAccID);
 #if (Debug_AWS)
                     dbSourceEra = accFromUser.DataSourcePathDebug;
 #else
                     dbSourceEra = accFromUser.DataSourcePath;
 #endif
-                    ErasoftDbContext = new ErasoftContext(dbSourceEra, dbPathEra);
-
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, accFromUser.DatabasePathErasoft);
+                    dbPathEra = accFromUser.DatabasePathErasoft;
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
-                    EDBConnID = EDB.GetConnectionString("ConnID");
-                    usernameLogin = sessionData.User.Username;
+                    username = accFromUser.Username;
                 }
             }
             if (usernameLogin.Length > 20)

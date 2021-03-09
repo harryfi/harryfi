@@ -19,7 +19,7 @@ namespace MasterOnline.Controllers
 {
     public class LazadaController : Controller
     {
-        AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+        //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
         string urlLazada = "https://api.lazada.co.id/rest";
         List<string> listSku = new List<string>();
         //string eraCallbackUrl = "https://dev.masteronline.co.id/lzd/code?user=";
@@ -50,31 +50,79 @@ namespace MasterOnline.Controllers
         public LazadaController()
         {
             MoDbContext = new MoDbContext("");
-            if (sessionData?.Account != null)
+//            if (sessionData?.Account != null)
+//            {
+//                if (sessionData.Account.UserId == "admin_manage")
+//                {
+//                    ErasoftDbContext = new ErasoftContext();
+//                }
+//                else
+//                {
+//#if (Debug_AWS)
+//                    dbSourceEra = sessionData.Account.DataSourcePathDebug;
+//#else
+//                    dbSourceEra = sessionData.Account.DataSourcePath;
+//#endif
+//                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionData.Account.DatabasePathErasoft);
+//                }
+                    
+//                EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
+//                DatabasePathErasoft = sessionData.Account.DatabasePathErasoft;
+
+//            }
+//            else
+//            {
+//                if (sessionData?.User != null)
+//                {
+//                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+//                    EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
+//#if (Debug_AWS)
+//                    dbSourceEra = accFromUser.DataSourcePathDebug;
+//#else
+//                    dbSourceEra = accFromUser.DataSourcePath;
+//#endif
+//                    //ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
+//                    ErasoftDbContext = new ErasoftContext(dbSourceEra, accFromUser.DatabasePathErasoft);
+//                    DatabasePathErasoft = accFromUser.DatabasePathErasoft;
+//                }
+//            }
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+
+            if (sessionAccount != null)
             {
-                if (sessionData.Account.UserId == "admin_manage")
+                if (sessionAccountUserID.ToString() == "admin_manage")
                 {
                     ErasoftDbContext = new ErasoftContext();
                 }
                 else
                 {
 #if (Debug_AWS)
-                    dbSourceEra = sessionData.Account.DataSourcePathDebug;
+                    dbSourceEra = sessionAccountDataSourcePathDebug.ToString();
 #else
-                    dbSourceEra = sessionData.Account.DataSourcePath;
+                    dbSourceEra = sessionAccountDataSourcePath.ToString();
 #endif
-                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionData.Account.DatabasePathErasoft);
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionAccountDatabasePathErasoft.ToString());
                 }
-                    
-                EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
-                DatabasePathErasoft = sessionData.Account.DatabasePathErasoft;
 
+                EDB = new DatabaseSQL(sessionAccountDatabasePathErasoft.ToString());
+                DatabasePathErasoft = sessionAccountDatabasePathErasoft.ToString();
             }
             else
             {
-                if (sessionData?.User != null)
+                if (sessionUser != null)
                 {
-                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                    var userAccID = Convert.ToInt64(sessionUserAccountID);
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == userAccID);
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
 #if (Debug_AWS)
                     dbSourceEra = accFromUser.DataSourcePathDebug;
@@ -106,16 +154,28 @@ namespace MasterOnline.Controllers
         public string LazadaUrl(string cust)
         {
             string userId = "";
-            if (sessionData?.Account != null)
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+
+            if (sessionAccount != null)
             {
-                userId = sessionData.Account.DatabasePathErasoft;
+                userId = sessionAccountDatabasePathErasoft.ToString();
 
             }
             else
             {
-                if (sessionData?.User != null)
+                if (sessionUser != null)
                 {
-                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                    var userAccID = Convert.ToInt64(sessionUserAccountID);
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == userAccID);
                     userId = accFromUser.DatabasePathErasoft;
                 }
             }
@@ -1996,7 +2056,19 @@ namespace MasterOnline.Controllers
 
                             //int i = 1;
                             var connIDARF01C = Guid.NewGuid().ToString();
-                            string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+
+                            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+                            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+                            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+                            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+                            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+                            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+                            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+                            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+                            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+
+                            string username = sessionAccount != null ? sessionAccountUserName.ToString() : sessionUserUsername.ToString();
                             if (username.Length > 20)
                                 username = username.Substring(0, 17) + "...";
 
@@ -2266,7 +2338,19 @@ namespace MasterOnline.Controllers
 
                             //int i = 1;
                             var connIDARF01C = Guid.NewGuid().ToString();
-                            string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+
+                            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+                            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+                            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+                            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+                            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+                            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+                            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+                            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+                            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+
+                            string username = sessionAccount != null ? sessionAccountUserName.ToString() : sessionUserUsername.ToString();
                             if (username.Length > 20)
                                 username = username.Substring(0, 17) + "...";
 
@@ -2682,7 +2766,19 @@ namespace MasterOnline.Controllers
 
                         int i = 1;
                         var connectionID = Guid.NewGuid().ToString();
-                        string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+
+                        var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+                        var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+                        var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+                        var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+                        var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+                        var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+                        var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+                        var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+                        var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+
+                        string username = sessionAccount != null ? sessionAccountUserName.ToString() : sessionUserUsername.ToString();
                         if (username.Length > 20)
                             username = username.Substring(0, 17) + "...";
 
@@ -2806,7 +2902,19 @@ namespace MasterOnline.Controllers
                             insertQ += ",[STATUS],[SHIPMENT_PROVIDER],[IS_DIGITAL],[TRACKING_CODE],[REASON],[REASON_DETAIL],[PURCHASE_ORDERID]";
                             insertQ += ",[PURCHASE_ORDER_NUM],[PACKAGE_ID],[EXTRA_ATTRIBUTES],[SHIPPING_PROVIDER_TYPE],[CREATED_AT],[UPDATED_AT]";
                             insertQ += ",[RETURN_STATUS],[PRODUCT_MAIN_IMAGE],[VARIATION],[PRODUCT_DETAIL_URL],[INVOICE_NUM],[USERNAME],[CONNECTION_ID]) VALUES ";
-                            string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+
+                            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+                            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+                            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+                            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+                            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+                            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+                            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+                            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+                            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+
+                            string username = sessionAccount != null ? sessionAccountUserName .ToString() : sessionUserUsername.ToString();
                             if (username.Length > 20)
                                 username = username.Substring(0, 17) + "...";
 

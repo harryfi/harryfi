@@ -43,7 +43,7 @@
     }
     else
     {
-        var userAccID = Convert.ToInt64(sessionAccount);
+        var userAccID = Convert.ToInt64(sessionUserAccountID);
         var accFromUser = context.Account.Single(a => a.AccountId == userAccID);
         erasoftContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
 

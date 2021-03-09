@@ -156,7 +156,8 @@ namespace MasterOnline.Controllers
             {
                 if (sessionUser != null)
                 {
-                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == Convert.ToInt64(sessionUserAccountID));
+                    var userAccountID = Convert.ToInt64(sessionUserAccountID);
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == userAccountID);
                     dbPathEra = accFromUser.DatabasePathErasoft;
                     //dbSourceEra = accFromUser.DataSourcePath;
 #if (Debug_AWS)

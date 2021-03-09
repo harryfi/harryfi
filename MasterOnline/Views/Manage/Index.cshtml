@@ -1945,7 +1945,8 @@
                     }
                     else if (sessionUser != null)
                     {
-                        accountId = context.Account.SingleOrDefault(a => a.AccountId == Convert.ToInt64(sessionUser)).AccountId;
+                        var sessUserAccID = Convert.ToInt64(sessionUserAccountID);
+                        accountId = context.Account.SingleOrDefault(a => a.AccountId == sessUserAccID).AccountId;
                     }
                     //end change by nurul 4/2/2019
                     var account = context.Account.Where(p => p.AccountId == accountId).SingleOrDefault();
