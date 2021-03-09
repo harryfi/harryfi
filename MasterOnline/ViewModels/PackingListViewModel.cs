@@ -53,7 +53,8 @@ namespace MasterOnline.ViewModels
         //public double? BARCODE { get; set; }
         //end add by nurul 22/7/2020
         public bool? BARCODE { get; set; }
-
+        public double? TIPE_KIRIM { get; set; }
+        public string N_UCAPAN { get; set; }
     }
 
     public class RekapBarang

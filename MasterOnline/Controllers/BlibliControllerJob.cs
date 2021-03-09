@@ -1126,7 +1126,7 @@ namespace MasterOnline.Controllers
                             sSQL += "@destinationLongitude,@destinationLatitude";
                             sSQL += ")";
                             oCommand.CommandText = sSQL;
-
+                            #region set param
                             oCommand.Parameters.Add(new SqlParameter("@CUST", SqlDbType.NVarChar, 10));
                             oCommand.Parameters.Add(new SqlParameter("@NAMA_CUST", SqlDbType.NVarChar, 50));
                             oCommand.Parameters.Add(new SqlParameter("@CONN_ID", SqlDbType.NVarChar, 100));
@@ -1190,6 +1190,7 @@ namespace MasterOnline.Controllers
                             oCommand.Parameters.Add(new SqlParameter("@logisticsOptionName", SqlDbType.NVarChar, 200));
                             oCommand.Parameters.Add(new SqlParameter("@destinationLongitude", SqlDbType.NVarChar, 200));
                             oCommand.Parameters.Add(new SqlParameter("@destinationLatitude", SqlDbType.NVarChar, 200));
+                            #endregion
                             var nama = result.value.custName.Replace("'", "`");
                             if (nama.Length > 30)
                                 nama = nama.Substring(0, 30);
@@ -1257,7 +1258,8 @@ namespace MasterOnline.Controllers
                             //var endOperationalTime = !string.IsNullOrEmpty(result.value.endOperationalTime) ? result.value.endOperationalTime.Replace("'", "`") : "";
                             //if (endOperationalTime.Length > 200)
                             //    endOperationalTime = endOperationalTime.Substring(0, 200);
-                            var issuer = !string.IsNullOrEmpty(result.value.issuer) ? result.value.issuer.Replace("'", "`") : "";
+                            //var issuer = !string.IsNullOrEmpty(result.value.issuer) ? result.value.issuer.Replace("'", "`") : "";
+                            var issuer = !string.IsNullOrEmpty(result.value.orderType) ? result.value.orderType.Replace("'", "`") : "";
                             if (issuer.Length > 200)
                                 issuer = issuer.Substring(0, 200);
                             var refundResolution = !string.IsNullOrEmpty(result.value.refundResolution) ? result.value.refundResolution.Replace("'", "`") : "";
@@ -11629,6 +11631,7 @@ namespace MasterOnline.Controllers
             public object version { get; set; }
             public string orderNo { get; set; }
             public string orderItemNo { get; set; }
+            public string orderType { get; set; }
             public int qty { get; set; }
             public long orderDate { get; set; }
             public long? autoCancelDate { get; set; }

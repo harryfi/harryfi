@@ -3524,6 +3524,9 @@ namespace MasterOnline.Controllers
             var getFaktur = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(BRUTO,0)),0) as bruto from sot01a(nolock) where status_transaksi='03'").Single();
             var JumlahFaktur = getFaktur.COUNT_TRANSAKSI;
             var NilaiFaktur = getFaktur.bruto;
+
+            var getBatalCOD = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(p.RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(p.BRUTO,0)),0) as bruto  from sot01a(nolock) p left join sit01a(nolock) f on p.no_bukti = f.no_so where status_transaksi='12' and isnull(f.no_fa_outlet, '-') like '%-%' ").Single();
+            var JumlahBatalCOD = getBatalCOD.COUNT_TRANSAKSI;
             //end change by nurul 1/12/2020, req pak richard hanya 1 bulan terakhir 
             //end add by nurul 2/12/2019, penambahan dashboard pesanan
 
@@ -3541,6 +3544,7 @@ namespace MasterOnline.Controllers
             //{
             var vm = new PesananViewModel
             {
+                JumlahBatalCOD = JumlahBatalCOD,//add by Tri 9 mar 2021
                 ListSubs = MoDbContext.Subscription.AsNoTracking().ToList(),
                 DataUsaha = dataUsaha,
                 ListPesanan = ceklistPesanan,
@@ -23303,32 +23307,45 @@ namespace MasterOnline.Controllers
             ViewData["LastPage"] = page;
             //ADD BY NURUL 27/9/2019
             bool searchStatus = false;
-            if (search.ToUpper() == "BELUM BAYAR")
+            bool searchCOD = false;
+            bool searchPreorder = false;
+            if (!string.IsNullOrEmpty(search))
+            {
+                if (search.ToUpper().Contains("COD"))
+                {
+                    searchCOD = true;
+                }
+                if (search.ToUpper().Contains("PREORDER"))
+                {
+                    searchPreorder = true;
+                }
+            }
+            if (search.ToUpper().Contains("BELUM BAYAR"))
             {
                 search = "0";
                 searchStatus = true;
             }
-            else if (search.ToUpper() == "SUDAH BAYAR")
+            else if (search.ToUpper().Contains("SUDAH BAYAR"))
             {
                 search = "01";
                 searchStatus = true;
             }
-            else if (search.ToUpper() == "PACKING")
+            else if (search.ToUpper().Contains("PACKING"))
             {
                 search = "02";
                 searchStatus = true;
             }
-            else if (search.ToUpper() == "FAKTUR")
+            else if (search.ToUpper().Contains("FAKTUR"))
             {
                 search = "03";
                 searchStatus = true;
             }
-            else if (search.ToUpper() == "SELESAI")
+            else if (search.ToUpper().Contains("SELESAI"))
             {
                 search = "04";
                 searchStatus = true;
             }
-            else if (search.ToUpper() == "BATAL")
+            else if (search.ToUpper().Contains("BATAL"))
             {
                 search = "11";
 
@@ -23375,6 +23392,7 @@ namespace MasterOnline.Controllers
 
             string sSQLSelect = "";
             sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, A.JAMKIRIM AS TGLKIRIM, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS], ISNULL(A.[USER_NAME],'') AS [USER_NAME], ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT] ";
+            sSQLSelect += ",ISNULL(A.TIPE_KIRIM, 0) TIPE_KIRIM, ISNULL(A.N_UCAPAN, 0) N_UCAPAN ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -23410,6 +23428,27 @@ namespace MasterOnline.Controllers
                         }
                     }
                     break;
+                case "tipe":
+                    {
+                        if (filtervalue != null && filtervalue != "Harap Pilih")
+                        {
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) ";
+                            if (filtervalue == "cod")
+                            {
+                                sSQLTemp += "WHERE ISNULL(TIPE_KIRIM,0) = 1; ";
+                            }
+                            if (filtervalue == "preorder")
+                            {
+                                sSQLTemp += "WHERE ISNULL(N_UCAPAN,'') = 'preorder'; ";
+                            }
+                            sSQL2 += "FROM #SOT01A A (NOLOCK) ";
+                        }
+                        else
+                        {
+                            sSQL2 += "FROM SOT01A A (NOLOCK) ";
+                        }
+                    }
+                    break;
                 default:
                     {
                         sSQL2 += "FROM SOT01A A (NOLOCK) ";
@@ -23425,10 +23464,40 @@ namespace MasterOnline.Controllers
                 if (searchStatus)
                 {
                     sSQL2 += " WHERE ( A.STATUS_TRANSAKSI = '" + search + "' )";
+                    if (searchCOD && searchPreorder)
+                    {
+                        sSQL2 += " OR (TIPE_KIRIM = 1 AND N_UCAPAN = 'Preorder') ";
+                    }
+                    else
+                    {
+                        if (searchCOD)
+                        {
+                            sSQL2 += " AND TIPE_KIRIM = 1 ";
+                        }
+                        if (searchPreorder)
+                        {
+                            sSQL2 += " AND N_UCAPAN = 'Preorder' ";
+                        }
+                    }
                 }
                 else
                 {
                     sSQL2 += " WHERE ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
+                    if (searchCOD && searchPreorder)
+                    {
+                        sSQL2 += " OR (TIPE_KIRIM = 1 AND N_UCAPAN = 'Preorder') ";
+                    }
+                    else
+                    {
+                        if (searchCOD)
+                        {
+                            sSQL2 += " OR TIPE_KIRIM = 1 ";
+                        }
+                        if (searchPreorder)
+                        {
+                            sSQL2 += " OR N_UCAPAN = 'Preorder' ";
+                        }
+                    }
                 }
             }
 
@@ -24284,7 +24353,19 @@ namespace MasterOnline.Controllers
             string sSQLpembeli = "";
             string sSQLkurir = "";
             string sSQLreferensi = "";
-
+            bool searchCOD = false;
+            bool searchPreorder = false;
+            if (!string.IsNullOrEmpty(search))
+            {
+                if (search.ToUpper().Contains("COD"))
+                {
+                    searchCOD = true;
+                }
+                if (search.ToUpper().Contains("PREORDER"))
+                {
+                    searchPreorder = true;
+                }
+            }
             if (getkata.Length > 0)
             {
                 if (search != "")
@@ -24316,6 +24397,7 @@ namespace MasterOnline.Controllers
 
             string sSQLSelect = "";
             sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ,ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT] ";
+            sSQLSelect += " ,ISNULL(A.TIPE_KIRIM, 0) TIPE_KIRIM, ISNULL(A.N_UCAPAN, 0) N_UCAPAN ";
             //ADD BY NURUL 7/8/2020
             //sSQLSelect += ", ISNULL(CONVERT(VARCHAR,KET),'') AS catatanPembeli ";
             //sSQLSelect += ", ISNULL(A.KET,'') AS catatanPembeli ";
@@ -24356,6 +24438,27 @@ namespace MasterOnline.Controllers
                         }
                     }
                     break;
+                case "tipe":
+                    {
+                        if (filtervalue != null && filtervalue != "Harap Pilih")
+                        {
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) ";
+                            if (filtervalue == "cod")
+                            {
+                                sSQLTemp += "WHERE STATUS_TRANSAKSI = '01' AND ISNULL(TIPE_KIRIM,0) = 1; ";
+                            }
+                            if (filtervalue == "preorder")
+                            {
+                                sSQLTemp += "WHERE STATUS_TRANSAKSI = '01' AND ISNULL(N_UCAPAN,'') = 'preorder'; ";
+                            }
+                            sSQL2 += "FROM #SOT01A A (NOLOCK) ";
+                        }
+                        else
+                        {
+                            sSQL2 += "FROM SOT01A A (NOLOCK) ";
+                        }
+                    }
+                    break;
                 default:
                     {
                         sSQL2 += "FROM SOT01A A (NOLOCK) ";
@@ -24369,7 +24472,24 @@ namespace MasterOnline.Controllers
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%') ";
-                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
+                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ";
+
+                if (searchCOD && searchPreorder)
+                {
+                    sSQL2 += " OR (A.TIPE_KIRIM = 1 AND A.N_UCAPAN = 'Preorder') ";
+                }
+                else
+                {
+                    if (searchCOD)
+                    {
+                        sSQL2 += " OR A.TIPE_KIRIM = 1 ";
+                    }
+                    if (searchPreorder)
+                    {
+                        sSQL2 += " OR A.N_UCAPAN = 'Preorder' ";
+                    }
+                }
+                sSQL2 += ")";
             }
             string sSQLSelect2 = "";
             //ADD BY NURUL 4/12/2019
@@ -24664,7 +24784,19 @@ namespace MasterOnline.Controllers
             string sSQLpembeli = "";
             string sSQLkurir = "";
             string sSQLreferensi = "";
-
+            bool searchCOD = false;
+            bool searchPreorder = false;
+            if (!string.IsNullOrEmpty(search))
+            {
+                if (search.ToUpper().Contains("COD"))
+                {
+                    searchCOD = true;
+                }
+                if (search.ToUpper().Contains("PREORDER"))
+                {
+                    searchPreorder = true;
+                }
+            }
             if (getkata.Length > 0)
             {
                 if (search != "")
@@ -24696,6 +24828,7 @@ namespace MasterOnline.Controllers
 
             string sSQLSelect = "";
             sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ,ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT] ";
+            sSQLSelect += " ,ISNULL(A.TIPE_KIRIM, 0) TIPE_KIRIM, ISNULL(A.N_UCAPAN, 0) N_UCAPAN ";
             //ADD BY NURUL 7/8/2020
             //sSQLSelect += ", ISNULL(CONVERT(VARCHAR,KET),'') AS catatanPembeli ";
             //sSQLSelect += ", ISNULL(A.KET,'') AS catatanPembeli ";
@@ -24736,6 +24869,27 @@ namespace MasterOnline.Controllers
                         }
                     }
                     break;
+                case "tipe":
+                    {
+                        if (filtervalue != null && filtervalue != "Harap Pilih")
+                        {
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) ";
+                            if (filtervalue == "cod")
+                            {
+                                sSQLTemp += "WHERE STATUS_TRANSAKSI = '02' AND ISNULL(TIPE_KIRIM,0) = 1; ";
+                            }
+                            if (filtervalue == "preorder")
+                            {
+                                sSQLTemp += "WHERE STATUS_TRANSAKSI = '02' AND ISNULL(N_UCAPAN,'') = 'preorder'; ";
+                            }
+                            sSQL2 += "FROM #SOT01A A (NOLOCK) ";
+                        }
+                        else
+                        {
+                            sSQL2 += "FROM SOT01A A (NOLOCK) ";
+                        }
+                    }
+                    break;
                 default:
                     {
                         sSQL2 += "FROM SOT01A A (NOLOCK) ";
@@ -24749,7 +24903,24 @@ namespace MasterOnline.Controllers
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%') ";
-                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
+                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ";
+
+                if (searchCOD && searchPreorder)
+                {
+                    sSQL2 += " OR (A.TIPE_KIRIM = 1 AND A.N_UCAPAN = 'Preorder') ";
+                }
+                else
+                {
+                    if (searchCOD)
+                    {
+                        sSQL2 += " OR A.TIPE_KIRIM = 1 ";
+                    }
+                    if (searchPreorder)
+                    {
+                        sSQL2 += " OR A.N_UCAPAN = 'Preorder' ";
+                    }
+                }
+                sSQL2 += ")";
             }
             string sSQLSelect2 = "";
             //ADD BY NURUL 4/12/2019
@@ -24841,6 +25012,20 @@ namespace MasterOnline.Controllers
             string sSQLnetto = "";
             string sSQLkurir = "";
             string sSQLreferensi = "";
+            string sSQLpackingList = "";
+            bool searchCOD = false;
+            bool searchPreorder = false;
+            if (!string.IsNullOrEmpty(search))
+            {
+                if (search.ToUpper().Contains("COD"))
+                {
+                    searchCOD = true;
+                }
+                if (search.ToUpper().Contains("PREORDER"))
+                {
+                    searchPreorder = true;
+                }
+            }
             if (getkata.Length > 0)
             {
                 if (search != "")
@@ -24857,6 +25042,7 @@ namespace MasterOnline.Controllers
                             sSQLnetto += " and ";
                             sSQLkurir += " and ";
                             sSQLreferensi += " and ";
+                            sSQLpackingList += " and ";
                         }
 
                         sSQLkode += " A.NO_BUKTI like '%" + getkata[i] + "%' ";
@@ -24867,6 +25053,7 @@ namespace MasterOnline.Controllers
                         sSQLnetto += "  A.NETTO like '%" + getkata[i] + "%' ";
                         sSQLkurir += "  A.SHIPMENT like '%" + getkata[i] + "%' ";
                         sSQLreferensi += "  A.NO_REFERENSI like '%" + getkata[i] + "%' ";
+                        sSQLpackingList += "  E.NO_BUKTI like '%" + getkata[i] + "%' ";
                     }
                 }
             }
@@ -24875,6 +25062,7 @@ namespace MasterOnline.Controllers
 
             string sSQLSelect = "";
             sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, ISNULL(D.NO_BUKTI,'') AS NO_FAKTUR, A.TRACKING_SHIPMENT as RESI, ISNULL(D.NO_SO,'') as FAKTUR, ISNULL(D.TGL,'') as TGL_FAKTUR, A.CUST as CUST, A.STATUS_TRANSAKSI AS [STATUS] ,ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT] ";
+            sSQLSelect += " ,ISNULL(A.TIPE_KIRIM, 0) TIPE_KIRIM, ISNULL(A.N_UCAPAN, 0) N_UCAPAN ";
             //ADD BY CALVIN 29 NOV 2019
             //sSQLSelect += ", A.status_kirim, A.status_print, ISNULL(E.NO_BUKTI,'') AS PACKINGNO ";
             sSQLSelect += ", A.status_kirim, A.status_print, ISNULL(E.NO_BUKTI,'') AS PACKINGNO, ORDER_EXPIRED_DATE ";
@@ -24920,6 +25108,27 @@ namespace MasterOnline.Controllers
                         sSQL2 += " FROM #SOT01A A (NOLOCK) ";
                     }
                     break;
+                case "tipe":
+                    {
+                        if (filtervalue != null && filtervalue != "Harap Pilih")
+                        {
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) ";
+                            if (filtervalue == "cod")
+                            {
+                                sSQLTemp += "WHERE STATUS_TRANSAKSI = '03' AND ISNULL(TIPE_KIRIM,0) = 1; ";
+                            }
+                            if (filtervalue == "preorder")
+                            {
+                                sSQLTemp += "WHERE STATUS_TRANSAKSI = '03' AND ISNULL(N_UCAPAN,'') = 'preorder'; ";
+                            }
+                            sSQL2 += "FROM #SOT01A A (NOLOCK) ";
+                        }
+                        else
+                        {
+                            sSQL2 += "FROM SOT01A A (NOLOCK) ";
+                        }
+                    }
+                    break;
                 default:
                     {
                         sSQL2 += "FROM SOT01A A (NOLOCK) ";
@@ -24935,7 +25144,25 @@ namespace MasterOnline.Controllers
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%' OR D.NO_BUKTI LIKE '%" + search + "%' OR A.TRACKING_SHIPMENT LIKE '%" + search + "%') ";
-                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLfaktur + ") or (" + sSQLresi + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
+                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLfaktur + ") or (" + sSQLresi 
+                    + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") or (" + sSQLpackingList + ") ";
+
+                if (searchCOD && searchPreorder)
+                {
+                    sSQL2 += " OR (A.TIPE_KIRIM = 1 AND A.N_UCAPAN = 'Preorder') ";
+                }
+                else
+                {
+                    if (searchCOD)
+                    {
+                        sSQL2 += " OR A.TIPE_KIRIM = 1 ";
+                    }
+                    if (searchPreorder)
+                    {
+                        sSQL2 += " OR A.N_UCAPAN = 'Preorder' ";
+                    }
+                }
+                sSQL2 += ")";
             }
             string sSQLSelect2 = "";
             if (filter == "tanggal" && filtervalue == "asc")
@@ -25008,6 +25235,20 @@ namespace MasterOnline.Controllers
             string sSQLfaktur = "";
             string sSQLkurir = "";
             string sSQLreferensi = "";
+            string sSQLpackingList = "";
+            bool searchCOD = false;
+            bool searchPreorder = false;
+            if (!string.IsNullOrEmpty(search))
+            {
+                if (search.ToUpper().Contains("COD"))
+                {
+                    searchCOD = true;
+                }
+                if (search.ToUpper().Contains("PREORDER"))
+                {
+                    searchPreorder = true;
+                }
+            }
             if (getkata.Length > 0)
             {
                 if (search != "")
@@ -25023,6 +25264,7 @@ namespace MasterOnline.Controllers
                             sSQLfaktur += " AND ";
                             sSQLkurir += " and ";
                             sSQLreferensi += " and ";
+                            sSQLpackingList += " and ";
                         }
 
                         sSQLkode += " A.NO_BUKTI like '%" + getkata[i] + "%' ";
@@ -25032,6 +25274,7 @@ namespace MasterOnline.Controllers
                         sSQLfaktur += "  D.NO_BUKTI like '%" + getkata[i] + "%' ";
                         sSQLkurir += "  A.SHIPMENT like '%" + getkata[i] + "%' ";
                         sSQLreferensi += "  A.NO_REFERENSI like '%" + getkata[i] + "%' ";
+                        sSQLpackingList += "  E.NO_BUKTI like '%" + getkata[i] + "%' ";
 
                     }
                 }
@@ -25040,6 +25283,7 @@ namespace MasterOnline.Controllers
 
             string sSQLSelect = "";
             sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, ISNULL(D.NO_BUKTI,'') AS NO_FAKTUR, A.STATUS_TRANSAKSI AS [STATUS] ,ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT] ";
+            sSQLSelect += " ,ISNULL(A.TIPE_KIRIM, 0) TIPE_KIRIM, ISNULL(A.N_UCAPAN, 0) N_UCAPAN, ISNULL(E.NO_BUKTI,'') AS PACKINGNO ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -25076,6 +25320,27 @@ namespace MasterOnline.Controllers
                         }
                     }
                     break;
+                case "tipe":
+                    {
+                        if (filtervalue != null && filtervalue != "Harap Pilih")
+                        {
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) ";
+                            if (filtervalue == "cod")
+                            {
+                                sSQLTemp += "WHERE STATUS_TRANSAKSI = '04' AND ISNULL(TIPE_KIRIM,0) = 1; ";
+                            }
+                            if (filtervalue == "preorder")
+                            {
+                                sSQLTemp += "WHERE STATUS_TRANSAKSI = '04' AND ISNULL(N_UCAPAN,'') = 'preorder'; ";
+                            }
+                            sSQL2 += "FROM #SOT01A A (NOLOCK) ";
+                        }
+                        else
+                        {
+                            sSQL2 += "FROM SOT01A A (NOLOCK) ";
+                        }
+                    }
+                    break;
                 default:
                     {
                         sSQL2 += "FROM SOT01A A (NOLOCK) ";
@@ -25086,11 +25351,30 @@ namespace MasterOnline.Controllers
             sSQL2 += "LEFT JOIN ARF01 B(NOLOCK) ON A.CUST = B.CUST ";
             sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C(NOLOCK) ON B.NAMA = C.IdMarket ";
             sSQL2 += "LEFT JOIN SIT01A D(NOLOCK) ON A.NO_BUKTI = D.NO_SO ";
+            sSQL2 += "LEFT JOIN SOT03B E(NOLOCK) ON A.NO_BUKTI = E.NO_PESANAN ";
             sSQL2 += "WHERE A.STATUS_TRANSAKSI='04' ";
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%' OR D.NO_BUKTI LIKE '%" + search + "%') ";
-                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLfaktur + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
+                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLfaktur + ") or (" + sSQLnetto + ") or (" 
+                    + sSQLkurir + ") or (" + sSQLreferensi + ") or (" + sSQLpackingList + ") ";
+
+                if (searchCOD && searchPreorder)
+                {
+                    sSQL2 += " OR (A.TIPE_KIRIM = 1 AND A.N_UCAPAN = 'Preorder') ";
+                }
+                else
+                {
+                    if (searchCOD)
+                    {
+                        sSQL2 += " OR A.TIPE_KIRIM = 1 ";
+                    }
+                    if (searchPreorder)
+                    {
+                        sSQL2 += " OR A.N_UCAPAN = 'Preorder' ";
+                    }
+                }
+                sSQL2 += ")";
             }
             string sSQLSelect2 = "";
             //ADD BY NURUL 4/12/2019
@@ -25146,7 +25430,20 @@ namespace MasterOnline.Controllers
             string sSQLnetto = "";
             string sSQLpembeli = "";
             string sSQLkurir = "";
-            string sSQLreferensi = "";
+            string sSQLreferensi = ""; 
+            bool searchCOD = false;
+            bool searchPreorder = false;
+            if (!string.IsNullOrEmpty(search))
+            {
+                if (search.ToUpper().Contains("COD"))
+                {
+                    searchCOD = true;
+                }
+                if (search.ToUpper().Contains("PREORDER"))
+                {
+                    searchPreorder = true;
+                }
+            }
             if (getkata.Length > 0)
             {
                 if (search != "")
@@ -25177,6 +25474,7 @@ namespace MasterOnline.Controllers
 
             string sSQLSelect = "";
             sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ,ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT], D.CATATAN_1 AS CancelReason ";
+            sSQLSelect += " ,ISNULL(A.TIPE_KIRIM, 0) TIPE_KIRIM, ISNULL(A.N_UCAPAN, 0) N_UCAPAN ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -25212,6 +25510,27 @@ namespace MasterOnline.Controllers
                         }
                     }
                     break;
+                case "tipe":
+                    {
+                        if (filtervalue != null && filtervalue != "Harap Pilih")
+                        {
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) ";
+                            if (filtervalue == "cod")
+                            {
+                                sSQLTemp += "WHERE STATUS_TRANSAKSI = '11' AND ISNULL(TIPE_KIRIM,0) = 1; ";
+                            }
+                            if (filtervalue == "preorder")
+                            {
+                                sSQLTemp += "WHERE STATUS_TRANSAKSI = '11' AND ISNULL(N_UCAPAN,'') = 'preorder'; ";
+                            }
+                            sSQL2 += "FROM #SOT01A A (NOLOCK) ";
+                        }
+                        else
+                        {
+                            sSQL2 += "FROM SOT01A A (NOLOCK) ";
+                        }
+                    }
+                    break;
                 default:
                     {
                         sSQL2 += "FROM SOT01A A (NOLOCK) ";
@@ -25228,7 +25547,24 @@ namespace MasterOnline.Controllers
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%') ";
-                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
+                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ";
+
+                if (searchCOD && searchPreorder)
+                {
+                    sSQL2 += " OR (A.TIPE_KIRIM = 1 AND A.N_UCAPAN = 'Preorder') ";
+                }
+                else
+                {
+                    if (searchCOD)
+                    {
+                        sSQL2 += " OR A.TIPE_KIRIM = 1 ";
+                    }
+                    if (searchPreorder)
+                    {
+                        sSQL2 += " OR A.N_UCAPAN = 'Preorder' ";
+                    }
+                }
+                sSQL2 += ")";
             }
             string sSQLSelect2 = "";
             //ADD BY NURUL 4/12/2019
@@ -25253,6 +25589,204 @@ namespace MasterOnline.Controllers
             SetNoLockOff(ErasoftDbContext);
 
             return PartialView("TablePesananCancelPartial", pageOrders);
+
+            //end change by nurul 8/5/2019, paging
+        }
+
+        public ActionResult RefreshTablePesananCancelCOD(int? page, string search = "", string filter = "", string filtervalue = "")
+        {
+            // change by nurul 8/5/2019, paging
+            //var vm = new PesananViewModel()
+            //{
+            //    ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.STATUS_TRANSAKSI == "11").ToList(),
+            //    //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
+            //    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+            //    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+            //    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+            //    ListMarketplace = MoDbContext.Marketplaces.ToList()
+            //};
+
+            //return PartialView("TablePesananCancelPartial", vm);
+            SetNoLockOn(ErasoftDbContext);
+
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+
+            //ADD BY NURUL 27/9/2019
+            string[] getkata = search.Split(' ');
+            string sSQLkode = "";
+            string sSQLmarket = "";
+            string sSQLnetto = "";
+            string sSQLpembeli = "";
+            string sSQLkurir = "";
+            string sSQLreferensi = "";
+            string sSQLfaktur = "";
+            string sSQLRetur = "";
+            bool searchCOD = false;
+            bool searchPreorder = false;
+            if (!string.IsNullOrEmpty(search))
+            {
+                if (search.ToUpper().Contains("COD"))
+                {
+                    searchCOD = true;
+                }
+                if (search.ToUpper().Contains("PREORDER"))
+                {
+                    searchPreorder = true;
+                }
+            }
+            if (getkata.Length > 0)
+            {
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sSQLkode += " AND ";
+                            sSQLmarket += " AND ";
+                            sSQLnetto += " AND ";
+                            sSQLpembeli += " AND ";
+                            sSQLkurir += " and ";
+                            sSQLreferensi += " and ";
+                            sSQLfaktur += " and ";
+                            sSQLRetur += " and ";
+                        }
+
+                        sSQLkode += " A.NO_BUKTI like '%" + getkata[i] + "%' ";
+                        sSQLmarket += "  (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ";
+                        sSQLnetto += "  A.NETTO like '%" + getkata[i] + "%' ";
+                        sSQLpembeli += "  A.NAMAPEMESAN like '%" + getkata[i] + "%' ";
+                        sSQLkurir += "  A.SHIPMENT like '%" + getkata[i] + "%' ";
+                        sSQLreferensi += "  A.NO_REFERENSI like '%" + getkata[i] + "%' ";
+                        sSQLfaktur += "  E.NO_BUKTI like '%" + getkata[i] + "%' ";
+                        sSQLRetur += "  E.NO_FA_OUTLET like '%" + getkata[i] + "%' ";
+
+                    }
+                }
+            }
+            //END ADD BY NURUL 27/9/2019
+
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ,ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT], D.CATATAN_1 AS CancelReason ";
+            sSQLSelect += " ,ISNULL(A.TIPE_KIRIM, 0) TIPE_KIRIM, ISNULL(A.N_UCAPAN, 0) N_UCAPAN, ISNULL(E.NO_BUKTI,'') AS NO_FAKTUR , ISNULL(E.NO_FA_OUTLET,'-') AS NO_FAKTUR_RETUR ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            //ADD BY NURUL 4/12/2019
+            string sSQLTemp = "";
+            switch (filter)
+            {
+                case "marketplace":
+                    {
+                        if (filtervalue != null && filtervalue != "Harap Pilih")
+                        {
+                            var listCustSesuaiFilter = ErasoftDbContext.ARF01.Where(p => p.NAMA == filtervalue).Select(p => p.CUST).ToList();
+                            var queryfilter = "";
+                            foreach (var item in listCustSesuaiFilter)
+                            {
+                                if (queryfilter != "") { queryfilter += ","; }
+                                queryfilter += "'" + item + "'";
+                            }
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) WHERE STATUS_TRANSAKSI = '12' AND ";
+                            if (queryfilter != "")
+                            {
+                                sSQLTemp += " CUST IN(" + queryfilter + "); " + Environment.NewLine;
+                            }
+                            else
+                            {
+                                sSQLTemp += " 0 = 1; " + Environment.NewLine;
+                            }
+                            sSQL2 += "FROM #SOT01A A (NOLOCK) ";
+                        }
+                        else
+                        {
+                            sSQL2 += "FROM SOT01A A (NOLOCK) ";
+                        }
+                    }
+                    break;
+                case "tipe":
+                    {
+                        if (filtervalue != null && filtervalue != "Harap Pilih")
+                        {
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) ";
+                            if (filtervalue == "cod")
+                            {
+                                sSQLTemp += "WHERE STATUS_TRANSAKSI = '12' AND ISNULL(TIPE_KIRIM,0) = 1; ";
+                            }
+                            if (filtervalue == "preorder")
+                            {
+                                sSQLTemp += "WHERE STATUS_TRANSAKSI = '12' AND ISNULL(N_UCAPAN,'') = 'preorder'; ";
+                            }
+                            sSQL2 += "FROM #SOT01A A (NOLOCK) ";
+                        }
+                        else
+                        {
+                            sSQL2 += "FROM SOT01A A (NOLOCK) ";
+                        }
+                    }
+                    break;
+                default:
+                    {
+                        sSQL2 += "FROM SOT01A A (NOLOCK) ";
+                    }
+                    break;
+            }
+            //END ADD BY NURUL 4/12/2019
+            sSQL2 += "LEFT JOIN ARF01 B(NOLOCK) ON A.CUST = B.CUST ";
+            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C(NOLOCK) ON B.NAMA = C.IdMarket ";
+            //add by Tri 2 Des 2019, tambah cancel reason
+            sSQL2 += "LEFT JOIN SOT01D D(NOLOCK) ON A.NO_BUKTI = D.NO_BUKTI ";
+            //end add by Tri 2 Des 2019, tambah cancel reason
+            sSQL2 += "LEFT JOIN SIT01A E(NOLOCK) ON A.NO_BUKTI = E.NO_SO ";
+            sSQL2 += "WHERE A.STATUS_TRANSAKSI='12' ";
+            if (search != "")
+            {
+                //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%') ";
+                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") or (" + sSQLkurir 
+                    + ") or (" + sSQLreferensi + ") or (" + sSQLfaktur + ") or (" + sSQLRetur + ") ";
+
+                if (searchCOD && searchPreorder)
+                {
+                    sSQL2 += " OR (TIPE_KIRIM = 1 AND A.N_UCAPAN = 'Preorder') ";
+                }
+                else
+                {
+                    if (searchCOD)
+                    {
+                        sSQL2 += " OR TIPE_KIRIM = 1 ";
+                    }
+                    if (searchPreorder)
+                    {
+                        sSQL2 += " OR A.N_UCAPAN = 'Preorder' ";
+                    }
+                }
+                sSQL2 += ")";
+            }
+            string sSQLSelect2 = "";
+            //ADD BY NURUL 4/12/2019
+            if (filter == "tanggal" && filtervalue == "asc")
+            {
+                sSQLSelect2 += "ORDER BY A.TGL ASC, A.NO_BUKTI ASC ";
+            }
+            else
+            {
+                sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+            }
+            //END ADD BY NURUL 4/12/2019
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLTemp + sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLTemp + sSQLCount + sSQL2).Single();
+
+            IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listOrderNew, pagenumber + 1, 10, totalCount.JUMLAH);
+            //IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listPesanan, pagenumber + 1, 10, totalCount);
+
+            SetNoLockOff(ErasoftDbContext);
+
+            return PartialView("TablePesananCancelCODPartial", pageOrders);
 
             //end change by nurul 8/5/2019, paging
         }
@@ -62286,6 +62820,36 @@ namespace MasterOnline.Controllers
 
             return PartialView("TableBarangForReturPenj", vm);
         }
+        public ActionResult ListBrgForReturCODPopUp(string noFaktur)
+        {
+            //var sSQL = "select no_urut, a.brg, nama + ' ' + isnull(nama2,'') as nama, qty, gudang from sit01b a inner join stf02 b on a.brg=b.brg where a.no_bukti='" + noFaktur + "' and b.type='3'";
+            //var getDetail = ErasoftDbContext.Database.SqlQuery<brgForReturPrompt>(sSQL).ToList();
+            //var getDetail = ErasoftDbContext.SIT01B.Where(a => a.NO_BUKTI == noFaktur && a.JENIS_FORM == "2").ToList();
+            var fakturInDB = ErasoftDbContext.SIT01A.Where(m => m.NO_BUKTI == noFaktur).FirstOrDefault();
+            var vm = new FakturViewModel()
+            {
+                noFaktur = noFaktur,
+                noCust = fakturInDB.CUST,
+                noRef = fakturInDB.NO_REF,
+                //listGudang = ErasoftDbContext.STF18.ToList()
+                //listBarangRetur = getDetail,
+            };
+
+            return View(vm);
+        }
+        //public ActionResult RefreshBrgForReturCODPopUp(string noFaktur)
+        //{
+        //    var sSQL = "select no_urut as recnum, a.brg, nama + ' ' + isnull(nama2,'') as nama, qty, gudang from sit01b a inner join stf02 b on a.brg=b.brg where a.no_bukti='" + noFaktur + "' and b.type='3'";
+        //    var getDetail = ErasoftDbContext.Database.SqlQuery<brgForReturPrompt>(sSQL).ToList();
+        //    //var getDetail = ErasoftDbContext.SIT01B.Where(a => a.NO_BUKTI == noFaktur && a.JENIS_FORM == "2").ToList();
+        //    var vm = new FakturViewModel()
+        //    {
+        //        noFaktur = noFaktur,
+        //        listBarangRetur = getDetail,
+        //    };
+
+        //    return PartialView("TableBarangForReturPenj", vm);
+        //}
         //region retur pembelian 
         public ActionResult ListFakturForReturInvPopUp(string noCust)
         {
@@ -62389,6 +62953,46 @@ namespace MasterOnline.Controllers
             return PartialView("TableBarangForReturInvPenj", vm);
         }
 
+        public ActionResult SaveHeaderReturFakturCOD(string NO_REF, string NO_BUKTI, string CUST)
+        {
+            var data = new FakturViewModel();
+            data.Faktur = new SIT01A
+            {
+                NO_REF = NO_BUKTI,//no ref adalah no bukti faktur yg akan di retur
+                NO_BUKTI = "",
+                CUST = CUST,
+                TGL = DateTime.UtcNow.AddHours(7),
+                JENIS_RETUR = "2",
+                JENIS_FORM = "3",
+                STATUS = "1",
+                ST_POSTING = "T",
+                VLT = "IDR",
+                NO_FA_OUTLET = "-",
+                NO_LPB = "-",
+                GROUP_LIMIT = "-",
+                KODE_ANGKUTAN = "-",
+                JENIS_MOBIL = "-",
+                NAMA_CUST = "-",
+                TUKAR = 1,
+                TUKAR_PPN = 1,
+                SOPIR = "-",
+                KET = "-",
+                PPNBM = 0,
+                KODE_SALES = "",
+                KODE_WIL = "",
+                U_MUKA = 0,
+                U_MUKA_FA = 0,
+                JTRAN = "SI",
+                JENIS = "1",
+                NILAI_PPNBM = 0,
+                NAMAPEMESAN = "",
+                USERNAME = usernameLogin,
+                TERM = 1,
+                TGL_JT_TEMPO = DateTime.UtcNow.AddHours(7).AddDays(1),
+            };
+            var ret = SaveHeaderReturFaktur(data);
+            return ret;
+        }
         public ActionResult SaveHeaderReturFaktur(FakturViewModel dataVm)
         {
             try
@@ -63198,6 +63802,19 @@ namespace MasterOnline.Controllers
                 string sSQLkurir = "";
                 string sSQLreferensi = "";
                 string sSQLjob = "";
+                bool searchCOD = false;
+                bool searchPreorder = false;
+                if (!string.IsNullOrEmpty(search))
+                {
+                    if (search.ToUpper().Contains("COD"))
+                    {
+                        searchCOD = true;
+                    }
+                    if (search.ToUpper().Contains("PREORDER"))
+                    {
+                        searchPreorder = true;
+                    }
+                }
                 if (getkata.Length > 0)
                 {
                     if (search != "")
@@ -63235,6 +63852,7 @@ namespace MasterOnline.Controllers
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST,A.NAMA_CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item, isnull(A.status_kirim,'') AS status_kirim, isnull(A.TRACKING_SHIPMENT,'') as tracking_no, A.recnum as so_recnum ";
                 sSQLSelect += ", A.NO_PO_CUST as no_job, isnull(A.status_print,'') AS status_print ";
+                sSQLSelect += ", ISNULL(A.TIPE_KIRIM, 0) TIPE_KIRIM, ISNULL(A.N_UCAPAN, 0) N_UCAPAN ";
                 string sSQLCount = "";
                 sSQLCount += "SELECT COUNT(A.NO_BUKTI) AS JUMLAH ";
                 string sSQL2 = "";
@@ -63252,6 +63870,18 @@ namespace MasterOnline.Controllers
                             sSQLTemp = "WHERE ISNULL(STATUS_PRINT,'0') = '" + filtervalue + "' ";
                         }
                         break;
+                    case "tipe":
+                        {
+                            if (filtervalue == "cod")
+                            {
+                                sSQLTemp = "WHERE ISNULL(A.TIPE_KIRIM,0) = 1 ";
+                            }
+                            if (filtervalue == "preorder")
+                            {
+                                sSQLTemp = "WHERE ISNULL(A.N_UCAPAN,'') = 'preorder' ";
+                            }
+                        }
+                        break;
                     default:
                         {
                             sSQLTemp += "";
@@ -63264,24 +63894,42 @@ namespace MasterOnline.Controllers
                     {
                         if (marketplace == "TOKOPEDIA" || marketplace == "SHOPEE" || marketplace == "BLIBLI")
                         {
-                            sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLkdbooking + ") or (" + sSQLpembeli + ") or (" + sSQLresi + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") or (" + sSQLjob + ") ) ";
+                            sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLkdbooking + ") or (" + sSQLpembeli + ") or (" + sSQLresi + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") or (" + sSQLjob + ") ";
                         }
                         else
                         {
-                            sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLkdbooking + ") or (" + sSQLpembeli + ") or (" + sSQLresi + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
+                            sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLkdbooking + ") or (" + sSQLpembeli + ") or (" + sSQLresi + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ";
                         }
                     }
                     else
                     {
                         if (marketplace == "TOKOPEDIA" || marketplace == "SHOPEE" || marketplace == "BLIBLI")
                         {
-                            sSQL2 += " WHERE ( (" + sSQLkode + ") or (" + sSQLkdbooking + ") or (" + sSQLpembeli + ") or (" + sSQLresi + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") or (" + sSQLjob + ") ) ";
+                            sSQL2 += " WHERE ( (" + sSQLkode + ") or (" + sSQLkdbooking + ") or (" + sSQLpembeli + ") or (" + sSQLresi + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") or (" + sSQLjob + ") ";
                         }
                         else
                         {
-                            sSQL2 += " WHERE ( (" + sSQLkode + ") or (" + sSQLkdbooking + ") or (" + sSQLpembeli + ") or (" + sSQLresi + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
+                            sSQL2 += " WHERE ( (" + sSQLkode + ") or (" + sSQLkdbooking + ") or (" + sSQLpembeli + ") or (" + sSQLresi + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ";
                         }
                     }
+                    if(searchCOD && searchPreorder)
+                    {
+                        sSQL2 += " OR (A.TIPE_KIRIM = 1 AND A.N_UCAPAN = 'Preorder') ";
+                    }
+                    else
+                    {
+                        if (searchCOD)
+                        {
+                            sSQL2 += " OR A.TIPE_KIRIM = 1 ";
+                        }
+                        if (searchPreorder)
+                        {
+                            sSQL2 += " OR A.N_UCAPAN = 'Preorder' ";
+                        }
+
+                    }
+                    sSQL2 += ")";
+
                 }
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -63306,6 +63954,19 @@ namespace MasterOnline.Controllers
                 string sSQLresi = "";
                 string sSQLpembeli = "";
                 string sSQLreferensi = "";
+                bool searchCOD = false;
+                bool searchPreorder = false;
+                if (!string.IsNullOrEmpty(search))
+                {
+                    if (search.ToUpper().Contains("COD"))
+                    {
+                        searchCOD = true;
+                    }
+                    if (search.ToUpper().Contains("PREORDER"))
+                    {
+                        searchPreorder = true;
+                    }
+                }
                 if (getkata.Length > 0)
                 {
                     if (search != "")
@@ -63333,6 +63994,7 @@ namespace MasterOnline.Controllers
                 string sSQLSelect = "";
                 sSQLSelect += "select a.RecNum, a.NO_BUKTI, a.PEMBELI, a.TGL_INPUT, a.USERNAME, a.NO_PESANAN, a.TGL_PESANAN, a.MARKETPLACE, ";
                 sSQLSelect += "ISNULL(b.STATUS_KIRIM,'0') AS SO_STATUS_KIRIM, ISNULL(b.TRACKING_SHIPMENT,'') AS SO_TRACKING_NUMBER, ISNULL(b.NO_REFERENSI,'') AS NO_REFERENSI, ISNULL(b.STATUS_PRINT,'0') AS STATUS_PRINT, ISNULL(a.SCAN_BARCODE,0) AS BARCODE  ";
+                sSQLSelect += ", ISNULL(B.TIPE_KIRIM, 0) TIPE_KIRIM, ISNULL(B.N_UCAPAN, 0) N_UCAPAN ";
                 string sSQLCount = "";
                 sSQLCount += "SELECT COUNT(A.NO_BUKTI) AS JUMLAH ";
                 string sSQL2 = "";
@@ -63350,6 +64012,18 @@ namespace MasterOnline.Controllers
                             sSQLTemp = "AND ISNULL(b.STATUS_PRINT,'0') = '" + filtervalue + "' ";
                         }
                         break;
+                    case "tipe":
+                        {
+                            if (filtervalue == "cod")
+                            {
+                                sSQLTemp = "AND ISNULL(TIPE_KIRIM,0) = 1 ";
+                            }
+                            if (filtervalue == "preorder")
+                            {
+                                sSQLTemp = "AND ISNULL(N_UCAPAN,'') = 'preorder' ";
+                            }
+                        }
+                        break;
                     default:
                         {
                             sSQLTemp += "";
@@ -63358,7 +64032,24 @@ namespace MasterOnline.Controllers
                 }
                 if (search != "")
                 {
-                    sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLpembeli + ") or (" + sSQLmarket + ") or (" + sSQLreferensi + ") ) ";
+                    sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLpembeli + ") or (" + sSQLmarket + ") or (" + sSQLreferensi + ") ";
+
+                    if (searchCOD && searchPreorder)
+                    {
+                        sSQL2 += " OR (TIPE_KIRIM = 1 AND N_UCAPAN = 'Preorder') ";
+                    }
+                    else
+                    {
+                        if (searchCOD)
+                        {
+                            sSQL2 += " OR TIPE_KIRIM = 1 ";
+                        }
+                        if (searchPreorder)
+                        {
+                            sSQL2 += " OR N_UCAPAN = 'Preorder' ";
+                        }
+                    }
+                    sSQL2 += ")";
                 }
                 string sSQLSelect2 = "";
                 //sSQLSelect2 += "ORDER BY A.RecNum asc ";

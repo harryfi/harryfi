@@ -689,16 +689,25 @@
                         case "kirim":
                             $('#filter_packing_kirim_field_option_div_blibli__' + cust).show();
                             $('#filter_packing_print_field_option_div_blibli__' + cust).hide();
+                            $('#filter_packing_field_tipe_div_blibli__' + cust).hide();
                             $('#filter_packing_kirim_blibli__' + cust).val('Harap Pilih');
                             break;
                         case "print":
                             $('#filter_packing_kirim_field_option_div_blibli__' + cust).hide();
                             $('#filter_packing_print_field_option_div_blibli__' + cust).show();
+                            $('#filter_packing_field_tipe_div_blibli__' + cust).hide();
                             $('#filter_packing_print_blibli__' + cust).val('Harap Pilih');
+                            break;
+                        case "tipe":
+                            $('#filter_packing_kirim_field_option_div_blibli__' + cust).hide();
+                            $('#filter_packing_print_field_option_div_blibli__' + cust).hide();
+                            $('#filter_packing_field_tipe_div_blibli__' + cust).show();
+                            $('#filter_packing_tipe_blibli__' + cust).val('Harap Pilih');
                             break;
                         default:
                             $('#filter_packing_kirim_field_option_div_blibli__' + cust).hide();
                             $('#filter_packing_print_field_option_div_blibli__' + cust).hide();
+                            $('#filter_packing_field_tipe_div_blibli__' + cust).hide();
                             break;
                     }
 
@@ -710,6 +719,11 @@
                 });
                 $('#filter_packing_print_blibli__' + cust).change(function () {
                     if ($('#filter_packing_print_blibli__' + cust).val() != "Harap Pilih" && $('#filter_packing_field_blibli').val() != "Harap Pilih") {
+                        SearchTablePackingListPerAkunBlibli(cust);
+                    }
+                });
+                $('#filter_packing_tipe_blibli__' + cust).change(function () {
+                    if ($('#filter_packing_tipe_blibli__' + cust).val() != "Harap Pilih" && $('#filter_packing_field_blibli').val() != "Harap Pilih") {
                         SearchTablePackingListPerAkunBlibli(cust);
                     }
                 });
@@ -744,6 +758,9 @@
                 break;
             case "print":
                 filtervalueBlibli = $('#filter_packing_print_blibli__' + cust).val();
+                break;
+            case "tipe":
+                filtervalueBlibli = $('#filter_packing_tipe_blibli__' + cust).val();
                 break;
             default:
                 break;
@@ -1159,6 +1176,7 @@
                             <option>Harap Pilih</option>
                             <option value="kirim">Status Kirim</option>
                             <option value="print">Status Print</option>
+                            <option value="tipe">Tipe Pesanan</option>
                         </select>
                     </div>
                     <div class="col-lg-2 col-sm-6 col-md-2">
@@ -1176,6 +1194,13 @@
                                 <option>Harap Pilih</option>
                                 <option value="1">Sudah</option>
                                 <option value="0">Belum</option>
+                            </select>
+                        </div>
+                        <div class="col-12" id="filter_packing_field_tipe_div_blibli__@(item.CUST)" style="display:none">
+                            <select class="form-control" id="filter_packing_tipe_blibli__@(item.CUST)" required="required">
+                                <option>Harap Pilih</option>
+                                <option value="cod">COD</option>
+                                <option value="preorder">Preorder</option>
                             </select>
                         </div>
                     </div>
