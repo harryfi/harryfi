@@ -1969,11 +1969,11 @@
                         if (error != null) {
                             err = error;
                         }
-                        alert(err);
-                        console.log(error);
+                        //alert(err);
+                        //console.log(error);
                         $('#loading_upload_excel_invoice_pembelian').hide();
                         $('#pBar_uploadFileInvoice').css('width', '100%').attr('aria-valuenow', 100);
-                        $('#pBar_uploadFileInvoice').html('0% Complete');
+                        $('#pBar_uploadFileInvoice').html('100% Complete');
                         $('#btnUploadExcelInvoicePembelian').removeAttr('disabled');
                         document.getElementById("file_upload_excel_invoice_pembelian").value = "";
                     }
