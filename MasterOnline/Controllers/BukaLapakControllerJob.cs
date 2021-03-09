@@ -1441,7 +1441,7 @@ namespace MasterOnline.Controllers
                                     {
                                         var dsOrder = EDB.GetDataSet("MOConnectionString", "ORDER", "SELECT P.NO_BUKTI, ISNULL(F.NO_BUKTI, '') NO_FAKTUR, ISNULL(TIPE_KIRIM,0) TIPE_KIRIM "
                                             + ",ISNULL(F.NO_FA_OUTLET, '-') NO_FA_OUTLET FROM SOT01A (NOLOCK) P LEFT JOIN SIT01A (NOLOCK) F ON P.NO_BUKTI = F.NO_SO "
-                                            + "WHERE NO_REFERENSI = '" + order.transaction_id + "' AND CUST = '" + CUST + "' AND STATUS_TRANSAKSI NOT IN ('11', '12')");
+                                            + "WHERE NO_REFERENSI = '" + order.transaction_id + "' AND P.CUST = '" + CUST + "' AND STATUS_TRANSAKSI NOT IN ('11', '12')");
                                         int rowAffected = 0;
                                         var nobuk = "";
                                         bool cekSudahKirimCOD = false;

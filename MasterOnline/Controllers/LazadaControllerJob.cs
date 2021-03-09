@@ -3504,7 +3504,7 @@ namespace MasterOnline.Controllers
                         {
                             var dsOrder = EDB.GetDataSet("MOConnectionString", "ORDER", "SELECT P.NO_BUKTI, ISNULL(F.NO_BUKTI, '') NO_FAKTUR, ISNULL(TIPE_KIRIM,0) TIPE_KIRIM "
                                 + ",ISNULL(F.NO_FA_OUTLET, '-') NO_FA_OUTLET FROM SOT01A (NOLOCK) P LEFT JOIN SIT01A (NOLOCK) F ON P.NO_BUKTI = F.NO_SO "
-                                + "WHERE NO_REFERENSI = '" + order.order_id + "' AND CUST = '" + cust + "' AND STATUS_TRANSAKSI NOT IN ('11', '12')");
+                                + "WHERE NO_REFERENSI = '" + order.order_id + "' AND P.CUST = '" + cust + "' AND STATUS_TRANSAKSI NOT IN ('11', '12')");
                             int rowAffected = 0;
                             bool cekSudahKirim = false;
                             //change by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
