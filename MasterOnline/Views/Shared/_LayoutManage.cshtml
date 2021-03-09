@@ -5,7 +5,7 @@
     MoDbContext context = new MoDbContext("");
     ErasoftContext erasoftContext = null;
     //var dataSession = HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-    string IPSERVER = System.Web.HttpContext.Current.Request.ServerVariables["SERVER_NAME"];
+    string IPSERVER = System.Web.HttpContext.Current.Request.ServerVariables["LOCAL_ADDR"];
 
     var nama = "";
 
