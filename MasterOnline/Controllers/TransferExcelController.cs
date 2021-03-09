@@ -3816,8 +3816,8 @@ namespace MasterOnline.Controllers
                                                     //string total = worksheet.Cells[i, 13].Value == null ? "0" : worksheet.Cells[i, 13].Value.ToString();
                                                     #endregion
 
-                                                    string no_bukti = itemTemp.NOBUK;
-                                                    string noref = itemTemp.NOREF;
+                                                    string noref = itemTemp.NOBUK;
+                                                    //string noref = itemTemp.NOREF;
                                                     string tgl = Convert.ToDateTime(itemTemp.TGL).ToString("yyyy-MM-dd");
                                                     string kode_supplier = itemTemp.KODE_SUPPLIER;
                                                     string top = Convert.ToString(itemTemp.TOP);
@@ -4072,7 +4072,14 @@ namespace MasterOnline.Controllers
                                                                                                 //}
                                                                                                 //iProcess = iProcess + 1;
                                                                                                 success = success + 1;
-                                                                                                Functions.SendProgress("Process in progress...", iCountProcessInsertDB, iCountProcessInsertTemp);
+                                                                                                if(iCountProcessInsertDB == iCountProcessInsertTemp)
+                                                                                                {
+                                                                                                    Functions.SendProgress("Process Upload Complete !", iCountProcessInsertDB, iCountProcessInsertTemp);
+                                                                                                }
+                                                                                                else
+                                                                                                {
+                                                                                                    Functions.SendProgress("Process in progress...", iCountProcessInsertDB, iCountProcessInsertTemp);
+                                                                                                }
 
                                                                                                 if (cekPer10 > 1000)
                                                                                                 {
@@ -4141,7 +4148,8 @@ namespace MasterOnline.Controllers
                                                                                                     var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
                                                                                                     //log error masukan log tidak ada barang di DB
                                                                                                 }
-                                                                                                var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.TGL == dttgl && p.SUPP == kode_supplier).FirstOrDefault();
+                                                                                                //var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.TGL == dttgl && p.SUPP == kode_supplier).FirstOrDefault();
+                                                                                                var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck).FirstOrDefault();
                                                                                                 if (checkDuplicateHeader != null)
                                                                                                 {
                                                                                                     //transaction.Rollback();
@@ -4179,7 +4187,8 @@ namespace MasterOnline.Controllers
                                                                                                 var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
                                                                                                 //log error masukan log kode barang lebih dari 20 karakter
                                                                                             }
-                                                                                            var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.TGL == dttgl && p.SUPP == kode_supplier).FirstOrDefault();
+                                                                                            //var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.TGL == dttgl && p.SUPP == kode_supplier).FirstOrDefault();
+                                                                                            var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck).FirstOrDefault();
                                                                                             if (checkDuplicateHeader != null)
                                                                                             {
                                                                                                 //transaction.Rollback();
@@ -4225,7 +4234,8 @@ namespace MasterOnline.Controllers
                                                                                             var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
                                                                                             //log error masukan log harga satuan kosong
                                                                                         }
-                                                                                        var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.TGL == dttgl && p.SUPP == kode_supplier).FirstOrDefault();
+                                                                                        //var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.TGL == dttgl && p.SUPP == kode_supplier).FirstOrDefault();
+                                                                                        var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck).FirstOrDefault();
                                                                                         if (checkDuplicateHeader != null)
                                                                                         {
                                                                                             //transaction.Rollback();
@@ -4262,7 +4272,8 @@ namespace MasterOnline.Controllers
                                                                                         var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
                                                                                         //log error masukan log kode barang kosong
                                                                                     }
-                                                                                    var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.TGL == dttgl && p.SUPP == kode_supplier).FirstOrDefault();
+                                                                                    //var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.TGL == dttgl && p.SUPP == kode_supplier).FirstOrDefault();
+                                                                                    var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck).FirstOrDefault();
                                                                                     if (checkDuplicateHeader != null)
                                                                                     {
                                                                                         //transaction.Rollback();
@@ -4299,7 +4310,8 @@ namespace MasterOnline.Controllers
                                                                                     var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
                                                                                     //log error masukan log ada koma
                                                                                 }
-                                                                                var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.TGL == dttgl && p.SUPP == kode_supplier).FirstOrDefault();
+                                                                                //var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.TGL == dttgl && p.SUPP == kode_supplier).FirstOrDefault();
+                                                                                var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck).FirstOrDefault();
                                                                                 if (checkDuplicateHeader != null)
                                                                                 {
                                                                                     //transaction.Rollback();
@@ -4336,7 +4348,8 @@ namespace MasterOnline.Controllers
                                                                                 var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
                                                                                 //log error masukan log ada titik
                                                                             }
-                                                                            var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.TGL == dttgl && p.SUPP == kode_supplier).FirstOrDefault();
+                                                                            //var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.TGL == dttgl && p.SUPP == kode_supplier).FirstOrDefault();
+                                                                            var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck).FirstOrDefault();
                                                                             if (checkDuplicateHeader != null)
                                                                             {
                                                                                 //transaction.Rollback();
@@ -4376,7 +4389,8 @@ namespace MasterOnline.Controllers
                                                                             var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
                                                                             //log error masukan log kode kurir kosong
                                                                         }
-                                                                        var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.INV == no_bukti && p.SUPP == codeSupplier).FirstOrDefault();
+                                                                        //var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.INV == no_bukti && p.SUPP == codeSupplier).FirstOrDefault();
+                                                                        var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck).FirstOrDefault();
                                                                         if (checkDuplicateHeader != null)
                                                                         {
                                                                             //transaction.Rollback();
@@ -5235,13 +5249,13 @@ namespace MasterOnline.Controllers
                         rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Yellow);
                     }
 
-                    using (var rangePackage = worksheet.Cells[9, 1])
-                    {
-                        rangePackage.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                        rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Silver);
-                    }
+                    //using (var rangePackage = worksheet.Cells[9, 1])
+                    //{
+                    //    rangePackage.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    //    rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Silver);
+                    //}
 
-                    using (var rangePackage = worksheet.Cells[9, 2, 9, 4])
+                    using (var rangePackage = worksheet.Cells[9, 1, 9, 3])
                     {
                         rangePackage.Style.Fill.PatternType = ExcelFillStyle.Solid;
                         rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Yellow);
@@ -5259,11 +5273,11 @@ namespace MasterOnline.Controllers
                         rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Yellow);
                     }
 
-                    using (var rangePackage = worksheet.Cells[9, 12])
-                    {
-                        rangePackage.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                        rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Yellow);
-                    }
+                    //using (var rangePackage = worksheet.Cells[9, 12])
+                    //{
+                    //    rangePackage.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    //    rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Yellow);
+                    //}
 
                     worksheet.Cells["F9"].AddComment("Untuk nomor bukti invoice pembelian yang sama ongkos kirim cukup isi 1x di kode barang pertama dalam no bukti tersebut.", "MasterOnline");
                     var comment = worksheet.Cells["F9"].Comment;
@@ -5295,7 +5309,7 @@ namespace MasterOnline.Controllers
                     //worksheet.Cells["M3"].Value = "TOTAL";
 
                     //ISI ROW 1
-                    worksheet.Cells["A4"].Value = "PB2100001";
+                    worksheet.Cells["A4"].Value = "INVABC";
                     worksheet.Cells["B4"].Value = "2021-01-07";
                     worksheet.Cells["C4"].Value = "PT X";
                     worksheet.Cells["D4"].Value = "10";
@@ -5311,13 +5325,13 @@ namespace MasterOnline.Controllers
                     //worksheet.Cells["M4"].Value = "15000";
 
                     //ISI ROW 2
-                    worksheet.Cells["A5"].Value = "PB2100001";
+                    worksheet.Cells["A5"].Value = "INVABC";
                     worksheet.Cells["B5"].Value = "2021-01-07";
                     worksheet.Cells["C5"].Value = "PT X";
                     worksheet.Cells["D5"].Value = "10";
-                    worksheet.Cells["E5"].Value = "10";
+                    worksheet.Cells["E5"].Value = "0";
                     //worksheet.Cells["F5"].Value = "2900";
-                    worksheet.Cells["F5"].Value = "10000";
+                    worksheet.Cells["F5"].Value = "0";
                     worksheet.Cells["G5"].Value = "ALKALINE";
                     worksheet.Cells["H5"].Value = "BATERE ALKALINE";
                     worksheet.Cells["I5"].Value = "001";
@@ -5327,7 +5341,7 @@ namespace MasterOnline.Controllers
                     //worksheet.Cells["M5"].Value = "14000";
 
                     //ISI ROW 3
-                    worksheet.Cells["A6"].Value = "PB2100002";
+                    worksheet.Cells["A6"].Value = "INVXYZ";
                     worksheet.Cells["B6"].Value = "2021-01-07";
                     worksheet.Cells["C6"].Value = "PT X";
                     worksheet.Cells["D6"].Value = "10";
@@ -5355,7 +5369,7 @@ namespace MasterOnline.Controllers
                         //worksheet.Cells["W" + (5 + i)].Formula = "=S" + (5 + i) + "*V" + (5 + i) + "/100";
 
 
-                        worksheet.Cells[10 + i, 1].Value = "-- AUTO GENERATE --"; //NOMOR BUKTI
+                        worksheet.Cells[10 + i, 1].Value = ""; //NOMOR BUKTI
                         worksheet.Cells[10 + i, 2].Value = ""; //TANGGAL
                         worksheet.Cells[10 + i, 3].Value = "-- Silahkan Pilih Supplier --"; //KODE SUPPLIER 
                         worksheet.Cells[10 + i, 4].Value = ""; //TERM OF PAYMENT
