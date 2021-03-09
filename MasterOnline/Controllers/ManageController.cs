@@ -60574,6 +60574,8 @@ namespace MasterOnline.Controllers
                     email = marketPlace.EMAIL,
                     DatabasePathErasoft = dbPathEra
                 };
+                List<JDIDControllerJob.listOrderNobuk> listSuccessData = new List<JDIDControllerJob.listOrderNobuk>();
+
                 foreach (var so in ListStt01a)
                 {
                     if (listNobuk != "")
@@ -60608,6 +60610,14 @@ namespace MasterOnline.Controllers
 
                             //var sql = "update SOT01A set status_print = '1' where no_bukti in ('" + so.no_bukti + "')";
                             //ErasoftDbContext.Database.ExecuteSqlCommand(sql);
+
+                            //add by nurul 4/3/2021
+                            listSuccessData.Add(new JDIDControllerJob.listOrderNobuk
+                            {
+                                noref = so.no_referensi,
+                                nobuk = so.no_bukti
+                            });
+                            //end add by nurul 4/3/2021
                         }
                         else
                         {
@@ -60616,6 +60626,49 @@ namespace MasterOnline.Controllers
                             temp_strmsg_label.Add(retApi.Result.ToString());
                         }
                     }
+                }
+
+                if(listSuccessData.Count() > 0)
+                {
+                    var listNoref = "";
+                    List<string> listNorefSudahProses = new List<string>();
+                    List<JDIDControllerJob.listOrderNobuk> listData = new List<JDIDControllerJob.listOrderNobuk>();
+                    foreach (var order in listSuccessData)
+                    {
+                        listNoref += order.noref + ",";
+                        listData.Add(new JDIDControllerJob.listOrderNobuk
+                        {
+                            noref = order.noref,
+                            nobuk = order.nobuk
+                        });
+                        listNorefSudahProses.Add(order.noref);
+                        if(listData.Count() == 10 || listNorefSudahProses.Count() == listSuccessData.Count())
+                        {
+                            var tempNoref = listNoref;
+                            var tempData = listData;
+                            listNoref = "";
+                            JDIDControllerJob.JDIDAPIDataJob iden = new JDIDControllerJob.JDIDAPIDataJob
+                            {
+                                no_cust = marketPlace.CUST,
+                                accessToken = marketPlace.TOKEN,
+                                appKey = marketPlace.API_KEY,
+                                appSecret = marketPlace.API_CLIENT_U,
+                                username = marketPlace.USERNAME,
+                                email = marketPlace.EMAIL,
+                                DatabasePathErasoft = dbPathEra
+                            };
+#if (DEBUG || Debug_AWS)
+                            Task.Run(() => new JDIDControllerJob().getKurirJDID(dbPathEra, bukti, cust, "Pesanan", "Get Kurir", iden, tempNoref.Substring(0, tempNoref.Length - 1), tempData).Wait());
+#else
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                clientJobServer.Enqueue<JDIDControllerJob>(x => x.getKurirJDID(dbPathEra, bukti, cust, "Pesanan", "Get Kurir", iden, tempNoref.Substring(0, tempNoref.Length - 1), tempData));
+#endif
+                            listData = new List<JDIDControllerJob.listOrderNobuk>();
+                        }
+                    }
+                    
+
                 }
 
                 if (temp_printLabel.Count() > 0)
