@@ -1762,18 +1762,24 @@
                                     var shopify = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Contains("Shopify"))?.IdMarket.ToString();
                                     //end
                                 }
-                                if (@bklapak == value ||  @blibli == value ) {
+                                //if (@bklapak == value ||  @blibli == value ) {
+                                if (@blibli == value ) {
                                     $('#password-akun').show();
                                     $('#Customers_PASSWORD').attr('required', 'checked');
-                                    if (@blibli == value) {
+                                    //if (@blibli == value) {
                                         $('#versi-blibli').show();
                                         getVersiBlibli($('#Customers_KD_ANALISA').val());
-                                    }
+                                    //}
                                 } else {
                                     $('#password-akun').hide();
                                     $('#Customers_PASSWORD').removeAttr('required');
                                     $('#versi-blibli').hide();
                                 }
+                                if (@bklapak == value) {
+                                    $('#password-akun').hide();
+                                    $('#Customers_PASSWORD').removeAttr('required');
+                                }
+
                                 //add by Tri, remove/append api_key
                                 $('#lbl_Customers_API_KEY').remove();
                                 $('#txtAPI_Key').remove();
@@ -2538,12 +2544,16 @@
                     $('#txtAPI_Key').remove();
                     //$('#emptyDiv').remove();
                     //$('#txtDescAPIKey').remove();
-                    if (@bklapak == response.Customers.NAMA ||  @blibli == response.Customers.NAMA ) {
+                    //if (@bklapak == response.Customers.NAMA ||  @blibli == response.Customers.NAMA ) {
+                    if (@blibli == response.Customers.NAMA ) {
                         $('#password-akun').show();
                         $('#Customers_PASSWORD').attr('required', 'checked');
 
-
                     } else {
+                        $('#password-akun').hide();
+                        $('#Customers_PASSWORD').removeAttr('required');
+                    }
+                    if (@bklapak == response.Customers.NAMA) {
                         $('#password-akun').hide();
                         $('#Customers_PASSWORD').removeAttr('required');
                     }
