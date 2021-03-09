@@ -3524,6 +3524,9 @@ namespace MasterOnline.Controllers
             var getFaktur = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(BRUTO,0)),0) as bruto from sot01a(nolock) where status_transaksi='03'").Single();
             var JumlahFaktur = getFaktur.COUNT_TRANSAKSI;
             var NilaiFaktur = getFaktur.bruto;
+
+            var getBatalCOD = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(p.RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(p.BRUTO,0)),0) as bruto  from sot01a(nolock) p left join sit01a(nolock) f on p.no_bukti = f.no_so where status_transaksi='12' and isnull(f.no_fa_outlet, '-') like '%-%' ").Single();
+            var JumlahBatalCOD = getBatalCOD.COUNT_TRANSAKSI;
             //end change by nurul 1/12/2020, req pak richard hanya 1 bulan terakhir 
             //end add by nurul 2/12/2019, penambahan dashboard pesanan
 
@@ -3541,6 +3544,7 @@ namespace MasterOnline.Controllers
             //{
             var vm = new PesananViewModel
             {
+                JumlahBatalCOD = JumlahBatalCOD,//add by Tri 9 mar 2021
                 ListSubs = MoDbContext.Subscription.AsNoTracking().ToList(),
                 DataUsaha = dataUsaha,
                 ListPesanan = ceklistPesanan,
@@ -25002,7 +25006,8 @@ namespace MasterOnline.Controllers
             string sSQLresi = "";
             string sSQLnetto = "";
             string sSQLkurir = "";
-            string sSQLreferensi = ""; 
+            string sSQLreferensi = "";
+            string sSQLpackingList = "";
             bool searchCOD = false;
             bool searchPreorder = false;
             if (!string.IsNullOrEmpty(search))
@@ -25032,6 +25037,7 @@ namespace MasterOnline.Controllers
                             sSQLnetto += " and ";
                             sSQLkurir += " and ";
                             sSQLreferensi += " and ";
+                            sSQLpackingList += " and ";
                         }
 
                         sSQLkode += " A.NO_BUKTI like '%" + getkata[i] + "%' ";
@@ -25042,6 +25048,7 @@ namespace MasterOnline.Controllers
                         sSQLnetto += "  A.NETTO like '%" + getkata[i] + "%' ";
                         sSQLkurir += "  A.SHIPMENT like '%" + getkata[i] + "%' ";
                         sSQLreferensi += "  A.NO_REFERENSI like '%" + getkata[i] + "%' ";
+                        sSQLpackingList += "  E.NO_BUKTI like '%" + getkata[i] + "%' ";
                     }
                 }
             }
@@ -25132,7 +25139,8 @@ namespace MasterOnline.Controllers
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%' OR D.NO_BUKTI LIKE '%" + search + "%' OR A.TRACKING_SHIPMENT LIKE '%" + search + "%') ";
-                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLfaktur + ") or (" + sSQLresi + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ";
+                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLfaktur + ") or (" + sSQLresi 
+                    + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") or (" + sSQLpackingList + ") ";
 
                 if (searchCOD && searchPreorder)
                 {
@@ -25221,7 +25229,8 @@ namespace MasterOnline.Controllers
             string sSQLpembeli = "";
             string sSQLfaktur = "";
             string sSQLkurir = "";
-            string sSQLreferensi = ""; 
+            string sSQLreferensi = "";
+            string sSQLpackingList = "";
             bool searchCOD = false;
             bool searchPreorder = false;
             if (!string.IsNullOrEmpty(search))
@@ -25250,6 +25259,7 @@ namespace MasterOnline.Controllers
                             sSQLfaktur += " AND ";
                             sSQLkurir += " and ";
                             sSQLreferensi += " and ";
+                            sSQLpackingList += " and ";
                         }
 
                         sSQLkode += " A.NO_BUKTI like '%" + getkata[i] + "%' ";
@@ -25259,6 +25269,7 @@ namespace MasterOnline.Controllers
                         sSQLfaktur += "  D.NO_BUKTI like '%" + getkata[i] + "%' ";
                         sSQLkurir += "  A.SHIPMENT like '%" + getkata[i] + "%' ";
                         sSQLreferensi += "  A.NO_REFERENSI like '%" + getkata[i] + "%' ";
+                        sSQLpackingList += "  E.NO_BUKTI like '%" + getkata[i] + "%' ";
 
                     }
                 }
@@ -25340,7 +25351,8 @@ namespace MasterOnline.Controllers
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%' OR D.NO_BUKTI LIKE '%" + search + "%') ";
-                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLfaktur + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ";
+                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLfaktur + ") or (" + sSQLnetto + ") or (" 
+                    + sSQLkurir + ") or (" + sSQLreferensi + ") or (" + sSQLpackingList + ") ";
 
                 if (searchCOD && searchPreorder)
                 {
@@ -25604,6 +25616,8 @@ namespace MasterOnline.Controllers
             string sSQLpembeli = "";
             string sSQLkurir = "";
             string sSQLreferensi = "";
+            string sSQLfaktur = "";
+            string sSQLRetur = "";
             bool searchCOD = false;
             bool searchPreorder = false;
             if (!string.IsNullOrEmpty(search))
@@ -25631,6 +25645,8 @@ namespace MasterOnline.Controllers
                             sSQLpembeli += " AND ";
                             sSQLkurir += " and ";
                             sSQLreferensi += " and ";
+                            sSQLfaktur += " and ";
+                            sSQLRetur += " and ";
                         }
 
                         sSQLkode += " A.NO_BUKTI like '%" + getkata[i] + "%' ";
@@ -25639,6 +25655,8 @@ namespace MasterOnline.Controllers
                         sSQLpembeli += "  A.NAMAPEMESAN like '%" + getkata[i] + "%' ";
                         sSQLkurir += "  A.SHIPMENT like '%" + getkata[i] + "%' ";
                         sSQLreferensi += "  A.NO_REFERENSI like '%" + getkata[i] + "%' ";
+                        sSQLfaktur += "  E.NO_BUKTI like '%" + getkata[i] + "%' ";
+                        sSQLRetur += "  E.NO_FA_OUTLET like '%" + getkata[i] + "%' ";
 
                     }
                 }
@@ -25721,7 +25739,8 @@ namespace MasterOnline.Controllers
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%') ";
-                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ";
+                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") or (" + sSQLkurir 
+                    + ") or (" + sSQLreferensi + ") or (" + sSQLfaktur + ") or (" + sSQLRetur + ") ";
 
                 if (searchCOD && searchPreorder)
                 {
