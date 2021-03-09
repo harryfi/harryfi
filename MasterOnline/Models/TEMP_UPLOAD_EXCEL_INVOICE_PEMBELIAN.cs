@@ -15,9 +15,6 @@
         [StringLength(200)]
         public string NOBUK { get; set; }
 
-        [StringLength(200)]
-        public string NOREF { get; set; }
-
         public DateTime TGL { get; set; }
 
         [StringLength(100)]
