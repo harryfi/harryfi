@@ -5240,7 +5240,7 @@ namespace MasterOnline.Controllers
                         worksheet.Row(i).Style.Locked = false;
                     }
 
-                    worksheet.Column(1).Style.Locked = true;
+                    //worksheet.Column(1).Style.Locked = true;
 
 
                     using (var rangePackage = worksheet.Cells[8, 1])
