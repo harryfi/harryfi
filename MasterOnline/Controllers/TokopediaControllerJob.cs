@@ -3168,6 +3168,10 @@ namespace MasterOnline.Controllers
                                                     {
                                                         recipient_address_geo = "Preorder";
                                                     }
+                                                    else
+                                                    {
+                                                        recipient_address_geo = "";
+                                                    }
                                                 }
                                             }
                                         }
@@ -3516,6 +3520,10 @@ namespace MasterOnline.Controllers
                                                     if (orderDetail.data.preorder.order_id.Value > 0)
                                                     {
                                                         a_recipient_address_geo = "Preorder";
+                                                    }
+                                                    else
+                                                    {
+                                                        a_recipient_address_geo = "";
                                                     }
                                                 }
                                             }
