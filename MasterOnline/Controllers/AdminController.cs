@@ -5559,6 +5559,9 @@ namespace MasterOnline.Controllers
                                                     listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().LASTCREATEJOBPROCESS = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBPROCESS"]).AddHours(7);
                                                     listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().LASTCREATEJOBSUCCESS = createJobSuccess;
                                                     listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().SELISIH = resultSelisih;
+                                                    listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().ID = Convert.ToInt32(resultDataJob.Tables[0].Rows[i]["ID"].ToString());
+                                                    listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().CREATEDAT = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["CREATEDAT"]).AddHours(7);
+                                                    listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().STATENAME = resultDataJob.Tables[0].Rows[i]["STATENAME"].ToString();
                                                 }
                                             }
                                         }
