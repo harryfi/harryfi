@@ -22044,7 +22044,15 @@ namespace MasterOnline.Controllers
             var listBarang = ErasoftDbContext.Database.SqlQuery<ListDataBrg>(sSQL).ToList();
             //END CHANGE BY NURUL 9/11/2020
 
-            return Json(listBarang, JsonRequestBehavior.AllowGet);
+            //return Json(listBarang, JsonRequestBehavior.AllowGet);
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listBarang),
+                ContentType = "application/json"
+            };
+            return result;
         }
 
         public ActionResult GetDataBarang(string code)
@@ -22079,7 +22087,15 @@ namespace MasterOnline.Controllers
 
             //}
 
-            return Json(listBarang, JsonRequestBehavior.AllowGet);
+            //return Json(listBarang, JsonRequestBehavior.AllowGet);
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listBarang),
+                ContentType = "application/json"
+            };
+            return result;
             //return Json(result, JsonRequestBehavior.AllowGet);
 
             //end change by Tri 5 April 2019, max length json
@@ -22101,7 +22117,15 @@ namespace MasterOnline.Controllers
             var sSQL = "SELECT a.BRG, a.NAMA, ISNULL(NAMA2,'') AS NAMA2, a.STN2, A.HJUAL FROM STF02 A (NOLOCK) LEFT JOIN STF03 B (NOLOCK) ON A.BRG=B.UNIT WHERE TYPE='3' AND ISNULL(B.UNIT,'')=''";
             var listBarang = ErasoftDbContext.Database.SqlQuery<ListDataBrg>(sSQL).ToList();
 
-            return Json(listBarang, JsonRequestBehavior.AllowGet);
+            //return Json(listBarang, JsonRequestBehavior.AllowGet);
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listBarang),
+                ContentType = "application/json"
+            };
+            return result;
         }
         //end add by nurul 9/11/2020, bundling
 
@@ -22116,7 +22140,15 @@ namespace MasterOnline.Controllers
 
             if (promoId == null)
             {
-                return Json(listBarang.Select(a => new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, STN2 = a.STN2, HJUAL = a.HJUAL }), JsonRequestBehavior.AllowGet);
+                //return Json(listBarang.Select(a => new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, STN2 = a.STN2, HJUAL = a.HJUAL }), JsonRequestBehavior.AllowGet);
+                var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+                serializer.MaxJsonLength = Int32.MaxValue;
+                var result = new ContentResult
+                {
+                    Content = serializer.Serialize(listBarang.Select(a => new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, STN2 = a.STN2, HJUAL = a.HJUAL })),
+                    ContentType = "application/json"
+                };
+                return result;
             }
 
             var listBarangSesuaiPromo = ErasoftDbContext.DETAILPROMOSI.Where(dp => dp.RecNumPromosi == promoId).ToList();
@@ -22125,11 +22157,27 @@ namespace MasterOnline.Controllers
             if (listBarangSesuaiPromo != null && listBarangSesuaiPromo.Count > 0)
             {
                 var listBarangUntukPromo = listBarang.Where(b => !listBarangSesuaiPromo.Any(bp => bp.KODE_BRG == b.BRG)).ToList();
-                return Json(listBarangUntukPromo.Select(a => new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, STN2 = a.STN2, HJUAL = a.HJUAL }), JsonRequestBehavior.AllowGet);
+                //return Json(listBarangUntukPromo.Select(a => new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, STN2 = a.STN2, HJUAL = a.HJUAL }), JsonRequestBehavior.AllowGet);
+                var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+                serializer.MaxJsonLength = Int32.MaxValue;
+                var result = new ContentResult
+                {
+                    Content = serializer.Serialize(listBarangUntukPromo.Select(a => new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, STN2 = a.STN2, HJUAL = a.HJUAL })),
+                    ContentType = "application/json"
+                };
+                return result;
             }
             else
             {
-                return Json(listBarang.Select(a => new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, STN2 = a.STN2, HJUAL = a.HJUAL }), JsonRequestBehavior.AllowGet);
+                //return Json(listBarang.Select(a => new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, STN2 = a.STN2, HJUAL = a.HJUAL }), JsonRequestBehavior.AllowGet);
+                var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+                serializer.MaxJsonLength = Int32.MaxValue;
+                var result = new ContentResult
+                {
+                    Content = serializer.Serialize(listBarang.Select(a => new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, STN2 = a.STN2, HJUAL = a.HJUAL })),
+                    ContentType = "application/json"
+                };
+                return result;
             }
 
             //return Json(listBarangUntukPromo, JsonRequestBehavior.AllowGet);
@@ -22196,7 +22244,15 @@ namespace MasterOnline.Controllers
             //    return Json(listBarang.Select(a => new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, STN2 = a.STN2, HJUAL = a.HJUAL }), JsonRequestBehavior.AllowGet);
             //}
 
-            return Json(listBrg, JsonRequestBehavior.AllowGet);
+            //return Json(listBrg, JsonRequestBehavior.AllowGet);
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listBrg),
+                ContentType = "application/json"
+            };
+            return result;
         }
 
         [HttpGet]
@@ -34914,7 +34970,15 @@ namespace MasterOnline.Controllers
                     NAMA2 = string.IsNullOrEmpty(a.NAMA2) ? "" : a.NAMA2,
                     STN2 = a.STN2
                 });
-            return Json(listBrgOP, JsonRequestBehavior.AllowGet);
+            //return Json(listBrgOP, JsonRequestBehavior.AllowGet);
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listBrgOP),
+                ContentType = "application/json"
+            };
+            return result;
         }
 
         public class getStokFisik
