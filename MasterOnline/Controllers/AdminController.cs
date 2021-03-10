@@ -4293,72 +4293,100 @@ namespace MasterOnline.Controllers
                         var EDB = new DatabaseSQL(item.DatabasePathErasoft);
 
                         string EDBConnID = EDB.GetConnectionString("ConnID");
-                        var sqlStorage = new SqlServerStorage(EDBConnID);
 
-                        var monitoringApi = sqlStorage.GetMonitoringApi();
-                        var serverList = monitoringApi.Servers();
+                        try
+                        {
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                            var monitoringApi = sqlStorage.GetMonitoringApi();
+                            var serverList = monitoringApi.Servers();
 
-                        var lastHeartbeat = new DateTime?();
-                        var getfirstserver = serverList.FirstOrDefault();
-                        if (getfirstserver != null)
-                        {
-                            lastHeartbeat = getfirstserver.Heartbeat;
-                            // add by fauzi 11 Februari 2020
-                            DateTime vDatetime = lastHeartbeat.Value;
-                            lastHeartbeat = vDatetime.AddHours(7);
-                            // end
-                        }
-                        // add by fauzi 11 Februari 2020
-                        DateTime vDtlastlogin = item.LAST_LOGIN_DATE.Value;
-                        vDtlastlogin = vDtlastlogin.AddHours(7);
-                        // end
-                        var data = new HANGFIRE_SERVER_STATUS()
-                        {
-                            Email = item.Email,
-                            //LAST_LOGIN_DATE = item.LAST_LOGIN_DATE, // remark by fauzi 11 Februari 2020
-                            LAST_LOGIN_DATE = vDtlastlogin,
-                            Username = item.Username,
-                            DatabasePathErasoft = item.DatabasePathErasoft,
-                            DatabaseSourceErasoft = item.DataSourcePath,
-                            NamaTokoOnline = item.NamaTokoOnline,
-                            TGL_SUBSCRIPTION = item.TGL_SUBSCRIPTION,
-                            HangfireServerCount = serverList.Count(),
-                            PesananJobEnqueued = 0,
-                            CreateProductJobEnqueued = 0,
-                            StokJobEnqueued = 0,
-                            LAST_HEARTBEAT = lastHeartbeat
-                        };
-
-                        //string sSQL = "select 'Stok' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%StokControllerJob%' " + System.Environment.NewLine;
-                        string sSQL = "select 'Stok' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%StokControllerJob%' and InvocationData not like '%updateBruto%'" + System.Environment.NewLine;
-                        sSQL += "union all" + System.Environment.NewLine;
-                        sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%'" + System.Environment.NewLine;
-                        sSQL += "union all" + System.Environment.NewLine;
-                        //sSQL += "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%'" + System.Environment.NewLine;
-                        sSQL += "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%' and InvocationData not like '%stok%'" + System.Environment.NewLine;
-                        var dsCekQueue = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
-                        if (dsCekQueue.Tables[0].Rows.Count > 0)
-                        {
-                            for (int i = 0; i < dsCekQueue.Tables[0].Rows.Count; i++)
+                            var lastHeartbeat = new DateTime?();
+                            var getfirstserver = serverList.FirstOrDefault();
+                            if (getfirstserver != null)
                             {
-                                switch (Convert.ToString(dsCekQueue.Tables[0].Rows[i]["tipe"]))
+                                lastHeartbeat = getfirstserver.Heartbeat;
+                                // add by fauzi 11 Februari 2020
+                                DateTime vDatetime = lastHeartbeat.Value;
+                                lastHeartbeat = vDatetime.AddHours(7);
+                                // end
+                            }
+                            // add by fauzi 11 Februari 2020
+                            DateTime vDtlastlogin = item.LAST_LOGIN_DATE.Value;
+                            vDtlastlogin = vDtlastlogin.AddHours(7);
+                            // end
+                            var data = new HANGFIRE_SERVER_STATUS()
+                            {
+                                Email = item.Email,
+                                //LAST_LOGIN_DATE = item.LAST_LOGIN_DATE, // remark by fauzi 11 Februari 2020
+                                LAST_LOGIN_DATE = vDtlastlogin,
+                                Username = item.Username,
+                                DatabasePathErasoft = item.DatabasePathErasoft,
+                                DatabaseSourceErasoft = item.DataSourcePath,
+                                NamaTokoOnline = item.NamaTokoOnline,
+                                TGL_SUBSCRIPTION = item.TGL_SUBSCRIPTION,
+                                HangfireServerCount = serverList.Count(),
+                                PesananJobEnqueued = 0,
+                                CreateProductJobEnqueued = 0,
+                                StokJobEnqueued = 0,
+                                LAST_HEARTBEAT = lastHeartbeat
+                            };
+
+                            //string sSQL = "select 'Stok' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%StokControllerJob%' " + System.Environment.NewLine;
+                            string sSQL = "select 'Stok' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%StokControllerJob%' and InvocationData not like '%updateBruto%'" + System.Environment.NewLine;
+                            sSQL += "union all" + System.Environment.NewLine;
+                            sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%'" + System.Environment.NewLine;
+                            sSQL += "union all" + System.Environment.NewLine;
+                            //sSQL += "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%'" + System.Environment.NewLine;
+                            sSQL += "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%' and InvocationData not like '%stok%'" + System.Environment.NewLine;
+                            var dsCekQueue = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
+                            if (dsCekQueue.Tables[0].Rows.Count > 0)
+                            {
+                                for (int i = 0; i < dsCekQueue.Tables[0].Rows.Count; i++)
                                 {
-                                    case "Stok":
-                                        data.StokJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
-                                        break;
-                                    case "Order":
-                                        data.PesananJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
-                                        break;
-                                    case "Product":
-                                        data.CreateProductJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
-                                        break;
-                                    default:
-                                        break;
+                                    switch (Convert.ToString(dsCekQueue.Tables[0].Rows[i]["tipe"]))
+                                    {
+                                        case "Stok":
+                                            data.StokJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
+                                            break;
+                                        case "Order":
+                                            data.PesananJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
+                                            break;
+                                        case "Product":
+                                            data.CreateProductJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
+                                            break;
+                                        default:
+                                            break;
+                                    }
                                 }
                             }
-                        }
 
-                        pageContent.Add(data);
+                            pageContent.Add(data);
+                        }
+                        catch (Exception ex)
+                        {
+                            if (ex.Message.ToString().Contains("Cannot open database")) {
+                                DateTime vDtlastlogin = item.LAST_LOGIN_DATE.Value;
+                                vDtlastlogin = vDtlastlogin.AddHours(7);
+                                var data = new HANGFIRE_SERVER_STATUS()
+                                {
+                                    Email = item.Email,
+                                    //LAST_LOGIN_DATE = item.LAST_LOGIN_DATE, // remark by fauzi 11 Februari 2020
+                                    LAST_LOGIN_DATE = vDtlastlogin,
+                                    Username = item.Username,
+                                    DatabasePathErasoft = item.DatabasePathErasoft,
+                                    DatabaseSourceErasoft = item.DataSourcePath,
+                                    NamaTokoOnline = item.NamaTokoOnline,
+                                    TGL_SUBSCRIPTION = item.TGL_SUBSCRIPTION,
+                                    HangfireServerCount = 0,
+                                    PesananJobEnqueued = 0,
+                                    CreateProductJobEnqueued = 0,
+                                    StokJobEnqueued = 0,
+                                    LAST_HEARTBEAT = null
+                                };
+                                pageContent.Add(data);
+                            }
+                                
+                        }                        
                     }
                     else
                     {
