@@ -23,21 +23,21 @@ namespace MasterOnline
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
             // START SETTING HANGFIRE PRO REDIS
-            Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("mo-prod-redis.df2l2v.0001.apse1.cache.amazonaws.com,abortConnect=false,ssl=false,password=...");
-            //Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("127.0.0.1,abortConnect=false,ssl=true,password=...");
+            //Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("mo-prod-redis.df2l2v.0001.apse1.cache.amazonaws.com,abortConnect=false,ssl=false,password=...");
+            Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("127.0.0.1,abortConnect=false,ssl=true,password=...");
 
             var optionsPrefix = new Hangfire.Pro.Redis.RedisStorageOptions
             {
                 Prefix = "hangfire:app1:",
             };
 
-            Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("mo-prod-redis.df2l2v.0001.apse1.cache.amazonaws.com:6379",
-                new RedisStorageOptions { Prefix = "{hangfire-1}:" });
-            //Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("127.0.0.1:6379",
+            //Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("mo-prod-redis.df2l2v.0001.apse1.cache.amazonaws.com:6379",
             //    new RedisStorageOptions { Prefix = "{hangfire-1}:" });
+            Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("127.0.0.1:6379",
+                new RedisStorageOptions { Prefix = "{hangfire-1}:" });
 
-            //Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("127.0.0.1:6379", optionsPrefix);
-            Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("mo-prod-redis.df2l2v.0001.apse1.cache.amazonaws.com:6379", optionsPrefix);
+            Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("127.0.0.1:6379", optionsPrefix);
+            //Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("mo-prod-redis.df2l2v.0001.apse1.cache.amazonaws.com:6379", optionsPrefix);
 
             // END SETTING HANGFIRE PRO REDIS
 
