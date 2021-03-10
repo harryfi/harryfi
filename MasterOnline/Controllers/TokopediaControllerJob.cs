@@ -3095,11 +3095,12 @@ namespace MasterOnline.Controllers
                                 {
                                     recipient_address_postal_code = recipient_address_postal_code.Substring(0, 10);
                                 }
-                                string recipient_address_geo = !string.IsNullOrEmpty(order.recipient.address.geo) ? order.recipient.address.geo.Replace('\'', '`') : "";
-                                if (recipient_address_geo.Length > 150)
-                                {
-                                    recipient_address_geo = recipient_address_geo.Substring(0, 150);
-                                }
+                                //string recipient_address_geo = !string.IsNullOrEmpty(order.recipient.address.geo) ? order.recipient.address.geo.Replace('\'', '`') : "";
+                                //if (recipient_address_geo.Length > 150)
+                                //{
+                                //    recipient_address_geo = recipient_address_geo.Substring(0, 150);
+                                //}
+                                string recipient_address_geo = "";
                                 string recipient_phone = !string.IsNullOrEmpty(order.recipient.phone) ? order.recipient.phone.Replace('\'', '`') : "";
                                 if (recipient_phone.Length > 50)
                                 {
@@ -3453,11 +3454,12 @@ namespace MasterOnline.Controllers
                                     {
                                         a_recipient_address_postal_code = a_recipient_address_postal_code.Substring(0, 10);
                                     }
-                                    string a_recipient_address_geo = !string.IsNullOrEmpty(order.recipient.address.geo) ? order.recipient.address.geo.Replace('\'', '`') : "";
-                                    if (a_recipient_address_geo.Length > 150)
-                                    {
-                                        a_recipient_address_geo = a_recipient_address_geo.Substring(0, 150);
-                                    }
+                                    //string a_recipient_address_geo = !string.IsNullOrEmpty(order.recipient.address.geo) ? order.recipient.address.geo.Replace('\'', '`') : "";
+                                    //if (a_recipient_address_geo.Length > 150)
+                                    //{
+                                    //    a_recipient_address_geo = a_recipient_address_geo.Substring(0, 150);
+                                    //}
+                                    string a_recipient_address_geo = "";
                                     string a_recipient_phone = !string.IsNullOrEmpty(order.recipient.phone) ? order.recipient.phone.Replace('\'', '`') : "";
                                     if (a_recipient_phone.Length > 50)
                                     {
