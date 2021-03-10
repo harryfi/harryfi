@@ -106,7 +106,7 @@ namespace MasterOnline.Utils
                                 serverConnection.RemoveServer(server.Name);
                                 serverConnection.Dispose();
                             }
-                            //startHangfireServer(sqlStorage);
+                            startHangfireServer(sqlStorage);
                         }
                     }
                 }
