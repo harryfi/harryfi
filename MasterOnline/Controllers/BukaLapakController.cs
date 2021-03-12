@@ -32,7 +32,11 @@ namespace MasterOnline.Controllers
         private static string client_id = "GovVusRdl0QwJCXu1F0th5lezoFYvVIW4XHv4U1M05U";
         private static string client_secret = "osqzx8n3y3YRJ0vydm_8qOZ9N9f95EvrZSvTFtKQCzM";
 #else
-        private static string callBackUrl = "https://dev.masteronline.co.id/bukalapak/auth";
+        //private static string callBackUrl = "https://dev.masteronline.co.id/bukalapak/auth";
+        //private static string client_id = "laJXb5jh91BelPQg2VmE2ooa58UVJmlJkNq98EPJc6s";
+        //private static string client_secret = "AXe5u7JcYiSNLvOsGW92Dzc4li6mbrWpN9qjlLD4OxI";
+
+        private static string callBackUrl = "https://masteronline.my.id/bukalapak/auth";
         private static string client_id = "laJXb5jh91BelPQg2VmE2ooa58UVJmlJkNq98EPJc6s";
         private static string client_secret = "AXe5u7JcYiSNLvOsGW92Dzc4li6mbrWpN9qjlLD4OxI";
 #endif
@@ -124,19 +128,46 @@ namespace MasterOnline.Controllers
         public string BukalapakAuth(string cust)
         {
             string userId = "";
-            if (sessionData?.Account != null)
+            //if (sessionData?.Account != null)
+            //{
+            //    userId = sessionData.Account.DatabasePathErasoft;
+
+            //}
+            //else
+            //{
+            //    if (sessionData?.User != null)
+            //    {
+            //        var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+            //        userId = accFromUser.DatabasePathErasoft;
+            //    }
+            //}
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+
+            if (sessionAccount != null)
             {
-                userId = sessionData.Account.DatabasePathErasoft;
+                userId = sessionAccountDatabasePathErasoft.ToString();
 
             }
             else
             {
-                if (sessionData?.User != null)
+                if (sessionUser != null)
                 {
-                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                    var userAccID = Convert.ToInt64(sessionUserAccountID);
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == userAccID);
                     userId = accFromUser.DatabasePathErasoft;
                 }
             }
+
             var dataToken = MoDbContext.BUKALAPAK_TOKEN.Where(m => m.ACCOUNT == userId && m.CUST == cust).FirstOrDefault();
             var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
             if (dataToken == null)

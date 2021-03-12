@@ -98,7 +98,7 @@ namespace MasterOnline.Controllers
                 }
 
                 //add by nurul 15/2/2021
-                usernameLogin = sessionData.Account.Username;
+                usernameLogin = sessionAccountUserName.ToString();
                 //end add by nurul 15/2/2021
             }
             else
@@ -116,7 +116,7 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext = new ErasoftContext(dbSourceEra, accFromUser.DatabasePathErasoft);
 
                     //add by nurul 15/2/2021
-                    usernameLogin = sessionData.User.Username;
+                    usernameLogin = sessionUserUsername.ToString();
                     //end add by nurul 15/2/2021
                 }
             }

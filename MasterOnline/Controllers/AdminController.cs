@@ -28,8 +28,8 @@ namespace MasterOnline.Controllers
     public class AdminController : Controller
     {
         //set parameter network location server IP Private
-        //public string IPServerLocation = "\\\\172.31.20.73\\MasterOnline\\";
-        public string IPServerLocation = "\\\\127.0.0.1\\MasterOnline\\"; // \\127.0.0.1\MasterOnline
+        public string IPServerLocation = "\\\\172.31.20.73\\MasterOnline\\";
+        //public string IPServerLocation = "\\\\127.0.0.1\\MasterOnline\\"; // \\127.0.0.1\MasterOnline
 
         private readonly MoDbContext MoDbContext;
 
