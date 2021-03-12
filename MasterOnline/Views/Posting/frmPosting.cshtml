@@ -577,7 +577,8 @@
         window.addEventListener('message', function (event) {
 
             //if (~event.origin.indexOf('http://13.251.222.53')) {
-            if (~event.origin.indexOf('https://report.masteronline.co.id') || ~event.origin.indexOf('https://devreport.masteronline.co.id')) {
+            //if (~event.origin.indexOf('https://report.masteronline.co.id') || ~event.origin.indexOf('https://devreport.masteronline.co.id')) {
+            if (~event.origin.indexOf('https://report.masteronline.co.id') || ~event.origin.indexOf('https://devreport.masteronline.my.id')) {
                 if (event.data.event_id == 'progressbar') {
 
                     $('.labelPosting').html('Status : ' + event.data.nama);
