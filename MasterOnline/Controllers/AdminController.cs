@@ -100,6 +100,7 @@ namespace MasterOnline.Controllers
 
                 //Session["SessionAdmin"] = adminFromDb;
                 Session["SessionAdmin"] = adminFromDb.Email;
+                Session["SessionAdminUsername"] = adminFromDb.Username;
 
                 result = "DashboardAdmin";
             }
@@ -113,6 +114,7 @@ namespace MasterOnline.Controllers
 
                 //Session["SessionAdmin"] = adminFromDb;
                 Session["SessionAdmin"] = adminFromDb.Email;
+                Session["SessionAdminUsername"] = adminFromDb.Username;
 
                 result = "DashboardAdm";
 
@@ -124,6 +126,7 @@ namespace MasterOnline.Controllers
         public ActionResult LoggingOut()
         {
             Session["SessionAdmin"] = null;
+            Session["SessionAdminUsername"] = null;
             return RedirectToAction("Login", "Admin");
         }
 

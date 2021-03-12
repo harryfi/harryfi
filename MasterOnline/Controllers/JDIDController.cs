@@ -397,16 +397,37 @@ namespace MasterOnline.Controllers
                                 contextNotif.Clients.Group(data.DatabasePathErasoft).notifTransaction("Akun marketplace " + data.email.ToString() + " (JD.ID) berhasil aktif", true);
                                 EDB.ExecuteSQL("CString", CommandType.Text, "Update ARF01 SET STATUS_API = '1' WHERE TOKEN = '" + data.accessToken + "' AND API_KEY = '" + data.appKey + "'");
                                 string dbPath = "";
-                                var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-                                if (sessionData?.Account != null)
+
+                                //var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                                //if (sessionData?.Account != null)
+                                //{
+                                //    dbPath = sessionData.Account.DatabasePathErasoft;
+                                //}
+                                //else
+                                //{
+                                //    if (sessionData?.User != null)
+                                //    {
+                                //        var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                                //        dbPath = accFromUser.DatabasePathErasoft;
+                                //    }
+                                //}
+                                
+                                var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+                                var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+                                var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+                                var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+                                if (sessionAccount != null)
                                 {
-                                    dbPath = sessionData.Account.DatabasePathErasoft;
+                                    dbPath = sessionAccountDatabasePathErasoft.ToString();
                                 }
                                 else
                                 {
-                                    if (sessionData?.User != null)
+                                    if (sessionUser != null)
                                     {
-                                        var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                                        var userAccID = Convert.ToInt64(sessionUserAccountID);
+                                        var accFromUser = MoDbContext.Account.Single(a => a.AccountId == userAccID);
                                         dbPath = accFromUser.DatabasePathErasoft;
                                     }
                                 }
@@ -721,19 +742,40 @@ namespace MasterOnline.Controllers
                             {
                                 EDB.ExecuteSQL("CString", CommandType.Text, "Update ARF01 SET STATUS_API = '1' WHERE TOKEN = '" + data.accessToken + "' AND API_KEY = '" + data.appKey + "'");
                                 string dbPath = "";
-                                var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-                                if (sessionData?.Account != null)
+                                //var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                                //if (sessionData?.Account != null)
+                                //{
+                                //    dbPath = sessionData.Account.DatabasePathErasoft;
+                                //}
+                                //else
+                                //{
+                                //    if (sessionData?.User != null)
+                                //    {
+                                //        var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                                //        dbPath = accFromUser.DatabasePathErasoft;
+                                //    }
+                                //}
+
+                                var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+                                var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+                                var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+                                var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+                                if (sessionAccount != null)
                                 {
-                                    dbPath = sessionData.Account.DatabasePathErasoft;
+                                    dbPath = sessionAccountDatabasePathErasoft.ToString();
                                 }
                                 else
                                 {
-                                    if (sessionData?.User != null)
+                                    if (sessionUser != null)
                                     {
-                                        var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                                        var userAccID = Convert.ToInt64(sessionUserAccountID);
+                                        var accFromUser = MoDbContext.Account.Single(a => a.AccountId == userAccID);
                                         dbPath = accFromUser.DatabasePathErasoft;
                                     }
                                 }
+
                                 var listKtg = ErasoftDbContext.CATEGORY_JDID.ToList();
                                 if (listKtg.Count > 0)
                                 {

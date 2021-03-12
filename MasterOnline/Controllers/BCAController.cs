@@ -22,7 +22,7 @@ namespace MasterOnline.Controllers
         //static string api_key = "a604e42c-7a01-4117-84eb-8c367394b059";
         //static string api_secret = "83778479-63f8-4b61-921a-d956695c2a36";
         static string urlBCAApi = "https://sandbox.bca.co.id";
-        AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+        //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
         // GET: BCA
         public ActionResult Index()
         {
@@ -83,17 +83,37 @@ namespace MasterOnline.Controllers
             string client_id = "";
             string client_secret = "";
             DatabaseSQL EDB;
-            if (sessionData?.Account != null)
-            {                
-                EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);                
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+            //if (sessionData?.Account != null)
+            //{                
+            //    EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);                
+            //}
+            //else
+            //{
+            //    //if (sessionData?.User != null)
+            //    //{
+            //        MoDbContext MoDbContext = new MoDbContext("");
+            //        var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+            //        EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
+            //    //}
+            //}
+
+            if (sessionAccount != null)
+            {
+                EDB = new DatabaseSQL(sessionAccountDatabasePathErasoft.ToString());
             }
             else
             {
                 //if (sessionData?.User != null)
                 //{
-                    MoDbContext MoDbContext = new MoDbContext("");
-                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
-                    EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
+                MoDbContext MoDbContext = new MoDbContext("");
+                var userAccID = Convert.ToInt64(sessionUserAccountID);
+                var accFromUser = MoDbContext.Account.Single(a => a.AccountId == userAccID);
+                EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                 //}
             }
 
@@ -158,16 +178,35 @@ namespace MasterOnline.Controllers
             if (auth.ErrorMessage == null)
             {
                 DatabaseSQL EDB;
-                if (sessionData?.Account != null)
+                var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+                var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+                var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+                //if (sessionData?.Account != null)
+                //{
+                //    EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
+                //}
+                //else
+                //{
+                //    //if (sessionData?.User != null)
+                //    //{
+                //    MoDbContext MoDbContext = new MoDbContext("");
+                //    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                //    EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
+                //    //}
+                //}
+
+                if (sessionAccount != null)
                 {
-                    EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
+                    EDB = new DatabaseSQL(sessionAccountDatabasePathErasoft.ToString());
                 }
                 else
                 {
                     //if (sessionData?.User != null)
                     //{
                     MoDbContext MoDbContext = new MoDbContext("");
-                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                    var userAccID = Convert.ToInt64(sessionUserAccountID);
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == userAccID);
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                     //}
                 }
@@ -295,19 +334,39 @@ namespace MasterOnline.Controllers
             var ret = new BindingBCA();
             ret.status = 0;
             DatabaseSQL EDB;
-            if (sessionData?.Account != null)
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+            //if (sessionData?.Account != null)
+            //{
+            //    EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
+            //}
+            //else
+            //{
+            //    //if (sessionData?.User != null)
+            //    //{
+            //    MoDbContext MoDbContext = new MoDbContext("");
+            //    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+            //    EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
+            //    //}
+            //}
+
+            if (sessionAccount != null)
             {
-                EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
+                EDB = new DatabaseSQL(sessionAccountDatabasePathErasoft.ToString());
             }
             else
             {
                 //if (sessionData?.User != null)
                 //{
                 MoDbContext MoDbContext = new MoDbContext("");
-                var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                var userAccID = Convert.ToInt64(sessionUserAccountID);
+                var accFromUser = MoDbContext.Account.Single(a => a.AccountId == userAccID);
                 EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                 //}
             }
+
             var dsAPT03 = EDB.GetDataSet("MOConnectionString", "APT03A", "SELECT * FROM APT03A WHERE BUKTI = '" + nobuk + "'");
             if (dsAPT03.Tables[0].Rows.Count > 0)
             {

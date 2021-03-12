@@ -15,7 +15,7 @@ namespace MasterOnline.Controllers
 {
     public class MidtransController : Controller
     {
-        AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+        //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
         public MoDbContext MoDbContext { get; set; }
         // GET: Midtrans
         [System.Web.Mvc.HttpGet]
@@ -107,6 +107,59 @@ namespace MasterOnline.Controllers
                     data.credit_card.save_token_id = true;
                     data.customer_details = new CustomerDetail();
 
+                    //if (accId > 0)
+                    //{
+                    //    accInDB = MoDbContext.Account.Where(a => a.AccountId == accId).FirstOrDefault();
+                    //    if (accInDB != null)
+                    //    {
+                    //        data.customer_details.email = accInDB.Email;
+                    //        data.customer_details.phone = accInDB.NoHp;
+                    //        data.user_id = accId.ToString();
+                    //        emailAddon = accInDB.Email;
+                    //        idAccount = accId.ToString();
+                    //    }
+                    //}
+                    //else if (sessionData?.Account != null)
+                    //{
+
+                    //    //EDB = new DatabaseSQL(sessionData.Account.UserId);
+                    //    data.customer_details.email = sessionData.Account.Email;
+                    //    data.customer_details.phone = sessionData.Account.NoHp;
+                    //    data.user_id = sessionData.Account.AccountId.ToString();
+                    //    emailAddon = sessionData.Account.Email;
+                    //    idAccount = sessionData.Account.AccountId.ToString();
+                    //}
+                    //else
+                    //{
+                    //    if (sessionData?.User != null)
+                    //    {
+                    //        //var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                    //        data.customer_details.email = sessionData.User.Email;
+                    //        data.customer_details.phone = sessionData.User.NoHp;
+                    //        data.user_id = sessionData.User.UserId.ToString();
+                    //        emailAddon = sessionData.User.Email;
+                    //        idAccount = sessionData.User.UserId.ToString();
+                    //    }
+                    //}
+
+                    var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+                    var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+                    var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+                    var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+                    var sessionAccountNohp = System.Web.HttpContext.Current.Session["SessionAccountNohp"];
+                    var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+                    var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+                    var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+                    var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+                    var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+                    var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+                    var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+                    var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+                    var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+                    var sessionUserNohp = System.Web.HttpContext.Current.Session["SessionUserNohp"];
+                    var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
                     if (accId > 0)
                     {
                         accInDB = MoDbContext.Account.Where(a => a.AccountId == accId).FirstOrDefault();
@@ -119,26 +172,26 @@ namespace MasterOnline.Controllers
                             idAccount = accId.ToString();
                         }
                     }
-                    else if (sessionData?.Account != null)
+                    else if (sessionAccount != null)
                     {
 
                         //EDB = new DatabaseSQL(sessionData.Account.UserId);
-                        data.customer_details.email = sessionData.Account.Email;
-                        data.customer_details.phone = sessionData.Account.NoHp;
-                        data.user_id = sessionData.Account.AccountId.ToString();
-                        emailAddon = sessionData.Account.Email;
-                        idAccount = sessionData.Account.AccountId.ToString();
+                        data.customer_details.email = sessionAccountEmail.ToString();
+                        data.customer_details.phone = sessionAccountNohp.ToString();
+                        data.user_id = Convert.ToString(sessionAccount);
+                        emailAddon = sessionAccountEmail.ToString();
+                        idAccount = sessionAccount.ToString();
                     }
                     else
                     {
-                        if (sessionData?.User != null)
+                        if (sessionUser != null)
                         {
                             //var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
-                            data.customer_details.email = sessionData.User.Email;
-                            data.customer_details.phone = sessionData.User.NoHp;
-                            data.user_id = sessionData.User.UserId.ToString();
-                            emailAddon = sessionData.User.Email;
-                            idAccount = sessionData.User.UserId.ToString();
+                            data.customer_details.email = sessionUserEmail.ToString();
+                            data.customer_details.phone = sessionUserNohp.ToString();
+                            data.user_id = sessionUserUserID.ToString();
+                            emailAddon = sessionUserEmail.ToString();
+                            idAccount = sessionUserAccountID.ToString();
                         }
                     }
 
@@ -180,7 +233,7 @@ namespace MasterOnline.Controllers
                             }
                             else
                             {
-                                dataTrans.ACCOUNT_ID = sessionData?.Account != null ? sessionData.Account.AccountId : sessionData.User.AccountId;
+                                dataTrans.ACCOUNT_ID = sessionAccount != null ? Convert.ToInt64(sessionAccount) : Convert.ToInt64(sessionUserAccountID);
                             }
 
                             MoDbContext.TransaksiMidtrans.Add(dataTrans);

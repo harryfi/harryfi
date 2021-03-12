@@ -222,6 +222,7 @@ namespace MasterOnline.Controllers
                 Session["SessionUserUsername"] = userFromDb.Username;
                 Session["SessionUserAccountID"] = userFromDb.AccountId;
                 Session["SessionUserEmail"] = userFromDb.Email;
+                Session["SessionUserNohp"] = userFromDb.NoHp;
                 Session["SessionAccount"] = null;
             }
             else
@@ -238,6 +239,7 @@ namespace MasterOnline.Controllers
                 Session["SessionAccountUserID"] = accSelected.UserId;
                 Session["SessionAccountUserName"] = accSelected.Username;
                 Session["SessionAccountEmail"] = accSelected.Email;
+                Session["SessionAccountNohp"] = accSelected.NoHp;
                 Session["SessionAccountTglSub"] = accSelected.TGL_SUBSCRIPTION;
                 Session["SessionAccountKodeSub"] = accSelected.KODE_SUBSCRIPTION;
                 Session["SessionAccountDataSourcePathDebug"] = accSelected.DataSourcePathDebug;
@@ -473,6 +475,7 @@ namespace MasterOnline.Controllers
                 Session["SessionUserUsername"] = userFromDb.Username;
                 Session["SessionUserAccountID"] = userFromDb.AccountId;
                 Session["SessionUserEmail"] = userFromDb.Email;
+                Session["SessionUserNohp"] = userFromDb.NoHp;
                 Session["SessionAccount"] = null;
                 //var accByUser = MoDbContext.Account.Single(a => a.AccountId == userFromDb.AccountId);
                 //connectionConfiguration.ConnectionStrings.ConnectionStrings["PerAccContext"].ConnectionString = $"Server=13.251.222.53\\SQLEXPRESS, 1433;initial catalog=ERASOFT_{accByUser.UserId};user id=masteronline;password=M@ster123;multipleactiveresultsets=True;application name=EntityFramework";
@@ -517,6 +520,7 @@ namespace MasterOnline.Controllers
                 Session["SessionAccountUserID"] = accFromDb.UserId;
                 Session["SessionAccountUserName"] = accFromDb.Username;
                 Session["SessionAccountEmail"] = accFromDb.Email;
+                Session["SessionAccountNohp"] = accFromDb.NoHp;
                 Session["SessionAccountTglSub"] = accFromDb.TGL_SUBSCRIPTION;
                 Session["SessionAccountKodeSub"] = accFromDb.KODE_SUBSCRIPTION;
                 Session["SessionAccountDataSourcePathDebug"] = accFromDb.DataSourcePathDebug;
@@ -2221,11 +2225,13 @@ namespace MasterOnline.Controllers
             Session["SessionUserUsername"] = null;
             Session["SessionUserAccountID"] = null;
             Session["SessionUserEmail"] = null;
+            Session["SessionUserNohp"] = null;
 
             Session["SessionAccount"] = null;
             Session["SessionAccountUserID"] = null;
             Session["SessionAccountUserName"] = null;
             Session["SessionAccountEmail"] = null;
+            Session["SessionAccountNohp"] = null;
             Session["SessionAccountTglSub"] = null;
             Session["SessionAccountKodeSub"] = null;
             Session["SessionAccountDataSourcePathDebug"] = null;

@@ -1731,28 +1731,48 @@ namespace MasterOnline.Controllers
                             {
                                 EDB.ExecuteSQL("CString", CommandType.Text, "Update ARF01 SET STATUS_API = '1' WHERE TOKEN = '" + data.accessToken + "' AND API_KEY = '" + data.appKey + "'");
                                 string dbPath = "";
-                                var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-                                if (sessionData?.Account != null)
+                                //var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                                //if (sessionData?.Account != null)
+                                //{
+                                //    dbPath = sessionData.Account.DatabasePathErasoft;
+                                //}
+                                //else
+                                //{
+                                //    if (sessionData?.User != null)
+                                //    {
+                                //        var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                                //        dbPath = accFromUser.DatabasePathErasoft;
+                                //    }
+                                //}
+
+                                var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+                                var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+                                var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+                                var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+                                if (sessionAccount != null)
                                 {
-                                    dbPath = sessionData.Account.DatabasePathErasoft;
+                                    dbPath = sessionAccountDatabasePathErasoft.ToString();
                                 }
                                 else
                                 {
-                                    if (sessionData?.User != null)
+                                    if (sessionUser != null)
                                     {
-                                        var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                                        var userAccID = Convert.ToInt64(sessionUserAccountID);
+                                        var accFromUser = MoDbContext.Account.Single(a => a.AccountId == userAccID);
                                         dbPath = accFromUser.DatabasePathErasoft;
                                     }
                                 }
 
                                 #region connstring
-//#if AWS
-//                    string con = "Data Source=localhost;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
-//#elif Debug_AWS
-//                                string con = "Data Source=13.250.232.74;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
-//#else
-//                                string con = "Data Source=13.251.222.53;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
-//#endif
+                                //#if AWS
+                                //                    string con = "Data Source=localhost;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
+                                //#elif Debug_AWS
+                                //                                string con = "Data Source=13.250.232.74;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
+                                //#else
+                                //                                string con = "Data Source=13.251.222.53;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
+                                //#endif
                                 #endregion
                                 using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
                                 {

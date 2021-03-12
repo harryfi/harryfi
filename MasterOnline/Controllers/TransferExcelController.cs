@@ -109,7 +109,7 @@ namespace MasterOnline.Controllers
                 else
                 {
 #if (Debug_AWS)
-                    dbSourceEra = sessionData.Account.DataSourcePathDebug;
+                    dbSourceEra = sessionAccountDataSourcePathDebug.ToString();
 #else
                     dbSourceEra = sessionAccountDataSourcePath.ToString();
 #endif
