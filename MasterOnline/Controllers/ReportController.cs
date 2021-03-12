@@ -134,7 +134,7 @@ namespace MasterOnline.Controllers
         }
 
 
-        [Route("reports/1")]
+        [Route("manage/reports/1")]
         public ActionResult MutasiPiutang()
         {
             return View();
@@ -167,7 +167,7 @@ namespace MasterOnline.Controllers
 #endif
         }
 
-        [Route("reports/2")]
+        [Route("manage/reports/2")]
         public ActionResult MutasiHutang()
         {
             return View();
@@ -195,7 +195,7 @@ namespace MasterOnline.Controllers
 #endif
         }
 
-        [Route("reports/3")]
+        [Route("manage/reports/3")]
         public ActionResult KartuPiutang()
         {
             return View();
@@ -225,7 +225,7 @@ namespace MasterOnline.Controllers
 #endif
         }
 
-        [Route("reports/4")]
+        [Route("manage/reports/4")]
         public ActionResult KartuHutang()
         {
             return View();
@@ -256,7 +256,7 @@ namespace MasterOnline.Controllers
 
         }
 
-        [Route("reports/5")]
+        [Route("manage/reports/5")]
         public ActionResult AnalisaPembelian()
         {
             return View();
@@ -296,7 +296,7 @@ namespace MasterOnline.Controllers
 
         }
 
-        [Route("reports/6")]
+        [Route("manage/reports/6")]
         public ActionResult AnalisaRugiLabaPenjualan()
         {
             return View();
@@ -338,7 +338,7 @@ namespace MasterOnline.Controllers
 #endif
         }
 
-        [Route("reports/7")]
+        [Route("manage/reports/7")]
         public ActionResult KartuStok()
         {
             return View();
@@ -371,7 +371,7 @@ namespace MasterOnline.Controllers
 
         }
 
-        [Route("reports/8")]
+        [Route("manage/reports/8")]
         public ActionResult MutasiStokBulanan()
         {
             return View();
@@ -406,7 +406,7 @@ namespace MasterOnline.Controllers
 
         }
 
-        [Route("reports/9")]
+        [Route("manage/reports/9")]
         public ActionResult Neraca()
         {
             return View();
@@ -437,7 +437,7 @@ namespace MasterOnline.Controllers
 
         }
 
-        [Route("reports/10")]
+        [Route("manage/reports/10")]
         public ActionResult RugiLaba()
         {
             return View();
@@ -468,7 +468,7 @@ namespace MasterOnline.Controllers
 
         }
 
-        [Route("reports/11")]
+        [Route("manage/reports/11")]
         public ActionResult CetakBukuBesar()
         {
             return View();
@@ -507,7 +507,7 @@ namespace MasterOnline.Controllers
 
         }
 
-        [Route("reports/12")]
+        [Route("manage/reports/12")]
         public ActionResult CetakRekapBukuBesar()
         {
             return View();
@@ -546,7 +546,7 @@ namespace MasterOnline.Controllers
 
         }
 
-        [Route("reports/13")]
+        [Route("manage/reports/13")]
         public ActionResult ListFakturPenjualan()
         {
             return View();
@@ -583,7 +583,7 @@ namespace MasterOnline.Controllers
 
         }
 
-        [Route("reports/14")]
+        [Route("manage/reports/14")]
         public ActionResult ListInvPembelian()
         {
             return View();
@@ -613,7 +613,7 @@ namespace MasterOnline.Controllers
 #endif
         }
 
-        [Route("reports/15")]
+        [Route("manage/reports/15")]
         public ActionResult KartuStokDenganHarga()
         {
             return View();
@@ -645,7 +645,7 @@ namespace MasterOnline.Controllers
 
         }
 
-        [Route("reports/16")]
+        [Route("manage/reports/16")]
         public ActionResult PosisiStok()
         {
             return View();
