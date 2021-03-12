@@ -7,6 +7,8 @@
     //var dataSession = Session["SessionInfo"] as AccountUserViewModel;
 
     var userId = "";
+    var username = "";
+    long accId;
     //if (dataSession?.User != null)
     //{
     //    var accId = context.User.Single(u => u.Email == dataSession.User.Email).AccountId;
@@ -36,12 +38,14 @@
 
     if (sessionUser != null)
     {
-        var accId = context.User.Single(u => u.Email == sessionUserEmail.ToString()).AccountId;
+        accId = context.User.Single(u => u.Email == sessionUserEmail.ToString()).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
         userId = context.Account.Single(a => a.AccountId == accId).DatabasePathErasoft;
-        context.Dispose();
     }
     else
     {
+        username = sessionAccountUserName.ToString();
+        accId = (Convert.ToInt64(sessionAccount ?? 0));
         userId = sessionAccountDatabasePathErasoft.ToString();
     }
 }
