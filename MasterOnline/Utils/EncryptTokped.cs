@@ -25,12 +25,12 @@ namespace MasterOnline.Utils
             {
                 byte[] cipherTextBytes = Convert.FromBase64String(cipherText);
 
-                //PemReader pr = new PemReader(
-                //    (StreamReader)File.OpenText("C://EncryptTokped//private_key.pem")
-                //);
                 PemReader pr = new PemReader(
-                    (StreamReader)File.OpenText("\\\\172.31.20.73\\MasterOnline\\EncryptTokped\\private_key.pem")
+                    (StreamReader)File.OpenText("C://EncryptTokped//private_key.pem")
                 );
+                //PemReader pr = new PemReader(
+                //    (StreamReader)File.OpenText("\\\\172.31.20.73\\MasterOnline\\EncryptTokped\\private_key.pem")
+                //);
                 AsymmetricCipherKeyPair keys = (AsymmetricCipherKeyPair)pr.ReadObject();
 
                 
