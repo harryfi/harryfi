@@ -1467,9 +1467,9 @@ namespace MasterOnline.Controllers
                                                                 payment_method = payment_method.Substring(0, 100);
                                                             }
                                                             string shipping_carrier = !string.IsNullOrEmpty(order.name_carrier) ? order.name_carrier.Replace('\'', '`') : "";
-                                                            if (shipping_carrier.Length > 300)
+                                                            if (shipping_carrier.Length > 50)
                                                             {
-                                                                shipping_carrier = shipping_carrier.Substring(0, 300);
+                                                                shipping_carrier = shipping_carrier.Substring(0, 50);
                                                             }
                                                             string currency = !string.IsNullOrEmpty(order.currency) ? order.currency.Replace('\'', '`') : "";
                                                             if (currency.Length > 50)
@@ -1804,9 +1804,9 @@ namespace MasterOnline.Controllers
                                                 p_payment_method = p_payment_method.Substring(0, 100);
                                             }
                                             string p_shipping_carrier = !string.IsNullOrEmpty(order.name_carrier) ? order.name_carrier.Replace('\'', '`') : "";
-                                            if (p_shipping_carrier.Length > 300)
+                                            if (p_shipping_carrier.Length > 50)
                                             {
-                                                p_shipping_carrier = p_shipping_carrier.Substring(0, 300);
+                                                p_shipping_carrier = p_shipping_carrier.Substring(0, 50);
                                             }
                                             string p_currency = !string.IsNullOrEmpty(order.currency) ? order.currency.Replace('\'', '`') : "";
                                             if (p_currency.Length > 50)
