@@ -45413,10 +45413,11 @@ namespace MasterOnline.Controllers
             switch (idmarket)
             {
                 case "7"://Lazada
-                    if (price < 3000)
+                    //if (price < 3000)
+                    if (price < 1000)
                     {
                         ret.status = 0;
-                        ret.message = "Harga Jual harus lebih dari 3000.";
+                        ret.message = "Harga Jual harus lebih dari 1000.";
                     }
                     break;
                 case "8"://Bukalapak                   
