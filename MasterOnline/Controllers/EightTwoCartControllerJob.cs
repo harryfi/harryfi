@@ -1403,16 +1403,35 @@ namespace MasterOnline.Controllers
 
                                                             string fullname = order.firstname.ToString() + " " + order.lastname.ToString();
                                                             string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : order.firstname.ToString() + " " + order.lastname.ToString();
+                                                            
+                                                            string TLP = !string.IsNullOrEmpty(order.delivery_address[0].phone_mobile) ? order.delivery_address[0].phone_mobile.Replace('\'', '`') : "";
+                                                            if (TLP.Length > 30)
+                                                                TLP = TLP.Substring(0, 30);
+                                                            if (NAMA_CUST.Length > 30)
+                                                                NAMA_CUST = NAMA_CUST.Substring(0, 30);
+                                                            string AL_KIRIM1 = !string.IsNullOrEmpty(order.delivery_address[0].address1) ? order.delivery_address[0].address1.Replace('\'', '`') : "";
+                                                            if (AL_KIRIM1.Length > 30)
+                                                            {
+                                                                AL_KIRIM1 = AL_KIRIM1.Substring(0, 30);
+                                                            }
+                                                            string KODEPOS = !string.IsNullOrEmpty(order.delivery_address[0].postcode) ? order.delivery_address[0].postcode.Replace('\'', '`') : "";
+                                                            if (KODEPOS.Length > 7)
+                                                            {
+                                                                KODEPOS = KODEPOS.Substring(0, 7);
+                                                            }
 
                                                             insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
                                                                 ((nama ?? "").Replace("'", "`")),
                                                                 ((order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + order.delivery_address[0].state),
-                                                                ((order.delivery_address[0].phone_mobile ?? "").Replace("'", "`")),
+                                                                //((order.delivery_address[0].phone_mobile ?? "").Replace("'", "`")),
+                                                                TLP,
                                                                 (NAMA_CUST.Replace(',', '.')),
-                                                                ((order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + order.delivery_address[0].state),
+                                                                //((order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + order.delivery_address[0].state),
+                                                                AL_KIRIM1,
                                                                 DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                                                                 (username),
-                                                                ((order.delivery_address[0].postcode ?? "").Replace("'", "`")),
+                                                                //((order.delivery_address[0].postcode ?? "").Replace("'", "`")),
+                                                                KODEPOS,
                                                                 kabKot,
                                                                 prov,
                                                                 connIdARF01C
@@ -1436,25 +1455,87 @@ namespace MasterOnline.Controllers
                                                             {
                                                                 datePay = Convert.ToDateTime(order.invoice_date).ToString("yyyy-MM-dd HH:mm:ss");
                                                             }
+                                                            #region cut char
+                                                            string estimated_shipping_fee = !string.IsNullOrEmpty(order.total_shipping) ? order.total_shipping.Replace('\'', '`') : "";
+                                                            if (estimated_shipping_fee.Length > 100)
+                                                            {
+                                                                estimated_shipping_fee = estimated_shipping_fee.Substring(0, 100);
+                                                            }
+                                                            string payment_method = !string.IsNullOrEmpty(order.payment) ? order.payment.Replace('\'', '`') : "";
+                                                            if (payment_method.Length > 100)
+                                                            {
+                                                                payment_method = payment_method.Substring(0, 100);
+                                                            }
+                                                            string shipping_carrier = !string.IsNullOrEmpty(order.name_carrier) ? order.name_carrier.Replace('\'', '`') : "";
+                                                            if (shipping_carrier.Length > 300)
+                                                            {
+                                                                shipping_carrier = shipping_carrier.Substring(0, 300);
+                                                            }
+                                                            string currency = !string.IsNullOrEmpty(order.currency) ? order.currency.Replace('\'', '`') : "";
+                                                            if (currency.Length > 50)
+                                                            {
+                                                                currency = currency.Substring(0, 50);
+                                                            }
+                                                            string Recipient_Address_city = !string.IsNullOrEmpty(order.delivery_address[0].city) ? order.delivery_address[0].city.Replace('\'', '`') : "";
+                                                            if (Recipient_Address_city.Length > 50)
+                                                            {
+                                                                Recipient_Address_city = Recipient_Address_city.Substring(0, 50);
+                                                            }
+                                                            string Recipient_Address_country = !string.IsNullOrEmpty(order.delivery_address[0].id_country) ? order.delivery_address[0].id_country.Replace('\'', '`') : "ID";
+                                                            if (Recipient_Address_country.Length > 50)
+                                                            {
+                                                                Recipient_Address_country = Recipient_Address_country.Substring(0, 50);
+                                                            }
+                                                            string Recipient_Address_state = !string.IsNullOrEmpty(order.delivery_address[0].state) ? order.delivery_address[0].state.Replace('\'', '`') : "";
+                                                            if (Recipient_Address_state.Length > 50)
+                                                            {
+                                                                Recipient_Address_state = Recipient_Address_state.Substring(0, 50);
+                                                            }
+                                                            string tracking_no = !string.IsNullOrEmpty(order.shipping_number) ? order.shipping_number.Replace('\'', '`') : "";
+                                                            if (tracking_no.Length > 50)
+                                                            {
+                                                                tracking_no = tracking_no.Substring(0, 50);
+                                                            }
+                                                            string total_amount = !string.IsNullOrEmpty(order.total_paid) ? order.total_paid.Replace('\'', '`') : "";
+                                                            if (total_amount.Length > 100)
+                                                            {
+                                                                total_amount = total_amount.Substring(0, 100);
+                                                            }
+                                                            string service_code = !string.IsNullOrEmpty(order.id_carrier) ? order.id_carrier.Replace('\'', '`') : "";
+                                                            if (service_code.Length > 100)
+                                                            {
+                                                                service_code = service_code.Substring(0, 100);
+                                                            }
+                                                            string actual_shipping_cost = !string.IsNullOrEmpty(order.total_shipping) ? order.total_shipping.Replace('\'', '`') : "";
+                                                            if (actual_shipping_cost.Length > 100)
+                                                            {
+                                                                actual_shipping_cost = actual_shipping_cost.Substring(0, 100);
+                                                            }
+                                                            string u_ordersn = !string.IsNullOrEmpty(order.id_order + ";" + order.reference) ? (order.id_order + ";" + (order.reference ?? "")).Replace('\'', '`') : "";
+                                                            if (u_ordersn.Length > 70)
+                                                            {
+                                                                u_ordersn = u_ordersn.Substring(0, 70);
+                                                            }
 
+                                                            #endregion
 
                                                             TEMP_82CART_ORDERS newOrder = new TEMP_82CART_ORDERS()
                                                             {
-                                                                actual_shipping_cost = order.total_shipping,
+                                                                actual_shipping_cost = actual_shipping_cost,
                                                                 buyer_username = nama,
                                                                 cod = false,
                                                                 country = "",
                                                                 create_time = Convert.ToDateTime(dateOrder),
-                                                                currency = order.currency,
+                                                                currency = currency,
                                                                 days_to_ship = 0,
                                                                 dropshipper = "",
                                                                 escrow_amount = "",
-                                                                estimated_shipping_fee = order.total_shipping,
+                                                                estimated_shipping_fee = estimated_shipping_fee,
                                                                 goods_to_declare = false,
                                                                 message_to_seller = "",
                                                                 note = "",
                                                                 note_update_time = Convert.ToDateTime(dateOrder),
-                                                                ordersn = order.id_order + ";" + order.reference ?? "",
+                                                                ordersn = u_ordersn,
                                                                 //order_status = order.current_state_name,
                                                                 order_status = "UNPAID",
                                                                 payment_method = order.payment,
@@ -1462,19 +1543,19 @@ namespace MasterOnline.Controllers
                                                                 //pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
                                                                 pay_time = Convert.ToDateTime(datePay),
                                                                 //end change by nurul 5/12/2019, local time 
-                                                                Recipient_Address_country = order.delivery_address[0].id_country ?? "ID",
-                                                                Recipient_Address_state = order.delivery_address[0].state ?? "",
-                                                                Recipient_Address_city = order.delivery_address[0].city ?? "",
+                                                                Recipient_Address_country = Recipient_Address_country,
+                                                                Recipient_Address_state = Recipient_Address_state,
+                                                                Recipient_Address_city = Recipient_Address_city,
                                                                 Recipient_Address_town = "",
                                                                 Recipient_Address_district = "",
-                                                                Recipient_Address_full_address = (order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + order.delivery_address[0].state,
+                                                                Recipient_Address_full_address = (order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + Recipient_Address_state,
                                                                 Recipient_Address_name = nama,
-                                                                Recipient_Address_phone = order.delivery_address[0].phone_mobile ?? order.delivery_address[0].phone ?? "",
-                                                                Recipient_Address_zipcode = order.delivery_address[0].postcode,
-                                                                service_code = order.id_carrier,
-                                                                shipping_carrier = order.name_carrier,
-                                                                total_amount = order.total_paid,
-                                                                tracking_no = order.shipping_number ?? "",
+                                                                Recipient_Address_phone = TLP,
+                                                                Recipient_Address_zipcode = KODEPOS,
+                                                                service_code = service_code,
+                                                                shipping_carrier = shipping_carrier,
+                                                                total_amount = total_amount,
+                                                                tracking_no = tracking_no,
                                                                 update_time = Convert.ToDateTime(dateOrder),
                                                                 CONN_ID = connID,
                                                                 CUST = CUST,
@@ -1484,6 +1565,35 @@ namespace MasterOnline.Controllers
                                                             {
                                                                 //var product_id = "";
                                                                 //var name_brg = "";
+
+                                                                #region cut char
+                                                                string item_name = !string.IsNullOrEmpty(item.product_name) ? item.product_name.Replace('\'', '`') : "";
+                                                                if (item_name.Length > 150)
+                                                                {
+                                                                    item_name = item_name.Substring(0, 150);
+                                                                }
+                                                                string item_sku = !string.IsNullOrEmpty(item.reference) ? item.reference.Replace('\'', '`') : "";
+                                                                if (item_sku.Length > 400)
+                                                                {
+                                                                    item_sku = item_sku.Substring(0, 400);
+                                                                }
+                                                                string item_id = !string.IsNullOrEmpty(item.product_id) ? item.product_id.Replace('\'', '`') : "";
+                                                                if (item_id.Length > 20)
+                                                                {
+                                                                    item_id = item_id.Substring(0, 20);
+                                                                }
+                                                                string variation_id = !string.IsNullOrEmpty(item.product_attribute_id) ? item.product_attribute_id.Replace('\'', '`') : "";
+                                                                if (variation_id.Length > 20)
+                                                                {
+                                                                    variation_id = variation_id.Substring(0, 20);
+                                                                }
+                                                                string variation_discounted_price = !string.IsNullOrEmpty(item.original_product_price) ? item.original_product_price.Replace('\'', '`') : "";
+                                                                if (variation_discounted_price.Length > 50)
+                                                                {
+                                                                    variation_discounted_price = variation_discounted_price.Substring(0, 50);
+                                                                }
+                                                                #endregion
+
                                                                 var name_brg_variasi = "";
                                                                 if (item.product_attribute_id == "0")
                                                                 {
@@ -1495,22 +1605,22 @@ namespace MasterOnline.Controllers
                                                                 else
                                                                 {
                                                                     //product_id = item.product_attribute_id;
-                                                                    name_brg_variasi = item.product_name;
+                                                                    //name_brg_variasi = item.product_name;
+                                                                    name_brg_variasi = item_name;
                                                                 }
-
                                                                 TEMP_82CART_ORDERS_ITEM newOrderItem = new TEMP_82CART_ORDERS_ITEM()
                                                                 {
-                                                                    ordersn = order.id_order + ";" + order.reference ?? "",
+                                                                    ordersn = u_ordersn,
                                                                     is_wholesale = false,
-                                                                    item_id = item.product_id,
-                                                                    item_name = item.product_name,
-                                                                    item_sku = item.reference,
-                                                                    variation_discounted_price = item.original_product_price,
-                                                                    variation_id = item.product_attribute_id,
+                                                                    item_id = item_id,
+                                                                    item_name = item_name,
+                                                                    item_sku = item_sku,
+                                                                    variation_discounted_price = variation_discounted_price,
+                                                                    variation_id = variation_id,
                                                                     variation_name = name_brg_variasi,
-                                                                    variation_original_price = item.original_product_price,
+                                                                    variation_original_price = variation_discounted_price,
                                                                     variation_quantity_purchased = Convert.ToInt32(item.product_quantity),
-                                                                    variation_sku = item.reference,
+                                                                    variation_sku = item_sku,
                                                                     weight = 0,
                                                                     pay_time = Convert.ToDateTime(datePay),
                                                                     CONN_ID = connID,
@@ -1633,15 +1743,31 @@ namespace MasterOnline.Controllers
                                             string fullname = order.firstname.ToString() + " " + order.lastname.ToString();
                                             string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : order.firstname.ToString() + " " + order.lastname.ToString();
 
+                                            string TLP = !string.IsNullOrEmpty(order.delivery_address[0].phone_mobile) ? order.delivery_address[0].phone_mobile.Replace('\'', '`') : "";
+                                            if (TLP.Length > 30)
+                                                TLP = TLP.Substring(0, 30);
+                                            if (NAMA_CUST.Length > 30)
+                                                NAMA_CUST = NAMA_CUST.Substring(0, 30);
+                                            string AL_KIRIM1 = !string.IsNullOrEmpty(order.delivery_address[0].address1) ? order.delivery_address[0].address1.Replace('\'', '`') : "";
+                                            if (AL_KIRIM1.Length > 30)
+                                            {
+                                                AL_KIRIM1 = AL_KIRIM1.Substring(0, 30);
+                                            }
+                                            string KODEPOS = !string.IsNullOrEmpty(order.delivery_address[0].postcode) ? order.delivery_address[0].postcode.Replace('\'', '`') : "";
+                                            if (KODEPOS.Length > 7)
+                                            {
+                                                KODEPOS = KODEPOS.Substring(0, 7);
+                                            }
+
                                             insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
                                                 ((nama ?? "").Replace("'", "`")),
                                                 ((order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + order.delivery_address[0].state),
-                                                ((order.delivery_address[0].phone_mobile ?? "").Replace("'", "`")),
+                                                TLP,
                                                 (NAMA_CUST.Replace(',', '.')),
-                                                ((order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + order.delivery_address[0].state),
+                                                AL_KIRIM1,
                                                 DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                                                 (username),
-                                                ((order.delivery_address[0].postcode ?? "").Replace("'", "`")),
+                                                KODEPOS,
                                                 kabKot,
                                                 prov,
                                                 connIdARF01C
@@ -1666,19 +1792,82 @@ namespace MasterOnline.Controllers
                                                 datePay = Convert.ToDateTime(order.invoice_date).ToString("yyyy-MM-dd HH:mm:ss");
                                             }
 
+                                            #region cut char
+                                            string p_estimated_shipping_fee = !string.IsNullOrEmpty(order.total_shipping) ? order.total_shipping.Replace('\'', '`') : "";
+                                            if (p_estimated_shipping_fee.Length > 100)
+                                            {
+                                                p_estimated_shipping_fee = p_estimated_shipping_fee.Substring(0, 100);
+                                            }
+                                            string p_payment_method = !string.IsNullOrEmpty(order.payment) ? order.payment.Replace('\'', '`') : "";
+                                            if (p_payment_method.Length > 100)
+                                            {
+                                                p_payment_method = p_payment_method.Substring(0, 100);
+                                            }
+                                            string p_shipping_carrier = !string.IsNullOrEmpty(order.name_carrier) ? order.name_carrier.Replace('\'', '`') : "";
+                                            if (p_shipping_carrier.Length > 300)
+                                            {
+                                                p_shipping_carrier = p_shipping_carrier.Substring(0, 300);
+                                            }
+                                            string p_currency = !string.IsNullOrEmpty(order.currency) ? order.currency.Replace('\'', '`') : "";
+                                            if (p_currency.Length > 50)
+                                            {
+                                                p_currency = p_currency.Substring(0, 50);
+                                            }
+                                            string p_Recipient_Address_city = !string.IsNullOrEmpty(order.delivery_address[0].city) ? order.delivery_address[0].city.Replace('\'', '`') : "";
+                                            if (p_Recipient_Address_city.Length > 50)
+                                            {
+                                                p_Recipient_Address_city = p_Recipient_Address_city.Substring(0, 50);
+                                            }
+                                            string p_Recipient_Address_country = !string.IsNullOrEmpty(order.delivery_address[0].id_country) ? order.delivery_address[0].id_country.Replace('\'', '`') : "ID";
+                                            if (p_Recipient_Address_country.Length > 50)
+                                            {
+                                                p_Recipient_Address_country = p_Recipient_Address_country.Substring(0, 50);
+                                            }
+                                            string p_Recipient_Address_state = !string.IsNullOrEmpty(order.delivery_address[0].state) ? order.delivery_address[0].state.Replace('\'', '`') : "";
+                                            if (p_Recipient_Address_state.Length > 50)
+                                            {
+                                                p_Recipient_Address_state = p_Recipient_Address_state.Substring(0, 50);
+                                            }
+                                            string p_tracking_no = !string.IsNullOrEmpty(order.shipping_number) ? order.shipping_number.Replace('\'', '`') : "";
+                                            if (p_tracking_no.Length > 50)
+                                            {
+                                                p_tracking_no = p_tracking_no.Substring(0, 50);
+                                            }
+                                            string p_total_amount = !string.IsNullOrEmpty(order.total_paid) ? order.total_paid.Replace('\'', '`') : "";
+                                            if (p_total_amount.Length > 100)
+                                            {
+                                                p_total_amount = p_total_amount.Substring(0, 100);
+                                            }
+                                            string p_service_code = !string.IsNullOrEmpty(order.id_carrier) ? order.id_carrier.Replace('\'', '`') : "";
+                                            if (p_service_code.Length > 100)
+                                            {
+                                                p_service_code = p_service_code.Substring(0, 100);
+                                            }
+                                            string p_actual_shipping_cost = !string.IsNullOrEmpty(order.total_shipping) ? order.total_shipping.Replace('\'', '`') : "";
+                                            if (p_actual_shipping_cost.Length > 100)
+                                            {
+                                                p_actual_shipping_cost = p_actual_shipping_cost.Substring(0, 100);
+                                            }
+                                            string p_ordersn = !string.IsNullOrEmpty(order.id_order + ";" + order.reference) ? (order.id_order + ";" + (order.reference ?? "")).Replace('\'', '`') : "";
+                                            if (p_ordersn.Length > 70)
+                                            {
+                                                p_ordersn = p_ordersn.Substring(0, 70);
+                                            }
+
+                                            #endregion
 
                                             TEMP_82CART_ORDERS newOrder = new TEMP_82CART_ORDERS()
                                             {
-                                                actual_shipping_cost = order.total_shipping,
+                                                actual_shipping_cost = p_actual_shipping_cost,
                                                 buyer_username = nama,
                                                 cod = false,
                                                 country = "",
                                                 create_time = Convert.ToDateTime(dateOrder),
-                                                currency = order.currency,
+                                                currency = p_currency,
                                                 days_to_ship = 0,
                                                 dropshipper = "",
                                                 escrow_amount = "",
-                                                estimated_shipping_fee = order.total_shipping,
+                                                estimated_shipping_fee = p_actual_shipping_cost,
                                                 goods_to_declare = false,
                                                 message_to_seller = "",
                                                 note = "",
@@ -1686,24 +1875,24 @@ namespace MasterOnline.Controllers
                                                 ordersn = order.id_order + ";" + order.reference ?? "",
                                                 //order_status = order.current_state_name,
                                                 order_status = statusOrderSP,
-                                                payment_method = order.payment,
+                                                payment_method = p_payment_method,
                                                 //change by nurul 5/12/2019, local time 
                                                 //pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
                                                 pay_time = Convert.ToDateTime(datePay),
                                                 //end change by nurul 5/12/2019, local time 
-                                                Recipient_Address_country = order.delivery_address[0].id_country ?? "ID",
-                                                Recipient_Address_state = order.delivery_address[0].state ?? "",
-                                                Recipient_Address_city = order.delivery_address[0].city ?? "",
+                                                Recipient_Address_country = p_Recipient_Address_country,
+                                                Recipient_Address_state = p_Recipient_Address_state,
+                                                Recipient_Address_city = p_Recipient_Address_city,
                                                 Recipient_Address_town = "",
                                                 Recipient_Address_district = "",
-                                                Recipient_Address_full_address = (order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + order.delivery_address[0].state,
+                                                Recipient_Address_full_address = (order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + p_Recipient_Address_state,
                                                 Recipient_Address_name = nama,
-                                                Recipient_Address_phone = order.delivery_address[0].phone_mobile ?? order.delivery_address[0].phone ?? "",
-                                                Recipient_Address_zipcode = order.delivery_address[0].postcode,
-                                                service_code = order.id_carrier,
-                                                shipping_carrier = order.name_carrier,
-                                                total_amount = order.total_paid,
-                                                tracking_no = order.shipping_number ?? "",
+                                                Recipient_Address_phone = TLP,
+                                                Recipient_Address_zipcode = KODEPOS,
+                                                service_code = p_service_code,
+                                                shipping_carrier = p_shipping_carrier,
+                                                total_amount = p_total_amount,
+                                                tracking_no = p_tracking_no,
                                                 update_time = Convert.ToDateTime(dateOrder),
                                                 CONN_ID = connID,
                                                 CUST = CUST,
@@ -1713,6 +1902,35 @@ namespace MasterOnline.Controllers
                                             {
                                                 //var product_id = "";
                                                 //var name_brg = "";
+
+                                                #region cut char
+                                                string p_item_name = !string.IsNullOrEmpty(item.product_name) ? item.product_name.Replace('\'', '`') : "";
+                                                if (p_item_name.Length > 150)
+                                                {
+                                                    p_item_name = p_item_name.Substring(0, 150);
+                                                }
+                                                string p_item_sku = !string.IsNullOrEmpty(item.reference) ? item.reference.Replace('\'', '`') : "";
+                                                if (p_item_sku.Length > 400)
+                                                {
+                                                    p_item_sku = p_item_sku.Substring(0, 400);
+                                                }
+                                                string p_item_id = !string.IsNullOrEmpty(item.product_id) ? item.product_id.Replace('\'', '`') : "";
+                                                if (p_item_id.Length > 20)
+                                                {
+                                                    p_item_id = p_item_id.Substring(0, 20);
+                                                }
+                                                string p_variation_id = !string.IsNullOrEmpty(item.product_attribute_id) ? item.product_attribute_id.Replace('\'', '`') : "";
+                                                if (p_variation_id.Length > 20)
+                                                {
+                                                    p_variation_id = p_variation_id.Substring(0, 20);
+                                                }
+                                                string p_variation_discounted_price = !string.IsNullOrEmpty(item.original_product_price) ? item.original_product_price.Replace('\'', '`') : "";
+                                                if (p_variation_discounted_price.Length > 50)
+                                                {
+                                                    p_variation_discounted_price = p_variation_discounted_price.Substring(0, 50);
+                                                }
+                                                #endregion
+
                                                 var name_brg_variasi = "";
                                                 if (item.product_attribute_id == "0")
                                                 {
@@ -1724,22 +1942,23 @@ namespace MasterOnline.Controllers
                                                 else
                                                 {
                                                     //product_id = item.product_attribute_id;
-                                                    name_brg_variasi = item.product_name;
+                                                    //name_brg_variasi = item.product_name;
+                                                    name_brg_variasi = p_item_name;
                                                 }
 
                                                 TEMP_82CART_ORDERS_ITEM newOrderItem = new TEMP_82CART_ORDERS_ITEM()
                                                 {
-                                                    ordersn = order.id_order + ";" + order.reference ?? "",
+                                                    ordersn = p_ordersn,
                                                     is_wholesale = false,
-                                                    item_id = item.product_id,
-                                                    item_name = item.product_name,
-                                                    item_sku = item.reference,
-                                                    variation_discounted_price = item.original_product_price,
-                                                    variation_id = item.product_attribute_id,
+                                                    item_id = p_item_id,
+                                                    item_name = p_item_name,
+                                                    item_sku = p_item_sku,
+                                                    variation_discounted_price = p_variation_discounted_price,
+                                                    variation_id = p_variation_id,
                                                     variation_name = name_brg_variasi,
-                                                    variation_original_price = item.original_product_price,
+                                                    variation_original_price = p_variation_discounted_price,
                                                     variation_quantity_purchased = Convert.ToInt32(item.product_quantity),
-                                                    variation_sku = item.reference,
+                                                    variation_sku = p_item_sku,
                                                     weight = 0,
                                                     pay_time = Convert.ToDateTime(datePay),
                                                     CONN_ID = connID,
