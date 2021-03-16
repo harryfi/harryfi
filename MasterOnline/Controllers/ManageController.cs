@@ -71,8 +71,8 @@ namespace MasterOnline.Controllers
         string dbSourceEra = "";
 
         //set parameter network location server IP Private
-        public string IPServerLocation = "\\\\172.31.20.73\\MasterOnline\\";
-        //public string IPServerLocation = "\\\\127.0.0.1\\MasterOnline\\"; // \\127.0.0.1\MasterOnline
+        //public string IPServerLocation = @"\\172.31.20.73\MasterOnline\";
+        public string IPServerLocation = @"\\127.0.0.1\MasterOnline\"; // \\127.0.0.1\MasterOnline
 
         string EDBConnID = "";
         string usernameLogin;
@@ -9324,7 +9324,7 @@ namespace MasterOnline.Controllers
                                 ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
 
                                 //var fileExtension = Path.GetExtension(file.FileName);
-                                //var path = Path.Combine(IPServerLocation + "Content\\Uploaded\\", namaFile);
+                                //var path = Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile);
                                 //try
                                 //{
                                 //    file.SaveAs(path);
@@ -10030,7 +10030,7 @@ namespace MasterOnline.Controllers
                                     //updateGambar = true;
                                     //var fileExtension = Path.GetExtension(file.FileName);
                                     //var namaFile = $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}{fileExtension}";
-                                    //var path = Path.Combine(IPServerLocation + "Content\\Uploaded\\", namaFile);
+                                    //var path = Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile);
                                     //file.SaveAs(path);
                                     ////add by tri
                                     //imgPath[i] = path;
@@ -10683,7 +10683,7 @@ namespace MasterOnline.Controllers
                                 ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
 
                                 //var fileExtension = Path.GetExtension(file.FileName);
-                                //var path = Path.Combine(IPServerLocation + "Content\\Uploaded\\", namaFile);
+                                //var path = Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile);
                                 //try
                                 //{
                                 //    file.SaveAs(path);
@@ -13403,7 +13403,7 @@ namespace MasterOnline.Controllers
 
                                         //var fileExtension = Path.GetExtension(file.FileName);
                                         //var namaFile = $"FotoProduk-{dataBarang.Stf02.USERNAME}-{dataBarang.Stf02.BRG}-foto-{i + 1}{fileExtension}";
-                                        //var path = Path.Combine(IPServerLocation + "Content\\Uploaded\\", namaFile);
+                                        //var path = Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile);
                                         var display = Convert.ToBoolean(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) && m.IDMARKET == tblCustomer.RecNum).DISPLAY);
                                         if (display)
                                         {
@@ -36105,7 +36105,7 @@ namespace MasterOnline.Controllers
         {
             //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
-            var path = Path.Combine(IPServerLocation + "Content\\Uploaded\\" + dbPathEra + "\\", filename);
+            var path = Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", filename);
 
             byte[] data = System.IO.File.ReadAllBytes(path);
             string contentType = MimeMapping.GetMimeMapping(path);
@@ -36157,7 +36157,7 @@ namespace MasterOnline.Controllers
             }
 
             //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
-            var path = Path.Combine(IPServerLocation + "Content\\Uploaded\\" + dbPathErasoft + "\\", filename);
+            var path = Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", filename);
 
             byte[] data = System.IO.File.ReadAllBytes(path);
             string contentType = MimeMapping.GetMimeMapping(path);
@@ -36400,7 +36400,7 @@ namespace MasterOnline.Controllers
             string message = "";
             string filename = "Log_Upload_Inv_Tokopedia_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
             //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
-            var path = Path.Combine(IPServerLocation + "Content\\Uploaded\\" + dbPathErasoft + "\\", filename);
+            var path = Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", filename);
             
             LOG_IMPORT_FAKTUR newLogImportFaktur = new LOG_IMPORT_FAKTUR
             {
@@ -36425,7 +36425,7 @@ namespace MasterOnline.Controllers
                 if (!System.IO.File.Exists(path))
                 {
                     //System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
-                    System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + "Content\\Uploaded\\" + dbPathErasoft + "\\", ""));
+                    System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", ""));
                     
                     var asd = System.IO.File.Create(path);
                     asd.Close();
@@ -37131,8 +37131,8 @@ namespace MasterOnline.Controllers
                     if (fExt[fExt.Length - 1] == "csv")
                     {
                         string namaFile = dbPathEra + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmssffff") + ".csv";
-                        System.IO.File.WriteAllBytes(Path.Combine(IPServerLocation + "Content\\Uploaded\\", namaFile), dataByte);
-                        using (var sr = new StreamReader(Path.Combine(IPServerLocation + "Content\\Uploaded\\", namaFile)))
+                        System.IO.File.WriteAllBytes(Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile), dataByte);
+                        using (var sr = new StreamReader(Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile)))
                         {
                             var reader = new CsvReader(sr);
                             reader.Configuration.Delimiter = ";";
@@ -37193,7 +37193,7 @@ namespace MasterOnline.Controllers
                             }
 
                         }
-                        System.IO.File.Delete(Path.Combine(IPServerLocation + "Content\\Uploaded\\", namaFile));
+                        System.IO.File.Delete(Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile));
 
                     }
                     else if (fExt[fExt.Length - 1] == "xlsx")
@@ -37292,7 +37292,7 @@ namespace MasterOnline.Controllers
 #region Logging
             string message = "";
             string filename = "Log_Upload_Inv_Bukalapak_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
-            var path = Path.Combine(IPServerLocation + "Content\\Uploaded\\" + dbPathEra + "\\", filename);
+            var path = Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", filename);
 
             LOG_IMPORT_FAKTUR newLogImportFaktur = new LOG_IMPORT_FAKTUR
             {
@@ -37315,7 +37315,7 @@ namespace MasterOnline.Controllers
             {
                 if (!System.IO.File.Exists(path))
                 {
-                    System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + "Content\\Uploaded\\" + dbPathEra + "\\", ""));
+                    System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", ""));
                     var asd = System.IO.File.Create(path);
                     asd.Close();
                 }
@@ -38169,7 +38169,7 @@ namespace MasterOnline.Controllers
             string message = "";
             string filename = "Log_Upload_Inv_Shopee_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
             //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
-            var path = Path.Combine(IPServerLocation + "Content\\Uploaded\\" + dbPathErasoft + "\\", filename);
+            var path = Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", filename);
 
             LOG_IMPORT_FAKTUR newLogImportFaktur = new LOG_IMPORT_FAKTUR
             {
@@ -38193,7 +38193,7 @@ namespace MasterOnline.Controllers
                 if (!System.IO.File.Exists(path))
                 {
                     //System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
-                    System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + "Content\\Uploaded\\" + dbPathErasoft + "\\", ""));
+                    System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", ""));
                     var asd = System.IO.File.Create(path);
                     asd.Close();
                 }
@@ -42662,12 +42662,12 @@ namespace MasterOnline.Controllers
                 {
                     //add 19 Juli 2019, error log
                     //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), namaFileLog);
-                    var path = Path.Combine(IPServerLocation + "Content\\Uploaded\\" + dbPathErasoft + "\\", namaFileLog);
+                    var path = Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", namaFileLog);
                     
                     if (!System.IO.File.Exists(path))
                     {
                         //System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
-                        System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + "Content\\Uploaded\\" + dbPathErasoft + "\\", ""));
+                        System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", ""));
 
                         var asd = System.IO.File.Create(path);
                         asd.Close();
@@ -45841,11 +45841,11 @@ namespace MasterOnline.Controllers
                             //string message = "";
                             string filename = "Log_SyncBrg_" + cust + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
                             //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
-                            var path = Path.Combine(IPServerLocation + "Content\\Uploaded\\" + dbPathErasoft + "\\", filename);
+                            var path = Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", filename);
                             if (!System.IO.File.Exists(path))
                             {
                                 //System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
-                                System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + "Content\\Uploaded\\" + dbPathErasoft + "\\", ""));
+                                System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", ""));
                                 //var asd = System.IO.File.Create(path);
                                 //asd.Close();
                             }
@@ -49112,12 +49112,12 @@ namespace MasterOnline.Controllers
                                         #region initial folder
                                         string messageErrorLog = "";
                                         string filename = "LAZADA_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
-                                        var path = Path.Combine(IPServerLocation + "Content\\Uploaded\\PrintLabel\\", filename);
+                                        var path = Path.Combine(IPServerLocation + @"Content\Uploaded\PrintLabel\", filename);
                                         #endregion
 
                                         if (!System.IO.File.Exists(path))
                                         {
-                                            System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + "Content\\Uploaded\\PrintLabel\\", ""));
+                                            System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + @"Content\Uploaded\PrintLabel\", ""));
                                             FileStream stream = System.IO.File.Create(path);
 
                                                 string pdf_page_size = "9";
@@ -49387,12 +49387,12 @@ namespace MasterOnline.Controllers
                                         #region initial folder
                                         string messageErrorLog = "";
                                         string filename = "LAZADA_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
-                                        var path = Path.Combine(IPServerLocation + "Content\\Uploaded\\PrintLabel\\", filename);
+                                        var path = Path.Combine(IPServerLocation + @"Content\Uploaded\PrintLabel\", filename);
                                         #endregion
 
                                         if (!System.IO.File.Exists(path))
                                         {
-                                            System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + "Content\\Uploaded\\PrintLabel\\", ""));
+                                            System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + @"Content\Uploaded\PrintLabel\", ""));
                                             FileStream stream = System.IO.File.Create(path);
 
                                                 string pdf_page_size = "9";
@@ -51826,8 +51826,8 @@ namespace MasterOnline.Controllers
                                     namaFile = fileCsvTemp;
                                 }
                                 ret.fileCsvPath = namaFile;
-                                System.IO.File.WriteAllBytes(Path.Combine(IPServerLocation + "Content\\Uploaded\\", namaFile), data);
-                                using (var sr = new StreamReader(Path.Combine(IPServerLocation + "Content\\Uploaded\\", namaFile)))
+                                System.IO.File.WriteAllBytes(Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile), data);
+                                using (var sr = new StreamReader(Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile)))
                                 {
                                     sr.ReadLine();
                                     sr.ReadLine();
@@ -52004,7 +52004,7 @@ namespace MasterOnline.Controllers
                                     }
 
                                 }
-                                System.IO.File.Delete(Path.Combine(IPServerLocation + "Content\\Uploaded\\", namaFile));
+                                System.IO.File.Delete(Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile));
                                 if (ret.statusSuccessTemp == false)
                                 {
                                     return Json(ret, JsonRequestBehavior.AllowGet);
@@ -56121,8 +56121,8 @@ namespace MasterOnline.Controllers
                             }
 
                             string namaFile = dbPathEra + "_BayarLazada_" + DateTime.Now.ToString("yyyyMMdd_HHmmssffff") + ".csv";
-                            System.IO.File.WriteAllBytes(Path.Combine(IPServerLocation + "Content\\Uploaded\\", namaFile), data);
-                            using (var sr = new StreamReader(Path.Combine(IPServerLocation + "Content\\Uploaded\\", namaFile)))
+                            System.IO.File.WriteAllBytes(Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile), data);
+                            using (var sr = new StreamReader(Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile)))
                             {
                                 CsvReader reader = new CsvReader(sr);
                                 reader.Configuration.Delimiter = ",";
@@ -56188,7 +56188,7 @@ namespace MasterOnline.Controllers
                                 }
 
                             }
-                            System.IO.File.Delete(Path.Combine(IPServerLocation + "Content\\Uploaded\\", namaFile));
+                            System.IO.File.Delete(Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile));
                         }
                         else if (ret.TipeData.Split('.').Last().ToLower() == "xlsx" || ret.TipeData.Split('.').Last().ToLower() == "xls")
                         {
@@ -59537,8 +59537,8 @@ namespace MasterOnline.Controllers
                             }
 
                             string namaFile = dbPathEra + "_BayarBukalapak_" + DateTime.Now.ToString("yyyyMMdd_HHmmssffff") + ".csv";
-                            System.IO.File.WriteAllBytes(Path.Combine(IPServerLocation + "Content\\Uploaded\\", namaFile), data);
-                            using (var sr = new StreamReader(Path.Combine(IPServerLocation + "Content\\Uploaded\\", namaFile)))
+                            System.IO.File.WriteAllBytes(Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile), data);
+                            using (var sr = new StreamReader(Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile)))
                             {
                                 CsvReader reader = new CsvReader(sr);
                                 reader.Configuration.Delimiter = ",";
@@ -59631,7 +59631,7 @@ namespace MasterOnline.Controllers
                                 }
 
                             }
-                            System.IO.File.Delete(Path.Combine(IPServerLocation + "Content\\Uploaded\\", namaFile));
+                            System.IO.File.Delete(Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile));
                         }
                         else
                         {
@@ -62295,12 +62295,12 @@ namespace MasterOnline.Controllers
 #region initial folder
                             string messageErrorLog = "";
                             string filename = "JDID_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
-                            var path = Path.Combine(IPServerLocation + "Content\\Uploaded\\PrintLabel\\", filename);
+                            var path = Path.Combine(IPServerLocation + @"Content\Uploaded\PrintLabel\", filename);
                             #endregion
 
                             if (!System.IO.File.Exists(path))
                             {
-                                System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + "Content\\Uploaded\\PrintLabel\\", ""));
+                                System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + @"Content\Uploaded\PrintLabel\", ""));
                                 FileStream stream = System.IO.File.Create(path);
                                 byte[] byteArray = Convert.FromBase64String(retApi.Result.ToString());
                                 stream.Write(byteArray, 0, byteArray.Length);
@@ -62420,7 +62420,7 @@ namespace MasterOnline.Controllers
                 iTextSharp.text.pdf.PdfImportedPage importedPage;
                 //string outputPdfPath = @"D:/newFile.pdf";
                 string filename = sMarket + "_printlabelresult_" + no_bukti + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
-                var path = Path.Combine(IPServerLocation + "Content\\Uploaded\\PrintLabel\\", filename);
+                var path = Path.Combine(IPServerLocation + @"Content\Uploaded\PrintLabel\", filename);
                 result = path;
 
                 sourceDocument = new iTextSharp.text.Document();
@@ -65318,7 +65318,7 @@ namespace MasterOnline.Controllers
                 var cekLogPosting = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == "POSTING").OrderByDescending(a => a.UPLOAD_DATETIME).FirstOrDefault();
                 if (cekLogPosting != null && cekLogPosting.LOG_FILE.Contains(sessionAccountDatabasePathErasoft.ToString()))
                 {
-                    var logPath = Path.Combine(IPServerLocation + "Content\\Uploaded\\LogPosting\\", cekLogPosting.LOG_FILE);
+                    var logPath = Path.Combine(IPServerLocation + @"Content\Uploaded\LogPosting\", cekLogPosting.LOG_FILE);
                     if (System.IO.File.Exists(logPath))
                     {
                         System.IO.File.Delete(logPath);
@@ -65327,7 +65327,7 @@ namespace MasterOnline.Controllers
 
                 string message = "";
                 string filename = "Log_Posting_" + sessionAccountDatabasePathErasoft.ToString() + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
-                var path = Path.Combine(IPServerLocation + "Content\\Uploaded\\LogPosting\\", filename);
+                var path = Path.Combine(IPServerLocation + @"Content\Uploaded\LogPosting\", filename);
 
                 LOG_IMPORT_FAKTUR newLogImportPosting = new LOG_IMPORT_FAKTUR
                 {
@@ -65352,7 +65352,7 @@ namespace MasterOnline.Controllers
 
                 if (!System.IO.File.Exists(path))
                 {
-                    System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + "Content\\Uploaded\\LogPosting\\", ""));
+                    System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + @"Content\Uploaded\LogPosting\", ""));
                     var asd = System.IO.File.Create(path);
                     asd.Close();
                 }
@@ -65370,7 +65370,7 @@ namespace MasterOnline.Controllers
         public FileResult DownloadLogPosting(string filename)
         {
             //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            var path = Path.Combine(IPServerLocation + "Content\\Uploaded\\LogPosting\\", filename);
+            var path = Path.Combine(IPServerLocation + @"Content\Uploaded\LogPosting\", filename);
 
             byte[] data = System.IO.File.ReadAllBytes(path);
             string contentType = MimeMapping.GetMimeMapping(path);

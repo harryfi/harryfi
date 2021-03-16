@@ -23,7 +23,7 @@ namespace MasterOnline.Controllers
     public class EleveniaControllerJob : Controller
     {
         //set parameter network location server IP Private
-        public string IPServerLocation = "\\\\172.31.20.73\\MasterOnline\\";
+        public string IPServerLocation = @"\\172.31.20.73\MasterOnline\";
         //public string IPServerLocation = "\\\\127.0.0.1\\MasterOnline\\"; // \\127.0.0.1\MasterOnline
 
         //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
@@ -73,8 +73,8 @@ namespace MasterOnline.Controllers
         [Route("ele/image/{id?}")]
         public ActionResult Image(string id)
         {
-            var dir = IPServerLocation + "Content\\Uploaded";
-            var dirNotFound = IPServerLocation + "Content\\Images";
+            var dir = IPServerLocation + @"Content\Uploaded";
+            var dirNotFound = IPServerLocation + @"Content\Images";
             var path = Path.Combine(dir, id); //validate the path for security or use other means to generate the path.
             path = path + ".jpg";
             if (!System.IO.File.Exists(path))

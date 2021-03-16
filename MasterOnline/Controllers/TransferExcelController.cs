@@ -32,7 +32,7 @@ namespace MasterOnline.Controllers
     public class TransferExcelController : Controller
     {
         //set parameter network location server IP Private
-        public string IPServerLocation = "\\\\172.31.20.73\\MasterOnline\\";
+        public string IPServerLocation = @"\\172.31.20.73\MasterOnline\";
         //public string IPServerLocation = "\\\\127.0.0.1\\MasterOnline\\"; // \\127.0.0.1\MasterOnline
 
         public MoDbContext MoDbContext { get; set; }
@@ -1514,12 +1514,12 @@ namespace MasterOnline.Controllers
                             #region Logging
                             string messageErrorLog = "";
                             string filename = "Log_Upload_Pesanan_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
-                            var path = Path.Combine(IPServerLocation + "Content\\Uploaded\\" + dbPathEra + "\\", filename);
+                            var path = Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", filename);
                             #endregion
 
                             if (!System.IO.File.Exists(path))
                             {
-                                System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + "Content\\Uploaded\\" + dbPathEra + "\\", ""));
+                                System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", ""));
                                 var asd = System.IO.File.Create(path);
                                 asd.Close();
                             }
