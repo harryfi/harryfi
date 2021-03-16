@@ -8835,9 +8835,10 @@ namespace MasterOnline.Controllers
                                         listError.Add(i + "_errortext_" + retVal.message);
                                     }
                                     //end change by Tri 22 agustus 2019, validasi harga 1 function
-                                    i++;
+                                    //i++;
                                 }
                             }
+                            i++;
                         }
                         if (validPrice)
                         {
@@ -10268,9 +10269,10 @@ namespace MasterOnline.Controllers
                                         listError.Add(i + "_errortext_" + retVal.message);
                                     }
                                     //end change by Tri 23 agustus 2019, validasi harga 1 function
-                                    i++;
+                                    //i++;
                                 }
                             }
+                            i++;
 
                         }
                         if (validPrice)
