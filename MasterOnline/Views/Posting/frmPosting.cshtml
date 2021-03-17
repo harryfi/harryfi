@@ -329,10 +329,10 @@
                 if (parseInt($('#DrTgl').val()) > parseInt($('#SdTgl').val())) {
                     alert("Dari Tanggal tidak boleh lebih besar dari Sampai Tanggal");
                 }
-                //else if (dateNow.getHours() < 17)
-                //{
-                //    alert("Mohon maaf, posting saat ini hanya dapat dilakukan di atas jam 17.00.");
-                //}
+                else if (dateNow.getHours() < 17)
+                {
+                    alert("Mohon maaf, posting saat ini hanya dapat dilakukan di atas jam 17.00.");
+                }
                 else {
                     $('#infoPosting').val('');
                     $('.labelPosting').html('Status : Proses sedang dimulai..');
