@@ -411,6 +411,7 @@
                 type: "GET",
                 url: link,
                 success: function (response) {
+                    $('#tambah_gudang').click();
                     $('#Gudang_AL1').val(response.Gudang.AL1);
                     $('#Gudang_AL2').val(response.Gudang.AL2);
                     $('#Gudang_AL3').val(response.Gudang.AL3);
@@ -423,9 +424,11 @@
                     $('#Gudang_Nama_Gudang').val(response.Gudang.Nama_Gudang);
                     //add by nurul 26/4/2019
                     if (response.Gudang.KD_HARGA_JUAL == "0" || response.Gudang.KD_HARGA_JUAL == "" || response.Gudang.KD_HARGA_JUAL == " " || response.Gudang.KD_HARGA_JUAL == null) {
-                        $('#linkMP').attr('checked', true);
+                        //$('#linkMP').attr('checked', true);
+                        $("#linkMP").prop('checked', true);
                     } else {
-                        $('#linkMP').attr('checked', false);
+                        //$('#linkMP').attr('checked', false);
+                        $("#linkMP").prop('checked', false);
                     }
 
                     if (response.gd_default) {
@@ -434,7 +437,7 @@
                         $("#linkMP").removeAttr('disabled');
                     }
                     //end add by nurul 26/4/2019
-                    $('#tambah_gudang').click();
+                    
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

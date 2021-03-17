@@ -33628,7 +33628,13 @@ namespace MasterOnline.Controllers
                 //end add by nurul 27/11/2019, add tgl last edit
 
                 //add by fauzi 14 Juli 2020
-                dataVm.Stok.Ket = keterangan;
+                //change by nurul 16/3/2021
+                //dataVm.Stok.Ket = keterangan;
+                if(!string.IsNullOrEmpty(keterangan))
+                {
+                    dataVm.Stok.Ket = keterangan;
+                }
+                //end change by nurul 16/3/2021
                 //end add by fauzi 14 Juli 2020
 
 
@@ -34206,7 +34212,13 @@ namespace MasterOnline.Controllers
                 //end add by nurul 27/11/2019, add tgl last edit
 
                 //add by fauzi 14 Juli 2020
-                dataVm.Stok.Ket = keterangan;
+                //change by nurul 16/3/2021
+                //dataVm.Stok.Ket = keterangan;
+                if (!string.IsNullOrEmpty(keterangan))
+                {
+                    dataVm.Stok.Ket = keterangan;
+                }
+                //end change by nurul 16/3/2021
                 //end add by fauzi 14 Juli 2020
 
 
