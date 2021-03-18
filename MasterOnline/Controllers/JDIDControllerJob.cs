@@ -3637,6 +3637,61 @@ namespace MasterOnline.Controllers
                                     var vNamaKurir = order.carrierCompany != null ? order.carrierCompany.Replace('\'', '`').Replace("'", "") : "";
                                     var vNoResi = order.expressNo != null ? order.expressNo.Replace('\'', '`').Replace("'", "") : "";
 
+                                    #region cut char
+                                    if (data.nama_cust.Length > 30)
+                                        data.nama_cust = data.nama_cust.Substring(0, 30);
+                                    if (vCodeKurir.Length > 20)
+                                    {
+                                        vCodeKurir = vCodeKurir.Substring(0, 20);
+                                    }
+                                    if (messageCustomer.Length > 250)
+                                    {
+                                        messageCustomer = messageCustomer.Substring(0, 250);
+                                    }
+                                    if (vArea.Length > 50)
+                                    {
+                                        vArea = vArea.Substring(0, 50);
+                                    }
+                                    if (vCity.Length > 50)
+                                    {
+                                        vCity = vCity.Substring(0, 50);
+                                    }
+                                    if (vState.Length > 50)
+                                    {
+                                        vState = vState.Substring(0, 50);
+                                    }
+                                    if (vEmail.Length > 50)
+                                    {
+                                        vEmail = vEmail.Substring(0, 50);
+                                    }
+                                    if (vNamaKurir.Length > 50)
+                                    {
+                                        vNamaKurir = vNamaKurir.Substring(0, 50);
+                                    }
+                                    if (vNoResi.Length > 50)
+                                    {
+                                        vNoResi = vNoResi.Substring(0, 50);
+                                    }
+                                    string orderId = !string.IsNullOrEmpty(order.orderId.ToString()) ? order.orderId.ToString().Replace("'", "`") : "";
+                                    if (orderId.Length > 50)
+                                    {
+                                        orderId = orderId.Substring(0, 50);
+                                    }
+                                    string TLP = !string.IsNullOrEmpty(order.phone) ? order.phone.Replace('\'', '`') : "";
+                                    if (TLP.Length > 30)
+                                        TLP = TLP.Substring(0, 30);
+                                    string KODEPOS = !string.IsNullOrEmpty(order.postCode) ? order.postCode.Replace('\'', '`') : "";
+                                    if (KODEPOS.Length > 7)
+                                    {
+                                        KODEPOS = KODEPOS.Substring(0, 7);
+                                    }
+                                    string userPin = !string.IsNullOrEmpty(order.userPin) ? order.userPin.Replace("'", "`") : "";
+                                    if (userPin.Length > 50)
+                                    {
+                                        userPin = userPin.Substring(0, 50);
+                                    }
+                                    #endregion
+
                                     if (!string.IsNullOrEmpty(vNamaKurir))
                                     {
                                         if (vNamaKurir.Contains("Gosend"))
@@ -3649,9 +3704,9 @@ namespace MasterOnline.Controllers
                                     //var insertQValue = "('" + vOrderAddress + "','" + vArea + "','" + DateTimeOffset.FromUnixTimeSeconds(order.bookTime / 1000).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss") + "','" + vCity + "'," + order.couponAmount + ",'" + nama + "','";
                                     var insertQValue = "('" + vOrderAddress + "','" + vArea + "','" + DateTimeOffset.FromUnixTimeSeconds(order.bookTime / 1000).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "','" + vCity + "'," + order.couponAmount + ",'" + nama + "','";
                                     insertQValue += vDeliveryAddress + "'," + order.deliveryType + ",'" + vEmail + "'," + order.freightAmount + "," + order.fullCutAmount + "," + order.installmentFee + ",'" + DateTimeOffset.FromUnixTimeSeconds(order.orderCompleteTime / 1000).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "','";
-                                    insertQValue += order.orderId + "'," + order.orderSkuNum + "," + statusEra + "," + order.orderType + "," + order.paySubtotal + "," + order.paymentType + ",'" + order.phone + "','" + order.postCode + "'," + order.promotionAmount + ",'";
+                                    insertQValue += orderId + "'," + order.orderSkuNum + "," + statusEra + "," + order.orderType + "," + order.paySubtotal + "," + order.paymentType + ",'" + TLP + "','" + KODEPOS + "'," + order.promotionAmount + ",'";
                                     //insertQValue += order.sendPay + "','" + vState + "'," + order.totalPrice + ",'" + order.userPin + "','" + data.no_cust + "','" + username + "','" + conn_id_order + "', '" + messageCustomer + "', '" + order.carrierCode + "', '" + order.carrierCompany + "', '" + order.expressNo + "', '" + data.nama_cust + "') ,";
-                                    insertQValue += order.sendPay + "','" + vState + "'," + order.totalPrice + ",'" + order.userPin + "','" + data.no_cust + "','" + username + "','" + conn_id_order + "', '" + messageCustomer + "', '" + vCodeKurir + "', '" + vNamaKurir + "', '" + vNoResi + "', '" + data.nama_cust + "') ,";
+                                    insertQValue += order.sendPay + "','" + vState + "'," + order.totalPrice + ",'" + userPin + "','" + data.no_cust + "','" + username + "','" + conn_id_order + "', '" + messageCustomer + "', '" + vCodeKurir + "', '" + vNamaKurir + "', '" + vNoResi + "', '" + data.nama_cust + "') ,";
 
                                     var insertOrderItemsValue = "";
 
@@ -3659,8 +3714,26 @@ namespace MasterOnline.Controllers
                                     {
                                         foreach (var ordItem in order.orderSkuinfos)
                                         {
-                                            insertOrderItemsValue += "('" + order.orderId + "'," + ordItem.commission + "," + ordItem.costPrice + "," + ordItem.couponAmount + "," + ordItem.fullCutAmount + ",";
-                                            insertOrderItemsValue += ordItem.hasPromo + "," + ordItem.jdPrice + "," + ordItem.promotionAmount + ",'" + ordItem.spuId + ";" + ordItem.skuId + "','" + ordItem.skuName.Replace("'", "") + "',";
+                                            #region cut char
+                                            string skuId = !string.IsNullOrEmpty(ordItem.skuId.ToString()) ? ordItem.skuId.ToString().Replace("'", "`") : "";
+                                            if (skuId.Length > 50)
+                                            {
+                                                skuId = skuId.Substring(0, 50);
+                                            }
+                                            string spuId = !string.IsNullOrEmpty(ordItem.spuId.ToString()) ? ordItem.spuId.ToString().Replace("'", "`") : "";
+                                            if (spuId.Length > 50)
+                                            {
+                                                spuId = spuId.Substring(0, 50);
+                                            }
+                                            string skuName = !string.IsNullOrEmpty(ordItem.skuName) ? ordItem.skuName.Replace("'", "`") : "";
+                                            if (skuName.Length > 150)
+                                            {
+                                                skuName = skuName.Substring(0, 150);
+                                            }
+
+                                            #endregion
+                                            insertOrderItemsValue += "('" + orderId + "'," + ordItem.commission + "," + ordItem.costPrice + "," + ordItem.couponAmount + "," + ordItem.fullCutAmount + ",";
+                                            insertOrderItemsValue += ordItem.hasPromo + "," + ordItem.jdPrice + "," + ordItem.promotionAmount + ",'" + spuId + ";" + skuId + "','" + skuName + "',";
                                             insertOrderItemsValue += ordItem.skuNumber + ",'" + ordItem.spuId + "'," + ordItem.weight + ",'" + username + "','" + conn_id_order + "','" + DateTimeOffset.FromUnixTimeSeconds(order.bookTime / 1000).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "','" + data.no_cust + "','" + data.nama_cust + "') ,";
                                         }
                                     }
@@ -3679,12 +3752,12 @@ namespace MasterOnline.Controllers
 
                                     var vAddress = order.address != null ? order.address.Replace('\'', '`').Replace("'", "") : "";
                                     
-                                    var vPostCode = order.postCode != null ? order.postCode.Replace('\'', '`') : "";
+                                    //var vPostCode = order.postCode != null ? order.postCode.Replace('\'', '`') : "";
 
                                     //insertPembeli += "('" + order.customerName.Replace('\'', '`') + "','" + order.address.Replace('\'', '`') + "','" + order.phone + "','" + order.email.Replace('\'', '`') + "',0,0,'0','01',";
-                                    var insertPembeliValue = "('" + nama + "','" + vAddress + "','" + order.phone + "','" + nama + "',0,0,'0','01',";
+                                    var insertPembeliValue = "('" + nama + "','" + vAddress + "','" + TLP + "','" + nama + "',0,0,'0','01',";
                                     insertPembeliValue += "1, 'IDR', '01', '" + vAddress + "', 0, 0, 0, 0, '1', 0, 0, ";
-                                    insertPembeliValue += "'FP', '" + dtNow + "', '" + username + "', '" + vPostCode + "', '" + vEmail + "', '" + kabKot + "', '" + prov + "', '" + vCity + "', '" + vState + "', '" + conn_id_arf01c + "') ,";
+                                    insertPembeliValue += "'FP', '" + dtNow + "', '" + username + "', '" + KODEPOS + "', '" + vEmail + "', '" + kabKot + "', '" + prov + "', '" + vCity + "', '" + vState + "', '" + conn_id_arf01c + "') ,";
 
                                     if (!OrderNoInDb.Contains(Convert.ToString(order.orderId)))
                                     {
