@@ -235,7 +235,7 @@ namespace MasterOnline.Controllers
 
 
                                                 string fullname = order.shipping_address.first_name.ToString() + " " + order.shipping_address.last_name.ToString();
-                                                string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : order.shipping_address.last_name.ToString();
+                                                string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : fullname;
 
                                                 string TLP = !string.IsNullOrEmpty(order.shipping_address.phone) ? order.shipping_address.phone.Replace('\'', '`') : "";
                                                 if (TLP.Length > 30)
@@ -293,8 +293,8 @@ namespace MasterOnline.Controllers
                                                 batchinsertItem = new List<TEMP_SHOPIFY_ORDERS_ITEM>();
 
                                                 //2020-04-08T05:12:41
-                                                var dateOrder = Convert.ToDateTime(order.created_at).ToString("yyyy-MM-dd HH:mm:ss");
-                                                var datePay = Convert.ToDateTime(order.processed_at).ToString("yyyy-MM-dd HH:mm:ss");
+                                                var dateOrder = Convert.ToDateTime(order.created_at).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                                                var datePay = Convert.ToDateTime(order.processed_at).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                                                 //if (order.processed_at == "0000-00-00 00:00:00")
                                                 //{
                                                 //    datePay = dateOrder;
@@ -722,7 +722,7 @@ namespace MasterOnline.Controllers
 
 
                                                     string fullname = order.shipping_address.first_name.ToString() + " " + order.shipping_address.last_name.ToString();
-                                                    string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : order.shipping_address.last_name.ToString();
+                                                    string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : fullname;
 
                                                     string TLP = !string.IsNullOrEmpty(order.shipping_address.phone) ? order.shipping_address.phone.Replace('\'', '`') : "";
                                                     if (TLP.Length > 30)
@@ -780,8 +780,8 @@ namespace MasterOnline.Controllers
                                                     batchinsertItem = new List<TEMP_SHOPIFY_ORDERS_ITEM>();
 
                                                     //2020-04-08T05:12:41
-                                                    var dateOrder = Convert.ToDateTime(order.created_at).ToString("yyyy-MM-dd HH:mm:ss");
-                                                    var datePay = Convert.ToDateTime(order.processed_at).ToString("yyyy-MM-dd HH:mm:ss");
+                                                    var dateOrder = Convert.ToDateTime(order.created_at).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                                                    var datePay = Convert.ToDateTime(order.processed_at).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
 
                                                     #region cut char
                                                     string estimated_shipping_fee = !string.IsNullOrEmpty(Convert.ToString(double.Parse(order.total_shipping_price_set.shop_money.amount))) ? Convert.ToString(double.Parse(order.total_shipping_price_set.shop_money.amount)).Replace("'", "`") : "";
