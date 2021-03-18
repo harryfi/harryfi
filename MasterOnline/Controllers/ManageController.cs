@@ -65493,7 +65493,7 @@ namespace MasterOnline.Controllers
                 var cekLogPosting = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == "POSTING").OrderByDescending(a => a.UPLOAD_DATETIME).FirstOrDefault();
                 if (cekLogPosting != null && cekLogPosting.LOG_FILE.Contains(sessionAccountDatabasePathErasoft.ToString()))
                 {
-                    var logPath = Path.Combine(IPServerLocation + @"Content\Uploaded\LogPosting\", cekLogPosting.LOG_FILE);
+                    var logPath = Path.Combine(Server.MapPath("~/Content/Uploaded/LogPosting/"), cekLogPosting.LOG_FILE);
                     if (System.IO.File.Exists(logPath))
                     {
                         System.IO.File.Delete(logPath);
@@ -65502,7 +65502,7 @@ namespace MasterOnline.Controllers
 
                 string message = "";
                 string filename = "Log_Posting_" + sessionAccountDatabasePathErasoft.ToString() + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
-                var path = Path.Combine(IPServerLocation + @"Content\Uploaded\LogPosting\", filename);
+                var path = Path.Combine(Server.MapPath("~/Content/Uploaded/LogPosting/"), filename);
 
                 LOG_IMPORT_FAKTUR newLogImportPosting = new LOG_IMPORT_FAKTUR
                 {
@@ -65527,7 +65527,7 @@ namespace MasterOnline.Controllers
 
                 if (!System.IO.File.Exists(path))
                 {
-                    System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + @"Content\Uploaded\LogPosting\", ""));
+                    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/LogPosting/"), ""));
                     var asd = System.IO.File.Create(path);
                     asd.Close();
                 }
@@ -65535,6 +65535,10 @@ namespace MasterOnline.Controllers
                 message = logErr + System.Environment.NewLine;
                 tw.WriteLine(message);
                 tw.Close();
+
+                byte[] byteLog = System.IO.File.ReadAllBytes(path);
+                var pathLoc = UploadFileServices.UploadFile_Log(byteLog, "POSTING_" + sessionAccountDatabasePathErasoft + "_" + filename);
+
                 vm = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == "POSTING").OrderByDescending(a => a.UPLOAD_DATETIME).FirstOrDefault();
 
             }
@@ -65545,9 +65549,16 @@ namespace MasterOnline.Controllers
         public FileResult DownloadLogPosting(string filename)
         {
             //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            var path = Path.Combine(IPServerLocation + @"Content\Uploaded\LogPosting\", filename);
+            //var path = Path.Combine(IPServerLocation + @"Content\Uploaded\LogPosting\", filename);
+            byte[] data = null;
+            var path = AwsConfig._amazonS3PublicUrl + AwsConfig._bucketFileName_Log + "POSTING_" + dbPathEra + "_" + filename;
 
-            byte[] data = System.IO.File.ReadAllBytes(path);
+            using (var wc = new System.Net.WebClient())
+            {
+                data = wc.DownloadData(path);
+            }
+
+            //byte[] data = System.IO.File.ReadAllBytes(path);
             string contentType = MimeMapping.GetMimeMapping(path);
             var cd = new System.Net.Mime.ContentDisposition
             {
