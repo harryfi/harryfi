@@ -62434,7 +62434,12 @@ namespace MasterOnline.Controllers
             else if (search.ToUpper() == "BATAL")
             {
                 search = "11";
-
+                searchStatus = true;
+            }
+            else if (search.ToUpper() == "BATAL COD")
+            {
+                search = "12";
+                searchStatus = true;
             }
             string[] getkata = search.Split(' ');
             string sSQLkode = "";
@@ -62480,7 +62485,7 @@ namespace MasterOnline.Controllers
             sSQL2 += "LEFT JOIN SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO ";
             sSQL2 += "LEFT JOIN ARF01 D(NOLOCK) ON A.CUST=D.CUST ";
             sSQL2 += "LEFT JOIN MO..MARKETPLACE E(NOLOCK) ON D.NAMA=E.IDMARKET ";
-            sSQL2 += "WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' and brg='" + brgId + "' ";
+            sSQL2 += "WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04', '12') AND ISNULL(C.NO_BUKTI, '') = '' and brg='" + brgId + "' ";
             if (search != "")
             {
                 if (searchStatus)
