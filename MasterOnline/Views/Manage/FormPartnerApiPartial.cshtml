@@ -1,0 +1,43 @@
+﻿@using System.Globalization
+@model MasterOnline.ViewModels.PartnerApiViewModel
+
+@Html.AntiForgeryToken()
+@Html.HiddenFor(m => m.partner_api.fs_id)
+<div class="form-group">
+    @Html.LabelFor(m => m.partner_api.Nama_Partner, "Nama Partner", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @Html.HiddenFor(m => m.partner_api.PartnerId)
+        @Html.HiddenFor(m => m.partner_api.Nama_Partner)@*, new { id = "namaaddons" }*@
+        <select id="Partner" placeholder="Harap Pilih"></select>
+    </div>
+</div>
+
+<div class="form-group">
+    @Html.LabelFor(m => m.partner_api.ClientId, "Client ID", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @*, Value = (Model?.partner_api?.ClientId)*@
+        @Html.TextBoxFor(m => m.partner_api.ClientId, new { @class = "form-control" })
+    </div>
+</div>
+<div class="form-group">
+    @Html.LabelFor(m => m.partner_api.ClientSecret, "Client Secret", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @*, Value = (Model?.partner_api?.ClientSecret)*@
+        @Html.TextBoxFor(m => m.partner_api.ClientSecret, new { @class = "form-control" })
+    </div>
+</div>
+<div class="form-group" id="status-sync">
+    @Html.LabelFor(m => m.partner_api.Status, "Webhook", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @Html.HiddenFor(m => m.partner_api.Status)
+    </div>
+</div>
+<div class="form-group" id="status-sync">
+    @Html.LabelFor(m => m.partner_api.isPaid, "Status Invoice", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @Html.HiddenFor(m => m.partner_api.isPaid)
+    </div>
+</div>
+<hr />
+@*onclick="simpanPartnerApi()"*@
+<button type="submit" id="simpan_btn" class="btn btn-primary pull-right">Simpan</button>

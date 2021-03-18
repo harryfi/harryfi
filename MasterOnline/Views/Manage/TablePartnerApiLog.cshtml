@@ -1,0 +1,138 @@
+﻿@using System.Globalization
+@using PagedList.Mvc
+@using MasterOnline.ViewModels
+
+@model PagedList.IPagedList<PARTNER_API_LOG_ERROR_VIEW>
+@{
+    string currentFilter = ViewBag.CurrentFilter;
+    string currentSort = ViewBag.CurrentSort;
+}
+
+<style>
+    @@media screen and (max-width: 445px) {
+        .mrktlog {
+            width: 66%;
+        }
+    }
+</style>
+
+<script type="text/javascript">
+
+    function retryInvoice(nobukti) {
+        //var retryid = $('#btnRetryJob' + nobukti);
+        //retryid.attr("disabled", true);
+
+        var link = '@Url.Action("RetryInvoiceApi", "Manage", new { nobukti = "replaceNoNobuk" })';
+        link = link.replace("replaceNoNobuk", encodeURIComponent(nobukti));
+
+        //debugger;
+        $.ajax({
+            type: "POST",
+            url: link,
+            contentType: 'application/json',
+            cache: false,
+            beforeSend: function () {
+                $('#loading_barang_tab').show();
+            },
+            success: function (response) {
+                refreshTableApiLog();
+            },
+            error: function (response) {
+                //retryid.attr("disabled", false);
+            }
+        });
+
+    }
+
+    var $tempLog = "";
+</script>
+<div id="loading_barang_tab" class="loading_barang_tab_class">
+    <div id="loading_barang_tab_image" class="loading_barang_tab_image_class">
+        <img src="~/Content/Images/spinner.gif" />
+    </div>
+</div>
+<input id="txt_last_page" type="hidden" class="form-control" value="@ViewData["LastPage"]">
+<div class="hscroll mrktlog">
+    <table class="table table-striped table-bordered table-hover">
+        <thead>
+            <tr role="row">
+                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 40px; border-left:hidden; align-self:flex-start"><input type="checkbox" class="dt-checkboxes-select-all" id="checkbox_all_partnerapi" style="border-left:hidden;align-self:flex-start; width:30px; height:28px;" /></th> <!--margin-top: 20px;-->
+                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 100px;">No. Bukti</th>
+                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 90px;">Aktivitas</th>
+                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Keterangan</th>
+                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 120px;">Tanggal</th>
+                @*<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 200px;">JSON String</th>*@
+                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 45px;">Coba Lagi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var aktivitas in Model)
+            {
+                <tr>
+                    <td style="text-align:center"><input type="checkbox" class="dt-checkboxes center checkbox_partnerapi" id="chekbox-@(aktivitas.log_id)" data-recnum="@aktivitas.log_id" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" /></td>
+                    <td style="text-align:center">@aktivitas.No_Bukti</td>
+                    <td style="text-align:center">@aktivitas.Modul</td>
+                    <td style="text-align:center">@aktivitas.Created_Date</td>
+                    <td style="text-align:center">@aktivitas.Keterangan</td>
+                    @*<td style="text-align:center">@aktivitas.JSON_String</td>*@
+                    <td style="text-align:center">
+                        <button class="btn btn-default retry-api" type="button" style="border:1px;padding:2px 8px 2px 8px;margin:0px" title="Coba Lagi"
+                                onclick="retryInvoice('@aktivitas.No_Bukti')">
+                            <span class="glyphicon glyphicon-repeat"></span>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @* add by calvin 22 april 2019, paging *@
+    @if (Model.PageCount > 1)
+    {
+        <div id="tabelbarang1partialpager" class="pager">
+            @*@Html.PagedListPager(Model, page => Url.Action("RefreshTableApiLog", new
+                {
+                    page,
+                    search = ViewData["searchParam"]
+                }),
+                     new PagedListRenderOptions
+                     {
+                         page,
+                         search = ViewData["searchParam"]
+                     }),
+                          new PagedListRenderOptions
+                          {
+                              LinkToFirstPageFormat = "<<",
+                         LinkToPreviousPageFormat = "prev",
+                         LinkToNextPageFormat = "next",
+                         LinkToLastPageFormat = ">>",
+                         DisplayEllipsesWhenNotShowingAllPageNumbers = false
+                     })
+                     Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount*@
+        </div>
+    }
+</div>
+<script type="text/javascript">
+        $(function () {
+            $('#tabelbarang1partialpager').on('click', 'a', function () {
+                if (this.href != "") {
+                    $.ajax({
+                        url: this.href,
+                        type: 'GET',
+                        cache: false,
+                        beforeSend: function () {
+                            //$('#table-barang-1-partial').hide();
+                            $('#loading_barang_tab').show();
+                        },
+                        success: function (response) {
+                            $('#table-market-log-partial-div').html(response);
+                            $('#loading_barang_tab').hide();
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+</script>
+@* end add by calvin 22 april 2019, paging *@
+
+
