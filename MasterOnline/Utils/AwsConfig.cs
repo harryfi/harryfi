@@ -24,5 +24,8 @@ namespace MasterOnline.Utils
 
         //for upload log history
         public static string _bucketFileName_Log { get; set; } = "uploaded-file-log/";
+
+        //for upload foto-ktp
+        public static string _bucketFileName_FotoKTP { get; set; } = "foto-ktp/";
     }
 }

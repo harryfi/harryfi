@@ -31,9 +31,6 @@ namespace MasterOnline.Controllers
 {
     public class TransferExcelController : Controller
     {
-        //set parameter network location server IP Private
-        public string IPServerLocation = @"\\172.31.20.73\MasterOnline\";
-        //public string IPServerLocation = "\\\\127.0.0.1\\MasterOnline\\"; // \\127.0.0.1\MasterOnline
 
         public MoDbContext MoDbContext { get; set; }
         public ErasoftContext ErasoftDbContext { get; set; }
@@ -1514,12 +1511,12 @@ namespace MasterOnline.Controllers
                             #region Logging
                             string messageErrorLog = "";
                             string filename = "Log_Upload_Pesanan_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
-                            var path = Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", filename);
+                            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), filename);
                             #endregion
 
                             if (!System.IO.File.Exists(path))
                             {
-                                System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", ""));
+                                System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), ""));
                                 var asd = System.IO.File.Create(path);
                                 asd.Close();
                             }
@@ -1597,6 +1594,9 @@ namespace MasterOnline.Controllers
                                                 tw.WriteLine(messageErrorLog);
                                                 tw.Close();
                                                 tw.Dispose();
+
+                                                byte[] byteLog = System.IO.File.ReadAllBytes(path);
+                                                var pathLoc = UploadFileServices.UploadFile_Log(byteLog, dbPathEra + "_" + filename);
 
                                                 var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
                                                 if (cekLog == null)
@@ -2709,6 +2709,9 @@ namespace MasterOnline.Controllers
                             }
 
                             tw.Close();
+
+                            byte[] byteLog1 = System.IO.File.ReadAllBytes(path);
+                            var pathLoc1 = UploadFileServices.UploadFile_Log(byteLog1, dbPathEra + "_" + filename);
                             //}
                         }
                     }
@@ -3752,6 +3755,9 @@ namespace MasterOnline.Controllers
                                         tw.Close();
                                         //tw.Dispose();
 
+                                        byte[] byteLog = System.IO.File.ReadAllBytes(path);
+                                        var pathLoc = UploadFileServices.UploadFile_Log(byteLog, dbPathEra + "_" + filename);
+
                                         var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Invoice Pembelian" && p.REQUEST_ID == connID).FirstOrDefault();
                                         if (cekLog == null)
                                         {
@@ -3817,6 +3823,9 @@ namespace MasterOnline.Controllers
                                                 tw.WriteLine(messageErrorLog);
                                                 tw.Close();
                                                 //tw.Dispose();
+
+                                                byte[] byteLog1 = System.IO.File.ReadAllBytes(path);
+                                                var pathLoc1 = UploadFileServices.UploadFile_Log(byteLog1, dbPathEra + "_" + filename);
 
                                                 var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Invoice Pembelian" && p.REQUEST_ID == connID).FirstOrDefault();
                                                 if (cekLog == null)
@@ -4589,6 +4598,9 @@ namespace MasterOnline.Controllers
                             }
 
                             tw.Close();
+
+                            byte[] byteLog2 = System.IO.File.ReadAllBytes(path);
+                            var pathLoc2 = UploadFileServices.UploadFile_Log(byteLog2, dbPathEra + "_" + filename);
                             //tw.Dispose();
                             //}
                         }

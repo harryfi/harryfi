@@ -37338,7 +37338,7 @@ namespace MasterOnline.Controllers
             {
                 if (!System.IO.File.Exists(path))
                 {
-                    System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", ""));
+                    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), ""));
                     var asd = System.IO.File.Create(path);
                     asd.Close();
                 }
@@ -37992,6 +37992,9 @@ namespace MasterOnline.Controllers
 #endregion
 
                 tw.Close();
+
+                byte[] byteLog = System.IO.File.ReadAllBytes(path);
+                var pathLoc = UploadFileServices.UploadFile_Log(byteLog, dbPathEra + "_" + filename);
             }
 
 
@@ -38216,7 +38219,7 @@ namespace MasterOnline.Controllers
                 if (!System.IO.File.Exists(path))
                 {
                     //System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
-                    System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", ""));
+                    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), ""));
                     var asd = System.IO.File.Create(path);
                     asd.Close();
                 }
@@ -38587,6 +38590,9 @@ namespace MasterOnline.Controllers
 #endregion
 
                 tw.Close();
+
+                byte[] byteLog = System.IO.File.ReadAllBytes(path);
+                var pathLoc = UploadFileServices.UploadFile_Log(byteLog, dbPathEra + "_" + filename);
             }
 
             newLogImportFaktur.LAST_FAKTUR_UPLOADED = lastFakturInUpload;
@@ -42685,12 +42691,12 @@ namespace MasterOnline.Controllers
                 {
                     //add 19 Juli 2019, error log
                     //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), namaFileLog);
-                    var path = Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", namaFileLog);
+                    var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), namaFileLog);
                     
                     if (!System.IO.File.Exists(path))
                     {
                         //System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
-                        System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", ""));
+                        System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), ""));
 
                         var asd = System.IO.File.Create(path);
                         asd.Close();
@@ -43869,6 +43875,10 @@ namespace MasterOnline.Controllers
                         //barangVm.ListTempBrg = eraDB.TEMP_BRG_MP.Where(b => b.CUST.Equals(cust)).ToList();
                         //barangVm.ListTempBrg = eraDB.TEMP_BRG_MP.Where(b => b.CUST == cust).ToList();
                         tw.Close();
+
+                        byte[] byteLog = System.IO.File.ReadAllBytes(path);
+                        var pathLoc = UploadFileServices.UploadFile_Log(byteLog, dbPathEra + "_" + namaFileLog);
+
                         barangVm.contRecursive = "1";
                         //if (barangVm.Errors.Count == 0)
                         //if(dataBrg.Count < Convert.ToInt32(dataPerPage))
@@ -43884,6 +43894,10 @@ namespace MasterOnline.Controllers
                         }
                     }
                     tw.Close();
+
+                    byte[] byteLog1 = System.IO.File.ReadAllBytes(path);
+                    var pathLoc1 = UploadFileServices.UploadFile_Log(byteLog1, dbPathEra + "_" + namaFileLog);
+
                     barangVm.Errors.Add("Tidak ada barang untuk di upload pada Toko ini.");
                     return Json(barangVm, JsonRequestBehavior.AllowGet);
                 }
