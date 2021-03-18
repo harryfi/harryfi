@@ -8835,9 +8835,10 @@ namespace MasterOnline.Controllers
                                         listError.Add(i + "_errortext_" + retVal.message);
                                     }
                                     //end change by Tri 22 agustus 2019, validasi harga 1 function
-                                    i++;
+                                    //i++;
                                 }
                             }
+                            i++;
                         }
                         if (validPrice)
                         {
@@ -10268,9 +10269,10 @@ namespace MasterOnline.Controllers
                                         listError.Add(i + "_errortext_" + retVal.message);
                                     }
                                     //end change by Tri 23 agustus 2019, validasi harga 1 function
-                                    i++;
+                                    //i++;
                                 }
                             }
+                            i++;
 
                         }
                         if (validPrice)
@@ -45413,10 +45415,11 @@ namespace MasterOnline.Controllers
             switch (idmarket)
             {
                 case "7"://Lazada
-                    if (price < 3000)
+                    //if (price < 3000)
+                    if (price < 1000)
                     {
                         ret.status = 0;
-                        ret.message = "Harga Jual harus lebih dari 3000.";
+                        ret.message = "Harga Jual harus lebih dari 1000.";
                     }
                     break;
                 case "8"://Bukalapak                   
