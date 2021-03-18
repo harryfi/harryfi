@@ -37,8 +37,8 @@ namespace MasterOnline.Controllers
         //private static string client_secret = "AXe5u7JcYiSNLvOsGW92Dzc4li6mbrWpN9qjlLD4OxI";
 
         private static string callBackUrl = "https://masteronline.my.id/bukalapak/auth";
-        private static string client_id = "laJXb5jh91BelPQg2VmE2ooa58UVJmlJkNq98EPJc6s";
-        private static string client_secret = "AXe5u7JcYiSNLvOsGW92Dzc4li6mbrWpN9qjlLD4OxI";
+        private static string client_id = "Oot9vyRecx10Nd1iYgviHN4GN52aMquQ-7Nq7vIjhw4";
+        private static string client_secret = "7l_ZKSfga8pqbqBUhTTjL4EMAy4XFigoHBTTDqIaMEo";
 #endif
         string dbSourceEra = "";
 

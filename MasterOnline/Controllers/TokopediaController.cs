@@ -4810,7 +4810,8 @@ namespace MasterOnline.Controllers
         {
             public long value { get; set; }
             public int currency { get; set; }
-            public int LastUpdateUnix { get; set; }
+            //public int LastUpdateUnix { get; set; }
+            public long LastUpdateUnix { get; set; }
             public long idr { get; set; }
         }
 

@@ -245,6 +245,7 @@ namespace MasterOnline.Controllers
                 Session["SessionAccountDataSourcePathDebug"] = accSelected.DataSourcePathDebug;
                 Session["SessionAccountDataSourcePath"] = accSelected.DataSourcePath;
                 Session["SessionAccountDatabasePathErasoft"] = accSelected.DatabasePathErasoft;
+                Session["SessionAccountNamaTokoOnline"] = accSelected.NamaTokoOnline;
                 Session["SessionUser"] = null;
             }
 

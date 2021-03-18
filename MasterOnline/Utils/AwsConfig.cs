@@ -18,5 +18,11 @@ namespace MasterOnline.Utils
 
         //for upload excel pesanan
         public static string _bucketFileName_Pesanan { get; set; } = "uploaded-file/upload_pesanan_batch/";
+        
+        //for upload print label MP
+        public static string _bucketFileName_PrintLabel { get; set; } = "uploaded-file-printlabel/";
+
+        //for upload log history
+        public static string _bucketFileName_Log { get; set; } = "uploaded-file-log/";
     }
 }

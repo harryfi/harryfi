@@ -235,7 +235,7 @@ namespace MasterOnline.Controllers
 
 
                                                 string fullname = order.shipping_address.first_name.ToString() + " " + order.shipping_address.last_name.ToString();
-                                                string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : order.shipping_address.last_name.ToString();
+                                                string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : fullname;
 
                                                 insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '{13}', '{8}', '{9}', '{12}', '{11}','{10}'),",
                                                     ((nama ?? "").Replace("'", "`")),
@@ -262,8 +262,8 @@ namespace MasterOnline.Controllers
                                                 batchinsertItem = new List<TEMP_SHOPIFY_ORDERS_ITEM>();
 
                                                 //2020-04-08T05:12:41
-                                                var dateOrder = Convert.ToDateTime(order.created_at).ToString("yyyy-MM-dd HH:mm:ss");
-                                                var datePay = Convert.ToDateTime(order.processed_at).ToString("yyyy-MM-dd HH:mm:ss");
+                                                var dateOrder = Convert.ToDateTime(order.created_at).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                                                var datePay = Convert.ToDateTime(order.processed_at).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                                                 //if (order.processed_at == "0000-00-00 00:00:00")
                                                 //{
                                                 //    datePay = dateOrder;
@@ -596,7 +596,7 @@ namespace MasterOnline.Controllers
 
 
                                                     string fullname = order.shipping_address.first_name.ToString() + " " + order.shipping_address.last_name.ToString();
-                                                    string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : order.shipping_address.last_name.ToString();
+                                                    string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : fullname;
 
                                                     insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '{13}', '{8}', '{9}', '{12}', '{11}','{10}'),",
                                                         ((nama ?? "").Replace("'", "`")),
@@ -623,8 +623,8 @@ namespace MasterOnline.Controllers
                                                     batchinsertItem = new List<TEMP_SHOPIFY_ORDERS_ITEM>();
 
                                                     //2020-04-08T05:12:41
-                                                    var dateOrder = Convert.ToDateTime(order.created_at).ToString("yyyy-MM-dd HH:mm:ss");
-                                                    var datePay = Convert.ToDateTime(order.processed_at).ToString("yyyy-MM-dd HH:mm:ss");
+                                                    var dateOrder = Convert.ToDateTime(order.created_at).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                                                    var datePay = Convert.ToDateTime(order.processed_at).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
 
                                                     var shippingLine = "";
                                                     var trackingCompany = "";

@@ -15,6 +15,8 @@ namespace MasterOnline.Services
         private static readonly string _awsSecretKey = AwsConfig._awsSecretKey;
         private static readonly string _bucketName = AwsConfig._bucketName;
         private static readonly string _bucketFileName = AwsConfig._bucketFileName;
+        private static readonly string _bucketFileName_PrintLabel = AwsConfig._bucketFileName_PrintLabel;
+        private static readonly string _bucketFileName_Log = AwsConfig._bucketFileName_Log;
         private static readonly string _amazonS3PublicUrl = AwsConfig._amazonS3PublicUrl;
         private static readonly string _amazonAwsUrl = AwsConfig._amazonAwsUrl;
         private static readonly RegionEndpoint bucketRegion = RegionEndpoint.APSoutheast1;
@@ -89,6 +91,92 @@ namespace MasterOnline.Services
                 }
             }
             return dataByte;
+        }
+
+        public static string UploadFile_PrintLabel(byte[] blobByte, string fileName)
+        {
+            string dataUrl = null;
+
+            try
+            {
+                IAmazonS3 client;
+                using (client = new AmazonS3Client(_awsAccessKey, _awsSecretKey, Amazon.RegionEndpoint.APSoutheast1))
+                {
+                    var ms = new System.IO.MemoryStream();
+                    ms.Write(blobByte, 0, blobByte.Length);
+                    ms.Position = 0;
+
+                    PutObjectRequest putRequest = new PutObjectRequest
+                    {
+                        BucketName = _bucketName,
+                        Key = _bucketFileName_PrintLabel + fileName,
+                        CannedACL = S3CannedACL.PublicRead,//PERMISSION TO FILE PUBLIC ACCESIBLE
+                        //ContentType = file.ContentType,
+                        InputStream = ms,
+                    };
+                    client.PutObject(putRequest);
+
+                    dataUrl = _amazonS3PublicUrl + putRequest.Key.ToString();
+                }
+            }
+            catch (AmazonS3Exception amazonS3Exception)
+            {
+                if (amazonS3Exception.ErrorCode != null &&
+                    (amazonS3Exception.ErrorCode.Equals("InvalidAccessKeyId")
+                    ||
+                    amazonS3Exception.ErrorCode.Equals("InvalidSecurity")))
+                {
+                    throw new Exception("Check the provided AWS Credentials.");
+                }
+                else
+                {
+                    //throw new Exception("Error occurred: " + amazonS3Exception.Message);
+                }
+            }
+            return dataUrl;
+        }
+
+        public static string UploadFile_Log(byte[] blobByte, string fileName)
+        {
+            string dataUrl = null;
+
+            try
+            {
+                IAmazonS3 client;
+                using (client = new AmazonS3Client(_awsAccessKey, _awsSecretKey, Amazon.RegionEndpoint.APSoutheast1))
+                {
+                    var ms = new System.IO.MemoryStream();
+                    ms.Write(blobByte, 0, blobByte.Length);
+                    ms.Position = 0;
+
+                    PutObjectRequest putRequest = new PutObjectRequest
+                    {
+                        BucketName = _bucketName,
+                        Key = _bucketFileName_Log + fileName,
+                        CannedACL = S3CannedACL.PublicRead,//PERMISSION TO FILE PUBLIC ACCESIBLE
+                        //ContentType = file.ContentType,
+                        InputStream = ms,
+                    };
+                    client.PutObject(putRequest);
+
+                    dataUrl = _amazonS3PublicUrl + putRequest.Key.ToString();
+                }
+            }
+            catch (AmazonS3Exception amazonS3Exception)
+            {
+                if (amazonS3Exception.ErrorCode != null &&
+                    (amazonS3Exception.ErrorCode.Equals("InvalidAccessKeyId")
+                    ||
+                    amazonS3Exception.ErrorCode.Equals("InvalidSecurity")))
+                {
+                    throw new Exception("Check the provided AWS Credentials.");
+                }
+                else
+                {
+                    //throw new Exception("Error occurred: " + amazonS3Exception.Message);
+                }
+            }
+            return dataUrl;
         }
     }
 }

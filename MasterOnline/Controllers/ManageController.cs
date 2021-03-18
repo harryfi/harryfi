@@ -71,8 +71,9 @@ namespace MasterOnline.Controllers
         string dbSourceEra = "";
 
         //set parameter network location server IP Private
+        public string IPServerLocation = "~/";
         //public string IPServerLocation = @"\\172.31.20.73\MasterOnline\";
-        public string IPServerLocation = @"\\127.0.0.1\MasterOnline\"; // \\127.0.0.1\MasterOnline
+        //public string IPServerLocation = @"\\127.0.0.1\MasterOnline\"; // \\127.0.0.1\MasterOnline
 
         string EDBConnID = "";
         string usernameLogin;
@@ -36105,9 +36106,16 @@ namespace MasterOnline.Controllers
         {
             //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
-            var path = Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", filename);
+            //var path = Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", filename);
+            var path = AwsConfig._amazonS3PublicUrl + AwsConfig._bucketFileName_Log + dbPathEra + "_" + filename;
+            byte[] dataByte = null;
 
-            byte[] data = System.IO.File.ReadAllBytes(path);
+            using (var wc = new System.Net.WebClient())
+            {
+                dataByte = wc.DownloadData(path);
+            }
+
+            //byte[] data = System.IO.File.ReadAllBytes(path);
             string contentType = MimeMapping.GetMimeMapping(path);
             var cd = new System.Net.Mime.ContentDisposition
             {
@@ -36116,50 +36124,24 @@ namespace MasterOnline.Controllers
             };
             //Response.AppendHeader("Content-Disposition", cd.ToString());
 
-            return File(data, contentType, filename);
+            return File(dataByte, contentType, filename);
         }
+
 
         [HttpGet]
         public FileResult DownloadLogErrorUploadExcelPesanan(string filename)
         {
-            //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
-            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
-            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
-            var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
-            var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
-            var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
-            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
-            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
-            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
-            var sessionAccountNamaTokoOnline = System.Web.HttpContext.Current.Session["SessionAccountNamaTokoOnline"];
-
-            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
-            var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
-            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
-            var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
-            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
-
-            var dbPathErasoft = "";
-
-            if (sessionAccount != null)
-            {
-                dbPathErasoft = sessionAccountDatabasePathErasoft.ToString();
-            }
-            else
-            {
-                if (sessionUser != null)
-                {
-                    var userAccID = Convert.ToInt64(sessionUserAccountID);
-                    var accFromUser = MoDbContext.Account.AsNoTracking().Single(a => a.AccountId == userAccID);
-                    dbPathErasoft = accFromUser.DatabasePathErasoft;
-                }
-            }
-
             //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
-            var path = Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", filename);
+            //var path = Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", filename);
+            var path = AwsConfig._amazonS3PublicUrl + AwsConfig._bucketFileName_Log + dbPathEra + "_" + filename;
+            byte[] byteData = null;
 
-            byte[] data = System.IO.File.ReadAllBytes(path);
+            using (var wc = new System.Net.WebClient())
+            {
+                byteData = wc.DownloadData(path);
+            }
+
+            //byte[] data = System.IO.File.ReadAllBytes(path);
             string contentType = MimeMapping.GetMimeMapping(path);
             var cd = new System.Net.Mime.ContentDisposition
             {
@@ -36168,21 +36150,28 @@ namespace MasterOnline.Controllers
             };
             //Response.AppendHeader("Content-Disposition", cd.ToString());
 
-            return File(data, contentType, filename);
+            return File(byteData, contentType, filename);
         }
 
         [HttpGet]
         public FileResult DownloadLogErrorUploadExcelInvoicePembelian(string filename)
         {
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
+            //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), filename);
             byte[] data = null;
+            var path = AwsConfig._amazonS3PublicUrl + AwsConfig._bucketFileName_Log + dbPathEra + "_" + filename;
+
+            using (var wc = new System.Net.WebClient())
+            {
+                data = wc.DownloadData(path);
+            }
+
             string contentType = null;
             try
             {
                 if (System.IO.File.Exists(path))
                 {
-                    data = System.IO.File.ReadAllBytes(path);
+                    //data = System.IO.File.ReadAllBytes(path);
                     contentType = MimeMapping.GetMimeMapping(path);
                     var cd = new System.Net.Mime.ContentDisposition
                     {
@@ -36202,11 +36191,30 @@ namespace MasterOnline.Controllers
             return File(data, contentType, filename);
         }
 
+        //[HttpGet]
+        //public FileResult Download_PrintLabel(string path)
+        //{
+        //    byte[] fileBytes = System.IO.File.ReadAllBytes(path);
+        //    return File(fileBytes, "application/pdf");
+        //}
+
         [HttpGet]
         public FileResult Download_PrintLabel(string path)
         {
-            byte[] fileBytes = System.IO.File.ReadAllBytes(path);
-            return File(fileBytes, "application/pdf");
+            byte[] imageData = null;
+
+            try
+            {
+                using (var wc = new System.Net.WebClient())
+                {
+                    imageData = wc.DownloadData(path);
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            return File(imageData, "application/pdf");
         }
 
         [HttpGet]
@@ -36400,8 +36408,8 @@ namespace MasterOnline.Controllers
             string message = "";
             string filename = "Log_Upload_Inv_Tokopedia_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
             //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
-            var path = Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", filename);
-            
+            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), filename);
+
             LOG_IMPORT_FAKTUR newLogImportFaktur = new LOG_IMPORT_FAKTUR
             {
                 CUST = cust,
@@ -36425,14 +36433,14 @@ namespace MasterOnline.Controllers
                 if (!System.IO.File.Exists(path))
                 {
                     //System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
-                    System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", ""));
+                    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), ""));
                     
                     var asd = System.IO.File.Create(path);
                     asd.Close();
                 }
                 StreamWriter tw = new StreamWriter(path);
 
-#region Proses Upload
+                #region Proses Upload
                 var lastRecnumARF01C = ErasoftDbContext.ARF01C.Max(p => p.RecNum);
                 var listFakturInDb = ErasoftDbContext.SIT01A.OrderBy(p => p.RecNum).ToList();
                 var listPesananInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust).Select(p => new { noref = p.NO_REFERENSI, nobuk = p.NO_BUKTI }).ToList();
@@ -37080,6 +37088,9 @@ namespace MasterOnline.Controllers
 #endregion
 
                 tw.Close();
+                
+                byte[] byteLog = System.IO.File.ReadAllBytes(path);
+                var pathLoc = UploadFileServices.UploadFile_Log(byteLog, dbPathEra + "_" + filename);
             }
 
 
@@ -49107,58 +49118,106 @@ namespace MasterOnline.Controllers
                                             //    return Json(tempResiLazada, JsonRequestBehavior.AllowGet);
                                             //}
 
-                                        /// UPDATE FITUR FROM HTML TO PDF by Fauzi 04 November 2020
-                                        #region FITUR PRINT LABEL HTML TO PDF
-                                        #region initial folder
-                                        string messageErrorLog = "";
-                                        string filename = "LAZADA_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
-                                        var path = Path.Combine(IPServerLocation + @"Content\Uploaded\PrintLabel\", filename);
-                                        #endregion
+                                        ///// UPDATE FITUR FROM HTML TO PDF by Fauzi 04 November 2020
+                                        //#region FITUR PRINT LABEL HTML TO PDF
+                                        //#region initial folder
+                                        //string messageErrorLog = "";
+                                        //string filename = "LAZADA_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
+                                        //var path = Path.Combine(IPServerLocation + @"Content\Uploaded\PrintLabel\", filename);
+                                        //#endregion
 
-                                        if (!System.IO.File.Exists(path))
-                                        {
-                                            System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + @"Content\Uploaded\PrintLabel\", ""));
-                                            FileStream stream = System.IO.File.Create(path);
+                                        //if (!System.IO.File.Exists(path))
+                                        //{
+                                        //    System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + @"Content\Uploaded\PrintLabel\", ""));
+                                        //    FileStream stream = System.IO.File.Create(path);
 
-                                                string pdf_page_size = "9";
-                                                PdfPageSize pageSize = (PdfPageSize)Enum.Parse(typeof(PdfPageSize),
-                                                    pdf_page_size, true);
+                                        //        string pdf_page_size = "9";
+                                        //        PdfPageSize pageSize = (PdfPageSize)Enum.Parse(typeof(PdfPageSize),
+                                        //            pdf_page_size, true);
 
-                                                string pdf_orientation = "0";
-                                                PdfPageOrientation pdfOrientation =
-                                                    (PdfPageOrientation)Enum.Parse(typeof(PdfPageOrientation),
-                                                    pdf_orientation, true);
+                                        //        string pdf_orientation = "0";
+                                        //        PdfPageOrientation pdfOrientation =
+                                        //            (PdfPageOrientation)Enum.Parse(typeof(PdfPageOrientation),
+                                        //            pdf_orientation, true);
 
-                                                int webPageWidth = 500;
-                                                int webPageHeight = 400;
+                                        //        int webPageWidth = 500;
+                                        //        int webPageHeight = 400;
 
-                                                HtmlToPdf converter = new HtmlToPdf();
-                                                converter.Options.PdfPageSize = pageSize;
-                                                converter.Options.PdfPageOrientation = pdfOrientation;
-                                                converter.Options.WebPageWidth = webPageWidth;
-                                                converter.Options.WebPageHeight = webPageHeight;
-                                                converter.Options.MarginRight = 10;
-                                                converter.Options.MarginLeft = 10;
-                                                converter.Options.MarginTop = 10;
+                                        //        HtmlToPdf converter = new HtmlToPdf();
+                                        //        converter.Options.PdfPageSize = pageSize;
+                                        //        converter.Options.PdfPageOrientation = pdfOrientation;
+                                        //        converter.Options.WebPageWidth = webPageWidth;
+                                        //        converter.Options.WebPageHeight = webPageHeight;
+                                        //        converter.Options.MarginRight = 10;
+                                        //        converter.Options.MarginLeft = 10;
+                                        //        converter.Options.MarginTop = 10;
 
-                                                htmlString = htmlString.Replace("break;", "");
-                                                htmlString = htmlString.Replace("tempObj[key]['name'].substring(0, 50)", "tempObj[key]['name'].substring(0, 48)");
-                                                htmlString = htmlString.Replace("height: 82.5px; width: 55px; border-right: 1;", "height: 82.5px; width: 30px; border-right: 1;");
-                                                htmlString = htmlString.Replace("height: 2.2cm; font-size:8px; width: 15%;", "height: 2.2cm; font-size:8px; width:8%;");
-                                                htmlString = htmlString.Replace("height: 2.2cm; font-size:8px; width:85%;", "height: 2.2cm; font-size:8px; width:92%;");
-                                                htmlString = htmlString.Replace("font-size:10px", "font-size:8px");
-                                                htmlString = htmlString.Replace("font-size:8px;", "font-size:8px;");
-                                                SelectPdf.PdfDocument doc = converter.ConvertHtmlString(htmlString, "");
+                                        //        htmlString = htmlString.Replace("break;", "");
+                                        //        htmlString = htmlString.Replace("tempObj[key]['name'].substring(0, 50)", "tempObj[key]['name'].substring(0, 48)");
+                                        //        htmlString = htmlString.Replace("height: 82.5px; width: 55px; border-right: 1;", "height: 82.5px; width: 30px; border-right: 1;");
+                                        //        htmlString = htmlString.Replace("height: 2.2cm; font-size:8px; width: 15%;", "height: 2.2cm; font-size:8px; width:8%;");
+                                        //        htmlString = htmlString.Replace("height: 2.2cm; font-size:8px; width:85%;", "height: 2.2cm; font-size:8px; width:92%;");
+                                        //        htmlString = htmlString.Replace("font-size:10px", "font-size:8px");
+                                        //        htmlString = htmlString.Replace("font-size:8px;", "font-size:8px;");
+                                        //        SelectPdf.PdfDocument doc = converter.ConvertHtmlString(htmlString, "");
 
-                                                byte[] byteArray = doc.Save();
-                                                //end process
+                                        //        byte[] byteArray = doc.Save();
+                                        //        //end process
 
-                                                //byte[] byteArray = Convert.FromBase64String(retApi.Result.ToString());
-                                                stream.Write(byteArray, 0, byteArray.Length);
-                                                stream.Close();
-                                                temp_printLabel.Add(path);
-                                                temp_printLabel_split = temp_printLabel_split + path + ";";
-                                            }
+                                        //        //byte[] byteArray = Convert.FromBase64String(retApi.Result.ToString());
+                                        //        stream.Write(byteArray, 0, byteArray.Length);
+                                        //        stream.Close();
+                                        //        temp_printLabel.Add(path);
+                                        //        temp_printLabel_split = temp_printLabel_split + path + ";";
+                                        //    }
+                                        //    #endregion
+                                        //    /// 
+
+                                            /// UPDATE FITUR FROM HTML TO PDF by Fauzi 04 November 2020
+                                            #region FITUR PRINT LABEL HTML TO PDF NEW UPLOAD TO S3
+                                            #region initial folder
+                                            string messageErrorLog = "";
+                                            string filename = "LAZADA_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
+                                            #endregion
+
+                                            string pdf_page_size = "9";
+                                            PdfPageSize pageSize = (PdfPageSize)Enum.Parse(typeof(PdfPageSize),
+                                                pdf_page_size, true);
+
+                                            string pdf_orientation = "0";
+                                            PdfPageOrientation pdfOrientation =
+                                                (PdfPageOrientation)Enum.Parse(typeof(PdfPageOrientation),
+                                                pdf_orientation, true);
+
+                                            int webPageWidth = 500;
+                                            int webPageHeight = 400;
+
+                                            HtmlToPdf converter = new HtmlToPdf();
+                                            converter.Options.PdfPageSize = pageSize;
+                                            converter.Options.PdfPageOrientation = pdfOrientation;
+                                            converter.Options.WebPageWidth = webPageWidth;
+                                            converter.Options.WebPageHeight = webPageHeight;
+                                            converter.Options.MarginRight = 10;
+                                            converter.Options.MarginLeft = 10;
+                                            converter.Options.MarginTop = 10;
+
+                                            htmlString = htmlString.Replace("break;", "");
+                                            htmlString = htmlString.Replace("tempObj[key]['name'].substring(0, 50)", "tempObj[key]['name'].substring(0, 48)");
+                                            htmlString = htmlString.Replace("height: 82.5px; width: 55px; border-right: 1;", "height: 82.5px; width: 30px; border-right: 1;");
+                                            htmlString = htmlString.Replace("height: 2.2cm; font-size:8px; width: 15%;", "height: 2.2cm; font-size:8px; width:8%;");
+                                            htmlString = htmlString.Replace("height: 2.2cm; font-size:8px; width:85%;", "height: 2.2cm; font-size:8px; width:92%;");
+                                            htmlString = htmlString.Replace("font-size:10px", "font-size:8px");
+                                            htmlString = htmlString.Replace("font-size:8px;", "font-size:8px;");
+                                            SelectPdf.PdfDocument doc = converter.ConvertHtmlString(htmlString, "");
+
+                                            byte[] byteArray = doc.Save();
+                                            //end process
+
+                                            var pathLoc = UploadFileServices.UploadFile_PrintLabel(byteArray, filename);
+
+                                            temp_printLabel.Add(pathLoc);
+                                            temp_printLabel_split = temp_printLabel_split + pathLoc + ";";
+
                                             #endregion
                                             /// 
 
@@ -49382,61 +49441,108 @@ namespace MasterOnline.Controllers
                                             //}
 
 
-                                        /// UPDATE FITUR FROM HTML TO PDF by Fauzi 04 November 2020
-                                        #region FITUR PRINT LABEL HTML TO PDF
-                                        #region initial folder
-                                        string messageErrorLog = "";
-                                        string filename = "LAZADA_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
-                                        var path = Path.Combine(IPServerLocation + @"Content\Uploaded\PrintLabel\", filename);
-                                        #endregion
+                                            ///// UPDATE FITUR FROM HTML TO PDF by Fauzi 04 November 2020
+                                            //#region FITUR PRINT LABEL HTML TO PDF
+                                            //#region initial folder
+                                            //string messageErrorLog = "";
+                                            //string filename = "LAZADA_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
+                                            //var path = Path.Combine(IPServerLocation + @"Content\Uploaded\PrintLabel\", filename);
+                                            //#endregion
 
-                                        if (!System.IO.File.Exists(path))
-                                        {
-                                            System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + @"Content\Uploaded\PrintLabel\", ""));
-                                            FileStream stream = System.IO.File.Create(path);
+                                            //if (!System.IO.File.Exists(path))
+                                            //{
+                                            //    System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + @"Content\Uploaded\PrintLabel\", ""));
+                                            //    FileStream stream = System.IO.File.Create(path);
 
-                                                string pdf_page_size = "9";
-                                                PdfPageSize pageSize = (PdfPageSize)Enum.Parse(typeof(PdfPageSize),
-                                                    pdf_page_size, true);
+                                            //        string pdf_page_size = "9";
+                                            //        PdfPageSize pageSize = (PdfPageSize)Enum.Parse(typeof(PdfPageSize),
+                                            //            pdf_page_size, true);
 
-                                                string pdf_orientation = "0";
-                                                PdfPageOrientation pdfOrientation =
-                                                    (PdfPageOrientation)Enum.Parse(typeof(PdfPageOrientation),
-                                                    pdf_orientation, true);
+                                            //        string pdf_orientation = "0";
+                                            //        PdfPageOrientation pdfOrientation =
+                                            //            (PdfPageOrientation)Enum.Parse(typeof(PdfPageOrientation),
+                                            //            pdf_orientation, true);
 
-                                                int webPageWidth = 500;
-                                                int webPageHeight = 400;
+                                            //        int webPageWidth = 500;
+                                            //        int webPageHeight = 400;
 
-                                                HtmlToPdf converter = new HtmlToPdf();
-                                                converter.Options.PdfPageSize = pageSize;
-                                                converter.Options.PdfPageOrientation = pdfOrientation;
-                                                converter.Options.WebPageWidth = webPageWidth;
-                                                converter.Options.WebPageHeight = webPageHeight;
-                                                converter.Options.MarginRight = 10;
-                                                converter.Options.MarginLeft = 10;
-                                                converter.Options.MarginTop = 10;
+                                            //        HtmlToPdf converter = new HtmlToPdf();
+                                            //        converter.Options.PdfPageSize = pageSize;
+                                            //        converter.Options.PdfPageOrientation = pdfOrientation;
+                                            //        converter.Options.WebPageWidth = webPageWidth;
+                                            //        converter.Options.WebPageHeight = webPageHeight;
+                                            //        converter.Options.MarginRight = 10;
+                                            //        converter.Options.MarginLeft = 10;
+                                            //        converter.Options.MarginTop = 10;
 
-                                                htmlString = htmlString.Replace("break;", "");
-                                                htmlString = htmlString.Replace("tempObj[key]['name'].substring(0, 50)", "tempObj[key]['name'].substring(0, 48)");
-                                                htmlString = htmlString.Replace("height: 82.5px; width: 55px; border-right: 1;", "height: 82.5px; width: 30px; border-right: 1;");
-                                                htmlString = htmlString.Replace("height: 2.2cm; font-size:8px; width: 15%;", "height: 2.2cm; font-size:8px; width:8%;");
-                                                htmlString = htmlString.Replace("height: 2.2cm; font-size:8px; width:85%;", "height: 2.2cm; font-size:8px; width:92%;");
-                                                htmlString = htmlString.Replace("font-size:10px", "font-size:8px");
-                                                htmlString = htmlString.Replace("font-size:8px;", "font-size:8px;");
-                                                SelectPdf.PdfDocument doc = converter.ConvertHtmlString(htmlString, "");
+                                            //        htmlString = htmlString.Replace("break;", "");
+                                            //        htmlString = htmlString.Replace("tempObj[key]['name'].substring(0, 50)", "tempObj[key]['name'].substring(0, 48)");
+                                            //        htmlString = htmlString.Replace("height: 82.5px; width: 55px; border-right: 1;", "height: 82.5px; width: 30px; border-right: 1;");
+                                            //        htmlString = htmlString.Replace("height: 2.2cm; font-size:8px; width: 15%;", "height: 2.2cm; font-size:8px; width:8%;");
+                                            //        htmlString = htmlString.Replace("height: 2.2cm; font-size:8px; width:85%;", "height: 2.2cm; font-size:8px; width:92%;");
+                                            //        htmlString = htmlString.Replace("font-size:10px", "font-size:8px");
+                                            //        htmlString = htmlString.Replace("font-size:8px;", "font-size:8px;");
+                                            //        SelectPdf.PdfDocument doc = converter.ConvertHtmlString(htmlString, "");
 
-                                                byte[] byteArray = doc.Save();
-                                                //end process
+                                            //        byte[] byteArray = doc.Save();
+                                            //        //end process
 
-                                                //byte[] byteArray = Convert.FromBase64String(retApi.Result.ToString());
-                                                stream.Write(byteArray, 0, byteArray.Length);
-                                                stream.Close();
-                                                temp_printLabel.Add(path);
-                                                temp_printLabel_split = temp_printLabel_split + path + ";";
-                                            }
+                                            //        //byte[] byteArray = Convert.FromBase64String(retApi.Result.ToString());
+                                            //        stream.Write(byteArray, 0, byteArray.Length);
+                                            //        stream.Close();
+                                            //        temp_printLabel.Add(path);
+                                            //        temp_printLabel_split = temp_printLabel_split + path + ";";
+                                            //    }
+                                            //    #endregion
+                                            //    /// 
+
+                                            /// UPDATE FITUR FROM HTML TO PDF by Fauzi 04 November 2020
+                                            #region FITUR PRINT LABEL HTML TO PDF NEW UPLOAD TO S3
+                                            #region initial folder
+                                            string messageErrorLog = "";
+                                            string filename = "LAZADA_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
+                                            #endregion
+
+                                            string pdf_page_size = "9";
+                                            PdfPageSize pageSize = (PdfPageSize)Enum.Parse(typeof(PdfPageSize),
+                                                pdf_page_size, true);
+
+                                            string pdf_orientation = "0";
+                                            PdfPageOrientation pdfOrientation =
+                                                (PdfPageOrientation)Enum.Parse(typeof(PdfPageOrientation),
+                                                pdf_orientation, true);
+
+                                            int webPageWidth = 500;
+                                            int webPageHeight = 400;
+
+                                            HtmlToPdf converter = new HtmlToPdf();
+                                            converter.Options.PdfPageSize = pageSize;
+                                            converter.Options.PdfPageOrientation = pdfOrientation;
+                                            converter.Options.WebPageWidth = webPageWidth;
+                                            converter.Options.WebPageHeight = webPageHeight;
+                                            converter.Options.MarginRight = 10;
+                                            converter.Options.MarginLeft = 10;
+                                            converter.Options.MarginTop = 10;
+
+                                            htmlString = htmlString.Replace("break;", "");
+                                            htmlString = htmlString.Replace("tempObj[key]['name'].substring(0, 50)", "tempObj[key]['name'].substring(0, 48)");
+                                            htmlString = htmlString.Replace("height: 82.5px; width: 55px; border-right: 1;", "height: 82.5px; width: 30px; border-right: 1;");
+                                            htmlString = htmlString.Replace("height: 2.2cm; font-size:8px; width: 15%;", "height: 2.2cm; font-size:8px; width:8%;");
+                                            htmlString = htmlString.Replace("height: 2.2cm; font-size:8px; width:85%;", "height: 2.2cm; font-size:8px; width:92%;");
+                                            htmlString = htmlString.Replace("font-size:10px", "font-size:8px");
+                                            htmlString = htmlString.Replace("font-size:8px;", "font-size:8px;");
+                                            SelectPdf.PdfDocument doc = converter.ConvertHtmlString(htmlString, "");
+
+                                            byte[] byteArray = doc.Save();
+                                            //end process
+
+                                            var pathLoc = UploadFileServices.UploadFile_PrintLabel(byteArray, filename);
+
+                                            temp_printLabel.Add(pathLoc);
+                                            temp_printLabel_split = temp_printLabel_split + pathLoc + ";";
+
                                             #endregion
                                             /// 
-
 
                                             temp_htmlString.Add(htmlString);
                                         }
@@ -49950,26 +50056,32 @@ namespace MasterOnline.Controllers
                         #region initial folder
                         string messageErrorLog = "";
                         string filename = "BUKALAPAK_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
-                        var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
+                        //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
                         #endregion
 
-                        if (!System.IO.File.Exists(path))
-                        {
-                            System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
-                            FileStream stream = System.IO.File.Create(path);
-                            //byte[] byteArray = Convert.FromBase64String(retApi.Result.ToString());
-                            //byte[] byteArray = Convert.FromBase64String(retApi);
-                            byte[] byteArray = retApi;
-                            stream.Write(byteArray, 0, byteArray.Length);
-                            stream.Close();
-                            temp_printLabel.Add(path);
-                            temp_printLabel_split = temp_printLabel_split + path + ";";
+                        //if (!System.IO.File.Exists(path))
+                        //{
+                        //    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
+                        //    FileStream stream = System.IO.File.Create(path);
+                        //    //byte[] byteArray = Convert.FromBase64String(retApi.Result.ToString());
+                        //    //byte[] byteArray = Convert.FromBase64String(retApi);
+                        //    byte[] byteArray = retApi;
+                        //    stream.Write(byteArray, 0, byteArray.Length);
+                        //    stream.Close();
+                        //    temp_printLabel.Add(path);
+                        //    temp_printLabel_split = temp_printLabel_split + path + ";";
 
-                            listSuccess.Add(new listSuccessPrintLabel()
-                            {
-                                no_referensi=so.no_bukti
-                            });
-                        }
+                        //    listSuccess.Add(new listSuccessPrintLabel()
+                        //    {
+                        //        no_referensi=so.no_bukti
+                        //    });
+                        //}
+                        if(retApi != null)
+                        {
+                            var pathLoc = UploadFileServices.UploadFile_PrintLabel(retApi, filename);
+                            temp_printLabel.Add(pathLoc);
+                            temp_printLabel_split = temp_printLabel_split + pathLoc + ";";
+                        }                        
                     }
                     else
                     {
@@ -51101,19 +51213,28 @@ namespace MasterOnline.Controllers
                                         #region initial folder
                                         string messageErrorLog = "";
                                         string filename = "BLIBLI_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
-                                        var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
+                                        //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
                                         #endregion
 
-                                        if (!System.IO.File.Exists(path))
+                                        //if (!System.IO.File.Exists(path))
+                                        //{
+                                        //    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
+                                        //    FileStream stream = System.IO.File.Create(path);
+                                        //    byte[] byteArray = Convert.FromBase64String(bookingAWB.value.document.ToString());
+                                        //    stream.Write(byteArray, 0, byteArray.Length);
+                                        //    stream.Close();
+                                        //    temp_printLabel.Add(path);
+                                        //    temp_printLabel_split = temp_printLabel_split + path + ";";
+                                        //}
+
+                                        byte[] byteArray = Convert.FromBase64String(bookingAWB.value.document.ToString());
+                                        if(byteArray != null)
                                         {
-                                            System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
-                                            FileStream stream = System.IO.File.Create(path);
-                                            byte[] byteArray = Convert.FromBase64String(bookingAWB.value.document.ToString());
-                                            stream.Write(byteArray, 0, byteArray.Length);
-                                            stream.Close();
-                                            temp_printLabel.Add(path);
-                                            temp_printLabel_split = temp_printLabel_split + path + ";";
+                                            var pathLoc = UploadFileServices.UploadFile_PrintLabel(byteArray, filename);
+                                            temp_printLabel.Add(pathLoc);
+                                            temp_printLabel_split = temp_printLabel_split + pathLoc + ";";
                                         }
+                                        
 
                                         listSuccess.Add(new listSuccessPrintLabel
                                         {
@@ -51272,18 +51393,26 @@ namespace MasterOnline.Controllers
                                         {
                                             #region initial folder
                                             string filename = "BLIBLI_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
-                                            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
+                                            //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
                                             #endregion
 
-                                            if (!System.IO.File.Exists(path))
+                                            //if (!System.IO.File.Exists(path))
+                                            //{
+                                            //    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
+                                            //    FileStream stream = System.IO.File.Create(path);
+                                            //    byte[] byteArray = Convert.FromBase64String(bookingAWB.value.document.ToString());
+                                            //    stream.Write(byteArray, 0, byteArray.Length);
+                                            //    stream.Close();
+                                            //    temp_printLabel.Add(path);
+                                            //    temp_printLabel_split = temp_printLabel_split + path + ";";
+                                            //}
+
+                                            byte[] byteArray = Convert.FromBase64String(bookingAWB.value.document.ToString());
+                                            if (byteArray != null)
                                             {
-                                                System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
-                                                FileStream stream = System.IO.File.Create(path);
-                                                byte[] byteArray = Convert.FromBase64String(bookingAWB.value.document.ToString());
-                                                stream.Write(byteArray, 0, byteArray.Length);
-                                                stream.Close();
-                                                temp_printLabel.Add(path);
-                                                temp_printLabel_split = temp_printLabel_split + path + ";";
+                                                var pathLoc = UploadFileServices.UploadFile_PrintLabel(byteArray, filename);
+                                                temp_printLabel.Add(pathLoc);
+                                                temp_printLabel_split = temp_printLabel_split + pathLoc + ";";
                                             }
 
                                             listSuccess.Add(new listSuccessPrintLabel
@@ -62295,20 +62424,29 @@ namespace MasterOnline.Controllers
 #region initial folder
                             string messageErrorLog = "";
                             string filename = "JDID_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
-                            var path = Path.Combine(IPServerLocation + @"Content\Uploaded\PrintLabel\", filename);
+                            //var path = Path.Combine(IPServerLocation + @"Content\Uploaded\PrintLabel\", filename);
                             #endregion
 
-                            if (!System.IO.File.Exists(path))
-                            {
-                                System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + @"Content\Uploaded\PrintLabel\", ""));
-                                FileStream stream = System.IO.File.Create(path);
-                                byte[] byteArray = Convert.FromBase64String(retApi.Result.ToString());
-                                stream.Write(byteArray, 0, byteArray.Length);
-                                stream.Close();
-                                temp_printLabel.Add(path);
-                                temp_printLabel_split = temp_printLabel_split + path + ";";
-                            }
+                            //if (!System.IO.File.Exists(path))
+                            //{
+                            //    System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + @"Content\Uploaded\PrintLabel\", ""));
+                            //    FileStream stream = System.IO.File.Create(path);
+                            //    byte[] byteArray = Convert.FromBase64String(retApi.Result.ToString());
+                            //    stream.Write(byteArray, 0, byteArray.Length);
+                            //    stream.Close();
+                            //    temp_printLabel.Add(path);
+                            //    temp_printLabel_split = temp_printLabel_split + path + ";";
+                            //}
 
+                            byte[] byteArray = Convert.FromBase64String(retApi.Result.ToString());
+                            if (byteArray != null)
+                            {
+                                var fileLocation = UploadFileServices.UploadFile_PrintLabel(byteArray, filename);
+                                //stream.Write(byteArray, 0, byteArray.Length);
+                                //stream.Close();
+                                temp_printLabel.Add(fileLocation);
+                                temp_printLabel_split = temp_printLabel_split + fileLocation + ";";
+                            }
                             //var sql = "update SOT01A set status_print = '1' where no_bukti in ('" + so.no_bukti + "')";
                             //ErasoftDbContext.Database.ExecuteSqlCommand(sql);
 
@@ -62420,7 +62558,7 @@ namespace MasterOnline.Controllers
                 iTextSharp.text.pdf.PdfImportedPage importedPage;
                 //string outputPdfPath = @"D:/newFile.pdf";
                 string filename = sMarket + "_printlabelresult_" + no_bukti + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
-                var path = Path.Combine(IPServerLocation + @"Content\Uploaded\PrintLabel\", filename);
+                var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
                 result = path;
 
                 sourceDocument = new iTextSharp.text.Document();
@@ -62443,6 +62581,12 @@ namespace MasterOnline.Controllers
                 }
 
                 sourceDocument.Close();
+
+                byte[] dataByteMerge = System.IO.File.ReadAllBytes(result);
+                if (dataByteMerge != null)
+                {
+                    result = UploadFileServices.UploadFile_PrintLabel(dataByteMerge, filename);
+                }
             }
 
 
@@ -62451,14 +62595,45 @@ namespace MasterOnline.Controllers
 
         private static int TotalPageCount(string file)
         {
-            using (StreamReader sr = new StreamReader(System.IO.File.OpenRead(file)))
-            {
-                Regex regex = new Regex(@"/Type\s*/Page[^s]");
-                MatchCollection matches = regex.Matches(sr.ReadToEnd());
+            byte[] imageData = null;
+            MemoryStream ms;
+            int total = 0;
 
-                return matches.Count;
+            ms = null;
+
+            try
+            {
+                using (var wc = new System.Net.WebClient())
+                {
+                    imageData = wc.DownloadData(file);
+                }
+                ms = new MemoryStream(imageData);
+
+                using (StreamReader sr = new StreamReader(ms))
+                {
+                    Regex regex = new Regex(@"/Type\s*/Page[^s]");
+                    MatchCollection matches = regex.Matches(sr.ReadToEnd());
+                    total = matches.Count;
+                }
             }
+            catch (Exception ex)
+            {
+                
+            }            
+
+            return total;
         }
+
+        //private static int TotalPageCount(string file)
+        //{
+        //    using (StreamReader sr = new StreamReader(System.IO.File.OpenRead(file)))
+        //    {
+        //        Regex regex = new Regex(@"/Type\s*/Page[^s]");
+        //        MatchCollection matches = regex.Matches(sr.ReadToEnd());
+
+        //        return matches.Count;
+        //    }
+        //}
         // end by fauzi for merge pdf //07/09/2020
 
         //add by fauzi

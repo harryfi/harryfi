@@ -15,6 +15,7 @@ namespace MasterOnline.Controllers
 {
     public class MidtransController : Controller
     {
+        public string IPServerLocation = @"\\172.31.20.73\MasterOnline\";
         //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
         public MoDbContext MoDbContext { get; set; }
         // GET: Midtrans
@@ -404,13 +405,15 @@ namespace MasterOnline.Controllers
                                         //end change 14 may 2019, move function to midtranscontroller
                                         if (retActivate.status == 0)
                                         {
-                                            string path = @"C:\logs\MidtransErrorLog.txt";
+                                            //string path = @"C:\logs\MidtransErrorLog.txt";
+                                            string path = IPServerLocation + @"logs\MidtransErrorLog.txt";
                                             if (!System.IO.File.Exists(path))
                                             {
+                                                System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + @"logs\", ""));
                                                 var createFile = System.IO.File.Create(path);
                                                 createFile.Close();
                                                 TextWriter tw = new StreamWriter(path);
-                                                tw.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " : " + retActivate.message);
+                                                tw.WriteLine(DateTime.Now.ToString("yyyy -MM-dd HH:mm:ss") + " : " + retActivate.message);
                                                 tw.Close();
                                             }
                                             else if (System.IO.File.Exists(path))
