@@ -21150,6 +21150,16 @@ namespace MasterOnline.Controllers
                     is_delete_faktur = true,
                     id_invoice = id_invoice
                 };
+
+                if (partnerDb.isPaid == true)
+                {
+                    acc.is_paid = true;
+                }
+                else
+                {
+                    acc.is_paid = false;
+                }
+
                 myData = Newtonsoft.Json.JsonConvert.SerializeObject(acc);
                 FakturAccurate(myData, "delete-invoice");
 
