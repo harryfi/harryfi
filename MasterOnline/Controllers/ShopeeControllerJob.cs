@@ -5205,7 +5205,7 @@ namespace MasterOnline.Controllers
         {
             SetupContext(iden);
             string ret = "";
-            var sSQL = "SELECT A.NO_PESANAN AS NOBUK, A.NO_REFERENSI AS NOREF FROM SOT01H A (NOLOCK) INNER JOIN SOT01A B (NOLOCK) ON A.NO_PESANAN=B.NO_BUKTI AND A.NO_REFERENSI=B.NO_REFERENSI AND A.CUST=B.CUST WHERE ISNULL(B.SHIPMENT,'')='' AND A.CUST='" + log_CUST + "'";
+            var sSQL = "SELECT A.NO_PESANAN AS NOBUK, A.NO_REFERENSI AS NOREF FROM SOT01H A (NOLOCK) INNER JOIN SOT01A B (NOLOCK) ON A.NO_PESANAN=B.NO_BUKTI AND A.NO_REFERENSI=B.NO_REFERENSI AND A.CUST=B.CUST WHERE ISNULL(B.SHIPMENT,'')='' AND A.CUST='" + log_CUST + "' AND STATUS_TRANSAKSI IN ('01','02','03','04')";
             var cekListPesananTanpaKurir = ErasoftDbContext.Database.SqlQuery<listUpdateOrder>(sSQL).ToList();
             if(cekListPesananTanpaKurir.Count() > 0)
             {
@@ -5333,7 +5333,9 @@ namespace MasterOnline.Controllers
                     {
                         try
                         {
-                            var listOnSOT01H = ErasoftDbContext.SOT01H.Where(a => updateKurirSuccess.Select(b => b.Noref).ToList().Contains(a.NO_REFERENSI) && updateKurirSuccess.Select(b => b.Nobuk).ToList().Contains(a.NO_PESANAN) && a.CUST == log_CUST).ToList();
+                            var listA = updateKurirSuccess.Select(b => b.Noref).ToList();
+                            var listB = updateKurirSuccess.Select(b => b.Nobuk).ToList();
+                            var listOnSOT01H = ErasoftDbContext.SOT01H.Where(a => listA.Contains(a.NO_REFERENSI) && listB.Contains(a.NO_PESANAN) && a.CUST == log_CUST).ToList();
                             ErasoftDbContext.SOT01H.RemoveRange(listOnSOT01H);
                             ErasoftDbContext.SaveChanges();
                         }
