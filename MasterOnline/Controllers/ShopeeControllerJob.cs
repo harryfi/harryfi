@@ -5311,11 +5311,17 @@ namespace MasterOnline.Controllers
                                     Nobuk = nobuk
                                 };
                                 updateKurirSuccess.Add(temp);
-                                var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.NO_REFERENSI == noref && p.NO_BUKTI == nobuk);
+                                var pesananInDb = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == noref && p.NO_BUKTI == nobuk).SingleOrDefault();
                                 if (pesananInDb != null)
                                 {
                                     pesananInDb.SHIPMENT = Kurir;
                                     pesananInDb.TRACKING_SHIPMENT = resi;
+                                    ErasoftDbContext.SaveChanges();
+                                }
+                                var fakturInDb = ErasoftDbContext.SIT01A.Where(p => p.NO_REF == noref && p.NO_SO == nobuk).FirstOrDefault();
+                                if(fakturInDb != null)
+                                {
+                                    fakturInDb.NAMAPENGIRIM = Kurir;
                                     ErasoftDbContext.SaveChanges();
                                 }
                             }
