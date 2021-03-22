@@ -67372,7 +67372,7 @@ namespace MasterOnline.Controllers
                         listNobukFaktur = listNobukFaktur.Substring(0, listNobukFaktur.Length - 2);
                         var listFakturArray = newFakturs.Select(a => a.NO_BUKTI).ToList();
                         Task.Run(() => UpdateBrutoPackingTransactionVersi2(listNobukFaktur, listRecnumEnd, listFakturArray).Wait());
-                        Task.Run(() => BulkAccurate(listNobukFaktur, listFakturArray).Wait());
+                        BulkAccurate(listNobukFaktur, listFakturArray);
                         #endregion
                     }
                     catch (Exception ex)
