@@ -67372,6 +67372,7 @@ namespace MasterOnline.Controllers
                         listNobukFaktur = listNobukFaktur.Substring(0, listNobukFaktur.Length - 2);
                         var listFakturArray = newFakturs.Select(a => a.NO_BUKTI).ToList();
                         Task.Run(() => UpdateBrutoPackingTransactionVersi2(listNobukFaktur, listRecnumEnd, listFakturArray).Wait());
+                        Task.Run(() => BulkAccurate(listNobukFaktur, listFakturArray).Wait());
                         #endregion
                     }
                     catch (Exception ex)
@@ -67479,6 +67480,152 @@ namespace MasterOnline.Controllers
             return new EmptyResult();
         }
         //end add by nurul 21/11/2020
+
+        //add by ibrahim 22/3/2021
+        public async Task<string> BulkAccurate(string listFaktur, List<string> listFakturArray)
+        {
+            //api_baim
+            var partnerDb = ErasoftDbContext.PARTNER_API.Single(p => p.fs_id == 1);
+            string invoiceJson = "";
+            string tempJson = "";
+            string comma = "";
+            string invoiceCust = "{\"listCustomerNo\":[";
+            string tempCust = "";
+            string commaCust = "";
+            string invoiceReceipt = "";
+            string tempReceipt = "";
+            string commaReceipt = "";
+            double totalPaymentAmount = 0;
+            ////////////////////
+            //api_baim
+            var custList = new customerList();
+            custList.listCustomerNo = new List<listCustomer>();
+
+            //List<SIT01A> newFakturs = new List<SIT01A>();
+            //List<SIT01B> newFaktursDetails = new List<SIT01B>();
+
+            //api_baim
+            //var newSIT01A = new SIT01A();
+
+            var sit01a = ErasoftDbContext.Database.SqlQuery<SIT01A>("SELECT * FROM SIT01A WHERE NO_BUKTI IN (" + listFaktur + ")").ToList();
+            foreach (var newSIT01A in sit01a)
+            {
+                var dataInvoice = new Datum();
+                dataInvoice.customerNo = ErasoftDbContext.ARF01C.Single(a => a.BUYER_CODE == newSIT01A.PEMESAN).TLP; //newSIT01A.CUST; //NAMAPEMESAN
+                dataInvoice.number = newSIT01A.NO_BUKTI;
+                dataInvoice.transDate = newSIT01A.TGL.ToString("dd/MM/yyyy");
+                dataInvoice.detailItem = new List<itemDetail>();
+                dataInvoice.branchId = ErasoftDbContext.ARF01.Single(p => p.CUST == newSIT01A.CUST).BRANCH_ID_ACCURATE;
+                dataInvoice.branchName = ErasoftDbContext.ARF01.Single(p => p.CUST == newSIT01A.CUST).BRANCH_NAME_ACCURATE;
+
+                //ErasoftDbContext.Database.SqlQuery<string>(@"SELECT TOP 1 m.NamaMarket + ' - ' + a.PERSO [NamaPelanggan] " +
+                //                        "FROM [SIT01A] s LEFT JOIN[ARF01] a on s.cust = a.cust LEFT JOIN MO..Marketplace m on a.NAMA = m.IdMarket " +
+                //                        "WHERE s.CUST = '" + newSIT01A.CUST + "'").Single();
+
+                var listCust = new listCustomer();
+                listCust.custNo = ErasoftDbContext.ARF01C.Single(a => a.BUYER_CODE == newSIT01A.PEMESAN).TLP;
+                listCust.custName = newSIT01A.NAMAPEMESAN;
+                custList.listCustomerNo.Add(listCust);
+
+                var sit01b = ErasoftDbContext.Database.SqlQuery<SIT01B>("SELECT * FROM SIT01B WHERE NO_BUKTI = '" + newSIT01A.NO_BUKTI + "'").ToList();
+                foreach (var newSIT01B in sit01b)
+                {
+                    var item_invoice = new itemDetail();
+                    item_invoice.itemNo = newSIT01B.BRG;
+                    item_invoice.quantity = Convert.ToInt32(newSIT01B.QTY);
+                    item_invoice.unitPrice = Convert.ToInt32(newSIT01B.H_SATUAN);
+                    item_invoice.itemCashDiscount = Convert.ToInt32(newSIT01B.NILAI_DISC);
+                    dataInvoice.detailItem.Add(item_invoice);
+                    totalPaymentAmount += item_invoice.quantity * item_invoice.unitPrice - item_invoice.itemCashDiscount;
+                }
+
+                //api_baim
+                var dataReceipt = new Datumm();
+                dataReceipt.branchId = ErasoftDbContext.ARF01.Single(p => p.CUST == newSIT01A.CUST).BRANCH_ID_ACCURATE;
+                dataReceipt.bankNo = ErasoftDbContext.ARF01.Single(p => p.CUST == newSIT01A.CUST).BANK_NO_ACCURATE;
+                dataReceipt.customerNo = dataInvoice.customerNo;
+                dataReceipt.transDate = dataInvoice.transDate;
+                dataReceipt.chequeAmount = totalPaymentAmount;
+                dataReceipt.detailInvoice = new List<Invoicedetail>();
+
+                var detailReceipt = new Invoicedetail();
+                detailReceipt.invoiceNo = dataInvoice.number;
+                detailReceipt.paymentAmount = totalPaymentAmount;
+                dataReceipt.detailInvoice.Add(detailReceipt);
+
+                tempReceipt = Newtonsoft.Json.JsonConvert.SerializeObject(dataReceipt);
+                commaReceipt = sit01a.IndexOf(newSIT01A) == sit01a.Count() - 1 ? "" : ",";
+                invoiceReceipt += tempReceipt + commaReceipt;
+                tempReceipt = "";
+
+                //api_baim
+                tempJson = Newtonsoft.Json.JsonConvert.SerializeObject(dataInvoice);
+                comma = sit01a.IndexOf(newSIT01A) == sit01a.Count() - 1 ? "" : ",";
+                invoiceJson += tempJson + comma;
+                tempJson = "";
+            }
+            /////////////
+            //api_baim
+            //List<string> listBrg = new List<string>();
+            //var listSIT01B = new List<SIT01B>();
+            //foreach (var pesananDetail in listBarangPesananInDb)
+            //{
+            //    var newSIT01B = new SIT01B();
+
+
+            ///
+
+            var custDist = custList.listCustomerNo.Select(s => new { s.custNo, s.custName }).Distinct().ToList();
+            foreach (var c in custDist)
+            {
+                tempCust = Newtonsoft.Json.JsonConvert.SerializeObject(c);
+                commaCust = custDist.IndexOf(c) == custDist.Count() - 1 ? "]}" : ",";
+                invoiceCust += tempCust + commaCust;
+                tempCust = "";
+            }
+
+            string email_to_accurate = MoDbContext.Account.Single(a => a.Username == usernameLogin).Email;
+            string access_token = partnerDb.Access_Token;
+            string session = partnerDb.Session;
+            string host = partnerDb.Host;
+
+            //api_baim
+            if (partnerDb.Status == true && partnerDb.isPaid == false)
+            {
+                var acc = new AccInvoice()
+                {
+                    email = email_to_accurate,
+                    access_token = access_token,
+                    session = session,
+                    host = host,
+                    is_delete_faktur = false,
+                    is_delete_item = false,
+                    bulk = invoiceJson,
+                    bulk_cust = invoiceCust
+                };
+                string myData = Newtonsoft.Json.JsonConvert.SerializeObject(acc);
+                FakturAccurate(myData, "insert-bulk");
+            }
+            else if (partnerDb.Status == true && partnerDb.isPaid == true)
+            {
+                var acc = new AccInvoice()
+                {
+                    email = email_to_accurate,
+                    access_token = access_token,
+                    session = session,
+                    host = host,
+                    is_delete_faktur = false,
+                    is_delete_item = false,
+                    bulk = invoiceJson,
+                    bulk_cust = invoiceCust,
+                    bulk_receipt = invoiceReceipt
+                };
+                string myData = Newtonsoft.Json.JsonConvert.SerializeObject(acc);
+                FakturAccurate(myData, "receipt-bulk");
+            }
+            return "OK";
+        }
+        //end add by nurul 22/3/2021
 
         //add by nurul 4/1/2021
         public ActionResult prosesAkhirTahunGL(string Tahun)
