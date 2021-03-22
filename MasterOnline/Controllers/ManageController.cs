@@ -49472,10 +49472,11 @@ namespace MasterOnline.Controllers
                     };
                     var sqlStorage = new SqlServerStorage(EDBConnID);
                     var clientJobServer = new BackgroundJobClient(sqlStorage);
+                    var listNoref = listOrder.Select(a => a.Noref).ToArray();
 #if (DEBUG || Debug_AWS)
-                    Task.Run(() => new ShopeeControllerJob().updateKurirShopee(dbPathEra, "Kurir", marketPlace.CUST, "Pesanan", "Update Kurir", iden, listOrder.Select(a => a.Noref).ToArray(), listOrder)).Wait();
+                    Task.Run(() => new ShopeeControllerJob().updateKurirShopee(dbPathEra, "Kurir", marketPlace.CUST, "Pesanan", "Update Kurir", iden, listNoref, listOrder, "2")).Wait();
 #else
-                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir", marketPlace.CUST, "Pesanan", "Update Kurir", iden, listOrder.Select(a => a.Noref).ToArray(), listOrder));
+                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir", marketPlace.CUST, "Pesanan", "Update Kurir", iden, listNoref, listOrder, "2"));
 #endif
                 }
                 //end add by nurul 19/3/2021
@@ -49724,10 +49725,11 @@ namespace MasterOnline.Controllers
                     };
                     var sqlStorage = new SqlServerStorage(EDBConnID);
                     var clientJobServer = new BackgroundJobClient(sqlStorage);
+                    var listNoref = listOrder.Select(a => a.Noref).ToArray();
 #if (DEBUG || Debug_AWS)
-                    Task.Run(() => new ShopeeControllerJob().updateKurirShopee(dbPathEra, "Kurir", marketPlace.CUST, "Pesanan", "Update Kurir", iden, listOrder.Select(a => a.Noref).ToArray(), listOrder)).Wait();
+                    Task.Run(() => new ShopeeControllerJob().updateKurirShopee(dbPathEra, "Kurir", marketPlace.CUST, "Pesanan", "Update Kurir", iden, listNoref, listOrder, "2")).Wait();
 #else
-                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir", marketPlace.CUST, "Pesanan", "Update Kurir", iden, listOrder.Select(a => a.Noref).ToArray(), listOrder));
+                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir", marketPlace.CUST, "Pesanan", "Update Kurir", iden, listNoref, listOrder, "2"));
 #endif
                 }
                 //end add by nurul 19/3/2021

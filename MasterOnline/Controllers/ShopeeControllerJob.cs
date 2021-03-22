@@ -5201,7 +5201,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 1)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Update Kurir Pesanan {obj} Shopee Gagal.")]
-        public async Task<string> callUpdateKurirShopee(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden)
+        public async Task<string> selectKurirNullShopee(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden)
         {
             SetupContext(iden);
             string ret = "";
@@ -5223,9 +5223,9 @@ namespace MasterOnline.Controllers
                         var sqlStorage = new SqlServerStorage(EDBConnID);
                         var client = new BackgroundJobClient(sqlStorage);
 #if (DEBUG || Debug_AWS)
-                        await updateKurirShopee(dbPathEra, namaPemesan, log_CUST, "Pesanan", "Update Kurir", iden, listTemptNoref, listTempPesanan);
+                        await updateKurirShopee(dbPathEra, namaPemesan, log_CUST, "Pesanan", "Update Kurir", iden, listTemptNoref, listTempPesanan, "1");
 #else
-                        client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, namaPemesan, log_CUST, "Pesanan", "Update Kurir", iden, listTemptNoref, listTempPesanan));
+                        client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, namaPemesan, log_CUST, "Pesanan", "Update Kurir", iden, listTemptNoref, listTempPesanan, "1"));
 #endif
                         hitungPesanan = hitungPesanan - listOrder.Count();
                         listOrder.Clear();
@@ -5238,7 +5238,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 1)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Update Kurir Pesanan {obj} Shopee Gagal.")]
-        public async Task<string> updateKurirShopee(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string[] ordersn_list, List<listUpdateOrder> listPesanan)
+        public async Task<string> updateKurirShopee(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string[] ordersn_list, List<listUpdateOrder> listPesanan, string type)
         {
             SetupContext(iden);
             int MOPartnerID = 841371;
@@ -5311,18 +5311,21 @@ namespace MasterOnline.Controllers
                                     Nobuk = nobuk
                                 };
                                 updateKurirSuccess.Add(temp);
-                                var pesananInDb = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == noref && p.NO_BUKTI == nobuk).SingleOrDefault();
+                                var pesananInDb = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == noref && p.NO_BUKTI == nobuk && p.CUST == log_CUST).FirstOrDefault();
                                 if (pesananInDb != null)
                                 {
                                     pesananInDb.SHIPMENT = Kurir;
                                     pesananInDb.TRACKING_SHIPMENT = resi;
                                     ErasoftDbContext.SaveChanges();
                                 }
-                                var fakturInDb = ErasoftDbContext.SIT01A.Where(p => p.NO_REF == noref && p.NO_SO == nobuk).FirstOrDefault();
-                                if(fakturInDb != null)
+                                if (type == "2")
                                 {
-                                    fakturInDb.NAMAPENGIRIM = Kurir;
-                                    ErasoftDbContext.SaveChanges();
+                                    var fakturInDb = ErasoftDbContext.SIT01A.Where(p => p.NO_REF == noref && p.NO_SO == nobuk && p.CUST == log_CUST).FirstOrDefault();
+                                    if (fakturInDb != null)
+                                    {
+                                        fakturInDb.NAMAPENGIRIM = Kurir;
+                                        ErasoftDbContext.SaveChanges();
+                                    }
                                 }
                             }
                             catch (Exception ex)
