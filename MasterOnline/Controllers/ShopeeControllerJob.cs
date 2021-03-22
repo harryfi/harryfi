@@ -5213,7 +5213,7 @@ namespace MasterOnline.Controllers
                 var listOrder = new List<listUpdateOrder>();
                 foreach (var order in cekListPesananTanpaKurir)
                 {
-                    hitungPesanan = hitungPesanan + 1;
+                    //hitungPesanan = hitungPesanan + 1;
                     listOrder.Add(order);
                     if (listOrder.Count() == 50 || hitungPesanan == listOrder.Count())
                     {
