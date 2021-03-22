@@ -49319,7 +49319,6 @@ namespace MasterOnline.Controllers
 
                 var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
                 var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == cust);
-
                 foreach (var so in ListStt01a)
                 {
                     if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
@@ -49456,6 +49455,30 @@ namespace MasterOnline.Controllers
                         });
                     }
                 }
+
+                //add by nurul 19/3/2021
+                if(listSuccess.Count() > 0)
+                {
+                    List<ShopeeControllerJob.listUpdateOrder> listOrder = new List<ShopeeControllerJob.listUpdateOrder>();
+                    //listOrder = ListStt01a.Where(a => listSuccess.Select(b => b.no_referensi).ToList().Contains(a.no_referensi)).
+                    listOrder = (from p in ListStt01a
+                                 where listSuccess.Select(b => b.no_referensi).ToList().Contains(p.no_referensi)
+                                 select new ShopeeControllerJob.listUpdateOrder { Noref = p.no_referensi, Nobuk = p.no_bukti }).ToList();
+                    ShopeeControllerJob.ShopeeAPIData iden = new ShopeeControllerJob.ShopeeAPIData()
+                    {
+                        merchant_code = marketPlace.Sort1_Cust,
+                        DatabasePathErasoft = dbPathEra,
+                        username = usernameLogin
+                    };
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+#if (DEBUG || Debug_AWS)
+                    Task.Run(() => new ShopeeControllerJob().updateKurirShopee(dbPathEra, "Kurir", marketPlace.CUST, "Pesanan", "Update Kurir", iden, listOrder.Select(a => a.Noref).ToArray(), listOrder)).Wait();
+#else
+                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir", marketPlace.CUST, "Pesanan", "Update Kurir", iden, listOrder.Select(a => a.Noref).ToArray(), listOrder));
+#endif
+                }
+                //end add by nurul 19/3/2021
 
                 var successCount = listSuccess.Count();
                 return new JsonResult { Data = new { listErrors, listSuccess, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
@@ -49684,6 +49707,30 @@ namespace MasterOnline.Controllers
                         });
                     }
                 }
+
+                //add by nurul 19/3/2021
+                if (listSuccess.Count() > 0)
+                {
+                    List<ShopeeControllerJob.listUpdateOrder> listOrder = new List<ShopeeControllerJob.listUpdateOrder>();
+                    //listOrder = ListStt01a.Where(a => listSuccess.Select(b => b.no_referensi).ToList().Contains(a.no_referensi)).
+                    listOrder = (from p in ListStt01a
+                                 where listSuccess.Select(b => b.no_referensi).ToList().Contains(p.no_referensi)
+                                 select new ShopeeControllerJob.listUpdateOrder { Noref = p.no_referensi, Nobuk = p.no_bukti }).ToList();
+                    ShopeeControllerJob.ShopeeAPIData iden = new ShopeeControllerJob.ShopeeAPIData()
+                    {
+                        merchant_code = marketPlace.Sort1_Cust,
+                        DatabasePathErasoft = dbPathEra,
+                        username = usernameLogin
+                    };
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+#if (DEBUG || Debug_AWS)
+                    Task.Run(() => new ShopeeControllerJob().updateKurirShopee(dbPathEra, "Kurir", marketPlace.CUST, "Pesanan", "Update Kurir", iden, listOrder.Select(a => a.Noref).ToArray(), listOrder)).Wait();
+#else
+                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir", marketPlace.CUST, "Pesanan", "Update Kurir", iden, listOrder.Select(a => a.Noref).ToArray(), listOrder));
+#endif
+                }
+                //end add by nurul 19/3/2021
 
                 var successCount = listSuccess.Count();
                 return new JsonResult { Data = new { listErrors, listSuccess, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };

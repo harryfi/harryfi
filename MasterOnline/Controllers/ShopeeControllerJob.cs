@@ -3654,6 +3654,13 @@ namespace MasterOnline.Controllers
                         {
                             NAMA_CUST = NAMA_CUST.Substring(0, 50);
                         }
+                        //add by nurul 22/3/2021
+                        string checkout_shipping_carrier = !string.IsNullOrEmpty(order.checkout_shipping_carrier) ? order.checkout_shipping_carrier.Replace('\'', '`') : "";
+                        if (checkout_shipping_carrier.Length > 300)
+                        {
+                            checkout_shipping_carrier = checkout_shipping_carrier.Substring(0, 300);
+                        }
+                        //end add by nurul 22/3/2021
                         #endregion
                         TEMP_SHOPEE_ORDERS newOrder = new TEMP_SHOPEE_ORDERS()
                         {
@@ -3694,7 +3701,10 @@ namespace MasterOnline.Controllers
                             update_time = DateTimeOffset.FromUnixTimeSeconds(order.update_time).UtcDateTime,
                             CONN_ID = connID,
                             CUST = CUST,
-                            NAMA_CUST = NAMA_CUST
+                            NAMA_CUST = NAMA_CUST,
+                            //add by nurul 22/3/2021
+                            checkout_shipping_carrier = checkout_shipping_carrier
+                            //end add by nurul 22/3/2021
                         };
                         //add 27 okt 2020, expired shipping date
                         newOrder.ship_by_date = null ;
@@ -5181,6 +5191,162 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+
+        //add by nurul 19/3/2021, update kurir
+        public class listUpdateOrder
+        {
+            public string Noref { get; set; }
+            public string Nobuk { get; set; }
+        }
+        [AutomaticRetry(Attempts = 1)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Update Kurir Pesanan {obj} Shopee Gagal.")]
+        public async Task<string> callUpdateKurirShopee(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden)
+        {
+            SetupContext(iden);
+            string ret = "";
+            var sSQL = "SELECT A.NO_PESANAN AS NOBUK, A.NO_REFERENSI AS NOREF FROM SOT01H A (NOLOCK) INNER JOIN SOT01A B (NOLOCK) ON A.NO_PESANAN=B.NO_BUKTI AND A.NO_REFERENSI=B.NO_REFERENSI AND A.CUST=B.CUST WHERE ISNULL(B.SHIPMENT,'')='' AND A.CUST='" + log_CUST + "'";
+            var cekListPesananTanpaKurir = ErasoftDbContext.Database.SqlQuery<listUpdateOrder>(sSQL).ToList();
+            if(cekListPesananTanpaKurir.Count() > 0)
+            {
+                int hitungPesanan = cekListPesananTanpaKurir.Count();
+                var listOrder = new List<listUpdateOrder>();
+                foreach (var order in cekListPesananTanpaKurir)
+                {
+                    hitungPesanan = hitungPesanan + 1;
+                    listOrder.Add(order);
+                    if (listOrder.Count() == 50 || hitungPesanan == listOrder.Count())
+                    {
+                        var listTemptNoref = listOrder.Select(a => a.Noref).ToArray();
+                        var listTempPesanan = listOrder;
+                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                        var sqlStorage = new SqlServerStorage(EDBConnID);
+                        var client = new BackgroundJobClient(sqlStorage);
+#if (DEBUG || Debug_AWS)
+                        await updateKurirShopee(dbPathEra, namaPemesan, log_CUST, "Pesanan", "Update Kurir", iden, listTemptNoref, listTempPesanan);
+#else
+                        client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, namaPemesan, log_CUST, "Pesanan", "Update Kurir", iden, listTemptNoref, listTempPesanan));
+#endif
+                        hitungPesanan = hitungPesanan - listOrder.Count();
+                        listOrder.Clear();
+                    }
+                }
+            }
+            return ret;
+        }
+
+        [AutomaticRetry(Attempts = 1)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Update Kurir Pesanan {obj} Shopee Gagal.")]
+        public async Task<string> updateKurirShopee(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string[] ordersn_list, List<listUpdateOrder> listPesanan)
+        {
+            SetupContext(iden);
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            string ret = "";
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/orders/detail";
+
+            GetOrderDetailsData HttpBody = new GetOrderDetailsData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                ordersn_list = ordersn_list
+                //ordersn_list = ordersn_list_test.ToArray()
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+
+            if (responseFromServer != "")
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderDetailsResult)) as ShopeeGetOrderDetailsResult;
+                List<listUpdateOrder> updateKurirSuccess = new List<listUpdateOrder>();
+                if (result.orders.Count() > 0)
+                {
+                    foreach (var order in result.orders)
+                    {
+                        if (order.shipping_carrier != null && order.shipping_carrier != "")
+                        {
+                            try
+                            {
+                                var Kurir = order.shipping_carrier;
+                                var tipe_pengiriman = order.checkout_shipping_carrier;
+                                var resi = "";
+                                if (order.tracking_no != null && order.tracking_no != "")
+                                {
+                                    resi = order.tracking_no;
+                                }
+                                var noref = order.ordersn;
+                                var nobuk = listPesanan.Where(a => a.Noref == noref).Select(a => a.Nobuk).FirstOrDefault();
+                                var temp = new listUpdateOrder()
+                                {
+                                    Noref = noref,
+                                    Nobuk = nobuk
+                                };
+                                updateKurirSuccess.Add(temp);
+                                var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.NO_REFERENSI == noref && p.NO_BUKTI == nobuk);
+                                if (pesananInDb != null)
+                                {
+                                    pesananInDb.SHIPMENT = Kurir;
+                                    pesananInDb.TRACKING_SHIPMENT = resi;
+                                    ErasoftDbContext.SaveChanges();
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        else
+                        {
+                            //throw new Exception("Update Kurir Gagal. Kurir Null.");
+                        }
+                    }
+                    if (updateKurirSuccess.Count() > 0)
+                    {
+                        try
+                        {
+                            var listOnSOT01H = ErasoftDbContext.SOT01H.Where(a => updateKurirSuccess.Select(b => b.Noref).ToList().Contains(a.NO_REFERENSI) && updateKurirSuccess.Select(b => b.Nobuk).ToList().Contains(a.NO_PESANAN) && a.CUST == log_CUST).ToList();
+                            ErasoftDbContext.SOT01H.RemoveRange(listOnSOT01H);
+                            ErasoftDbContext.SaveChanges();
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                    }
+                }
+            }
+            return ret;
+        }
+        //end add by nurul 19/3/2021, update kurir
 
         public async Task<string> UpdateStock(ShopeeAPIData iden, string brg_mp, int qty)
         {
@@ -9311,6 +9477,7 @@ namespace MasterOnline.Controllers
             public string cancel_reason { get; set; }//add by Tri 9 Des 2019
             public long ship_by_date { get; set; }//add by Tri 27 okt 2020
             public bool is_actual_shipping_fee_confirmed { get; set; }
+            public string checkout_shipping_carrier { get; set; } //add by nurul 19/3/2021
         }
 
         public class ShopeeGetOrderDetailsResultRecipient_Address
