@@ -37154,8 +37154,8 @@ namespace MasterOnline.Controllers
                     if (fExt[fExt.Length - 1] == "csv")
                     {
                         string namaFile = dbPathEra + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmssffff") + ".csv";
-                        System.IO.File.WriteAllBytes(Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile), dataByte);
-                        using (var sr = new StreamReader(Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile)))
+                        System.IO.File.WriteAllBytes(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile), dataByte);
+                        using (var sr = new StreamReader(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile)))
                         {
                             var reader = new CsvReader(sr);
                             reader.Configuration.Delimiter = ";";
