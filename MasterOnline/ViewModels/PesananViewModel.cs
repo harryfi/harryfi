@@ -70,6 +70,10 @@ namespace MasterOnline.ViewModels
         public List<listKomponenBundling> listKomponen { get; set; } = new List<listKomponenBundling>();
         public bool notfoundBundling { get; set; }
         //end add by nurul 20/10/2020
+
+        //ADD BY NURUL 23/3/2021
+        public bool prosesUpdateKurirShopee { get; set; }
+        //END ADD BY NURUL 23/3/2021
     }
 
     //add by nurul 24/3/2020

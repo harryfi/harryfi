@@ -5197,6 +5197,7 @@ namespace MasterOnline.Controllers
         {
             public string Noref { get; set; }
             public string Nobuk { get; set; }
+            //public string Kurir { get; set; }
         }
         [AutomaticRetry(Attempts = 1)]
         [Queue("1_manage_pesanan")]
@@ -5310,21 +5311,64 @@ namespace MasterOnline.Controllers
                                     Noref = noref,
                                     Nobuk = nobuk
                                 };
-                                updateKurirSuccess.Add(temp);
+                                
                                 var pesananInDb = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == noref && p.NO_BUKTI == nobuk && p.CUST == log_CUST).FirstOrDefault();
                                 if (pesananInDb != null)
                                 {
-                                    pesananInDb.SHIPMENT = Kurir;
-                                    pesananInDb.TRACKING_SHIPMENT = resi;
-                                    ErasoftDbContext.SaveChanges();
-                                }
-                                if (type == "2")
-                                {
-                                    var fakturInDb = ErasoftDbContext.SIT01A.Where(p => p.NO_REF == noref && p.NO_SO == nobuk && p.CUST == log_CUST).FirstOrDefault();
-                                    if (fakturInDb != null)
+                                    if (type == "1")
                                     {
-                                        fakturInDb.NAMAPENGIRIM = Kurir;
-                                        ErasoftDbContext.SaveChanges();
+                                        try
+                                        {
+                                            pesananInDb.SHIPMENT = Kurir;
+                                            if (!string.IsNullOrEmpty(resi))
+                                            {
+                                                pesananInDb.TRACKING_SHIPMENT = resi;
+                                            }
+                                            ErasoftDbContext.SaveChanges();
+                                            updateKurirSuccess.Add(temp);
+                                        }
+                                        catch
+                                        {
+
+                                        }
+                                    }
+                                    else 
+                                    {
+                                        if (pesananInDb.SHIPMENT != Kurir)
+                                        {
+                                            try
+                                            {
+                                                pesananInDb.SHIPMENT = Kurir;
+                                                if (!string.IsNullOrEmpty(resi))
+                                                {
+                                                    pesananInDb.TRACKING_SHIPMENT = resi;
+                                                }
+                                                ErasoftDbContext.SaveChanges();
+                                                updateKurirSuccess.Add(temp);
+                                            }
+                                            catch
+                                            {
+
+                                            }
+                                            if (type == "2")
+                                            {
+                                                try
+                                                {
+                                                    var sSQL = "UPDATE SIT01A SET NAMAPENGIRIM='" + Kurir + "' where NO_REF='" + noref + "' and NO_SO='" + nobuk + "' and CUST='" + log_CUST + "'";
+                                                    ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                                                    //var fakturInDb = ErasoftDbContext.SIT01A.Where(p => p.NO_REF == noref && p.NO_SO == nobuk && p.CUST == log_CUST).FirstOrDefault();
+                                                    //if (fakturInDb != null)
+                                                    //{
+                                                    //    fakturInDb.NAMAPENGIRIM = Kurir;
+                                                    //    ErasoftDbContext.SaveChanges();
+                                                    //}
+                                                }
+                                                catch
+                                                {
+
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
