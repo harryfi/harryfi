@@ -870,7 +870,7 @@ namespace MasterOnline.Controllers
                 sSQL += "	FROM            SOT01A A(NOLOCK) INNER JOIN ";
                 sSQL += "		SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN ";
                 sSQL += "		SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO ";
-                sSQL += "	WHERE        A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
+                sSQL += "	WHERE        A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04', '12') AND ISNULL(C.NO_BUKTI, '') = '' ";
                 sSQL += "	GROUP BY B.BRG)A ";
                 sSQL += "GROUP BY BRG ";
                 sSQL += ")A ";
@@ -24349,7 +24349,7 @@ namespace MasterOnline.Controllers
             sSQL += "FROM STF08A A(NOLOCK) LEFT JOIN STF18 B(NOLOCK) ON A.GD = B.Kode_Gudang WHERE A.TAHUN=" + DateTime.UtcNow.AddHours(7).ToString("yyyy") + " AND A.BRG IN ('" + brg + "') AND ISNULL(A.GD,'') <> '' AND ISNULL(B.Kode_Gudang,'') <> '' GROUP BY A.BRG, A.GD, B.Nama_Gudang";
             var ListQOHPerGD = ErasoftDbContext.Database.SqlQuery<QOH_PER_GD>(sSQL).ToList();
             //end add by calvin 27 nov 2018, munculkan QOH di combobox gudang
-            sSQL = "SELECT BRG,GD = B.LOKASI, QSO = ISNULL(SUM(ISNULL(QTY,0)),0) FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')  AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG IN ('" + brg + "') AND A.NO_BUKTI <> '" + noBuk + "' GROUP BY BRG, B.LOKASI";
+            sSQL = "SELECT BRG,GD = B.LOKASI, QSO = ISNULL(SUM(ISNULL(QTY,0)),0) FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04', '12')  AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG IN ('" + brg + "') AND A.NO_BUKTI <> '" + noBuk + "' GROUP BY BRG, B.LOKASI";
             var ListQOOPerBRG = ErasoftDbContext.Database.SqlQuery<QOO_PER_BRG>(sSQL).ToList();
             //add by nurul 11/3/2019
             var cekgudang = ErasoftDbContext.STF18.AsNoTracking().Where(a => a.Kode_Gudang == ErasoftDbContext.SIFSYS.FirstOrDefault().GUDANG).ToList();
@@ -30077,8 +30077,8 @@ namespace MasterOnline.Controllers
                 string sSQL = "select A.BRG, A.GD, A.Nama_Gudang, A.QOH,A.QSO,A.QOO, SUM( CASE WHEN A.GD='" + gudang + "' THEN ISNULL((A.QOH - A.QSO),0) WHEN A.QSO > 0 THEN ISNULL((A.QOH - A.QOO),0) ELSE A.QOH END) AS SISA from ( ";
                 sSQL += "SELECT A.BRG, A.GD, B.Nama_Gudang, QOH = ISNULL(SUM(QAWAL+(QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12)-(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12)),0) , ISNULL(C.QSO,0) AS QSO, ISNULL(D.QSO,0) AS QOO ";
                 sSQL += "FROM STF08A A LEFT JOIN STF18 B ON A.GD = B.Kode_Gudang ";
-                sSQL += "LEFT JOIN (SELECT BRG, QSO = ISNULL(SUM(ISNULL(QTY,0)),0) FROM SOT01A(NOLOCK) A INNER JOIN SOT01B(NOLOCK) B ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A(NOLOCK) C ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')  AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG IN ('" + brgId + "') AND ISNULL(B.LOKASI,'') = '' GROUP BY BRG) C ON A.BRG=C.BRG ";
-                sSQL += "LEFT JOIN (SELECT BRG, GD=B.LOKASI, QSO = ISNULL(SUM(ISNULL(QTY,0)),0) FROM SOT01A(NOLOCK) A INNER JOIN SOT01B(NOLOCK) B ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A(NOLOCK) D ON A.NO_BUKTI = D.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')  AND ISNULL(D.NO_BUKTI,'') = '' AND B.BRG IN ('" + brgId + "') GROUP BY BRG, B.LOKASI) D ON A.BRG=D.BRG AND D.GD=A.GD ";
+                sSQL += "LEFT JOIN (SELECT BRG, QSO = ISNULL(SUM(ISNULL(QTY,0)),0) FROM SOT01A(NOLOCK) A INNER JOIN SOT01B(NOLOCK) B ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A(NOLOCK) C ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04', '12')  AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG IN ('" + brgId + "') AND ISNULL(B.LOKASI,'') = '' GROUP BY BRG) C ON A.BRG=C.BRG ";
+                sSQL += "LEFT JOIN (SELECT BRG, GD=B.LOKASI, QSO = ISNULL(SUM(ISNULL(QTY,0)),0) FROM SOT01A(NOLOCK) A INNER JOIN SOT01B(NOLOCK) B ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A(NOLOCK) D ON A.NO_BUKTI = D.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04', '12')  AND ISNULL(D.NO_BUKTI,'') = '' AND B.BRG IN ('" + brgId + "') GROUP BY BRG, B.LOKASI) D ON A.BRG=D.BRG AND D.GD=A.GD ";
                 sSQL += "WHERE A.TAHUN=" + DateTime.Now.ToString("yyyy") + " AND A.BRG IN ('" + brgId + "') GROUP BY A.BRG, A.GD, B.Nama_Gudang, C.QSO, D.QSO ";
                 sSQL += ")A GROUP BY BRG,A.GD, A.Nama_Gudang,A.QOH,A.QSO,A.QOO ";
 
@@ -45070,7 +45070,7 @@ namespace MasterOnline.Controllers
 
             //ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
 
-            double qtySO = ErasoftDbContext.Database.SqlQuery<double>("SELECT ISNULL(SUM(ISNULL(QTY,0)),0) QSO FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B (NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C (NOLOCK) ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND B.LOKASI = CASE '" + Gudang + "' WHEN 'ALL' THEN B.LOKASI ELSE '" + Gudang + "' END AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG = '" + Barang + "'").FirstOrDefault();
+            double qtySO = ErasoftDbContext.Database.SqlQuery<double>("SELECT ISNULL(SUM(ISNULL(QTY,0)),0) QSO FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B (NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C (NOLOCK) ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04', '12') AND B.LOKASI = CASE '" + Gudang + "' WHEN 'ALL' THEN B.LOKASI ELSE '" + Gudang + "' END AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG = '" + Barang + "'").FirstOrDefault();
             qtyOnHand = qtyOnHand - qtySO;
             return qtyOnHand;
         }
