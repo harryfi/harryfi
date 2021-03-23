@@ -68463,11 +68463,10 @@ namespace MasterOnline.Controllers
                                     };
                                     var sqlStorage = new SqlServerStorage(EDBConnID);
                                     var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                    var listNoref = listOrder.Select(a => a.Noref).ToArray();
 #if (DEBUG || Debug_AWS)
                                     Task.Run(() => new ShopeeControllerJob().updateKurirShopee(dbPathEra, "Kurir", cust.CUST, "Pesanan", "Update Kurir", iden, listTemptNoref, listTempPesanan, "1")).Wait();
 #else
-                                client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir", cust.CUST, "Pesanan", "Update Kurir", iden, listTemptNoref, listTempPesanan, "1"));
+                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir", cust.CUST, "Pesanan", "Update Kurir", iden, listTemptNoref, listTempPesanan, "1"));
 #endif
                                     hitungPesanan = hitungPesanan - listOrder.Count();
                                     listOrder.Clear();
