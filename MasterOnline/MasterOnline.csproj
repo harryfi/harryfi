@@ -1079,6 +1079,7 @@
     <Compile Include="Models\CATEGORY_SHOPIFY.cs" />
     <Compile Include="Models\LINKFTP.cs" />
     <Compile Include="Models\LOG_HARGAJUAL.cs" />
+    <Compile Include="Models\SOT01H.cs" />
     <Compile Include="Models\SupportMenu.cs" />
     <Compile Include="Models\SOT01G.cs" />
     <Compile Include="Models\SIT01H.cs" />

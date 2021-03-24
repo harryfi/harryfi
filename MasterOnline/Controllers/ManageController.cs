@@ -3890,6 +3890,18 @@ namespace MasterOnline.Controllers
                 NilaiPesananFaktur = NilaiFaktur
                 //end add by nurul 1/12/2020
             };
+
+            //add by nurul 23/3/2021
+            var lastExec = ErasoftDbContext.SIFSYS_TAMBAHAN.Select(m => m.AMBIL_KURIR_SHOPEE).FirstOrDefault();
+            if (lastExec?.AddMinutes(5) > DateTime.UtcNow.AddHours(7))
+            {
+                vm.prosesUpdateKurirShopee = false;
+            }
+            else
+            {
+                vm.prosesUpdateKurirShopee = true;
+            }
+            //end add by nurul 23/3/2021
             return View(vm);
             //}
             //end change by nurul 6/8/2019
@@ -50349,7 +50361,6 @@ namespace MasterOnline.Controllers
 
                 var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
                 var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == cust);
-
                 foreach (var so in ListStt01a)
                 {
                     if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
@@ -50486,6 +50497,31 @@ namespace MasterOnline.Controllers
                         });
                     }
                 }
+
+                //add by nurul 19/3/2021
+                if(listSuccess.Count() > 0)
+                {
+                    List<ShopeeControllerJob.listUpdateOrder> listOrder = new List<ShopeeControllerJob.listUpdateOrder>();
+                    //listOrder = ListStt01a.Where(a => listSuccess.Select(b => b.no_referensi).ToList().Contains(a.no_referensi)).
+                    listOrder = (from p in ListStt01a
+                                 where listSuccess.Select(b => b.no_referensi).ToList().Contains(p.no_referensi)
+                                 select new ShopeeControllerJob.listUpdateOrder { Noref = p.no_referensi, Nobuk = p.no_bukti }).ToList();
+                    ShopeeControllerJob.ShopeeAPIData iden = new ShopeeControllerJob.ShopeeAPIData()
+                    {
+                        merchant_code = marketPlace.Sort1_Cust,
+                        DatabasePathErasoft = dbPathEra,
+                        username = usernameLogin
+                    };
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                    var listNoref = listOrder.Select(a => a.Noref).ToArray();
+#if (DEBUG || Debug_AWS)
+                    Task.Run(() => new ShopeeControllerJob().updateKurirShopee(dbPathEra, "Kurir", marketPlace.CUST, "Pesanan", "Update Kurir", iden, listNoref, listOrder, "2")).Wait();
+#else
+                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir", marketPlace.CUST, "Pesanan", "Update Kurir", iden, listNoref, listOrder, "2"));
+#endif
+                }
+                //end add by nurul 19/3/2021
 
                 var successCount = listSuccess.Count();
                 return new JsonResult { Data = new { listErrors, listSuccess, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
@@ -50714,6 +50750,31 @@ namespace MasterOnline.Controllers
                         });
                     }
                 }
+
+                //add by nurul 19/3/2021
+                if (listSuccess.Count() > 0)
+                {
+                    List<ShopeeControllerJob.listUpdateOrder> listOrder = new List<ShopeeControllerJob.listUpdateOrder>();
+                    //listOrder = ListStt01a.Where(a => listSuccess.Select(b => b.no_referensi).ToList().Contains(a.no_referensi)).
+                    listOrder = (from p in ListStt01a
+                                 where listSuccess.Select(b => b.no_referensi).ToList().Contains(p.no_referensi)
+                                 select new ShopeeControllerJob.listUpdateOrder { Noref = p.no_referensi, Nobuk = p.no_bukti }).ToList();
+                    ShopeeControllerJob.ShopeeAPIData iden = new ShopeeControllerJob.ShopeeAPIData()
+                    {
+                        merchant_code = marketPlace.Sort1_Cust,
+                        DatabasePathErasoft = dbPathEra,
+                        username = usernameLogin
+                    };
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                    var listNoref = listOrder.Select(a => a.Noref).ToArray();
+#if (DEBUG || Debug_AWS)
+                    Task.Run(() => new ShopeeControllerJob().updateKurirShopee(dbPathEra, "Kurir", marketPlace.CUST, "Pesanan", "Update Kurir", iden, listNoref, listOrder, "2")).Wait();
+#else
+                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir", marketPlace.CUST, "Pesanan", "Update Kurir", iden, listNoref, listOrder, "2"));
+#endif
+                }
+                //end add by nurul 19/3/2021
 
                 var successCount = listSuccess.Count();
                 return new JsonResult { Data = new { listErrors, listSuccess, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
@@ -69770,6 +69831,75 @@ namespace MasterOnline.Controllers
         }
 
         //END ADD BY NURUL 5/10/2020, BUNDLING 
+
+        //ADD BY NURUL 23/3/2021
+        public ActionResult updateKurirShopeeDibayar()
+        {
+            var lastExec = ErasoftDbContext.SIFSYS_TAMBAHAN.Select(m => m.AMBIL_KURIR_SHOPEE).FirstOrDefault();
+
+            if (lastExec?.AddMinutes(5) > DateTime.UtcNow.AddHours(7))
+            {
+                return new JsonResult { Data = "Anda baru dapat melakukan proses ini pada : " + lastExec?.AddMinutes(5).ToString("yyyy-MM-dd HH:mm:ss"), JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            else
+            {
+                EDB.ExecuteSQL("CString", CommandType.Text, "update SIFSYS_TAMBAHAN set AMBIL_KURIR_SHOPEE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "'");
+            }
+            var sSQLSelectCustShopee = ErasoftDbContext.Database.SqlQuery<ARF01>("SELECT A.* FROM ARF01 A (NOLOCK) INNER JOIN MO..MARKETPLACE B (NOLOCK) ON A.NAMA=B.IDMARKET WHERE B.NAMAMARKET='SHOPEE' AND TIDAK_HIT_UANG_R='1' ").ToList();
+            if (sSQLSelectCustShopee.Count() > 0)
+            {
+                var sSQLCekCount = ErasoftDbContext.Database.SqlQuery<int>("SELECT COUNT(NO_PESANAN) FROM SOT01H A (NOLOCK) INNER JOIN SOT01A B (NOLOCK) ON A.NO_PESANAN=B.NO_BUKTI AND A.NO_REFERENSI=B.NO_REFERENSI AND A.CUST=B.CUST INNER JOIN ARF01 C (NOLOCK) ON B.CUST=C.CUST INNER JOIN MO..MARKETPLACE D (NOLOCK) ON C.NAMA=D.IDMARKET WHERE ISNULL(B.SHIPMENT,'')='' AND STATUS_TRANSAKSI IN ('01') AND D.NAMAMARKET='SHOPEE' AND TIDAK_HIT_UANG_R='1'").SingleOrDefault();
+                if (sSQLCekCount > 0)
+                {
+                    foreach (var cust in sSQLSelectCustShopee)
+                    {
+                        var sSQL = "SELECT A.NO_PESANAN AS NOBUK, A.NO_REFERENSI AS NOREF FROM SOT01H A (NOLOCK) INNER JOIN SOT01A B (NOLOCK) ON A.NO_PESANAN=B.NO_BUKTI AND A.NO_REFERENSI=B.NO_REFERENSI AND A.CUST=B.CUST WHERE ISNULL(B.SHIPMENT,'')='' AND A.CUST='" + cust.CUST + "' AND STATUS_TRANSAKSI IN ('01')";
+                        var cekListPesananTanpaKurir = ErasoftDbContext.Database.SqlQuery<ShopeeControllerJob.listUpdateOrder>(sSQL).ToList();
+                        if (cekListPesananTanpaKurir.Count() > 0)
+                        {
+                            int hitungPesanan = cekListPesananTanpaKurir.Count();
+                            var listOrder = new List<ShopeeControllerJob.listUpdateOrder>();
+                            foreach (var order in cekListPesananTanpaKurir)
+                            {
+                                listOrder.Add(order);
+                                if (listOrder.Count() == 50 || hitungPesanan == listOrder.Count())
+                                {
+                                    var listTemptNoref = listOrder.Select(a => a.Noref).ToArray();
+                                    var listTempPesanan = listOrder;
+                                    string EDBConnID = EDB.GetConnectionString("ConnId");
+
+                                    ShopeeControllerJob.ShopeeAPIData iden = new ShopeeControllerJob.ShopeeAPIData()
+                                    {
+                                        merchant_code = cust.Sort1_Cust,
+                                        DatabasePathErasoft = dbPathEra,
+                                        username = usernameLogin
+                                    };
+                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+#if (DEBUG || Debug_AWS)
+                                    Task.Run(() => new ShopeeControllerJob().updateKurirShopee(dbPathEra, "Kurir", cust.CUST, "Pesanan", "Update Kurir", iden, listTemptNoref, listTempPesanan, "1")).Wait();
+#else
+                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir", cust.CUST, "Pesanan", "Update Kurir", iden, listTemptNoref, listTempPesanan, "1"));
+#endif
+                                    hitungPesanan = hitungPesanan - listOrder.Count();
+                                    listOrder.Clear();
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    return new JsonResult { Data = "Tidak ada pesanan sudah bayar shopee yang kurirnya blank.", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+            }
+            else
+            {
+                return new JsonResult { Data = "Tidak ada pesanan shopee.", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            return new JsonResult { Data = "Proses ambil kurir pesanan shopee sedang berlangsung, mohon refresh halaman ini.", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+        }
+        //END ADD BY NURUL 23/3/2021
     }
     public class smolSTF02
     {

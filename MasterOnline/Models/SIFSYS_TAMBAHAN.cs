@@ -52,5 +52,9 @@ namespace MasterOnline.Models
         [StringLength(1)]
         public string TYPE_LOGO { get; set; }
         //end add by nurul 9/2/2021
+
+        //add by nurul 23/3/2021
+        public DateTime? AMBIL_KURIR_SHOPEE { get; set; }
+        //end add by nurul 23/3/2021
     }
 }

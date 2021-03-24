@@ -453,6 +453,61 @@
         }
     </style>
     <style>
+        /*//add by nurul 23/3/2021*/ 
+        [data-tip-kurir] {
+            position: relative;
+            white-space: pre-line;
+        }
+
+            [data-tip-kurir]:before {
+                /*content: '';*/
+                /* hides the tooltip when not hovered */
+                display: none;
+                content: '';
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-bottom: 5px solid #1a1a1a;
+                position: absolute;
+                top: 30px;
+                left: 35px;
+                z-index: 8;
+                font-size: 0;
+                line-height: 0;
+                width: 0;
+                height: 0;
+            }
+
+            [data-tip-kurir]:after {
+                display: none;
+                content: attr(data-tip-kurir);
+                position: absolute;
+                top: 35px;
+                left: 0px;
+                padding: 2px 5px;
+                background: #1a1a1a;
+                color: #fff;
+                z-index: 9;
+                font-size: 0.85em;
+                height: auto;
+                line-break: normal;
+                max-width: 300px;
+                line-height: 18px;
+                -webkit-border-radius: 3px;
+                -moz-border-radius: 3px;
+                border-radius: 3px;
+                /*white-space: normal;*/
+                word-wrap: normal;
+                width: 250%;
+                white-space: pre-line;
+            }
+
+            [data-tip-kurir]:hover:before,
+            [data-tip-kurir]:hover:after {
+                display: block;
+                white-space: pre-line;
+            }
+        /*//add by nurul 23/3/2021*/ 
+
         #modal-print-option {
             margin: auto;
         }
@@ -1981,17 +2036,45 @@
                         </div>
                         <div class="col-lg-2 col-sm-12"></div>
                         <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
-                            @*<div class="col-lg-7 col-sm-5" style="margin-top:13px;">*@
+                            <div class="pull-right">
+                                <button type="button" id="btn_update_kurir_shopee_dibayar" class="btn btn-success" data-style="expand-right" onclick="updateKurirShopeeDibayar()">
+                                    <span> Ambil Kurir Shopee</span>
+                                </button>
+                                <button type="button" id="btn_ubahStatusmulti_pesanan_dibayar" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalUbahStatusMultiDibayar" onclick="passRecStatusMultiDibayar()">
+                                    <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Ubah Status</span>
+                                </button>
+                            </div>
+                        </div>
+                        @*<div class="col-lg-2 col-sm-3" style="margin-top:13px;">
+                            <div class="pull-right">
+                                @if (Model.prosesUpdateKurirShopee)
+                                {
+                                    <div id="data_tip_kurir" >
+                                        <button type="button" id="btn_update_kurir_shopee_dibayar" class="btn btn-success" data-style="expand-right" onclick="updateKurirShopeeDibayar()">
+                                            <span> Ambil Kurir Shopee</span>
+                                        </button>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div id="data_tip_kurir" data-tip-kurir="Proses ambil kurir pesanan shopee sedang berlangsung, silahkan refresh halaman ini." style="height:39px !important">
+                                        <button type="button" id="btn_update_kurir_shopee_dibayar" class="btn btn-success" data-style="expand-right" disabled="disabled">
+                                            <span> Ambil Kurir Shopee</span>
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        </div>*@
+                        @*<div class="col-lg-2 col-sm-3" style="margin-top:13px;">
                             <div class="pull-right">
                                 <button type="button" id="btn_ubahStatusmulti_pesanan_dibayar" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalUbahStatusMultiDibayar" onclick="passRecStatusMultiDibayar()">
                                     <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Ubah Status</span>
                                 </button>
-                                @*<button type="button" id="btn_refresh_pesanan_dibayar" class="btn btn-default" data-style="expand-right">
-                            <span>Refresh</span>
-                        </button>*@
-
                             </div>
-                        </div>
+                            @*<button type="button" id="btn_refresh_pesanan_dibayar" class="btn btn-default" data-style="expand-right">
+            <span>Refresh</span>
+        </button>
+                        </div>*@
                         @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
                         <div class="col-lg-1 col-sm-1">
                             <div class="input-group text" style="padding-top:13px">
@@ -12964,6 +13047,36 @@
             });
         }
         //end add by nurul 22/10/2020
+
+    //add by nurul 22/3/2021
+    function updateKurirShopeeDibayar() {
+        //$('#btn_update_kurir_shopee_dibayar').attr('disabled', 'disabled');
+        //$('#data_tip_kurir').attr('data-tip-kurir', 'Proses ambil kurir pesanan shopee sedang berlangsung, silahkan refresh halaman ini.');
+        var link = '@Url.Action("updateKurirShopeeDibayar", "Manage")';
+        //link = link.replace("replaceBrgId", encodeURIComponent(this.$brgBundling));
+
+        $.ajax({
+            type: "POST",
+            url: link,
+            contentType: 'application/json',
+            cache: false,
+            success: function (response) {
+                if (response == "Proses ambil kurir pesanan shopee sedang berlangsung, mohon refresh halaman ini.") {
+                    alert(response);
+                } else {
+                    //$('#btn_update_kurir_shopee_dibayar').removeAttr('disabled');
+                    //$('#data_tip_kurir').removeAttr('data-tip-kurir');
+                    alert(response);
+                }
+                //refreshTableSudahDibayar();
+                //alert("Proses update kurir shopee dijalankan.");
+            },
+            error: function (xhr) {
+                console.log(xhr);
+            }
+        });
+    }
+    //end add by nurul 22/3/2021
 </script>
     <script>
         //Disable Enter Key Submit Form

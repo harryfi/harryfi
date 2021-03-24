@@ -1418,6 +1418,15 @@ namespace MasterOnline.Controllers
 #endif
                             }
                         }
+
+                        //add by nurul 22/3/2021
+                        //RecurringJobOptions recurJobOptManage = new RecurringJobOptions()
+                        //{
+                        //    QueueName = "1_manage_pesanan",
+                        //};
+                        //connId_JobId = dbPathEra + "_shopee_call_update_kurir_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.selectKurirNullShopee(dbPathEra, "Kurir", tblCustomer.CUST, "Pesanan", "Update Kurir", iden)), Cron.MinuteInterval(10), recurJobOptManage);
+                        //end add by nurul 22/3/2021
                     }
                     else
                     {

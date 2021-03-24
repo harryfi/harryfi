@@ -52,6 +52,10 @@ namespace MasterOnline
         public string CONN_ID { get; set; }
 
         public DateTime? ship_by_date { get; set; }
+
+        //add by nurul 22/3/2021
+        public string checkout_shipping_carrier { get; set; }
+        //end add by nurul 22/3/2021
     }
 
 }
