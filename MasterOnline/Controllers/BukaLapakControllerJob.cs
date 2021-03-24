@@ -2734,7 +2734,7 @@ namespace MasterOnline.Controllers
         public string payment_method { get; set; }
         public State_Changed_At state_changed_at { get; set; }
         //public State_Changed_By state_changed_by { get; set; }
-        public bool actionable { get; set; }
+        public bool? actionable { get; set; }
         public string created_on { get; set; }
         public GetOrdersItem[] items { get; set; }
         public GetOrdersBuyer buyer { get; set; }
@@ -2745,8 +2745,8 @@ namespace MasterOnline.Controllers
         public GetOrdersDropship dropship { get; set; }
         //public GetOrdersFeedback feedback { get; set; }
         public GetOrdersOptions options { get; set; }
-        public bool on_hold { get; set; }
-        public bool deal { get; set; }
+        public bool? on_hold { get; set; }
+        public bool? deal { get; set; }
         //public long claim_id { get; set; }
         public GetOrdersSla sla { get; set; }
         //public DateTime last_printed_at { get; set; }
@@ -2754,7 +2754,7 @@ namespace MasterOnline.Controllers
         public DateTime updated_at { get; set; }
         //public GetOrdersPromotion promotion { get; set; }
         //public string virtual_transaction_serial_number { get; set; }
-        public bool can_claim_assurance { get; set; }
+        public bool? can_claim_assurance { get; set; }
         //public int merchant_return_insurance_id { get; set; }
     }
 
@@ -2793,8 +2793,8 @@ namespace MasterOnline.Controllers
         public string description { get; set; }
         public string avatar { get; set; }
         public long address_id { get; set; }
-        public bool brand { get; set; }
-        public bool official { get; set; }
+        public bool? brand { get; set; }
+        public bool? official { get; set; }
     }
 
     public class GetOrdersAmount
@@ -2856,7 +2856,7 @@ namespace MasterOnline.Controllers
         public string name { get; set; }
         public double amount { get; set; }
         public string description { get; set; }
-        public bool remit_excluded { get; set; }
+        public bool? remit_excluded { get; set; }
     }
 
     public class GetOrdersReduction
@@ -2878,19 +2878,19 @@ namespace MasterOnline.Controllers
         public string tracking_number { get; set; }
         public string requested_carrier { get; set; }
         public string carrier { get; set; }
-        public bool white_label_courier { get; set; }
+        public bool? white_label_courier { get; set; }
         public GetOrdersHistory[] history { get; set; }
         public long? id { get; set; }
-        public bool force_awb { get; set; }
-        public bool force_find_driver { get; set; }
+        public bool? force_awb { get; set; }
+        public bool? force_find_driver { get; set; }
         //public string shipping_receipt_state { get; set; }
-        public bool allow_different_courier { get; set; }
-        public bool allow_manual_receipt_voucher { get; set; }
+        public bool? allow_different_courier { get; set; }
+        public bool? allow_manual_receipt_voucher { get; set; }
         public double manual_switch_fee { get; set; }
-        public bool allow_redeliver { get; set; }
+        public bool? allow_redeliver { get; set; }
         //public GetOrdersBooking booking { get; set; }
         //public GetOrdersPickup_Time pickup_time { get; set; }
-        public bool force_awb_voucher { get; set; }
+        public bool? force_awb_voucher { get; set; }
         //public DateTime estimated_received_at { get; set; }
         //public GetOrdersConvenience_Store convenience_store { get; set; }
         //public GetOrdersAvailable_Shipping_Service available_shipping_service { get; set; }
@@ -2917,7 +2917,7 @@ namespace MasterOnline.Controllers
         public long id { get; set; }
         public string booking_code { get; set; }
         public string state { get; set; }
-        public bool invoicing { get; set; }
+        public bool? invoicing { get; set; }
         public GetOrdersDriver driver { get; set; }
         //public DateTime created_at { get; set; }
     }
@@ -2980,8 +2980,8 @@ namespace MasterOnline.Controllers
     {
         public long id { get; set; }
         public string content { get; set; }
-        public bool positive { get; set; }
-        public bool editable { get; set; }
+        public bool? positive { get; set; }
+        public bool? editable { get; set; }
         public GetOrdersReply[] replies { get; set; }
     }
 
@@ -2989,16 +2989,16 @@ namespace MasterOnline.Controllers
     {
         public long sender_id { get; set; }
         public string content { get; set; }
-        public DateTime created_at { get; set; }
-        public DateTime updated_at { get; set; }
+        public DateTime? created_at { get; set; }
+        public DateTime? updated_at { get; set; }
     }
 
     public class GetOrdersBuyer2
     {
         public long id { get; set; }
         public string content { get; set; }
-        public bool positive { get; set; }
-        public bool editable { get; set; }
+        public bool? positive { get; set; }
+        public bool? editable { get; set; }
         public GetOrdersReply1[] replies { get; set; }
     }
 
@@ -3006,8 +3006,8 @@ namespace MasterOnline.Controllers
     {
         public long sender_id { get; set; }
         public string content { get; set; }
-        public DateTime created_at { get; set; }
-        public DateTime updated_at { get; set; }
+        public DateTime? created_at { get; set; }
+        public DateTime? updated_at { get; set; }
     }
 
     public class GetOrdersOptions
@@ -3029,9 +3029,9 @@ namespace MasterOnline.Controllers
 
     public class GetOrdersPromotion
     {
-        public bool promoted_push { get; set; }
-        public bool push { get; set; }
-        public bool voucher { get; set; }
+        public bool? promoted_push { get; set; }
+        public bool? push { get; set; }
+        public bool? voucher { get; set; }
     }
 
     public class GetOrdersItem
@@ -3075,7 +3075,7 @@ namespace MasterOnline.Controllers
         public string condition { get; set; }
         public double weight { get; set; }
         public GetOrdersShipping shipping { get; set; }
-        public bool assurance { get; set; }
+        public bool? assurance { get; set; }
         public string url { get; set; }
         public string _operator { get; set; }
         public double nominal { get; set; }
@@ -3084,7 +3084,7 @@ namespace MasterOnline.Controllers
 
     public class GetOrdersShipping
     {
-        public bool force_insurance { get; set; }
+        public bool? force_insurance { get; set; }
         //public object[] free_shipping_coverage { get; set; }
     }
 
@@ -3130,13 +3130,13 @@ namespace MasterOnline.Controllers
         public string condition { get; set; }
         public double weight { get; set; }
         public GetOrdersShipping1 shipping { get; set; }
-        public bool assurance { get; set; }
+        public bool? assurance { get; set; }
         public string url { get; set; }
     }
 
     public class GetOrdersShipping1
     {
-        public bool force_insurance { get; set; }
+        public bool? force_insurance { get; set; }
         //public object[] free_shipping_coverage { get; set; }
     }
 

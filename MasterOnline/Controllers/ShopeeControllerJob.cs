@@ -5617,14 +5617,18 @@ namespace MasterOnline.Controllers
             //add by calvin 21 desember 2018, default nya semua logistic enabled
             var ShopeeGetLogisticsResult = await GetLogistics(iden);
 
-            foreach (var log in ShopeeGetLogisticsResult.logistics.Where(p => p.enabled == true && p.fee_type.ToUpper() != "CUSTOM_PRICE" && p.fee_type.ToUpper() != "SIZE_SELECTION"))
+            foreach (var log in ShopeeGetLogisticsResult.logistics.Where(p => p.enabled == true && p.fee_type.ToUpper() != "CUSTOM_PRICE" 
+            && p.fee_type.ToUpper() != "SIZE_SELECTION" && p.mask_channel_id == 0))
             {
                 bool lolosValidLogistic = true;
                 if (log.weight_limits != null)
                 {
-                    if (log.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
+                    if (log.weight_limits.item_max_weight > 0)
                     {
-                        lolosValidLogistic = false;
+                        if (log.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
+                        {
+                            lolosValidLogistic = false;
+                        }
                     }
                     if (log.weight_limits.item_min_weight > (brgInDb.BERAT / 1000))
                     {
@@ -7112,7 +7116,8 @@ namespace MasterOnline.Controllers
             //add by calvin 21 desember 2018, default nya semua logistic enabled
             var ShopeeGetLogisticsResult = await GetLogistics(iden);
 
-            foreach (var log in ShopeeGetLogisticsResult.logistics.Where(p => p.enabled == true && p.fee_type.ToUpper() != "CUSTOM_PRICE" && p.fee_type.ToUpper() != "SIZE_SELECTION"))
+            foreach (var log in ShopeeGetLogisticsResult.logistics.Where(p => p.enabled == true && p.fee_type.ToUpper() != "CUSTOM_PRICE" 
+            && p.fee_type.ToUpper() != "SIZE_SELECTION" && p.mask_channel_id == 0))
             {
                 //logistics.Add(new ShopeeLogisticsClass()
                 //{
@@ -7123,9 +7128,12 @@ namespace MasterOnline.Controllers
                 bool lolosValidLogistic = true;
                 if (log.weight_limits != null)
                 {
-                    if (log.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
+                    if (log.weight_limits.item_max_weight > 0)
                     {
-                        lolosValidLogistic = false;
+                        if (log.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
+                        {
+                            lolosValidLogistic = false;
+                        }
                     }
                     if (log.weight_limits.item_min_weight > (brgInDb.BERAT / 1000))
                     {
@@ -9438,6 +9446,7 @@ namespace MasterOnline.Controllers
             public bool enabled { get; set; }
             public int logistic_id { get; set; }
             public string fee_type { get; set; }
+            public int mask_channel_id { get; set; }
         }
 
         public class ShopeeGetLogisticsResultWeight_Limits
