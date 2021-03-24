@@ -37103,6 +37103,7 @@ namespace MasterOnline.Controllers
                 
                 byte[] byteLog = System.IO.File.ReadAllBytes(path);
                 var pathLoc = UploadFileServices.UploadFile_Log(byteLog, dbPathEra + "_" + filename);
+                System.IO.File.Delete(Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), filename));
             }
 
 
@@ -37155,6 +37156,8 @@ namespace MasterOnline.Controllers
                     {
                         string namaFile = dbPathEra + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmssffff") + ".csv";
                         System.IO.File.WriteAllBytes(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile), dataByte);
+                        var pathLoc = UploadFileServices.UploadFile_Log(dataByte, dbPathEra + "_" + namaFile);
+
                         using (var sr = new StreamReader(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile)))
                         {
                             var reader = new CsvReader(sr);
@@ -37216,7 +37219,7 @@ namespace MasterOnline.Controllers
                             }
 
                         }
-                        System.IO.File.Delete(Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile));
+                        System.IO.File.Delete(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile));
 
                     }
                     else if (fExt[fExt.Length - 1] == "xlsx")
@@ -37315,7 +37318,7 @@ namespace MasterOnline.Controllers
 #region Logging
             string message = "";
             string filename = "Log_Upload_Inv_Bukalapak_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
-            var path = Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", filename);
+            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), filename);
 
             LOG_IMPORT_FAKTUR newLogImportFaktur = new LOG_IMPORT_FAKTUR
             {
@@ -37995,6 +37998,7 @@ namespace MasterOnline.Controllers
 
                 byte[] byteLog = System.IO.File.ReadAllBytes(path);
                 var pathLoc = UploadFileServices.UploadFile_Log(byteLog, dbPathEra + "_" + filename);
+                System.IO.File.Delete(Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), filename));
             }
 
 
@@ -38195,7 +38199,7 @@ namespace MasterOnline.Controllers
             string message = "";
             string filename = "Log_Upload_Inv_Shopee_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
             //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
-            var path = Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", filename);
+            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), filename);
 
             LOG_IMPORT_FAKTUR newLogImportFaktur = new LOG_IMPORT_FAKTUR
             {
@@ -38593,6 +38597,7 @@ namespace MasterOnline.Controllers
 
                 byte[] byteLog = System.IO.File.ReadAllBytes(path);
                 var pathLoc = UploadFileServices.UploadFile_Log(byteLog, dbPathEra + "_" + filename);
+                System.IO.File.Delete(Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), filename));
             }
 
             newLogImportFaktur.LAST_FAKTUR_UPLOADED = lastFakturInUpload;
@@ -44612,7 +44617,7 @@ namespace MasterOnline.Controllers
 
                                         //var resultCat = JDApi.getCategory(data);
 
-                                        var resultJD = JDApi.getListProduct(data, page, cust, recordCount, totalData);
+                                        var resultJD = await JDApi.getListProduct(data, page, cust, recordCount, totalData);
                                         retBarang.exception = resultJD.exception;
                                         retBarang.totalData = resultJD.totalData;
                                         //change 18 juli 2019, error tetap lanjut next page
@@ -45878,16 +45883,20 @@ namespace MasterOnline.Controllers
                             //string message = "";
                             string filename = "Log_SyncBrg_" + cust + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
                             //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
-                            var path = Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", filename);
+                            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), filename);
                             if (!System.IO.File.Exists(path))
                             {
                                 //System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
-                                System.IO.Directory.CreateDirectory(Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", ""));
+                                System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), ""));
                                 //var asd = System.IO.File.Create(path);
                                 //asd.Close();
                             }
                             var asd = System.IO.File.Create(path);
                             asd.Close();
+
+                            byte[] byteLog = System.IO.File.ReadAllBytes(path);
+                            var pathLoc = UploadFileServices.UploadFile_Log(byteLog, dbPathEra + "_" + filename);
+                            System.IO.File.Delete(Path.Combine(Server.MapPath("~/Content/Uploaded/"), filename));
 
                             LOG_IMPORT_FAKTUR newLogImportFaktur = new LOG_IMPORT_FAKTUR
                             {
@@ -45897,7 +45906,7 @@ namespace MasterOnline.Controllers
                                 //UPLOAD_DATETIME = DateTime.Now,
                                 UPLOAD_DATETIME = DateTime.UtcNow.AddHours(7),
                                 //end change by nurul 28/11/2019
-                                LOG_FILE = filename,
+                                LOG_FILE = pathLoc,
                                 //change by nurul 28/11/2019
                                 //LAST_FAKTUR_UPLOADED_DATETIME = DateTime.Now
                                 LAST_FAKTUR_UPLOADED_DATETIME = DateTime.UtcNow.AddHours(7)
@@ -51981,8 +51990,8 @@ namespace MasterOnline.Controllers
                                     namaFile = fileCsvTemp;
                                 }
                                 ret.fileCsvPath = namaFile;
-                                System.IO.File.WriteAllBytes(Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile), data);
-                                using (var sr = new StreamReader(Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile)))
+                                System.IO.File.WriteAllBytes(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile), data);
+                                using (var sr = new StreamReader(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile)))
                                 {
                                     sr.ReadLine();
                                     sr.ReadLine();
@@ -52159,7 +52168,7 @@ namespace MasterOnline.Controllers
                                     }
 
                                 }
-                                System.IO.File.Delete(Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile));
+                                System.IO.File.Delete(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile));
                                 if (ret.statusSuccessTemp == false)
                                 {
                                     return Json(ret, JsonRequestBehavior.AllowGet);
@@ -56276,8 +56285,10 @@ namespace MasterOnline.Controllers
                             }
 
                             string namaFile = dbPathEra + "_BayarLazada_" + DateTime.Now.ToString("yyyyMMdd_HHmmssffff") + ".csv";
-                            System.IO.File.WriteAllBytes(Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile), data);
-                            using (var sr = new StreamReader(Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile)))
+                            System.IO.File.WriteAllBytes(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile), data);
+                            var pathLoc = UploadFileServices.UploadFile_Log(data, dbPathEra + "_" + namaFile);
+
+                            using (var sr = new StreamReader(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile)))
                             {
                                 CsvReader reader = new CsvReader(sr);
                                 reader.Configuration.Delimiter = ",";
@@ -56343,7 +56354,7 @@ namespace MasterOnline.Controllers
                                 }
 
                             }
-                            System.IO.File.Delete(Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile));
+                            System.IO.File.Delete(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile));
                         }
                         else if (ret.TipeData.Split('.').Last().ToLower() == "xlsx" || ret.TipeData.Split('.').Last().ToLower() == "xls")
                         {
@@ -59692,8 +59703,10 @@ namespace MasterOnline.Controllers
                             }
 
                             string namaFile = dbPathEra + "_BayarBukalapak_" + DateTime.Now.ToString("yyyyMMdd_HHmmssffff") + ".csv";
-                            System.IO.File.WriteAllBytes(Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile), data);
-                            using (var sr = new StreamReader(Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile)))
+                            System.IO.File.WriteAllBytes(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile), data);
+                            var pathLoc = UploadFileServices.UploadFile_Log(data, dbPathEra + "_" + namaFile);
+
+                            using (var sr = new StreamReader(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile)))
                             {
                                 CsvReader reader = new CsvReader(sr);
                                 reader.Configuration.Delimiter = ",";
@@ -59786,7 +59799,7 @@ namespace MasterOnline.Controllers
                                 }
 
                             }
-                            System.IO.File.Delete(Path.Combine(IPServerLocation + @"Content\Uploaded\", namaFile));
+                            System.IO.File.Delete(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile));
                         }
                         else
                         {

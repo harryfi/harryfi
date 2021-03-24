@@ -1344,7 +1344,7 @@ namespace MasterOnline.Controllers
             return retResult;
         }
 
-        public BindingBase getListProduct(JDIDAPIData data, int page, string cust, int recordCount, int totalData)
+        public async Task<BindingBase> getListProduct(JDIDAPIData data, int page, string cust, int recordCount, int totalData)
         {
             var ret = new BindingBase
             {
@@ -1404,7 +1404,7 @@ namespace MasterOnline.Controllers
                                         //product status: 1.online,2.offline,3.punish,4.deleted
                                         if (item.wareStatus == 1 || item.wareStatus == 2)
                                         {
-                                            var retProd = GetProduct(data, item, IdMarket, cust);
+                                            var retProd = await GetProduct(data, item, IdMarket, cust);
                                             ret.totalData += retProd.totalData;//add 18 Juli 2019, show total record
                                             if (retProd.status == 1)
                                             {
@@ -1473,7 +1473,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public BindingBase GetProduct(JDIDAPIData data, Spuinfovolist itemFromList, int IdMarket, string cust)
+        public async Task<BindingBase> GetProduct(JDIDAPIData data, Spuinfovolist itemFromList, int IdMarket, string cust)
         {
             var ret = new BindingBase
             {
@@ -1550,7 +1550,7 @@ namespace MasterOnline.Controllers
                                         brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == item.spuId.ToString() + ";" + item.skuId.ToString().ToUpper()).FirstOrDefault();
                                         if (tempbrginDB == null && brgInDB == null)
                                         {
-                                            var retData = getProductDetail(data, item, kdBrgInduk, createParent, item.skuId.ToString(), cust, IdMarket, itemFromList);
+                                            var retData = await getProductDetail(data, item, kdBrgInduk, createParent, item.skuId.ToString(), cust, IdMarket, itemFromList);
                                             if (retData.exception == 1)
                                                 ret.exception = 1;
                                             if (retData.status == 1)
@@ -1572,7 +1572,7 @@ namespace MasterOnline.Controllers
                                         brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == item.spuId.ToString() + ";" + item.skuId.ToString().ToUpper()).FirstOrDefault();
                                         if (tempbrginDB == null && brgInDB == null)
                                         {
-                                            var retData = getProductDetail(data, item, "", false, item.skuId.ToString(), cust, IdMarket, itemFromList);
+                                            var retData = await getProductDetail(data, item, "", false, item.skuId.ToString(), cust, IdMarket, itemFromList);
                                             if (retData.exception == 1)
                                                 ret.exception = 1;
                                             if (retData.status == 1)
@@ -1619,7 +1619,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public BindingBase getProductDetail(JDIDAPIData data, Model_Product item, string kdBrgInduk, bool createParent, string skuId, string cust, int IdMarket, Spuinfovolist itemFromList)
+        public async Task<BindingBase> getProductDetail(JDIDAPIData data, Model_Product item, string kdBrgInduk, bool createParent, string skuId, string cust, int IdMarket, Spuinfovolist itemFromList)
         {
             var ret = new BindingBase
             {
