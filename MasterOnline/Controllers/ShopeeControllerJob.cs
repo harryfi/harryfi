@@ -6194,6 +6194,7 @@ namespace MasterOnline.Controllers
                 }
                 else //update image only
                 {
+                    await UpdateImage(iden, kodeProduk, item_id.ToString());//add 17 mar 2021, update gambar induk
                     //#if (Debug_AWS || DEBUG)
                     if (tier_variation != null)
                         await UpdateImageTierVariationList(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation);
