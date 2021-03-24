@@ -67557,6 +67557,7 @@ namespace MasterOnline.Controllers
                 commaReceipt = sit01a.IndexOf(newSIT01A) == sit01a.Count() - 1 ? "" : ",";
                 invoiceReceipt += tempReceipt + commaReceipt;
                 tempReceipt = "";
+                totalPaymentAmount = 0;
 
                 //api_baim
                 tempJson = Newtonsoft.Json.JsonConvert.SerializeObject(dataInvoice);
