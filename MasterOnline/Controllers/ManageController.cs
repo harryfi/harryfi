@@ -19380,7 +19380,8 @@ namespace MasterOnline.Controllers
                     date_invoice = tglfaktur,
                     kode_barang = kode_barang,
                     qty = qty,
-                    h_barang = h_barang
+                    h_barang = h_barang,
+                    discount = disc
                 };
 
                 //api_baim
@@ -19692,7 +19693,8 @@ namespace MasterOnline.Controllers
                     date_invoice = tglfaktur,
                     kode_barang = kode_barang,
                     qty = qty,
-                    h_barang = h_barang
+                    h_barang = h_barang,
+                    discount = disc
                 };
 
                 if (partnerDb.Status == true && partnerDb.isPaid == true)
@@ -19862,7 +19864,8 @@ namespace MasterOnline.Controllers
             public string kode_barang { get; set; }
             public int qty { get; set; }
             public int h_barang { get; set; }
-            public int discount { get; set; }
+            //public int discount { get; set; }
+            public double discount { get; set; }
             public string bulk { get; set; }
             public string bulk_cust { get; set; }
             public string bulk_receipt { get; set; }
