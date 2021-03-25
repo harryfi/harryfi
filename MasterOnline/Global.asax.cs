@@ -28,11 +28,13 @@ namespace MasterOnline
 
             var optionsPrefix = new Hangfire.Pro.Redis.RedisStorageOptions
             {
+                InvisibilityTimeout = TimeSpan.FromMinutes(1440),
+                MaxSucceededListLength = 1000000,
                 Prefix = "hangfire:app1:",
             };
 
             Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("mo-prod-redis.df2l2v.0001.apse1.cache.amazonaws.com:6379",
-            new RedisStorageOptions { Prefix = "{hangfire-1}:" });
+            new RedisStorageOptions { Prefix = "{hangfire-1}:", MaxSucceededListLength = 1000000, InvisibilityTimeout = TimeSpan.FromMinutes(1440) });
             //Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("127.0.0.1:6379",
             //    new RedisStorageOptions { Prefix = "{hangfire-1}:" });
 

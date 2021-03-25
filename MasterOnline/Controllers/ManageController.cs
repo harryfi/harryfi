@@ -49703,6 +49703,11 @@ namespace MasterOnline.Controllers
                     if (temp_printLabel.Count() > 0)
                     {
                         result_printLabel = MergePDFProcess(temp_printLabel_split, bukti, "LAZADA");
+
+                        foreach(var labelTemp in temp_printLabel)
+                        {
+
+                        }
                         //return new JsonResult { Data = new { mo_label = temp_printLabel }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                         return new JsonResult { Data = new { mo_label = result_printLabel, listErrors, listSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                     }
@@ -62689,6 +62694,7 @@ namespace MasterOnline.Controllers
                 if (dataByteMerge != null)
                 {
                     result = UploadFileServices.UploadFile_PrintLabel(dataByteMerge, filename);
+                    System.IO.File.Delete(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel"), filename));
                 }
             }
 
