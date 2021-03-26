@@ -2856,7 +2856,9 @@ namespace MasterOnline.Controllers
                                     var checkResultST = resultCekST.Where(p => p.ST_Posting.Contains("Y")).ToList();
                                     var checkResultPB = resultCekPB.Where(p => p.POSTING.Contains("Y")).ToList();
 
-                                    if (checkResultSI.Count() == 0 && checkResultST.Count() == 0 && checkResultPB.Count() == 0 && resultCekPB.Count() == 0)
+                                    if (checkResultSI.Count() == 0 && checkResultST.Count() == 0 && checkResultPB.Count() == 0 
+                                        //&& resultCekPB.Count() == 0
+                                        )
                                     {
                                         // kondisi kalau belum posting
                                         sqlListKodeLama += "'" + listKodeBaru + "',";
@@ -2978,7 +2980,7 @@ namespace MasterOnline.Controllers
                                                         vkodebarangharussynculang += "kodebrg: " + listKodeBaru + " (toko:" + dataToko.PERSO + " mp:" + dataMp.NamaMarket + ")  |  ";
                                                         //    if (deleted)
                                                         //    {
-                                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02H WHERE BRG ='" + itemDup.BRG + "' AND Recnum = " + itemDup.RecNum + ";");
+                                                        //EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02H WHERE BRG ='" + itemDup.BRG + "' AND Recnum = " + itemDup.RecNum + ";");
                                                         //    }
                                                         //    deleted = true;
                                                     }

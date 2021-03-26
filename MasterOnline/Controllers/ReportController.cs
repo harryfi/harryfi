@@ -24,7 +24,8 @@ namespace MasterOnline.Controllers
         //end add by nurul 15/2/2021
 
         // PARAMETER PUBLIC UNTUK DOMAIN TESTING VPC BARU
-        public string sDomainLive = "report.masteronline.co.id";
+        //public string sDomainLive = "report.masteronline.co.id";
+        public string sDomainLive = "devreport.masteronline.my.id";
         //public string sDomainDev = "devreport.masteronline.co.id";
         public string sDomainDev = "devreport.masteronline.my.id";
 
