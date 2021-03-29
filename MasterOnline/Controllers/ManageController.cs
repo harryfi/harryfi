@@ -19428,6 +19428,7 @@ namespace MasterOnline.Controllers
                 qty = Convert.ToInt32(dataVm.FakturDetail.QTY);
                 h_barang = Convert.ToInt32(dataVm.FakturDetail.H_SATUAN);
                 id_invoice = fakturInDb.NO_KENDARAAN;
+                disc = Convert.ToInt32(dataVm.FakturDetail.NILAI_DISC);
                 //id_barang = dataVm.FakturDetail.BRG_SO == null ? null : dataVm.FakturDetail.BRG_SO;
 
 
