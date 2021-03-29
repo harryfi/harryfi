@@ -18938,7 +18938,8 @@ namespace MasterOnline.Controllers
             string kode_barang = "";
             int qty = 0;
             int h_barang = 0;
-            int disc = 0;
+            //int disc = 0;
+            double? disc = 0;
             double? netto_invoice = dataVm.Faktur.NETTO;
             string myData = "";
 
@@ -19381,7 +19382,8 @@ namespace MasterOnline.Controllers
                     kode_barang = kode_barang,
                     qty = qty,
                     h_barang = h_barang,
-                    discount = disc
+                    //discount = disc
+                    discount = dataVm.FakturDetail.NILAI_DISC
                 };
 
                 //api_baim
@@ -19695,7 +19697,8 @@ namespace MasterOnline.Controllers
                     kode_barang = kode_barang,
                     qty = qty,
                     h_barang = h_barang,
-                    discount = disc
+                    //discount = disc
+                    discount = dataVm.FakturDetail.NILAI_DISC
                 };
 
                 if (partnerDb.Status == true && partnerDb.isPaid == true)
@@ -19866,7 +19869,7 @@ namespace MasterOnline.Controllers
             public int qty { get; set; }
             public int h_barang { get; set; }
             //public int discount { get; set; }
-            public double discount { get; set; }
+            public double? discount { get; set; }
             public string bulk { get; set; }
             public string bulk_cust { get; set; }
             public string bulk_receipt { get; set; }
