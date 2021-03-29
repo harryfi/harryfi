@@ -20,13 +20,13 @@ namespace MasterOnline.App_Start
             ConfigureAuth(app);
             app.MapSignalR();
             //app.UseHangfireServer();
-            var storage1 = new Hangfire.SqlServer.SqlServerStorage("Data Source=54.151.175.62, 12350;Initial Catalog=ERASOFT_930355_QC;Persist Security Info=True;User ID=sa;Password=admin123^");
+            //var storage1 = new Hangfire.SqlServer.SqlServerStorage("Data Source=54.151.175.62, 12350;Initial Catalog=ERASOFT_930355_QC;Persist Security Info=True;User ID=sa;Password=admin123^");
 
-            app.UseHangfireDashboard("/job_dashboard", new DashboardOptions
-            {
-                //Authorization = new[] { new DashboardAuth() }
-                AppPath = "https://www.masteronline.my.id"
-            }, storage1);
+            //app.UseHangfireDashboard("/job_dashboard", new DashboardOptions
+            //{
+            //    //Authorization = new[] { new DashboardAuth() }
+            //    AppPath = "https://www.masteronline.my.id"
+            //}, storage1);
         }
         // For more information on configuring authentication, please visit http://go.microsoft.com/fwlink/?LinkId=301864
         public void ConfigureAuth(IAppBuilder app)
