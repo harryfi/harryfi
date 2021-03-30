@@ -21329,7 +21329,8 @@ namespace MasterOnline.Controllers
                     {
                         acc.is_delete_faktur = true;
                         myData = Newtonsoft.Json.JsonConvert.SerializeObject(acc);
-                        FakturAccurate(myData, "delete-faktur");
+                        //FakturAccurate(myData, "delete-faktur");
+                        FakturAccurate(myData, "delete-invoice");
                     }
                     else
                     {
