@@ -5838,45 +5838,99 @@ namespace MasterOnline.Controllers
             && p.fee_type.ToUpper() != "SIZE_SELECTION" && p.mask_channel_id == 0))
             {
                 bool lolosValidLogistic = true;
-                if (log.weight_limits != null)
+                var cLog = ShopeeGetLogisticsResult.logistics.Where(p => p.mask_channel_id == log.logistic_id && p.enabled == true).ToList();
+                if (cLog.ToList().Count > 0)
                 {
-                    if (log.weight_limits.item_max_weight > 0)
+                    foreach (var cekLogistic in cLog)
                     {
-                        if (log.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
+                        if (cekLogistic.weight_limits != null)
                         {
-                            lolosValidLogistic = false;
+                            if (cekLogistic.weight_limits.item_max_weight > 0)
+                            {
+                                if (cekLogistic.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
+                                {
+                                    lolosValidLogistic = false;
+                                }
+                            }
+                            if (cekLogistic.weight_limits.item_min_weight > (brgInDb.BERAT / 1000))
+                            {
+                                lolosValidLogistic = false;
+                            }
                         }
-                    }
-                    if (log.weight_limits.item_min_weight > (brgInDb.BERAT / 1000))
-                    {
-                        lolosValidLogistic = false;
-                    }
-                }
 
-                if (log.item_max_dimension != null)
-                {
-                    if (log.item_max_dimension.length > 0)
-                    {
-                        if (log.item_max_dimension.length < (Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG)))
+                        if (cekLogistic.item_max_dimension != null)
                         {
-                            lolosValidLogistic = false;
+                            if (cekLogistic.item_max_dimension.length > 0)
+                            {
+                                if (cekLogistic.item_max_dimension.length < (Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG)))
+                                {
+                                    lolosValidLogistic = false;
+                                }
+                            }
+                            if (cekLogistic.item_max_dimension.height > 0)
+                            {
+                                if (cekLogistic.item_max_dimension.height < (Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI)))
+                                {
+                                    lolosValidLogistic = false;
+                                }
+                            }
+                            if (cekLogistic.item_max_dimension.width > 0)
+                            {
+                                if (cekLogistic.item_max_dimension.width < (Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR)))
+                                {
+                                    lolosValidLogistic = false;
+                                }
+                            }
                         }
-                    }
-                    if (log.item_max_dimension.height > 0)
-                    {
-                        if (log.item_max_dimension.height < (Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI)))
+                        if (lolosValidLogistic)
                         {
-                            lolosValidLogistic = false;
-                        }
-                    }
-                    if (log.item_max_dimension.width > 0)
-                    {
-                        if (log.item_max_dimension.width < (Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR)))
-                        {
-                            lolosValidLogistic = false;
+                            break;
                         }
                     }
                 }
+                else
+                {
+                    if (log.weight_limits != null)
+                    {
+                        if (log.weight_limits.item_max_weight > 0)
+                        {
+                            if (log.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
+                            {
+                                lolosValidLogistic = false;
+                            }
+                        }
+                        if (log.weight_limits.item_min_weight > (brgInDb.BERAT / 1000))
+                        {
+                            lolosValidLogistic = false;
+                        }
+                    }
+
+                    if (log.item_max_dimension != null)
+                    {
+                        if (log.item_max_dimension.length > 0)
+                        {
+                            if (log.item_max_dimension.length < (Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG)))
+                            {
+                                lolosValidLogistic = false;
+                            }
+                        }
+                        if (log.item_max_dimension.height > 0)
+                        {
+                            if (log.item_max_dimension.height < (Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI)))
+                            {
+                                lolosValidLogistic = false;
+                            }
+                        }
+                        if (log.item_max_dimension.width > 0)
+                        {
+                            if (log.item_max_dimension.width < (Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR)))
+                            {
+                                lolosValidLogistic = false;
+                            }
+                        }
+                    }
+                }
+                
 
                 if (lolosValidLogistic)
                 {
@@ -7344,42 +7398,95 @@ namespace MasterOnline.Controllers
                 //    logistic_id = log.logistic_id,
                 //});
                 bool lolosValidLogistic = true;
-                if (log.weight_limits != null)
+                var cLog = ShopeeGetLogisticsResult.logistics.Where(p => p.mask_channel_id == log.logistic_id && p.enabled == true).ToList();
+                if (cLog.ToList().Count > 0)
                 {
-                    if (log.weight_limits.item_max_weight > 0)
+                    foreach (var cekLogistic in cLog)
                     {
-                        if (log.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
+                        if (cekLogistic.weight_limits != null)
                         {
-                            lolosValidLogistic = false;
+                            if (cekLogistic.weight_limits.item_max_weight > 0)
+                            {
+                                if (cekLogistic.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
+                                {
+                                    lolosValidLogistic = false;
+                                }
+                            }
+                            if (cekLogistic.weight_limits.item_min_weight > (brgInDb.BERAT / 1000))
+                            {
+                                lolosValidLogistic = false;
+                            }
                         }
-                    }
-                    if (log.weight_limits.item_min_weight > (brgInDb.BERAT / 1000))
-                    {
-                        lolosValidLogistic = false;
+
+                        if (cekLogistic.item_max_dimension != null)
+                        {
+                            if (cekLogistic.item_max_dimension.length > 0)
+                            {
+                                if (cekLogistic.item_max_dimension.length < (Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG)))
+                                {
+                                    lolosValidLogistic = false;
+                                }
+                            }
+                            if (cekLogistic.item_max_dimension.height > 0)
+                            {
+                                if (cekLogistic.item_max_dimension.height < (Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI)))
+                                {
+                                    lolosValidLogistic = false;
+                                }
+                            }
+                            if (cekLogistic.item_max_dimension.width > 0)
+                            {
+                                if (cekLogistic.item_max_dimension.width < (Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR)))
+                                {
+                                    lolosValidLogistic = false;
+                                }
+                            }
+                        }
+                        if (lolosValidLogistic)
+                        {
+                            break;
+                        }
                     }
                 }
-
-                if (log.item_max_dimension != null)
+                else
                 {
-                    if (log.item_max_dimension.length > 0)
+                    if (log.weight_limits != null)
                     {
-                        if (log.item_max_dimension.length < (Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG)))
+                        if (log.weight_limits.item_max_weight > 0)
+                        {
+                            if (log.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
+                            {
+                                lolosValidLogistic = false;
+                            }
+                        }
+                        if (log.weight_limits.item_min_weight > (brgInDb.BERAT / 1000))
                         {
                             lolosValidLogistic = false;
                         }
                     }
-                    if (log.item_max_dimension.height > 0)
+
+                    if (log.item_max_dimension != null)
                     {
-                        if (log.item_max_dimension.height < (Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI)))
+                        if (log.item_max_dimension.length > 0)
                         {
-                            lolosValidLogistic = false;
+                            if (log.item_max_dimension.length < (Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG)))
+                            {
+                                lolosValidLogistic = false;
+                            }
                         }
-                    }
-                    if (log.item_max_dimension.width > 0)
-                    {
-                        if (log.item_max_dimension.width < (Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR)))
+                        if (log.item_max_dimension.height > 0)
                         {
-                            lolosValidLogistic = false;
+                            if (log.item_max_dimension.height < (Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI)))
+                            {
+                                lolosValidLogistic = false;
+                            }
+                        }
+                        if (log.item_max_dimension.width > 0)
+                        {
+                            if (log.item_max_dimension.width < (Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR)))
+                            {
+                                lolosValidLogistic = false;
+                            }
                         }
                     }
                 }
