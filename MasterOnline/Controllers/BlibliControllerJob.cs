@@ -8409,10 +8409,12 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             //try
             //{
-            myReq.ContentLength = myData.Length;
+            var byteData = Encoding.UTF8.GetBytes(myData);
+            myReq.ContentLength = byteData.Length;
             using (var dataStream = myReq.GetRequestStream())
             {
-                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                //dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                dataStream.Write(byteData, 0, byteData.Length);
             }
             using (WebResponse response = myReq.GetResponse())
             {
