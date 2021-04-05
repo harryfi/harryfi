@@ -34,9 +34,9 @@ namespace MasterOnline.Utils
 
                 HostingEnvironment.RegisterObject(this);
 
-#if (Debug_AWS || DEBUG)
-                var testing = "";
-#elif (DEV)
+//#if (Debug_AWS || DEBUG)
+//                var testing = "";
+#if (DEV)
                 // START SETTING HANGFIRE PRO REDIS
                 //Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("mo-prod-redis.df2l2v.0001.apse1.cache.amazonaws.com,abortConnect=false,ssl=true,password=...");
                 //Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("127.0.0.1,abortConnect=false,ssl=true,password=...");
@@ -123,13 +123,19 @@ namespace MasterOnline.Utils
                         }
                         else
                         {
-                            foreach (var server in serverList)
+                            string sSQLCheckDuplicate = "select * from hangfire.server where lastheartbeat > dateadd(MINUTE, -2, GETDATE())";
+                            var checkDuplicate = erasoft.Database.SqlQuery<HANGFIRE_SERVER>(sSQLCheckDuplicate).ToList();
+
+                            if(checkDuplicate.Count() == 0)
                             {
-                                var serverConnection = sqlStorage.GetConnection();
-                                serverConnection.RemoveServer(server.Name);
-                                serverConnection.Dispose();
+                                foreach (var server in serverList)
+                                {
+                                    var serverConnection = sqlStorage.GetConnection();
+                                    serverConnection.RemoveServer(server.Name);
+                                    serverConnection.Dispose();
+                                }
+                                startHangfireServer(sqlStorage);
                             }
-                            startHangfireServer(sqlStorage);
                         }
                     }
                 }
@@ -205,24 +211,40 @@ namespace MasterOnline.Utils
                             //}
                             //else
                             //{
-                            foreach (var server in serverList)
-                            {
-                                var serverConnection = sqlStorage.GetConnection();
-                                serverConnection.RemoveServer(server.Name);
-                                serverConnection.Dispose();
-                            }
+                            //foreach (var server in serverList)
+                            //{
+                            //    var serverConnection = sqlStorage.GetConnection();
+                            //    serverConnection.RemoveServer(server.Name);
+                            //    serverConnection.Dispose();
+                            //}
                             startHangfireServer(sqlStorage);
                             //}
                         }
                         else
                         {
-                            foreach (var server in serverList)
+                            string sSQLCheckDuplicate = "select * from hangfire.server where lastheartbeat > dateadd(MINUTE, -2, GETDATE())";
+                            var checkDuplicate = erasoft.Database.SqlQuery<HANGFIRE_SERVER>(sSQLCheckDuplicate).ToList();
+
+                            if(checkDuplicate.Count() == 0)
                             {
-                                var serverConnection = sqlStorage.GetConnection();
-                                serverConnection.RemoveServer(server.Name);
-                                serverConnection.Dispose();
+                                //foreach (var server in serverList)
+                                //{
+                                //    var serverConnection = sqlStorage.GetConnection();
+                                //    serverConnection.RemoveServer(server.Name);
+                                //    serverConnection.Dispose();
+                                //}
+                                startHangfireServer(sqlStorage);
                             }
-                            startHangfireServer(sqlStorage);
+                            else
+                            {
+                                foreach (var server in serverList)
+                                {
+                                    var serverConnection = sqlStorage.GetConnection();
+                                    serverConnection.RemoveServer(server.Name);
+                                    serverConnection.Dispose();
+                                }
+                                startHangfireServer(sqlStorage);
+                            }
                         }
                     }
                 } 

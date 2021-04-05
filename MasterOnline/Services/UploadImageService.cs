@@ -209,6 +209,10 @@ namespace MasterOnline.Services
             try
             {
                 path = path + "." + url.Split('.').Last();
+                if (path.Contains("?v="))
+                {
+                    path = albumid + "/" + fileName;
+                }
                 IAmazonS3 client;
                 Stream inputSteram = null;
 

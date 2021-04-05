@@ -36133,7 +36133,51 @@ namespace MasterOnline.Controllers
             //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
             //var path = Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", filename);
-            var path = AwsConfig._amazonS3PublicUrl + AwsConfig._bucketFileName_Log + dbPathEra + "_" + filename;
+            var path = "";
+            if (filename.Contains(AwsConfig._amazonS3PublicUrl))
+            {
+                path = filename;
+            }
+            else
+            {
+                path = AwsConfig._amazonS3PublicUrl + AwsConfig._bucketFileName_Log + dbPathEra + "_" + filename;
+            }
+
+            byte[] dataByte = null;
+
+            using (var wc = new System.Net.WebClient())
+            {
+                dataByte = wc.DownloadData(path);
+            }
+
+            //byte[] data = System.IO.File.ReadAllBytes(path);
+            string contentType = MimeMapping.GetMimeMapping(path);
+            var cd = new System.Net.Mime.ContentDisposition
+            {
+                FileName = filename,
+                Inline = true,
+            };
+            //Response.AppendHeader("Content-Disposition", cd.ToString());
+
+            return File(dataByte, contentType, filename);
+        }
+
+        [HttpGet]
+        public FileResult DownloadLog(string filename)
+        {
+            //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
+            //var path = Path.Combine(IPServerLocation + @"Content\Uploaded\" + dbPathEra + @"\", filename);
+            var path = "";
+            if (filename.Contains(AwsConfig._amazonS3PublicUrl))
+            {
+                path = filename;
+            }
+            else
+            {
+                path = AwsConfig._amazonS3PublicUrl + AwsConfig._bucketFileName_Log + dbPathEra + "_" + filename;
+            }
+
             byte[] dataByte = null;
 
             using (var wc = new System.Net.WebClient())

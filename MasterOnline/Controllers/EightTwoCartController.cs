@@ -3430,7 +3430,7 @@ namespace MasterOnline.Controllers
             public string depth { get; set; }
             public string weight { get; set; }
             public string additional_shipping_cost { get; set; }
-            public int quantity { get; set; }
+            public int? quantity { get; set; }
             public int minimal_quantity { get; set; }
             public int out_of_stock { get; set; }
             public string indexed { get; set; }
