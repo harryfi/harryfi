@@ -3816,13 +3816,17 @@ namespace MasterOnline.Controllers
             return RedirectToAction("PartnerApi");
         }
 
+        //api_baim start 06/04/2021
         public ActionResult OauthCode()
         {
             var urlBuilder = new System.UriBuilder(Request.Url.AbsoluteUri);
             string query = urlBuilder.Query;
 
+#if (AWS)
+            string url = "https://api.masteronline.co.id/webhook/api/oauthcallback" + query;
+#else
             string url = "https://devapi.masteronline.co.id/webhook/api/oauthcallback" + query;
-
+#endif
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(url);
 
             myReq.Method = "POST";
@@ -3858,6 +3862,7 @@ namespace MasterOnline.Controllers
 
             return View("OauthCode");
         }
+        //api_baim end 06/04/2021
 
         [HttpGet]
         public ActionResult GetDataPartner()
@@ -4805,10 +4810,10 @@ namespace MasterOnline.Controllers
                     var vmError = new CustomerViewModel() { };
                     var dataArf01 = ErasoftDbContext.ARF01.Where(p => p.CUST == kodecust).SingleOrDefault();
 
-                    var cekKodeSap = ErasoftDbContext.ARF01.Where(x => x.BANK_NO_ACCURATE == kodesap).ToList();
-                    if (cekKodeSap.Count > 0)
+                    var cekKodeSap = ErasoftDbContext.ARF01.Where(x => x.BANK_NO_ACCURATE == kodesap).FirstOrDefault();
+                    if (cekKodeSap != null)
                     {
-                        if (cekKodeSap[0].RecNum != dataArf01.RecNum)
+                        if (cekKodeSap.RecNum != dataArf01.RecNum)
                         {
                             vmError.Errors.Add("Kode Bank API ( " + kodesap + " ) sudah ada yang menggunakan !");
                             return Json(vmError, JsonRequestBehavior.AllowGet);
@@ -4819,10 +4824,10 @@ namespace MasterOnline.Controllers
                         dataArf01.BANK_NO_ACCURATE = kodesap.ToString();
                     }
 
-                    var cekBranchName = ErasoftDbContext.ARF01.Where(x => x.BRANCH_NAME_ACCURATE == branchname).ToList();
-                    if (cekBranchName.Count > 0)
+                    var cekBranchName = ErasoftDbContext.ARF01.Where(x => x.BRANCH_NAME_ACCURATE == branchname).FirstOrDefault();
+                    if (cekBranchName != null)
                     {
-                        if (cekBranchName[0].RecNum != dataArf01.RecNum)
+                        if (cekBranchName.RecNum != dataArf01.RecNum)
                         {
                             vmError.Errors.Add("Branch Name ( " + branchname + " ) sudah ada yang menggunakan !");
                             return Json(vmError, JsonRequestBehavior.AllowGet);
@@ -4834,10 +4839,10 @@ namespace MasterOnline.Controllers
                     }
 
                     int intbranchid = Convert.ToInt32(branchid);
-                    var cekBranchId = ErasoftDbContext.ARF01.Where(x => x.BRANCH_ID_ACCURATE == intbranchid).ToList();
-                    if (cekBranchId.Count > 0)
+                    var cekBranchId = ErasoftDbContext.ARF01.Where(x => x.BRANCH_ID_ACCURATE == intbranchid).FirstOrDefault();
+                    if (cekBranchId != null)
                     {
-                        if (cekBranchId[0].RecNum != dataArf01.RecNum)
+                        if (cekBranchId.RecNum != dataArf01.RecNum)
                         {
                             vmError.Errors.Add("Branch Id ( " + branchid + " ) sudah ada yang menggunakan !");
                             return Json(vmError, JsonRequestBehavior.AllowGet);
@@ -18908,7 +18913,7 @@ namespace MasterOnline.Controllers
             }
 
             //api_baim
-            string id_invoice = dataVm.Faktur.NO_KENDARAAN;
+            string id_invoice = dataVm.Faktur.NO_REF;
             string no_invoice = "";
 
             List<string> ListBrgKomponenSIT01B = new List<string>();
@@ -19351,7 +19356,7 @@ namespace MasterOnline.Controllers
 
                 //api_baim
                 no_invoice = fakturInDb.NO_BUKTI;
-                id_invoice = fakturInDb.NO_KENDARAAN;
+                id_invoice = fakturInDb.NO_REF;
                 //id_barang = dataVm.FakturDetail.BRG_SO == null ? null : dataVm.FakturDetail.BRG_SO;
 
 
@@ -19610,84 +19615,88 @@ namespace MasterOnline.Controllers
             ErasoftDbContext.SaveChanges();
             ModelState.Clear();
 
-            //api_baim
-            var partnerDb = ErasoftDbContext.PARTNER_API.Single(p => p.PartnerId == 20007);
-            if (partnerDb.Status == true)
+            //api_baim start 06/04/2021
+            var partnerDb = ErasoftDbContext.PARTNER_API.FirstOrDefault(p => p.PartnerId == 20007);
+            if (partnerDb != null)
             {
-                string email_to_accurate = MoDbContext.Account.Single(a => a.Username == usernameLogin).Email;
-                string access_token = partnerDb.Access_Token;
-                string refresh_token = partnerDb.Refresh_Token;
-                string session = partnerDb.Session;
-                string host = partnerDb.Host;
-
-                var getArf01 = ErasoftDbContext.ARF01.FirstOrDefault(p => p.CUST == dataVm.Faktur.CUST);
-                var bankNo = getArf01.BANK_NO_ACCURATE;
-                var branch_id = getArf01.BRANCH_ID_ACCURATE.ToString();
-
-                //var bankNo = ErasoftDbContext.ARF01.Single(p => p.CUST == dataVm.Faktur.CUST).BANK_NO_ACCURATE;
-                //var branch_id = ErasoftDbContext.ARF01.Single(p => p.CUST == dataVm.Faktur.CUST).BRANCH_ID_ACCURATE.ToString();
-                //string branch_code = dataVm.Faktur.CUST;
-                //string branch_name = ErasoftDbContext.Database.SqlQuery<string>(@"SELECT TOP 1 m.NamaMarket + ' - ' + a.PERSO [NamaPelanggan] " +
-                //                            "FROM [SIT01A] s LEFT JOIN[ARF01] a on s.cust = a.cust LEFT JOIN MO..Marketplace m on a.NAMA = m.IdMarket " +
-                //                            "WHERE s.CUST = '" + dataVm.Faktur.CUST + "'").Single();
-
-                string cust = ErasoftDbContext.ARF01C.Single(a => a.BUYER_CODE == dataVm.Faktur.PEMESAN).TLP;
-                string cust_name = dataVm.Faktur.NAMAPEMESAN;
-
-                //string cust_name = ErasoftDbContext.ARF01.Single(p => p.CUST == dataVm.Faktur.CUST).PERSO;
-                string tglfaktur = dataVm.Faktur.TGL.ToString("dd/MM/yyyy");
-
-                string id_barang = dataVm.FakturDetail.BRG_SO;
-                string kode_barang = dataVm.FakturDetail.BRG;
-                int qty = Convert.ToInt32(dataVm.FakturDetail.QTY);
-                int h_barang = Convert.ToInt32(dataVm.FakturDetail.H_SATUAN);
-                double? disc = dataVm.FakturDetail.NILAI_DISC; //Convert.ToDouble(
-                //string kode_barang = "";
-                //int qty = 0;
-                //int h_barang = 0;
-                //double? disc = 0;
-                double disc_perc = 0;
-                double? netto_invoice = dataVm.Faktur.NETTO;
-                string myData = "";
-
-                var acc = new AccInvoice()
+                if (partnerDb.Status == true)
                 {
-                    email = email_to_accurate,
-                    access_token = access_token,
-                    refresh_token = refresh_token,
-                    session = session,
-                    host = host,
-                    is_delete_faktur = false,
-                    is_delete_item = false,
-                    bankNo = bankNo,
-                    branch_id = branch_id,
-                    //branch_name = branch_name,
-                    //branch_code = branch_code,
-                    cust = cust,
-                    cust_name = cust_name,
-                    no_invoice = no_invoice,
-                    id_invoice = id_invoice,
-                    date_invoice = tglfaktur,
-                    kode_barang = kode_barang,
-                    qty = qty,
-                    h_barang = h_barang,
-                    discount = disc //dataVm.FakturDetail.NILAI_DISC
-                };
+                    string email_to_accurate = MoDbContext.Account.SingleOrDefault(a => a.DatabasePathErasoft == dbPathEra).Email;
+                    string access_token = partnerDb.Access_Token;
+                    string refresh_token = partnerDb.Refresh_Token;
+                    string session = partnerDb.Session;
+                    string host = partnerDb.Host;
 
-                if (partnerDb.isPaid == true)
-                {
-                    acc.is_paid = true;
-                    acc.netto_invoice = netto_invoice;
-                    myData = Newtonsoft.Json.JsonConvert.SerializeObject(acc);
+                    var getArf01 = ErasoftDbContext.ARF01.FirstOrDefault(p => p.CUST == dataVm.Faktur.CUST);
+                    var bankNo = getArf01.BANK_NO_ACCURATE;
+                    var branch_id = getArf01.BRANCH_ID_ACCURATE.ToString();
+
+                    //var bankNo = ErasoftDbContext.ARF01.Single(p => p.CUST == dataVm.Faktur.CUST).BANK_NO_ACCURATE;
+                    //var branch_id = ErasoftDbContext.ARF01.Single(p => p.CUST == dataVm.Faktur.CUST).BRANCH_ID_ACCURATE.ToString();
+                    //string branch_code = dataVm.Faktur.CUST;
+                    //string branch_name = ErasoftDbContext.Database.SqlQuery<string>(@"SELECT TOP 1 m.NamaMarket + ' - ' + a.PERSO [NamaPelanggan] " +
+                    //                            "FROM [SIT01A] s LEFT JOIN[ARF01] a on s.cust = a.cust LEFT JOIN MO..Marketplace m on a.NAMA = m.IdMarket " +
+                    //                            "WHERE s.CUST = '" + dataVm.Faktur.CUST + "'").Single();
+
+                    string cust = ErasoftDbContext.ARF01C.Single(a => a.BUYER_CODE == dataVm.Faktur.PEMESAN).TLP;
+                    string cust_name = dataVm.Faktur.NAMAPEMESAN;
+
+                    //string cust_name = ErasoftDbContext.ARF01.Single(p => p.CUST == dataVm.Faktur.CUST).PERSO;
+                    string tglfaktur = dataVm.Faktur.TGL.ToString("dd/MM/yyyy");
+
+                    string id_barang = dataVm.FakturDetail.BRG_SO;
+                    string kode_barang = dataVm.FakturDetail.BRG;
+                    int qty = Convert.ToInt32(dataVm.FakturDetail.QTY);
+                    int h_barang = Convert.ToInt32(dataVm.FakturDetail.H_SATUAN);
+                    double? disc = dataVm.FakturDetail.NILAI_DISC; //Convert.ToDouble(
+                    //string kode_barang = "";
+                    //int qty = 0;
+                    //int h_barang = 0;
+                    //double? disc = 0;
+                    double disc_perc = 0;
+                    double? netto_invoice = dataVm.Faktur.NETTO;
+                    string myData = "";
+
+                    var acc = new AccInvoice()
+                    {
+                        email = email_to_accurate,
+                        access_token = access_token,
+                        refresh_token = refresh_token,
+                        session = session,
+                        host = host,
+                        is_delete_faktur = false,
+                        is_delete_item = false,
+                        bankNo = bankNo,
+                        branch_id = branch_id,
+                        //branch_name = branch_name,
+                        //branch_code = branch_code,
+                        cust = cust,
+                        cust_name = cust_name,
+                        no_invoice = no_invoice,
+                        id_invoice = id_invoice,
+                        date_invoice = tglfaktur,
+                        kode_barang = kode_barang,
+                        qty = qty,
+                        h_barang = h_barang,
+                        discount = disc //dataVm.FakturDetail.NILAI_DISC
+                    };
+
+                    if (partnerDb.isPaid == true)
+                    {
+                        acc.is_paid = true;
+                        acc.netto_invoice = netto_invoice;
+                        myData = Newtonsoft.Json.JsonConvert.SerializeObject(acc);
+                    }
+                    else
+                    {
+                        acc.is_paid = false;
+                        myData = Newtonsoft.Json.JsonConvert.SerializeObject(acc);
+                    }
+
+                    FakturAccurate(myData, "insert-item");
                 }
-                else
-                {
-                    acc.is_paid = false;
-                    myData = Newtonsoft.Json.JsonConvert.SerializeObject(acc);
-                }
-
-                FakturAccurate(myData, "insert-item");
             }
+            //api_baim end 06/04/2021
 
             //add by calvin 8 nov 2018, update stok marketplace
             List<string> listBrg = new List<string>();
@@ -21092,44 +21101,41 @@ namespace MasterOnline.Controllers
         public ActionResult DeleteFaktur(int? orderId)
         {
             var fakturInDb = ErasoftDbContext.SIT01A.Single(p => p.RecNum == orderId && p.JENIS_FORM == "2");
-
-            var partnerDb = ErasoftDbContext.PARTNER_API.Single(p => p.PartnerId == 20007);
+            
+            //api_baim start 06/04/2021
+            var partnerDb = ErasoftDbContext.PARTNER_API.FirstOrDefault(p => p.PartnerId == 20007);
             var logError = ErasoftDbContext.PARTNER_API_LOG_ERROR.FirstOrDefault(e => e.No_Bukti == fakturInDb.NO_BUKTI);
 
-            if (partnerDb.Status == true)
+            if (partnerDb != null)
             {
-                string email_to_accurate = MoDbContext.Account.Single(a => a.Username == usernameLogin).Email;
-                string access_token = partnerDb.Access_Token;
-                string session = partnerDb.Session;
-                string host = partnerDb.Host;
-                string id_invoice = fakturInDb.NO_KENDARAAN;
-                string myData = "";
+                if (partnerDb.Status == true)
+                {
+                    string email_to_accurate = MoDbContext.Account.FirstOrDefault(a => a.DatabasePathErasoft == dbPathEra).Email;
+                    string access_token = partnerDb.Access_Token;
+                    string session = partnerDb.Session;
+                    string host = partnerDb.Host;
+                    string id_invoice = fakturInDb.NO_KENDARAAN;
+                    string myData = "";
 
-                var acc = new AccInvoice()
-                {
-                    email = email_to_accurate,
-                    access_token = access_token,
-                    session = session,
-                    host = host,
-                    is_delete_faktur = true,
-                    id_invoice = id_invoice
-                };
-                if (partnerDb.isPaid == true)
-                {
-                    acc.is_paid = true;
-                }
-                else
-                {
-                    acc.is_paid = false;
-                }
-                myData = Newtonsoft.Json.JsonConvert.SerializeObject(acc);
-                FakturAccurate(myData, "delete-invoice");
+                    var acc = new AccInvoice()
+                    {
+                        email = email_to_accurate,
+                        access_token = access_token,
+                        session = session,
+                        host = host,
+                        is_delete_faktur = true,
+                        id_invoice = id_invoice
+                    };
+                    myData = Newtonsoft.Json.JsonConvert.SerializeObject(acc);
+                    FakturAccurate(myData, "delete-invoice");
 
-                if (logError != null)
-                {
-                    ErasoftDbContext.PARTNER_API_LOG_ERROR.Remove(logError);
+                    if (logError != null)
+                    {
+                        ErasoftDbContext.PARTNER_API_LOG_ERROR.Remove(logError);
+                    }
                 }
             }
+            //api_baim end 06/04/2021
 
             //add by calvin 8 nov 2018, update stok marketplace
             List<string> listBrg = new List<string>();
@@ -21245,57 +21251,61 @@ namespace MasterOnline.Controllers
                 var barangFakturInDb = ErasoftDbContext.SIT01B.Single(b => b.NO_URUT == noUrut && b.JENIS_FORM == "2");
                 var fakturInDb = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == barangFakturInDb.NO_BUKTI && p.JENIS_FORM == "2");
 
-                var partnerDb = ErasoftDbContext.PARTNER_API.Single(p => p.PartnerId == 20007);
-                if (partnerDb.Status == true)
+                //api_baim start 06/04/2021
+                var partnerDb = ErasoftDbContext.PARTNER_API.FirstOrDefault(p => p.PartnerId == 20007);
+                if (partnerDb != null)
                 {
-                    string email_to_accurate = MoDbContext.Account.Single(a => a.Username == usernameLogin).Email;
-                    string access_token = partnerDb.Access_Token;
-                    string session = partnerDb.Session;
-                    string host = partnerDb.Host;
-                    string cust = fakturInDb.CUST;
-                    string tglfaktur = fakturInDb.TGL.ToString("dd/MM/yyyy");
-                    string id_invoice = fakturInDb.NO_KENDARAAN;
-                    string id_barang = barangFakturInDb.BRG_SO;
-                    var getArf01 = ErasoftDbContext.ARF01.FirstOrDefault(p => p.CUST == fakturInDb.CUST);
-                    var bankNo = getArf01.BANK_NO_ACCURATE;
-                    var branch_id = getArf01.BRANCH_ID_ACCURATE.ToString();
-                    //var bankNo = ErasoftDbContext.ARF01.Single(p => p.CUST == fakturInDb.CUST).BANK_NO_ACCURATE;
-                    //var branch_id = ErasoftDbContext.ARF01.Single(p => p.CUST == fakturInDb.CUST).BRANCH_ID_ACCURATE.ToString();
-                    string myData = "";
+                    if (partnerDb.Status == true)
+                    {
+                        string email_to_accurate = MoDbContext.Account.Single(a => a.Username == usernameLogin).Email;
+                        string access_token = partnerDb.Access_Token;
+                        string session = partnerDb.Session;
+                        string host = partnerDb.Host;
+                        string cust = fakturInDb.CUST;
+                        string tglfaktur = fakturInDb.TGL.ToString("dd/MM/yyyy");
+                        string id_invoice = fakturInDb.NO_KENDARAAN;
+                        string id_barang = barangFakturInDb.BRG_SO;
+                        var getArf01 = ErasoftDbContext.ARF01.FirstOrDefault(p => p.CUST == fakturInDb.CUST);
+                        var bankNo = getArf01.BANK_NO_ACCURATE;
+                        var branch_id = getArf01.BRANCH_ID_ACCURATE.ToString();
+                        //var bankNo = ErasoftDbContext.ARF01.Single(p => p.CUST == fakturInDb.CUST).BANK_NO_ACCURATE;
+                        //var branch_id = ErasoftDbContext.ARF01.Single(p => p.CUST == fakturInDb.CUST).BRANCH_ID_ACCURATE.ToString();
+                        string myData = "";
 
-                    var acc = new AccInvoice()
-                    {
-                        email = email_to_accurate,
-                        access_token = access_token,
-                        session = session,
-                        host = host,
-                        is_delete_faktur = false,
-                        is_delete_item = true,
-                        cust = cust,
-                        id_invoice = id_invoice,
-                        date_invoice = tglfaktur,
-                        id_barang = id_barang,
-                        branch_id = branch_id,
-                        bankNo = bankNo,
-                        is_paid = partnerDb.isPaid == true ? true : false
-                    };
-                    //if (partnerDb.isPaid == true)
-                    //    acc.is_paid = true;
+                        var acc = new AccInvoice()
+                        {
+                            email = email_to_accurate,
+                            access_token = access_token,
+                            session = session,
+                            host = host,
+                            is_delete_faktur = false,
+                            is_delete_item = true,
+                            cust = cust,
+                            id_invoice = id_invoice,
+                            date_invoice = tglfaktur,
+                            id_barang = id_barang,
+                            branch_id = branch_id,
+                            bankNo = bankNo,
+                            is_paid = partnerDb.isPaid == true ? true : false
+                        };
+                        //if (partnerDb.isPaid == true)
+                        //    acc.is_paid = true;
 
-                    var listItemFaktur = ErasoftDbContext.SIT01B.Where(i => i.NO_BUKTI == barangFakturInDb.NO_BUKTI && i.JENIS_FORM == "2").ToList();
-                    if ((listItemFaktur.Count() - 1) == 0)
-                    {
-                        acc.is_delete_faktur = true;
-                        myData = Newtonsoft.Json.JsonConvert.SerializeObject(acc);
-                        FakturAccurate(myData, "delete-invoice");
-                    }
-                    else
-                    {
-                        myData = Newtonsoft.Json.JsonConvert.SerializeObject(acc);
-                        FakturAccurate(myData, "delete-item");
+                        var listItemFaktur = ErasoftDbContext.SIT01B.Where(i => i.NO_BUKTI == barangFakturInDb.NO_BUKTI && i.JENIS_FORM == "2").ToList();
+                        if ((listItemFaktur.Count() - 1) == 0)
+                        {
+                            acc.is_delete_faktur = true;
+                            myData = Newtonsoft.Json.JsonConvert.SerializeObject(acc);
+                            FakturAccurate(myData, "delete-invoice");
+                        }
+                        else
+                        {
+                            myData = Newtonsoft.Json.JsonConvert.SerializeObject(acc);
+                            FakturAccurate(myData, "delete-item");
+                        }
                     }
                 }
-
+                //api_baim end 06/04/2021
 
                 //CHANGE BY NURUL 4/11/2020
                 //fakturInDb.BRUTO -= barangFakturInDb.HARGA;
@@ -46194,33 +46204,36 @@ namespace MasterOnline.Controllers
         }
         //end add by calvin 17 mei 2019
 
-        //api_baim
+        //api_baim start 06/04/2021
         public ActionResult RetryInvoiceApi(string nobukti)
         {
             try
             {
                 var apilog = ErasoftDbContext.PARTNER_API_LOG_ERROR.Single(a => a.No_Bukti == nobukti);
+                var partnerDb = ErasoftDbContext.PARTNER_API.FirstOrDefault(p => p.PartnerId == 20007);
 
-                var partnerDb = ErasoftDbContext.PARTNER_API.Single(p => p.fs_id == 1);
-                if (partnerDb.Status == true)
+                if (partnerDb != null)
                 {
-                    string email_to_accurate = MoDbContext.Account.Single(a => a.Username == usernameLogin).Email;
-                    string access_token = partnerDb.Access_Token;
-                    string session = partnerDb.Session;
-                    string host = partnerDb.Host;
-
-                    var acc = new AccInvoice()
+                    if (partnerDb.Status == true)
                     {
-                        email = email_to_accurate,
-                        access_token = access_token,
-                        session = session,
-                        host = host,
-                        is_delete_faktur = false,
-                        is_delete_item = false,
-                        bulk = apilog.JSON_String
-                    };
-                    string myData = Newtonsoft.Json.JsonConvert.SerializeObject(acc);
-                    FakturAccurate(myData, "insert-bulk");
+                        string email_to_accurate = MoDbContext.Account.Single(a => a.Username == usernameLogin).Email;
+                        string access_token = partnerDb.Access_Token;
+                        string session = partnerDb.Session;
+                        string host = partnerDb.Host;
+
+                        var acc = new AccInvoice()
+                        {
+                            email = email_to_accurate,
+                            access_token = access_token,
+                            session = session,
+                            host = host,
+                            is_delete_faktur = false,
+                            is_delete_item = false,
+                            bulk = apilog.JSON_String
+                        };
+                        string myData = Newtonsoft.Json.JsonConvert.SerializeObject(acc);
+                        FakturAccurate(myData, "insert-bulk");
+                    }
                 }
                 return new JsonResult { Data = "Success", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
@@ -46229,6 +46242,7 @@ namespace MasterOnline.Controllers
                 throw e;
             }
         }
+        //api_baim start 06/04/2021
 
 
 
@@ -67335,7 +67349,16 @@ namespace MasterOnline.Controllers
                         listNobukFaktur = listNobukFaktur.Substring(0, listNobukFaktur.Length - 2);
                         var listFakturArray = newFakturs.Select(a => a.NO_BUKTI).ToList();
                         Task.Run(() => UpdateBrutoPackingTransactionVersi2(listNobukFaktur, listRecnumEnd, listFakturArray).Wait());
-                        BulkAccurate(listNobukFaktur, listFakturArray);
+                        //api_baim start 06/04/2021
+                        var partnerDb = ErasoftDbContext.PARTNER_API.FirstOrDefault(p => p.PartnerId == 20007);
+                        if (partnerDb != null)
+                        {
+                            if (partnerDb.Status == true)
+                            {
+                                BulkAccurate(listNobukFaktur, listFakturArray);
+                            }
+                        }
+                        //api_baim end 06/04/2021
                         #endregion
                     }
                     catch (Exception ex)
@@ -67444,11 +67467,10 @@ namespace MasterOnline.Controllers
         }
         //end add by nurul 21/11/2020
 
-        //add by ibrahim 22/3/2021
+        //api_baim start 06/04/2021
         public async Task<string> BulkAccurate(string listFaktur, List<string> listFakturArray)
         {
-            //api_baim
-            var partnerDb = ErasoftDbContext.PARTNER_API.Single(p => p.PartnerId == 20007);
+            var partnerDb = ErasoftDbContext.PARTNER_API.FirstOrDefault(p => p.PartnerId == 20007);
             string invoiceJson = "";
             string tempJson = "";
             string comma = "";
@@ -67460,11 +67482,9 @@ namespace MasterOnline.Controllers
             string commaReceipt = "";
             double totalPaymentAmount = 0;
 
-            //api_baim
             var custList = new customerList();
             custList.listCustomerNo = new List<listCustomer>();
 
-            //api_baim
             var sit01a = ErasoftDbContext.Database.SqlQuery<SIT01A>("SELECT * FROM SIT01A WHERE NO_BUKTI IN (" + listFaktur + ")").ToList();
             var listSIT01B = ErasoftDbContext.Database.SqlQuery<SIT01B>("SELECT * FROM SIT01B WHERE NO_BUKTI IN (" + listFaktur + ")").ToList();
 
@@ -67504,7 +67524,6 @@ namespace MasterOnline.Controllers
                     totalPaymentAmount += item_invoice.quantity * item_invoice.unitPrice - item_invoice.itemCashDiscount;
                 }
 
-                //api_baim
                 var dataReceipt = new Datumm();
                 dataReceipt.branchId = getArf01.Where(a => a.CUST == newSIT01A.CUST).FirstOrDefault().branchId;
                 dataReceipt.bankNo = getArf01.Where(a => a.CUST == newSIT01A.CUST).FirstOrDefault().bankNo;
@@ -67524,7 +67543,6 @@ namespace MasterOnline.Controllers
                 tempReceipt = "";
                 totalPaymentAmount = 0;
 
-                //api_baim
                 tempJson = Newtonsoft.Json.JsonConvert.SerializeObject(dataInvoice);
                 comma = sit01a.IndexOf(newSIT01A) == sit01a.Count() - 1 ? "" : ",";
                 invoiceJson += tempJson + comma;
@@ -67540,12 +67558,11 @@ namespace MasterOnline.Controllers
                 tempCust = "";
             }
 
-            string email_to_accurate = MoDbContext.Account.Single(a => a.Username == usernameLogin).Email;
+            string email_to_accurate = MoDbContext.Account.FirstOrDefault(a => a.DatabasePathErasoft == dbPathEra).Email;
             string access_token = partnerDb.Access_Token;
             string session = partnerDb.Session;
             string host = partnerDb.Host;
 
-            //api_baim
             var acc = new AccInvoice()
             {
                 email = email_to_accurate,
@@ -67570,7 +67587,7 @@ namespace MasterOnline.Controllers
             }
             return "OK";
         }
-        //end add by nurul 22/3/2021
+        //api_baim end 06/04/2021
 
         //add by nurul 4/1/2021
         public ActionResult prosesAkhirTahunGL(string Tahun)
