@@ -9153,6 +9153,14 @@ namespace MasterOnline.Controllers
                 height = Convert.ToInt32(Convert.ToDouble(data.Height)),
                 weight = Convert.ToInt32(Convert.ToDouble(data.berat)),
             };
+
+            //add 6 april 2021, validasi big product
+            if (newData.dimension.weight > 50000)// berat lebih dari 50kg -> big product
+            {
+                newData.product.productType = 2;
+            }
+            //end add 6 april 2021, validasi big product
+
             newData.pickupPoint = new RevisepickupPoint
             {
                 code = data.PickupPoint
