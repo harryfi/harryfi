@@ -7504,6 +7504,12 @@ namespace MasterOnline.Controllers
                 //diisi dengan AVALUE_39
                 productStory = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
             };
+            //add 6 april 2021, validasi big product
+            if(newData.weight > 50000)// berat lebih dari 50kg -> big product
+            {
+                newData.productType = 2;
+            }
+            //end add 6 april 2021, validasi big product
 
             //string sSQL = "SELECT * FROM (";
             //for (int i = 1; i <= 30; i++)
@@ -8409,10 +8415,12 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             //try
             //{
-            myReq.ContentLength = myData.Length;
+            var byteData = Encoding.UTF8.GetBytes(myData);
+            myReq.ContentLength = byteData.Length;
             using (var dataStream = myReq.GetRequestStream())
             {
-                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                //dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                dataStream.Write(byteData, 0, byteData.Length);
             }
             using (WebResponse response = myReq.GetResponse())
             {
@@ -9145,6 +9153,14 @@ namespace MasterOnline.Controllers
                 height = Convert.ToInt32(Convert.ToDouble(data.Height)),
                 weight = Convert.ToInt32(Convert.ToDouble(data.berat)),
             };
+
+            //add 6 april 2021, validasi big product
+            if (newData.dimension.weight > 50000)// berat lebih dari 50kg -> big product
+            {
+                newData.product.productType = 2;
+            }
+            //end add 6 april 2021, validasi big product
+
             newData.pickupPoint = new RevisepickupPoint
             {
                 code = data.PickupPoint
