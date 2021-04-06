@@ -30,5 +30,7 @@ namespace MasterOnline.Models
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int RECNUM { get; set; }
+        public string VAR_1 { get; set; }
+        public string VAR_2 { get; set; }
     }
 }
