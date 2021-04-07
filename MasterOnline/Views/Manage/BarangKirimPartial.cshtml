@@ -97,24 +97,24 @@
     </div>
     <div class="row">
         <div class="form-group text-left">
-            @Html.LabelFor(m => m.Pengiriman.KURIR, "Kurir", new { @class = "col-md-3 col-sm-3 col-xs-12 control-label" })
+            @Html.LabelFor(m => m.Pengiriman.NAMA_EKSPEDISI, "Kurir", new { @class = "col-md-3 col-sm-3 col-xs-12 control-label" })
             <div class="col-md-6 col-sm-6 col-xs-12" id="divShipment">
                 @*@Html.HiddenFor(m => m.Pengiriman.NAMAPENGIRIM)
                     @Html.HiddenFor(m => m.Pengiriman.EXPEDISI)*@
-                @Html.HiddenFor(m => m.Pengiriman.KURIR)
+                @*@Html.HiddenFor(m => m.Pengiriman.KURIR)*@
                 @Html.HiddenFor(m => m.Pengiriman.NAMA_EKSPEDISI)
                 <select id="EXPEDISI" placeholder="Harap Pilih" required="required"></select>
             </div>
         </div>
     </div>
-    <div class="row">
+    @*<div class="row">
         <div class="form-group text-left">
             @Html.LabelFor(m => m.Pengiriman.NAMA_KURIR, "Nama Kurir", new { @class = "col-md-3 col-sm-3 col-xs-12 control-label" })
             <div class="col-md-6 col-sm-6 col-xs-12" id="divShipment">
                 @Html.TextBoxFor(m => m.Pengiriman.NAMA_KURIR, new { @class = "form-control", @maxlength = "50" })
             </div>
         </div>
-    </div>
+    </div>*@
     <div class="row">
         <div class="form-group text-left">
             @Html.LabelFor(m => m.Pengiriman.JAM_KIRIM, "Jam Kirim", new { @class = "col-md-3 col-sm-3 col-xs-12 control-label" })
@@ -129,7 +129,7 @@
     </div>
 
     @*//add btn autoload*@
-    <div id="btn-autoload-row" class="row">
+    @*<div id="btn-autoload-row" class="row">
         <div class="col-lg-4"></div>
         <div class="col-lg-4"></div>
         <div class="col-lg-4">
@@ -140,7 +140,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>*@
     <div id="btn-print-row" class="row">
         <div class="col-lg-4"></div>
         <div class="col-lg-4"></div>
@@ -179,43 +179,74 @@
 
 <div class="row" style="margin-top: 15px;">
     <div class="col-lg-12">
-        @*<h5 class="pull-right" style="margin-top: 0;">Mata uang Rupiah (IDR)</h5>*@
         <table id="table_tambah_kirim" class="table table-bordered" role="grid">
             <thead>
                 <tr>
-                    <th width="20">Kode Pesanan</th>
-                    <th width="80">Marketplace</th>
-                    <th width="100">Pembeli</th>
-                    <th width="275">Alamat</th>
-                    <th width="100">Kurir</th>
+                    <th>No. Pesanan</th>
+                    <th>No. Referensi</th>
+                    <th>Marketplace</th>
+                    <th>Pembeli</th>
+                    <th>No. Resi</th>
+                    <th>Kurir</th>
                     <th width="30">Simpan</th>
                     <th width="30">Hapus</th>
                 </tr>
             </thead>
             <tbody>
-                @*@{
-                        var listBarang = Model.ListBarang.ToList();
-                    }*@
-                @foreach (var kirim in Model.ListPengirimanDetail.Where(pb => pb.NO_BUKTI == Model?.Pengiriman?.NO_BUKTI).ToList())
+                @*@foreach (var kirim in Model.ListPengirimanDetail.Where(pb => pb.NO_BUKTI == Model?.Pengiriman?.NO_BUKTI).ToList())
+        {
+            <tr data-barang-id="detail-@kirim.NO_URUT">
+                @{
+                    var kurirDetail = Model?.Shipment?.SingleOrDefault(a => a.NO_BUKTI == kirim.PESANAN).SHIPMENT;
+                }
+                <td>
+                    @kirim.PESANAN
+                </td>
+                <td class="mp-detail">
+                    @kirim.NAMA_MARKET
+                </td>
+                <td class="buyer-detail">
+                    @kirim.NAMA_PEMBELI
+                </td>
+                <td class="al-detail">
+                    @kirim.ALAMAT_KIRIM @kirim.KOTA @kirim.PROPINSI @kirim.KODE_POS
+                </td>
+                <td class="kurir-detail">
+                    @kurirDetail
+                </td>
+                <td class="edit-hapus-col">
+                    <button type="button" class="btn btn-primary" disabled="disabled">
+                        <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                    </button>
+                </td>
+                <td class="edit-hapus-col">
+                    <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusDetail" onclick="passBarangInDb('@kirim.NO_URUT')">
+                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                    </button>
+                </td>
+            </tr>
+        }*@
+                @foreach (var kirim in Model.CetakSerahTerima.Where(pb => pb.NO_BUKTI == Model?.Pengiriman?.NO_BUKTI).ToList())
                 {
                     <tr data-barang-id="detail-@kirim.NO_URUT">
-                        @{ 
+                        @*@{
                             var kurirDetail = Model?.Shipment?.SingleOrDefault(a => a.NO_BUKTI == kirim.PESANAN).SHIPMENT;
-                        }
+                        }*@
                         <td>
                             @kirim.PESANAN
                         </td>
+                        <td class="noref-detail">@kirim.NOREF</td>
                         <td class="mp-detail">
-                            @kirim.NAMA_MARKET
+                            @kirim.MARKETPLACE
                         </td>
                         <td class="buyer-detail">
-                            @kirim.NAMA_PEMBELI
+                            @kirim.PEMBELI
                         </td>
-                        <td class="al-detail">
-                            @kirim.ALAMAT_KIRIM @kirim.KOTA @kirim.PROPINSI @kirim.KODE_POS
+                        <td class="resi-detail">
+                            @kirim.RESI
                         </td>
                         <td class="kurir-detail">
-                            @kurirDetail
+                            @kirim.KURIR
                         </td>
                         <td class="edit-hapus-col">
                             <button type="button" class="btn btn-primary" disabled="disabled">
@@ -236,9 +267,14 @@
                         @Html.HiddenFor(m => m.PengirimanDetail.KOTA)
                         @Html.HiddenFor(m => m.PengirimanDetail.PROPINSI)
                         @Html.HiddenFor(m => m.PengirimanDetail.KODE_POS)
-                        <td style="width: 110px; max-width: 110px;">
+                        @Html.HiddenFor(m => m.PengirimanDetail.ALAMAT_KIRIM)
+                        <td style="width: 130px; max-width: 130px;">
                             <div id="PESANAN" class="selectivity-input" tabindex="0"></div>
                             @Html.HiddenFor(m => m.PengirimanDetail.PESANAN)
+                        </td>
+                        <td class="noref-detail">
+                            -
+                            @*@kirim.NOREF*@
                         </td>
                         <td class="mp-detail">
                             -
@@ -250,37 +286,14 @@
                             @Html.HiddenFor(m => m.PengirimanDetail.NAMA_PEMBELI)
 
                         </td>
-                        <td class="al-detail">
+                        <td class="resi-detail">
                             -
-                            @Html.HiddenFor(m => m.PengirimanDetail.ALAMAT_KIRIM)
+                            @*@Html.HiddenFor(m => m.PengirimanDetail.ALAMAT_KIRIM)*@
 
                         </td>
                         <td class="kurir-detail">
                             -
                         </td>
-                        @*<td class="stn-barang">
-            -
-            @Html.HiddenFor(m => m.PengirimanDetail.Satuan, new { Value = "2" })
-        </td>
-        <td class="harga-barang" style="text-align:right">
-            0,00
-            @Html.HiddenFor(m => m.PengirimanDetail.Harsat)
-        </td>
-        <td class="gd-barang">
-            <span id="gudang-kode">-</span>
-            <div id="gudang-select" style="display: none;">
-                <select id="GUDANG" placeholder="Harap pilih" required="required"></select>
-            </div>
-            @Html.HiddenFor(m => m.BarangStok.Ke_Gd)
-        </td>
-        <td class="qty-barang">
-            0
-            @Html.HiddenFor(m => m.BarangStok.Qty)
-        </td>
-        <td class="netto-barang" style="text-align:right">
-            0,00
-            @Html.HiddenFor(m => m.BarangStok.Harga)
-        </td>*@
                         <td class="edit-hapus-col">
                             <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpandetail('detail-0')">
                                 <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>

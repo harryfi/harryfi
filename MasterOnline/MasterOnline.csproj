@@ -6955,6 +6955,12 @@
     <Content Include="Views\Manage\LogErrorUploadInvoicePembelian.cshtml" />
     <Content Include="Views\Manage\TablePesananCancelCODPartial.cshtml" />
     <Content Include="Views\Manage\ListBrgForReturCODPopUp.cshtml" />
+    <Content Include="Views\Manage\RekapPengirimanMenu.cshtml" />
+    <Content Include="Views\Manage\TableDashboardDO.cshtml" />
+    <Content Include="Views\Manage\TableSemuaDO.cshtml" />
+    <Content Include="Views\Manage\TableBelumDO.cshtml" />
+    <Content Include="Views\Manage\TableSudahDO.cshtml" />
+    <Content Include="Views\Manage\ScanBarcodeSerahTerima.cshtml" />
     <Content Include="Views\Home\testing.cshtml" />
   </ItemGroup>
   <ItemGroup>

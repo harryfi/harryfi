@@ -1,0 +1,2284 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@model SerahTerimaViewModel
+@{
+    ViewBag.Title = "Rekap Serah Terima";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+
+    ErasoftContext erasoftContext = null;
+    var context = new MoDbContext("");
+
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+
+    if (dataSession?.Account != null)
+    {
+        erasoftContext = new ErasoftContext(dataSession.Account.DataSourcePath, dataSession.Account.DatabasePathErasoft);
+    }
+    else
+    {
+        var accFromUser = context.Account.Single(a => a.AccountId == dataSession.User.AccountId);
+        erasoftContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
+    }
+    var tglCutOff = Model?.cutoffPengiriman;
+    var modeEditDO = Model?.modeEditDO;
+    var EditKirimId = Model?.kirimId;
+    //if (!string.IsNullOrEmpty(Model?.cutoffPengiriman?.ToString()))
+    //{
+    //    tglCutOff = Model?.cutoffPengiriman?.ToString();
+    //}
+}
+@section styles
+{
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+    <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link type="text/css" href="~/Content/build/css/bootstrap-timepicker.min.css" />
+    <link type="text/css" href="~/Content/build/css/bootstrap-timepicker.css" />
+    <link href="~/Content/selectize.css" rel="stylesheet" />
+    <style>
+        .user-link {
+            text-decoration: underline;
+        }
+
+        #div-dashboard-scroll-list {
+            overflow-x: hidden;
+            overflow-y: auto;
+            height: 150px;
+        }
+
+        .input-group {
+            margin-bottom: 0;
+        }
+
+        .btn-success[disabled]:hover {
+            background: #6ad6bf;
+            border-color: #6ad6bf;
+        }
+
+        table#table_tambah_kirim thead tr {
+            background-color: #c7f1f5;
+        }
+
+        .qty-input {
+            width: 50px;
+        }
+
+        .harga-input {
+            width: 100px;
+        }
+
+        .disc-input {
+            width: 50px;
+        }
+
+        .ndisc-input {
+            width: 100px;
+        }
+
+        #GUDANG,
+        #GUDANG .selectivity-single-select-input {
+            width: 100px !important;
+        }
+
+        #kirim-section > div {
+            background-color: #fff;
+            padding: 20px;
+        }
+
+        #cetakfaktur_label {
+            color: orange;
+            font-weight: bold;
+        }
+
+        .disabled-tab {
+            cursor: not-allowed;
+            background-color: #999 !important;
+            color: #fff;
+        }
+
+            .disabled-tab:hover,
+            .disabled-tab:active,
+            .disabled-tab:visited {
+                color: #fff;
+            }
+    </style>
+}
+<div class="row">
+    @*@if (Model?.cutoffPengiriman == null)
+    {
+    <div class="col-md-4 col-xs-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Set Cutoff Serah Terima</h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <div class="row">
+                    <div class="col-md-6">
+                        @Html.Label("", "Tanggal Cutoff")
+                        <div class="input-group date">
+                            @Html.TextBoxFor(m => m.cutoffPengiriman, new { @class = "form-control", @ReadOnly = true })
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-6" style="padding-top:24px;">
+                        <button id="save-cutoff-btn" class="btn btn-primary" onclick="saveCutoff()">Simpan Cutoff</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    }*@
+    <div class="col-md-4 col-xs-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Belum Serah Terima</h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <div class="row">
+                    <div class="col-md-6">
+                        @Html.Label("", "Dari Tanggal")
+                        <div class="input-group date">
+                            @Html.TextBox("DrTanggalBefore", Model?.cutoffPengiriman?.ToString("dd/MM/yyyy"), new { @class = "form-control", Value = Model?.cutoffPengiriman?.ToString("dd/MM/yyyy"), @ReadOnly = true, @style = "background-color : #eee; cursor :not-allowed;" })
+                            
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        @Html.Label("", "S/d Tanggal")
+                        <div class="input-group date">
+                            @Html.TextBox("SdTanggalBefore", DateTime.UtcNow.AddHours(7).ToString("dd/MM/yyyy"), new { @class = "form-control", @ReadOnly = true, @style = "background-color : #eee; cursor :not-allowed;" })
+                            @*<span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>*@
+                        </div>
+                    </div>
+                </div>
+                @if(Model?.cutoffPengiriman == null)
+                {
+                    <br />
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button id="save-cutoff-btn" class="btn btn-primary" onclick="saveCutoff()">Simpan Cutoff Tanggal Hari Ini</button>
+                        </div>
+                    </div>
+                }
+                <br />
+                <div class="row">
+                    <div class="col-sm-12" id="table-dashboard-belum-do">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xs-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Sudah Serah Terima</h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <div class="row">
+                    <div class="col-md-6">
+                        @Html.Label("", "Dari Tanggal")
+                        <div class="input-group date">
+                            @Html.TextBox("DrTanggalAfter", null, new { @class = "form-control", @ReadOnly = true })
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        @Html.Label("", "S/d Tanggal")
+                        <div class="input-group date">
+                            @Html.TextBox("SdTanggalAfter", null, new { @class = "form-control", @ReadOnly = true })
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-sm-12" id="table-dashboard-sudah-do">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xs-12"></div>
+</div>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="" role="tabpanel" data-example-id="togglable-tabs">
+            <ul id="myTab" class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#tab_content1" id="semua-tab" role="tab" data-toggle="tab" aria-expanded="true">Semua Pesanan</a>
+                </li>
+                <li role="presentation" class="">
+                    <a href="#tab_content2" role="tab" id="belum-tab" data-toggle="tab" aria-expanded="false">Belum Serah Terima</a>
+                </li>
+                <li role="presentation" class="">
+                    <a href="#tab_content3" role="tab" id="sudah-tab" data-toggle="tab" aria-expanded="false">Sudah Serah Terima</a>
+                </li>
+                <li role="presentation" class="">
+                    <a href="#tab_content4" role="tab" id="do-tab" data-toggle="tab" aria-expanded="false">Bukti Serah Terima</a>
+                </li>
+            </ul>
+            <div id="myTabContent" class="tab-content">
+                <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="semua-tab">
+                    <div class="row do_table_section" style="margin-top:13px;">
+                        <div class="col-lg-4 col-sm-6 mrgbttmpesanan">
+                            <div class="input-group">
+                                <input id="search_semua" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_semua_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <select class="form-control" id="filter_semua_field" required="required">
+                                <option>Harap Pilih</option>
+                                <option value="tanggal">Tgl. Pesanan</option>
+                                <option value="marketplace">Marketplace</option>
+                                <option value="tipe">Tipe Pesanan</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <div class="col-12" id="filter_semua_field_tanggal_div">
+                                <select class="form-control" id="filter_semua_field_tanggal" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="desc">Terbaru</option>
+                                    <option value="asc">Terlama</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_semua_field_marketplace_div" style="display:none">
+                                <select class="form-control" id="filter_semua_field_marketplace" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="7">Lazada</option>
+                                    <option value="8">Bukalapak</option>
+                                    <option value="9">Elevenia</option>
+                                    <option value="15">Tokopedia</option>
+                                    <option value="16">Blibli</option>
+                                    <option value="17">Shopee</option>
+                                    <option value="19">JD.ID</option>
+                                    <option value="20">82Cart</option>
+                                    <option value="21">Shopify</option>
+                                    <option value="18">Offline</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_semua_field_tipe_div" style="display:none">
+                                <select class="form-control" id="filter_semua_field_tipe" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="cod">COD</option>
+                                    <option value="preorder">Preorder</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-7 col-sm-7" style="margin-top:13px;">
+                            <div class="input-group pull-right">
+                                <button type="button" id="btn_refresh_semua" class="btn btn-default" data-style="expand-right">
+                                    <span>Refresh</span>
+                                </button>
+                                <select class="form-control pull-right" style="width:75px;" id="TakeRecordSemua" name="TakeRecordSemua" required="required">
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row do_table_section" style="margin-top: 5px;">
+                        <div class="col-sm-12" id="table-semua-partial">
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="belum-tab">
+                    <div class="row do_table_section" style="margin-top:13px;">
+                        <div class="col-lg-4 col-sm-6 mrgbttmpesanan">
+                            <div class="input-group">
+                                <input id="search_belum" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_belum_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <select class="form-control" id="filter_belum_field" required="required">
+                                <option>Harap Pilih</option>
+                                <option value="tanggal">Tgl. Pesanan</option>
+                                <option value="marketplace">Marketplace</option>
+                                <option value="tipe">Tipe Pesanan</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <div class="col-12" id="filter_belum_field_tanggal_div">
+                                <select class="form-control" id="filter_belum_field_tanggal" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="desc">Terbaru</option>
+                                    <option value="asc">Terlama</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_belum_field_marketplace_div" style="display:none">
+                                <select class="form-control" id="filter_belum_field_marketplace" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="7">Lazada</option>
+                                    <option value="8">Bukalapak</option>
+                                    <option value="9">Elevenia</option>
+                                    <option value="15">Tokopedia</option>
+                                    <option value="16">Blibli</option>
+                                    <option value="17">Shopee</option>
+                                    <option value="19">JD.ID</option>
+                                    <option value="20">82Cart</option>
+                                    <option value="21">Shopify</option>
+                                    <option value="18">Offline</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_belum_field_tipe_div" style="display:none">
+                                <select class="form-control" id="filter_belum_field_tipe" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="cod">COD</option>
+                                    <option value="preorder">Preorder</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-7 col-sm-7" style="margin-top:13px;">
+                            <div class="input-group pull-right">
+                                <button type="button" id="btn_refresh_belum" class="btn btn-default" data-style="expand-right">
+                                    <span>Refresh</span>
+                                </button>
+                                @*<button id="coba-btn" class="btn btn-primary" onclick="cobaReload()">coba reload</button>*@
+                                <button id="download-btn" class="btn btn-primary" onclick="openModalSerahTerima()">Scan Barcode Serah Terima</button>
+                                <select class="form-control pull-right" style="width:75px;" id="TakeRecordBelum" name="TakeRecordBelum" required="required">
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row do_table_section" style="margin-top: 5px;">
+                        <div class="col-sm-12" id="table-belum-partial">
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="sudah-tab">
+                    <div class="row do_table_section" style="margin-top:13px;">
+                        <div class="col-lg-4 col-sm-6 mrgbttmpesanan">
+                            <div class="input-group">
+                                <input id="search_sudah" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_sudah_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <select class="form-control" id="filter_sudah_field" required="required">
+                                <option>Harap Pilih</option>
+                                <option value="tanggal">Tgl. Pesanan</option>
+                                <option value="marketplace">Marketplace</option>
+                                <option value="tipe">Tipe Pesanan</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <div class="col-12" id="filter_sudah_field_tanggal_div">
+                                <select class="form-control" id="filter_sudah_field_tanggal" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="desc">Terbaru</option>
+                                    <option value="asc">Terlama</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_sudah_field_marketplace_div" style="display:none">
+                                <select class="form-control" id="filter_sudah_field_marketplace" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="7">Lazada</option>
+                                    <option value="8">Bukalapak</option>
+                                    <option value="9">Elevenia</option>
+                                    <option value="15">Tokopedia</option>
+                                    <option value="16">Blibli</option>
+                                    <option value="17">Shopee</option>
+                                    <option value="19">JD.ID</option>
+                                    <option value="20">82Cart</option>
+                                    <option value="21">Shopify</option>
+                                    <option value="18">Offline</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_sudah_field_tipe_div" style="display:none">
+                                <select class="form-control" id="filter_sudah_field_tipe" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="cod">COD</option>
+                                    <option value="preorder">Preorder</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-7 col-sm-7" style="margin-top:13px;">
+                            <div class="input-group pull-right">
+                                <button type="button" id="btn_refresh_sudah" class="btn btn-default" data-style="expand-right">
+                                    <span>Refresh</span>
+                                </button>
+                                <select class="form-control pull-right" style="width:75px;" id="TakeRecordSudah" name="TakeRecordSudah" required="required">
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row do_table_section" style="margin-top: 5px;">
+                        <div class="col-sm-12" id="table-sudah-partial">
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="do-tab">
+                    <div class="row do_table_section" style="margin-top:13px;">
+                        <div class="col-lg-4 col-sm-6 mrgbttmpesanan">
+                            <div class="input-group">
+                                <input id="search_do" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_do_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 col-sm-6" style="margin-top:13px;">
+                            <div class="input-group pull-right">
+                                <button type="button" id="btn_refresh_do" class="btn btn-default" data-style="expand-right">
+                                    <span>Refresh</span>
+                                </button>
+                                <select class="form-control pull-right" style="width:75px;" id="TakeRecordDO" name="TakeRecordDO" required="required">
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row do_table_section" style="margin-top: 5px;">
+                        <div class="col-sm-12" id="table-do-partial">
+                        </div>
+                    </div>
+                    <div class="row do_editor_section" style="display: none;">
+                        <div class="col-lg-12">
+                            <div class="page-editor">
+                                <h2 class="editor-title">Pengiriman</h2>
+                                <span class="title-accent"></span>
+                                <button id="close-editor" type="button" class="pull-right page-close">
+                                    <span class="close-btn thick"></span>
+                                </button>
+                                @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                {
+                                    foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                    {
+                                        <div class="alert alert-danger">
+                                            <span class="message-error">@modelError.ErrorMessage</span>
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    }
+                                }
+                                @using (Html.BeginForm("SaveSerahTerima", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-kirim" }))
+                                {
+                                    <div id="form-partial">
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="konfHapusKirim" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus serah terima ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="deleteKirim();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="konfHapusDetail" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus pesanan ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="deleteDetail();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalTutupEditor" tabindex="-1" role="dialog" aria-labelledby="labelModalTutupEditor">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="labelModalTutupEditor">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Ada perubahan data yang belum Anda simpan. <br />Yakin ingin menutup form ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="closeEditor()">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalPrintOption" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel">
+    <div class="modal-dialog" id="modal-print-option" role="document">
+        @*<div class="modal-content cetakKirim" style="margin:auto;height:469px;">*@
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="printOptionLabel">Cetak Serah Terima</h4>
+            </div>
+            <div class="row text-center">
+                <h4>Apakah Anda yakin ingin mencetak serah terima dengan No. Bukti <span id="cetakfaktur_label"></span>?</h4>
+            </div>
+            <div class="modal-header">
+                <div class="col-md-2">
+                </div>
+                <div class="col-md-8" style="padding-top:10px">
+                    <button id="btn-print-kirim" type="button" class="btn btn-success btn-block">Cetak</button>
+                </div>
+                <div class="col-md-2">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalScanSerahTerima" tabindex="-1" role="dialog" aria-labelledby="modalPackingPesananLabel">
+    <div class="modal-dialog" role="document" style="width:80%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Scan Barcode Serah Terima</h4>
+            </div>
+            <div class="modal-body">
+                <div id="modal-scan-barcode"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="$('#modalScanSerahTerima').modal('hide');" id="btnCancelScanBarcode">Batal</button>
+                <button type="button" class="btn btn-success" onclick="SimpanSerahTerima();" id="btnSimpanSerahTerima">Proses</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script src="~/Content/vendors/moment/min/moment.min.js" type="text/javascript"></script>
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
+    <script src='@Url.Content("~/Scripts/jquery.validate.js")' type='text/javascript'></script>
+    <script src='@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")' type='text/javascript'></script>
+    <script type="text/javascript" src="~/Content/build/js/bootstrap-timepicker.js"></script>
+    <script type="text/javascript" src="~/Content/build/js/bootstrap-timepicker.min.js"></script>
+    <script type="text/javascript">
+        var $flagPerubahan = 0;
+        var $modeEdit = 0; // 0 new, 1 edit
+        var $page = window.text;
+        var tglCutOff = @Html.Raw(Json.Encode(tglCutOff));
+        var modeEditDO = @Html.Raw(Json.Encode(modeEditDO));
+        var EditKirimId = @Html.Raw(Json.Encode(EditKirimId));
+
+        $(document).ready(function () {
+            //$('#DrTanggalBefore').datepicker({
+            //    format: 'dd/mm/yyyy',
+            //    language: 'id'
+            //}).datepicker('setDate', '0');
+            //$('#DrTanggalBefore').datepicker({
+            //    format: 'dd/mm/yyyy',
+            //    language: 'id'
+            //}).change(function () {
+            //    $('#DrTanggalBefore').val($('#DrTanggalBefore').val());
+            //    $('#DrTanggalBefore').datepicker('hide');
+            //});
+            //if (tglCutOff != null && tglCutOff != "") {
+
+            //} else {
+
+            //}
+            //$('#cutoffPengiriman').datepicker({
+            //    format: 'dd/mm/yyyy',
+            //    language: 'id'
+            //}).datepicker('setDate', '0').change(function () {
+            //    $(this).datepicker('hide');
+            //    $('#SdTanggalBefore').val($('#SdTanggalBefore').val());
+            //    $('#SdTanggalBefore').datepicker('hide');
+            //    //saveCutoff();
+            //});
+            //if ($('#cutoffPengiriman').val() != '') {
+            //    $('#cutoffPengiriman').val($('#cutoffPengiriman').val().split(' ')[0]);
+            //}
+            $('#cutoffPengiriman').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', '0');
+            $('#cutoffPengiriman').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).change(function () {
+                $('#cutoffPengiriman').val($('#cutoffPengiriman').val());
+                $('#cutoffPengiriman').datepicker('hide');
+            });
+
+            //$('#SdTanggalBefore').datepicker({
+            //    format: 'dd/mm/yyyy',
+            //    language: 'id'
+            //}).datepicker('setDate', '0');
+            //$('#SdTanggalBefore').datepicker({
+            //    format: 'dd/mm/yyyy',
+            //    language: 'id'
+            //}).change(function () {
+            //    $('#SdTanggalBefore').val($('#SdTanggalBefore').val());
+            //    $('#SdTanggalBefore').datepicker('hide');
+            //    refreshTableDashboardBelumDO();
+            //    });
+
+            $('#DrTanggalAfter').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', '0');
+            $('#DrTanggalAfter').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).change(function () {
+                $('#DrTanggalAfter').val($('#DrTanggalAfter').val());
+                $('#DrTanggalAfter').datepicker('hide');
+                var splitDrTgl = $('#DrTanggalAfter').val().split('/');
+                var getDrTgl = new Date(splitDrTgl[2], splitDrTgl[1] - 1, splitDrTgl[0]);
+                var splitSdTgl = $('#SdTanggalAfter').val().split('/');
+                var getSdTgl = new Date(splitSdTgl[2], splitSdTgl[1] - 1, splitSdTgl[0]);
+                if (getDrTgl > getSdTgl) {
+                    alert("Dari tanggal tidak boleh lebih dari S/d tanggal.");
+                } else {
+                    refreshTableDashboardSudahDO();
+                }
+            });
+            $('#SdTanggalAfter').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', '0');
+            $('#SdTanggalAfter').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).change(function () {
+                $('#SdTanggalAfter').val($('#SdTanggalAfter').val());
+                $('#SdTanggalAfter').datepicker('hide');
+                refreshTableDashboardSudahDO();
+            });
+
+            refreshTableDashboardBelumDO();
+            refreshTableDashboardSudahDO();
+            //refreshTableSemua();
+
+            //$page = 0;
+            //var tableSiapProses = $('#datatable_siapproses').DataTable({
+            //    columnDefs: [{
+            //        orderable: false,
+            //        className: 'select-checkbox',
+            //        targets: 0
+            //    }],
+            //    select: {
+            //        style: 'os',
+            //        selector: 'td:first-child'
+            //    },
+            //});
+
+            //$('#search_siapproses').keyup(function () {
+            //    tableSiapProses.search($(this).val()).draw();
+            //});
+
+
+            //$('#tambah_kirim').on('click', function () {
+            //    refresh();
+            //});
+
+            //$('#close-editor').off('click').on('click', function () {
+            //    if ($('#btn-simpan-perubahan-row').is(':visible')) {
+            //        $('#modalTutupEditor').modal('show');
+            //    } else {
+            //        $modeEdit = 0;
+            //        $('input, select').each(function () {
+            //            $(this).removeAttr('disabled');
+            //        });
+            //        $('.kirim_table_section').show();
+            //        $('.kirim_editor_section').hide();
+            //        $('#form-partial').html('');
+            //        refreshTableKirim();
+            //    }
+            //});
+
+
+
+            //$('#search_semua').keypress(function (e) {
+            //    var key = e.which;
+            //    if (key == 13)// the enter key code
+            //    {
+            //        //searchTableKirim();
+            //        return false;
+            //    }
+            //});
+            //$('#search_semua_click').click(function () {
+            //    //searchTableKirim();
+            //});
+
+            $('#semua-tab').click(function () {
+                //$TabAktif = 1;
+                refreshTableSemuaDO();
+                $('#search_semua').keypress(function (e) {
+                    var key = e.which;
+                    if (key == 13)// the enter key code
+                    {
+                        refreshTableSemuaDO();
+                        return false;
+                    }
+                });
+                $('#search_semua_click').click(function () {
+                    refreshTableSemuaDO();
+                });
+            });
+            $('#belum-tab').click(function () {
+                //$TabAktif = 2;
+                refreshTableBelumDO();
+                $('#search_belum').keypress(function (e) {
+                    var key = e.which;
+                    if (key == 13)// the enter key code
+                    {
+                        refreshTableBelumDO();
+                        return false;
+                    }
+                });
+                $('#search_belum_click').click(function () {
+                    refreshTableBelumDO();
+                });
+            });
+            $('#sudah-tab').click(function () {
+                //$TabAktif = 3;
+                refreshTableSudahDO();
+                $('#search_sudah').keypress(function (e) {
+                    var key = e.which;
+                    if (key == 13)// the enter key code
+                    {
+                        refreshTableSudahDO();
+                        return false;
+                    }
+                });
+                $('#search_sudah_click').click(function () {
+                    refreshTableSudahDO();
+                });
+            });
+            $('#do-tab').click(function () {
+                //$TabAktif = 4;
+                refreshTableDO();
+                $('#search_do').keypress(function (e) {
+                    var key = e.which;
+                    if (key == 13)// the enter key code
+                    {
+                        refreshTableDO();
+                        return false;
+                    }
+                });
+                $('#search_do_click').click(function () {
+                    refreshTableDO();
+                });
+            });
+            if (modeEditDO == "1") {
+                $('#do-tab').click();
+                editSerahTerima(EditKirimId);
+            } else if (modeEditDO == "2") {
+                $('#belum-tab').click();
+            }
+            else {
+                $('#semua-tab').click();
+            }
+
+            $('#TakeRecordSemua').change(function () {
+                refreshTableSemuaDO("1");
+            });
+            $('#TakeRecordBelum').change(function () {
+                refreshTableBelumDO("1");
+            });
+            $('#TakeRecordSudah').change(function () {
+                refreshTableSudahDO("1");
+            });
+            $('#TakeRecordDO').change(function () {
+                refreshTableDO("1");
+            });
+
+            $('#btn_refresh_semua').click(function () {
+                refreshTableSemuaDO();
+            });
+            $('#btn_refresh_belum').click(function () {
+                refreshTableBelumDO();
+            });
+            $('#btn_refresh_sudah').click(function () {
+                refreshTableSudahDO();
+            });
+            $('#btn_refresh_do').click(function () {
+                refreshTableDO();
+            });
+
+            $('#filter_semua_field').change(function () {
+                var filterBy = $(this).val();
+                switch (filterBy) {
+                    case "tanggal":
+                        $('#filter_semua_field_tanggal_div').show();
+                        $('#filter_semua_field_tipe_div').hide();
+                        $('#filter_semua_field_marketplace_div').hide();
+                        $('#filter_semua_field_tanggal').val('Harap Pilih');
+                        break;
+                    case "marketplace":
+                        $('#filter_semua_field_tanggal_div').hide();
+                        $('#filter_semua_field_tipe_div').hide();
+                        $('#filter_semua_field_marketplace_div').show();
+                        $('#filter_semua_field_marketplace').val('Harap Pilih');
+                        break;
+                    case "tipe":
+                        $('#filter_semua_field_tanggal_div').hide();
+                        $('#filter_semua_field_marketplace_div').hide();
+                        $('#filter_semua_field_tipe_div').show();
+                        $('#filter_semua_field_tipe').val('Harap Pilih');
+                        break;
+                    default:
+                        $('#filter_semua_field_tanggal_div').hide();
+                        $('#filter_semua_field_marketplace_div').hide();
+                        $('#filter_semua_field_tipe_div').hide();
+                        break;
+                }
+
+            });
+            $('#filter_semua_field_tanggal').change(function () {
+                if ($('#filter_semua_field_tanggal').val() != "Harap Pilih" && $('#filter_semua_field').val() != "Harap Pilih") {
+                    searchTableSemuaDO();
+                }
+            });
+            $('#filter_semua_field_marketplace').change(function () {
+                if ($('#filter_semua_field_marketplace').val() != "Harap Pilih" && $('#filter_semua_field').val() != "Harap Pilih") {
+                    searchTableSemuaDO();
+                }
+            });
+            $('#filter_semua_field_tipe').change(function () {
+                if ($('#filter_semua_field_tipe').val() != "Harap Pilih" && $('#filter_semua_field').val() != "Harap Pilih") {
+                    searchTableSemuaDO();
+                }
+            });
+
+            $('#filter_belum_field').change(function () {
+                var filterBy = $(this).val();
+                switch (filterBy) {
+                    case "tanggal":
+                        $('#filter_belum_field_tanggal_div').show();
+                        $('#filter_belum_field_tipe_div').hide();
+                        $('#filter_belum_field_marketplace_div').hide();
+                        $('#filter_belum_field_tanggal').val('Harap Pilih');
+                        break;
+                    case "marketplace":
+                        $('#filter_belum_field_tanggal_div').hide();
+                        $('#filter_belum_field_tipe_div').hide();
+                        $('#filter_belum_field_marketplace_div').show();
+                        $('#filter_belum_field_marketplace').val('Harap Pilih');
+                        break;
+                    case "tipe":
+                        $('#filter_belum_field_tanggal_div').hide();
+                        $('#filter_belum_field_marketplace_div').hide();
+                        $('#filter_belum_field_tipe_div').show();
+                        $('#filter_belum_field_tipe').val('Harap Pilih');
+                        break;
+                    default:
+                        $('#filter_belum_field_tanggal_div').hide();
+                        $('#filter_belum_field_marketplace_div').hide();
+                        $('#filter_belum_field_tipe_div').hide();
+                        break;
+                }
+
+            });
+            $('#filter_belum_field_tanggal').change(function () {
+                if ($('#filter_belum_field_tanggal').val() != "Harap Pilih" && $('#filter_belum_field').val() != "Harap Pilih") {
+                    searchTableBelumDO();
+                }
+            });
+            $('#filter_belum_field_marketplace').change(function () {
+                if ($('#filter_belum_field_marketplace').val() != "Harap Pilih" && $('#filter_belum_field').val() != "Harap Pilih") {
+                    searchTableBelumDO();
+                }
+            });
+            $('#filter_belum_field_tipe').change(function () {
+                if ($('#filter_belum_field_tipe').val() != "Harap Pilih" && $('#filter_belum_field').val() != "Harap Pilih") {
+                    searchTableBelumDO();
+                }
+            });
+
+            $('#filter_sudah_field').change(function () {
+                var filterBy = $(this).val();
+                switch (filterBy) {
+                    case "tanggal":
+                        $('#filter_sudah_field_tanggal_div').show();
+                        $('#filter_sudah_field_tipe_div').hide();
+                        $('#filter_sudah_field_marketplace_div').hide();
+                        $('#filter_sudah_field_tanggal').val('Harap Pilih');
+                        break;
+                    case "marketplace":
+                        $('#filter_sudah_field_tanggal_div').hide();
+                        $('#filter_sudah_field_tipe_div').hide();
+                        $('#filter_sudah_field_marketplace_div').show();
+                        $('#filter_sudah_field_marketplace').val('Harap Pilih');
+                        break;
+                    case "tipe":
+                        $('#filter_sudah_field_tanggal_div').hide();
+                        $('#filter_sudah_field_marketplace_div').hide();
+                        $('#filter_sudah_field_tipe_div').show();
+                        $('#filter_sudah_field_tipe').val('Harap Pilih');
+                        break;
+                    default:
+                        $('#filter_sudah_field_tanggal_div').hide();
+                        $('#filter_sudah_field_marketplace_div').hide();
+                        $('#filter_sudah_field_tipe_div').hide();
+                        break;
+                }
+
+            });
+            $('#filter_sudah_field_tanggal').change(function () {
+                if ($('#filter_sudah_field_tanggal').val() != "Harap Pilih" && $('#filter_sudah_field').val() != "Harap Pilih") {
+                    searchTableSudahDO();
+                }
+            });
+            $('#filter_sudah_field_marketplace').change(function () {
+                if ($('#filter_sudah_field_marketplace').val() != "Harap Pilih" && $('#filter_sudah_field').val() != "Harap Pilih") {
+                    searchTableSudahDO();
+                }
+            });
+            $('#filter_sudah_field_tipe').change(function () {
+                if ($('#filter_sudah_field_tipe').val() != "Harap Pilih" && $('#filter_sudah_field').val() != "Harap Pilih") {
+                    searchTableSudahDO();
+                }
+            });
+
+            $('#close-editor').off('click').on('click', function () {
+
+                if ($('#btn-simpan-perubahan-row').is(':visible')) {
+                    $('#modalTutupEditor').modal('show');
+                } else {
+
+                    $('.do_table_section').show();
+                    $('.do_editor_section').hide();
+
+                    $('#form-partial').html('');
+
+                    $('#myTab li a').each(function (index) {
+                        $(this).attr('data-toggle', 'tab');
+                        $(this).removeClass('disabled-tab');
+                    });
+                    $('input, select, .btn-danger').each(function () {
+                        $(this).removeAttr('disabled');
+                    });
+
+                    refreshTableDO();
+                }
+            });
+        });
+
+        function saveCutoff() {
+            //if ($('#cutoffPengiriman').val() != null && $('#cutoffPengiriman').val() != "") {
+            $('#save-cutoff-btn').attr('disabled', 'disabled');
+            var $link = '@Html.Raw(Url.Action("saveCutOff", "Manage"))';
+            //$link = $link.replace("replaceTgl", encodeURIComponent($('#cutoffPengiriman').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                success: function (response) {
+                    window.location.reload();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+            //}
+        }
+
+        function closeEditor() {
+            $('#modalTutupEditor').modal('hide');
+            $modeEdit = 0;
+            $('input, select').each(function () {
+                $(this).removeAttr('disabled');
+            });
+            $('.do_table_section').show();
+            $('.do_editor_section').hide();
+            $('#form-partial').html('');
+            refreshTableDO();
+            $('#myTab li a').each(function (index) {
+                $(this).attr('data-toggle', 'tab');
+                $(this).removeClass('disabled-tab');
+            });
+            $('input, select, .btn-danger').each(function () {
+                $(this).removeAttr('disabled');
+            });
+        }
+
+        function Initialize() {
+
+            if ($('.message-error').text() !== '') {
+                $('.do_table_section').hide();
+                $('.do_editor_section').show();
+            }
+
+            $('#table_tambah_kirim > tbody > tr > td.editable-kode').prop('contentEditable', true);
+            $flagPerubahan = 0;
+
+            //$('#Pengiriman_JAM_KIRIM').datetimepicker();
+            $('#timepicker1').timepicker({
+                minuteStep: 1,
+                showSeconds: false,
+                showMeridian: false,
+                defaultTime: 'current',
+                showWidget: true,
+                showInputs: true,
+            });
+
+            if ($modeEdit == 1) { // mode edit
+                $('#Pengiriman_TGL_KIRIM').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).change(function () {
+                    if ($flagPerubahan == 0) {
+                        $('#btn-simpan-perubahan-row').show();
+
+                    }
+                    $(this).datepicker('hide');
+
+                    $flagPerubahan++;
+                    });
+                $('#timepicker1').timepicker({
+                    minuteStep: 1,
+                    showSeconds: false,
+                    showMeridian: false,
+                    defaultTime: 'current',
+                    showWidget: true,
+                    showInputs: true,
+                }).change(function () {
+                    if ($flagPerubahan == 0) {
+                        $('#btn-simpan-perubahan-row').show();
+
+                    }
+                    $(this).timepicker('hide');
+
+                    $flagPerubahan++;
+                });
+            }
+            else {
+                $('#Pengiriman_TGL_KIRIM').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).datepicker('setDate', '0').change(function () {
+                    if ($flagPerubahan == 0) {
+                        $('#btn-simpan-perubahan-row').show();
+                    }
+                    $(this).datepicker('hide');
+
+                    $flagPerubahan++;
+                    });
+                $('#timepicker1').timepicker({
+                    minuteStep: 1,
+                    showSeconds: false,
+                    showMeridian: false,
+                    defaultTime: 'current',
+                    showWidget: true,
+                    showInputs: true,
+                }).change(function () {
+                    if ($flagPerubahan == 0) {
+                        $('#btn-simpan-perubahan-row').show();
+
+                    }
+                    $(this).timepicker('hide');
+
+                    $flagPerubahan++;
+                });
+            }
+
+            $("input.num-only").on('keydown',
+                function (e) {
+                    // Allow: backspace, delete, tab, escape, enter and .
+                    if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                        // Allow: Ctrl+A, Command+A
+                        (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                        // Allow: home, end, left, right, down, up
+                        (e.keyCode >= 35 && e.keyCode <= 40)) {
+                        // let it happen, don't do anything
+                        return;
+                    }
+                    // Ensure that it is a number and stop the keypress
+                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                        e.preventDefault();
+                    }
+                });
+
+            $('#btn-simpan-perubahan').click(function () {
+                var $this = $(this);
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("UpdateKirim", "Manage")',
+                    data: JSON.stringify({
+                        NoBuktiKirim: $('#Pengiriman_NO_BUKTI').val(),
+                        TglKirim: $('#Pengiriman_TGL_KIRIM').val(),
+                        Kurir: $('#Pengiriman_KURIR').val(),
+                        Ekspedisi: $('#Pengiriman_NAMA_EKSPEDISI').val(),
+                        NamaKurir: $('#Pengiriman_NAMA_KURIR').val(),
+                        jamKirim: $('#timepicker1').val()
+                    }),
+                    contentType: 'application/json; charset=UTF-8',
+                    cache: false,
+                    success: function () {
+                        $('#close-editor')[0].disabled = false;
+                        alert('Data pengiriman berhasil di-update');
+                        $('#btn-simpan-perubahan-row').hide();
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            });
+
+        }
+
+        function refreshTableDashboardBelumDO() {
+            if (tglCutOff != null && tglCutOff != "") {
+                var $link = '@Html.Raw(Url.Action("refreshTableDashboardBelumDO", "Manage", new { drTgl = "replacedrTgl", sdTgl = "replacesdTgl" }))';
+                $link = $link.replace("replacedrTgl", encodeURIComponent($('#DrTanggalBefore').val()));
+                $link = $link.replace("replacesdTgl", encodeURIComponent($('#SdTanggalBefore').val()));
+
+                $.ajax({
+                    type: "GET",
+                    url: $link,
+                    beforeSend: function () {
+                        $('#table-dashboard-belum-do').hide();
+                    },
+                    success: function (response) {
+                        $('#table-dashboard-belum-do').html(response);
+                        $('#table-dashboard-belum-do').show();
+
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            }
+        }
+        function refreshTableDashboardSudahDO() {
+            var $link = '@Html.Raw(Url.Action("refreshTableDashboardSudahDO", "Manage", new { drTgl = "replacedrTgl", sdTgl = "replacesdTgl" }))';
+            $link = $link.replace("replacedrTgl", encodeURIComponent($('#DrTanggalAfter').val()));
+            $link = $link.replace("replacesdTgl", encodeURIComponent($('#SdTanggalAfter').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-dashboard-sudah-do').hide();
+                },
+                success: function (response) {
+                    $('#table-dashboard-sudah-do').html(response);
+                    $('#table-dashboard-sudah-do').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function get_semua_filterby() {
+            return $('#filter_semua_field').val();
+        }
+        function get_semua_filtervalue(filterby) {
+            var filtervalue = "";
+            switch (filterby) {
+                case "tanggal":
+                    filtervalue = $('#filter_semua_field_tanggal').val();
+                    break;
+                case "marketplace":
+                    filtervalue = $('#filter_semua_field_marketplace').val();
+                    break;
+                case "tipe":
+                    filtervalue = $('#filter_semua_field_tipe').val();
+                    break;
+                default:
+                    break;
+            }
+            return filtervalue;
+        }
+        function refreshTableSemuaDO() {
+            var $link = '@Html.Raw(Url.Action("refreshTableSemuaDO", "Manage", new { take = "replaceLastTake", page = "replaceLastPage", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter", drTgl = "replacedrTgl", sdTgl = "replacesdTgl" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_semua').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_1').val()));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordSemua').val()));
+            var filterby = get_semua_filterby();
+            var filtervalue = get_semua_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+            $link = $link.replace("replacedrTgl", encodeURIComponent($('#DrTanggalBefore').val()));
+            $link = $link.replace("replacesdTgl", encodeURIComponent($('#DrTanggalBefore').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-semua-partial').hide();
+                    $('#loading_semua_tab').show();
+                },
+                success: function (response) {
+                    $('#table-semua-partial').html(response);
+                    $('#table-semua-partial').show();
+                    $('#loading_semua_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#loading_semua_tab').hide();
+                    console.log(error);
+                }
+            });
+        }
+        function searchTableSemuaDO(){
+            var $link = '@Html.Raw(Url.Action("refreshTableSemuaDO", "Manage", new { take = "replaceLastTake", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter", drTgl = "replacedrTgl", sdTgl = "replacesdTgl" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_semua').val()));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordSemua').val()));
+            var filterby = get_semua_filterby();
+            var filtervalue = get_semua_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+            $link = $link.replace("replacedrTgl", encodeURIComponent($('#DrTanggalBefore').val()));
+            $link = $link.replace("replacesdTgl", encodeURIComponent($('#DrTanggalBefore').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_semua_click')[0].disabled = true;
+                    $('#loading_semua_tab').show();
+                },
+                success: function (response) {
+                    $('#search_semua_click')[0].disabled = false;
+                    $('#table-semua-partial').html(response);
+                    $('#loading_semua_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_semua_click')[0].disabled = false;
+                    $('#loading_semua_tab').hide();
+                    console.log(error);
+                }
+            });
+        }
+
+        function get_belum_filterby() {
+            return $('#filter_belum_field').val();
+        }
+        function get_belum_filtervalue(filterby) {
+            var filtervalue = "";
+            switch (filterby) {
+                case "tanggal":
+                    filtervalue = $('#filter_belum_field_tanggal').val();
+                    break;
+                case "marketplace":
+                    filtervalue = $('#filter_belum_field_marketplace').val();
+                    break;
+                case "tipe":
+                    filtervalue = $('#filter_belum_field_tipe').val();
+                    break;
+                default:
+                    break;
+            }
+            return filtervalue;
+        }
+        function refreshTableBelumDO() {
+            var $link = '@Html.Raw(Url.Action("refreshTableBelumDO", "Manage", new { take = "replaceLastTake", page = "replaceLastPage", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter", drTgl = "replacedrTgl", sdTgl = "replacesdTgl" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_belum').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_2').val()));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordBelum').val()));
+            var filterby = get_belum_filterby();
+            var filtervalue = get_belum_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+            $link = $link.replace("replacedrTgl", encodeURIComponent($('#DrTanggalBefore').val()));
+            $link = $link.replace("replacesdTgl", encodeURIComponent($('#DrTanggalBefore').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-belum-partial').hide();
+                    $('#loading_belum_tab').show();
+                },
+                success: function (response) {
+                    $('#table-belum-partial').html(response);
+                    $('#table-belum-partial').show();
+                    $('#loading_belum_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#loading_belum_tab').hide();
+                    console.log(error);
+                }
+            });
+        }
+        function searchTableBelumDO(){
+            var $link = '@Html.Raw(Url.Action("refreshTableBelumDO", "Manage", new { take = "replaceLastTake", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter", drTgl = "replacedrTgl", sdTgl = "replacesdTgl" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_belum').val()));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordBelum').val()));
+            var filterby = get_belum_filterby();
+            var filtervalue = get_belum_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+            $link = $link.replace("replacedrTgl", encodeURIComponent($('#DrTanggalBefore').val()));
+            $link = $link.replace("replacesdTgl", encodeURIComponent($('#DrTanggalBefore').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_belum_click')[0].disabled = true;
+                    $('#loading_belum_tab').show();
+                },
+                success: function (response) {
+                    $('#search_belum_click')[0].disabled = false;
+                    $('#table-belum-partial').html(response);
+                    $('#loading_belum_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_belum_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+
+        function get_sudah_filterby() {
+            return $('#filter_belum_field').val();
+        }
+        function get_sudah_filtervalue(filterby) {
+            var filtervalue = "";
+            switch (filterby) {
+                case "tanggal":
+                    filtervalue = $('#filter_sudah_field_tanggal').val();
+                    break;
+                case "marketplace":
+                    filtervalue = $('#filter_sudah_field_marketplace').val();
+                    break;
+                case "tipe":
+                    filtervalue = $('#filter_sudah_field_tipe').val();
+                    break;
+                default:
+                    break;
+            }
+            return filtervalue;
+        }
+        function refreshTableSudahDO() {
+            var $link = '@Html.Raw(Url.Action("refreshTableSudahDO", "Manage", new { take = "replaceLastTake", page = "replaceLastPage", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_sudah').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_3').val()));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordSudah').val()));
+            var filterby = get_sudah_filterby();
+            var filtervalue = get_sudah_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-sudah-partial').hide();
+                    $('#loading_sudah_tab').show();
+                },
+                success: function (response) {
+                    $('#table-sudah-partial').html(response);
+                    $('#table-sudah-partial').show();
+                    $('#loading_sudah_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#loading_sudah_tab').hide();
+                    console.log(error);
+                }
+            });
+        }
+        function searchTableSudahDO(){
+            var $link = '@Html.Raw(Url.Action("refreshTableSudahDO", "Manage", new { take = "replaceLastTake", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_sudah').val()));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordSudah').val()));
+            var filterby = get_sudah_filterby();
+            var filtervalue = get_sudah_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_sudah_click')[0].disabled = true;
+                    $('#loading_sudah_tab').show();
+                },
+                success: function (response) {
+                    $('#search_sudah_click')[0].disabled = false;
+                    $('#table-sudah-partial').html(response);
+                    $('#loading_sudah_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_sudah_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+
+        function refreshTableDO() {
+            var $link = '@Html.Raw(Url.Action("RefreshTableDO", "Manage", new { take = "replaceLastTake", page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_do').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_4').val()));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordDO').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-do-partial').hide();
+                    $('#loading_do_tab').show();
+                },
+                success: function (response) {
+                    $('#table-do-partial').html(response);
+                    $('#loading_do_tab').hide();
+                    $('#table-do-partial').show();
+                },
+                error: function (xhr, status, error) {
+                    $('#loading_do_tab').hide();
+                    console.log(error);
+                }
+            });
+        }
+        function searchTableDO(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableDO", "Manage", new { take = "replaceLastTake", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_do').val()));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordDO').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_do_click')[0].disabled = true;
+                    $('#loading_do_tab').show();
+                },
+                success: function (response) {
+                    $('#search_do_click')[0].disabled = false;
+                    $('#table-do-partial').html(response);
+                    $('#loading_do_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_do_click')[0].disabled = false;
+                    $('#loading_do_tab').hide();
+                    console.log(error);
+                }
+            });
+        }
+
+        function openModalSerahTerima() {
+
+            var link = '@Html.Raw(Url.Action("OpenModalSerahTerima", "Manage"))';
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $('#loading_spinner').hide();
+                    if (response.Errors != null) {
+                        alert(response.Errors[0]);
+                    } else {
+                        $('#modal-scan-barcode').html(response);
+                        $('#modalScanSerahTerima').modal('show');
+                        $('#modal-scan-barcode > #txtScanBarcode').focus();
+                        //$("#txtScanBarcode").focus();
+                    }
+
+                },
+                error: function (xhr) {
+                    $('#loading_spinner').hide();
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function editSerahTerima(idKirim) {
+            var link = '@Url.Action("EditKirim", "Manage", new { kirimId = "replaceId" })';
+            link = link.replace("replaceId", encodeURIComponent(idKirim));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $modeEdit = 1;
+
+                    $('.do_table_section').hide();
+                    $('.do_editor_section').show();
+                    //$('#close-editor')[0].disabled = false;
+
+                    $('#form-partial').html(response);
+                    $('input, select').each(function () {
+                        $(this).attr('disabled', 'disabled');
+                    });
+
+                    $('#myTab li a').each(function (index) {
+                        $(this).attr('data-toggle', 'tab');
+                        $(this).removeClass('disabled-tab');
+                    });
+
+                    getDetailKirim();
+                    refreshInputan();
+                    getExpedisi();
+                    $('#myTab li a').each(function () {
+                        $(this).removeAttr('data-toggle');
+
+                        if ($(this).attr('id') === 'do-tab') return;
+
+                        $(this).addClass('disabled-tab');
+                    });
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    $('#loading_spinner').hide();
+                }
+            });
+        }
+
+        function getDetailKirim() {
+            var link = '@Url.Action("GetDetailKirim", "Manage", new { orderId = "replaceId" })';
+            link = link.replace("replaceId", $('#NOBUK_KIRIM').val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (res) {
+                    var $jumlahDetail = res;
+                    if ($jumlahDetail == 0) {
+                        //$("#btn-autoload-row").show();
+                        $('input, select').each(function () {
+                            $(this).removeAttr('disabled');
+                        });
+                        $('#btn-print-row').hide();
+                    } else {
+                        $('input, select').each(function () {
+                            $(this).attr('disabled', 'disabled');
+                        });
+                        $('#btn-print-row').show();
+                        //$("#btn-autoload-row").hide();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function lihatDetailDO($IdDO) {
+            @*var link = '@Url.Action("EditKirim", "Manage", new { kirimId = "replaceId" })';
+            link = link.replace("replaceId", encodeURIComponent($IdDO));
+            link += '&mode=' + encodeURIComponent("2");
+            window.open(link, '_blank');*@
+
+            var link = '@Url.Action("SerahTerimaMenuEdit", new { kirimId = "replaceId" })';
+            link = link.replace("replaceId", encodeURIComponent($IdDO));
+            window.open(link, '_blank');
+        }
+
+        function clickAllScan() {
+            $(".checkbox_detail_scan").prop('checked',
+                $("#checkbox_all_detail_scan").prop('checked'));
+        }
+
+        function SimpanSerahTerima() {
+            var cekList = [];
+            $(".checkbox_detail_scan").each(function (z, chk) {
+                cekList.push($(chk).attr("id-pesanan"));
+            });
+
+            $postdata = {
+                Data: cekList,
+                Kurir: $("#KURIR_TEMP").val(),
+            };
+
+            var $link = '@Url.Action("ProsesScanBarcodeSerahTerima", "Manage")';
+            $.ajax({
+                type: "POST",
+                url: $link,
+                contentType: "application/json; charset=UTF-8",
+                cache: false,
+                data: JSON.stringify($postdata),
+                beforeSend: function () {
+                    document.getElementById("btnCancelScanBarcode").disabled = true;
+                    document.getElementById("btnSimpanSerahTerima").disabled = true;
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    document.getElementById("btnCancelScanBarcode").disabled = false;
+                    document.getElementById("btnSimpanSerahTerima").disabled = false;
+                    if (response.Errors == undefined) {
+                        @*var link = '@Url.Action("SerahTerimaMenuEdit", new { tabBelum = "replaceId" })';
+                        link = link.replace("replaceId", encodeURIComponent("1"));
+                        //window.open(link, '_blank');
+                        window.location.href(link);*@
+                        alert("Proses berhasil.");
+                        $('#modalScanSerahTerima').modal('hide');
+                        refreshTableDashboardBelumDO();
+                        refreshTableDashboardSudahDO();
+                        refreshTableDashboardBelumDO();
+                        $('#loading_spinner').hide();
+                    }
+                    else {
+                        $('#loading_spinner').hide();
+                        alert(response.Errors[0]);
+                        $("#txtScanBarcode").val('');
+                        $("#txtScanBarcode").focus();
+                    }
+
+                },
+                error: function (xhr, status, error) {
+                    $('#loading_spinner').hide();
+                    console.log(error);
+                    document.getElementById("btnCancelScanBarcode").disabled = false;
+                    document.getElementById("btnSimpanSerahTerima").disabled = false;
+                }
+            });
+        }
+
+        function cobaReload() {
+            var link = '@Url.Action("SerahTerimaMenuEdit", new { tabBelum = "replaceId" })';
+            link = link.replace("replaceId", encodeURIComponent("1"));
+            //window.location.href = link;
+            var cekIndexManage = window.location.href.indexOf("manage", 0);
+            window.location.href = window.location.href.substring(0, cekIndexManage) + link;
+            //window.location.href.substring(0, 29) 
+            //window.location.href = "http://localhost:50109/manage/SerahTerimaMenuEdit?tabBelum=1"
+        }
+        //-------------------------------------------------------------------------------------------------------------------------------------------
+
+        function getDataPesanan() {
+            if ($('#Pengiriman_NAMA_EKSPEDISI').val() != '') {
+                var link = '@Url.Action("GetDataPesananSerahTerima", "Manage", new { code = "replaceCode" })';
+                link = link.replace("replaceCode", $('#Pengiriman_NAMA_EKSPEDISI').val());
+                $.ajax({
+                    type: "GET",
+                    //url: '@Url.Action("GetDataPesananSerahTerima", "Manage")',
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (data) {
+                        var listKodePesanan = [];
+
+                        $.each(data,
+                            function (i, item) {
+
+                                listKodePesanan[i] = {
+                                    id: item.NoPesanan,
+                                    text: item.NoPesanan
+
+                                };
+                            });
+
+                        $('#PESANAN').selectivity({
+                            allowClear: true,
+                            items: listKodePesanan,
+                            placeholder: 'Harap pilih'
+                        }).change(function () {
+                            var val = $(this).selectivity('value');
+                            var $trId = $(this).closest('tr').attr('data-kirim-id');
+                            var $trElement = 'tr[data-kirim-id="' + $trId + '"]';
+
+                            if (val != null) {
+                                $.each(data,
+                                    function (i, item) {
+                                        if (item.NoPesanan == val) {
+                                            $($trElement + ' .noref-detail').text(item.NoRef);
+                                            $($trElement + ' .mp-detail ').html(item.Marketplace + '<input data-val="true" data-val-length="The field NAMA Marketplace must be a string with a maximum length of 10." data-val-length-max="10" id="PengirimanDetail_NAMA_MARKET" name="PengirimanDetail.NAMA_MARKET" type="hidden" value="">');
+                                            $($trElement + ' .buyer-detail').html(item.Pembeli + '<input data-val="true" data-val-length="The field NAMA Pembeli must be a string with a maximum length of 10." data-val-length-max="10" id="PengirimanDetail_NAMA_PEMBELI" name="PengirimanDetail.NAMA_PEMBELI" type="hidden" value="">');
+                                            //$($trElement + ' .al-detail').html(item.ALAMAT + '<input data-val="true" data-val-length="The field Alamat KIRIM must be a string with a maximum length of 250." data-val-length-max="250" id="PengirimanDetail_ALAMAT_KIRIM" name="PengirimanDetail.ALAMAT_KIRIM" type="hidden" value="">');
+                                            $($trElement + ' .resi-detail').text(item.NoResi);
+                                            $($trElement + ' .kurir-detail').text(item.Kurir);
+
+                                            $('#PengirimanDetail_MARKETPLACE').val(item.Perso);
+                                            $('#PengirimanDetail_PEMBELI').val(item.N_UCAPAN);
+                                            $('#PengirimanDetail_ALAMAT_KIRIM').val(item.NoFaktur);
+                                            $('#PengirimanDetail_KOTA').val(item.NoDO);
+                                            $('#PengirimanDetail_PROPINSI').val(item.RecnumSO);
+                                            $('#PengirimanDetail_KODE_POS').val(item.RecnumDO);
+                                            
+                                            return;
+                                        }
+                                    });
+
+                                $($trElement + ' .btn-primary').removeAttr('disabled');
+                                offTab();
+                            } else {
+                                $($trElement + ' .noref-detail').text('-');
+                                $($trElement + ' .mp-detail').text('-');
+                                $($trElement + ' .buyer-detail').text('-');
+                                $($trElement + ' .resi-detail').text('-');
+                                $($trElement + ' .kurir-detail').text('-');
+
+                                $($trElement + ' .btn-primary').attr('disabled', 'disabled');
+                                onTab();
+                            }
+
+                            });
+
+                        //$('#PESANAN').style.width = "400px";
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }
+        }
+
+        function offTab() {
+            $(document).keydown(function (objEvent) {
+                if (objEvent.keyCode == 9) {
+                    objEvent.preventDefault();
+                }
+            });
+        }
+
+        function onTab() {
+            $(document).keydown(function (objEvent) {
+                if (objEvent.keyCode == 9) { }
+            });
+        }
+
+        var $idKirim = "";
+
+        function undeleteable() {
+            alert('Transaksi Sudah Posting! \nTidak dapat dihapus!');
+        }
+
+        @*function editKirim(idKirim) {
+            var link = '@Url.Action("EditKirim", "Manage", new { kirimId = "replaceId" })';
+            link = link.replace("replaceId", encodeURIComponent(idKirim));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $modeEdit = 1;
+
+                    $('.do_table_section').hide();
+                    $('.do_editor_section').show();
+                    $('#close-editor')[0].disabled = false;
+
+                    $('#form-partial').html(response);
+                    $('input, select').each(function () {
+                        $(this).attr('disabled', 'disabled');
+                    });
+
+                    getDetailKirim();
+                    refreshInputan();
+                    //getDataPesanan();
+                    getExpedisi();
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    $('#loading_spinner').hide();
+                }
+            });
+        }
+
+        function refreshTableKirim() {
+            var $link = '@Html.Raw(Url.Action("RefreshTableKirim", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_kirim').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-kirim-partial').hide();
+                    $('#loading_kirim_tab').show();
+                },
+                success: function (response) {
+                    $('#table-kirim-partial').html(response);
+                    $('#loading_kirim_tab').hide();
+                    $('#table-kirim-partial').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function searchTableKirim(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableKirim", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_kirim').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_kirim_click')[0].disabled = true;
+                    $('#loading_kirim_tab').show();
+                },
+                success: function (response) {
+                    $('#search_kirim_click')[0].disabled = false;
+                    $('#table-kirim-partial').html(response);
+                    $('#loading_kirim_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_kirim_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }*@
+
+        function refreshInputan() {
+            $('#DrTanggal').each(function () {
+                $(this).removeAttr('disabled');
+            });
+            $('#SdTanggal').each(function () {
+                $(this).removeAttr('disabled');
+            });
+            $('#FromCust').each(function () {
+                $(this).removeAttr('disabled');
+            });
+            $('#ToCust').each(function () {
+                $(this).removeAttr('disabled');
+            });
+
+            var d = new Date();
+                    //d.setMonth(d.getMonth() - 3);
+                    $('#DrTanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', d);
+                    $('#DrTanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).change(function () {
+                        $('#DrTanggal').val($('#DrTanggal').val());
+                        $('#DrTanggal').datepicker('hide');
+                    });
+                    $('#SdTanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', '0');
+                    $('#SdTanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).change(function () {
+                        $('#SdTanggal').val($('#SdTanggal').val());
+                        $('#SdTanggal').datepicker('hide');
+                        });
+            $('#prompt-daricustomer').click(function () {
+                promptCust = "1";
+                var $link = '@Url.Action("PromptCustomer", "Report")';
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+            });
+            $('#prompt-sdcustomer').click(function () {
+                promptCust = "2";
+                var $link = '@Url.Action("PromptCustomer", "Report")';
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+            });
+
+            //$('#PESANAN').click(function () {
+            //    var checkExist = setInterval(function () {
+            //        if (window.pageYOffset == 0) {
+            //            $('html, body').animate({ scrollTop: '+=1px' }, 500);
+            //            clearInterval(checkExist);
+            //        } else {
+            //            $('html, body').animate({ scrollTop: '-=1px' }, 500);
+            //            clearInterval(checkExist);
+            //        }
+            //    }, 100);
+            //});
+
+            //$('body').click(function () {
+            //    $('#PESANAN').css('max-width', '100px').attr('style', 'width: 100px !important');
+            //});
+        }
+        function refresh() {
+            var link = '@Url.Action("RefreshKirimForm", "Manage")';
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $('.do_table_section').hide();
+                    $('.do_editor_section').show();
+                    $('#form-partial').html(response);
+                    $('#btn-print-row').hide();
+                    refreshInputan();
+                    //getDataPesanan();
+                    getExpedisi();
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function pass(idKirim) {
+            this.$idKirim = idKirim;
+        }
+
+        function deleteKirim() {
+            var link = '@Url.Action("DeleteKirim", "Manage", new { kirimId = "replaceId" })';
+            link = link.replace("replaceId", encodeURIComponent(this.$idKirim));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    if (response.Errors == null) {
+                        //refreshTableKirim();
+                        refreshTableDO()
+                        $('#konfHapusKirim').modal('hide');
+                    } else {
+                        alert(response.Errors[0]);
+                    }
+                    $('#konfHapusKirim').modal('hide');
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        var $brg = '';
+
+        function passBarangInDb($brg) {
+            this.$brg = $brg;
+        }
+
+        function deleteDetail() {
+            var link = '@Url.Action("DeleteDetailKirim", "Manage", new { noUrut = "replaceBrgId" })';
+            link = link.replace("replaceBrgId", encodeURIComponent(this.$brg));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (response) {
+                    if (response.Errors == null) {
+                        $('#form-partial').html(response);
+                        //$('input, select, .btn-danger').each(function () {
+                        //    $(this).attr('disabled', 'disabled');
+                        //});
+                        getDetailKirim()
+                        refreshInputan();
+                        //getDataPesanan();
+                        getExpedisi();
+                    } else {
+                        alert(response.Errors[0]);
+                    }
+                    $('#konfHapusDetail').modal('hide');
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function simpandetail($id) {
+            if (!validateForm()) return false;
+            if ($id == 'detail-0') {
+                if ($('#Pengiriman_TGL_KIRIM').val() != null &&
+                    //$('#Pengiriman_KURIR').val() != '' &&
+                    //$('#Pengiriman_NAMA_KURIR').val() != '' &&
+                    $("#Pengiriman_NAMA_EKSPEDISI").val() &&
+                    $('#timepicker1').val() != ''
+                ) {
+
+                    $('#PengirimanDetail_PESANAN').val($('#PESANAN').selectivity('val'));
+                    $('#PengirimanDetail_NAMA_MARKET').val($('tr[data-kirim-id="0"] .mp-detail').text());
+                    $('#PengirimanDetail_NAMA_PEMBELI').val($('tr[data-kirim-id="0"] .buyer-detail').text());
+                    //$('#PengirimanDetail_ALAMAT_KIRIM').val($('tr[data-kirim-id="0"] .al-detail').text());
+
+                    $('input, select').each(function () {
+                        $(this).removeAttr('disabled');
+                    });
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("SaveSerahTerima", "Manage")',
+                        data: $('#form-kirim').serialize(),
+                        beforeSend: function () {
+
+                            $('#loading_spinner').show();
+                        },
+                        success: function (response) {
+                            if (response.Errors == null) {
+                                $('#close-editor')[0].disabled = false;
+                                $modeEdit = 1;
+                                $('#form-partial').html(response);
+                                $('input, select').each(function () {
+                                    $(this).attr('disabled', 'disabled');
+                                });
+                                getDetailKirim();
+                                refreshInputan();
+                                getDataPesanan();
+                                getExpedisi();
+                                getTanggal();
+                                $('#loading_spinner').hide();
+                            } else {
+                                alert('Ada data yang tidak valid!');
+                                console.log(response.Errors);
+                                $('#loading_spinner').hide();
+                            }
+                        },
+                        error: function (xhr) {
+                            console.log(xhr);
+                        }
+                    });
+                } else {
+                    alert('Silakan isi semua field terlebih dahulu!');
+                }
+            }
+        }
+
+        function getTanggal() {
+            var $flagPerubahan = 0;
+
+
+            if ($modeEdit == 1) { // mode edit
+                $('#Pengiriman_TGL_KIRIM').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).change(function () {
+                    if ($flagPerubahan == 0) {
+                        $('#btn-simpan-perubahan-row').show();
+
+                    }
+                    $(this).datepicker('hide');
+
+                    $flagPerubahan++;
+                    });
+
+                $('#timepicker1').timepicker({
+                    minuteStep: 1,
+                    showSeconds: false,
+                    showMeridian: false,
+                    defaultTime: 'current',
+                    showWidget: true,
+                    showInputs: true,
+                }).change(function () {
+                    if ($flagPerubahan == 0) {
+                        $('#btn-simpan-perubahan-row').show();
+
+                    }
+                    $(this).timepicker('hide');
+
+                    $flagPerubahan++;
+                });
+            }
+            else {
+                $('#Pengiriman_TGL_KIRIM').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).datepicker('setDate', '0').change(function () {
+                    if ($flagPerubahan == 0) {
+                        $('#btn-simpan-perubahan-row').show();
+                    }
+                    $(this).datepicker('hide');
+
+                    $flagPerubahan++;
+                    $modeEdit = 1;
+                    });
+                $('#timepicker1').timepicker({
+                    minuteStep: 1,
+                    showSeconds: false,
+                    showMeridian: false,
+                    defaultTime: 'current',
+                    showWidget: true,
+                    showInputs: true,
+                }).change(function () {
+                    if ($flagPerubahan == 0) {
+                        $('#btn-simpan-perubahan-row').show();
+                    }
+                    $(this).timepicker('hide');
+
+                    $flagPerubahan++;
+                    $modeEdit = 1;
+                });
+            }
+        }
+
+        function getExpedisi() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetEkspedisiSerahTerima", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+                success: function(data) {
+                    var listEkspedisi = [];
+
+                    $.each(data,
+                        function(i, item) {
+                            listEkspedisi[i] = {
+                                ////id: item.SHIPMENT,
+                                ////text: item.SHIPMENT
+                                //id: item.RecNum,
+                                //text: item.NamaEkspedisi
+                                id: item,
+                                text: item
+                            };
+                        });
+
+                    var expedisiSelect = $('#EXPEDISI').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listEkspedisi,
+                        onChange: function (value) {
+                            //var $objSup = $.grep(listEkspedisi, function (data) { return data.id == value });
+
+                            if (value == null) {
+                                //$("#Pengiriman_KURIR").val(null);
+                            } else {
+                                $("#Pengiriman_NAMA_EKSPEDISI").val(value).trigger('change');
+                                $('#Pengiriman_NAMA_EKSPEDISI').val($("#EXPEDISI option:selected").text());
+                                getDataPesanan();
+                            }
+                            $('#btn-simpan-perubahan-row').show();
+                        }
+                    });
+
+                    expedisiSelect[0].selectize.setValue($('#Pengiriman_NAMA_EKSPEDISI').val());
+                    $('#btn-simpan-perubahan-row').hide();
+                },
+                error: function(xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function Select() {
+            $('#PESANAN').style.width = "400px";
+        }
+
+        function validasiCetak(kirimId) {
+            var link = '@Url.Action("CetakPengiriman", "Manage", new { KirimId = "replaceNoBuk"})';
+                link = link.replace('replaceNoBuk', kirimId);
+
+                var win = encodeURIComponent(window.open(link , '_blank'));
+                if (win) {
+                    win.focus();
+                } else {
+                    alert('Please allow popups for this website');
+                }
+        }
+
+        function cetakKirim(kirimId, nobuk) {
+            //$('#cetakfaktur_label').text($('.cetak').attr("data-nobuk"));
+            $('#cetakfaktur_label').text(nobuk);
+            $('#modalPrintOption').modal('show');
+
+            $('#btn-print-kirim').on('click', function() {
+
+                var link = '@Url.Action("CetakPengiriman", "Manage", new { KirimId = "replaceNoBuk"})';
+                link = link.replace('replaceNoBuk', kirimId);
+
+                var win = encodeURIComponent(window.open(link , '_blank'));
+                $('#modalPrintOption').modal('hide');
+                if (win) {
+                    //win.focus();
+                } else {
+                    alert('Please allow popups for this website');
+                }
+            });
+        }
+
+        function afterPromptCustomer(cust) {
+            if (promptCust == "1") {
+                $('#FromCust').val(cust);
+            }
+            else if (promptCust == "2") {
+                $('#ToCust').val(cust);
+            }
+            promptCust = "";
+        }
+
+        function validasiAutoload() {
+            if ($('#Pengiriman_TGL_KIRIM').val() != null &&
+                $('#Pengiriman_KURIR').val() != '' &&
+                $('#Pengiriman_NAMA_KURIR').val() != '' &&
+                $('#timepicker1').val() != '') {
+                $("#konfAutoload").modal('show');
+                refreshInputan();
+            } else {
+                alert('Silahkan isi semua field terlebih dulu !');
+
+            }
+        }
+
+
+
+    </script>
+    <script>
+        //Disable Enter Key Submit Form
+        function stopRKey(evt) {
+            var evt = (evt) ? evt : ((event) ? event : null);
+            var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+            if ((evt.keyCode === 13) && (node.type === "text")) { return false; }
+        }
+        document.onkeypress = stopRKey;
+    </script>
+}

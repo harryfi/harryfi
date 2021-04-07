@@ -46439,6 +46439,7 @@ namespace MasterOnline.Controllers
 
         //add by nurul 19/8/2019, tambah form pengiriman 
         // =============================================== Bagian Pengiriman (START)
+        #region pengiriman lama
         [HttpGet]
         public ActionResult GetDataPesanan(string code)
         {
@@ -46718,45 +46719,48 @@ namespace MasterOnline.Controllers
             try
             {
                 var kirimInDb = ErasoftDbContext.SIT04A.Single(p => p.RECNUM == kirimId);
-                var listPesanan = ErasoftDbContext.SIT04B.Where(a => a.NO_BUKTI == kirimInDb.NO_BUKTI).Select(a => a.PESANAN).ToList();
+                var sSQl = "SELECT A.NO_URUT, A.NO_BUKTI, PESANAN, NAMA_MARKET AS MARKETPLACE, ISNULL(B.NAMAPEMESAN,'') AS PEMBELI, ISNULL(B.NO_REFERENSI,'') AS NOREF, ISNULL(B.SHIPMENT,'') AS KURIR, ISNULL(B.TRACKING_SHIPMENT,'') AS RESI " +
+                           "FROM SIT04B A(NOLOCK) LEFT JOIN SOT01A B(NOLOCK) ON A.PESANAN = B.NO_BUKTI WHERE A.NO_BUKTI = '" + kirimInDb.NO_BUKTI + "'";
+                var listDetail = ErasoftDbContext.Database.SqlQuery<cetakSerahTerima>(sSQl).ToList();
+                //var listPesanan = ErasoftDbContext.SIT04B.Where(a => a.NO_BUKTI == kirimInDb.NO_BUKTI).Select(a => a.PESANAN).ToList();
 
-                string ordersn = "";
-                foreach (var item in listPesanan)
-                {
-                    if (item == listPesanan.Last())
-                    {
-                        ordersn = ordersn + "'" + item + "'";
-                    }
-                    else
-                    {
-                        ordersn = ordersn + "'" + item + "',";
-                    }
-                }
+                //string ordersn = "";
+                //foreach (var item in listPesanan)
+                //{
+                //    if (item == listPesanan.Last())
+                //    {
+                //        ordersn = ordersn + "'" + item + "'";
+                //    }
+                //    else
+                //    {
+                //        ordersn = ordersn + "'" + item + "',";
+                //    }
+                //}
 
 
                 var vm = new PengirimanViewModel()
                 {
                     Pengiriman = kirimInDb,
-                    ListPengiriman = ErasoftDbContext.SIT04A.ToList(),
-                    ListPengirimanDetail = ErasoftDbContext.SIT04B.Where(a => a.NO_BUKTI == kirimInDb.NO_BUKTI).ToList(),
+                    //ListPengiriman = ErasoftDbContext.SIT04A.ToList(),
+                    //ListPengirimanDetail = ErasoftDbContext.SIT04B.Where(a => a.NO_BUKTI == kirimInDb.NO_BUKTI).ToList(),
                     //Shipment = ErasoftDbContext.SOT01A.Where(a => listPesanan.Contains(a.NO_BUKTI)).Select(a => a.SHIPMENT).ToList()
-
+                    CetakSerahTerima = listDetail,
                 };
-                if (listPesanan.Count() != 0)
-                {
-                    string ssql = "";
-                    ssql += "SELECT SHIPMENT, NO_BUKTI FROM SOT01A WHERE NO_BUKTI IN (" + ordersn + ")";
-                    var listShipment = ErasoftDbContext.Database.SqlQuery<Shipments>(ssql).ToList();
-                    foreach (var item in listShipment)
-                    {
-                        vm.Shipment.Add(new ShipmentOfKirim()
-                        {
-                            SHIPMENT = item.SHIPMENT,
-                            NO_BUKTI = item.NO_BUKTI
-                        });
-                    }
-                }
-
+                //if (listPesanan.Count() != 0)
+                //{
+                //    string ssql = "";
+                //    ssql += "SELECT SHIPMENT, NO_BUKTI FROM SOT01A WHERE NO_BUKTI IN (" + ordersn + ")";
+                //    var listShipment = ErasoftDbContext.Database.SqlQuery<Shipments>(ssql).ToList();
+                //    foreach (var item in listShipment)
+                //    {
+                //        vm.Shipment.Add(new ShipmentOfKirim()
+                //        {
+                //            SHIPMENT = item.SHIPMENT,
+                //            NO_BUKTI = item.NO_BUKTI
+                //        });
+                //    }
+                //}
+                
                 return PartialView("BarangKirimPartial", vm);
             }
             catch (Exception ex)
@@ -46807,41 +46811,52 @@ namespace MasterOnline.Controllers
                 ErasoftDbContext.SIT04B.Remove(detailKirimInDb);
                 ErasoftDbContext.SaveChanges();
 
-                var listPesanan = ErasoftDbContext.SIT04B.Where(a => a.NO_BUKTI == kirimInDb.NO_BUKTI).Select(a => a.PESANAN).ToList();
-                string ordersn = "";
-                foreach (var item in listPesanan)
-                {
-                    if (item == listPesanan.Last())
-                    {
-                        ordersn = ordersn + "'" + item + "'";
-                    }
-                    else
-                    {
-                        ordersn = ordersn + "'" + item + "',";
-                    }
-                }
+                //var listPesanan = ErasoftDbContext.SIT04B.Where(a => a.NO_BUKTI == kirimInDb.NO_BUKTI).Select(a => a.PESANAN).ToList();
+                //string ordersn = "";
+                //foreach (var item in listPesanan)
+                //{
+                //    if (item == listPesanan.Last())
+                //    {
+                //        ordersn = ordersn + "'" + item + "'";
+                //    }
+                //    else
+                //    {
+                //        ordersn = ordersn + "'" + item + "',";
+                //    }
+                //}
+                //var vm = new PengirimanViewModel()
+                //{
+                //    Pengiriman = ErasoftDbContext.SIT04A.Single(a => a.NO_BUKTI == kirimInDb.NO_BUKTI),
+                //    ListPengiriman = ErasoftDbContext.SIT04A.ToList(),
+                //    ListPengirimanDetail = ErasoftDbContext.SIT04B.Where(a => a.NO_BUKTI == kirimInDb.NO_BUKTI).ToList(),
+                //    //Shipment = listShipment
+                //};
+
+                //if (listPesanan.Count() != 0)
+                //{
+                //    string ssql = "";
+                //    ssql += "SELECT SHIPMENT, NO_BUKTI FROM SOT01A WHERE NO_BUKTI IN (" + ordersn + ")";
+                //    var listShipment = ErasoftDbContext.Database.SqlQuery<ShipmentOfKirim>(ssql).ToList();
+                //    foreach (var item in listShipment)
+                //    {
+                //        vm.Shipment.Add(new ShipmentOfKirim()
+                //        {
+                //            SHIPMENT = item.SHIPMENT,
+                //            NO_BUKTI = item.NO_BUKTI
+                //        });
+                //    }
+                //}
+
+                //var kirimInDb = ErasoftDbContext.SIT04A.Single(p => p.RECNUM == kirimId);
+                var sSQl = "SELECT A.NO_URUT, A.NO_BUKTI, PESANAN, NAMA_MARKET AS MARKETPLACE, ISNULL(B.NAMAPEMESAN,'') AS PEMBELI, ISNULL(B.NO_REFERENSI,'') AS NOREF, ISNULL(B.SHIPMENT,'') AS KURIR, ISNULL(B.TRACKING_SHIPMENT,'') AS RESI " +
+                           "FROM SIT04B A(NOLOCK) LEFT JOIN SOT01A B(NOLOCK) ON A.PESANAN = B.NO_BUKTI WHERE A.NO_BUKTI = '" + kirimInDb.NO_BUKTI + "'";
+                var listDetail = ErasoftDbContext.Database.SqlQuery<cetakSerahTerima>(sSQl).ToList();
+                
                 var vm = new PengirimanViewModel()
                 {
-                    Pengiriman = ErasoftDbContext.SIT04A.Single(a => a.NO_BUKTI == kirimInDb.NO_BUKTI),
-                    ListPengiriman = ErasoftDbContext.SIT04A.ToList(),
-                    ListPengirimanDetail = ErasoftDbContext.SIT04B.Where(a => a.NO_BUKTI == kirimInDb.NO_BUKTI).ToList(),
-                    //Shipment = listShipment
+                    Pengiriman = kirimInDb,
+                    CetakSerahTerima = listDetail,
                 };
-
-                if (listPesanan.Count() != 0)
-                {
-                    string ssql = "";
-                    ssql += "SELECT SHIPMENT, NO_BUKTI FROM SOT01A WHERE NO_BUKTI IN (" + ordersn + ")";
-                    var listShipment = ErasoftDbContext.Database.SqlQuery<ShipmentOfKirim>(ssql).ToList();
-                    foreach (var item in listShipment)
-                    {
-                        vm.Shipment.Add(new ShipmentOfKirim()
-                        {
-                            SHIPMENT = item.SHIPMENT,
-                            NO_BUKTI = item.NO_BUKTI
-                        });
-                    }
-                }
 
                 return PartialView("BarangKirimPartial", vm);
             }
@@ -46935,22 +46950,20 @@ namespace MasterOnline.Controllers
                         namaToko = accFromUser.NamaTokoOnline;
                     }
                 }
-
-                var namaPT = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1).NAMA_PT;
-                var alamat = ErasoftDbContext.SIFSYS.Single(a => a.BLN == 1).ALAMAT_PT;
+                var Sifsys = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1);
+                var namaPT = Sifsys.NAMA_PT;
+                var alamat = Sifsys.ALAMAT_PT;
                 var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
-                //var getKurir = Convert.ToInt32(kirimInDb.KURIR);
-                //var kurir = MoDbContext.Ekspedisi.Single(a => a.RecNum == getKurir).NamaEkspedisi;
-                //var ListKirimDetail = ErasoftDbContext.SIT04B.Where(pd => pd.NO_BUKTI == dataVm.Pengiriman.NO_BUKTI).ToList();
-                //var listPesananInKirimDetail = ListKirimDetail.Select(p => p.PESANAN).ToList();
-                //var kirimInDb = ErasoftDbContext.SIT04A.Single(p => p.NO_BUKTI == dataVm.Pengiriman.NO_BUKTI);
-                var listPesanan = ErasoftDbContext.SIT04B.Where(a => a.NO_BUKTI == kirimInDb.NO_BUKTI).Select(a => a.PESANAN).ToList();
-
+                //var listPesanan = ErasoftDbContext.SIT04B.Where(a => a.NO_BUKTI == kirimInDb.NO_BUKTI).Select(a => a.PESANAN).ToList();
+                var SSQL = "SELECT A.NO_BUKTI, PESANAN, NAMA_MARKET AS MARKETPLACE, ISNULL(B.NAMAPEMESAN,'') AS PEMBELI, ISNULL(B.NO_REFERENSI,'') AS NOREF, ISNULL(B.SHIPMENT,'') AS KURIR, ISNULL(B.TRACKING_SHIPMENT,'') AS RESI " +
+                           "FROM SIT04B A(NOLOCK) LEFT JOIN SOT01A B(NOLOCK) ON A.PESANAN = B.NO_BUKTI WHERE A.NO_BUKTI = '" + kirimInDb.NO_BUKTI + "'";
+                var getListDetail = ErasoftDbContext.Database.SqlQuery<cetakSerahTerima>(SSQL).ToList();
 
                 var vm = new PengirimanViewModel()
                 {
                     Pengiriman = kirimInDb,
-                    ListPengirimanDetail = ErasoftDbContext.SIT04B.Where(fd => fd.NO_BUKTI == kirimInDb.NO_BUKTI).ToList(),
+                    //ListPengirimanDetail = ErasoftDbContext.SIT04B.Where(fd => fd.NO_BUKTI == kirimInDb.NO_BUKTI).ToList(),
+                    CetakSerahTerima = getListDetail,
                     NamaToko = namaToko,
                     NamaPerusahaan = namaPT,
                     AlamatToko = alamat,
@@ -46958,32 +46971,32 @@ namespace MasterOnline.Controllers
                     NamaKurir = kirimInDb.NAMA_EKSPEDISI
                 };
 
-                if (listPesanan.Count() != 0)
-                {
-                    string ordersn = "";
-                    foreach (var item in listPesanan)
-                    {
-                        if (item == listPesanan.Last())
-                        {
-                            ordersn = ordersn + "'" + item + "'";
-                        }
-                        else
-                        {
-                            ordersn = ordersn + "'" + item + "',";
-                        }
-                    }
-                    string ssql = "";
-                    ssql += "SELECT SHIPMENT, NO_BUKTI FROM SOT01A WHERE NO_BUKTI IN (" + ordersn + ")";
-                    var listShipment = ErasoftDbContext.Database.SqlQuery<Shipments>(ssql).ToList();
-                    foreach (var item in listShipment)
-                    {
-                        vm.Shipment.Add(new ShipmentOfKirim()
-                        {
-                            SHIPMENT = item.SHIPMENT,
-                            NO_BUKTI = item.NO_BUKTI
-                        });
-                    }
-                }
+                //if (listPesanan.Count() != 0)
+                //{
+                //    string ordersn = "";
+                //    foreach (var item in listPesanan)
+                //    {
+                //        if (item == listPesanan.Last())
+                //        {
+                //            ordersn = ordersn + "'" + item + "'";
+                //        }
+                //        else
+                //        {
+                //            ordersn = ordersn + "'" + item + "',";
+                //        }
+                //    }
+                //    string ssql = "";
+                //    ssql += "SELECT SHIPMENT, NO_BUKTI FROM SOT01A WHERE NO_BUKTI IN (" + ordersn + ")";
+                //    var listShipment = ErasoftDbContext.Database.SqlQuery<Shipments>(ssql).ToList();
+                //    foreach (var item in listShipment)
+                //    {
+                //        vm.Shipment.Add(new ShipmentOfKirim()
+                //        {
+                //            SHIPMENT = item.SHIPMENT,
+                //            NO_BUKTI = item.NO_BUKTI
+                //        });
+                //    }
+                //}
 
                 return View(vm);
             }
@@ -47234,9 +47247,1314 @@ namespace MasterOnline.Controllers
 
             return Json(listEkspedisi, JsonRequestBehavior.AllowGet);
         }
-
+        #endregion pengiriman lama
         // =============================================== Bagian Pengiriman (END)
         //end add by nurul 19/8/2019, tambah form pengiriman 
+
+        //add by nurul 29/3/2021
+        // =============================================== Bagian Pengiriman (START)
+        #region pengiriman baru
+        public ActionResult SerahTerimaMenu()
+        {
+            var vm = new SerahTerimaViewModel()
+            {
+                cutoffPengiriman = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().CUTOFF_SERAH_TERIMA,
+                modeEditDO = "0",
+                kirimId = 0
+            };
+
+            return View("RekapPengirimanMenu", vm);
+        }
+
+        public ActionResult SerahTerimaMenuEdit(int? kirimId, string tabBelum)
+        {
+            var vm = new SerahTerimaViewModel()
+            {
+                cutoffPengiriman = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().CUTOFF_SERAH_TERIMA,
+                modeEditDO = "1",
+                kirimId = kirimId
+            };
+
+            if(tabBelum == "1")
+            {
+                vm.modeEditDO = "2";
+            }
+
+            return View("RekapPengirimanMenu", vm);
+        }
+
+        public ActionResult saveCutOff()
+        {
+            //if(tglCutoff != null && tglCutoff != "")
+            //{
+            var today = DateTime.UtcNow.AddHours(7);
+            var getSIFSYS = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault();
+            if (getSIFSYS != null)
+            {
+                //var tgl = DateTime.ParseExact(tglCutoff, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+                getSIFSYS.CUTOFF_SERAH_TERIMA = today;
+                ErasoftDbContext.SaveChanges();
+            }
+            //}
+            return new EmptyResult(); 
+        }
+
+        public ActionResult refreshTableDashboardBelumDO(string drTgl, string sdTgl)
+        {
+            var vm = new SerahTerimaViewModel()
+            {
+
+            };
+            if(drTgl != null && sdTgl != null && drTgl != "" && sdTgl != "" && drTgl.ToLower() != "undefined" && sdTgl.ToLower() != "undefined")
+            {
+                var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
+                    System.Globalization.CultureInfo.InvariantCulture) : DateTime.UtcNow.AddHours(7));
+                var Sdtgl = (sdTgl != "" ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy",
+                    System.Globalization.CultureInfo.InvariantCulture) : DateTime.UtcNow.AddHours(7));
+                var tempDrtgl = Drtgl.ToString("yyyy-MM-dd") + " 00:00:00.000";
+                var tempSdtgl = Sdtgl.ToString("yyyy-MM-dd") + " 23:59:59.999";
+                var sSQL = "SELECT KURIR_GROUP AS KURIR,SUM(JUMLAH) AS JUMLAH FROM ( ";
+                sSQL += "SELECT CASE WHEN ISNULL(SHIPMENT,'') LIKE '%GRAB%' THEN 'GRAB' ";
+                sSQL += "WHEN (ISNULL(SHIPMENT,'') LIKE '%GO-JEK%' OR ISNULL(SHIPMENT,'') LIKE '%GO-SEND%' OR ISNULL(SHIPMENT,'') LIKE '%GOJEK%' OR ISNULL(SHIPMENT,'') LIKE '%GOSEND%') THEN 'GOJEK' ";
+                sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%SICEPAT%' THEN 'Sicepat' ";
+                sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%JNE%' THEN 'JNE' ";
+                sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%J&T%' THEN 'J&T' ";
+                sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%SHOPEE%' THEN 'Shopee Express' ";
+                sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%ANTER%' THEN 'AnterAja' ";
+                sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%NINJA%' THEN 'Ninja' ";
+                sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%POS%' THEN 'POS' ";
+                sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%TIKI%' THEN 'TIKI' ";
+                sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%WAHANA%' THEN 'WAHANA' ";
+                sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%LEX%' THEN 'LEX' ";
+                sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%REX%' THEN 'REX' ";
+                sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%INDAH%' THEN 'Indah' ";
+                sSQL += "ELSE ISNULL(SHIPMENT,'') END AS KURIR_GROUP ";
+                sSQL += ",COUNT(SHIPMENT) AS JUMLAH ";
+                //sSQL += "SELECT SHIPMENT AS KURIR, COUNT(SHIPMENT) AS JUMLAH FROM SOT01A A (NOLOCK) LEFT JOIN SIT04B B (NOLOCK) ON A.NO_BUKTI=B.PESANAN WHERE A.TGL >= '" + tempDrtgl + "' AND A.TGL <= '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('03','04') AND ISNULL(B.PESANAN,'')='' GROUP BY SHIPMENT";
+                sSQL += "FROM SOT01A A (NOLOCK) LEFT JOIN SIT04B B (NOLOCK) ON A.NO_BUKTI=B.PESANAN WHERE A.TGL >= '" + tempDrtgl + "' AND A.TGL <= '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('03','04') AND ISNULL(B.PESANAN,'')='' AND ISNULL(SHIPMENT,'')<>'' GROUP BY SHIPMENT ";
+                sSQL += ")A GROUP BY KURIR_GROUP ";
+                var getRekap = ErasoftDbContext.Database.SqlQuery<DashboardSerahTerima>(sSQL).ToList();
+                if(getRekap.Count() > 0)
+                {
+                    vm.ListDashboard.AddRange(getRekap);
+                }
+            }
+            return PartialView("TableDashboardDO", vm);
+        }
+
+        public ActionResult refreshTableDashboardSudahDO(string drTgl, string sdTgl)
+        {
+            var vm = new SerahTerimaViewModel()
+            {
+
+            };
+            var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
+            System.Globalization.CultureInfo.InvariantCulture) : DateTime.UtcNow.AddHours(7));
+            var Sdtgl = (sdTgl != "" ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture) : DateTime.UtcNow.AddHours(7));
+            var tempDrtgl = Drtgl.ToString("yyyy-MM-dd") + " 00:00:00.000";
+            var tempSdtgl = Sdtgl.ToString("yyyy-MM-dd") + " 23:59:59.999";
+            var sSQL = "SELECT KURIR_GROUP AS KURIR,SUM(JUMLAH) AS JUMLAH FROM ( ";
+            sSQL += "SELECT CASE WHEN ISNULL(SHIPMENT,'') LIKE '%GRAB%' THEN 'GRAB' ";
+            sSQL += "WHEN (ISNULL(SHIPMENT,'') LIKE '%GO-JEK%' OR ISNULL(SHIPMENT,'') LIKE '%GO-SEND%' OR ISNULL(SHIPMENT,'') LIKE '%GOJEK%' OR ISNULL(SHIPMENT,'') LIKE '%GOSEND%') THEN 'GOJEK' ";
+            sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%SICEPAT%' THEN 'Sicepat' ";
+            sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%JNE%' THEN 'JNE' ";
+            sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%J&T%' THEN 'J&T' ";
+            sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%SHOPEE%' THEN 'Shopee Express' ";
+            sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%ANTER%' THEN 'AnterAja' ";
+            sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%NINJA%' THEN 'Ninja' ";
+            sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%POS%' THEN 'POS' ";
+            sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%TIKI%' THEN 'TIKI' ";
+            sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%WAHANA%' THEN 'WAHANA' ";
+            sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%LEX%' THEN 'LEX' ";
+            sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%REX%' THEN 'REX' ";
+            sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%INDAH%' THEN 'Indah' ";
+            sSQL += "ELSE ISNULL(SHIPMENT,'') END AS KURIR_GROUP ";
+            sSQL += ",COUNT(SHIPMENT) AS JUMLAH ";
+            //sSQL += "SELECT SHIPMENT AS KURIR, COUNT(SHIPMENT) AS JUMLAH FROM SOT01A A (NOLOCK) INNER JOIN SIT04B B (NOLOCK) ON A.NO_BUKTI=B.PESANAN WHERE A.TGL >= '" + tempDrtgl + "' AND A.TGL <= '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('03','04') AND ISNULL(B.PESANAN,'')<>'' GROUP BY SHIPMENT";
+            sSQL += "FROM SOT01A A (NOLOCK) INNER JOIN SIT04B B (NOLOCK) ON A.NO_BUKTI=B.PESANAN WHERE A.TGL >= '" + tempDrtgl + "' AND A.TGL <= '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('03','04') AND ISNULL(B.PESANAN,'')<>'' AND ISNULL(SHIPMENT,'')<>'' GROUP BY SHIPMENT ";
+            sSQL += ")A GROUP BY KURIR_GROUP ";
+            var getRekap = ErasoftDbContext.Database.SqlQuery<DashboardSerahTerima>(sSQL).ToList();
+            if (getRekap.Count() > 0)
+            {
+                vm.ListDashboard.AddRange(getRekap);
+            }
+            
+            return PartialView("TableDashboardDO", vm);
+        }
+
+        //public ActionResult refreshTableSemuaDO(string drTgl, string sdTgl, string take, int? page, string search = "", string filter = "", string filtervalue = "")
+        public ActionResult refreshTableSemuaDO(string take, int? page, string search = "", string filter = "", string filtervalue = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            ViewData["takeRecord"] = take;
+
+            //var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
+            //System.Globalization.CultureInfo.InvariantCulture) : DateTime.UtcNow.AddHours(7));
+            //var Sdtgl = (sdTgl != "" ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy",
+            //    System.Globalization.CultureInfo.InvariantCulture) : DateTime.UtcNow.AddHours(7));
+            //var tempDrtgl = Drtgl.ToString("yyyy-MM-dd") + " 00:00:00.000";
+            //var tempSdtgl = Sdtgl.ToString("yyyy-MM-dd") + " 23:59:59.999";
+
+            var drTglSudah = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().CUTOFF_SERAH_TERIMA?.ToString("dd/MM/yyyy");
+            var sdTglSudah = DateTime.UtcNow.AddHours(7).ToString("dd/MM/yyyy");
+            if (drTglSudah != null && drTglSudah != "" && drTglSudah.ToLower() != "undefined")
+            {
+                var DrtglSudah = (drTglSudah != "" ? DateTime.ParseExact(drTglSudah, "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture) : DateTime.UtcNow.AddHours(7));
+                var SdtglSudah = (sdTglSudah != "" ? DateTime.ParseExact(sdTglSudah, "dd/MM/yyyy",
+                    System.Globalization.CultureInfo.InvariantCulture) : DateTime.UtcNow.AddHours(7));
+                var tempDrtglSudah = DrtglSudah.ToString("yyyy-MM-dd") + " 00:00:00.000";
+                var tempSdtglSudah = SdtglSudah.ToString("yyyy-MM-dd") + " 23:59:59.999";
+
+                string[] getkata = search.Split(' ');
+                string sSQLkode = "";
+                string sSQLmarket = "";
+                string sSQLpembeli = "";
+                string sSQLfaktur = "";
+                string sSQLresi = "";
+                string sSQLkurir = "";
+                string sSQLreferensi = "";
+                string sSQLDO = "";
+                bool searchCOD = false;
+                bool searchPreorder = false;
+                if (!string.IsNullOrEmpty(search))
+                {
+                    if (search.ToUpper().Contains("COD"))
+                    {
+                        searchCOD = true;
+                    }
+                    if (search.ToUpper().Contains("PREORDER"))
+                    {
+                        searchPreorder = true;
+                    }
+                }
+                if (getkata.Length > 0)
+                {
+                    if (search != "")
+                    {
+                        for (int i = 0; i < getkata.Length; i++)
+                        {
+                            if (i > 0)
+                            {
+                                sSQLkode += " and ";
+                                sSQLmarket += " and ";
+                                sSQLpembeli += " and ";
+                                sSQLfaktur += " and ";
+                                sSQLresi += " and ";
+                                sSQLkurir += " and ";
+                                sSQLreferensi += " and ";
+                                sSQLDO += " and ";
+                            }
+
+                            sSQLkode += " A.NO_BUKTI like '%" + getkata[i] + "%' ";
+                            sSQLmarket += "  (isnull(F.NamaMarket,'') + ' (' + isnull(E.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ";
+                            sSQLpembeli += " A.NAMAPEMESAN like '%" + getkata[i] + "%' ";
+                            sSQLfaktur += "  C.NO_BUKTI like '%" + getkata[i] + "%' ";
+                            sSQLresi += "  A.TRACKING_SHIPMENT like '%" + getkata[i] + "%' ";
+                            sSQLkurir += "  A.SHIPMENT like '%" + getkata[i] + "%' ";
+                            sSQLreferensi += "  A.NO_REFERENSI like '%" + getkata[i] + "%' ";
+                            sSQLDO += "  B.NO_BUKTI like '%" + getkata[i] + "%' ";
+                        }
+                    }
+                }
+
+                string sSQLStart = "";
+                sSQLStart += "SELECT * FROM ( ";
+                string sSQLCount = "";
+                sSQLCount += "SELECT COUNT(NoPesanan) AS JUMLAH FROM ( ";
+                string sSQLQuery = "";
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT A.NO_BUKTI AS NoPesanan, A.NO_REFERENSI AS NoRef, C.NO_BUKTI AS NoFaktur, A.TGL AS TglPesanan, B.NO_BUKTI AS NoDO, ";
+                sSQLSelect += "D.TGL_KIRIM AS TglDO,ISNULL(F.NAMAMARKET,'') AS Marketplace, ISNULL(E.PERSO,'') AS PERSO,ISNULL(A.NAMAPEMESAN,'') AS Pembeli, ";
+                sSQLSelect += "ISNULL(A.TIPE_KIRIM, 0) TipePesanan, ISNULL(A.SHIPMENT, '') AS Kurir,ISNULL(A.TRACKING_SHIPMENT,'') AS NoResi, ISNULL(A.N_UCAPAN, 0) N_UCAPAN ";
+                sSQLSelect += ", CONVERT(NVARCHAR, D.RECNUM) AS RECNUMDO, CONVERT(NVARCHAR, A.RECNUM) AS RECNUMSO ";
+
+                var sSQLSelectSOT01A = "";
+                string sSQLTemp = "";
+                switch (filter)
+                {
+                    case "marketplace":
+                        {
+                            if (filtervalue != null && filtervalue != "Harap Pilih")
+                            {
+                                var listCustSesuaiFilter = ErasoftDbContext.ARF01.Where(p => p.NAMA == filtervalue).Select(p => p.CUST).ToList();
+                                var queryfilter = "";
+                                foreach (var item in listCustSesuaiFilter)
+                                {
+                                    if (queryfilter != "") { queryfilter += ","; }
+                                    queryfilter += "'" + item + "'";
+                                }
+                                sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) WHERE STATUS_TRANSAKSI IN ('03','04') AND ";
+                                if (queryfilter != "")
+                                {
+                                    sSQLTemp += " CUST IN(" + queryfilter + "); " + Environment.NewLine;
+                                }
+                                else
+                                {
+                                    sSQLTemp += " 0 = 1; " + Environment.NewLine;
+                                }
+                                sSQLSelectSOT01A += "FROM #SOT01A A (NOLOCK) ";
+                            }
+                            else
+                            {
+                                sSQLSelectSOT01A += "FROM SOT01A A (NOLOCK) ";
+                            }
+                        }
+                        break;
+                    case "tipe":
+                        {
+                            if (filtervalue != null && filtervalue != "Harap Pilih")
+                            {
+                                sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) ";
+                                if (filtervalue == "cod")
+                                {
+                                    sSQLTemp += "WHERE STATUS_TRANSAKSI IN ('03','04') AND ISNULL(TIPE_KIRIM,0) = 1; ";
+                                }
+                                if (filtervalue == "preorder")
+                                {
+                                    sSQLTemp += "WHERE STATUS_TRANSAKSI IN ('03','04') AND ISNULL(N_UCAPAN,'') = 'preorder'; ";
+                                }
+                                sSQLSelectSOT01A += "FROM #SOT01A A (NOLOCK) ";
+                            }
+                            else
+                            {
+                                sSQLSelectSOT01A += "FROM SOT01A A (NOLOCK) ";
+                            }
+                        }
+                        break;
+                    default:
+                        {
+                            sSQLSelectSOT01A += "FROM SOT01A A (NOLOCK) ";
+                        }
+                        break;
+                }
+
+                string sSQLWhere = "";
+                if (search != "")
+                {
+                    sSQLWhere += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLfaktur + ") or (" + sSQLresi + ") or ("
+                        + sSQLkurir + ") or (" + sSQLreferensi + ") or (" + sSQLDO + ") ";
+
+                    if (searchCOD && searchPreorder)
+                    {
+                        sSQLWhere += " OR (A.TIPE_KIRIM = 1 AND A.N_UCAPAN = 'Preorder') ";
+                    }
+                    else
+                    {
+                        if (searchCOD)
+                        {
+                            sSQLWhere += " OR A.TIPE_KIRIM = 1 ";
+                        }
+                        if (searchPreorder)
+                        {
+                            sSQLWhere += " OR A.N_UCAPAN = 'Preorder' ";
+                        }
+                    }
+                    sSQLWhere += ") ";
+                }
+
+                if (tempDrtglSudah != null && tempDrtglSudah != "" && tempDrtglSudah.ToLower() != "undefined")
+                {
+                    sSQLQuery += sSQLSelect;
+                    sSQLQuery += sSQLSelectSOT01A;
+                    sSQLQuery += "LEFT JOIN SIT04B B (NOLOCK) ON A.NO_BUKTI=B.PESANAN LEFT JOIN SIT01A C ON A.NO_BUKTI=C.NO_SO LEFT JOIN SIT04A D (NOLOCK) ON B.NO_BUKTI=D.NO_BUKTI ";
+                    sSQLQuery += "LEFT JOIN ARF01 E (NOLOCK) ON A.CUST=E.CUST LEFT JOIN MO..MARKETPLACE F (NOLOCK) ON E.NAMA=F.IDMARKET ";
+                    sSQLQuery += "WHERE A.TGL >= '" + tempDrtglSudah + "' AND A.TGL <= '" + tempSdtglSudah + "' AND ISNULL(B.PESANAN,'')='' AND A.STATUS_TRANSAKSI IN ('03','04') ";
+                    sSQLQuery += sSQLWhere;
+                    sSQLQuery += "UNION ALL ";
+                }
+                sSQLQuery += sSQLSelect;
+                sSQLQuery += sSQLSelectSOT01A;
+                sSQLQuery += "LEFT JOIN SIT04B B (NOLOCK) ON A.NO_BUKTI=B.PESANAN LEFT JOIN SIT01A C ON A.NO_BUKTI=C.NO_SO LEFT JOIN SIT04A D (NOLOCK) ON B.NO_BUKTI=D.NO_BUKTI ";
+                sSQLQuery += "LEFT JOIN ARF01 E (NOLOCK) ON A.CUST=E.CUST LEFT JOIN MO..MARKETPLACE F (NOLOCK) ON E.NAMA=F.IDMARKET ";
+                sSQLQuery += "WHERE A.TGL >= '" + tempDrtglSudah + "' AND A.TGL <= '" + tempSdtglSudah + "' AND ISNULL(B.PESANAN,'')<>'' AND A.STATUS_TRANSAKSI IN ('03','04') ";
+                //sSQLQuery += "WHERE ISNULL(B.PESANAN,'')<>'' AND A.STATUS_TRANSAKSI IN ('03','04') ";
+                sSQLQuery += sSQLWhere;
+                string sSQLEnd = " )A ";
+
+                string sSQLOrder = "";
+                if (filter == "tanggal" && filtervalue == "asc")
+                {
+                    sSQLOrder += "ORDER BY TglPesanan ASC, NoPesanan ASC ";
+                }
+                else
+                {
+                    sSQLOrder += "ORDER BY TglPesanan DESC, NoPesanan DESC ";
+                }
+                var minimal_harus_ada_item_untuk_current_page = (page * Convert.ToInt32(take)) - (Convert.ToInt32(take) - 1);
+                var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLTemp + sSQLCount + sSQLQuery + sSQLEnd).Single();
+                if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+                {
+                    pagenumber = pagenumber - 1;
+                }
+                sSQLOrder += "OFFSET " + Convert.ToString(pagenumber * Convert.ToInt32(take)) + " ROWS ";
+                sSQLOrder += "FETCH NEXT " + Convert.ToInt32(take) + " ROWS ONLY ";
+
+                var listDO = ErasoftDbContext.Database.SqlQuery<SerahTerima>(sSQLTemp + sSQLStart + sSQLQuery + sSQLEnd + sSQLOrder).ToList();
+
+                IPagedList<SerahTerima> pageOrders = new StaticPagedList<SerahTerima>(listDO, pagenumber + 1, Convert.ToInt32(take), totalCount.JUMLAH);
+                return PartialView("TableSemuaDO", pageOrders);
+            }
+            else
+            {
+                var listDO = new List<SerahTerima>();
+                IPagedList<SerahTerima> pageOrders = new StaticPagedList<SerahTerima>(listDO, pagenumber + 1, Convert.ToInt32(take), 0);
+                return PartialView("TableSemuaDO", pageOrders);
+            }
+        }
+
+        public ActionResult refreshTableBelumDO(string take, int? page, string search = "", string filter = "", string filtervalue = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            ViewData["takeRecord"] = take;
+
+            var drTglSudah = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().CUTOFF_SERAH_TERIMA?.ToString("dd/MM/yyyy");
+            var sdTglSudah = DateTime.UtcNow.AddHours(7).ToString("dd/MM/yyyy");
+            if (drTglSudah != null && drTglSudah != "" && drTglSudah.ToLower() != "undefined")
+            {
+                var DrtglSudah = (drTglSudah != "" ? DateTime.ParseExact(drTglSudah, "dd/MM/yyyy",
+                    System.Globalization.CultureInfo.InvariantCulture) : DateTime.UtcNow.AddHours(7));
+                var SdtglSudah = (sdTglSudah != "" ? DateTime.ParseExact(sdTglSudah, "dd/MM/yyyy",
+                    System.Globalization.CultureInfo.InvariantCulture) : DateTime.UtcNow.AddHours(7));
+                var tempDrtglSudah = DrtglSudah.ToString("yyyy-MM-dd") + " 00:00:00.000";
+                var tempSdtglSudah = SdtglSudah.ToString("yyyy-MM-dd") + " 23:59:59.999";
+
+            
+                string[] getkata = search.Split(' ');
+                string sSQLkode = "";
+                string sSQLmarket = "";
+                string sSQLpembeli = "";
+                string sSQLfaktur = "";
+                string sSQLresi = "";
+                string sSQLkurir = "";
+                string sSQLreferensi = "";
+                string sSQLDO = "";
+                bool searchCOD = false;
+                bool searchPreorder = false;
+                if (!string.IsNullOrEmpty(search))
+                {
+                    if (search.ToUpper().Contains("COD"))
+                    {
+                        searchCOD = true;
+                    }
+                    if (search.ToUpper().Contains("PREORDER"))
+                    {
+                        searchPreorder = true;
+                    }
+                }
+                if (getkata.Length > 0)
+                {
+                    if (search != "")
+                    {
+                        for (int i = 0; i < getkata.Length; i++)
+                        {
+                            if (i > 0)
+                            {
+                                sSQLkode += " and ";
+                                sSQLmarket += " and ";
+                                sSQLpembeli += " and ";
+                                sSQLfaktur += " and ";
+                                sSQLresi += " and ";
+                                sSQLkurir += " and ";
+                                sSQLreferensi += " and ";
+                                sSQLDO += " and ";
+                            }
+
+                            sSQLkode += " A.NO_BUKTI like '%" + getkata[i] + "%' ";
+                            sSQLmarket += "  (isnull(F.NamaMarket,'') + ' (' + isnull(E.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ";
+                            sSQLpembeli += " A.NAMAPEMESAN like '%" + getkata[i] + "%' ";
+                            sSQLfaktur += "  C.NO_BUKTI like '%" + getkata[i] + "%' ";
+                            sSQLresi += "  A.TRACKING_SHIPMENT like '%" + getkata[i] + "%' ";
+                            sSQLkurir += "  A.SHIPMENT like '%" + getkata[i] + "%' ";
+                            sSQLreferensi += "  A.NO_REFERENSI like '%" + getkata[i] + "%' ";
+                            sSQLDO += "  B.NO_BUKTI like '%" + getkata[i] + "%' ";
+                        }
+                    }
+                }
+
+                string sSQLStart = "";
+                sSQLStart += "SELECT * FROM ( ";
+                string sSQLCount = "";
+                sSQLCount += "SELECT COUNT(NoPesanan) AS JUMLAH FROM ( ";
+                string sSQLQuery = "";
+                string sSQLSelect = "";
+                //sSQLSelect += "SELECT A.NO_BUKTI AS NoPesanan, A.NO_REFERENSI AS NoRef, C.NO_BUKTI AS NoFaktur, A.TGL AS TglPesanan, B.NO_BUKTI AS NoDO, ";
+                //sSQLSelect += "D.TGL_KIRIM AS TglDO,ISNULL(F.NAMAMARKET,'') AS Marketplace, ISNULL(E.PERSO,'') AS PERSO,ISNULL(A.NAMAPEMESAN,'') AS Pembeli, ";
+                sSQLSelect += "SELECT A.NO_BUKTI AS NoPesanan, A.NO_REFERENSI AS NoRef, C.NO_BUKTI AS NoFaktur, A.TGL AS TglPesanan, ";
+                sSQLSelect += "ISNULL(F.NAMAMARKET,'') AS Marketplace, ISNULL(E.PERSO,'') AS PERSO,ISNULL(A.NAMAPEMESAN,'') AS Pembeli, ";
+                sSQLSelect += "ISNULL(A.TIPE_KIRIM, 0) TipePesanan, ISNULL(A.SHIPMENT, '') AS Kurir,ISNULL(A.TRACKING_SHIPMENT,'') AS NoResi, ISNULL(A.N_UCAPAN, 0) N_UCAPAN ";
+                sSQLSelect += ", CONVERT(NVARCHAR, A.RECNUM) AS RECNUMSO ";
+
+                var sSQLSelectSOT01A = "";
+                string sSQLTemp = "";
+                switch (filter)
+                {
+                    case "marketplace":
+                        {
+                            if (filtervalue != null && filtervalue != "Harap Pilih")
+                            {
+                                var listCustSesuaiFilter = ErasoftDbContext.ARF01.Where(p => p.NAMA == filtervalue).Select(p => p.CUST).ToList();
+                                var queryfilter = "";
+                                foreach (var item in listCustSesuaiFilter)
+                                {
+                                    if (queryfilter != "") { queryfilter += ","; }
+                                    queryfilter += "'" + item + "'";
+                                }
+                                sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) WHERE STATUS_TRANSAKSI IN ('03','04') AND ";
+                                if (queryfilter != "")
+                                {
+                                    sSQLTemp += " CUST IN(" + queryfilter + "); " + Environment.NewLine;
+                                }
+                                else
+                                {
+                                    sSQLTemp += " 0 = 1; " + Environment.NewLine;
+                                }
+                                sSQLSelectSOT01A += "FROM #SOT01A A (NOLOCK) ";
+                            }
+                            else
+                            {
+                                sSQLSelectSOT01A += "FROM SOT01A A (NOLOCK) ";
+                            }
+                        }
+                        break;
+                    case "tipe":
+                        {
+                            if (filtervalue != null && filtervalue != "Harap Pilih")
+                            {
+                                sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) ";
+                                if (filtervalue == "cod")
+                                {
+                                    sSQLTemp += "WHERE STATUS_TRANSAKSI IN ('03','04') AND ISNULL(TIPE_KIRIM,0) = 1; ";
+                                }
+                                if (filtervalue == "preorder")
+                                {
+                                    sSQLTemp += "WHERE STATUS_TRANSAKSI IN ('03','04') AND ISNULL(N_UCAPAN,'') = 'preorder'; ";
+                                }
+                                sSQLSelectSOT01A += "FROM #SOT01A A (NOLOCK) ";
+                            }
+                            else
+                            {
+                                sSQLSelectSOT01A += "FROM SOT01A A (NOLOCK) ";
+                            }
+                        }
+                        break;
+                    default:
+                        {
+                            sSQLSelectSOT01A += "FROM SOT01A A (NOLOCK) ";
+                        }
+                        break;
+                }
+
+                string sSQLWhere = "";
+                if (search != "")
+                {
+                    sSQLWhere += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLfaktur + ") or (" + sSQLresi + ") or ("
+                        + sSQLkurir + ") or (" + sSQLreferensi + ") or (" + sSQLDO + ") ";
+
+                    if (searchCOD && searchPreorder)
+                    {
+                        sSQLWhere += " OR (A.TIPE_KIRIM = 1 AND A.N_UCAPAN = 'Preorder') ";
+                    }
+                    else
+                    {
+                        if (searchCOD)
+                        {
+                            sSQLWhere += " OR A.TIPE_KIRIM = 1 ";
+                        }
+                        if (searchPreorder)
+                        {
+                            sSQLWhere += " OR A.N_UCAPAN = 'Preorder' ";
+                        }
+                    }
+                    sSQLWhere += ") ";
+                }
+
+                if (tempDrtglSudah != null && tempDrtglSudah != "" && tempDrtglSudah.ToLower() != "undefined")
+                {
+                    sSQLQuery += sSQLSelect;
+                    sSQLQuery += sSQLSelectSOT01A;
+                    //sSQLQuery += "LEFT JOIN SIT04B B (NOLOCK) ON A.NO_BUKTI=B.PESANAN LEFT JOIN SIT01A C ON A.NO_BUKTI=C.NO_SO LEFT JOIN SIT04A D (NOLOCK) ON B.NO_BUKTI=D.NO_BUKTI ";
+                    sSQLQuery += "LEFT JOIN SIT04B B (NOLOCK) ON A.NO_BUKTI=B.PESANAN LEFT JOIN SIT01A C ON A.NO_BUKTI=C.NO_SO ";
+                    sSQLQuery += "LEFT JOIN ARF01 E (NOLOCK) ON A.CUST=E.CUST LEFT JOIN MO..MARKETPLACE F (NOLOCK) ON E.NAMA=F.IDMARKET ";
+                    sSQLQuery += "WHERE A.TGL >= '" + tempDrtglSudah + "' AND A.TGL <= '" + tempSdtglSudah + "' AND ISNULL(B.PESANAN,'')='' AND A.STATUS_TRANSAKSI IN ('03','04') ";
+                    sSQLQuery += sSQLWhere;
+                }
+                string sSQLEnd = " )A ";
+
+                string sSQLOrder = "";
+                if (filter == "tanggal" && filtervalue == "asc")
+                {
+                    sSQLOrder += "ORDER BY TglPesanan ASC, NoPesanan ASC ";
+                }
+                else
+                {
+                    sSQLOrder += "ORDER BY TglPesanan DESC, NoPesanan DESC ";
+                }
+                var minimal_harus_ada_item_untuk_current_page = (page * Convert.ToInt32(take)) - (Convert.ToInt32(take) - 1);
+                var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLTemp + sSQLCount + sSQLQuery + sSQLEnd).Single();
+                if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+                {
+                    pagenumber = pagenumber - 1;
+                }
+                sSQLOrder += "OFFSET " + Convert.ToString(pagenumber * Convert.ToInt32(take)) + " ROWS ";
+                sSQLOrder += "FETCH NEXT " + Convert.ToInt32(take) + " ROWS ONLY ";
+
+                var listDO = ErasoftDbContext.Database.SqlQuery<SerahTerima>(sSQLTemp + sSQLStart + sSQLQuery + sSQLEnd + sSQLOrder).ToList();
+
+                IPagedList<SerahTerima> pageOrders = new StaticPagedList<SerahTerima>(listDO, pagenumber + 1, Convert.ToInt32(take), totalCount.JUMLAH);
+
+                return PartialView("TableBelumDO", pageOrders);
+            }
+            else
+            {
+                var listDO = new List<SerahTerima>();
+                IPagedList<SerahTerima> pageOrders = new StaticPagedList<SerahTerima>(listDO, pagenumber + 1, Convert.ToInt32(take), 0);
+                return PartialView("TableBelumDO", pageOrders);
+            }
+        }
+
+        public ActionResult refreshTableSudahDO(string take, int? page, string search = "", string filter = "", string filtervalue = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            ViewData["takeRecord"] = take;
+
+            var drTgl = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().CUTOFF_SERAH_TERIMA?.ToString("dd/MM/yyyy");
+            var sdTgl = DateTime.UtcNow.AddHours(7).ToString("dd/MM/yyyy");
+            if (drTgl != null && drTgl != "" && drTgl.ToLower() != "undefined")
+            {
+                var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture) : DateTime.UtcNow.AddHours(7));
+                var Sdtgl = (sdTgl != "" ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy",
+                    System.Globalization.CultureInfo.InvariantCulture) : DateTime.UtcNow.AddHours(7));
+                var tempDrtgl = Drtgl.ToString("yyyy-MM-dd") + " 00:00:00.000";
+                var tempSdtgl = Sdtgl.ToString("yyyy-MM-dd") + " 23:59:59.999";
+
+                string[] getkata = search.Split(' ');
+                string sSQLkode = "";
+                string sSQLmarket = "";
+                string sSQLpembeli = "";
+                string sSQLfaktur = "";
+                string sSQLresi = "";
+                string sSQLkurir = "";
+                string sSQLreferensi = "";
+                string sSQLDO = "";
+                bool searchCOD = false;
+                bool searchPreorder = false;
+                if (!string.IsNullOrEmpty(search))
+                {
+                    if (search.ToUpper().Contains("COD"))
+                    {
+                        searchCOD = true;
+                    }
+                    if (search.ToUpper().Contains("PREORDER"))
+                    {
+                        searchPreorder = true;
+                    }
+                }
+                if (getkata.Length > 0)
+                {
+                    if (search != "")
+                    {
+                        for (int i = 0; i < getkata.Length; i++)
+                        {
+                            if (i > 0)
+                            {
+                                sSQLkode += " and ";
+                                sSQLmarket += " and ";
+                                sSQLpembeli += " and ";
+                                sSQLfaktur += " and ";
+                                sSQLresi += " and ";
+                                sSQLkurir += " and ";
+                                sSQLreferensi += " and ";
+                                sSQLDO += " and ";
+                            }
+
+                            sSQLkode += " A.NO_BUKTI like '%" + getkata[i] + "%' ";
+                            sSQLmarket += "  (isnull(F.NamaMarket,'') + ' (' + isnull(E.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ";
+                            sSQLpembeli += " A.NAMAPEMESAN like '%" + getkata[i] + "%' ";
+                            sSQLfaktur += "  C.NO_BUKTI like '%" + getkata[i] + "%' ";
+                            sSQLresi += "  A.TRACKING_SHIPMENT like '%" + getkata[i] + "%' ";
+                            sSQLkurir += "  A.SHIPMENT like '%" + getkata[i] + "%' ";
+                            sSQLreferensi += "  A.NO_REFERENSI like '%" + getkata[i] + "%' ";
+                            sSQLDO += "  B.NO_BUKTI like '%" + getkata[i] + "%' ";
+                        }
+                    }
+                }
+
+                string sSQLStart = "";
+                sSQLStart += "SELECT * FROM ( ";
+                string sSQLCount = "";
+                sSQLCount += "SELECT COUNT(NoPesanan) AS JUMLAH FROM ( ";
+                string sSQLQuery = "";
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT A.NO_BUKTI AS NoPesanan, A.NO_REFERENSI AS NoRef, C.NO_BUKTI AS NoFaktur, A.TGL AS TglPesanan, B.NO_BUKTI AS NoDO, ";
+                sSQLSelect += "D.TGL_KIRIM AS TglDO,ISNULL(F.NAMAMARKET,'') AS Marketplace, ISNULL(E.PERSO,'') AS PERSO,ISNULL(A.NAMAPEMESAN,'') AS Pembeli, ";
+                sSQLSelect += "ISNULL(A.TIPE_KIRIM, 0) TipePesanan, ISNULL(A.SHIPMENT, '') AS Kurir,ISNULL(A.TRACKING_SHIPMENT,'') AS NoResi, ISNULL(A.N_UCAPAN, 0) N_UCAPAN ";
+                sSQLSelect += ", CONVERT(NVARCHAR, D.RECNUM) AS RECNUMDO, CONVERT(NVARCHAR, A.RECNUM) AS RECNUMSO ";
+
+                var sSQLSelectSOT01A = "";
+                string sSQLTemp = "";
+                switch (filter)
+                {
+                    case "marketplace":
+                        {
+                            if (filtervalue != null && filtervalue != "Harap Pilih")
+                            {
+                                var listCustSesuaiFilter = ErasoftDbContext.ARF01.Where(p => p.NAMA == filtervalue).Select(p => p.CUST).ToList();
+                                var queryfilter = "";
+                                foreach (var item in listCustSesuaiFilter)
+                                {
+                                    if (queryfilter != "") { queryfilter += ","; }
+                                    queryfilter += "'" + item + "'";
+                                }
+                                sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) WHERE STATUS_TRANSAKSI IN ('03','04') AND ";
+                                if (queryfilter != "")
+                                {
+                                    sSQLTemp += " CUST IN(" + queryfilter + "); " + Environment.NewLine;
+                                }
+                                else
+                                {
+                                    sSQLTemp += " 0 = 1; " + Environment.NewLine;
+                                }
+                                sSQLSelectSOT01A += "FROM #SOT01A A (NOLOCK) ";
+                            }
+                            else
+                            {
+                                sSQLSelectSOT01A += "FROM SOT01A A (NOLOCK) ";
+                            }
+                        }
+                        break;
+                    case "tipe":
+                        {
+                            if (filtervalue != null && filtervalue != "Harap Pilih")
+                            {
+                                sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) ";
+                                if (filtervalue == "cod")
+                                {
+                                    sSQLTemp += "WHERE STATUS_TRANSAKSI IN ('03','04') AND ISNULL(TIPE_KIRIM,0) = 1; ";
+                                }
+                                if (filtervalue == "preorder")
+                                {
+                                    sSQLTemp += "WHERE STATUS_TRANSAKSI IN ('03','04') AND ISNULL(N_UCAPAN,'') = 'preorder'; ";
+                                }
+                                sSQLSelectSOT01A += "FROM #SOT01A A (NOLOCK) ";
+                            }
+                            else
+                            {
+                                sSQLSelectSOT01A += "FROM SOT01A A (NOLOCK) ";
+                            }
+                        }
+                        break;
+                    default:
+                        {
+                            sSQLSelectSOT01A += "FROM SOT01A A (NOLOCK) ";
+                        }
+                        break;
+                }
+
+                string sSQLWhere = "";
+                if (search != "")
+                {
+                    sSQLWhere += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLfaktur + ") or (" + sSQLresi + ") or ("
+                        + sSQLkurir + ") or (" + sSQLreferensi + ") or (" + sSQLDO + ") ";
+
+                    if (searchCOD && searchPreorder)
+                    {
+                        sSQLWhere += " OR (A.TIPE_KIRIM = 1 AND A.N_UCAPAN = 'Preorder') ";
+                    }
+                    else
+                    {
+                        if (searchCOD)
+                        {
+                            sSQLWhere += " OR A.TIPE_KIRIM = 1 ";
+                        }
+                        if (searchPreorder)
+                        {
+                            sSQLWhere += " OR A.N_UCAPAN = 'Preorder' ";
+                        }
+                    }
+                    sSQLWhere += ") ";
+                }
+
+                sSQLQuery += sSQLSelect;
+                sSQLQuery += sSQLSelectSOT01A;
+                sSQLQuery += "LEFT JOIN SIT04B B (NOLOCK) ON A.NO_BUKTI=B.PESANAN LEFT JOIN SIT01A C ON A.NO_BUKTI=C.NO_SO LEFT JOIN SIT04A D (NOLOCK) ON B.NO_BUKTI=D.NO_BUKTI ";
+                sSQLQuery += "LEFT JOIN ARF01 E (NOLOCK) ON A.CUST=E.CUST LEFT JOIN MO..MARKETPLACE F (NOLOCK) ON E.NAMA=F.IDMARKET ";
+                sSQLQuery += "WHERE A.TGL >= '" + tempDrtgl + "' AND A.TGL <= '" + tempSdtgl + "' AND ISNULL(B.PESANAN,'')<>'' AND A.STATUS_TRANSAKSI IN ('03','04') ";
+                //sSQLQuery += "WHERE ISNULL(B.PESANAN,'')<>'' AND A.STATUS_TRANSAKSI IN ('03','04') ";
+                sSQLQuery += sSQLWhere;
+                string sSQLEnd = " )A ";
+
+                string sSQLOrder = "";
+                if (filter == "tanggal" && filtervalue == "asc")
+                {
+                    sSQLOrder += "ORDER BY TglPesanan ASC, NoPesanan ASC ";
+                }
+                else
+                {
+                    sSQLOrder += "ORDER BY TglPesanan DESC, NoPesanan DESC ";
+                }
+                var minimal_harus_ada_item_untuk_current_page = (page * Convert.ToInt32(take)) - (Convert.ToInt32(take) - 1);
+                var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLTemp + sSQLCount + sSQLQuery + sSQLEnd).Single();
+                if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+                {
+                    pagenumber = pagenumber - 1;
+                }
+                sSQLOrder += "OFFSET " + Convert.ToString(pagenumber * Convert.ToInt32(take)) + " ROWS ";
+                sSQLOrder += "FETCH NEXT " + Convert.ToInt32(take) + " ROWS ONLY ";
+
+                var listDO = ErasoftDbContext.Database.SqlQuery<SerahTerima>(sSQLTemp + sSQLStart + sSQLQuery + sSQLEnd + sSQLOrder).ToList();
+
+                IPagedList<SerahTerima> pageOrders = new StaticPagedList<SerahTerima>(listDO, pagenumber + 1, Convert.ToInt32(take), totalCount.JUMLAH);
+
+                return PartialView("TableSudahDO", pageOrders);
+            }
+            else
+            {
+                var listDO = new List<SerahTerima>();
+                IPagedList<SerahTerima> pageOrders = new StaticPagedList<SerahTerima>(listDO, pagenumber + 1, Convert.ToInt32(take), 0);
+                return PartialView("TableSudahDO", pageOrders);
+            }
+        }
+
+        public ActionResult refreshTableDO(string take, int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            ViewData["takeRecord"] = take;
+
+            var drTgl = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().CUTOFF_SERAH_TERIMA?.ToString("dd/MM/yyyy");
+            var sdTgl = DateTime.UtcNow.AddHours(7).ToString("dd/MM/yyyy");
+            if (drTgl != null && drTgl != "" && drTgl.ToLower() != "undefined")
+            {
+                var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
+                    System.Globalization.CultureInfo.InvariantCulture) : DateTime.UtcNow.AddHours(7));
+                var Sdtgl = (sdTgl != "" ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy",
+                    System.Globalization.CultureInfo.InvariantCulture) : DateTime.UtcNow.AddHours(7));
+                var tempDrtgl = Drtgl.ToString("yyyy-MM-dd") + " 00:00:00.000";
+                var tempSdtgl = Sdtgl.ToString("yyyy-MM-dd") + " 23:59:59.999";
+
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT * ";
+                string sSQLCount = "";
+                sSQLCount += "SELECT COUNT(RECNUM) AS JUMLAH ";
+                string sSQL2 = "";
+                sSQL2 += "FROM SIT04A (NOLOCK) ";
+                sSQL2 += "WHERE TGL_KIRIM >= '" + tempDrtgl + "' AND TGL_KIRIM <= '" + tempSdtgl + "' ";
+                if (search != "")
+                {
+                    sSQL2 += "AND (NO_BUKTI LIKE '%" + search + "%' OR NAMA_EKSPEDISI LIKE '%" + search + "%') ";
+                }
+
+                var minimal_harus_ada_item_untuk_current_page = (page * Convert.ToInt32(take)) - (Convert.ToInt32(take) - 1);
+                var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+                if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+                {
+                    pagenumber = pagenumber - 1;
+                }
+
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY JAM_KIRIM DESC, NO_BUKTI DESC ";
+                sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * Convert.ToInt32(take)) + " ROWS ";
+                sSQLSelect2 += "FETCH NEXT " + Convert.ToInt32(take) + " ROWS ONLY ";
+
+                var listDO = ErasoftDbContext.Database.SqlQuery<SIT04A>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+                IPagedList<SIT04A> pagePackinglist = new StaticPagedList<SIT04A>(listDO, pagenumber + 1, Convert.ToInt32(take), totalCount.JUMLAH);
+                return PartialView("TableKirimPartial", pagePackinglist);
+            }
+            else
+            {
+                var listDO = new List<SIT04A>();
+                IPagedList<SIT04A> pageOrders = new StaticPagedList<SIT04A>(listDO, pagenumber + 1, Convert.ToInt32(take), 0);
+                return PartialView("TableKirimPartial", pageOrders);
+            }
+        }
+
+        public ActionResult GetEkspedisiSerahTerima()
+        {
+            //var listEkspedisi = MoDbContext.Ekspedisi.ToList();
+            var sSQL = "SELECT KURIR_GROUP AS KURIR FROM ( ";
+            sSQL += "SELECT CASE WHEN ISNULL(SHIPMENT,'') LIKE '%GRAB%' THEN 'GRAB' ";
+            sSQL += "WHEN (ISNULL(SHIPMENT,'') LIKE '%GO-JEK%' OR ISNULL(SHIPMENT,'') LIKE '%GO-SEND%' OR ISNULL(SHIPMENT,'') LIKE '%GOJEK%' OR ISNULL(SHIPMENT,'') LIKE '%GOSEND%') THEN 'GOJEK' ";
+            sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%SICEPAT%' THEN 'Sicepat' ";
+            sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%JNE%' THEN 'JNE' ";
+            sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%J&T%' THEN 'J&T' ";
+            sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%SHOPEE%' THEN 'Shopee Express' ";
+            sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%ANTER%' THEN 'AnterAja' ";
+            sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%NINJA%' THEN 'Ninja' ";
+            sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%POS%' THEN 'POS' ";
+            sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%TIKI%' THEN 'TIKI' ";
+            sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%WAHANA%' THEN 'WAHANA' ";
+            sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%LEX%' THEN 'LEX' ";
+            sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%REX%' THEN 'REX' ";
+            sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%INDAH%' THEN 'Indah' ";
+            sSQL += "ELSE ISNULL(SHIPMENT,'') END AS KURIR_GROUP ";
+            sSQL += "FROM SOT01A A (NOLOCK) WHERE ISNULL(SHIPMENT,'')<>'' GROUP BY SHIPMENT ";
+            sSQL += ")A GROUP BY KURIR_GROUP ";
+            var listEkspedisi = ErasoftDbContext.Database.SqlQuery<string>(sSQL).ToList();
+
+            return Json(listEkspedisi, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetDataPesananSerahTerima(string code)
+        {
+            var whereClause = "";
+            if (code == "GOJEK")
+            {
+                whereClause += " (ISNULL(A.SHIPMENT,'') like '%GO-JEK%' OR ISNULL(A.SHIPMENT,'') like '%GO-SEND%' OR ISNULL(A.SHIPMENT,'') like '%GOJEK%' OR ISNULL(A.SHIPMENT,'') like '%GOSEND%') ";
+            }
+            else
+            {
+                whereClause += " ISNULL(A.SHIPMENT,'') like '%" + code + "%' ";
+            }
+
+            string sSQL = "";
+            sSQL += "SELECT A.NO_BUKTI AS NoPesanan, ";
+            sSQL += "CASE WHEN ISNULL(PERSO,'') <> '' THEN ISNULL(NAMAMARKET,'') +' (' + ISNULL(PERSO, '') + ')' ELSE ISNULL(NAMAMARKET,'') END AS Marketplace, ";
+            sSQL += "ISNULL(A.NAMAPEMESAN, '') AS Pembeli, ISNULL(A.NO_REFERENSI, '') AS NoRef, ISNULL(A.SHIPMENT, '') AS Kurir, ISNULL(A.TRACKING_SHIPMENT, '') AS NoResi ";
+            sSQL += ",ISNULL(A.CUST,'') AS Perso, ISNULL(A.PEMESAN,'') AS N_UCAPAN,ISNULL(A.ALAMAT_KIRIM, '') AS NoFaktur, ISNULL(A.KOTA, '') AS NoDO, ISNULL(A.PROPINSI, '') AS RecnumSO, ISNULL(A.KODE_POS, '') AS RecnumDO ";
+            sSQL += "FROM SOT01A A(NOLOCK) LEFT JOIN ARF01 B(NOLOCK) ON A.CUST = B.CUST LEFT JOIN MO..MARKETPLACE C(NOLOCK) ON B.NAMA = C.IDMARKET LEFT JOIN SIT04B D(NOLOCK) ON A.NO_BUKTI = D.PESANAN ";
+            sSQL += "WHERE ISNULL(D.PESANAN,'')= '' AND A.STATUS_TRANSAKSI IN('03','04') AND " + whereClause;
+            var listPesananBlmKirim = ErasoftDbContext.Database.SqlQuery<SerahTerima>(sSQL).ToList();
+
+            return Json(listPesananBlmKirim, JsonRequestBehavior.AllowGet);
+
+        }
+
+        public ActionResult OpenModalSerahTerima()
+        {
+            var vm = new ScanBarcodeSerahTerimaViewModel
+            {
+            };
+            vm.listDataScan = new List<SerahTerima>();
+
+            return PartialView("ScanBarcodeSerahTerima", vm);
+        }
+        
+        public ActionResult ScanBarcodeSerahTerima(string[] Data, string DataScan, string Kurir)
+        {
+            var vm = new ScanBarcodeSerahTerimaViewModel()
+            {
+
+            };
+            
+            if (Data == null)
+            {
+                vm.listDataScan = new List<SerahTerima>();
+            }
+
+            List<string> listData = new List<string>();
+            var string_recnum = "";
+
+            var cekPesanan = ErasoftDbContext.Database.SqlQuery<SOT01A>("SELECT * FROM SOT01A WHERE NO_REFERENSI ='" + DataScan + "' OR NO_BUKTI ='" + DataScan + "' OR TRACKING_SHIPMENT ='" + DataScan + "'").ToList();
+            if (cekPesanan.Count() == 0)
+            {
+                return JsonErrorMessage("Pesanan dengan kode barcode : " + DataScan + " tidak ditemukan.");
+            }
+
+            if (cekPesanan.Count() > 1)
+            {
+                var stringList = "";
+                foreach (var list in cekPesanan)
+                {
+                    if (stringList != "")
+                    {
+                        stringList += Environment.NewLine;
+                    }
+
+                    stringList += "'" + list.NO_BUKTI + "'";
+                }
+                //return JsonErrorMessage("Pesanan dengan No. Bukti / No. Referensi / No.Resi '" + DataScan + "' merujuk kepada lebih dari 1 pesanan, yaitu: " + Environment.NewLine + stringList);
+                return JsonErrorMessage("Pesanan dengan kode barcode '" + DataScan + "' merujuk kepada lebih dari 1 pesanan, yaitu: " + Environment.NewLine + stringList + Environment.NewLine + "Silahkan isi menggunakan No. Pesanan / No. Resi.");
+            }
+
+            var tempRecProses = cekPesanan.FirstOrDefault().RecNum.ToString();
+            var tempNobukProses = cekPesanan.FirstOrDefault().NO_BUKTI;
+
+            if (Data != null)
+            {
+                listData = Data.ToList();
+                var cekDuplikat = false;
+
+                foreach (var rec in listData)
+                {
+                    if (rec == tempRecProses)
+                    {
+                        cekDuplikat = true;
+                    }
+                    if (string_recnum != "")
+                    {
+                        string_recnum += ",";
+                    }
+
+                    string_recnum += "'" + rec + "'";
+                }
+
+                if (cekDuplikat)
+                {
+                    return JsonErrorMessage("Anda sudah scan kode barcode : " + DataScan);
+                }
+            }
+
+            var cekDO = ErasoftDbContext.SIT04B.Where(a => a.PESANAN == tempNobukProses).FirstOrDefault();
+            if (cekDO != null)
+            {
+                return JsonErrorMessage("Barcode : " + DataScan + " sudah dibuatkan serah terima dengan bukti " + cekDO.NO_BUKTI);
+            }
+
+            if(Kurir != "")
+            {
+                var getKurir = cekPesanan.FirstOrDefault().SHIPMENT.ToUpper();
+                if (!getKurir.Contains(Kurir))
+                {
+                    return JsonErrorMessage("Pesanan dengan kode barcode : " + DataScan + " kurirnya bukan " + Kurir + ".");
+                }
+                if(Kurir == "GOJEK")
+                {
+                    if (!cekPesanan.FirstOrDefault().SHIPMENT.Contains("GO-JEK") && !cekPesanan.FirstOrDefault().SHIPMENT.Contains("GO-SEND") && !cekPesanan.FirstOrDefault().SHIPMENT.Contains("GOJEK") && !cekPesanan.FirstOrDefault().SHIPMENT.Contains("GOSEND"))
+                    {
+                        return JsonErrorMessage("Pesanan dengan kode barcode : " + DataScan + " kurirnya bukan " + Kurir + ".");
+                    }
+                }
+            }
+
+            if (string_recnum != "")
+            {
+                string_recnum += ",";
+            }
+            string_recnum += "'" + tempRecProses + "'";
+
+            var sSQLSelect = "SELECT NO_BUKTI AS NoPesanan, ISNULL(A.NO_REFERENSI,'') AS NoRef,TGL AS TglPesanan,ISNULL(PERSO,'') AS PERSO,ISNULL(NAMAMARKET,'') AS Marketplace,ISNULL(A.NAMAPEMESAN,'') AS Pembeli, ISNULL(A.SHIPMENT, '') AS Kurir, ISNULL(A.TRACKING_SHIPMENT,'') AS NoResi, CONVERT(NVARCHAR, A.RECNUM) AS RECNUMSO ";
+            sSQLSelect += "FROM SOT01A A (NOLOCK) LEFT JOIN ARF01 B(NOLOCK) ON A.CUST=B.CUST LEFT JOIN MO..MARKETPLACE C (NOLOCK) ON B.NAMA=C.IDMARKET WHERE A.RECNUM IN (" + string_recnum + ")";
+            vm.listDataScan = ErasoftDbContext.Database.SqlQuery<SerahTerima>(sSQLSelect).ToList();
+
+            var sSQLGroupKurir = "SELECT* FROM( " +
+            "SELECT CASE WHEN ISNULL(SHIPMENT,'') LIKE '%GRAB%' THEN 'GRAB' " +
+            "WHEN(ISNULL(SHIPMENT, '') LIKE '%GO-JEK%' OR ISNULL(SHIPMENT, '') LIKE '%GO-SEND%' " +
+            "OR ISNULL(SHIPMENT, '') LIKE '%GOJEK%' OR ISNULL(SHIPMENT, '') LIKE '%GOSEND%') THEN 'GOJEK' " +
+            "WHEN ISNULL(SHIPMENT,'') LIKE '%SICEPAT%' THEN 'SICEPAT' " +
+            "WHEN ISNULL(SHIPMENT,'') LIKE '%JNE%' THEN 'JNE' " +
+            "WHEN ISNULL(SHIPMENT,'') LIKE '%J&T%' THEN 'J&T' " +
+            "WHEN ISNULL(SHIPMENT,'') LIKE '%SHOPEE%' THEN 'SHOPEE' " +
+            "WHEN ISNULL(SHIPMENT,'') LIKE '%ANTER%' THEN 'ANTER' " +
+            "WHEN ISNULL(SHIPMENT,'') LIKE '%NINJA%' THEN 'NINJA' " +
+            "WHEN ISNULL(SHIPMENT,'') LIKE '%POS%' THEN 'POS' " +
+            "WHEN ISNULL(SHIPMENT,'') LIKE '%TIKI%' THEN 'TIKI' " +
+            "WHEN ISNULL(SHIPMENT,'') LIKE '%WAHANA%' THEN 'WAHANA' " +
+            "WHEN ISNULL(SHIPMENT,'') LIKE '%LEX%' THEN 'LEX' " +
+            "WHEN ISNULL(SHIPMENT,'') LIKE '%REX%' THEN 'REX' " +
+            "WHEN ISNULL(SHIPMENT,'') LIKE '%INDAH%' THEN 'INDAH' " +
+            "ELSE ISNULL(SHIPMENT,'') END AS KURIR_GROUP " +
+            "FROM SOT01A(NOLOCK) " +
+            "WHERE RECNUM IN(" + string_recnum + "))A GROUP BY KURIR_GROUP ";
+            vm.KURIR_TEMP = ErasoftDbContext.Database.SqlQuery<string>(sSQLGroupKurir).FirstOrDefault();
+            
+            return PartialView("ScanBarcodeSerahTerima", vm);
+        }
+
+        public ActionResult ProsesScanBarcodeSerahTerima(string[] Data, string Kurir)
+        {
+            if(Data == null)
+            {
+                return JsonErrorMessage("Tidak ada data yang dapat diproses.");
+                //return new JsonResult { Data = new { mo_error = "Tidak ada data yang dapat diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            List<string> listData = Data.ToList();
+            if(listData.Count() > 0)
+            {
+                var string_recnum = "";
+                foreach (var rec in listData)
+                {
+                    if (string_recnum != "")
+                    {
+                        string_recnum += ",";
+                    }
+
+                    string_recnum += "'" + rec + "'";
+                }
+                if(string_recnum != "")
+                {
+                    if (Kurir != null && Kurir != "")
+                    {
+                        try
+                        {
+                            var lastBukti = GenerateAutoNumber(ErasoftDbContext, "DO", "SIT04A", "NO_BUKTI");
+                            var noBukti = "DO" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                            var today = DateTime.UtcNow.AddHours(7);
+                            var sit04a = new SIT04A()
+                            {
+                                NO_BUKTI = noBukti,
+                                TGL_KIRIM = today,
+                                JAM_KIRIM = today,
+                                KURIR = "",
+                                NAMA_EKSPEDISI = Kurir,
+                                NAMA_KURIR = "",
+                            };
+                            
+                            try
+                            {
+                                ErasoftDbContext.SIT04A.Add(sit04a);
+                                ErasoftDbContext.SaveChanges();
+                            }
+                            catch (Exception ex)
+                            {
+                                var tempSI = ErasoftDbContext.SIT04A.Where(a => a.NO_BUKTI == sit04a.NO_BUKTI).Single();
+                                if (tempSI != null)
+                                {
+                                    if (tempSI.NO_BUKTI == noBukti)
+                                    {
+                                        var lastBuktiNew = Convert.ToInt32(lastBukti);
+                                        lastBuktiNew++;
+                                        noBukti = "DO" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                                        sit04a.NO_BUKTI = noBukti;
+                                        ErasoftDbContext.SIT04A.Add(sit04a);
+                                        ErasoftDbContext.SaveChanges();
+                                    }
+                                }
+                                else
+                                {
+                                    return JsonErrorMessage("Terjadi Kesalahan, mohon hubungi support.");
+                                }
+                            }
+
+                            var sSQL = "INSERT INTO [dbo].[SIT04B]([NO_BUKTI],[PESANAN],[MARKETPLACE],[NAMA_MARKET],[PEMBELI],[NAMA_PEMBELI],[ALAMAT_KIRIM],[KOTA],[PROPINSI],[KODE_POS],[USERNAME],[TGL_INPUT]) " +
+                                       "SELECT '" + noBukti + "' AS NO_BUKTI,NO_BUKTI AS PESANAN,A.CUST AS MARKETPLACE, CASE WHEN ISNULL(PERSO,'') <> '' THEN ISNULL(NAMAMARKET,'') +' (' + ISNULL(PERSO, '') + ')' ELSE ISNULL(NAMAMARKET,'') END AS NAMA_MARKET, " +
+                                       "PEMESAN AS PEMBELI, NAMAPEMESAN AS NAMA_PEMBELI, ALAMAT_KIRIM, KOTA, PROPINSI, KODE_POS, '" + usernameLogin + "' AS USERNAME, '" + today.ToString("yyyy-MM-dd HH:mm:ss") + "' AS TGL_INPUT " +
+                                       "FROM SOT01A A(NOLOCK) LEFT JOIN ARF01 B(NOLOCK) ON A.CUST = B.CUST LEFT JOIN MO..MARKETPLACE C(NOLOCK) ON B.NAMA = IDMARKET " +
+                                       "WHERE A.RECNUM IN(" + string_recnum + ") ";
+                            var insertSIT04B = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                            
+                            var sSQLUpdate = "UPDATE SOT01A SET JAMKIRIM='" + today.ToString("yyyy-MM-dd HH:mm:ss") + "' WHERE RECNUM IN(" + string_recnum + ") ";
+                            var TglSerahTerimaPesanan = ErasoftDbContext.Database.ExecuteSqlCommand(sSQLUpdate);
+
+                            ErasoftDbContext.SaveChanges();
+                            ModelState.Clear();
+                        }
+                        catch (Exception ex)
+                        {
+                            return JsonErrorMessage("Gagal proses serah terima. Mohon hubungi support.");
+                            //return new JsonResult { Data = new { mo_error = "Gagal proses serah terima. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        }
+                    }
+                    else
+                    {
+                        return JsonErrorMessage("Kurir tidak ditemukan.");
+                    }
+                }
+                else
+                {
+                    return JsonErrorMessage("Tidak ada data yang dapat diproses.");
+                }
+            }
+            else
+            {
+                return JsonErrorMessage("Tidak ada data yang dapat diproses.");
+            }
+
+            return new EmptyResult();
+        }
+
+        public ActionResult SaveSerahTerima(PengirimanViewModel dataVm)
+        {
+            if (!ModelState.IsValid)
+            {
+                dataVm.Errors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToList();
+                return Json(dataVm, JsonRequestBehavior.AllowGet);
+            }
+            List<string> listSOT01A = new List<string>();
+            List<string> listDetail = new List<string>();
+            try
+            {
+                DateTime? jamkirim = Convert.ToDateTime(dataVm.Pengiriman.TGL_KIRIM?.ToString("dd/MM/yyyy") + ' ' + dataVm.Pengiriman.JAM_KIRIM?.ToString("HH:mm"));
+                //dataVm.Pengiriman.JAM_KIRIM = jamkirim;
+                if (dataVm.Pengiriman.RECNUM == null)
+                {
+                    var lastBukti = GenerateAutoNumber(ErasoftDbContext, "DO", "SIT04A", "NO_BUKTI");
+                    var noKirim = "DO" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                    //end change by nurul 23/12/2019, perbaikan no bukti
+
+                    //dataVm.Pengiriman.NO_BUKTI = noKirim;
+                    //dataVm.PengirimanDetail.NO_BUKTI = noKirim;
+
+                    //#region agar field yg penting di sit04a tidak null
+
+                    //#endregion
+
+                    //try
+                    //{
+                    //    ErasoftDbContext.SIT04A.Add(dataVm.Pengiriman);
+                    //    ErasoftDbContext.SaveChanges();
+                    //}
+                    //catch (Exception ex)
+                    //{
+                    //    var tempSI = ErasoftDbContext.SIT04A.Where(a => a.NO_BUKTI == dataVm.Pengiriman.NO_BUKTI).Single();
+                    //    if (tempSI != null)
+                    //    {
+                    //        if (tempSI.NO_BUKTI == noKirim)
+                    //        {
+                    //            var lastBuktiNew = Convert.ToInt32(lastBukti);
+                    //            lastBuktiNew++;
+                    //            noKirim = "DO" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                    //            dataVm.Pengiriman.NO_BUKTI = noKirim;
+                    //            ErasoftDbContext.SIT04A.Add(dataVm.Pengiriman);
+                    //            dataVm.PengirimanDetail.NO_BUKTI = noKirim;
+                    //            ErasoftDbContext.SaveChanges();
+                    //        }
+                    //    }
+                    //    else
+                    //    {
+                    //        dataVm.Errors.Add("Terjadi Kesalahan, mohon hubungi support.");
+                    //        return Json(dataVm, JsonRequestBehavior.AllowGet);
+                    //    }
+                    //}
+                    ////end change by nurul 23/12/2019, perbaikan no bukti
+
+                    //if (dataVm.PengirimanDetail.NO_URUT == null)
+                    //{
+                    //    #region agar field yg penting di sit04b tidak null
+                    //    #endregion
+
+                    //    ErasoftDbContext.SIT04B.Add(dataVm.PengirimanDetail);
+
+
+                    //}
+                }
+                else
+                {
+                    var kirimInDb = ErasoftDbContext.SIT04A.Single(p => p.NO_BUKTI == dataVm.Pengiriman.NO_BUKTI);
+                    
+                    dataVm.PengirimanDetail.NO_BUKTI = dataVm.Pengiriman.NO_BUKTI;
+
+                    if (dataVm.PengirimanDetail.NO_URUT == null)
+                    {
+                        #region agar field yg penting di sit04b tidak null
+                        #endregion
+
+                        ErasoftDbContext.SIT04B.Add(dataVm.PengirimanDetail);
+                    }
+                }
+
+                ErasoftDbContext.SaveChanges();
+
+                var selectSOT01a = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == dataVm.PengirimanDetail.PESANAN).Single();
+                selectSOT01a.JAMKIRIM = jamkirim;
+                ErasoftDbContext.SaveChanges();
+                ModelState.Clear();
+
+                //var ListKirimDetail = ErasoftDbContext.SIT04B.Where(pd => pd.NO_BUKTI == dataVm.Pengiriman.NO_BUKTI).ToList();
+                //var listPesananInKirimDetail = ListKirimDetail.Select(p => p.PESANAN).ToList();
+                ////var kirimInDb = ErasoftDbContext.SIT04A.Single(p => p.NO_BUKTI == dataVm.Pengiriman.NO_BUKTI);
+                ////var listPesanan = ErasoftDbContext.SIT04B.Where(a => a.NO_BUKTI == kirimInDb.NO_BUKTI).Select(a => a.PESANAN).ToList();
+                //string ordersn = "";
+                //foreach (var item in listPesananInKirimDetail)
+                //{
+                //    if (item == listPesananInKirimDetail.Last())
+                //    {
+                //        ordersn = ordersn + "'" + item + "'";
+                //    }
+                //    else
+                //    {
+                //        ordersn = ordersn + "'" + item + "',";
+                //    }
+                //}
+                //string ssql = "";
+                //ssql += "SELECT SHIPMENT, NO_BUKTI FROM SOT01A WHERE NO_BUKTI IN (" + ordersn + ")";
+                //var listShipment = ErasoftDbContext.Database.SqlQuery<ShipmentOfKirim>(ssql).ToList();
+                //var vm = new PengirimanViewModel()
+                //{
+                //    Pengiriman = ErasoftDbContext.SIT04A.Single(p => p.NO_BUKTI == dataVm.Pengiriman.NO_BUKTI),
+                //    ListPengirimanDetail = ListKirimDetail,
+                //    Shipment = listShipment
+                //};
+
+                //var kirimInDb = ErasoftDbContext.SIT04A.Single(p => p.RECNUM == kirimId);
+                var sSQl = "SELECT A.NO_URUT, A.NO_BUKTI, PESANAN, NAMA_MARKET AS MARKETPLACE, ISNULL(B.NAMAPEMESAN,'') AS PEMBELI, ISNULL(B.NO_REFERENSI,'') AS NOREF, ISNULL(B.SHIPMENT,'') AS KURIR, ISNULL(B.TRACKING_SHIPMENT,'') AS RESI " +
+                           "FROM SIT04B A(NOLOCK) LEFT JOIN SOT01A B(NOLOCK) ON A.PESANAN = B.NO_BUKTI WHERE A.NO_BUKTI = '" + dataVm.Pengiriman.NO_BUKTI + "'";
+                var listSit04b = ErasoftDbContext.Database.SqlQuery<cetakSerahTerima>(sSQl).ToList();
+
+                var vm = new PengirimanViewModel()
+                {
+                    Pengiriman = ErasoftDbContext.SIT04A.Single(p => p.NO_BUKTI == dataVm.Pengiriman.NO_BUKTI),
+                    CetakSerahTerima = listSit04b,
+                };
+
+                return PartialView("BarangKirimPartial", vm);
+            }
+            catch (Exception ex)
+            {
+                return View("Error");
+            }
+        }
+
+        public ActionResult HapusDetailSerahTerima(string[] Data, string[] listDelete, string Kurir)
+        {
+            var vm = new ScanBarcodeSerahTerimaViewModel()
+            {
+                listDataScan = new List<SerahTerima>(),
+                KURIR_TEMP = Kurir
+            };
+            if (listDelete == null || listDelete.Count() == 0)
+            {
+                return JsonErrorMessage("Silahkan pilih data yang anda ingin hapus.");
+            }
+            List<string> listData = Data.ToList();
+            List<string> listDeleteNew = listDelete.ToList();
+            if(listDeleteNew.Count() > 0 && listData.Count() > 0)
+            {
+                var string_recnum = "";
+                foreach (var rec in listData)
+                {
+                    if (!listDeleteNew.Contains(rec))
+                    {
+                        if (string_recnum != "")
+                        {
+                            string_recnum += ",";
+                        }
+
+                        string_recnum += "'" + rec + "'";
+                    }
+                }
+
+                var sSQLSelect = "SELECT NO_BUKTI AS NoPesanan, ISNULL(A.NO_REFERENSI,'') AS NoRef,TGL AS TglPesanan,ISNULL(PERSO,'') AS PERSO,ISNULL(NAMAMARKET,'') AS Marketplace,ISNULL(A.NAMAPEMESAN,'') AS Pembeli, ISNULL(A.SHIPMENT, '') AS Kurir, ISNULL(A.TRACKING_SHIPMENT,'') AS NoResi, CONVERT(NVARCHAR, A.RECNUM) AS RECNUMSO ";
+                sSQLSelect += "FROM SOT01A A (NOLOCK) LEFT JOIN ARF01 B(NOLOCK) ON A.CUST=B.CUST LEFT JOIN MO..MARKETPLACE C (NOLOCK) ON B.NAMA=C.IDMARKET WHERE A.RECNUM IN (" + string_recnum + ")";
+                vm.listDataScan = ErasoftDbContext.Database.SqlQuery<SerahTerima>(sSQLSelect).ToList();
+
+                var sSQLGroupKurir = "SELECT* FROM( " +
+                "SELECT CASE WHEN ISNULL(SHIPMENT,'') LIKE '%GRAB%' THEN 'GRAB' " +
+                "WHEN(ISNULL(SHIPMENT, '') LIKE '%GO-JEK%' OR ISNULL(SHIPMENT, '') LIKE '%GO-SEND%' " +
+                "OR ISNULL(SHIPMENT, '') LIKE '%GOJEK%' OR ISNULL(SHIPMENT, '') LIKE '%GOSEND%') THEN 'GOJEK' " +
+                "WHEN ISNULL(SHIPMENT,'') LIKE '%SICEPAT%' THEN 'SICEPAT' " +
+                "WHEN ISNULL(SHIPMENT,'') LIKE '%JNE%' THEN 'JNE' " +
+                "WHEN ISNULL(SHIPMENT,'') LIKE '%J&T%' THEN 'J&T' " +
+                "WHEN ISNULL(SHIPMENT,'') LIKE '%SHOPEE%' THEN 'SHOPEE' " +
+                "WHEN ISNULL(SHIPMENT,'') LIKE '%ANTER%' THEN 'ANTER' " +
+                "WHEN ISNULL(SHIPMENT,'') LIKE '%NINJA%' THEN 'NINJA' " +
+                "WHEN ISNULL(SHIPMENT,'') LIKE '%POS%' THEN 'POS' " +
+                "WHEN ISNULL(SHIPMENT,'') LIKE '%TIKI%' THEN 'TIKI' " +
+                "WHEN ISNULL(SHIPMENT,'') LIKE '%WAHANA%' THEN 'WAHANA' " +
+                "WHEN ISNULL(SHIPMENT,'') LIKE '%LEX%' THEN 'LEX' " +
+                "WHEN ISNULL(SHIPMENT,'') LIKE '%REX%' THEN 'REX' " +
+                "WHEN ISNULL(SHIPMENT,'') LIKE '%INDAH%' THEN 'INDAH' " +
+                "ELSE ISNULL(SHIPMENT,'') END AS KURIR_GROUP " +
+                "FROM SOT01A(NOLOCK) " +
+                "WHERE RECNUM IN(" + string_recnum + "))A GROUP BY KURIR_GROUP ";
+                vm.KURIR_TEMP = ErasoftDbContext.Database.SqlQuery<string>(sSQLGroupKurir).FirstOrDefault();
+            }
+
+            return PartialView("ScanBarcodeSerahTerima", vm);
+        }
+        #endregion pengiriman baru
+        // =============================================== Bagian Pengiriman (END)
+        //end add by nurul 29/3/2021
 
         //add by Tri 27 agustus 2019, validasi ubah barang non-varian menjadi varian
         public ActionResult ValidateCkVarian(string brg)

@@ -56,5 +56,9 @@ namespace MasterOnline.Models
         //add by nurul 23/3/2021
         public DateTime? AMBIL_KURIR_SHOPEE { get; set; }
         //end add by nurul 23/3/2021
+
+        //add by nurul 29/3/2021
+        public DateTime? CUTOFF_SERAH_TERIMA { get; set; }
+        //end add by nurul 29/3/2021
     }
 }

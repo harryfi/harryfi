@@ -179,8 +179,8 @@
                                 <button id="print-btn" class="btn btn-success pull-right">Cetak</button>
                             </div>
                         </div>
-                        <div class="row center" >
-                            <h1 class="text-center">BUKTI PENGIRIMAN</h1>
+                        <div class="row center">
+                            <h1 class="text-center">BUKTI SERAH TERIMA</h1>
                         </div>
                         <br />
                         <div hidden="hidden">
@@ -195,9 +195,9 @@
                                             <td @*style="width:500px"*@>
                                                 <table class="table-hover">
                                                     <tr>
-                                                        <td style="text-align:left; "  width="500px">
+                                                        <td style="text-align:left; " width="500px">
                                                             <div style="background-color:lightskyblue;">
-                                                                <span style="color:white; font-size:16px;  text-decoration-line:underline; margin-left:10px ; ">Detail Pengiriman :</span>
+                                                                <span style="color:white; font-size:16px;  text-decoration-line:underline; margin-left:10px ; ">Detail Serah Terima :</span>
                                                             </div>
                                                         </td>
                                                         <td style="text-align:left; width:500px">
@@ -206,7 +206,7 @@
                                                     </tr>
                                                     <tr>
                                                         <td @*colspan="2"*@ width="500px">
-                                                            <span class="block_subtitle" style="margin-left:10px">No. Bukti</span> @Model.Pengiriman.NO_BUKTI
+                                                            <span class="block_subtitle" style="margin-left:10px; width: 150px;">No. Bukti</span> @Model.Pengiriman.NO_BUKTI
                                                         </td>
                                                         <td style="text-align:left; width:500px">
                                                             <div id="alamat_faktur" class="col-md-12"><span>@Model.AlamatToko</span></div>
@@ -214,7 +214,7 @@
                                                     </tr>
                                                     <tr>
                                                         <td @*colspan="2"*@ style="text-align:left; width:500px">
-                                                            <span class="block_subtitle" style="margin-left:10px">Tgl Kirim</span> @(Model.Pengiriman.TGL_KIRIM?.ToString("dd/MM/yyyy")) @(Model.Pengiriman.JAM_KIRIM?.ToString("HH:mm"))
+                                                            <span class="block_subtitle" style="margin-left:10px; width: 150px;">Tgl Serah Terima</span> @(Model.Pengiriman.TGL_KIRIM?.ToString("dd/MM/yyyy")) @(Model.Pengiriman.JAM_KIRIM?.ToString("HH:mm"))
                                                         </td>
                                                         <td style="text-align:left; width:500px">
                                                             <div id="tlp_faktur" class="col-md-12"><span id="tlp_toko">@Model.TlpToko</span></div>
@@ -222,14 +222,14 @@
                                                     </tr>
                                                     <tr>
                                                         <td colspan="2">
-                                                            <span class="block_subtitle" style="margin-left:10px">Kurir</span> @Model.NamaKurir
+                                                            <span class="block_subtitle" style="margin-left:10px; width: 150px;">Kurir</span> @Model.NamaKurir
                                                         </td>
                                                     </tr>
-                                                    <tr>
-                                                        <td colspan="2">
-                                                            <span class="block_subtitle" style="margin-left:10px">Nama Kurir</span> @Model.Pengiriman.NAMA_KURIR
-                                                        </td>
-                                                    </tr>
+                                                    @*<tr>
+                                            <td colspan="2">
+                                                <span class="block_subtitle" style="margin-left:10px">Nama Kurir</span> @Model.Pengiriman.NAMA_KURIR
+                                            </td>
+                                        </tr>*@
                                                 </table>
                                             </td>
                                         </tr>
@@ -240,38 +240,48 @@
                             <table class="table">
                                 @*<thead>*@
                                 <tr>
-                                    <th>Pesanan</th>
+                                    <th>No. Pesanan</th>
+                                    <th>No. Referensi</th>
                                     <th>Marketplace</th>
                                     <th>Pembeli</th>
-                                    <th>Alamat</th>
+                                    <th>No. Resi</th>
                                     <th>Kurir</th>
                                 </tr>
                                 @*</thead>*@
                                 <tbody id="barang-faktur">
-                                    @foreach (var KirimDetail in Model.ListPengirimanDetail)
+                                    @foreach (var KirimDetail in Model.CetakSerahTerima)
                                     {
-                                        var kurir = Model?.Shipment?.SingleOrDefault(a => a.NO_BUKTI == KirimDetail.PESANAN)?.SHIPMENT;
+                                        //var kurir = Model?.Shipment?.SingleOrDefault(a => a.NO_BUKTI == KirimDetail.PESANAN)?.SHIPMENT;
                                         <tr>
-                                            <td>
-                                                @KirimDetail.PESANAN
-                                            </td>
-                                            <td >
-                                                @KirimDetail.NAMA_MARKET
-                                            </td>
-                                            <td >
-                                                @KirimDetail.NAMA_PEMBELI
-                                            </td>
-                                            <td >
-                                                @KirimDetail.ALAMAT_KIRIM @KirimDetail.KOTA @KirimDetail.PROPINSI @KirimDetail.KODE_POS
-                                            </td>
-                                            <td>
-                                                @kurir
-                                            </td>
+                                            <td>@KirimDetail.PESANAN</td>
+                                            <td>@KirimDetail.NOREF</td>
+                                            <td>@KirimDetail.MARKETPLACE</td>
+                                            <td>@KirimDetail.PEMBELI</td>
+                                            <td>@KirimDetail.RESI</td>
+                                            @*<td>@KirimDetail.ALAMAT_KIRIM @KirimDetail.KOTA @KirimDetail.PROPINSI @KirimDetail.KODE_POS</td>*@
+                                            <td>@KirimDetail.KURIR</td>
                                         </tr>
                                     }
                                 </tbody>
                             </table>
                             <hr />
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-md-2" style="width:108px !important"></div>
+                            <div class="col-md-3 text-center" style="font-weight: bold; width:162px !important">Admin Gudang</div>
+                            <div class="col-md-2" style="width:108px !important"></div>
+                            <div class="col-md-3 text-center" style="font-weight: bold; width:162px !important">Kurir</div>
+                            <div class="col-md-2" style="width:108px !important"></div>
+                        </div>
+                        <br />
+                        <br />
+                        <div class="row">
+                            <div class="col-md-2" style="width:108px !important"></div>
+                            <div class="col-md-3 text-center" style="width:162px !important">______________________</div>
+                            <div class="col-md-2" style="width:108px !important"></div>
+                            <div class="col-md-3 text-center" style="width:162px !important">______________________</div>
+                            <div class="col-md-2" style="width:108px !important"></div>
                         </div>
                     }
                 </div>

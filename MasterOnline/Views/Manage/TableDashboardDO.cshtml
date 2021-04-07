@@ -1,0 +1,40 @@
+﻿@using System.Globalization
+@model MasterOnline.ViewModels.SerahTerimaViewModel
+
+@if (Model?.ListDashboard.Count() > 0)
+{
+    <div id="div-dashboard-scroll-list">
+        <table style="border-top:none; border-left:none; border-right:none;">
+            <thead>
+                <tr role="row" style="background-color:none !important; border-bottom:outset">
+                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 164px; min-width: 164px !important;">Kurir</th>
+                    <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 119px; min-width: 119px !important;">Jumlah Pesanan</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var Kurir in Model.ListDashboard)
+                {
+                    <tr style="height:30px;">
+                        <td style="width: 164px; min-width: 164px !important;">@Kurir.Kurir</td>
+                        <td style="padding-left:20px; width: 119px; min-width: 119px !important;">@Kurir.Jumlah</td>
+                    </tr>
+                }
+                @*@if (Model.ListDashboard.Count() > 0)
+                {
+                    <tr>
+                        <td></td>
+                        <td>Jumlah Pesanan</td>
+                    </tr>
+                }*@
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="form-group" style="margin-top: 5px;">
+            <label class="control-label col-md-12 col-sm-12">Tidak ada Pesanan.</label>
+        </div>
+    </div>
+}
