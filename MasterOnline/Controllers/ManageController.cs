@@ -48196,7 +48196,7 @@ namespace MasterOnline.Controllers
 
 
             var tglCutoff = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().CUTOFF_SERAH_TERIMA?.ToString("dd/MM/yyyy");
-            if (tglCutoff != null && tglCutoff != "" && tglCutoff.ToLower() != "undefined")
+            if (tglCutoff == null || tglCutoff == "" || tglCutoff.ToLower() == "undefined")
             {
                 return JsonErrorMessage("Mohon untuk set Tanggal Cutoff terlebih dahulu.");
             }

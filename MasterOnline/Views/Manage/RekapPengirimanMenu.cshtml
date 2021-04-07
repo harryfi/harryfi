@@ -2229,21 +2229,21 @@
         function cetakKirim(kirimId, nobuk) {
             //$('#cetakfaktur_label').text($('.cetak').attr("data-nobuk"));
             $('#cetakfaktur_label').text(nobuk);
-            $('#modalPrintOption').modal('show');
+            //$('#modalPrintOption').modal('show');
 
-            $('#btn-print-kirim').on('click', function() {
+            //$('#btn-print-kirim').on('click', function() {
 
                 var link = '@Url.Action("CetakPengiriman", "Manage", new { KirimId = "replaceNoBuk"})';
                 link = link.replace('replaceNoBuk', kirimId);
 
                 var win = encodeURIComponent(window.open(link , '_blank'));
-                $('#modalPrintOption').modal('hide');
-                if (win) {
-                    //win.focus();
-                } else {
-                    alert('Please allow popups for this website');
-                }
-            });
+                //$('#modalPrintOption').modal('hide');
+            //    if (win) {
+            //        //win.focus();
+            //    } else {
+            //        alert('Please allow popups for this website');
+            //    }
+            //});
         }
 
         function afterPromptCustomer(cust) {
