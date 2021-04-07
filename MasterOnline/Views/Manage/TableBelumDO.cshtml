@@ -102,7 +102,7 @@
                 var tgl_pesanan = "";
                 if (Order.TglPesanan != null)
                 {
-                    tgl_pesanan = Order.TglPesanan?.ToString("dd/MM/yyyy");
+                    tgl_pesanan = Order.TglPesanan?.ToString("dd/MM/yyyy HH:mm");
                 }
                 <tr>
                     <td>@Order.NoPesanan</td>

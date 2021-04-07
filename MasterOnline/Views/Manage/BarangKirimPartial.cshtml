@@ -79,7 +79,7 @@
     <div class="row">
         @*<div class="col-md-6">*@
         <div class="form-group text-left">
-            @Html.LabelFor(m => m.Pengiriman.TGL_KIRIM, "Tanggal Kirim", new { @class = "col-md-3 col-sm-3 col-xs-12 control-label" })
+            @Html.LabelFor(m => m.Pengiriman.TGL_KIRIM, "Tanggal Serah Terima", new { @class = "col-md-3 col-sm-3 col-xs-12 control-label" })
             <div class="col-md-6 col-sm-6 col-xs-12">
                 <div class="input-group date">
                     @Html.TextBoxFor(m => m.Pengiriman.TGL_KIRIM, new { @class = "form-control", Value = Model?.Pengiriman?.TGL_KIRIM?.ToString("dd/MM/yyyy") })
@@ -117,7 +117,7 @@
     </div>*@
     <div class="row">
         <div class="form-group text-left">
-            @Html.LabelFor(m => m.Pengiriman.JAM_KIRIM, "Jam Kirim", new { @class = "col-md-3 col-sm-3 col-xs-12 control-label" })
+            @Html.LabelFor(m => m.Pengiriman.JAM_KIRIM, "Jam Serah Terima", new { @class = "col-md-3 col-sm-3 col-xs-12 control-label" })
             <div class="col-md-6 col-sm-6 col-xs-12  ">
                 <div class="input-group bootstrap-timepicker timepicker">
                     @Html.TextBoxFor(m => m.Pengiriman.JAM_KIRIM, new { @class = "form-control input-small bootstrap-timepicker timepicker", @id = "timepicker1", @Value = Model?.Pengiriman?.JAM_KIRIM?.ToString("HH:mm"), @style = "width:80px;" })

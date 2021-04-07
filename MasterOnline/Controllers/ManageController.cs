@@ -47314,7 +47314,9 @@ namespace MasterOnline.Controllers
                 var tempDrtgl = Drtgl.ToString("yyyy-MM-dd") + " 00:00:00.000";
                 var tempSdtgl = Sdtgl.ToString("yyyy-MM-dd") + " 23:59:59.999";
                 var sSQL = "SELECT KURIR_GROUP AS KURIR,SUM(JUMLAH) AS JUMLAH FROM ( ";
-                sSQL += "SELECT CASE WHEN ISNULL(SHIPMENT,'') LIKE '%GRAB%' THEN 'GRAB' ";
+                //sSQL += "SELECT CASE WHEN ISNULL(SHIPMENT,'') LIKE '%GRAB%' THEN 'GRAB' ";
+                sSQL += "SELECT CASE WHEN ISNULL(D.NAMAMARKET,'') = 'LAZADA' AND ISNULL(SHIPMENT,'')<>'' THEN 'LEL' ELSE ( ";
+                sSQL += "CASE WHEN ISNULL(SHIPMENT,'') LIKE '%GRAB%' THEN 'GRAB' ";
                 sSQL += "WHEN (ISNULL(SHIPMENT,'') LIKE '%GO-JEK%' OR ISNULL(SHIPMENT,'') LIKE '%GO-SEND%' OR ISNULL(SHIPMENT,'') LIKE '%GOJEK%' OR ISNULL(SHIPMENT,'') LIKE '%GOSEND%') THEN 'GOJEK' ";
                 sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%SICEPAT%' THEN 'Sicepat' ";
                 sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%JNE%' THEN 'JNE' ";
@@ -47328,15 +47330,27 @@ namespace MasterOnline.Controllers
                 sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%LEX%' THEN 'LEX' ";
                 sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%REX%' THEN 'REX' ";
                 sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%INDAH%' THEN 'Indah' ";
-                sSQL += "ELSE ISNULL(SHIPMENT,'') END AS KURIR_GROUP ";
+                //sSQL += "ELSE ISNULL(SHIPMENT,'') END AS KURIR_GROUP ";
+                sSQL += "ELSE ISNULL(SHIPMENT,'') END ";
+                sSQL += ")END ";
+                sSQL += "AS KURIR_GROUP ";
                 sSQL += ",COUNT(SHIPMENT) AS JUMLAH ";
                 //sSQL += "SELECT SHIPMENT AS KURIR, COUNT(SHIPMENT) AS JUMLAH FROM SOT01A A (NOLOCK) LEFT JOIN SIT04B B (NOLOCK) ON A.NO_BUKTI=B.PESANAN WHERE A.TGL >= '" + tempDrtgl + "' AND A.TGL <= '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('03','04') AND ISNULL(B.PESANAN,'')='' GROUP BY SHIPMENT";
-                sSQL += "FROM SOT01A A (NOLOCK) LEFT JOIN SIT04B B (NOLOCK) ON A.NO_BUKTI=B.PESANAN WHERE A.TGL >= '" + tempDrtgl + "' AND A.TGL <= '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('03','04') AND ISNULL(B.PESANAN,'')='' AND ISNULL(SHIPMENT,'')<>'' GROUP BY SHIPMENT ";
-                sSQL += ")A GROUP BY KURIR_GROUP ";
+                //sSQL += "FROM SOT01A A (NOLOCK) LEFT JOIN SIT04B B (NOLOCK) ON A.NO_BUKTI=B.PESANAN WHERE A.TGL >= '" + tempDrtgl + "' AND A.TGL <= '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('03','04') AND ISNULL(B.PESANAN,'')='' AND ISNULL(SHIPMENT,'')<>'' GROUP BY SHIPMENT ";
+                sSQL += "FROM SOT01A A (NOLOCK) LEFT JOIN SIT04B B (NOLOCK) ON A.NO_BUKTI=B.PESANAN ";
+                sSQL += "LEFT JOIN ARF01 C(NOLOCK) ON A.CUST=C.CUST LEFT JOIN MO..MARKETPLACE D(NOLOCK) ON C.NAMA=D.IDMARKET ";
+                sSQL += "WHERE A.TGL >= '" + tempDrtgl + "' AND A.TGL <= '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('03','04') AND ISNULL(B.PESANAN,'')='' AND ISNULL(SHIPMENT,'')<>'' GROUP BY SHIPMENT ";
+                sSQL += ",NAMAMARKET ";
+                sSQL += ")A GROUP BY KURIR_GROUP ORDER BY KURIR_GROUP ";
                 var getRekap = ErasoftDbContext.Database.SqlQuery<DashboardSerahTerima>(sSQL).ToList();
                 if(getRekap.Count() > 0)
                 {
                     vm.ListDashboard.AddRange(getRekap);
+                }
+                var getRekapKurirBlank = ErasoftDbContext.Database.SqlQuery<DashboardSerahTerima>("SELECT top 1 'N/A' AS KURIR, COUNT(SHIPMENT) AS JUMLAH FROM SOT01A A (NOLOCK) LEFT JOIN SIT04B B (NOLOCK) ON A.NO_BUKTI=B.PESANAN WHERE A.TGL >= '" + tempDrtgl + "' AND A.TGL <= '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('03','04') AND ISNULL(B.PESANAN,'')='' AND ISNULL(SHIPMENT,'')='' GROUP BY SHIPMENT").First();
+                if(getRekapKurirBlank != null)
+                {
+                    vm.ListDashboard.Add(getRekapKurirBlank);
                 }
             }
             return PartialView("TableDashboardDO", vm);
@@ -47355,7 +47369,9 @@ namespace MasterOnline.Controllers
             var tempDrtgl = Drtgl.ToString("yyyy-MM-dd") + " 00:00:00.000";
             var tempSdtgl = Sdtgl.ToString("yyyy-MM-dd") + " 23:59:59.999";
             var sSQL = "SELECT KURIR_GROUP AS KURIR,SUM(JUMLAH) AS JUMLAH FROM ( ";
-            sSQL += "SELECT CASE WHEN ISNULL(SHIPMENT,'') LIKE '%GRAB%' THEN 'GRAB' ";
+            //sSQL += "SELECT CASE WHEN ISNULL(SHIPMENT,'') LIKE '%GRAB%' THEN 'GRAB' ";
+            sSQL += "SELECT CASE WHEN ISNULL(D.NAMAMARKET,'') = 'LAZADA' AND ISNULL(SHIPMENT,'')<>'' THEN 'LEL' ELSE ( ";
+            sSQL += "CASE WHEN ISNULL(SHIPMENT,'') LIKE '%GRAB%' THEN 'GRAB' ";
             sSQL += "WHEN (ISNULL(SHIPMENT,'') LIKE '%GO-JEK%' OR ISNULL(SHIPMENT,'') LIKE '%GO-SEND%' OR ISNULL(SHIPMENT,'') LIKE '%GOJEK%' OR ISNULL(SHIPMENT,'') LIKE '%GOSEND%') THEN 'GOJEK' ";
             sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%SICEPAT%' THEN 'Sicepat' ";
             sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%JNE%' THEN 'JNE' ";
@@ -47369,11 +47385,15 @@ namespace MasterOnline.Controllers
             sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%LEX%' THEN 'LEX' ";
             sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%REX%' THEN 'REX' ";
             sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%INDAH%' THEN 'Indah' ";
-            sSQL += "ELSE ISNULL(SHIPMENT,'') END AS KURIR_GROUP ";
+            //sSQL += "ELSE ISNULL(SHIPMENT,'') END AS KURIR_GROUP ";
+            sSQL += "ELSE ISNULL(SHIPMENT,'') END ";
+            sSQL += ")END ";
+            sSQL += "AS KURIR_GROUP ";
             sSQL += ",COUNT(SHIPMENT) AS JUMLAH ";
             //sSQL += "SELECT SHIPMENT AS KURIR, COUNT(SHIPMENT) AS JUMLAH FROM SOT01A A (NOLOCK) INNER JOIN SIT04B B (NOLOCK) ON A.NO_BUKTI=B.PESANAN WHERE A.TGL >= '" + tempDrtgl + "' AND A.TGL <= '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('03','04') AND ISNULL(B.PESANAN,'')<>'' GROUP BY SHIPMENT";
-            sSQL += "FROM SOT01A A (NOLOCK) INNER JOIN SIT04B B (NOLOCK) ON A.NO_BUKTI=B.PESANAN WHERE A.TGL >= '" + tempDrtgl + "' AND A.TGL <= '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('03','04') AND ISNULL(B.PESANAN,'')<>'' AND ISNULL(SHIPMENT,'')<>'' GROUP BY SHIPMENT ";
-            sSQL += ")A GROUP BY KURIR_GROUP ";
+            sSQL += "FROM SOT01A A (NOLOCK) INNER JOIN SIT04B B (NOLOCK) ON A.NO_BUKTI=B.PESANAN LEFT JOIN ARF01 C(NOLOCK) ON A.CUST=C.CUST LEFT JOIN MO..MARKETPLACE D(NOLOCK) ON C.NAMA=D.IDMARKET  WHERE A.TGL >= '" + tempDrtgl + "' AND A.TGL <= '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('03','04') AND ISNULL(B.PESANAN,'')<>'' AND ISNULL(SHIPMENT,'')<>'' GROUP BY SHIPMENT ";
+            sSQL += ",NAMAMARKET ";
+            sSQL += ")A GROUP BY KURIR_GROUP ORDER BY KURIR_GROUP ";
             var getRekap = ErasoftDbContext.Database.SqlQuery<DashboardSerahTerima>(sSQL).ToList();
             if (getRekap.Count() > 0)
             {
@@ -47468,7 +47488,7 @@ namespace MasterOnline.Controllers
                 string sSQLQuery = "";
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.NO_BUKTI AS NoPesanan, A.NO_REFERENSI AS NoRef, C.NO_BUKTI AS NoFaktur, A.TGL AS TglPesanan, B.NO_BUKTI AS NoDO, ";
-                sSQLSelect += "D.TGL_KIRIM AS TglDO,ISNULL(F.NAMAMARKET,'') AS Marketplace, ISNULL(E.PERSO,'') AS PERSO,ISNULL(A.NAMAPEMESAN,'') AS Pembeli, ";
+                sSQLSelect += "D.JAM_KIRIM AS TglDO,ISNULL(F.NAMAMARKET,'') AS Marketplace, ISNULL(E.PERSO,'') AS PERSO,ISNULL(A.NAMAPEMESAN,'') AS Pembeli, ";
                 sSQLSelect += "ISNULL(A.TIPE_KIRIM, 0) TipePesanan, ISNULL(A.SHIPMENT, '') AS Kurir,ISNULL(A.TRACKING_SHIPMENT,'') AS NoResi, ISNULL(A.N_UCAPAN, 0) N_UCAPAN ";
                 sSQLSelect += ", CONVERT(NVARCHAR, D.RECNUM) AS RECNUMDO, CONVERT(NVARCHAR, A.RECNUM) AS RECNUMSO ";
 
@@ -47895,7 +47915,7 @@ namespace MasterOnline.Controllers
                 string sSQLQuery = "";
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.NO_BUKTI AS NoPesanan, A.NO_REFERENSI AS NoRef, C.NO_BUKTI AS NoFaktur, A.TGL AS TglPesanan, B.NO_BUKTI AS NoDO, ";
-                sSQLSelect += "D.TGL_KIRIM AS TglDO,ISNULL(F.NAMAMARKET,'') AS Marketplace, ISNULL(E.PERSO,'') AS PERSO,ISNULL(A.NAMAPEMESAN,'') AS Pembeli, ";
+                sSQLSelect += "D.JAM_KIRIM AS TglDO,ISNULL(F.NAMAMARKET,'') AS Marketplace, ISNULL(E.PERSO,'') AS PERSO,ISNULL(A.NAMAPEMESAN,'') AS Pembeli, ";
                 sSQLSelect += "ISNULL(A.TIPE_KIRIM, 0) TipePesanan, ISNULL(A.SHIPMENT, '') AS Kurir,ISNULL(A.TRACKING_SHIPMENT,'') AS NoResi, ISNULL(A.N_UCAPAN, 0) N_UCAPAN ";
                 sSQLSelect += ", CONVERT(NVARCHAR, D.RECNUM) AS RECNUMDO, CONVERT(NVARCHAR, A.RECNUM) AS RECNUMSO ";
 
@@ -48048,7 +48068,7 @@ namespace MasterOnline.Controllers
                 sSQLCount += "SELECT COUNT(RECNUM) AS JUMLAH ";
                 string sSQL2 = "";
                 sSQL2 += "FROM SIT04A (NOLOCK) ";
-                sSQL2 += "WHERE TGL_KIRIM >= '" + tempDrtgl + "' AND TGL_KIRIM <= '" + tempSdtgl + "' ";
+                sSQL2 += "WHERE JAM_KIRIM >= '" + tempDrtgl + "' AND JAM_KIRIM <= '" + tempSdtgl + "' ";
                 if (search != "")
                 {
                     sSQL2 += "AND (NO_BUKTI LIKE '%" + search + "%' OR NAMA_EKSPEDISI LIKE '%" + search + "%') ";
@@ -48083,7 +48103,9 @@ namespace MasterOnline.Controllers
         {
             //var listEkspedisi = MoDbContext.Ekspedisi.ToList();
             var sSQL = "SELECT KURIR_GROUP AS KURIR FROM ( ";
-            sSQL += "SELECT CASE WHEN ISNULL(SHIPMENT,'') LIKE '%GRAB%' THEN 'GRAB' ";
+            //sSQL += "SELECT CASE WHEN ISNULL(SHIPMENT,'') LIKE '%GRAB%' THEN 'GRAB' ";
+            sSQL += "SELECT CASE WHEN ISNULL(D.NAMAMARKET,'') = 'LAZADA' AND ISNULL(SHIPMENT,'')<>'' THEN 'LEL' ELSE ( ";
+            sSQL += "CASE WHEN ISNULL(SHIPMENT,'') LIKE '%GRAB%' THEN 'GRAB' ";
             sSQL += "WHEN (ISNULL(SHIPMENT,'') LIKE '%GO-JEK%' OR ISNULL(SHIPMENT,'') LIKE '%GO-SEND%' OR ISNULL(SHIPMENT,'') LIKE '%GOJEK%' OR ISNULL(SHIPMENT,'') LIKE '%GOSEND%') THEN 'GOJEK' ";
             sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%SICEPAT%' THEN 'Sicepat' ";
             sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%JNE%' THEN 'JNE' ";
@@ -48097,8 +48119,13 @@ namespace MasterOnline.Controllers
             sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%LEX%' THEN 'LEX' ";
             sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%REX%' THEN 'REX' ";
             sSQL += "WHEN ISNULL(SHIPMENT,'') LIKE '%INDAH%' THEN 'Indah' ";
-            sSQL += "ELSE ISNULL(SHIPMENT,'') END AS KURIR_GROUP ";
-            sSQL += "FROM SOT01A A (NOLOCK) WHERE ISNULL(SHIPMENT,'')<>'' GROUP BY SHIPMENT ";
+            //sSQL += "ELSE ISNULL(SHIPMENT,'') END AS KURIR_GROUP ";
+            //sSQL += "ELSE ISNULL(SHIPMENT,'') END AS KURIR_GROUP ";
+            sSQL += "ELSE ISNULL(SHIPMENT,'') END ";
+            sSQL += ")END ";
+            sSQL += "AS KURIR_GROUP ";
+            sSQL += "FROM SOT01A A (NOLOCK) LEFT JOIN ARF01 C(NOLOCK) ON A.CUST=C.CUST LEFT JOIN MO..MARKETPLACE D(NOLOCK) ON C.NAMA=D.IDMARKET  WHERE ISNULL(SHIPMENT,'')<>'' GROUP BY SHIPMENT ";
+            sSQL += ",NAMAMARKET ";
             sSQL += ")A GROUP BY KURIR_GROUP ";
             var listEkspedisi = ErasoftDbContext.Database.SqlQuery<string>(sSQL).ToList();
 
@@ -48110,21 +48137,41 @@ namespace MasterOnline.Controllers
             var whereClause = "";
             if (code == "GOJEK")
             {
-                whereClause += " (ISNULL(A.SHIPMENT,'') like '%GO-JEK%' OR ISNULL(A.SHIPMENT,'') like '%GO-SEND%' OR ISNULL(A.SHIPMENT,'') like '%GOJEK%' OR ISNULL(A.SHIPMENT,'') like '%GOSEND%') ";
+                whereClause += " AND (ISNULL(A.SHIPMENT,'') like '%GO-JEK%' OR ISNULL(A.SHIPMENT,'') like '%GO-SEND%' OR ISNULL(A.SHIPMENT,'') like '%GOJEK%' OR ISNULL(A.SHIPMENT,'') like '%GOSEND%') ";
             }
             else
             {
-                whereClause += " ISNULL(A.SHIPMENT,'') like '%" + code + "%' ";
+                whereClause += " AND ISNULL(A.SHIPMENT,'') like '%" + code + "%' ";
             }
 
-            string sSQL = "";
-            sSQL += "SELECT A.NO_BUKTI AS NoPesanan, ";
-            sSQL += "CASE WHEN ISNULL(PERSO,'') <> '' THEN ISNULL(NAMAMARKET,'') +' (' + ISNULL(PERSO, '') + ')' ELSE ISNULL(NAMAMARKET,'') END AS Marketplace, ";
-            sSQL += "ISNULL(A.NAMAPEMESAN, '') AS Pembeli, ISNULL(A.NO_REFERENSI, '') AS NoRef, ISNULL(A.SHIPMENT, '') AS Kurir, ISNULL(A.TRACKING_SHIPMENT, '') AS NoResi ";
-            sSQL += ",ISNULL(A.CUST,'') AS Perso, ISNULL(A.PEMESAN,'') AS N_UCAPAN,ISNULL(A.ALAMAT_KIRIM, '') AS NoFaktur, ISNULL(A.KOTA, '') AS NoDO, ISNULL(A.PROPINSI, '') AS RecnumSO, ISNULL(A.KODE_POS, '') AS RecnumDO ";
-            sSQL += "FROM SOT01A A(NOLOCK) LEFT JOIN ARF01 B(NOLOCK) ON A.CUST = B.CUST LEFT JOIN MO..MARKETPLACE C(NOLOCK) ON B.NAMA = C.IDMARKET LEFT JOIN SIT04B D(NOLOCK) ON A.NO_BUKTI = D.PESANAN ";
-            sSQL += "WHERE ISNULL(D.PESANAN,'')= '' AND A.STATUS_TRANSAKSI IN('03','04') AND " + whereClause;
-            var listPesananBlmKirim = ErasoftDbContext.Database.SqlQuery<SerahTerima>(sSQL).ToList();
+            var whereLazada = "";
+            if(code == "LEL")
+            {
+                whereClause = "";
+                whereLazada += " AND NAMAMARKET='LAZADA' ";
+            }
+            else
+            {
+                whereLazada += " AND NAMAMARKET <> 'LAZADA' ";
+            }
+
+            var listPesananBlmKirim = new List<SerahTerima>();
+            var TGLCutoff = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().CUTOFF_SERAH_TERIMA?.ToString("dd/MM/yyyy");
+            if (TGLCutoff != null && TGLCutoff != "" && TGLCutoff.ToLower() != "undefined")
+            {
+                var DrtglSudah = (TGLCutoff != "" ? DateTime.ParseExact(TGLCutoff, "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture) : DateTime.UtcNow.AddHours(7));
+                var tempDrtglSudah = DrtglSudah.ToString("yyyy-MM-dd") + " 00:00:00.000";
+
+                string sSQL = "";
+                sSQL += "SELECT A.NO_BUKTI AS NoPesanan, ";
+                sSQL += "CASE WHEN ISNULL(PERSO,'') <> '' THEN ISNULL(NAMAMARKET,'') +' (' + ISNULL(PERSO, '') + ')' ELSE ISNULL(NAMAMARKET,'') END AS Marketplace, ";
+                sSQL += "ISNULL(A.NAMAPEMESAN, '') AS Pembeli, ISNULL(A.NO_REFERENSI, '') AS NoRef, ISNULL(A.SHIPMENT, '') AS Kurir, ISNULL(A.TRACKING_SHIPMENT, '') AS NoResi ";
+                sSQL += ",ISNULL(A.CUST,'') AS Perso, ISNULL(A.PEMESAN,'') AS N_UCAPAN,ISNULL(A.ALAMAT_KIRIM, '') AS NoFaktur, ISNULL(A.KOTA, '') AS NoDO, ISNULL(A.PROPINSI, '') AS RecnumSO, ISNULL(A.KODE_POS, '') AS RecnumDO ";
+                sSQL += "FROM SOT01A A(NOLOCK) LEFT JOIN ARF01 B(NOLOCK) ON A.CUST = B.CUST LEFT JOIN MO..MARKETPLACE C(NOLOCK) ON B.NAMA = C.IDMARKET LEFT JOIN SIT04B D(NOLOCK) ON A.NO_BUKTI = D.PESANAN ";
+                sSQL += "WHERE ISNULL(D.PESANAN,'')= '' AND A.STATUS_TRANSAKSI IN('03','04') AND ISNULL(A.SHIPMENT, '') <> '' AND A.TGL >= '' " + whereClause + whereLazada;
+                listPesananBlmKirim = ErasoftDbContext.Database.SqlQuery<SerahTerima>(sSQL).ToList();
+            }
 
             return Json(listPesananBlmKirim, JsonRequestBehavior.AllowGet);
 
@@ -48146,7 +48193,17 @@ namespace MasterOnline.Controllers
             {
 
             };
-            
+
+
+            var tglCutoff = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().CUTOFF_SERAH_TERIMA?.ToString("dd/MM/yyyy");
+            if (tglCutoff != null && tglCutoff != "" && tglCutoff.ToLower() != "undefined")
+            {
+                return JsonErrorMessage("Mohon untuk set Tanggal Cutoff terlebih dahulu.");
+            }
+            var Drtgl = (tglCutoff != "" ? DateTime.ParseExact(tglCutoff, "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture) : DateTime.UtcNow.AddHours(7));
+            var tempDrtgl = Drtgl.ToString("yyyy-MM-dd") + " 00:00:00.000";
+
             if (Data == null)
             {
                 vm.listDataScan = new List<SerahTerima>();
@@ -48175,6 +48232,23 @@ namespace MasterOnline.Controllers
                 }
                 //return JsonErrorMessage("Pesanan dengan No. Bukti / No. Referensi / No.Resi '" + DataScan + "' merujuk kepada lebih dari 1 pesanan, yaitu: " + Environment.NewLine + stringList);
                 return JsonErrorMessage("Pesanan dengan kode barcode '" + DataScan + "' merujuk kepada lebih dari 1 pesanan, yaitu: " + Environment.NewLine + stringList + Environment.NewLine + "Silahkan isi menggunakan No. Pesanan / No. Resi.");
+            }
+
+            if(cekPesanan.FirstOrDefault().TGL < Drtgl)
+            {
+                return JsonErrorMessage("Pesanan dengan kode barcode : " + DataScan + " merupakan transaksi sebelum tanggal cutoff.");
+            }
+
+            if (string.IsNullOrEmpty(cekPesanan.FirstOrDefault().SHIPMENT))
+            {
+                return JsonErrorMessage("Pesanan dengan kode barcode : " + DataScan + " tidak ada kurir.");
+            }
+
+            var kurirPesanan = cekPesanan.FirstOrDefault().SHIPMENT;
+            var cekMP = ErasoftDbContext.Database.SqlQuery<string>("SELECT ISNULL(NAMAMARKET,'') FROM ARF01 A (NOLOCK) LEFT JOIN MO..MARKETPLACE B (NOLOCK) ON A.NAMA=B.IDMARKET WHERE A.CUST='" + cekPesanan.FirstOrDefault().CUST + "'").Single();
+            if(cekMP.ToUpper() == "LAZADA")
+            {
+                kurirPesanan = "LEL";
             }
 
             var tempRecProses = cekPesanan.FirstOrDefault().RecNum.ToString();
@@ -48213,15 +48287,23 @@ namespace MasterOnline.Controllers
 
             if(Kurir != "")
             {
-                var getKurir = cekPesanan.FirstOrDefault().SHIPMENT.ToUpper();
+                var getKurir = kurirPesanan.ToUpper();
                 if (!getKurir.Contains(Kurir))
                 {
+                    if(cekMP.ToUpper() == "LAZADA")
+                    {
+                        return JsonErrorMessage("Pesanan dengan kode barcode : " + DataScan + " kurirnya bukan " + Kurir + ". Pesanan Lazada menggunakan kurir LEL.");
+                    }
                     return JsonErrorMessage("Pesanan dengan kode barcode : " + DataScan + " kurirnya bukan " + Kurir + ".");
                 }
                 if(Kurir == "GOJEK")
                 {
-                    if (!cekPesanan.FirstOrDefault().SHIPMENT.Contains("GO-JEK") && !cekPesanan.FirstOrDefault().SHIPMENT.Contains("GO-SEND") && !cekPesanan.FirstOrDefault().SHIPMENT.Contains("GOJEK") && !cekPesanan.FirstOrDefault().SHIPMENT.Contains("GOSEND"))
+                    if (!kurirPesanan.Contains("GO-JEK") && !kurirPesanan.Contains("GO-SEND") && !kurirPesanan.Contains("GOJEK") && !kurirPesanan.Contains("GOSEND"))
                     {
+                        if (cekMP.ToUpper() == "LAZADA")
+                        {
+                            return JsonErrorMessage("Pesanan dengan kode barcode : " + DataScan + " kurirnya bukan " + Kurir + ". Pesanan Lazada menggunakan kurir LEL.");
+                        }
                         return JsonErrorMessage("Pesanan dengan kode barcode : " + DataScan + " kurirnya bukan " + Kurir + ".");
                     }
                 }
@@ -48238,7 +48320,9 @@ namespace MasterOnline.Controllers
             vm.listDataScan = ErasoftDbContext.Database.SqlQuery<SerahTerima>(sSQLSelect).ToList();
 
             var sSQLGroupKurir = "SELECT* FROM( " +
-            "SELECT CASE WHEN ISNULL(SHIPMENT,'') LIKE '%GRAB%' THEN 'GRAB' " +
+            //SELECT CASE WHEN ISNULL(SHIPMENT,'') LIKE '%GRAB%' THEN 'GRAB' ";
+            "SELECT CASE WHEN ISNULL(D.NAMAMARKET,'') = 'LAZADA' AND ISNULL(SHIPMENT,'')<>'' THEN 'LEL' ELSE ( " +
+            "CASE WHEN ISNULL(SHIPMENT,'') LIKE '%GRAB%' THEN 'GRAB' " +
             "WHEN(ISNULL(SHIPMENT, '') LIKE '%GO-JEK%' OR ISNULL(SHIPMENT, '') LIKE '%GO-SEND%' " +
             "OR ISNULL(SHIPMENT, '') LIKE '%GOJEK%' OR ISNULL(SHIPMENT, '') LIKE '%GOSEND%') THEN 'GOJEK' " +
             "WHEN ISNULL(SHIPMENT,'') LIKE '%SICEPAT%' THEN 'SICEPAT' " +
@@ -48253,9 +48337,14 @@ namespace MasterOnline.Controllers
             "WHEN ISNULL(SHIPMENT,'') LIKE '%LEX%' THEN 'LEX' " +
             "WHEN ISNULL(SHIPMENT,'') LIKE '%REX%' THEN 'REX' " +
             "WHEN ISNULL(SHIPMENT,'') LIKE '%INDAH%' THEN 'INDAH' " +
-            "ELSE ISNULL(SHIPMENT,'') END AS KURIR_GROUP " +
-            "FROM SOT01A(NOLOCK) " +
-            "WHERE RECNUM IN(" + string_recnum + "))A GROUP BY KURIR_GROUP ";
+            //"ELSE ISNULL(SHIPMENT,'') END AS KURIR_GROUP " +
+            //sSQL += "ELSE ISNULL(SHIPMENT,'') END AS KURIR_GROUP ";
+            "ELSE ISNULL(SHIPMENT,'') END " +
+            ")END " +
+            "AS KURIR_GROUP " +
+            "FROM SOT01A A(NOLOCK) LEFT JOIN ARF01 C(NOLOCK) ON A.CUST=C.CUST LEFT JOIN MO..MARKETPLACE D(NOLOCK) ON C.NAMA=D.IDMARKET  " +
+            "WHERE A.RECNUM IN(" + string_recnum + "))A GROUP BY KURIR_GROUP ";
+            //",NAMAMARKET ";
             vm.KURIR_TEMP = ErasoftDbContext.Database.SqlQuery<string>(sSQLGroupKurir).FirstOrDefault();
             
             return PartialView("ScanBarcodeSerahTerima", vm);
@@ -48263,7 +48352,7 @@ namespace MasterOnline.Controllers
 
         public ActionResult ProsesScanBarcodeSerahTerima(string[] Data, string Kurir)
         {
-            if(Data == null)
+            if (Data == null)
             {
                 return JsonErrorMessage("Tidak ada data yang dapat diproses.");
                 //return new JsonResult { Data = new { mo_error = "Tidak ada data yang dapat diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
@@ -48524,30 +48613,43 @@ namespace MasterOnline.Controllers
                     }
                 }
 
-                var sSQLSelect = "SELECT NO_BUKTI AS NoPesanan, ISNULL(A.NO_REFERENSI,'') AS NoRef,TGL AS TglPesanan,ISNULL(PERSO,'') AS PERSO,ISNULL(NAMAMARKET,'') AS Marketplace,ISNULL(A.NAMAPEMESAN,'') AS Pembeli, ISNULL(A.SHIPMENT, '') AS Kurir, ISNULL(A.TRACKING_SHIPMENT,'') AS NoResi, CONVERT(NVARCHAR, A.RECNUM) AS RECNUMSO ";
-                sSQLSelect += "FROM SOT01A A (NOLOCK) LEFT JOIN ARF01 B(NOLOCK) ON A.CUST=B.CUST LEFT JOIN MO..MARKETPLACE C (NOLOCK) ON B.NAMA=C.IDMARKET WHERE A.RECNUM IN (" + string_recnum + ")";
-                vm.listDataScan = ErasoftDbContext.Database.SqlQuery<SerahTerima>(sSQLSelect).ToList();
+                if (string_recnum != "")
+                {
+                    var sSQLSelect = "SELECT NO_BUKTI AS NoPesanan, ISNULL(A.NO_REFERENSI,'') AS NoRef,TGL AS TglPesanan,ISNULL(PERSO,'') AS PERSO,ISNULL(NAMAMARKET,'') AS Marketplace,ISNULL(A.NAMAPEMESAN,'') AS Pembeli, ISNULL(A.SHIPMENT, '') AS Kurir, ISNULL(A.TRACKING_SHIPMENT,'') AS NoResi, CONVERT(NVARCHAR, A.RECNUM) AS RECNUMSO ";
+                    sSQLSelect += "FROM SOT01A A (NOLOCK) LEFT JOIN ARF01 B(NOLOCK) ON A.CUST=B.CUST LEFT JOIN MO..MARKETPLACE C (NOLOCK) ON B.NAMA=C.IDMARKET WHERE A.RECNUM IN (" + string_recnum + ")";
+                    vm.listDataScan = ErasoftDbContext.Database.SqlQuery<SerahTerima>(sSQLSelect).ToList();
 
-                var sSQLGroupKurir = "SELECT* FROM( " +
-                "SELECT CASE WHEN ISNULL(SHIPMENT,'') LIKE '%GRAB%' THEN 'GRAB' " +
-                "WHEN(ISNULL(SHIPMENT, '') LIKE '%GO-JEK%' OR ISNULL(SHIPMENT, '') LIKE '%GO-SEND%' " +
-                "OR ISNULL(SHIPMENT, '') LIKE '%GOJEK%' OR ISNULL(SHIPMENT, '') LIKE '%GOSEND%') THEN 'GOJEK' " +
-                "WHEN ISNULL(SHIPMENT,'') LIKE '%SICEPAT%' THEN 'SICEPAT' " +
-                "WHEN ISNULL(SHIPMENT,'') LIKE '%JNE%' THEN 'JNE' " +
-                "WHEN ISNULL(SHIPMENT,'') LIKE '%J&T%' THEN 'J&T' " +
-                "WHEN ISNULL(SHIPMENT,'') LIKE '%SHOPEE%' THEN 'SHOPEE' " +
-                "WHEN ISNULL(SHIPMENT,'') LIKE '%ANTER%' THEN 'ANTER' " +
-                "WHEN ISNULL(SHIPMENT,'') LIKE '%NINJA%' THEN 'NINJA' " +
-                "WHEN ISNULL(SHIPMENT,'') LIKE '%POS%' THEN 'POS' " +
-                "WHEN ISNULL(SHIPMENT,'') LIKE '%TIKI%' THEN 'TIKI' " +
-                "WHEN ISNULL(SHIPMENT,'') LIKE '%WAHANA%' THEN 'WAHANA' " +
-                "WHEN ISNULL(SHIPMENT,'') LIKE '%LEX%' THEN 'LEX' " +
-                "WHEN ISNULL(SHIPMENT,'') LIKE '%REX%' THEN 'REX' " +
-                "WHEN ISNULL(SHIPMENT,'') LIKE '%INDAH%' THEN 'INDAH' " +
-                "ELSE ISNULL(SHIPMENT,'') END AS KURIR_GROUP " +
-                "FROM SOT01A(NOLOCK) " +
-                "WHERE RECNUM IN(" + string_recnum + "))A GROUP BY KURIR_GROUP ";
-                vm.KURIR_TEMP = ErasoftDbContext.Database.SqlQuery<string>(sSQLGroupKurir).FirstOrDefault();
+                    var sSQLGroupKurir = "SELECT* FROM( " +
+                    //"SELECT CASE WHEN ISNULL(SHIPMENT,'') LIKE '%GRAB%' THEN 'GRAB' ";
+                    "SELECT CASE WHEN ISNULL(D.NAMAMARKET,'') = 'LAZADA' AND ISNULL(SHIPMENT,'')<>'' THEN 'LEL' ELSE ( " +
+                    "CASE WHEN ISNULL(SHIPMENT,'') LIKE '%GRAB%' THEN 'GRAB' " +
+                    "WHEN(ISNULL(SHIPMENT, '') LIKE '%GO-JEK%' OR ISNULL(SHIPMENT, '') LIKE '%GO-SEND%' " +
+                    "OR ISNULL(SHIPMENT, '') LIKE '%GOJEK%' OR ISNULL(SHIPMENT, '') LIKE '%GOSEND%') THEN 'GOJEK' " +
+                    "WHEN ISNULL(SHIPMENT,'') LIKE '%SICEPAT%' THEN 'SICEPAT' " +
+                    "WHEN ISNULL(SHIPMENT,'') LIKE '%JNE%' THEN 'JNE' " +
+                    "WHEN ISNULL(SHIPMENT,'') LIKE '%J&T%' THEN 'J&T' " +
+                    "WHEN ISNULL(SHIPMENT,'') LIKE '%SHOPEE%' THEN 'SHOPEE' " +
+                    "WHEN ISNULL(SHIPMENT,'') LIKE '%ANTER%' THEN 'ANTER' " +
+                    "WHEN ISNULL(SHIPMENT,'') LIKE '%NINJA%' THEN 'NINJA' " +
+                    "WHEN ISNULL(SHIPMENT,'') LIKE '%POS%' THEN 'POS' " +
+                    "WHEN ISNULL(SHIPMENT,'') LIKE '%TIKI%' THEN 'TIKI' " +
+                    "WHEN ISNULL(SHIPMENT,'') LIKE '%WAHANA%' THEN 'WAHANA' " +
+                    "WHEN ISNULL(SHIPMENT,'') LIKE '%LEX%' THEN 'LEX' " +
+                    "WHEN ISNULL(SHIPMENT,'') LIKE '%REX%' THEN 'REX' " +
+                    "WHEN ISNULL(SHIPMENT,'') LIKE '%INDAH%' THEN 'INDAH' " +
+                    //"ELSE ISNULL(SHIPMENT,'') END AS KURIR_GROUP " +
+                    "ELSE ISNULL(SHIPMENT,'') END " +
+                    ")END " +
+                    "AS KURIR_GROUP " +
+                    "FROM SOT01A A(NOLOCK) LEFT JOIN ARF01 C(NOLOCK) ON A.CUST=C.CUST LEFT JOIN MO..MARKETPLACE D(NOLOCK) ON C.NAMA=D.IDMARKET  " +
+                    "WHERE A.RECNUM IN(" + string_recnum + "))A GROUP BY KURIR_GROUP ";
+                    //",NAMAMARKET ";
+                    vm.KURIR_TEMP = ErasoftDbContext.Database.SqlQuery<string>(sSQLGroupKurir).FirstOrDefault();
+                }
+                else
+                {
+                    vm.KURIR_TEMP = "";
+                }
             }
 
             return PartialView("ScanBarcodeSerahTerima", vm);

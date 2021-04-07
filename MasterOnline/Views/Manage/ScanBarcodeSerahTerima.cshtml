@@ -5,8 +5,8 @@
 <div class="container">
     <div class="row">
         <div class="form-group" style="margin-top: 5px;">
-            <label class="control-label col-md-3 col-sm-3">Scan Barcode</label>
-            <div class="col-md-9 col-sm-9">
+            <label class="control-label col-md-2 col-sm-2">Scan Barcode</label>
+            <div class="col-md-10 col-sm-10">
                 @*@Html.TextBox("txtScanBarcode", "", new { @class = "form-control" })*@
                 @*@Html.Hidden("KURIR_TEMP", new { @class = "form-control", Value = (Model?.KURIR_TEMP == null ? "" : Model.KURIR_TEMP) })*@
                 <input class="form-control" data-val="true" id="txtScanBarcode" name="txtScanBarcode" placeholder="No. Pesanan/ No. Referensi/ No. Resi" />
@@ -16,8 +16,8 @@
     </div>
     <div class="row">
         <div class="form-group" style="margin-top: 5px;">
-            <label class="control-label col-md-3 col-sm-3">Kurir</label>
-            <div class="col-md-9 col-sm-9">
+            <label class="control-label col-md-2 col-sm-2">Kurir</label>
+            <div class="col-md-10 col-sm-10">
                 <input id="KURIR_TEMP" class="form-control" value="@Model.KURIR_TEMP" readonly="readonly">
             </div>
         </div>
@@ -42,8 +42,8 @@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 60px;">Tanggal Pesanan</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 80px;">Marketplace</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 80px;">Pembeli</th>
-                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 80px;">Kurir</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 80px;">No. Resi</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 80px;">Kurir</th>
             </tr>
         </thead>
         <tbody>
@@ -67,8 +67,8 @@
                     }
                 </td>
                 <td>@order.Pembeli</td>
-                <td>@order.Kurir</td>
                 <td>@order.NoResi</td>
+                <td>@order.Kurir</td>
             </tr>
             }
         </tbody>
