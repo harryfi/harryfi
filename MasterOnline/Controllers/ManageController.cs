@@ -47347,7 +47347,7 @@ namespace MasterOnline.Controllers
                 {
                     vm.ListDashboard.AddRange(getRekap);
                 }
-                var getRekapKurirBlank = ErasoftDbContext.Database.SqlQuery<DashboardSerahTerima>("SELECT top 1 'N/A' AS KURIR, COUNT(SHIPMENT) AS JUMLAH FROM SOT01A A (NOLOCK) LEFT JOIN SIT04B B (NOLOCK) ON A.NO_BUKTI=B.PESANAN WHERE A.TGL >= '" + tempDrtgl + "' AND A.TGL <= '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('03','04') AND ISNULL(B.PESANAN,'')='' AND ISNULL(SHIPMENT,'')='' GROUP BY SHIPMENT").First();
+                var getRekapKurirBlank = ErasoftDbContext.Database.SqlQuery<DashboardSerahTerima>("SELECT top 1 'N/A' AS KURIR, COUNT(SHIPMENT) AS JUMLAH FROM SOT01A A (NOLOCK) LEFT JOIN SIT04B B (NOLOCK) ON A.NO_BUKTI=B.PESANAN WHERE A.TGL >= '" + tempDrtgl + "' AND A.TGL <= '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('03','04') AND ISNULL(B.PESANAN,'')='' AND ISNULL(SHIPMENT,'')='' GROUP BY SHIPMENT").FirstOrDefault();
                 if(getRekapKurirBlank != null)
                 {
                     vm.ListDashboard.Add(getRekapKurirBlank);
@@ -48259,6 +48259,11 @@ namespace MasterOnline.Controllers
                 return JsonErrorMessage("Pesanan dengan kode barcode '" + DataScan + "' merujuk kepada lebih dari 1 pesanan, yaitu: " + Environment.NewLine + stringList + Environment.NewLine + "Silahkan isi menggunakan No. Pesanan / No. Resi.");
             }
 
+            if(cekPesanan.FirstOrDefault().STATUS_TRANSAKSI != "03" && cekPesanan.FirstOrDefault().STATUS_TRANSAKSI != "04")
+            {
+                return JsonErrorMessage("Pesanan dengan kode barcode : " + DataScan + " statusnya bukan faktur atau selesai.");
+            }
+
             if(cekPesanan.FirstOrDefault().TGL < Drtgl)
             {
                 return JsonErrorMessage("Pesanan dengan kode barcode : " + DataScan + " merupakan transaksi sebelum tanggal cutoff.");
@@ -48313,25 +48318,26 @@ namespace MasterOnline.Controllers
             if(Kurir != "")
             {
                 var getKurir = kurirPesanan.ToUpper();
-                if (!getKurir.Contains(Kurir))
+                if (Kurir == "GOJEK")
                 {
-                    if(cekMP.ToUpper() == "LAZADA")
-                    {
-                        return JsonErrorMessage("Pesanan dengan kode barcode : " + DataScan + " kurirnya bukan " + Kurir + ". Pesanan Lazada menggunakan kurir LEL.");
-                    }
-                    return JsonErrorMessage("Pesanan dengan kode barcode : " + DataScan + " kurirnya bukan " + Kurir + ".");
-                }
-                if(Kurir == "GOJEK")
-                {
-                    if (!kurirPesanan.Contains("GO-JEK") && !kurirPesanan.Contains("GO-SEND") && !kurirPesanan.Contains("GOJEK") && !kurirPesanan.Contains("GOSEND"))
+                    if (!getKurir.Contains("GO-JEK") && !getKurir.Contains("GO-SEND") && !getKurir.Contains("GOJEK") && !getKurir.Contains("GOSEND"))
                     {
                         if (cekMP.ToUpper() == "LAZADA")
                         {
-                            return JsonErrorMessage("Pesanan dengan kode barcode : " + DataScan + " kurirnya bukan " + Kurir + ". Pesanan Lazada menggunakan kurir LEL.");
+                            return JsonErrorMessage("Pesanan dengan kode barcode : " + DataScan + " adalah pesanan dari Marketplace Lazada. Semua pesanan Lazada menggunakan kurir LEL.");
                         }
                         return JsonErrorMessage("Pesanan dengan kode barcode : " + DataScan + " kurirnya bukan " + Kurir + ".");
                     }
                 }
+                if (!getKurir.Contains(Kurir) && Kurir != "GOJEK")
+                {
+                    if(cekMP.ToUpper() == "LAZADA")
+                    {
+                        return JsonErrorMessage("Pesanan dengan kode barcode : " + DataScan + " adalah pesanan dari Marketplace Lazada. Semua pesanan Lazada menggunakan kurir LEL.");
+                    }
+                    return JsonErrorMessage("Pesanan dengan kode barcode : " + DataScan + " kurirnya bukan " + Kurir + ".");
+                }
+                
             }
 
             if (string_recnum != "")

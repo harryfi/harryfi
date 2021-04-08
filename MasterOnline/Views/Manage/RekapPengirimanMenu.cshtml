@@ -160,7 +160,8 @@
                     <br />
                     <div class="row">
                         <div class="col-md-12">
-                            <button id="save-cutoff-btn" class="btn btn-primary" onclick="saveCutoff()">Simpan Cutoff Tanggal Hari Ini</button>
+                            @*<button id="save-cutoff-btn" class="btn btn-primary" onclick="saveCutoff()">Simpan Cutoff Tanggal Hari Ini</button>*@
+                            <button id="save-cutoff-btn" class="btn btn-primary" data-toggle="modal" data-target="#konfCutoff">Simpan Cutoff Tanggal Hari Ini</button>
                         </div>
                     </div>
                 }
@@ -602,8 +603,47 @@
                 <div id="modal-scan-barcode"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" onclick="$('#modalScanSerahTerima').modal('hide');" id="btnCancelScanBarcode">Batal</button>
+                @*<button type="button" class="btn btn-danger" onclick="$('#modalScanSerahTerima').modal('hide');" id="btnCancelScanBarcode">Batal</button>*@
+                <button type="button" class="btn btn-danger" onclick="cekBatalScan();" id="btnCancelScanBarcode">Batal</button>
                 <button type="button" class="btn btn-success" onclick="SimpanSerahTerima();" id="btnSimpanSerahTerima">Proses</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="konfCutoff" tabindex="-1" role="dialog" aria-labelledby="konfCutoffLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfCutoffLabel">Konfirmasi Simpan Cutoff</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin akan menggunakan fitur rekap serah terima dimulai dari pesanan per hari ini tanggal <span id="tglCutoff_span">@DateTime.UtcNow.AddHours(7).ToString("dd/MM/yyyy")</span> ?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="saveCutoff();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="konfBatalProses" tabindex="-1" role="dialog" aria-labelledby="konfBatalProsesLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfBatalProsesLabel">Konfirmasi Batal Proses</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda akan membatalkan semua pesanan di dalam rekap serah terima ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="$('#konfBatalProses').modal('hide');">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="$('#konfBatalProses').modal('hide'); $('#modalScanSerahTerima').modal('hide');">Ya</button>
             </div>
         </div>
     </div>
@@ -1031,6 +1071,7 @@
 
         function saveCutoff() {
             //if ($('#cutoffPengiriman').val() != null && $('#cutoffPengiriman').val() != "") {
+            $('#konfCutoff').modal('hide');
             $('#save-cutoff-btn').attr('disabled', 'disabled');
             var $link = '@Html.Raw(Url.Action("saveCutOff", "Manage"))';
             //$link = $link.replace("replaceTgl", encodeURIComponent($('#cutoffPengiriman').val()));
@@ -1647,6 +1688,17 @@
                 $("#checkbox_all_detail_scan").prop('checked'));
         }
 
+        function cekBatalScan() {
+            var cekList = [];
+            $(".checkbox_detail_scan").each(function (z, chk) {
+                cekList.push($(chk).attr("id-pesanan"));
+            });
+            if (cekList.length > 0) {
+                $('#konfBatalProses').modal('show');
+            } else {
+                $('#modalScanSerahTerima').modal('hide');
+            }
+        }
         function SimpanSerahTerima() {
             var cekList = [];
             $(".checkbox_detail_scan").each(function (z, chk) {
