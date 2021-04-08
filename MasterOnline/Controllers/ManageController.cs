@@ -47292,8 +47292,9 @@ namespace MasterOnline.Controllers
             if (getSIFSYS != null)
             {
                 //var tgl = DateTime.ParseExact(tglCutoff, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
-                getSIFSYS.CUTOFF_SERAH_TERIMA = today;
-                ErasoftDbContext.SaveChanges();
+                //getSIFSYS.CUTOFF_SERAH_TERIMA = today;
+                //ErasoftDbContext.SaveChanges();
+                EDB.ExecuteSQL("CString", CommandType.Text, "update SIFSYS_TAMBAHAN set CUTOFF_SERAH_TERIMA = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "'");
             }
             //}
             return new EmptyResult(); 
