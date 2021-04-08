@@ -771,62 +771,21 @@
             $('#semua-tab').click(function () {
                 //$TabAktif = 1;
                 refreshTableSemuaDO();
-                $('#search_semua').keypress(function (e) {
-                    var key = e.which;
-                    if (key == 13)// the enter key code
-                    {
-                        refreshTableSemuaDO();
-                        return false;
-                    }
-                });
-                $('#search_semua_click').click(function () {
-                    refreshTableSemuaDO();
-                });
+                
             });
             $('#belum-tab').click(function () {
                 //$TabAktif = 2;
                 refreshTableBelumDO();
-                $('#search_belum').keypress(function (e) {
-                    var key = e.which;
-                    if (key == 13)// the enter key code
-                    {
-                        refreshTableBelumDO();
-                        return false;
-                    }
-                });
-                $('#search_belum_click').click(function () {
-                    refreshTableBelumDO();
-                });
             });
             $('#sudah-tab').click(function () {
                 //$TabAktif = 3;
                 refreshTableSudahDO();
-                $('#search_sudah').keypress(function (e) {
-                    var key = e.which;
-                    if (key == 13)// the enter key code
-                    {
-                        refreshTableSudahDO();
-                        return false;
-                    }
-                });
-                $('#search_sudah_click').click(function () {
-                    refreshTableSudahDO();
-                });
+                
             });
             $('#do-tab').click(function () {
                 //$TabAktif = 4;
                 refreshTableDO();
-                $('#search_do').keypress(function (e) {
-                    var key = e.which;
-                    if (key == 13)// the enter key code
-                    {
-                        refreshTableDO();
-                        return false;
-                    }
-                });
-                $('#search_do_click').click(function () {
-                    refreshTableDO();
-                });
+                
             });
             if (modeEditDO == "1") {
                 $('#do-tab').click();
@@ -837,6 +796,53 @@
             else {
                 $('#semua-tab').click();
             }
+
+            $('#search_semua').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    refreshTableSemuaDO();
+                    return false;
+                }
+            });
+            $('#search_semua_click').click(function () {
+                refreshTableSemuaDO();
+            });
+
+            $('#search_belum').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    refreshTableBelumDO();
+                    return false;
+                }
+            });
+            $('#search_belum_click').click(function () {
+                refreshTableBelumDO();
+            });
+
+            $('#search_sudah').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    refreshTableSudahDO();
+                    return false;
+                }
+            });
+            $('#search_sudah_click').click(function () {
+                refreshTableSudahDO();
+            });
+            $('#search_do').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    refreshTableDO();
+                    return false;
+                }
+            });
+            $('#search_do_click').click(function () {
+                refreshTableDO();
+            });
 
             $('#TakeRecordSemua').change(function () {
                 refreshTableSemuaDO("1");
@@ -1377,16 +1383,16 @@
                 type: "GET",
                 url: $link,
                 beforeSend: function () {
-                    $('#search_belum_click')[0].disabled = true;
+                    //$('#search_belum_click')[0].disabled = true;
                     $('#loading_belum_tab').show();
                 },
                 success: function (response) {
-                    $('#search_belum_click')[0].disabled = false;
+                    //$('#search_belum_click')[0].disabled = false;
                     $('#table-belum-partial').html(response);
                     $('#loading_belum_tab').hide();
                 },
                 error: function (xhr, status, error) {
-                    $('#search_belum_click')[0].disabled = false;
+                    //$('#search_belum_click')[0].disabled = false;
                     console.log(error);
                 }
             });
@@ -1453,16 +1459,16 @@
                 type: "GET",
                 url: $link,
                 beforeSend: function () {
-                    $('#search_sudah_click')[0].disabled = true;
+                    //$('#search_sudah_click')[0].disabled = true;
                     $('#loading_sudah_tab').show();
                 },
                 success: function (response) {
-                    $('#search_sudah_click')[0].disabled = false;
+                    //$('#search_sudah_click')[0].disabled = false;
                     $('#table-sudah-partial').html(response);
                     $('#loading_sudah_tab').hide();
                 },
                 error: function (xhr, status, error) {
-                    $('#search_sudah_click')[0].disabled = false;
+                    //$('#search_sudah_click')[0].disabled = false;
                     console.log(error);
                 }
             });
@@ -1501,16 +1507,16 @@
                 type: "GET",
                 url: $link,
                 beforeSend: function () {
-                    $('#search_do_click')[0].disabled = true;
+                    //$('#search_do_click')[0].disabled = true;
                     $('#loading_do_tab').show();
                 },
                 success: function (response) {
-                    $('#search_do_click')[0].disabled = false;
+                    //$('#search_do_click')[0].disabled = false;
                     $('#table-do-partial').html(response);
                     $('#loading_do_tab').hide();
                 },
                 error: function (xhr, status, error) {
-                    $('#search_do_click')[0].disabled = false;
+                    //$('#search_do_click')[0].disabled = false;
                     $('#loading_do_tab').hide();
                     console.log(error);
                 }
@@ -1743,19 +1749,57 @@
                                 $.each(data,
                                     function (i, item) {
                                         if (item.NoPesanan == val) {
-                                            $($trElement + ' .noref-detail').text(item.NoRef);
-                                            $($trElement + ' .mp-detail ').html(item.Marketplace + '<input data-val="true" data-val-length="The field NAMA Marketplace must be a string with a maximum length of 10." data-val-length-max="10" id="PengirimanDetail_NAMA_MARKET" name="PengirimanDetail.NAMA_MARKET" type="hidden" value="">');
-                                            $($trElement + ' .buyer-detail').html(item.Pembeli + '<input data-val="true" data-val-length="The field NAMA Pembeli must be a string with a maximum length of 10." data-val-length-max="10" id="PengirimanDetail_NAMA_PEMBELI" name="PengirimanDetail.NAMA_PEMBELI" type="hidden" value="">');
-                                            //$($trElement + ' .al-detail').html(item.ALAMAT + '<input data-val="true" data-val-length="The field Alamat KIRIM must be a string with a maximum length of 250." data-val-length-max="250" id="PengirimanDetail_ALAMAT_KIRIM" name="PengirimanDetail.ALAMAT_KIRIM" type="hidden" value="">');
-                                            $($trElement + ' .resi-detail').text(item.NoResi);
-                                            $($trElement + ' .kurir-detail').text(item.Kurir);
+                                            var $link = '@Url.Action("GetDataPesananSerahTerimaDetail", "Manage", new { code = "replaceCode" })';
+                                            $link = $link.replace("replaceCode", val);
+                                            $.ajax({
+                                                type: "GET",
+                                                url: $link,
+                                                success: function (response) {
+                                                    if (response != null) {
+                                                        $($trElement + ' .noref-detail').text(response[0].NoRef);
+                                                        $($trElement + ' .mp-detail ').html(response[0].Marketplace + '<input data-val="true" data-val-length="The field NAMA Marketplace must be a string with a maximum length of 10." data-val-length-max="10" id="PengirimanDetail_NAMA_MARKET" name="PengirimanDetail.NAMA_MARKET" type="hidden" value="">');
+                                                        $($trElement + ' .buyer-detail').html(response[0].Pembeli + '<input data-val="true" data-val-length="The field NAMA Pembeli must be a string with a maximum length of 10." data-val-length-max="10" id="PengirimanDetail_NAMA_PEMBELI" name="PengirimanDetail.NAMA_PEMBELI" type="hidden" value="">');
+                                                        $($trElement + ' .resi-detail').text(response[0].NoResi);
+                                                        $($trElement + ' .kurir-detail').text(response[0].Kurir);
 
-                                            $('#PengirimanDetail_MARKETPLACE').val(item.Perso);
-                                            $('#PengirimanDetail_PEMBELI').val(item.N_UCAPAN);
-                                            $('#PengirimanDetail_ALAMAT_KIRIM').val(item.NoFaktur);
-                                            $('#PengirimanDetail_KOTA').val(item.NoDO);
-                                            $('#PengirimanDetail_PROPINSI').val(item.RecnumSO);
-                                            $('#PengirimanDetail_KODE_POS').val(item.RecnumDO);
+                                                        $('#PengirimanDetail_MARKETPLACE').val(response[0].Perso);
+                                                        $('#PengirimanDetail_PEMBELI').val(response[0].N_UCAPAN);
+                                                        $('#PengirimanDetail_ALAMAT_KIRIM').val(response[0].NoFaktur);
+                                                        $('#PengirimanDetail_KOTA').val(response[0].NoDO);
+                                                        $('#PengirimanDetail_PROPINSI').val(response[0].RecnumSO);
+                                                        $('#PengirimanDetail_KODE_POS').val(response[0].RecnumDO);
+                                                    } else {
+                                                        $($trElement + ' .noref-detail').text('');
+                                                        $($trElement + ' .mp-detail ').text('');
+                                                        $($trElement + ' .buyer-detail').text('');
+                                                        $($trElement + ' .resi-detail').text('');
+                                                        $($trElement + ' .kurir-detail').text('');
+
+                                                        $('#PengirimanDetail_MARKETPLACE').val('');
+                                                        $('#PengirimanDetail_PEMBELI').val('');
+                                                        $('#PengirimanDetail_ALAMAT_KIRIM').val('');
+                                                        $('#PengirimanDetail_KOTA').val('');
+                                                        $('#PengirimanDetail_PROPINSI').val('');
+                                                        $('#PengirimanDetail_KODE_POS').val('');
+                                                    }
+                                                },
+                                                error: function (xhr, status, error) {
+                                                    console.log(error);
+                                                }
+                                            });
+                                            //$($trElement + ' .noref-detail').text(item.NoRef);
+                                            //$($trElement + ' .mp-detail ').html(item.Marketplace + '<input data-val="true" data-val-length="The field NAMA Marketplace must be a string with a maximum length of 10." data-val-length-max="10" id="PengirimanDetail_NAMA_MARKET" name="PengirimanDetail.NAMA_MARKET" type="hidden" value="">');
+                                            //$($trElement + ' .buyer-detail').html(item.Pembeli + '<input data-val="true" data-val-length="The field NAMA Pembeli must be a string with a maximum length of 10." data-val-length-max="10" id="PengirimanDetail_NAMA_PEMBELI" name="PengirimanDetail.NAMA_PEMBELI" type="hidden" value="">');
+                                            ////$($trElement + ' .al-detail').html(item.ALAMAT + '<input data-val="true" data-val-length="The field Alamat KIRIM must be a string with a maximum length of 250." data-val-length-max="250" id="PengirimanDetail_ALAMAT_KIRIM" name="PengirimanDetail.ALAMAT_KIRIM" type="hidden" value="">');
+                                            //$($trElement + ' .resi-detail').text(item.NoResi);
+                                            //$($trElement + ' .kurir-detail').text(item.Kurir);
+
+                                            //$('#PengirimanDetail_MARKETPLACE').val(item.Perso);
+                                            //$('#PengirimanDetail_PEMBELI').val(item.N_UCAPAN);
+                                            //$('#PengirimanDetail_ALAMAT_KIRIM').val(item.NoFaktur);
+                                            //$('#PengirimanDetail_KOTA').val(item.NoDO);
+                                            //$('#PengirimanDetail_PROPINSI').val(item.RecnumSO);
+                                            //$('#PengirimanDetail_KODE_POS').val(item.RecnumDO);
                                             
                                             return;
                                         }

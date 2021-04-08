@@ -46955,7 +46955,7 @@ namespace MasterOnline.Controllers
                 var alamat = Sifsys.ALAMAT_PT;
                 var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
                 //var listPesanan = ErasoftDbContext.SIT04B.Where(a => a.NO_BUKTI == kirimInDb.NO_BUKTI).Select(a => a.PESANAN).ToList();
-                var SSQL = "SELECT A.NO_BUKTI, PESANAN, NAMA_MARKET AS MARKETPLACE, ISNULL(B.NAMAPEMESAN,'') AS PEMBELI, ISNULL(B.NO_REFERENSI,'') AS NOREF, ISNULL(B.SHIPMENT,'') AS KURIR, ISNULL(B.TRACKING_SHIPMENT,'') AS RESI " +
+                var SSQL = "SELECT A.NO_BUKTI, PESANAN, NAMA_MARKET AS MARKETPLACE, ISNULL(B.NAMAPEMESAN,'') AS PEMBELI, CASE WHEN NAMA_MARKET LIKE '%TOKOPEDIA%' THEN substring(NO_REFERENSI,11,30) ELSE ISNULL(B.NO_REFERENSI,'') END AS NOREF, ISNULL(B.SHIPMENT,'') AS KURIR, ISNULL(B.TRACKING_SHIPMENT,'') AS RESI " +
                            "FROM SIT04B A(NOLOCK) LEFT JOIN SOT01A B(NOLOCK) ON A.PESANAN = B.NO_BUKTI WHERE A.NO_BUKTI = '" + kirimInDb.NO_BUKTI + "'";
                 var getListDetail = ErasoftDbContext.Database.SqlQuery<cetakSerahTerima>(SSQL).ToList();
 
@@ -48132,6 +48132,19 @@ namespace MasterOnline.Controllers
             return Json(listEkspedisi, JsonRequestBehavior.AllowGet);
         }
 
+        public ActionResult GetDataPesananSerahTerimaDetail(string code)
+        {
+            string sSQL = "";
+            sSQL += "SELECT TOP 1 A.NO_BUKTI AS NoPesanan, ";
+            sSQL += "CASE WHEN ISNULL(PERSO,'') <> '' THEN ISNULL(NAMAMARKET,'') +' (' + ISNULL(PERSO, '') + ')' ELSE ISNULL(NAMAMARKET,'') END AS Marketplace, ";
+            sSQL += "ISNULL(A.NAMAPEMESAN, '') AS Pembeli, ISNULL(A.NO_REFERENSI, '') AS NoRef, ISNULL(A.SHIPMENT, '') AS Kurir, ISNULL(A.TRACKING_SHIPMENT, '') AS NoResi ";
+            sSQL += ",ISNULL(A.CUST,'') AS Perso, ISNULL(A.PEMESAN,'') AS N_UCAPAN,ISNULL(A.ALAMAT_KIRIM, '') AS NoFaktur, ISNULL(A.KOTA, '') AS NoDO, ISNULL(A.PROPINSI, '') AS RecnumSO, ISNULL(A.KODE_POS, '') AS RecnumDO ";
+            sSQL += "FROM SOT01A A(NOLOCK) LEFT JOIN ARF01 B(NOLOCK) ON A.CUST = B.CUST LEFT JOIN MO..MARKETPLACE C(NOLOCK) ON B.NAMA = C.IDMARKET LEFT JOIN SIT04B D(NOLOCK) ON A.NO_BUKTI = D.PESANAN ";
+            sSQL += "WHERE A.NO_BUKTI = '" + code + "'";
+            var listPesananBlmKirim = ErasoftDbContext.Database.SqlQuery<SerahTerima>(sSQL).ToList();
+            return Json(listPesananBlmKirim, JsonRequestBehavior.AllowGet);
+        }
+
         public ActionResult GetDataPesananSerahTerima(string code)
         {
             var whereClause = "";
@@ -48164,16 +48177,28 @@ namespace MasterOnline.Controllers
                 var tempDrtglSudah = DrtglSudah.ToString("yyyy-MM-dd") + " 00:00:00.000";
 
                 string sSQL = "";
-                sSQL += "SELECT A.NO_BUKTI AS NoPesanan, ";
-                sSQL += "CASE WHEN ISNULL(PERSO,'') <> '' THEN ISNULL(NAMAMARKET,'') +' (' + ISNULL(PERSO, '') + ')' ELSE ISNULL(NAMAMARKET,'') END AS Marketplace, ";
-                sSQL += "ISNULL(A.NAMAPEMESAN, '') AS Pembeli, ISNULL(A.NO_REFERENSI, '') AS NoRef, ISNULL(A.SHIPMENT, '') AS Kurir, ISNULL(A.TRACKING_SHIPMENT, '') AS NoResi ";
-                sSQL += ",ISNULL(A.CUST,'') AS Perso, ISNULL(A.PEMESAN,'') AS N_UCAPAN,ISNULL(A.ALAMAT_KIRIM, '') AS NoFaktur, ISNULL(A.KOTA, '') AS NoDO, ISNULL(A.PROPINSI, '') AS RecnumSO, ISNULL(A.KODE_POS, '') AS RecnumDO ";
-                sSQL += "FROM SOT01A A(NOLOCK) LEFT JOIN ARF01 B(NOLOCK) ON A.CUST = B.CUST LEFT JOIN MO..MARKETPLACE C(NOLOCK) ON B.NAMA = C.IDMARKET LEFT JOIN SIT04B D(NOLOCK) ON A.NO_BUKTI = D.PESANAN ";
-                sSQL += "WHERE ISNULL(D.PESANAN,'')= '' AND A.STATUS_TRANSAKSI IN('03','04') AND ISNULL(A.SHIPMENT, '') <> '' AND A.TGL >= '' " + whereClause + whereLazada;
+                //sSQL += "SELECT A.NO_BUKTI AS NoPesanan, ";
+                //sSQL += "CASE WHEN ISNULL(PERSO,'') <> '' THEN ISNULL(NAMAMARKET,'') +' (' + ISNULL(PERSO, '') + ')' ELSE ISNULL(NAMAMARKET,'') END AS Marketplace, ";
+                //sSQL += "ISNULL(A.NAMAPEMESAN, '') AS Pembeli, ISNULL(A.NO_REFERENSI, '') AS NoRef, ISNULL(A.SHIPMENT, '') AS Kurir, ISNULL(A.TRACKING_SHIPMENT, '') AS NoResi ";
+                //sSQL += ",ISNULL(A.CUST,'') AS Perso, ISNULL(A.PEMESAN,'') AS N_UCAPAN,ISNULL(A.ALAMAT_KIRIM, '') AS NoFaktur, ISNULL(A.KOTA, '') AS NoDO, ISNULL(A.PROPINSI, '') AS RecnumSO, ISNULL(A.KODE_POS, '') AS RecnumDO ";
+                //sSQL += "FROM SOT01A A(NOLOCK) LEFT JOIN ARF01 B(NOLOCK) ON A.CUST = B.CUST LEFT JOIN MO..MARKETPLACE C(NOLOCK) ON B.NAMA = C.IDMARKET LEFT JOIN SIT04B D(NOLOCK) ON A.NO_BUKTI = D.PESANAN ";
+                //sSQL += "WHERE ISNULL(D.PESANAN,'')= '' AND A.STATUS_TRANSAKSI IN('03','04') AND ISNULL(A.SHIPMENT, '') <> '' AND A.TGL >= '' " + whereClause + whereLazada;  
+                sSQL += "SELECT DISTINCT A.NO_BUKTI AS NoPesanan ";
+                sSQL += "FROM SOT01A A(NOLOCK) LEFT JOIN ARF01 B(NOLOCK) ON A.CUST = B.CUST LEFT JOIN MO..MARKETPLACE C(NOLOCK) ON B.NAMA = C.IDMARKET ";
+                sSQL += "WHERE ISNULL(A.JAMKIRIM,'')= '' AND A.STATUS_TRANSAKSI IN('03','04') AND ISNULL(A.SHIPMENT, '') <> '' AND A.TGL >= '' " + whereClause + whereLazada;
                 listPesananBlmKirim = ErasoftDbContext.Database.SqlQuery<SerahTerima>(sSQL).ToList();
             }
 
-            return Json(listPesananBlmKirim, JsonRequestBehavior.AllowGet);
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listPesananBlmKirim),
+                ContentType = "application/json"
+            };
+            return result;
+
+            //return Json(listPesananBlmKirim, JsonRequestBehavior.AllowGet);
 
         }
 
@@ -48212,7 +48237,7 @@ namespace MasterOnline.Controllers
             List<string> listData = new List<string>();
             var string_recnum = "";
 
-            var cekPesanan = ErasoftDbContext.Database.SqlQuery<SOT01A>("SELECT * FROM SOT01A WHERE NO_REFERENSI ='" + DataScan + "' OR NO_BUKTI ='" + DataScan + "' OR TRACKING_SHIPMENT ='" + DataScan + "'").ToList();
+            var cekPesanan = ErasoftDbContext.Database.SqlQuery<SOT01A>("SELECT * FROM SOT01A WHERE NO_REFERENSI ='" + DataScan + "' OR NO_BUKTI ='" + DataScan + "' OR TRACKING_SHIPMENT ='" + DataScan + "' OR substring(NO_REFERENSI,11,30) = '" + DataScan + "'").ToList();
             if (cekPesanan.Count() == 0)
             {
                 return JsonErrorMessage("Pesanan dengan kode barcode : " + DataScan + " tidak ditemukan.");

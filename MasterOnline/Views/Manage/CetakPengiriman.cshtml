@@ -168,17 +168,17 @@
     </style>
 </head>
 <body class="A4">
-    <div id="faktur_viewer">
+    <div id="faktur_viewer" >
         <div class="container-fluid">
             <div class="row">
-                <div class="col-md-6" id="fake_page">
+                <div class="col-md-12" id="fake_page" style="width:750px !important;">
                     @if (Model.Pengiriman != null)
                     {
-                        <div class="row">
+                        @*<div class="row">
                             <div class="col-md-12">
                                 <button id="print-btn" class="btn btn-success pull-right">Cetak</button>
                             </div>
-                        </div>
+                        </div>*@
                         <div class="row center">
                             <h1 class="text-center">BUKTI SERAH TERIMA</h1>
                         </div>
@@ -237,15 +237,15 @@
                                 </div>
                             </div>
                             <br />
-                            <table class="table">
+                            <table class="table" style="max-width:730px !important; width:730px !important;">
                                 @*<thead>*@
                                 <tr>
-                                    <th>No. Pesanan</th>
-                                    <th>No. Referensi</th>
-                                    <th>Marketplace</th>
-                                    <th>Pembeli</th>
-                                    <th>No. Resi</th>
-                                    <th>Kurir</th>
+                                    <th style="max-width:80px !important;">No. Pesanan</th>
+                                    <th style="max-width:210px !important;">No. Referensi</th>
+                                    <th style="max-width:160px !important;">Marketplace</th>
+                                    <th style="max-width:90px !important;">Pembeli</th>
+                                    <th style="max-width:120px !important;">No. Resi</th>
+                                    <th style="max-width:90px !important;">Kurir</th>
                                 </tr>
                                 @*</thead>*@
                                 <tbody id="barang-faktur">
@@ -253,13 +253,13 @@
                                     {
                                         //var kurir = Model?.Shipment?.SingleOrDefault(a => a.NO_BUKTI == KirimDetail.PESANAN)?.SHIPMENT;
                                         <tr>
-                                            <td>@KirimDetail.PESANAN</td>
-                                            <td>@KirimDetail.NOREF</td>
-                                            <td>@KirimDetail.MARKETPLACE</td>
-                                            <td>@KirimDetail.PEMBELI</td>
-                                            <td>@KirimDetail.RESI</td>
+                                            <td style="max-width:80px !important;">@KirimDetail.PESANAN</td>
+                                            <td style="max-width:210px !important;">@KirimDetail.NOREF</td>
+                                            <td style="max-width:160px !important;">@KirimDetail.MARKETPLACE</td>
+                                            <td style="max-width:90px !important;">@KirimDetail.PEMBELI</td>
+                                            <td style="max-width:120px !important;">@KirimDetail.RESI</td>
                                             @*<td>@KirimDetail.ALAMAT_KIRIM @KirimDetail.KOTA @KirimDetail.PROPINSI @KirimDetail.KODE_POS</td>*@
-                                            <td>@KirimDetail.KURIR</td>
+                                            <td style="max-width:90px !important;">@KirimDetail.KURIR</td>
                                         </tr>
                                     }
                                 </tbody>
@@ -268,20 +268,20 @@
                         </div>
                         <br />
                         <div class="row">
-                            <div class="col-md-2" style="width:108px !important"></div>
-                            <div class="col-md-3 text-center" style="font-weight: bold; width:162px !important">Admin Gudang</div>
-                            <div class="col-md-2" style="width:108px !important"></div>
-                            <div class="col-md-3 text-center" style="font-weight: bold; width:162px !important">Kurir</div>
-                            <div class="col-md-2" style="width:108px !important"></div>
+                            <div class="col-md-2" style="width:124px !important"></div>
+                            <div class="col-md-3 text-center" style="font-weight: bold; width:187px !important">Admin Gudang</div>
+                            <div class="col-md-2" style="width:124px !important"></div>
+                            <div class="col-md-3 text-center" style="font-weight: bold; width:187px !important">Kurir</div>
+                            <div class="col-md-2" style="width:124px !important"></div>
                         </div>
                         <br />
                         <br />
                         <div class="row">
-                            <div class="col-md-2" style="width:108px !important"></div>
-                            <div class="col-md-3 text-center" style="width:162px !important">______________________</div>
-                            <div class="col-md-2" style="width:108px !important"></div>
-                            <div class="col-md-3 text-center" style="width:162px !important">______________________</div>
-                            <div class="col-md-2" style="width:108px !important"></div>
+                            <div class="col-md-2" style="width:124px !important"></div>
+                            <div class="col-md-3 text-center" style="width:187px !important">______________________</div>
+                            <div class="col-md-2" style="width:124px !important"></div>
+                            <div class="col-md-3 text-center" style="width:187px !important">______________________</div>
+                            <div class="col-md-2" style="width:124px !important"></div>
                         </div>
                     }
                 </div>
@@ -292,14 +292,14 @@
     <script>
         
         $(document).ready(function () {
-            $('#print-btn').click(function () {
-                $('#print-btn').hide();
-                window.print();
-            });
+            //$('#print-btn').click(function () {
+            //    $('#print-btn').hide();
+            //    window.print();
+            //});
 
-            window.onafterprint = function () {
-                $('#print-btn').show();
-            }
+            //window.onafterprint = function () {
+            //    $('#print-btn').show();
+            //}
         });
     </script>
 
