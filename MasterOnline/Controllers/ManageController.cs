@@ -3825,7 +3825,7 @@ namespace MasterOnline.Controllers
 #if (AWS)
             string url = "https://api.masteronline.co.id/webhook/api/oauthcallback" + query;
 #else
-            string url = "https://devapi.masteronline.co.id/webhook/api/oauthcallback" + query;
+            string url = "https://api.masteronline.co.id/webhook/api/oauthcallback" + query;
 #endif
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(url);
 
@@ -19914,7 +19914,7 @@ namespace MasterOnline.Controllers
 #if (AWS)
             string url = "https://api.masteronline.co.id/webhook/api/invoice/" + func;
 #else
-            string url = "https://devapi.masteronline.co.id/webhook/api/invoice/" + func;
+            string url = "https://api.masteronline.co.id/webhook/api/invoice/" + func;
 #endif
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(url);
