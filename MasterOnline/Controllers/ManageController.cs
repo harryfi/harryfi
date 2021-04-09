@@ -21114,7 +21114,8 @@ namespace MasterOnline.Controllers
                     string access_token = partnerDb.Access_Token;
                     string session = partnerDb.Session;
                     string host = partnerDb.Host;
-                    string id_invoice = fakturInDb.NO_KENDARAAN;
+                    //string id_invoice = fakturInDb.NO_KENDARAAN;
+                    string id_invoice = fakturInDb.NO_REF;
                     string myData = "";
 
                     var acc = new AccInvoice()
@@ -21263,7 +21264,8 @@ namespace MasterOnline.Controllers
                         string host = partnerDb.Host;
                         string cust = fakturInDb.CUST;
                         string tglfaktur = fakturInDb.TGL.ToString("dd/MM/yyyy");
-                        string id_invoice = fakturInDb.NO_KENDARAAN;
+                        //string id_invoice = fakturInDb.NO_KENDARAAN;
+                        string id_invoice = fakturInDb.NO_REF;
                         string id_barang = barangFakturInDb.BRG_SO;
                         var getArf01 = ErasoftDbContext.ARF01.FirstOrDefault(p => p.CUST == fakturInDb.CUST);
                         var bankNo = getArf01.BANK_NO_ACCURATE;
