@@ -21101,7 +21101,7 @@ namespace MasterOnline.Controllers
         public ActionResult DeleteFaktur(int? orderId)
         {
             var fakturInDb = ErasoftDbContext.SIT01A.Single(p => p.RecNum == orderId && p.JENIS_FORM == "2");
-            
+
             //api_baim start 06/04/2021
             var partnerDb = ErasoftDbContext.PARTNER_API.FirstOrDefault(p => p.PartnerId == 20007);
             var logError = ErasoftDbContext.PARTNER_API_LOG_ERROR.FirstOrDefault(e => e.No_Bukti == fakturInDb.NO_BUKTI);
@@ -21125,7 +21125,8 @@ namespace MasterOnline.Controllers
                         session = session,
                         host = host,
                         is_delete_faktur = true,
-                        id_invoice = id_invoice
+                        id_invoice = id_invoice,
+                        is_paid = partnerDb.isPaid == true ? true : false
                     };
                     myData = Newtonsoft.Json.JsonConvert.SerializeObject(acc);
                     FakturAccurate(myData, "delete-invoice");
@@ -21262,7 +21263,8 @@ namespace MasterOnline.Controllers
                         string access_token = partnerDb.Access_Token;
                         string session = partnerDb.Session;
                         string host = partnerDb.Host;
-                        string cust = fakturInDb.CUST;
+                        //string cust = fakturInDb.CUST;
+                        string cust = ErasoftDbContext.ARF01C.FirstOrDefault(a => a.BUYER_CODE == fakturInDb.PEMESAN).TLP;
                         string tglfaktur = fakturInDb.TGL.ToString("dd/MM/yyyy");
                         //string id_invoice = fakturInDb.NO_KENDARAAN;
                         string id_invoice = fakturInDb.NO_REF;
