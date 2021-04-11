@@ -111,8 +111,8 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        [AutomaticRetry(Attempts = 0)]
-        //[AutomaticRetry(Attempts = 0, DelaysInSeconds = new int[] { 300, 300, 300 })]
+        //[AutomaticRetry(Attempts = 0)]
+        [AutomaticRetry(Attempts = 2, DelaysInSeconds = new int[] { 300 })]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Product {obj} ke Tokopedia Gagal.")]
         public async Task<string> CreateProductGetStatus(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, string brg, int upload_id, string log_request_id)
@@ -297,7 +297,7 @@ namespace MasterOnline.Controllers
         }
 
         //[AutomaticRetry(Attempts = 0)]
-        [AutomaticRetry(Attempts = 0, DelaysInSeconds = new int[] { 300, 300, 300 })]
+        [AutomaticRetry(Attempts = 2, DelaysInSeconds = new int[] { 300 })]
         [Queue("1_create_product")]
         [NotifyOnFailed("Edit Product {obj} ke Tokopedia Gagal.")]
         public async Task<string> EditProductGetStatus(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, string brg, int upload_id, string log_request_id, string product_id)
@@ -1210,7 +1210,7 @@ namespace MasterOnline.Controllers
 
                         var Jobclient = new BackgroundJobClient(sqlStorage);
                         //Jobclient.Enqueue<TokopediaControllerJob>(x => x.EditProductGetStatus(iden.DatabasePathErasoft, brg, log_CUST, "Barang", "Edit Produk Get Status", iden, brg, result.data.upload_id, currentLog.REQUEST_ID, product_id));
-                        Jobclient.Schedule<TokopediaControllerJob>(x => x.EditProductGetStatus(iden.DatabasePathErasoft, brg, log_CUST, "Barang", "Edit Produk Get Status", iden, brg, result.data.upload_id, currentLog.REQUEST_ID, product_id), TimeSpan.FromMinutes(2));
+                        Jobclient.Schedule<TokopediaControllerJob>(x => x.EditProductGetStatus(iden.DatabasePathErasoft, brg, log_CUST, "Barang", "Edit Produk Get Status", iden, brg, result.data.upload_id, currentLog.REQUEST_ID, product_id), TimeSpan.FromMinutes(1));
 
 #endif
                         //end change by calvin 9 juni 2019
@@ -1937,7 +1937,8 @@ namespace MasterOnline.Controllers
                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
                         var Jobclient = new BackgroundJobClient(sqlStorage);
-                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.CreateProductGetStatus(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Link Produk (Tahap 1 / 2 )", iden, brg, result.data.upload_id, currentLog.REQUEST_ID));
+                        //Jobclient.Enqueue<TokopediaControllerJob>(x => x.CreateProductGetStatus(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Link Produk (Tahap 1 / 2 )", iden, brg, result.data.upload_id, currentLog.REQUEST_ID));
+                        Jobclient.Schedule<TokopediaControllerJob>(x => x.CreateProductGetStatus(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Link Produk (Tahap 1 / 2 )", iden, brg, result.data.upload_id, currentLog.REQUEST_ID), TimeSpan.FromMinutes(1));
                         //end change by calvin 9 juni 2019
 #endif
                     }
