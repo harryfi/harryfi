@@ -239,24 +239,27 @@ namespace MasterOnline.Utils
                             //    serverConnection.Dispose();
                             //}
                             startHangfireServer(sqlStorage);
-
-                            //initialize log txt
-                            #region Logging
-                            filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_EMPTY_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
-                            path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
-
-                            if (!System.IO.File.Exists(path))
+                            if (item.DatabasePathErasoft == "ERASOFT_80069")
                             {
-                                System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
-                                var asd = System.IO.File.Create(path);
-                                asd.Close();
+                                //initialize log txt
+                                #region Logging
+                                filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_EMPTY_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
+                                path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
+
+                                if (!System.IO.File.Exists(path))
+                                {
+                                    System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
+                                    var asd = System.IO.File.Create(path);
+                                    asd.Close();
+                                }
+                                StreamWriter tw2 = new StreamWriter(path);
+                                msglog = "Log HangfireBootstrapper KONDISI SERVER KOSONG / TIDAK ADA HEARTBEAT LANJUTKAN DENGAN RUN startHangfireServer SUCCESS...... PADA WAKTU " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
+                                tw2.WriteLine(msglog);
+                                tw2.Close();
+                                tw2.Dispose();
+                                #endregion
+
                             }
-                            StreamWriter tw2 = new StreamWriter(path);
-                            msglog = "Log HangfireBootstrapper KONDISI SERVER KOSONG / TIDAK ADA HEARTBEAT LANJUTKAN DENGAN RUN startHangfireServer SUCCESS...... PADA WAKTU " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
-                            tw2.WriteLine(msglog);
-                            tw2.Close();
-                            tw2.Dispose();
-                            #endregion
                             //}
                         }
                         else
@@ -273,42 +276,55 @@ namespace MasterOnline.Utils
                                 //    serverConnection.Dispose();
                                 //}
                                 startHangfireServer(sqlStorage);
-                                //initialize log txt
-                                #region Logging
-                                filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_ALREADYEXIST_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
-                                path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
 
-                                if (!System.IO.File.Exists(path))
+                                if (item.DatabasePathErasoft == "ERASOFT_80069")
                                 {
-                                    System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
-                                    var asd = System.IO.File.Create(path);
-                                    asd.Close();
+                                    //initialize log txt
+                                    #region Logging
+                                    filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_ALREADYEXIST_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
+                                    path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
+
+                                    if (!System.IO.File.Exists(path))
+                                    {
+                                        System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
+                                        var asd = System.IO.File.Create(path);
+                                        asd.Close();
+                                    }
+                                    StreamWriter tw3 = new StreamWriter(path);
+                                    msglog = "Log HangfireBootstrapper KONDISI SERVER SUDAH ADA RUNNING / ADA HEARTBEAT TETAPI WAKTU HEARTBEAT TIDAK UPDATE LANJUTKAN DENGAN RUN startHangfireServer SUCCESS...... PADA WAKTU " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
+                                    tw3.WriteLine(msglog);
+                                    tw3.Close();
+                                    tw3.Dispose();
+                                    #endregion
                                 }
-                                StreamWriter tw3 = new StreamWriter(path);
-                                msglog = "Log HangfireBootstrapper KONDISI SERVER SUDAH ADA RUNNING / ADA HEARTBEAT TETAPI WAKTU HEARTBEAT TIDAK UPDATE LANJUTKAN DENGAN RUN startHangfireServer SUCCESS...... PADA WAKTU " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
-                                tw3.WriteLine(msglog);
-                                tw3.Close();
-                                tw3.Dispose();
-                                #endregion
+
                             }
-
-                            //initialize log txt
-                            #region Logging
-                            filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_ALREADYEXIST_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
-                            path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
-
-                            if (!System.IO.File.Exists(path))
+                            else
                             {
-                                System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
-                                var asd = System.IO.File.Create(path);
-                                asd.Close();
+                                if (item.DatabasePathErasoft == "ERASOFT_80069")
+                                {
+                                    //initialize log txt
+                                    #region Logging
+                                    filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_ALREADYEXIST_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
+                                    path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
+
+                                    if (!System.IO.File.Exists(path))
+                                    {
+                                        System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
+                                        var asd = System.IO.File.Create(path);
+                                        asd.Close();
+                                    }
+                                    StreamWriter tw4 = new StreamWriter(path);
+                                    msglog = "Log HangfireBootstrapper KONDISI SERVER SUDAH ADA RUNNING / ADA HEARTBEAT TIDAK MENJALANKAN APA-APA TERHADAP startHangfireServer NOT RUNNING...... PADA WAKTU " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
+                                    tw4.WriteLine(msglog);
+                                    tw4.Close();
+                                    tw4.Dispose();
+                                    #endregion
+                                }
+
                             }
-                            StreamWriter tw4 = new StreamWriter(path);
-                            msglog = "Log HangfireBootstrapper KONDISI SERVER SUDAH ADA RUNNING / ADA HEARTBEAT TIDAK MENJALANKAN APA-APA TERHADAP startHangfireServer NOT RUNNING...... PADA WAKTU " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
-                            tw4.WriteLine(msglog);
-                            tw4.Close();
-                            tw4.Dispose();
-                            #endregion
+
+
                             //else
                             //{
                             //    foreach (var server in serverList)
