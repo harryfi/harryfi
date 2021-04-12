@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Hosting;
@@ -34,9 +35,28 @@ namespace MasterOnline.Utils
 
                 HostingEnvironment.RegisterObject(this);
 
-//#if (Debug_AWS || DEBUG)
-//                var testing = "";
-#if (DEV)
+                //initialize log txt
+                #region Logging
+                string messageErrorLog = "";
+                string filename = "Log_Intitial_AppPreload_HangfireBootstrapper_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
+                var path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
+
+                if (!System.IO.File.Exists(path))
+                {
+                    System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
+                    var asd = System.IO.File.Create(path);
+                    asd.Close();
+                }
+                StreamWriter tw = new StreamWriter(path);
+                var msglog = "Log HangfireBootstrapper Running...... Pada waktu " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
+                tw.WriteLine(msglog);
+                tw.Close();
+                tw.Dispose();
+                #endregion
+
+#if (Debug_AWS || DEBUG)
+                var testing = "";
+#elif (DEV)
                 // START SETTING HANGFIRE PRO REDIS
                 //Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("mo-prod-redis.df2l2v.0001.apse1.cache.amazonaws.com,abortConnect=false,ssl=true,password=...");
                 //Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("127.0.0.1,abortConnect=false,ssl=true,password=...");
@@ -199,11 +219,12 @@ namespace MasterOnline.Utils
                         var check = erasoft.Database.SqlQuery<HANGFIRE_SERVER>(sSQL).ToList();
                         string EDBConnID = EDB.GetConnectionString("ConnID");
                         var sqlStorage = new SqlServerStorage(EDBConnID);
-
+                        //var sqlStorage = new SqlServerStorage("Data Source=54.151.175.62, 12350;Initial Catalog=ERASOFT_rahmamk;Persist Security Info=True;User ID=sa;Password=admin123^");
+                        
                         var monitoringApi = sqlStorage.GetMonitoringApi();
                         var serverList = monitoringApi.Servers();
 
-                        if (check.Count() == 0)
+                        if (Convert.ToInt32(check.Count()) == 0)
                         {
                             //if (serverList.Count() == 0)
                             //{
@@ -218,6 +239,24 @@ namespace MasterOnline.Utils
                             //    serverConnection.Dispose();
                             //}
                             startHangfireServer(sqlStorage);
+
+                            //initialize log txt
+                            #region Logging
+                            filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_EMPTY_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
+                            path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
+
+                            if (!System.IO.File.Exists(path))
+                            {
+                                System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
+                                var asd = System.IO.File.Create(path);
+                                asd.Close();
+                            }
+                            StreamWriter tw2 = new StreamWriter(path);
+                            msglog = "Log HangfireBootstrapper KONDISI SERVER KOSONG / TIDAK ADA HEARTBEAT LANJUTKAN DENGAN RUN startHangfireServer SUCCESS...... PADA WAKTU " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
+                            tw2.WriteLine(msglog);
+                            tw2.Close();
+                            tw2.Dispose();
+                            #endregion
                             //}
                         }
                         else
@@ -234,17 +273,52 @@ namespace MasterOnline.Utils
                                 //    serverConnection.Dispose();
                                 //}
                                 startHangfireServer(sqlStorage);
-                            }
-                            else
-                            {
-                                foreach (var server in serverList)
+                                //initialize log txt
+                                #region Logging
+                                filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_ALREADYEXIST_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
+                                path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
+
+                                if (!System.IO.File.Exists(path))
                                 {
-                                    var serverConnection = sqlStorage.GetConnection();
-                                    serverConnection.RemoveServer(server.Name);
-                                    serverConnection.Dispose();
+                                    System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
+                                    var asd = System.IO.File.Create(path);
+                                    asd.Close();
                                 }
-                                startHangfireServer(sqlStorage);
+                                StreamWriter tw3 = new StreamWriter(path);
+                                msglog = "Log HangfireBootstrapper KONDISI SERVER SUDAH ADA RUNNING / ADA HEARTBEAT TETAPI WAKTU HEARTBEAT TIDAK UPDATE LANJUTKAN DENGAN RUN startHangfireServer SUCCESS...... PADA WAKTU " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
+                                tw3.WriteLine(msglog);
+                                tw3.Close();
+                                tw3.Dispose();
+                                #endregion
                             }
+
+                            //initialize log txt
+                            #region Logging
+                            filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_ALREADYEXIST_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
+                            path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
+
+                            if (!System.IO.File.Exists(path))
+                            {
+                                System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
+                                var asd = System.IO.File.Create(path);
+                                asd.Close();
+                            }
+                            StreamWriter tw4 = new StreamWriter(path);
+                            msglog = "Log HangfireBootstrapper KONDISI SERVER SUDAH ADA RUNNING / ADA HEARTBEAT TIDAK MENJALANKAN APA-APA TERHADAP startHangfireServer NOT RUNNING...... PADA WAKTU " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
+                            tw4.WriteLine(msglog);
+                            tw4.Close();
+                            tw4.Dispose();
+                            #endregion
+                            //else
+                            //{
+                            //    foreach (var server in serverList)
+                            //    {
+                            //        var serverConnection = sqlStorage.GetConnection();
+                            //        serverConnection.RemoveServer(server.Name);
+                            //        serverConnection.Dispose();
+                            //    }
+                            //    startHangfireServer(sqlStorage);
+                            //}
                         }
                     }
                 } 
