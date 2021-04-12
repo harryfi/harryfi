@@ -55,8 +55,8 @@ namespace MasterOnline.Utils
             tw.Close();
             tw.Dispose();
 
-            byte[] byteLog = System.IO.File.ReadAllBytes(path);
-            var pathLoc = UploadFileServices.UploadFile_Log(byteLog, filename);
+            //byte[] byteLog = System.IO.File.ReadAllBytes(path);
+            //var pathLoc = UploadFileServices.UploadFile_Log(byteLog, filename);
             #endregion
 
             HangfireBootstrapper.Instance.Start();
