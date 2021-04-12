@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MasterOnline.Services;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -53,6 +54,9 @@ namespace MasterOnline.Utils
             tw.WriteLine(msglog);
             tw.Close();
             tw.Dispose();
+
+            byte[] byteLog = System.IO.File.ReadAllBytes(path);
+            var pathLoc = UploadFileServices.UploadFile_Log(byteLog, filename);
             #endregion
 
             HangfireBootstrapper.Instance.Start();

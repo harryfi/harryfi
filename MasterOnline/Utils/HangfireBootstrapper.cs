@@ -9,6 +9,7 @@ using Hangfire;
 using Hangfire.Pro.Redis;
 using Hangfire.SqlServer;
 using Hangfire.Storage;
+using MasterOnline.Services;
 
 namespace MasterOnline.Utils
 {
@@ -253,11 +254,14 @@ namespace MasterOnline.Utils
                                     var asd = System.IO.File.Create(path);
                                     asd.Close();
                                 }
-                                StreamWriter tw2 = new StreamWriter(path);
-                                msglog = "Log HangfireBootstrapper KONDISI SERVER KOSONG / TIDAK ADA HEARTBEAT LANJUTKAN DENGAN RUN startHangfireServer SUCCESS...... PADA WAKTU " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
-                                tw2.WriteLine(msglog);
-                                tw2.Close();
-                                tw2.Dispose();
+                                StreamWriter tw = new StreamWriter(path);
+                                var msglog = "Log Masuk kondisi Hangfire Server Kosong lalu lanjutkan dengan startHangfireServer() untuk startUp Hangfire. Pada waktu " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
+                                tw.WriteLine(msglog);
+                                tw.Close();
+                                tw.Dispose();
+
+                                byte[] byteLog = System.IO.File.ReadAllBytes(path);
+                                var pathLoc = UploadFileServices.UploadFile_Log(byteLog, filename);
                                 #endregion
 
                             }
@@ -285,18 +289,21 @@ namespace MasterOnline.Utils
                                 filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_ALREADYEXIST_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
                                 path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
 
-                                    if (!System.IO.File.Exists(path))
-                                    {
-                                        System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
-                                        var asd = System.IO.File.Create(path);
-                                        asd.Close();
-                                    }
-                                    StreamWriter tw3 = new StreamWriter(path);
-                                    msglog = "Log HangfireBootstrapper KONDISI SERVER SUDAH ADA RUNNING / ADA HEARTBEAT TETAPI WAKTU HEARTBEAT TIDAK UPDATE LANJUTKAN DENGAN RUN startHangfireServer SUCCESS...... PADA WAKTU " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
-                                    tw3.WriteLine(msglog);
-                                    tw3.Close();
-                                    tw3.Dispose();
-                                    #endregion
+                                if (!System.IO.File.Exists(path))
+                                {
+                                    System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
+                                    var asd = System.IO.File.Create(path);
+                                    asd.Close();
+                                }
+                                StreamWriter tw = new StreamWriter(path);
+                                var msglog = "Log Masuk kondisi Hangfire Server Ada lalu lanjut dengan melakukan hapus server. Pada waktu " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
+                                tw.WriteLine(msglog);
+                                tw.Close();
+                                tw.Dispose();
+
+                                byte[] byteLog = System.IO.File.ReadAllBytes(path);
+                                var pathLoc = UploadFileServices.UploadFile_Log(byteLog, filename);
+                                #endregion
                             }
 
                             startHangfireServer(sqlStorage);
@@ -308,33 +315,22 @@ namespace MasterOnline.Utils
                                 filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_ALREADYEXIST_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
                                 path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
 
-                                    if (!System.IO.File.Exists(path))
-                                    {
-                                        System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
-                                        var asd = System.IO.File.Create(path);
-                                        asd.Close();
-                                    }
-                                    StreamWriter tw4 = new StreamWriter(path);
-                                    msglog = "Log HangfireBootstrapper KONDISI SERVER SUDAH ADA RUNNING / ADA HEARTBEAT TIDAK MENJALANKAN APA-APA TERHADAP startHangfireServer NOT RUNNING...... PADA WAKTU " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
-                                    tw4.WriteLine(msglog);
-                                    tw4.Close();
-                                    tw4.Dispose();
-                                    #endregion
+                                if (!System.IO.File.Exists(path))
+                                {
+                                    System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
+                                    var asd = System.IO.File.Create(path);
+                                    asd.Close();
                                 }
+                                StreamWriter tw = new StreamWriter(path);
+                                var msglog = "Log Masuk kondisi Hangfire Server Sudah terhapus lalu lanjut dengan melakukan startHangfireServer() untuk startUp Hangfire. Pada waktu " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
+                                tw.WriteLine(msglog);
+                                tw.Close();
+                                tw.Dispose();
 
+                                byte[] byteLog = System.IO.File.ReadAllBytes(path);
+                                var pathLoc = UploadFileServices.UploadFile_Log(byteLog, filename);
+                                #endregion
                             }
-
-
-                            //else
-                            //{
-                            //    foreach (var server in serverList)
-                            //    {
-                            //        var serverConnection = sqlStorage.GetConnection();
-                            //        serverConnection.RemoveServer(server.Name);
-                            //        serverConnection.Dispose();
-                            //    }
-                            //    startHangfireServer(sqlStorage);
-                            //}
                         }
                     }
                 } 
