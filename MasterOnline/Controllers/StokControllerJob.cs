@@ -2155,6 +2155,12 @@ namespace MasterOnline.Controllers
             //end remark 22 juli 2020, ubah cara cek stok tertahan lazada
             //end add 12-04-2019, cek qty on lazada
             #region cek stok tertahan lazada
+            var itemData = Lazada_cekItem(token, kdBrg);
+            if(itemData.status == 1)
+            {
+                qtyOnHand = qtyOnHand - itemData.witholding_stock;
+                qty = (qtyOnHand > 0) ? qtyOnHand.ToString() : "0";
+            }
             //remark 10 Aug 2020, perhitungan stok tertahan dan terpakai di seller center lazada tidak stabil
             //string sSQL = "SELECT DISTINCT NO_REFERENSI FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI ";
             //sSQL += "WHERE A.CUST = '"+log_CUST+"' AND A.TGL >= '"+DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "' ";
@@ -2200,7 +2206,13 @@ namespace MasterOnline.Controllers
                 xmlString += "<Quantity>" + qty + "</Quantity>";
             if (!string.IsNullOrEmpty(harga))
                 xmlString += "<Price>" + harga + "</Price>";
-            xmlString += "</Sku></Skus></Product></Request>";
+            if (itemData.status == 1)
+            {
+                xmlString += "<SkuId>" + itemData.sku_id + "</SkuId>";
+                xmlString += "<ItemId>" + itemData.item_id + "</ItemId>";
+            }
+
+                xmlString += "</Sku></Skus></Product></Request>";
 
             //ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             //LazopRequest request = new LazopRequest();
@@ -2245,6 +2257,50 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
+
+        #region cek witholding stok lazada
+        public BindingStokLazada Lazada_cekItem(string token, string seller_sku)
+        {
+            var ret = new BindingStokLazada();
+            string urlLazada = "https://api.lazada.co.id/rest";
+            string eraAppKey = "101775";
+            string eraAppSecret = "QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu";
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/products/get");
+            request.AddApiParameter("filter", "all");
+            request.AddApiParameter("sku_seller_list", "[\""+seller_sku+"\"]");
+            request.AddApiParameter("options", "1");
+            request.SetHttpMethod("GET");
+
+            LazopResponse response = client.Execute(request, token);
+            var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaGetItemSimpleResponse)) as LazadaGetItemSimpleResponse;
+            if (res.code.Equals("0"))
+            {
+                if(res.data != null)
+                {
+                    if(res.data.products != null)
+                    {
+                        if(res.data.products[0].skus != null)
+                        {
+                            var item = res.data.products[0].skus.Where(m => m.SellerSku == seller_sku).FirstOrDefault();
+                            if(item != null)
+                            {
+                                ret.status = 1;
+                                ret.item_id = res.data.products[0].item_id;
+                                ret.sku_id = item.SkuId;
+                                ret.witholding_stock = item.withholdingStock + item.occupiedStock;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+            }
+            return ret;
+        }
+        #endregion
         public static string XmlEscape(string unescaped)
         {
             XmlDocument doc = new XmlDocument();
@@ -5845,5 +5901,48 @@ namespace MasterOnline.Controllers
         {
             public int http_status { get; set; }
         }
+
+        #region witholding stok lzd
+        public class BindingStokLazada
+        {
+            public int status { get; set; }
+            public int witholding_stock { get; set; }
+            public long sku_id { get; set; }
+            public long item_id { get; set; }
+
+        }
+
+        public class LazadaGetItemSimpleResponse
+        {
+            public string code { get; set; }
+            public LazadaGetItemSimpleData data { get; set; }
+
+        }
+        public class LazadaGetItemSimpleData
+        {
+            public int total_products { get; set; }
+            public LazadaGetItemSimpleDataList[] products { get; set; }
+
+        }
+        public class LazadaGetItemSimpleDataList
+        {
+            public LazadaGetItemSimpleDataSku[] skus { get; set; }
+            public int item_id { get; set; }
+
+        }
+        public class LazadaGetItemSimpleDataSku
+        {
+            public string SellerSku { get; set; }
+            public int sellableStock { get; set; }
+            public int occupiedStock { get; set; }
+            public int dropshippingStock { get; set; }
+            public int preorderStock { get; set; }
+            public int fulfilmentStock { get; set; }
+            public int withholdingStock { get; set; }
+            public int quantity { get; set; }
+            public int SkuId { get; set; }
+
+        }
+        #endregion
     }
 }
