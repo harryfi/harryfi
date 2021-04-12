@@ -39,7 +39,7 @@ namespace MasterOnline.Utils
             //initialize log txt
             #region Logging
             string messageErrorLog = "";
-            string filename = "Log_Initial_AppPreload_" + DateTime.Now.AddHours(7).ToString("yyyyMMdd") + ".txt";
+            string filename = "Log_Initial_AppPreload_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
             var path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
 
             if (!System.IO.File.Exists(path))

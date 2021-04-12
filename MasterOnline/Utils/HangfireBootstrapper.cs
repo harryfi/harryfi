@@ -243,8 +243,9 @@ namespace MasterOnline.Utils
                             {
                                 //initialize log txt
                                 #region Logging
-                                filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_EMPTY_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
-                                path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
+                                string messageErrorLog = "";
+                                string filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_EMPTY_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
+                                var path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
 
                                 if (!System.IO.File.Exists(path))
                                 {
@@ -277,12 +278,12 @@ namespace MasterOnline.Utils
                                 //}
                                 startHangfireServer(sqlStorage);
 
-                                if (item.DatabasePathErasoft == "ERASOFT_80069")
-                                {
-                                    //initialize log txt
-                                    #region Logging
-                                    filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_ALREADYEXIST_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
-                                    path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
+                            if (item.DatabasePathErasoft == "ERASOFT_80069")
+                            {
+                                #region Logging
+                                string messageErrorLog = "";
+                                string filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_ALREADYEXIST_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
+                                var path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
 
                                     if (!System.IO.File.Exists(path))
                                     {
@@ -298,15 +299,14 @@ namespace MasterOnline.Utils
                                     #endregion
                                 }
 
-                            }
-                            else
+                            startHangfireServer(sqlStorage);
+
+                            if (item.DatabasePathErasoft == "ERASOFT_80069")
                             {
-                                if (item.DatabasePathErasoft == "ERASOFT_80069")
-                                {
-                                    //initialize log txt
-                                    #region Logging
-                                    filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_ALREADYEXIST_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
-                                    path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
+                                #region Logging
+                                string messageErrorLog = "";
+                                string filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_ALREADYEXIST_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
+                                var path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
 
                                     if (!System.IO.File.Exists(path))
                                     {
