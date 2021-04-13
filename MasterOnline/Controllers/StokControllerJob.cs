@@ -5927,7 +5927,7 @@ namespace MasterOnline.Controllers
         public class LazadaGetItemSimpleDataList
         {
             public LazadaGetItemSimpleDataSku[] skus { get; set; }
-            public int item_id { get; set; }
+            public long item_id { get; set; }
 
         }
         public class LazadaGetItemSimpleDataSku
@@ -5940,7 +5940,7 @@ namespace MasterOnline.Controllers
             public int fulfilmentStock { get; set; }
             public int withholdingStock { get; set; }
             public int quantity { get; set; }
-            public int SkuId { get; set; }
+            public long SkuId { get; set; }
 
         }
         #endregion
