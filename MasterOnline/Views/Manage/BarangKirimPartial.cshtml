@@ -108,13 +108,13 @@
         </div>
     </div>
     @*<div class="row">
-        <div class="form-group text-left">
-            @Html.LabelFor(m => m.Pengiriman.NAMA_KURIR, "Nama Kurir", new { @class = "col-md-3 col-sm-3 col-xs-12 control-label" })
-            <div class="col-md-6 col-sm-6 col-xs-12" id="divShipment">
-                @Html.TextBoxFor(m => m.Pengiriman.NAMA_KURIR, new { @class = "form-control", @maxlength = "50" })
+            <div class="form-group text-left">
+                @Html.LabelFor(m => m.Pengiriman.NAMA_KURIR, "Nama Kurir", new { @class = "col-md-3 col-sm-3 col-xs-12 control-label" })
+                <div class="col-md-6 col-sm-6 col-xs-12" id="divShipment">
+                    @Html.TextBoxFor(m => m.Pengiriman.NAMA_KURIR, new { @class = "form-control", @maxlength = "50" })
+                </div>
             </div>
-        </div>
-    </div>*@
+        </div>*@
     <div class="row">
         <div class="form-group text-left">
             @Html.LabelFor(m => m.Pengiriman.JAM_KIRIM, "Jam Serah Terima", new { @class = "col-md-3 col-sm-3 col-xs-12 control-label" })
@@ -127,20 +127,28 @@
             </div>
         </div>
     </div>
+    <div class="row">
+        <div class="form-group text-left">
+            @Html.Label("Jumlah Pesanan", new { @class = "col-md-3 col-sm-3 col-xs-12 control-label" })
+            <div class="col-md-6 col-sm-6 col-xs-12" id="divShipment">
+                @Html.TextBox("JumlahPesanan", Model?.CetakSerahTerima.Count(), new { @class = "form-control", @readonly = "readonly" })
+            </div>
+        </div>
+    </div>
 
     @*//add btn autoload*@
     @*<div id="btn-autoload-row" class="row">
-        <div class="col-lg-4"></div>
-        <div class="col-lg-4"></div>
-        <div class="col-lg-4">
-            <div class="form-group">
-                <div class="col-md-4"></div>
-                <div class="col-md-8">
-                    <button id="btn-autoload" type="button" onclick="validasiAutoload()" class="btn btn-primary btn-block">Autoload</button>
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-8">
+                        <button id="btn-autoload" type="button" onclick="validasiAutoload()" class="btn btn-primary btn-block">Autoload</button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>*@
+        </div>*@
     <div id="btn-print-row" class="row">
         <div class="col-lg-4"></div>
         <div class="col-lg-4"></div>
