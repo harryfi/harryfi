@@ -18913,7 +18913,7 @@ namespace MasterOnline.Controllers
             }
 
             //api_baim
-            string id_invoice = dataVm.Faktur.NO_REF;
+            string id_invoice = dataVm.Faktur.NO_KENDARAAN;
             string no_invoice = "";
 
             List<string> ListBrgKomponenSIT01B = new List<string>();
@@ -19356,7 +19356,7 @@ namespace MasterOnline.Controllers
 
                 //api_baim
                 no_invoice = fakturInDb.NO_BUKTI;
-                id_invoice = fakturInDb.NO_REF;
+                id_invoice = fakturInDb.NO_KENDARAAN;
                 //id_barang = dataVm.FakturDetail.BRG_SO == null ? null : dataVm.FakturDetail.BRG_SO;
 
 
@@ -21114,8 +21114,8 @@ namespace MasterOnline.Controllers
                     string access_token = partnerDb.Access_Token;
                     string session = partnerDb.Session;
                     string host = partnerDb.Host;
-                    //string id_invoice = fakturInDb.NO_KENDARAAN;
-                    string id_invoice = fakturInDb.NO_REF;
+                    string id_invoice = fakturInDb.NO_KENDARAAN;
+                    //string id_invoice = fakturInDb.NO_REF;
                     string myData = "";
 
                     var acc = new AccInvoice()
@@ -21266,8 +21266,8 @@ namespace MasterOnline.Controllers
                         //string cust = fakturInDb.CUST;
                         string cust = ErasoftDbContext.ARF01C.FirstOrDefault(a => a.BUYER_CODE == fakturInDb.PEMESAN).TLP;
                         string tglfaktur = fakturInDb.TGL.ToString("dd/MM/yyyy");
-                        //string id_invoice = fakturInDb.NO_KENDARAAN;
-                        string id_invoice = fakturInDb.NO_REF;
+                        string id_invoice = fakturInDb.NO_KENDARAAN;
+                        //string id_invoice = fakturInDb.NO_REF;
                         string id_barang = barangFakturInDb.BRG_SO;
                         var getArf01 = ErasoftDbContext.ARF01.FirstOrDefault(p => p.CUST == fakturInDb.CUST);
                         var bankNo = getArf01.BANK_NO_ACCURATE;
