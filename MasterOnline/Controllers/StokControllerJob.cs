@@ -2158,7 +2158,7 @@ namespace MasterOnline.Controllers
             var itemData = Lazada_cekItem(token, kdBrg);
             if(itemData.status == 1)
             {
-                qtyOnHand = qtyOnHand - itemData.witholding_stock;
+                qtyOnHand = qtyOnHand + itemData.witholding_stock;
                 qty = (qtyOnHand > 0) ? qtyOnHand.ToString() : "0";
             }
             //remark 10 Aug 2020, perhitungan stok tertahan dan terpakai di seller center lazada tidak stabil
