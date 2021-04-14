@@ -2492,7 +2492,8 @@ namespace MasterOnline.Controllers
                                         ret.totalData += 1;
                                         //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
                                         //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
-                                        var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == (item.gdnSku + ";" + item.productItemCode).ToUpper()).FirstOrDefault();
+                                        //var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == (item.gdnSku + ";" + item.productItemCode).ToUpper()).FirstOrDefault();
+                                        var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper().Contains(item.gdnSku.ToUpper())).FirstOrDefault();
                                         //var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == (item.gdnSku + ";" + item.productItemCode).ToUpper()).FirstOrDefault();
                                         //change 9/9/19, cek gudang sku karena productitemcode bisa duplikat
                                         //var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper().Contains(item.productItemCode.ToUpper())).FirstOrDefault();
@@ -2791,7 +2792,8 @@ namespace MasterOnline.Controllers
                         //if (string.IsNullOrEmpty(merchantSku))
                         //    merchantSku = result.value.items[0].skuCode;
                         //end remark 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
-                        sSQL += "('" + productCode + ";" + result.value.items[0].skuCode + "' , '" + merchantSku.Replace('\'', '`') + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
+                        //sSQL += "('" + productCode + ";" + result.value.items[0].skuCode + "' , '" + merchantSku.Replace('\'', '`') + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
+                        sSQL += "('" + productCode + "' , '" + merchantSku.Replace('\'', '`') + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
                         sSQL += Convert.ToDouble(result.value.items[0].weight) * 1000 + "," + result.value.items[0].length + "," + result.value.items[0].width + "," + result.value.items[0].height + ", '";
                         //change 25 juli 2019, tukar harga jual dgn harga promo
                         //sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].salePrice;
