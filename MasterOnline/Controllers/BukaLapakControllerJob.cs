@@ -137,11 +137,27 @@ namespace MasterOnline.Controllers
                     AccessKeyBL retObj = JsonConvert.DeserializeObject(stringRet, typeof(AccessKeyBL)) as AccessKeyBL;
                     if (retObj != null)
                     {
-                        DateTime tglExpired = DateTimeOffset.FromUnixTimeSeconds(retObj.created_at).UtcDateTime.AddHours(7).AddSeconds(retObj.expires_in);
-                        var a = EDB.ExecuteSQL("ARConnectionString", CommandType.Text, "UPDATE ARF01 SET REFRESH_TOKEN='" + retObj.refresh_token + "', TGL_EXPIRED='" + tglExpired.ToString("yyyy-MM-dd HH:mm:ss") + "', TOKEN='" + retObj.access_token + "', STATUS_API = '1' WHERE CUST ='" + data.cust + "'");
-                        ret.token = retObj.access_token;
-                        ret.tgl_expired = tglExpired;
-                        ret.refresh_token = retObj.refresh_token;
+                        if (!string.IsNullOrEmpty(retObj.access_token))
+                        {
+                            DateTime tglExpired = DateTimeOffset.FromUnixTimeSeconds(retObj.created_at).UtcDateTime.AddHours(7).AddSeconds(retObj.expires_in);
+                            var a = EDB.ExecuteSQL("ARConnectionString", CommandType.Text, "UPDATE ARF01 SET REFRESH_TOKEN='" + retObj.refresh_token + "', TGL_EXPIRED='" + tglExpired.ToString("yyyy-MM-dd HH:mm:ss") + "', TOKEN='" + retObj.access_token + "', STATUS_API = '1' WHERE CUST ='" + data.cust + "'");
+                            ret.token = retObj.access_token;
+                            ret.tgl_expired = tglExpired;
+                            ret.refresh_token = retObj.refresh_token;
+                        }
+                        else
+                        {
+                            var ex2 = new BUKALAPAK_TOKEN();
+                            ex2.ACCOUNT = data.dbPathEra + "_refresh_token";
+                            ex2.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
+                            ex2.CODE = data.code;
+                            ex2.EMAIL = "failed_refresh";
+                            ex2.CREATED_AT = DateTime.UtcNow.AddHours(7);
+                            ex2.VAR_2 = stringRet;
+                            MoDbContext.BUKALAPAK_TOKEN.Add(ex2);
+                            MoDbContext.SaveChanges();
+
+                        }
                     }
                     else
                     {

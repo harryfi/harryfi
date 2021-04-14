@@ -236,14 +236,15 @@ namespace MasterOnline.Controllers
                     }
                 }
 
-                //var ex3 = new BUKALAPAK_TOKEN();
-                //ex3.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "3";
-                //ex3.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
-                //ex3.CODE = err;
-                //ex3.EMAIL = "qc-failtoken";
-                //ex3.CREATED_AT = DateTime.UtcNow.AddHours(7);
-                //MoDbContext.BUKALAPAK_TOKEN.Add(ex3);
-                //MoDbContext.SaveChanges();
+                var ex3 = new BUKALAPAK_TOKEN();
+                ex3.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "_failed_get_token";
+                ex3.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
+                ex3.CODE = code;
+                ex3.EMAIL = "qc-failtoken";
+                ex3.CREATED_AT = DateTime.UtcNow.AddHours(7);
+                ex3.VAR_1 = e.InnerException == null ? e.Message : e.InnerException.Message;
+                MoDbContext.BUKALAPAK_TOKEN.Add(ex3);
+                MoDbContext.SaveChanges();
             }
 
             if (!string.IsNullOrEmpty(stringRet))
@@ -278,14 +279,16 @@ namespace MasterOnline.Controllers
                 }catch(Exception ex)
                 {
 
-                    //var ex11 = new BUKALAPAK_TOKEN();
-                    //ex11.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd");
-                    //ex11.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
-                    //ex11.CODE = ex.Message;
-                    //ex11.EMAIL = "qc-exctoken";
-                    //ex11.CREATED_AT = DateTime.UtcNow.AddHours(7);
-                    //MoDbContext.BUKALAPAK_TOKEN.Add(ex11);
-                    //MoDbContext.SaveChanges();
+                    var ex11 = new BUKALAPAK_TOKEN();
+                    ex11.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "_convert_json_token";
+                    ex11.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
+                    ex11.CODE = code;
+                    ex11.EMAIL = "qc-exctoken";
+                    ex11.CREATED_AT = DateTime.UtcNow.AddHours(7);
+                    ex11.VAR_1 = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    ex11.VAR_2 = stringRet;
+                    MoDbContext.BUKALAPAK_TOKEN.Add(ex11);
+                    MoDbContext.SaveChanges();
                     throw new Exception("data : " + stringRet);
                 }
             }
@@ -310,14 +313,15 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                //var ex1 = new BUKALAPAK_TOKEN();
-                //ex1.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "4";
-                //ex1.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
-                //ex1.CODE = ex.Message;
-                //ex1.EMAIL = "qc-failshop";
-                //ex1.CREATED_AT = DateTime.UtcNow.AddHours(7);
-                //MoDbContext.BUKALAPAK_TOKEN.Add(ex1);
-                //MoDbContext.SaveChanges();
+                var ex1 = new BUKALAPAK_TOKEN();
+                ex1.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "_failed_getshop";
+                ex1.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
+                ex1.CODE = code;
+                ex1.EMAIL = "qc-failshop";
+                ex1.CREATED_AT = DateTime.UtcNow.AddHours(7);
+                ex1.VAR_1 = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                MoDbContext.BUKALAPAK_TOKEN.Add(ex1);
+                MoDbContext.SaveChanges();
             }
 
             if (responseFromServer != "")
@@ -340,7 +344,7 @@ namespace MasterOnline.Controllers
                         {
 
 
-                            var datacc = MoDbContext.BUKALAPAK_TOKEN.Where(m => m.EMAIL == result.data.email).FirstOrDefault();
+                            var datacc = MoDbContext.BUKALAPAK_TOKEN.Where(m => m.EMAIL == result.data.email).OrderByDescending(m => m.CREATED_AT).FirstOrDefault();
                             if (datacc != null)
                             {
                                 datacc.CODE = code;
@@ -348,25 +352,42 @@ namespace MasterOnline.Controllers
                                 //ErasoftDbContext.SaveChanges();
                                 DateTime tglExpired = DateTimeOffset.FromUnixTimeSeconds(retGetToken.created_at).UtcDateTime.AddHours(7).AddSeconds(retGetToken.expires_in);
 
-                                DatabaseSQL EDB = new DatabaseSQL(datacc.ACCOUNT);
-                                var res = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET API_KEY = '" + code 
-                                    + "', REFRESH_TOKEN='" + retGetToken.refresh_token + "', TGL_EXPIRED='" + tglExpired.ToString("yyyy-MM-dd HH:mm:ss") + "', TOKEN='" 
-                                    + retGetToken.access_token + "', STATUS_API = '1' WHERE CUST = '" + datacc.CUST + "'");
-                                //GetAccessKey(datacc.ACCOUNT, datacc.CUST, code);
+                                if (!string.IsNullOrEmpty(retGetToken.access_token))
+                                {
+                                    DatabaseSQL EDB = new DatabaseSQL(datacc.ACCOUNT);
+                                    var res = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET API_KEY = '" + code
+                                        + "', REFRESH_TOKEN='" + retGetToken.refresh_token + "', TGL_EXPIRED='" + tglExpired.ToString("yyyy-MM-dd HH:mm:ss") + "', TOKEN='"
+                                        + retGetToken.access_token + "', STATUS_API = '1' WHERE CUST = '" + datacc.CUST + "'");
+                                    //GetAccessKey(datacc.ACCOUNT, datacc.CUST, code);
+                                }
+                                else
+                                {
+                                    var ex2 = new BUKALAPAK_TOKEN();
+                                    ex2.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "_token_empty";
+                                    ex2.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
+                                    ex2.CODE = code;
+                                    ex2.EMAIL = "qc-notoken";
+                                    ex2.CREATED_AT = DateTime.UtcNow.AddHours(7);
+                                    ex2.VAR_2 = responseFromServer;
+                                    MoDbContext.BUKALAPAK_TOKEN.Add(ex2);
+                                    MoDbContext.SaveChanges();
+                                }
                             }
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    //var ex1 = new BUKALAPAK_TOKEN();
-                    //ex1.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "5";
-                    //ex1.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
-                    //ex1.CODE = ex.Message;
-                    //ex1.EMAIL = "qc-excshop";
-                    //ex1.CREATED_AT = DateTime.UtcNow.AddHours(7);
-                    //MoDbContext.BUKALAPAK_TOKEN.Add(ex1);
-                    //MoDbContext.SaveChanges();
+                    var ex1 = new BUKALAPAK_TOKEN();
+                    ex1.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "_exc_get_shop";
+                    ex1.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
+                    ex1.CODE = code;
+                    ex1.EMAIL = "qc-excshop";
+                    ex1.CREATED_AT = DateTime.UtcNow.AddHours(7);
+                    ex1.VAR_1 = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    ex1.VAR_2 = responseFromServer;
+                    MoDbContext.BUKALAPAK_TOKEN.Add(ex1);
+                    MoDbContext.SaveChanges();
                 }
             }
             return View("BukalapakAuth");
@@ -410,11 +431,27 @@ namespace MasterOnline.Controllers
                     AccessKeyBL retObj = JsonConvert.DeserializeObject(stringRet, typeof(AccessKeyBL)) as AccessKeyBL;
                     if (retObj != null)
                     {
-                        DateTime tglExpired = DateTimeOffset.FromUnixTimeSeconds(retObj.created_at).UtcDateTime.AddHours(7).AddSeconds(retObj.expires_in);
-                        var a = EDB.ExecuteSQL("ARConnectionString", CommandType.Text, "UPDATE ARF01 SET REFRESH_TOKEN='" + retObj.refresh_token + "', TGL_EXPIRED='" + tglExpired.ToString("yyyy-MM-dd HH:mm:ss") + "', TOKEN='" + retObj.access_token + "', STATUS_API = '1' WHERE CUST ='" + data.cust + "'");
-                        ret.token = retObj.access_token;
-                        ret.tgl_expired = tglExpired;
-                        ret.refresh_token = retObj.refresh_token;
+                        if (!string.IsNullOrEmpty(retObj.access_token))
+                        {
+                            DateTime tglExpired = DateTimeOffset.FromUnixTimeSeconds(retObj.created_at).UtcDateTime.AddHours(7).AddSeconds(retObj.expires_in);
+                            var a = EDB.ExecuteSQL("ARConnectionString", CommandType.Text, "UPDATE ARF01 SET REFRESH_TOKEN='" + retObj.refresh_token + "', TGL_EXPIRED='" + tglExpired.ToString("yyyy-MM-dd HH:mm:ss") + "', TOKEN='" + retObj.access_token + "', STATUS_API = '1' WHERE CUST ='" + data.cust + "'");
+                            ret.token = retObj.access_token;
+                            ret.tgl_expired = tglExpired;
+                            ret.refresh_token = retObj.refresh_token;
+                        }
+                        else
+                        {
+                            var ex2 = new BUKALAPAK_TOKEN();
+                            ex2.ACCOUNT = dbSourceEra + "_refresh_token";
+                            ex2.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
+                            ex2.CODE = data.code;
+                            ex2.EMAIL = "failed_refresh";
+                            ex2.CREATED_AT = DateTime.UtcNow.AddHours(7);
+                            ex2.VAR_2 = stringRet;
+                            MoDbContext.BUKALAPAK_TOKEN.Add(ex2);
+                            MoDbContext.SaveChanges();
+
+                        }
                     }
                     else
                     {
