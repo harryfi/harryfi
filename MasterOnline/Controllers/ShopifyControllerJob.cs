@@ -110,23 +110,24 @@ namespace MasterOnline.Controllers
             var returnGetOrder = await Shopify_GetOrderByStatusUnpaid_List3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
             var connIdProses = "";
             var AdaKomponen = false;
-            //if (returnGetOrder != "")
-            //{
-            //    connIdProses += "'" + returnGetOrder + "' , ";
-            //}
+            if (returnGetOrder != "")
+            {
+                connIdProses += "'" + returnGetOrder + "' , ";
+            }
             //List<string> listBrgKomponen = new List<string>();
             //if (connIdProses != "")
             //{
             //    listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
             //}
             //if (listBrgKomponen.Count() > 0)
-            if (returnGetOrder == "1")
+            //if (returnGetOrder == "1")
+            //{
+            //    AdaKomponen = true;
+            //}
+            //if(AdaKomponen)
+            if (!string.IsNullOrEmpty(connIdProses))
             {
-                AdaKomponen = true;
-            }
-            if(AdaKomponen)
-            {
-                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username, connIdProses.Substring(0, connIdProses.Length - 3));
             }
             //end change by nurul 20/1/2021, bundling
             //    daysFrom -= 3;
@@ -158,7 +159,7 @@ namespace MasterOnline.Controllers
             string ret = "";
             string connID = Guid.NewGuid().ToString();
             //add by nurul 20/1/2021, bundling 
-            //ret = connID;
+            ret = connID;
             //add by nurul 20/1/2021, bundling 
             SetupContext(iden);
 
@@ -553,11 +554,11 @@ namespace MasterOnline.Controllers
                                     contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari Shopify.");
 
                                     //add by nurul 25/1/2021, bundling
-                                    var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + connID + "')").ToList();
-                                    if (listBrgKomponen.Count() > 0)
-                                    {
-                                        ret = "1";
-                                    }
+                                    //var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + connID + "')").ToList();
+                                    //if (listBrgKomponen.Count() > 0)
+                                    //{
+                                    //    ret = "1";
+                                    //}
                                     //end add by nurul 25/1/2021, bundling
                                     new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
                                 }
@@ -593,23 +594,24 @@ namespace MasterOnline.Controllers
             var returnGetOrder = await Shopify_GetOrderByStatusPaid_List3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
             var connIdProses = "";
             var AdaKomponen = false;
-            //if (returnGetOrder != "")
-            //{
-            //    connIdProses += "'" + returnGetOrder + "' , ";
-            //}
+            if (returnGetOrder != "")
+            {
+                connIdProses += "'" + returnGetOrder + "' , ";
+            }
             //List<string> listBrgKomponen = new List<string>();
             //if (connIdProses != "")
             //{
             //    listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
             //}
             //if (listBrgKomponen.Count() > 0)
-            if (returnGetOrder == "1")
+            //if (returnGetOrder == "1")
+            //{
+            //    AdaKomponen = true;
+            //}
+            //if (AdaKomponen)
+            if (!string.IsNullOrEmpty(connIdProses))
             {
-                AdaKomponen = true;
-            }
-            if (AdaKomponen)
-            {
-                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username, connIdProses.Substring(0, connIdProses.Length - 3));
             }
             //end change by nurul 20/1/2021, bundling
 
@@ -632,7 +634,7 @@ namespace MasterOnline.Controllers
             //}
             //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%Shopify_GetOrderByStatusUnpaid%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%Shopify_GetOrderByStatusPaid%' and invocationdata not like '%Shopify_GetOrderByStatusCompleted%' and invocationdata not like '%Shopify_GetOrderByStatusCancel%' ");
             // end tunning untuk tidak duplicate
-            
+
             return ret;
         }
 
@@ -641,7 +643,7 @@ namespace MasterOnline.Controllers
             string ret = "";
             string connID = Guid.NewGuid().ToString();
             //add by nurul 20/1/2021, bundling 
-            //ret = connID;
+            ret = connID;
             //add by nurul 20/1/2021, bundling 
 
             SetupContext(iden);
@@ -1011,11 +1013,11 @@ namespace MasterOnline.Controllers
                                                 contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhOrderNew) + " Pesanan baru sudah dibayar dari Shopify.");
 
                                                 //add by nurul 25/1/2021, bundling
-                                                var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + connID + "')").ToList();
-                                                if (listBrgKomponen.Count() > 0)
-                                                {
-                                                    ret = "1";
-                                                }
+                                                //var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + connID + "')").ToList();
+                                                //if (listBrgKomponen.Count() > 0)
+                                                //{
+                                                //    ret = "1";
+                                                //}
                                                 //end add by nurul 25/1/2021, bundling
                                                 new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
                                             }
@@ -1178,23 +1180,24 @@ namespace MasterOnline.Controllers
             var returnGetOrder = await Shopify_GetOrderByStatusCancelledList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
             var connIdProses = "";
             var AdaKomponen = false;
-            //if (returnGetOrder != "")
-            //{
-            //    connIdProses += "'" + returnGetOrder + "' , ";
-            //}
+            if (returnGetOrder != "")
+            {
+                connIdProses += "'" + returnGetOrder + "' , ";
+            }
             //List<string> listBrgKomponen = new List<string>();
             //if (connIdProses != "")
             //{
             //    listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
             //}
             //if (listBrgKomponen.Count() > 0)
-            if (returnGetOrder == "1")
+            //if (returnGetOrder == "1")
+            //{
+            //    AdaKomponen = true;
+            //}
+            //if (AdaKomponen)
+            if (!string.IsNullOrEmpty(connIdProses))
             {
-                AdaKomponen = true;
-            }
-            if (AdaKomponen)
-            {
-                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username, connIdProses.Substring(0, connIdProses.Length - 3));
             }
             //end change by nurul 20/1/2021, bundling
 
@@ -1216,7 +1219,7 @@ namespace MasterOnline.Controllers
 
             string connID = Guid.NewGuid().ToString();
             //add by nurul 20/1/2021, bundling 
-            //ret = connID;
+            ret = connID;
             //add by nurul 20/1/2021, bundling 
 
             SetupContext(iden);
@@ -1321,12 +1324,24 @@ namespace MasterOnline.Controllers
                                     var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + ordersn + ") AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + CUST + "'");
 
                                     //add by nurul 25/1/2021, bundling
-                                    var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + connID + "')").ToList();
-                                    if (listBrgKomponen.Count() > 0)
-                                    {
-                                        ret = "1";
-                                    }
+                                    //var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + connID + "')").ToList();
+                                    //if (listBrgKomponen.Count() > 0)
+                                    //{
+                                    //    ret = "1";
+                                    //}
                                     //end add by nurul 25/1/2021, bundling
+
+                                    //add by nurul 14/4/2021, stok bundling
+                                    var sSQLInsertTempBundling = "INSERT INTO TEMP_ALL_MP_ORDER_ITEM_BUNDLING ([BRG],[CONN_ID],[TGL]) " +
+                                                                 "SELECT DISTINCT C.UNIT AS BRG, '" + connID + "' AS CONN_ID, DATEADD(HOUR, +7, GETUTCDATE()) AS TGL " +
+                                                                 "FROM TEMP_ALL_MP_ORDER_ITEM A(NOLOCK) " +
+                                                                 "LEFT JOIN TEMP_ALL_MP_ORDER_ITEM_BUNDLING B(NOLOCK) ON B.CONN_ID = '" + connID + "' AND A.BRG = B.BRG" +
+                                                                 "INNER JOIN STF03 C(NOLOCK) ON A.BRG = C.BRG " +
+                                                                 "WHERE ISNULL(A.CONN_ID,'') = '" + connID + "' " +
+                                                                 "AND ISNULL(B.BRG,'') = '' AND A.BRG <> 'NOT_FOUND'";
+                                    var execInsertTempBundling = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLInsertTempBundling);
+                                    //end add by nurul 14/4/2021, stok bundling
+
                                     new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
                                 }
                                 jmlhOrderCancel = jmlhOrderCancel + rowAffected;

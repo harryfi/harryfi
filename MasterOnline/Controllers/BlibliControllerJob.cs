@@ -743,9 +743,9 @@ namespace MasterOnline.Controllers
                 //    listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
                 //}
                 //if (listBrgKomponen.Count() > 0)
-                if(AdaKomponen)
+                if (!string.IsNullOrEmpty(connIdProses))
                 {
-                    new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
+                    new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username, connIdProses.Substring(0, connIdProses.Length - 3));
                 }
                 //end add by nurul 20/1/2021, bundling 
 

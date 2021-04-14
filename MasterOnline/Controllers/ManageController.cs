@@ -34088,12 +34088,12 @@ namespace MasterOnline.Controllers
             ////end add by nurul 28/8/2020, handle cek stok brg multi sku  --remark jdnya pake yg d stok controller
             
             //add by nurul 19/1/2021, bundling
-            var cekAdaKomponen = ErasoftDbContext.STF03.Where(a => listBrg.Contains(a.Brg)).Count();
-            if(cekAdaKomponen > 0)
-            {
-                var listBundling = ErasoftDbContext.Database.SqlQuery<string>("select distinct unit from stf03").ToList();
-                listBrg.AddRange(listBundling);
-            }
+            //var cekAdaKomponen = ErasoftDbContext.STF03.Where(a => listBrg.Contains(a.Brg)).Count();
+            //if(cekAdaKomponen > 0)
+            //{
+            //    var listBundling = ErasoftDbContext.Database.SqlQuery<string>("select distinct unit from stf03").ToList();
+            //    listBrg.AddRange(listBundling);
+            //}
             //end add by nurul 19/1/2021, bundling
 
             string sSQLValues = "";
@@ -34111,6 +34111,21 @@ namespace MasterOnline.Controllers
                 //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
                 //change by Tri 26 Nov 2019, gunakan usernamelogin
                 //string username = sessionData.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+
+                //add by nurul 14/4/2021, stok bundling
+                var sSQLInsertTempBundling = "INSERT INTO TEMP_ALL_MP_ORDER_ITEM_BUNDLING ([BRG],[CONN_ID],[TGL]) " +
+                                             "SELECT DISTINCT C.UNIT AS BRG, '" + ConnId + "' AS CONN_ID, DATEADD(HOUR, +7, GETUTCDATE()) AS TGL " +
+                                             "FROM TEMP_ALL_MP_ORDER_ITEM A (NOLOCK) " +
+                                             "LEFT JOIN TEMP_ALL_MP_ORDER_ITEM_BUNDLING B(NOLOCK) ON B.CONN_ID = '" + ConnId + "' AND A.BRG = B.BRG" +
+                                             "INNER JOIN STF03 C(NOLOCK) ON A.BRG = C.BRG " +
+                                             "WHERE ISNULL(A.CONN_ID,'') = '" + ConnId + "' " +
+                                             "AND ISNULL(B.BRG,'') = '' AND A.BRG <> 'NOT_FOUND'";
+                var execInsertTempBundling = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLInsertTempBundling);
+                if(execInsertTempBundling > 0)
+                {
+                    new StokControllerJob().getQtyBundling(dbPathEra, usernameLogin, "'" + ConnId + "'");
+                }
+                //end add by nurul 14/4/2021, stok bundling
 
                 //new StokControllerJob().updateStockMarketPlace(ConnId, dbPathEra, username);
                 new StokControllerJob().updateStockMarketPlace(ConnId, dbPathEra, usernameLogin);
@@ -69809,7 +69824,25 @@ namespace MasterOnline.Controllers
                                     ErasoftDbContext.STF03.Add(dataVm.Bundling);
                                     ErasoftDbContext.SaveChanges();
                                     //getQtyBundling();
-                                    new StokControllerJob().getQtyBundling(dbPathEra, usernameLogin);
+
+                                    //change by nurul 14/4/2021
+                                    //new StokControllerJob().getQtyBundling(dbPathEra, usernameLogin);
+
+                                    var cekListBrgBundling = ErasoftDbContext.Database.SqlQuery<string>("select distinct unit from stf03 where brg ='" + dataVm.Bundling.Brg + "'").ToList();
+                                    List<string> BrgBundling = new List<string>();
+                                    BrgBundling.AddRange(cekListBrgBundling);
+
+                                    var Conn_Id = "[manage_bundling_save][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]";
+                                    string sSQLValues = "";
+
+                                    foreach (var item in BrgBundling)
+                                    {
+                                        sSQLValues = sSQLValues + "('" + item + "', '" + Conn_Id + "', DATEADD(HOUR, +7, GETUTCDATE()) ),";
+                                    }
+                                    sSQLValues = sSQLValues.Substring(0, sSQLValues.Length - 1);
+                                    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM_BUNDLING (BRG, CONN_ID, TGL) VALUES " + sSQLValues);
+                                    new StokControllerJob().getQtyBundling(dbPathEra, usernameLogin, "'" + Conn_Id + "'");
+                                    //end change by nurul 14/4/2021
 
                                     updateHargaJualAllMarketplace(HargaBundling, dataVm.Bundling.Unit);
 
@@ -70604,8 +70637,10 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
+                        var tempArrayKomponen = "";
                         foreach (var item in BundlingInDb)
                         {
+                            tempArrayKomponen += "'" + item.Brg + "' , ";
                             var cekKomponenInOtherBundling = ErasoftDbContext.STF03.Where(a => a.Brg == item.Brg && a.Unit != kdBrg).Count();
                             if (cekKomponenInOtherBundling == 0)
                             {
@@ -70671,10 +70706,29 @@ namespace MasterOnline.Controllers
                         ErasoftDbContext.STF03.RemoveRange(BundlingInDb);
                         ErasoftDbContext.SaveChanges();
                         //getQtyBundling();
-                        new StokControllerJob().getQtyBundling(dbPathEra, usernameLogin);
-                        List<string> listBrg = new List<string>();
-                        listBrg.Add(kdBrg);
-                        updateStockMarketPlace(listBrg, "[DEL_BDL][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
+                        
+                        //change by nurul 14/4/2021
+                        //new StokControllerJob().getQtyBundling(dbPathEra, usernameLogin);
+
+                        var cekListBrgBundling = ErasoftDbContext.Database.SqlQuery<string>("select distinct unit from stf03 where brg in (" + tempArrayKomponen.Substring(0, tempArrayKomponen.Length - 3) + ")").ToList();
+                        List<string> BrgBundling = new List<string>();
+                        BrgBundling.AddRange(cekListBrgBundling);
+
+                        var Conn_Id = "[manage_bundling_delbdl][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]";
+                        string sSQLValues = "";
+
+                        foreach (var item in BrgBundling)
+                        {
+                            sSQLValues = sSQLValues + "('" + item + "', '" + Conn_Id + "', DATEADD(HOUR, +7, GETUTCDATE()) ),";
+                        }
+                        sSQLValues = sSQLValues.Substring(0, sSQLValues.Length - 1);
+                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM_BUNDLING (BRG, CONN_ID, TGL) VALUES " + sSQLValues);
+                        new StokControllerJob().getQtyBundling(dbPathEra, usernameLogin, "'" + Conn_Id + "'");
+                        //end change by nurul 14/4/2021
+
+                        //List<string> listBrg = new List<string>();
+                        //listBrg.Add(kdBrg);
+                        //updateStockMarketPlace(listBrg, "[DEL_BDL][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
                     }
                 }
             }
@@ -70774,10 +70828,29 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.STF03.Remove(KomponenInDb);
                     ErasoftDbContext.SaveChanges();
                     //getQtyBundling();
-                    new StokControllerJob().getQtyBundling(dbPathEra, usernameLogin);
-                    List<string> listBrg = new List<string>();
-                    listBrg.Add(Unit);
-                    updateStockMarketPlace(listBrg, "[DEL_BDL][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
+                    
+                    //change by nurul 14/4/2021
+                    //new StokControllerJob().getQtyBundling(dbPathEra, usernameLogin);
+
+                    var cekListBrgBundling = ErasoftDbContext.Database.SqlQuery<string>("select distinct unit from stf03 where brg ='" + kdBrg + "'").ToList();
+                    List<string> BrgBundling = new List<string>();
+                    BrgBundling.AddRange(cekListBrgBundling);
+
+                    var Conn_Id = "[manage_bundling_delkom][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]";
+                    string sSQLValues = "";
+
+                    foreach (var item in BrgBundling)
+                    {
+                        sSQLValues = sSQLValues + "('" + item + "', '" + Conn_Id + "', DATEADD(HOUR, +7, GETUTCDATE()) ),";
+                    }
+                    sSQLValues = sSQLValues.Substring(0, sSQLValues.Length - 1);
+                    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM_BUNDLING (BRG, CONN_ID, TGL) VALUES " + sSQLValues);
+                    new StokControllerJob().getQtyBundling(dbPathEra, usernameLogin, "'" + Conn_Id + "'");
+                    //end change by nurul 14/4/2021
+
+                    //List<string> listBrg = new List<string>();
+                    //listBrg.Add(Unit);
+                    //updateStockMarketPlace(listBrg, "[DEL_BDL][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
 
                     var listKomponen = ErasoftDbContext.STF03.Where(b => b.Unit == Unit).ToList();
                     var getBrgFromlistKomponen = listKomponen.Select(a => a.Brg).ToList();
