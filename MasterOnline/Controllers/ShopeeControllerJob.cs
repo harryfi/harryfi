@@ -5333,41 +5333,38 @@ namespace MasterOnline.Controllers
 
                                         }
                                     }
-                                    else 
+                                    else if(type == "2")
                                     {
+                                        try
+                                        {
+                                            pesananInDb.SHIPMENT = Kurir;
+                                            if (!string.IsNullOrEmpty(resi))
+                                            {
+                                                pesananInDb.TRACKING_SHIPMENT = resi;
+                                            }
+                                            ErasoftDbContext.SaveChanges();
+                                            updateKurirSuccess.Add(temp);
+                                        }
+                                        catch
+                                        {
+
+                                        }
                                         if (pesananInDb.SHIPMENT != Kurir)
                                         {
                                             try
                                             {
-                                                pesananInDb.SHIPMENT = Kurir;
-                                                if (!string.IsNullOrEmpty(resi))
-                                                {
-                                                    pesananInDb.TRACKING_SHIPMENT = resi;
-                                                }
-                                                ErasoftDbContext.SaveChanges();
-                                                updateKurirSuccess.Add(temp);
+                                                var sSQL = "UPDATE SIT01A SET NAMAPENGIRIM='" + Kurir + "' where NO_REF='" + noref + "' and NO_SO='" + nobuk + "' and CUST='" + log_CUST + "'";
+                                                ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                                                //var fakturInDb = ErasoftDbContext.SIT01A.Where(p => p.NO_REF == noref && p.NO_SO == nobuk && p.CUST == log_CUST).FirstOrDefault();
+                                                //if (fakturInDb != null)
+                                                //{
+                                                //    fakturInDb.NAMAPENGIRIM = Kurir;
+                                                //    ErasoftDbContext.SaveChanges();
+                                                //}
                                             }
                                             catch
                                             {
 
-                                            }
-                                            if (type == "2")
-                                            {
-                                                try
-                                                {
-                                                    var sSQL = "UPDATE SIT01A SET NAMAPENGIRIM='" + Kurir + "' where NO_REF='" + noref + "' and NO_SO='" + nobuk + "' and CUST='" + log_CUST + "'";
-                                                    ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
-                                                    //var fakturInDb = ErasoftDbContext.SIT01A.Where(p => p.NO_REF == noref && p.NO_SO == nobuk && p.CUST == log_CUST).FirstOrDefault();
-                                                    //if (fakturInDb != null)
-                                                    //{
-                                                    //    fakturInDb.NAMAPENGIRIM = Kurir;
-                                                    //    ErasoftDbContext.SaveChanges();
-                                                    //}
-                                                }
-                                                catch
-                                                {
-
-                                                }
                                             }
                                         }
                                     }

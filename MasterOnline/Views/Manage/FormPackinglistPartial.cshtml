@@ -4,6 +4,17 @@
 @model PackingListViewModel
 
 @Html.HiddenFor(m => m.packingList.RecNum)
+@{ 
+    var totalRekap = Model.listRekapBarang.Count();
+    var totalTokopedia = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Tokopedia")).Count();
+    var totalLazada = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Lazada")).Count();
+    var totalShopee = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Shopee")).Count();
+    var totalBlibli = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Blibli")).Count();
+    var totalJDID = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("JD.ID")).Count();
+    var total82cart = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("82Cart")).Count();
+    var totalShopify = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Shopify")).Count();
+    var totalBukalapak = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Bukalapak")).Count();
+}
 
 <style>
     @@media screen and (max-width: 445px) {
@@ -31,18 +42,46 @@
         RefreshSemuaPesananMPPacking();
 
         $('#pesanan_detail_tab_focus').click();
-        RefreshPackingTabRekapBrg();
+        //RefreshPackingTabRekapBrg();
     });
 
     function RefreshSemuaPesananMPPacking() {
-        RefreshPackingPesananTokped1();
-        RefreshPackingPesananLazada1();
-        RefreshPackingPesananShopee1();
-        RefreshPackingPesananBlibli1();
-        RefreshPackingPesananJDID1();
-        RefreshPackingPesanan82cart1();
-        RefreshPackingPesananShopify1();
-        RefreshPackingPesananBukalapak1();
+        //RefreshPackingPesananTokped1();
+        //RefreshPackingPesananLazada1();
+        //RefreshPackingPesananShopee1();
+        //RefreshPackingPesananBlibli1();
+        //RefreshPackingPesananJDID1();
+        //RefreshPackingPesanan82cart1();
+        //RefreshPackingPesananShopify1();
+        //RefreshPackingPesananBukalapak1();
+        if(@totalTokopedia > 0)
+        {
+            RefreshPackingPesananTokped1();
+        }
+        if(@totalLazada > 0)
+        {
+            RefreshPackingPesananLazada1();
+        }
+        if (@totalShopee > 0) {
+            RefreshPackingPesananShopee1();
+        }
+        if (@totalBlibli > 0) {
+            RefreshPackingPesananBlibli1();
+        }
+        if(@totalJDID > 0)
+        {
+            RefreshPackingPesananJDID1();
+        }
+        if(@total82cart > 0)
+        {
+            RefreshPackingPesanan82cart1();
+        }
+        if (@totalShopify > 0) {
+            RefreshPackingPesananShopify1();
+        }
+        if (@totalBukalapak > 0) {
+            RefreshPackingPesananBukalapak1();
+        }
     }
 
     function RefreshPackingPesananTokped1() {
@@ -514,18 +553,18 @@
             <li class="active"><a data-toggle="tab" id="pesanan_detail_tab_focus" href="#pesanan_detail_tab" aria-expanded="true" onclick="refreshTablePackingListTabPesanan('@Model.packingList.NO_BUKTI')">Pesanan<span>(@totalPesanan)</span></a></li>
             @if (Model.listRekapBarang.Count > 0)
             {
-                var totalRekap = Model.listRekapBarang.Count();
-                var totalTokopedia = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Tokopedia")).Count();
-                var totalLazada = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Lazada")).Count();
-                var totalShopee = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Shopee")).Count();
-                var totalBlibli = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Blibli")).Count();
-                var totalJDID = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("JD.ID")).Count();
-                var total82cart = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("82Cart")).Count();
-                var totalShopify = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Shopify")).Count();
-                var totalBukalapak = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Bukalapak")).Count();
+                //var totalRekap = Model.listRekapBarang.Count();
+                //var totalTokopedia = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Tokopedia")).Count();
+                //var totalLazada = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Lazada")).Count();
+                //var totalShopee = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Shopee")).Count();
+                //var totalBlibli = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Blibli")).Count();
+                //var totalJDID = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("JD.ID")).Count();
+                //var total82cart = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("82Cart")).Count();
+                //var totalShopify = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Shopify")).Count();
+                //var totalBukalapak = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Bukalapak")).Count();
 
 
-                <li><a data-toggle="tab" id="rekap_barang_tab_focus" href="#rekap_barang_tab" aria-expanded="false">Rekap Barang(<span>@totalRekap</span>)</a></li>
+                <li><a data-toggle="tab" id="rekap_barang_tab_focus" href="#rekap_barang_tab" aria-expanded="false" onclick="RefreshPackingTabRekapBrg()">Rekap Barang(<span>@totalRekap</span>)</a></li>
                 <li id="li_pesanan_tokped_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_tokped_tab_focus" href="#packing_pesanan_tokped" aria-expanded="false">Tokopedia(<span>@totalTokopedia</span>)</a></li>
                 <li id="li_pesanan_lazada_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_lazada_tab_focus" href="#packing_pesanan_lazada" aria-expanded="false">Lazada(<span>@totalLazada</span>)</a></li>
                 <li id="li_pesanan_shopee_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_shopee_tab_focus" href="#packing_pesanan_shopee" aria-expanded="false">Shopee(<span>@totalShopee</span>)</a></li>
