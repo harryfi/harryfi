@@ -21259,7 +21259,7 @@ namespace MasterOnline.Controllers
                 {
                     if (partnerDb.Status == true)
                     {
-                        string email_to_accurate = MoDbContext.Account.Single(a => a.Username == usernameLogin).Email;
+                        string email_to_accurate = MoDbContext.Account.FirstOrDefault(a => a.DatabasePathErasoft == dbPathEra).Email;
                         string access_token = partnerDb.Access_Token;
                         string session = partnerDb.Session;
                         string host = partnerDb.Host;
