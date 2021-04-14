@@ -2817,8 +2817,10 @@
 
             $("input.num-only").on('keydown',
                 function (e) {
+                    console.log('keydown' + e.keyCode);
+
                     // Allow: backspace, delete, tab, escape, enter and .
-                    if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                    if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110]) !== -1 ||
                         // Allow: Ctrl+A, Command+A
                         (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
                         // Allow: home, end, left, right, down, up
@@ -2835,7 +2837,7 @@
             $("input.num-dec-only").on('keydown',
                 function (e) {
                     // Allow: backspace, delete, tab, escape, enter and .
-                    if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190, 188]) !== -1 ||
+                    if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 188]) !== -1 ||
                         // Allow: Ctrl+A, Command+A
                         (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
                         // Allow: home, end, left, right, down, up
@@ -3119,7 +3121,7 @@
 
         var $angka;
         function numOnlyAllowDecimalOnKeyDown(e){
-            if ($.inArray(e.keyCode, [46, 8, 27, 190, 110]) !== -1 ||
+            if ($.inArray(e.keyCode, [46, 8, 27, 188, 110]) !== -1 ||
                 // Allow: Ctrl+A, Command+A
                     (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
                 // Allow: home, end, left, right, down, up
@@ -3133,7 +3135,10 @@
                 e.preventDefault();
             }
         }
-        function numOnlyOnKeyDown(e){
+    function numOnlyOnKeyDown(e) {
+        console.log('numonlyonkeydown' + e.keyCode);
+        if (e.keyCode === 190 || e.keyCode === 110 || e.keyCode === 188) { e.preventDefault(); return;}
+
             if ($.inArray(e.keyCode, [46, 8, 27]) !== -1 ||
                 // Allow: Ctrl+A, Command+A
                     (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
@@ -3147,7 +3152,7 @@
             if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
                 e.preventDefault();
             }
-            if (e.keyCode === 190 || e.keyCode === 110) e.preventDefault();
+            //if (e.keyCode === 190 || e.keyCode === 110 || keyCode === 188) e.preventDefault();
         }
         function modeEditTd() {
             $('#table_tambah_invoice > tbody > tr[data-invoice-id="0"] > .qty-barang').addClass('editable');
@@ -3172,20 +3177,21 @@
                 }
 
                 if ($class == 'qty-barang editable') {
-                    $inputClass = 'qty-input' + ' num-only';
+                    $inputClass = 'qty-input';
                 } else if ($class == 'disc1-barang editable' || $class == 'disc2-barang editable') {
-                    $inputClass = 'disc-input' + ' num-only';
+                    $inputClass = 'disc-input' ;
                 } else if ($class == 'ndisc1-barang editable' || $class == 'ndisc2-barang editable') {
-                    $inputClass = 'ndisc-input' + ' num-dec-only';
+                    $inputClass = 'ndisc-input';
                 } else if ($class == 'harga-barang editable') {
-                    $inputClass = 'harga-input' + ' num-dec-only';
+                    $inputClass = 'harga-input';
                 }
 
                 var $hargaBarangAwal = convertToAngka($($trElement + ' .harga-barang').text());
+                console.log('test' + $inputClass);
 
                 var $input = $('<input>', {
-                    //'class': $inputClass + ' num-only',
-                    'class': $inputClass,
+                    'class': $inputClass + ' num-only',
+                    //'class': $inputClass,
                     value: $angka,
                     blur: function () {
                         if (this.value === '') {
@@ -3241,7 +3247,8 @@
                             }
 
                             refreshNettoBarang($trId);
-                        } else {
+                        }
+                        else {
                             var $hargaBarang = convertToAngka($($trElement + ' .harga-barang').text());
 
                             if ($class === 'qty-barang editable') {
@@ -3347,14 +3354,15 @@
 
                         if ($(this).hasClass('qty-input')) {
                             numOnlyOnKeyDown(e);
-                            if (keyCode === 190) e.preventDefault();
+                            if (keyCode === 190 || keyCode === 188) e.preventDefault();
 
                             if (keyCode === 13 || keyCode === 9) {
                                 $('#table_tambah_invoice > tbody > tr > td.disc1-barang').click();
                                 e.preventDefault();
                             }
                         } else if ($(this).hasClass('disc-input') && $(this).parent().hasClass('disc1-barang')) {
-                            numOnlyAllowDecimalOnKeyDown(e);
+                            numOnlyOnKeyDown(e);
+                            if (keyCode === 190 || keyCode === 188) e.preventDefault();
                             if (keyCode === 13 || keyCode === 9) {
                                 if ($(this).val() == 0) {
                                     $('#table_tambah_invoice > tbody > tr > td.ndisc1-barang').click().click();
@@ -3365,7 +3373,8 @@
                                 e.preventDefault();
                             }
                         } else if ($(this).hasClass('disc-input') && $(this).parent().hasClass('disc2-barang')) {
-                            numOnlyAllowDecimalOnKeyDown(e);
+                            numOnlyOnKeyDown(e);
+                            if (keyCode === 190 || keyCode === 188) e.preventDefault();
                             if (keyCode === 13 || keyCode === 9) {
                                 if ($(this).val() == 0) {
                                     $('#table_tambah_invoice > tbody > tr > td.ndisc2-barang').click().click();
@@ -3376,7 +3385,7 @@
                                 e.preventDefault();
                             }
                         } else if ($(this).hasClass('ndisc-input') && $(this).parent().hasClass('ndisc1-barang')) {
-                            numOnlyOnKeyDown(e);
+                            numOnlyAllowDecimalOnKeyDown(e);
                             if (keyCode === 190) e.preventDefault();
                             if (keyCode === 13 || keyCode === 9) {
                                 if ($(this).val() == '0,00') {
@@ -3389,7 +3398,8 @@
                             }
                         } else {
                             //numOnlyOnKeyDown(e);
-                            //if (keyCode === 190) e.preventDefault();
+                            numOnlyAllowDecimalOnKeyDown(e);
+                            if (keyCode === 190) e.preventDefault();
                             if (keyCode === 13 || keyCode === 9) {
                                 $(this).blur();
                             }

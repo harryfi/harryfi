@@ -2383,7 +2383,7 @@
     @*<script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>*@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
-    <script type="text/javascript">
+<script type="text/javascript">
         var $tempQty = "";
         var $tempQtyBundling = "";
         var $statusAPI = window.text;
@@ -3910,7 +3910,24 @@
             $("input.num-only").on('keydown',
                 function (e) {
                     // Allow: backspace, delete, tab, escape, enter and .
-                    if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                    if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110]) !== -1 ||
+                        // Allow: Ctrl+A, Command+A
+                        (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                        // Allow: home, end, left, right, down, up
+                        (e.keyCode >= 35 && e.keyCode <= 40)) {
+                        // let it happen, don't do anything
+                        return;
+                    }
+                    // Ensure that it is a number and stop the keypress
+                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                        e.preventDefault();
+                    }
+                });
+
+            $("input.num-dec-only").on('keydown',
+                function (e) {
+                    // Allow: backspace, delete, tab, escape, enter and .
+                    if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 188]) !== -1 ||
                         // Allow: Ctrl+A, Command+A
                         (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
                         // Allow: home, end, left, right, down, up
@@ -4201,7 +4218,7 @@
 
         var $angka;
         function numOnlyAllowDecimalOnKeyDown(e){
-            if ($.inArray(e.keyCode, [46, 8, 27, 190, 110]) !== -1 ||
+            if ($.inArray(e.keyCode, [46, 8, 27, 188, 110]) !== -1 ||
                 // Allow: Ctrl+A, Command+A
                     (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
                 // Allow: home, end, left, right, down, up
@@ -4229,7 +4246,7 @@
             if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
                 e.preventDefault();
             }
-            if (e.keyCode === 190 || e.keyCode === 110) e.preventDefault();
+            if (e.keyCode === 190 || e.keyCode === 110 || e.keyCode === 188) e.preventDefault();
         }
 
         function modeEditTd() {
@@ -4335,7 +4352,8 @@
                             }
 
                             refreshNettoBarang($trId);
-                        } else {
+                        }
+                        else {
                             var $hargaBarang = convertToAngka($($trElement + ' .harga-barang').text());
 
                             if ($class === 'qty-barang editable') {
@@ -4455,14 +4473,15 @@
 
                         if ($(this).hasClass('qty-input')) {
                             numOnlyOnKeyDown(e);
-                            if (keyCode === 190) e.preventDefault();
+                            if (keyCode === 190 || keyCode === 188) e.preventDefault();
 
                             if (keyCode === 13 || keyCode === 9) {
                                 $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > td.disc1-barang').click();
                                 e.preventDefault();
                             }
                         } else if ($(this).hasClass('disc-input') && $(this).parent().hasClass('disc1-barang')) {
-                            numOnlyAllowDecimalOnKeyDown(e);
+                            numOnlyOnKeyDown(e);
+                            if (keyCode === 190 || keyCode === 188) e.preventDefault();
                             if (keyCode === 13 || keyCode === 9) {
                                 if ($(this).val() == 0) {
                                     $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > td.ndisc1-barang').click().click();
@@ -4473,7 +4492,8 @@
                                 e.preventDefault();
                             }
                         } else if ($(this).hasClass('disc-input') && $(this).parent().hasClass('disc2-barang')) {
-                            numOnlyAllowDecimalOnKeyDown(e);
+                            numOnlyOnKeyDown(e);
+                            if (keyCode === 190 || keyCode === 188) e.preventDefault();
                             if (keyCode === 13 || keyCode === 9) {
                                 if ($(this).val() == 0) {
                                     $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > td.ndisc2-barang').click().click();
@@ -4484,7 +4504,7 @@
                                 e.preventDefault();
                             }
                         } else if ($(this).hasClass('ndisc-input') && $(this).parent().hasClass('ndisc1-barang')) {
-                            numOnlyOnKeyDown(e);
+                            numOnlyAllowDecimalOnKeyDown(e);
                             if (keyCode === 190) e.preventDefault();
                             if (keyCode === 13 || keyCode === 9) {
                                 if ($(this).val() == '0,00') {
@@ -4496,7 +4516,7 @@
                                 e.preventDefault();
                             }
                         } else {
-                            numOnlyOnKeyDown(e);
+                            numOnlyAllowDecimalOnKeyDown(e);
                             if (keyCode === 190) e.preventDefault();
                             if (keyCode === 13 || keyCode === 9) {
                                 $(this).blur();
@@ -4964,7 +4984,7 @@
                                             $($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" type="hidden" value="">');
                                             //add by nurul 13/12/2018
                                             $('#FakturDetail_BRG').val(item.BRG);
-                                            
+
 
                                             if ($('#FakturDetail_BRG_MULTISKU').val() != null && $('#FakturDetail_BRG_MULTISKU').val() != "") {
                                                 var tempMultiSKU = $('#BRG_MULTI_SKU').val();
@@ -4999,7 +5019,7 @@
                                 refreshNettoBarang('0');
                                 //end add
                             } else {
-                                
+
                                 //add by nurul 1/10/2018
                                 $('#CUSTOMER')[0].selectize.enable();
                                 //end add
@@ -5013,12 +5033,12 @@
                                 $($trElement + ' .ndisc2-barang').html('0,00' + '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="FakturDetail_NILAI_DISC_2" name="FakturDetail.NILAI_DISC_2" type="hidden" value="">');
                                 $($trElement + ' .netto-barang').html('0,00' + '<input data-val="true" data-val-number="The field HARGA must be a number." data-val-required="The HARGA field is required." id="FakturDetail_HARGA" name="FakturDetail.HARGA" type="hidden" value="">');
 
-                                $($trElement + ' .btn-primary').attr('disabled', 'disabled');                                                           
+                                $($trElement + ' .btn-primary').attr('disabled', 'disabled');
                                 $('#gudang-select').hide();
                                 $('#gudang-kode').show();
                                 $('#multisku-select').show();
                                 $('#multisku-kode').hide();
-                                
+
                                 //ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0
                                 $beforeState.brutto = $('#Faktur_BRUTO').val();
                                 $beforeState.netto = $('#Faktur_NETTO').val();
@@ -5138,7 +5158,7 @@
                     getMarketplace();
                     getDataBarang();
                     //getGudang();
-                    
+
                     $('#multisku-select').show();
                     $('#multisku-kode').hide();
                     getBarangMultiSKUForBarang();
@@ -5260,7 +5280,7 @@
                     getBuyer();
                     getDataBarang();
                     //getGudang();
-                    
+
                     getExpedisi();
                     $('#multisku-select').show();
                     $('#multisku-kode').hide();
@@ -5543,7 +5563,7 @@
                                 getBuyer();
                                 getDataBarang();
                                 //getGudang();
-                                
+
                                 getMarketplace();
                                 getExpedisi();
                                 $('#multisku-select').show();
@@ -5557,7 +5577,7 @@
                                 //end add by nurul 26/10/2020
                                 //$('#EXPEDISI').attr('disabled', 'disabled');
                                 $('#btn-simpan-perubahan-row').show();
-                                
+
                             } else {
                                 //change by nurul 15/10/2018
                                 //console.log(response.Errors);
@@ -5826,7 +5846,7 @@
                 }
             }
         }
-        //end add by nurul 24/1/2021, bundling 
+        //end add by nurul 24/1/2021, bundling
 
         function fillModalFixNotFound(rec) {
             var link = '@Url.Action("FillModalFixNotFoundFaktur", "Manage", new {recNum = "replaceRecNum"})';
@@ -5932,7 +5952,7 @@
                 rows_selected.push(rec);
                 row_bukti.push(nobuk);
             }
-            
+
             //change by calvin 28 nov 2018, print dialog
             @*var link = '@Url.Action("LihatFaktur", "Manage", new {noBukPesanan = "replaceNoBuk"})';
             link = link.replace('replaceNoBuk', nobuk);
@@ -5994,7 +6014,7 @@
             $('#ctk_total').attr('checked', true);
             $('#ctk_ket').attr('checked', true);
             $('#ctk_logo').attr('checked', true);
-            
+
             //$('#ctk_nama1').attr('checked', true);
             //$('#ctk_mp1').attr('checked', true);
             //$('#ctk_nobuk1').attr('checked', true);
@@ -6285,7 +6305,7 @@
         //end add by nurul 4/3/2020
 
         //add by nurul 9/9/2020
-        function PromptMultiSKUFaktur() { 
+        function PromptMultiSKUFaktur() {
             //if ($('#FakturDetail_BRG').val() != '') {
             if ($('#BRG').selectivity('value') != "") {
                 var link = '@Url.Action("PromptBarangMultiSKUInvoice", "Manage", new { id = "replaceId", kdBrg = "replaceBrg" })';
@@ -6346,7 +6366,7 @@
                             options: listBarang,
                             onChange: function (value) {
                                 var $objSup = $.grep(listBarang, function (data) { return data.id == value });
-                                
+
                                 if (value != null) {
                                     $('#multisku-kode').text(value);
                                     $('#FakturDetail_BRG_MULTISKU').val(value);
@@ -6413,7 +6433,7 @@
                             options: listBarang,
                             onChange: function (value) {
                                 var $objSup = $.grep(listBarang, function (data) { return data.id == value });
-                                
+
                                 if (value != null) {
                                     $('#multisku-kode').text(value);
                                     $('#FakturDetail_BRG_MULTISKU').val(value);
@@ -6511,7 +6531,7 @@
                         var listBarang = [];
                         $.each(data,
                             function (i, item) {
-                                
+
                                 listBarang[i] = {
                                     id: item.BRG,
                                     text: item.BRG + ' (' + item.NAMA + ')',
@@ -6564,10 +6584,10 @@
                         barangSelect[0].selectize.load(function (callback) {
                             callback(listBarang);
                         });
-                        
+
                         barangSelect[0].selectize.setValue($('#FakturBundling_BRG').val(), true);
-                        
-                        
+
+
                     },
                     error: function (xhr) {
                         console.log(xhr);
@@ -6589,7 +6609,7 @@
                     }
                     if ($class == 'qty-bundling editable') {
                         $inputClass = 'qty-input';
-                    } 
+                    }
 
                     var $input = $('<input>', {
                         'class': $inputClass + 'num-only',
@@ -6800,7 +6820,7 @@
                                 getBuyer();
                                 getDataBarang();
                                 //getGudang();
-                                
+
                                 getMarketplace();
                                 getExpedisi();
                                 $('#multisku-select').show();
@@ -6900,7 +6920,7 @@
                     getBuyer();
                     getDataBarang();
                     //getGudang();
-                    
+
                     getExpedisi();
                     $('#multisku-select').show();
                     $('#multisku-kode').hide();
@@ -7002,7 +7022,7 @@
             }
         }
         //end add by nurul 26/10/2020, bundling
-    </script>
+</script>
     <script>
         //Disable Enter Key Submit Form
         function stopRKey(evt) {

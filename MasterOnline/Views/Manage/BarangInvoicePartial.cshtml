@@ -276,7 +276,7 @@
             <div class="form-group">
                 @Html.LabelFor(m => m.Invoice.NDISC1, "Discount", new { @class = "col-md-4 control-label control-label-bold" })
                 <div class="col-md-8">
-                    @Html.TextBoxFor(m => m.Invoice.NDISC1, new { @class = "form-control num-only", Value = (Model?.Invoice?.NDISC1 > 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Invoice?.NDISC1) : "0,00"), @style = "text-align:right" })
+                    @Html.TextBoxFor(m => m.Invoice.NDISC1, new { @class = "form-control num-dec-only", Value = (Model?.Invoice?.NDISC1 > 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Invoice?.NDISC1) : "0,00"), @style = "text-align:right" })
                 </div>
             </div>
         </div>

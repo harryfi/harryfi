@@ -399,7 +399,7 @@
             <div class="form-group">
                 @Html.LabelFor(m => m.Faktur.NILAI_DISC, "Discount", new { @class = "col-md-4 control-label control-label-bold" })
                 <div class="col-md-8">
-                    @Html.TextBoxFor(m => m.Faktur.NILAI_DISC, new { @class = "form-control num-only", Value = (Model?.Faktur?.NILAI_DISC > 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Faktur?.NILAI_DISC) : "0,00"), @style = "text-align:right" })
+                    @Html.TextBoxFor(m => m.Faktur.NILAI_DISC, new { @class = "form-control num-dec-only", Value = (Model?.Faktur?.NILAI_DISC > 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Faktur?.NILAI_DISC) : "0,00"), @style = "text-align:right" })
                 </div>
             </div>
         </div>
