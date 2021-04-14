@@ -20531,6 +20531,9 @@ namespace MasterOnline.Controllers
 
             string sSQLSelect = "";
             sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NO_FAKTUR, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.NO_REF AS REFERENSI, A.ST_POSTING AS POSTING, ISNULL(E.NO_BUKTI,'') AS PEMBAYARAN, A.TGLINPUT AS TGL_LASTEDIT ";
+            //add by nurul 7/4/2021, tampilin no ref
+            sSQLSelect += ", (SELECT ISNULL(NO_REF,'') FROM SIT01A WHERE NO_BUKTI=A.NO_REF) AS NOSO ";
+            //end add by nurul 7/4/2021, tampilin no ref
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
