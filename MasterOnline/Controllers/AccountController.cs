@@ -737,7 +737,7 @@ namespace MasterOnline.Controllers
             //1 januari jam 00:30 (UTC+7) setiap tahun, jalankan proses akhir tahun untuk tahun sebelumnya
             var today = DateTime.UtcNow.AddHours(7);
             var setTahun = DateTime.UtcNow.AddHours(7).Year;
-            if(today.Month == 1 && today.Day == 1)
+            if (today.Month == 1 && today.Day == 1)
             {
                 setTahun = today.Year - 1;
             }
@@ -759,21 +759,21 @@ namespace MasterOnline.Controllers
             recurJobM.RemoveIfExists(connection_id_proses_akhir_tahun);
             recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, (DateTime.UtcNow.AddHours(7).Year).ToString())), "30 17 28 12 *", recurJobOpt);
 
-//#if Dev
-//            //22 desember jam 21:15 (UTC+7) setiap tahun
-//            connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_test_3";
-//            recurJobM.RemoveIfExists(connection_id_proses_akhir_tahun);
-//            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, DateTime.UtcNow.AddHours(7).Year.ToString())), "15 14 22 12 *", recurJobOpt);
-            
-//            //22 desember jam 23:30 (UTC+7) setiap tahun
-//            connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_test_1";
-//            recurJobM.RemoveIfExists(connection_id_proses_akhir_tahun);
-//            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, DateTime.UtcNow.AddHours(7).Year.ToString())), "30 16 22 12 *", recurJobOpt);
-//            //22 desember jam 00:30 (UTC+7) setiap tahun
-//            connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_test_2";
-//            recurJobM.RemoveIfExists(connection_id_proses_akhir_tahun);
-//            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, (DateTime.UtcNow.AddHours(7).Year).ToString())), "30 17 22 12 *", recurJobOpt);
-//#endif
+            //#if Dev
+            //            //22 desember jam 21:15 (UTC+7) setiap tahun
+            //            connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_test_3";
+            //            recurJobM.RemoveIfExists(connection_id_proses_akhir_tahun);
+            //            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, DateTime.UtcNow.AddHours(7).Year.ToString())), "15 14 22 12 *", recurJobOpt);
+
+            //            //22 desember jam 23:30 (UTC+7) setiap tahun
+            //            connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_test_1";
+            //            recurJobM.RemoveIfExists(connection_id_proses_akhir_tahun);
+            //            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, DateTime.UtcNow.AddHours(7).Year.ToString())), "30 16 22 12 *", recurJobOpt);
+            //            //22 desember jam 00:30 (UTC+7) setiap tahun
+            //            connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_test_2";
+            //            recurJobM.RemoveIfExists(connection_id_proses_akhir_tahun);
+            //            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, (DateTime.UtcNow.AddHours(7).Year).ToString())), "30 17 22 12 *", recurJobOpt);
+            //#endif
 
             //using (var connection = sqlStorage.GetConnection())
             //{
@@ -1228,16 +1228,14 @@ namespace MasterOnline.Controllers
                             string connId_JobId = "";
                             //add by fauzi 25 November 2019
                             //moved by Tri 24 jan 2020, fungsi untuk cek status update barang
-                            //connId_JobId = dbPathEra + "_tokopedia_check_pending_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            ////change by Tri 3 mar 2021, tidak perlu cek menggunakan scheduler. cek 3x saja, dengan durasi per 5 menit
-                            //recurJobM.RemoveIfExists(connId_JobId);
+                            connId_JobId = dbPathEra + "_tokopedia_check_pending_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            //change by Tri 3 mar 2021, tidak perlu cek menggunakan scheduler. cek 3x saja, dengan durasi per 5 menit
+                            recurJobM.RemoveIfExists(connId_JobId);
                             //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.CheckPendings(data)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
                             //end change by Tri 3 mar 2021, tidak perlu cek menggunakan scheduler. cek 3x saja, dengan durasi per 5 menit
                             //end moved by Tri 24 jan 2020, fungsi untuk cek status update barang
                             if (tblCustomer.TIDAK_HIT_UANG_R == true)
                             {
-                                await new TokopediaControllerJob().GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
-                                await new TokopediaControllerJob().GetOrderListCancel(data, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
                                 //connId_JobId = dbPathEra + "_tokopedia_check_pending_" + Convert.ToString(tblCustomer.RecNum.Value);
                                 //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.CheckPendings(data)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
@@ -1399,18 +1397,18 @@ namespace MasterOnline.Controllers
                         //var list_ordersn = LocalErasoftDbContext.SOT01A.Where(a => (a.TRACKING_SHIPMENT == null || a.TRACKING_SHIPMENT == "-" || a.TRACKING_SHIPMENT == "") && a.NO_PO_CUST.Contains("SH") && a.CUST == tblCustomer.CUST).Select(a => a.NO_REFERENSI).ToList();
                         //if (list_ordersn.Count() > 0)
                         //{
-                            if (tblCustomer != null)
-                            {
-                                connId_JobId = dbPathEra + "_shopee_update_resi_job_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderDetailsForUpdateResiJOB(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO)), Cron.MinuteInterval(30), recurJobOpt);
-                            }
+                        if (tblCustomer != null)
+                        {
+                            connId_JobId = dbPathEra + "_shopee_update_resi_job_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderDetailsForUpdateResiJOB(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO)), Cron.MinuteInterval(30), recurJobOpt);
+                        }
                         //}
                         //end add by nurul 17/3/2020
                         ////hanya untuk testing
                         //await new ShopeeControllerJob().GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
                         if (!string.IsNullOrEmpty(sync_pesanan_stok))
                         {
-                            if(sync_pesanan_stok == tblCustomer.CUST)
+                            if (sync_pesanan_stok == tblCustomer.CUST)
                             {
                                 //var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-3).AddHours(-7).ToUnixTimeSeconds();
                                 //var toDt = (long)DateTimeOffset.UtcNow.AddHours(14).ToUnixTimeSeconds();
@@ -1452,9 +1450,9 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-#endregion
+            #endregion
 
-#region Shopify
+            #region Shopify
 
             var kdShopify = 21;
             var ShopifyShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopify.ToString());
@@ -1520,9 +1518,9 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-#endregion
+            #endregion
 
-#region 82Cart
+            #region 82Cart
             var kd82Cart = 20;
 
             var v82CartShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kd82Cart.ToString());
@@ -1600,9 +1598,9 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-#endregion
+            #endregion
 
-#region JDID
+            #region JDID
             var kdJDID = 19;
 
             var vJDIDShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdJDID.ToString());
@@ -1649,11 +1647,11 @@ namespace MasterOnline.Controllers
                         iden.accessToken = tblCustomer.TOKEN;
                         iden.appKey = tblCustomer.API_KEY;
                         iden.appSecret = tblCustomer.API_CLIENT_U;
-                        iden.username = username;                        
+                        iden.username = username;
                         iden.nama_cust = tblCustomer.PERSO;
                         iden.email = tblCustomer.EMAIL;
                         iden.DatabasePathErasoft = dbPathEra;
-                        
+
                         await new JDIDControllerJob().JD_GetOrderByStatusPaid(iden, JDIDControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
 
                         await new JDIDControllerJob().JD_GetOrderByStatusRTS(iden, JDIDControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
@@ -1661,7 +1659,7 @@ namespace MasterOnline.Controllers
                         await new JDIDControllerJob().JD_GetOrderByStatusComplete(iden, JDIDControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
 
                         await new JDIDControllerJob().JD_GetOrderByStatusCancel(iden, JDIDControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
-                        
+
 #endif
 
 
@@ -1683,7 +1681,7 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-#endregion
+            #endregion
 
             return "";
         }
