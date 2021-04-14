@@ -2001,17 +2001,20 @@ namespace MasterOnline.Controllers
                                     }
                                     else if (item.variant.isParent)
                                     {
-                                        foreach (var varID in item.variant.childrenID)
+                                        if (item.variant.childrenID != null)
                                         {
-                                            var CektempbrginDB2 = tempbrginDB.Where(t => (t.BRG_MP ?? "").Equals(varID.ToString())).FirstOrDefault();
-                                            var CekbrgInDB2 = brgInDB.Where(t => (t.BRG_MP ?? "").Equals(varID.ToString())).FirstOrDefault();
-                                            if (CektempbrginDB2 == null && CekbrgInDB2 == null)
+                                            foreach (var varID in item.variant.childrenID)
                                             {
-                                                var retVar = await getItemDetailVarian(iden, varID, CUST, recnumArf01, 1);
-                                                ret.recordCount += retVar.recordCount;
+                                                var CektempbrginDB2 = tempbrginDB.Where(t => (t.BRG_MP ?? "").Equals(varID.ToString())).FirstOrDefault();
+                                                var CekbrgInDB2 = brgInDB.Where(t => (t.BRG_MP ?? "").Equals(varID.ToString())).FirstOrDefault();
+                                                if (CektempbrginDB2 == null && CekbrgInDB2 == null)
+                                                {
+                                                    var retVar = await getItemDetailVarian(iden, varID, CUST, recnumArf01, 1);
+                                                    ret.recordCount += retVar.recordCount;
+                                                }
                                             }
+                                            ret.totalData += item.variant.childrenID.Count();
                                         }
-                                        ret.totalData += item.variant.childrenID.Count();
                                     }
                                 }
 
