@@ -1391,6 +1391,12 @@ namespace MasterOnline.Controllers
                             {
                                 string msg = "";
                                 bool adaError = false;
+                                if(listProd.model.spuInfoVoList == null)
+                                {
+                                    ret.status = 1;
+                                    ret.nextPage = 0;
+                                    return ret;
+                                }
                                 if (listProd.model.spuInfoVoList.Count > 0)
                                 {
                                     ret.status = 1;
@@ -1522,8 +1528,8 @@ namespace MasterOnline.Controllers
                                         //handle parent
                                         string kdBrgInduk = item.spuId.ToString();
                                         bool createParent = false;
-                                        tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == kdBrgInduk).FirstOrDefault();
-                                        brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == kdBrgInduk).FirstOrDefault();
+                                        tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == kdBrgInduk + ";0").FirstOrDefault();
+                                        brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == kdBrgInduk + ";0").FirstOrDefault();
                                         if (tempbrginDB == null && brgInDB == null)
                                         {
                                             if (item.skuId == dataProduct.model[0].skuId)
@@ -1561,6 +1567,17 @@ namespace MasterOnline.Controllers
                                         }
                                         else
                                         {
+                                            if (createParent)
+                                            {
+                                                var retDataParent = getProductDetailParentOnly(data, item, kdBrgInduk, createParent, item.skuId.ToString(), cust, IdMarket, itemFromList);
+                                                if (retDataParent.exception == 1)
+                                                    ret.exception = 1;
+                                                if (retDataParent.status == 1)
+                                                {
+                                                    ret.recordCount += retDataParent.recordCount;
+                                                    //createParent = false;
+                                                }
+                                            }
                                             var datasudahada = item.skuId.ToString(); // breakpoint
                                         }
                                         //}
@@ -1682,6 +1699,95 @@ namespace MasterOnline.Controllers
                                     if (retSQL.status == 1)
                                         sSQLVal += retSQL.message;
                                 }
+                            }
+                            else
+                            {
+                                ret.message = string.IsNullOrEmpty(detailData.message) ? retProd.openapi_data : detailData.message;
+                            }
+                        }
+                        else
+                        {
+                            ret.message = retProd.openapi_data;
+                        }
+                    }
+                    else
+                    {
+                        ret.message = retProd.openapi_msg;
+                    }
+                }
+                else
+                {
+                    ret.exception = 1;
+                    ret.message = response;
+                }
+
+                if (!string.IsNullOrEmpty(sSQLVal))
+                {
+                    sSQL = sSQL + sSQLVal;
+                    sSQL = sSQL.Substring(0, sSQL.Length - 1);
+                    var a = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                    ret.recordCount += a;
+                    ret.status = 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                ret.exception = 1;
+                ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            }
+            return ret;
+        }
+
+        public BindingBase getProductDetailParentOnly(JDIDAPIData data, Model_Product item, string kdBrgInduk, bool createParent, string skuId, string cust, int IdMarket, Spuinfovolist itemFromList)
+        {
+            var ret = new BindingBase
+            {
+                status = 0,
+                exception = 0
+            };
+
+            try
+            {
+                var mgrApiManager = new JDIDController();
+                mgrApiManager.AppKey = data.appKey;
+                mgrApiManager.AppSecret = data.appSecret;
+                mgrApiManager.AccessToken = data.accessToken;
+                mgrApiManager.Method = "epi.ware.openapi.SkuApi.getSkuBySkuIds";
+                //mgrApiManager.ParamJson = "{ \"page\":" + page + ", \"pageSize\":10}";
+                mgrApiManager.ParamJson = "{\"skuIds\" : \"" + skuId + "\"}";
+
+                string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, SELLER_SKU, NAMA, NAMA2, BERAT, PANJANG, LEBAR, TINGGI, CUST, Deskripsi, IDMARKET, HJUAL, HJUAL_MP, ";
+                sSQL += "DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3, IMAGE4, IMAGE5, KODE_BRG_INDUK, TYPE, ";
+                sSQL += "ACODE_1, ANAME_1, AVALUE_1, ACODE_2, ANAME_2, AVALUE_2, ACODE_3, ANAME_3, AVALUE_3, ACODE_4, ANAME_4, AVALUE_4, ACODE_5, ANAME_5, AVALUE_5, ACODE_6, ANAME_6, AVALUE_6, ACODE_7, ANAME_7, AVALUE_7, ACODE_8, ANAME_8, AVALUE_8, ACODE_9, ANAME_9, AVALUE_9, ACODE_10, ANAME_10, AVALUE_10, ";
+                sSQL += "ACODE_11, ANAME_11, AVALUE_11, ACODE_12, ANAME_12, AVALUE_12, ACODE_13, ANAME_13, AVALUE_13, ACODE_14, ANAME_14, AVALUE_14, ACODE_15, ANAME_15, AVALUE_15, ACODE_16, ANAME_16, AVALUE_16, ACODE_17, ANAME_17, AVALUE_17, ACODE_18, ANAME_18, AVALUE_18, ACODE_19, ANAME_19, AVALUE_19, ACODE_20, ANAME_20, AVALUE_20) VALUES ";
+
+                string sSQLVal = "";
+
+                //if (!string.IsNullOrEmpty(kdBrgInduk))
+                //{
+                var response = mgrApiManager.Call(data.appKey, data.accessToken, data.appSecret);
+                var retProd = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
+                if (retProd != null)
+                {
+                    if (retProd.openapi_msg.ToLower() == "success")
+                    {
+                        var detailData = JsonConvert.DeserializeObject(retProd.openapi_data, typeof(Data_Detail_Product)) as Data_Detail_Product;
+                        if (detailData != null)
+                        {
+                            if (detailData.success)
+                            {
+                                if (!string.IsNullOrEmpty(kdBrgInduk))
+                                {
+                                    if (createParent)
+                                    {
+                                        var retSQL = CreateSQLValue(data, item, detailData.model[0], kdBrgInduk, "", cust, IdMarket, 1, itemFromList);
+                                        if (retSQL.exception == 1)
+                                            ret.exception = 1;
+                                        if (retSQL.status == 1)
+                                            sSQLVal += retSQL.message;
+                                    }
+                                }
+                               
                             }
                             else
                             {
