@@ -1858,7 +1858,31 @@ namespace MasterOnline.Controllers
             //    currentLog.REQUEST_EXCEPTION = ex.Message;
             //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
             //}
+            #region update stok lagi
+            var sSQL = "SELECT B.BRG, ISNULL(BRG_MP, '') BRG_MP, TIDAK_HIT_UANG_R FROM SOT01A (NOLOCK) A INNER JOIN SOT01B (NOLOCK) B ON A.NO_BUKTI = B.NO_BUKTI ";
+            sSQL += "INNER JOIN ARF01 (NOLOCK) C ON A.CUST = C.CUST INNER JOIN STF02H (NOLOCK) D ON B.BRG = D.BRG AND C.RECNUM = D.IDMARKET ";
+            sSQL += "WHERE B.ORDER_ITEM_ID = '" + orderItemId + "' AND A.CUST = '" + log_CUST + "' AND B.BRG <> 'NOT_FOUND'";
+            var dsOrder = EDB.GetDataSet("MOConnectionString", "SOT01", sSQL);
+            if(dsOrder.Tables[0].Rows.Count > 0)
+            {
+                if(dsOrder.Tables[0].Rows[0]["TIDAK_HIT_UANG_R"].ToString() == "1" && !string.IsNullOrEmpty(dsOrder.Tables[0].Rows[0]["BRG_MP"].ToString()))
+                {
 
+                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+#if (DEBUG || Debug_AWS)
+                    Task.Run(() => stokAPI.Lazada_updateStock(dbPathEra, dsOrder.Tables[0].Rows[0]["BRG"].ToString(), log_CUST, "Stock", "Update Stok",
+                        dsOrder.Tables[0].Rows[0]["BRG_MP"].ToString(), "", "",accessToken, username, null)).Wait();
+#else
+                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                    var Jobclient = new BackgroundJobClient(sqlStorage);
+                    Jobclient.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(dbPathEra, dsOrder.Tables[0].Rows[0]["BRG"].ToString(), log_CUST, "Stock", "Update Stok2",
+                        dsOrder.Tables[0].Rows[0]["BRG_MP"].ToString(), "", "",accessToken, username, null));
+#endif
+                    #endregion
+                }
+            }
             return ret;
 
         }
