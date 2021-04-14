@@ -98,7 +98,7 @@
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Client Secret</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Host</th>
 
-                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Ubah</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Edit</th>
                             @*<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Hapus</th>*@
                         </tr>
                     </thead>
@@ -280,8 +280,20 @@
             refreshTableApiLog();
 
             getPartner();
-            getStatusWebhook(true);
+            //getStatusWebhook();
             getSelectStatusPaid();
+
+            $("#api_status").change(function () {
+                if ($("#api_status").val() == "true") {
+                    $("#partner_api_Status").val('true');
+                    $("#api_status option:selected").text('Aktif');
+                } else if ($("#api_status").val() == "false") {
+                    $("#partner_api_Status").val('false');
+                    $("#api_status option:selected").text('Tidak Aktif');
+                }
+            });
+            //$("#api_status").change();
+            //$('#api_status').val(tempType);
         }
 
         function getStatusPaid() { //resp
@@ -300,7 +312,6 @@
                     }
                     else {
                         $('#partner_api_isPaid').val("false");
-
                         selectPaid[0].selectize.setValue($('#partner_api_isPaid').val(), false);
                     }
                 }
@@ -336,6 +347,26 @@
             });
             selectStatusPaid[0].selectize.setValue($('#partner_api_isPaid').val(), true);
         }
+
+        //function getStatusWebhook2(respon) {
+        //    $('#api_status').change(function () {
+        //        $("#partner_api_Status").val($('#api_status').val(respon))
+        //    });
+
+        //    //$("#api_status").change(function () {
+        //    //    if ($("#api_status").val() == "true") {
+        //    //        $("#partner_api_Status").val('true');
+        //    //    } else if ($("#api_status").val() == "false") {
+        //    //        $("#partner_api_Status").val('false');
+        //    //    }
+        //    //    //else {
+        //    //    //    $("#partner_api_Status").val('0');
+        //    //    //}
+        //    //});
+        //    //$("#api_status").change();
+        //    ////$('#api_status').val(tempType);
+        //}
+
 
         function getStatusWebhook(respon) {
             var resp = false;
@@ -480,7 +511,7 @@
                     $('#partner_api_ClientSecret').val(response.partner_api.ClientSecret);
 
                     getPartner();
-                    getStatusWebhook(response.partner_api.Status);
+                    //getStatusWebhook2(response.partner_api.Status);
                     getSelectStatusPaid(response.partner_api.isPaid);
                     //getAddons($('#Addons_Customer.NamaAddons').val());
                     //getEmail($('#response.Addons_Customer.Account').val());

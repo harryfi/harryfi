@@ -56,7 +56,7 @@
     <table class="table table-striped table-bordered table-hover">
         <thead>
             <tr role="row">
-                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 40px; border-left:hidden; align-self:flex-start"><input type="checkbox" class="dt-checkboxes-select-all" id="checkbox_all_partnerapi" style="border-left:hidden;align-self:flex-start; width:30px; height:28px;" /></th> <!--margin-top: 20px;-->
+                <!--<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 40px; border-left:hidden; align-self:flex-start"><input type="checkbox" class="dt-checkboxes-select-all" id="checkbox_all_partnerapi" style="border-left:hidden;align-self:flex-start; width:30px; height:28px;" /></th>--> <!--margin-top: 20px;-->
                 <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 100px;">No. Bukti</th>
                 <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 90px;">Aktivitas</th>
                 <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Keterangan</th>
@@ -69,7 +69,7 @@
             @foreach (var aktivitas in Model)
             {
                 <tr>
-                    <td style="text-align:center"><input type="checkbox" class="dt-checkboxes center checkbox_partnerapi" id="chekbox-@(aktivitas.log_id)" data-recnum="@aktivitas.log_id" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" /></td>
+                    @*<td style="text-align:center"><input type="checkbox" class="dt-checkboxes center checkbox_partnerapi" id="chekbox-@(aktivitas.log_id)" data-recnum="@aktivitas.log_id" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" /></td>*@
                     <td style="text-align:center">@aktivitas.No_Bukti</td>
                     <td style="text-align:center">@aktivitas.Modul</td>
                     <td style="text-align:center">@aktivitas.Created_Date</td>
@@ -112,27 +112,25 @@
     }
 </div>
 <script type="text/javascript">
-        $(function () {
-            $('#tabelbarang1partialpager').on('click', 'a', function () {
-                if (this.href != "") {
-                    $.ajax({
-                        url: this.href,
-                        type: 'GET',
-                        cache: false,
-                        beforeSend: function () {
-                            //$('#table-barang-1-partial').hide();
-                            $('#loading_barang_tab').show();
-                        },
-                        success: function (response) {
-                            $('#table-market-log-partial-div').html(response);
-                            $('#loading_barang_tab').hide();
-                        }
-                    });
-                    return false;
-                }
-            });
+    $(function () {
+        $('#tabelbarang1partialpager').on('click', 'a', function () {
+            if (this.href != "") {
+                $.ajax({
+                    url: this.href,
+                    type: 'GET',
+                    cache: false,
+                    beforeSend: function () {
+                        //$('#table-barang-1-partial').hide();
+                        $('#loading_barang_tab').show();
+                    },
+                    success: function (response) {
+                        $('#table-market-log-partial-div').html(response);
+                        $('#loading_barang_tab').hide();
+                    }
+                });
+                return false;
+            }
         });
+    });
 </script>
 @* end add by calvin 22 april 2019, paging *@
-
-
