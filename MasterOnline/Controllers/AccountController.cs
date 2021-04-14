@@ -1229,7 +1229,10 @@ namespace MasterOnline.Controllers
                             //add by fauzi 25 November 2019
                             //moved by Tri 24 jan 2020, fungsi untuk cek status update barang
                             connId_JobId = dbPathEra + "_tokopedia_check_pending_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.CheckPendings(data)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+                            //change by Tri 3 mar 2021, tidak perlu cek menggunakan scheduler. cek 3x saja, dengan durasi per 5 menit
+                            recurJobM.RemoveIfExists(connId_JobId);
+                            //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.CheckPendings(data)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+                            //end change by Tri 3 mar 2021, tidak perlu cek menggunakan scheduler. cek 3x saja, dengan durasi per 5 menit
                             //end moved by Tri 24 jan 2020, fungsi untuk cek status update barang
                             if (tblCustomer.TIDAK_HIT_UANG_R == true)
                             {
