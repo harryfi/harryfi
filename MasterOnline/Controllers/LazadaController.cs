@@ -802,7 +802,7 @@ namespace MasterOnline.Controllers
                 {
                     if (cekBrg.code.Equals("0"))
                     {
-                        if (!cekBrg.data.attributes.description.Contains("img src="))
+                        if (!(cekBrg.data.attributes.description ?? "").Contains("img src="))
                         {
                             xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
                         }
@@ -1133,6 +1133,7 @@ namespace MasterOnline.Controllers
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data.key, currentLog);
                     //end change by calvin 10 juni 2019
                     var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.TOKEN == data.token && m.NAMA == "7").FirstOrDefault();
+                    if(res.data != null)
                     foreach (var item in res.data.sku_list)
                     {
                         if (tblCustomer.TIDAK_HIT_UANG_R)
