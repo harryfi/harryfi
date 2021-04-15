@@ -3971,11 +3971,15 @@ namespace MasterOnline.Controllers
         {
             var vm = new PartnerApiViewModel()
             {
-                partner_api = ErasoftDbContext.PARTNER_API.Single(e => e.fs_id == fs_id)
+                //partner_api = ErasoftDbContext.PARTNER_API.Single(e => e.fs_id == fs_id)
+                partner_api = ErasoftDbContext.PARTNER_API.Where(e => e.fs_id == fs_id).FirstOrDefault()
+
             };
 
             ViewData["Editing"] = 1;
-            return Json(vm, JsonRequestBehavior.AllowGet);
+            //return Json(vm, JsonRequestBehavior.AllowGet);
+            return PartialView("FormPartnerApiPartial", vm);
+
         }
 
         //public ActionResult DeleteCustAddons(int? eksId)
@@ -4718,7 +4722,7 @@ namespace MasterOnline.Controllers
         }
 
         //api_baim
-        public ActionResult RefreshTableBankPartnerApi(int? page, string search = "")
+        public ActionResult RefreshTableBankPartnerApi(int? page, string search = "", int fsid = 0)
         {
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
@@ -4772,7 +4776,7 @@ namespace MasterOnline.Controllers
             sSQLCount += "SELECT COUNT(A.CUST) AS JUMLAH ";
             string sSQL2 = "";
             sSQL2 += "FROM ARF01 A ";
-            sSQL2 += "INNER JOIN PARTNER_API P ON P.PartnerId = 20007 ";
+            sSQL2 += "INNER JOIN PARTNER_API P ON P.PartnerId = 20007  and p.fs_id = " + fsid;
             sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON A.NAMA = C.IdMarket ";
 
             //if (search != "")
@@ -4785,6 +4789,8 @@ namespace MasterOnline.Controllers
             if (minimal_harus_ada_item_untuk_current_page > totalCount)
             {
                 pagenumber = pagenumber - 1;
+                if (pagenumber < 0)
+                    pagenumber = 0;
             }
 
             string sSQLSelect2 = "";

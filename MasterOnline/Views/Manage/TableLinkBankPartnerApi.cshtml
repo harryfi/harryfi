@@ -55,7 +55,8 @@
         @Html.PagedListPager(Model, page => Url.Action("RefreshTableBankPartnerApi", new
    {
        page,
-       search = ViewData["searchParam"]
+       search = ViewData["searchParam"],
+       
    }),
              new PagedListRenderOptions
              {
@@ -73,8 +74,10 @@
     $(function () {
         $('#tabelBarangToSap').on('click', 'a', function () {
             if (this.href != "") {
+                var link = this.href;
+                link += '&fsid=' + $("#partner_api_fs_id").val();
                 $.ajax({
-                    url: this.href,
+                    url: link,
                     type: 'GET',
                     cache: false,
                     beforeSend: function () {

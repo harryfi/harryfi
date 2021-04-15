@@ -180,7 +180,7 @@
                                                             @using (Html.BeginForm("SavePartnerApi", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-partner-api" }))
                                                             {
                                                                 <div id="form-partner-api">
-                                                                    @Html.Partial("FormPartnerApiPartial")
+                                                                    @*@Html.Partial("FormPartnerApiPartial")*@
                                                                 </div>
                                                             }
                                                         </div>
@@ -262,14 +262,17 @@
                 });
 
             $('#tambah_partner_api').on('click', function () {
-                $('.partner_api_table_section').hide();
-                $('.partner_api_editor_section').show();
+                //$('.partner_api_table_section').hide();
+                //$('.partner_api_editor_section').show();
+                //refreshTableApiLog();
+                editPartnerApi(0);
             });
 
             $('#partner-api-close-editor').on('click', function () {
                 $('.partner_api_table_section').show();
                 $('.partner_api_editor_section').hide();
-                $('#partner_api_Nama_Partner, #partner_api_ClientId, #partner_api_ClientSecret, #partner_api_OAuthCallbackCode').val('');
+                //$('#partner_api_Nama_Partner, #partner_api_ClientId, #partner_api_ClientSecret, #partner_api_OAuthCallbackCode').val('');
+                $('#form-partner-api').html('');
 
             });
 
@@ -277,11 +280,11 @@
                 $('#tambah_pembeli').click();
             }
 
-            refreshTableApiLog();
+            //refreshTableApiLog();
 
             getPartner();
             //getStatusWebhook();
-            getSelectStatusPaid();
+            //getSelectStatusPaid();
 
             $("#api_status").change(function () {
                 if ($("#api_status").val() == "true") {
@@ -290,6 +293,15 @@
                 } else if ($("#api_status").val() == "false") {
                     $("#partner_api_Status").val('false');
                     $("#api_status option:selected").text('Tidak Aktif');
+                }
+            });
+            $("#inv_status").change(function () {
+                if ($("#inv_status").val() == "true") {
+                    $("#partner_api_isPaid").val('true');
+                    $("#api_status option:selected").text('Aktif');
+                } else if ($("#inv_status").val() == "false") {
+                    $("#partner_api_isPaid").val('false');
+                    $("#inv_status option:selected").text('Tidak Aktif');
                 }
             });
             //$("#api_status").change();
@@ -496,23 +508,27 @@
             var link = '@Url.Action("EditPartnerApi", "Manage", new { fs_id = "replaceId" })';
             link = link.replace("replaceId", addonsId);
 
-            debugger;
             $.ajax({
                 async: true,
                 type: "GET",
                 contentType: 'application/json',
                 url: link,
                 success: function (response) {
-                    $('#form-partial').html(response);
+                    $('#form-partner-api').html(response);
                     $('.partner_api_table_section').hide();
                     $('.partner_api_editor_section').show();
 
-                    $('#partner_api_ClientId').val(response.partner_api.ClientId);
-                    $('#partner_api_ClientSecret').val(response.partner_api.ClientSecret);
+                    //$('#partner_api_ClientId').val(response.partner_api.ClientId);
+                    //$('#partner_api_ClientSecret').val(response.partner_api.ClientSecret);
 
                     getPartner();
+                    if (addonsId != 0) {
+                        $('#api_status').val($('#partner_api_Status').val());
+                        $('#inv_status').val($('#partner_api_isPaid').val());
+                    }
+                    refreshTableApiLog();
                     //getStatusWebhook2(response.partner_api.Status);
-                    getSelectStatusPaid(response.partner_api.isPaid);
+                    //getSelectStatusPaid(response.partner_api.isPaid);
                     //getAddons($('#Addons_Customer.NamaAddons').val());
                     //getEmail($('#response.Addons_Customer.Account').val());
                 },
@@ -523,8 +539,9 @@
         }
 
         function searchTableLog() {
-            var $link = '@Html.Raw(Url.Action("RefreshTableBankPartnerApi", "Manage", new { search = "replaceSearch" }))';
+            var $link = '@Html.Raw(Url.Action("RefreshTableBankPartnerApi", "Manage", new { search = "replaceSearch", fsid = "replacefsid" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search-bank-api').val()));
+            $link = $link.replace("replacefsid", encodeURIComponent($("#partner_api_fs_id").val()));
 
             $.ajax({
                 type: "GET",
@@ -548,8 +565,9 @@
         }
 
         function refreshTableApiLog() {
-            var $link = '@Html.Raw(Url.Action("RefreshTableBankPartnerApi", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            var $link = '@Html.Raw(Url.Action("RefreshTableBankPartnerApi", "Manage", new { page = "replaceLastPage", search = "replaceSearch", fsid = "replacefsid" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search-bank-api').val()));
+            $link = $link.replace("replacefsid", encodeURIComponent($("#partner_api_fs_id").val()));
             $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
 
             $.ajax({
@@ -607,7 +625,9 @@
                             }
                         }
                     });
-                    partnerSelect[0].selectize.setValue($('#partner_api_Nama_Partner').val(), true);
+                    if (partnerSelect[0] != undefined) {
+                        partnerSelect[0].selectize.setValue($('#partner_api_PartnerId').val(), true);
+                    }
                 },
                 error: function (xhr) {
                     console.log(xhr);
