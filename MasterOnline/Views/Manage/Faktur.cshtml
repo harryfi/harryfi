@@ -4465,7 +4465,7 @@
                         }
                     },
                     focus: function () {
-                        if ($angka == 0) {
+                        if ($angka == 0 || $angka == '0,00') {
                             this.value = '';
                         } else {
                             this.value = $angka;
@@ -5130,16 +5130,9 @@
         if (rupiah == '') {
             rupiah = '0';
         }
-        //change by calvin 26 september 2018
-        //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
         if (rupiah.includes(".")) {
             return rupiah.replaceAll('.', '');
         }
-        //else {
-        //    //jika bisa desimal
-        //    return parseFloat(rupiah.replaceAll(',', '.'));
-        //}
-        //end change by calvin 26 september 2018
         return rupiah;
     }
 

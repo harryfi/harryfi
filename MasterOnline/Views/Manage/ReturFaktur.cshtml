@@ -1419,6 +1419,15 @@
             }
             //end change by calvin 26 september 2018
         }
+        function convertToAngkaForDec(rupiah) {
+            if (rupiah == '') {
+                rupiah = '0';
+            }
+            if (rupiah.includes(".")) {
+                return rupiah.replaceAll('.', '');
+            }
+            return rupiah;
+        }
 
         var $idFaktur = "";
         function undeleteableFaktur(){

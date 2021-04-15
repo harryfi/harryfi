@@ -3173,7 +3173,8 @@
                 //    $angka = $this.text();
                 //}
                 if ($this.text() !== '') {
-                    $angka = convertToAngka($this.text());
+                    //$angka = convertToAngka($this.text());
+                    $angka = convertToAngkaForDec($this.text());
                 }
 
                 if ($class == 'qty-barang editable') {
@@ -3343,7 +3344,7 @@
                         }
                     },
                     focus: function() {
-                        if ($angka == 0) {
+                        if ($angka == 0 || $angka == '0,00') {
                             this.value = '';
                         } else {
                             this.value = $angka;
@@ -3931,6 +3932,15 @@
             //end change by calvin 26 september 2018
         }
 
+    function convertToAngkaForDec(rupiah) {
+        if (rupiah == '') {
+            rupiah = '0';
+        }
+        if (rupiah.includes(".")) {
+            return rupiah.replaceAll('.', '');
+        }
+        return rupiah;
+    }
         var $idInvoice = "";
         function undeleteable() {
             alert('Transaksi Sudah Posting / Dibayar ! \nTidak dapat dihapus!');
