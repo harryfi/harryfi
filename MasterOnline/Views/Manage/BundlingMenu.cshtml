@@ -843,7 +843,7 @@
                         $('#loading_spinner').show();
                     },
                     success: function (response) {
-                        if (response.Errors == null) {
+                        if (response.Errors == null || response.Errors.length == 0) {
                             refreshTableBundling();
                         } else {
                             alert(response.Errors[0]);

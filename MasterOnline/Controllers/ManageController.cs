@@ -4748,7 +4748,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new BuyerViewModel()
             {
-                ListPembeli = ErasoftDbContext.ARF01C.AsNoTracking().OrderBy(x => x.NAMA).ToList()
+                //ListPembeli = ErasoftDbContext.ARF01C.AsNoTracking().OrderBy(x => x.NAMA).ToList()
             };
 
             return View(vm);
@@ -69768,6 +69768,13 @@ namespace MasterOnline.Controllers
                                         return Json(dataVm, JsonRequestBehavior.AllowGet);
                                     }
 
+                                    var cekKomponenInUnitAnotherBundling = ErasoftDbContext.STF03.Where(a => a.Unit == dataVm.Bundling.Brg).Count();
+                                    if(cekKomponenInUnitAnotherBundling > 0)
+                                    {
+                                        dataVm.Errors.Add("Kode barang " + dataVm.Bundling.Brg + " adalah barang bundling.");
+                                        return Json(dataVm, JsonRequestBehavior.AllowGet);
+                                    }
+
                                     //add by nurul 18/1/2021, tambah gudang bundling jika pertama buat bundling
                                     //var cekSudahAdaBundling = ErasoftDbContext.STF03.Count();
                                     //if (cekSudahAdaBundling == 0)
@@ -70621,7 +70628,7 @@ namespace MasterOnline.Controllers
 
             var vm = new BundlingViewModel()
             {
-                //Errors = null
+                Errors = new List<string>()
             };
             try
             {
@@ -70853,14 +70860,17 @@ namespace MasterOnline.Controllers
                     //updateStockMarketPlace(listBrg, "[DEL_BDL][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
 
                     var listKomponen = ErasoftDbContext.STF03.Where(b => b.Unit == Unit).ToList();
-                    var getBrgFromlistKomponen = listKomponen.Select(a => a.Brg).ToList();
-                    getBrgFromlistKomponen.Add(Unit);
+                    vm.Brg_Bundling = "";
+                    if (listKomponen.Count() > 0)
+                    {
+                        var getBrgFromlistKomponen = listKomponen.Select(a => a.Brg).ToList();
+                        getBrgFromlistKomponen.Add(Unit);
+                        vm.listDetailBundling = ErasoftDbContext.STF02.Where(a => getBrgFromlistKomponen.Contains(a.BRG)).ToList();
+                        vm.Brg_Bundling = Unit;
+                    }
 
                     vm.listBundling = listKomponen;
-                    vm.Brg_Bundling = Unit;
                     vm.Bundling = ErasoftDbContext.STF03.Where(a => a.Unit == Unit).FirstOrDefault();
-                    vm.listDetailBundling = ErasoftDbContext.STF02.Where(a => getBrgFromlistKomponen.Contains(a.BRG)).ToList();
-
                     vm.Qty_Bundling = ErasoftDbContext.STF08A.Where(a => a.BRG == Unit && a.GD == default_gudang).Select(a => a.QAwal).FirstOrDefault();
                 }
             }
