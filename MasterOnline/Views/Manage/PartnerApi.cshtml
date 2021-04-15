@@ -489,11 +489,20 @@
                 data: $('#form-partner-api').serialize(),
                 success: function (response) {
                     if (response.Errors[0] == null) {
-                        alert('Data berhasil tersimpan');
-                        location.href = '@Url.Action("PartnerApi")';
+                        @*alert('Data berhasil tersimpan');
+                        location.href = '@Url.Action("PartnerApi")';*@
+                        var accAuthPopUp = window.open(response, "Accurate Authentication", "width=1000, height=600, scrollbars=yes");
+                        var timer = setInterval(function () {
+                            if (accAuthPopUp.closed) {
+                                clearInterval(timer);
+                                $('#loading_spinner').hide();
+                                window.location.href = '@Url.Action("PartnerApi")';
+                            }
+                        }, 1000);
                     }
                     else {
                         alert(response.Errors[0]);
+                        location.href = '@Url.Action("PartnerApi")';
                     }
                 },
                 error: function (xhr, status, error) {

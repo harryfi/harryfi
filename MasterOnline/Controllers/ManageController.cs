@@ -3812,13 +3812,14 @@ namespace MasterOnline.Controllers
                 Uri uri = urlBuilder.Uri;
                 string url_uri = urlBuilder.ToString() + "?email=" + email_to_accurate;
                 string url = "https://account.accurate.id/oauth/authorize?client_id=" + vm.partner_api.ClientId + "&response_type=code&redirect_uri=" + url_uri + "&scope=" + scope;
-                System.Diagnostics.Process.Start(url);
+                //System.Diagnostics.Process.Start(url);
+                return new JsonResult { Data = url, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             catch(Exception ex)
             {
                 return JsonErrorMessage("Error : " + ex.Message + "\nSilahkan hubungi support.");
             }
-            return RedirectToAction("PartnerApi");
+            //return RedirectToAction("PartnerApi");
         }
 
         public ActionResult CekPartner(string partnerId)
@@ -3893,7 +3894,8 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetDataBranchAccurate()
         {
-            var partnerDb = ErasoftDbContext.PARTNER_API.Single(p => p.fs_id == 1);
+            //var partnerDb = ErasoftDbContext.PARTNER_API.Single(p => p.fs_id == 1);
+            var partnerDb = ErasoftDbContext.PARTNER_API.FirstOrDefault(p => p.PartnerId == 20007);
 
             string ret = "";
             string url = partnerDb.Host + "/accurate/api/branch/list.do";
@@ -3930,7 +3932,73 @@ namespace MasterOnline.Controllers
             //return ret;
             return Json(branchNameList, JsonRequestBehavior.AllowGet);
         }
+        //api_baim start
+        public ActionResult PartnerApiLogRetryAll(string[] rows_selected)
+        {
+            try
+            {
+                if (rows_selected == null)
+                {
+                    return new JsonResult { Data = "Silahkan pilih data API yang akan dicoba lagi !", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
 
+                var listLog = new List<int>();
+                for (int i = 0; i < rows_selected.Length; i++)
+                {
+                    if (!string.IsNullOrEmpty(rows_selected[i]))
+                    {
+                        Int32 row = Convert.ToInt32(rows_selected[i]);
+                        listLog.Add(row);
+                    }
+                }
+
+                string invoiceJson = "";
+                string tempJson = "";
+                string comma = "";
+
+                var apilogerror = ErasoftDbContext.PARTNER_API_LOG_ERROR.Where(a => listLog.Contains(a.log_id) && a.Status == false).ToList();
+                foreach (var a in apilogerror)
+                {
+                    tempJson += a.JSON_String;
+                    comma = apilogerror.IndexOf(a) == apilogerror.Count() - 1 ? "" : ",";
+                    invoiceJson += tempJson + comma;
+                    tempJson = "";
+
+                    //var listcust = Newtonsoft.Json.JsonConvert.DeserializeObject(a.JSON_String, typeof(Datum)) as Datum;
+                }
+
+                var partnerDb = ErasoftDbContext.PARTNER_API.FirstOrDefault(p => p.PartnerId == 20007);
+                if (partnerDb != null)
+                {
+                    if (partnerDb.Status == true)
+                    {
+                        string email_to_accurate = MoDbContext.Account.Single(a => a.Username == usernameLogin).Email;
+                        string access_token = partnerDb.Access_Token;
+                        string session = partnerDb.Session;
+                        string host = partnerDb.Host;
+
+                        var acc = new AccInvoice()
+                        {
+                            email = email_to_accurate,
+                            access_token = access_token,
+                            session = session,
+                            host = host,
+                            is_delete_faktur = false,
+                            is_delete_item = false,
+                            bulk = invoiceJson
+                        };
+                        string myData = Newtonsoft.Json.JsonConvert.SerializeObject(acc);
+                        FakturAccurate(myData, "insert-bulk");
+                    }
+                }
+                return new JsonResult { Data = "Success", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+        //api_baim end
         [HttpGet]
         public ActionResult GetDataBankAccurate()
         {
