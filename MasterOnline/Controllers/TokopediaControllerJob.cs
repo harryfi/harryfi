@@ -3711,7 +3711,7 @@ namespace MasterOnline.Controllers
                     //{
                     //    ret = "1";
                     //}
-                    ret += "'" + ret + "' , ";
+                    //ret += "'" + ret + "' , ";
                     //end add by nurul 25/1/2021, bundling
 
                     new StokControllerJob().updateStockMarketPlace(connId, iden.DatabasePathErasoft, iden.username);
