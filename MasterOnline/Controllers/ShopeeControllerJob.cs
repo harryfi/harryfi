@@ -2559,7 +2559,7 @@ namespace MasterOnline.Controllers
                             var sSQLInsertTempBundling = "INSERT INTO TEMP_ALL_MP_ORDER_ITEM_BUNDLING ([BRG],[CONN_ID],[TGL]) " +
                                                          "SELECT DISTINCT C.UNIT AS BRG, '" + connID + "' AS CONN_ID, DATEADD(HOUR, +7, GETUTCDATE()) AS TGL " +
                                                          "FROM TEMP_ALL_MP_ORDER_ITEM A(NOLOCK) " +
-                                                         "LEFT JOIN TEMP_ALL_MP_ORDER_ITEM_BUNDLING B(NOLOCK) ON B.CONN_ID = '" + connID + "' AND A.BRG = B.BRG" +
+                                                         "LEFT JOIN TEMP_ALL_MP_ORDER_ITEM_BUNDLING B(NOLOCK) ON B.CONN_ID = '" + connID + "' AND A.BRG = B.BRG " +
                                                          "INNER JOIN STF03 C(NOLOCK) ON A.BRG = C.BRG " +
                                                          "WHERE ISNULL(A.CONN_ID,'') = '" + connID + "' " +
                                                          "AND ISNULL(B.BRG,'') = '' AND A.BRG <> 'NOT_FOUND'";
