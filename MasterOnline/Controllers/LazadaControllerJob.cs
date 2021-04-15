@@ -1865,7 +1865,7 @@ namespace MasterOnline.Controllers
             var dsOrder = EDB.GetDataSet("MOConnectionString", "SOT01", sSQL);
             if(dsOrder.Tables[0].Rows.Count > 0)
             {
-                if(dsOrder.Tables[0].Rows[0]["TIDAK_HIT_UANG_R"].ToString() == "1" && !string.IsNullOrEmpty(dsOrder.Tables[0].Rows[0]["BRG_MP"].ToString()))
+                if(dsOrder.Tables[0].Rows[0]["TIDAK_HIT_UANG_R"].ToString() == "True" && !string.IsNullOrEmpty(dsOrder.Tables[0].Rows[0]["BRG_MP"].ToString()))
                 {
 
                     StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);

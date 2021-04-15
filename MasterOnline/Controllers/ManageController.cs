@@ -26562,8 +26562,8 @@ namespace MasterOnline.Controllers
                                     foreach (var tbl in sot01b)
                                     {
                                         //change by calvin 10 april 2019, jadi pakai backgroundjob
-                                        //new LazadaControllerJob().SetStatusToCanceled(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", tbl.ORDER_ITEM_ID, marketPlace.TOKEN, usernameLogin, cancelReason);
-                                        clientJobServer.Enqueue<LazadaControllerJob>(x => x.SetStatusToCanceled(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", tbl.ORDER_ITEM_ID, marketPlace.TOKEN, usernameLogin, cancelReason));
+                                        new LazadaControllerJob().SetStatusToCanceled(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", tbl.ORDER_ITEM_ID, marketPlace.TOKEN, usernameLogin, cancelReason);
+                                        //clientJobServer.Enqueue<LazadaControllerJob>(x => x.SetStatusToCanceled(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", tbl.ORDER_ITEM_ID, marketPlace.TOKEN, usernameLogin, cancelReason));
                                         //end change by calvin 10 april 2019, jadi pakai backgroundjob
                                     }
                                 }
