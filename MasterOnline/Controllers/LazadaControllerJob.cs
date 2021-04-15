@@ -3502,6 +3502,7 @@ namespace MasterOnline.Controllers
             //                       //select new { a.NO_REFERENSI }).ToList();
             //                       select  a.NO_REFERENSI ).ToList();
             var connIDStok = Guid.NewGuid().ToString();
+            ret.ConnId = connIDStok;
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
             request.SetApiName("/orders/get");
