@@ -488,12 +488,12 @@
                 url: '@Url.Action("SavePartnerApi", "Manage")',
                 data: $('#form-partner-api').serialize(),
                 success: function (response) {
-                    if (response.mo_error == null) {
+                    if (response.Errors[0] == null) {
                         alert('Data berhasil tersimpan');
                         location.href = '@Url.Action("PartnerApi")';
                     }
                     else {
-                        alert(response.mo_error);
+                        alert(response.Errors[0]);
                     }
                 },
                 error: function (xhr, status, error) {
@@ -616,12 +616,32 @@
                                 $('#partner_api_PartnerId').val(null);
                                 partnerSelect[0].selectize.setValue($('#partner_api_PartnerId').val(), true);
                             } else {
-                                $('#partner_api_PartnerId').val(value);
-                                partnerSelect[0].selectize.setValue($('#partner_api_PartnerId').val(), true);
-                                if ($objSup[0] != null) {
-                                    //$('#partner_api_PartnerId').val($objSup[0].id);
-                                    $('#partner_api_Nama_Partner').val($objSup[0].text);
-                                }
+                                var url = '@Url.Action("CekPartner", "Manage")';
+                                url += "?partnerId=" + value;
+                                $.ajax({
+                                    type: "GET",
+                                    url: url,
+                                    contentType: 'application/json',
+                                    cache: false,
+                                    success: function (response) {
+                                        if (response.Errors[0] != "") {
+                                            alert(response.Errors[0]);
+                                            $('#partner_api_PartnerId').val(null);
+                                            partnerSelect[0].selectize.setValue($('#partner_api_PartnerId').val(), true);
+                                        }
+                                        else {
+                                            $('#partner_api_PartnerId').val(value);
+                                            partnerSelect[0].selectize.setValue($('#partner_api_PartnerId').val(), true);
+                                            if ($objSup[0] != null) {
+                                                //$('#partner_api_PartnerId').val($objSup[0].id);
+                                                $('#partner_api_Nama_Partner').val($objSup[0].text);
+                                            }
+                                        }
+                                    },
+                                    error: function (xhr) {
+                                        console.log(xhr);
+                                    }
+                                });
                             }
                         }
                     });

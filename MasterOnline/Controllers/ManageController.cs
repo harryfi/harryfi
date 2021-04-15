@@ -3806,16 +3806,34 @@ namespace MasterOnline.Controllers
             {
                 Path = Url.Action("OauthCode", "Manage")
             };
-
-            string email_to_accurate = MoDbContext.Account.Single(a => a.Username == usernameLogin).Email;
-            Uri uri = urlBuilder.Uri;
-            string url_uri = urlBuilder.ToString() + "?email=" + email_to_accurate;
-            string url = "https://account.accurate.id/oauth/authorize?client_id=" + vm.partner_api.ClientId + "&response_type=code&redirect_uri=" + url_uri + "&scope=" + scope;
-            System.Diagnostics.Process.Start(url);
-
+            try
+            {
+                string email_to_accurate = MoDbContext.Account.Single(a => a.Username == usernameLogin).Email;
+                Uri uri = urlBuilder.Uri;
+                string url_uri = urlBuilder.ToString() + "?email=" + email_to_accurate;
+                string url = "https://account.accurate.id/oauth/authorize?client_id=" + vm.partner_api.ClientId + "&response_type=code&redirect_uri=" + url_uri + "&scope=" + scope;
+                System.Diagnostics.Process.Start(url);
+            }
+            catch(Exception ex)
+            {
+                return JsonErrorMessage("Error : " + ex.Message + "\nSilahkan hubungi support.");
+            }
             return RedirectToAction("PartnerApi");
         }
 
+        public ActionResult CekPartner(string partnerId)
+        {
+            var msg = "";
+            if(partnerId == "20007")
+            {
+                var partner = ErasoftDbContext.PARTNER_API.Where(m => m.PartnerId == 20007).ToList();
+                if(partner.Count > 0)
+                {
+                    msg = "1 akun Master Online hanya bisa link dengan 1 akun Accurate.";
+                }
+            }
+            return JsonErrorMessage(msg);
+        }
         //api_baim start 06/04/2021
         public ActionResult OauthCode()
         {
