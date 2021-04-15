@@ -4845,7 +4845,7 @@ namespace MasterOnline.Controllers
 
                             updateStockMarketPlace(ConnId, dbPathEra, uname);
                         }
-                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM TEMP_ALL_MP_ORDER_ITEM_BUNDLING WHERE CONN_ID = '" + conn_id + "'");
+                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM TEMP_ALL_MP_ORDER_ITEM_BUNDLING WHERE conn_id IN (" + conn_id + ")");
                     }
                 }
             }
