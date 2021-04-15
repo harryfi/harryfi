@@ -4272,7 +4272,8 @@
                 if ($this.text() !== '') {
                     //change by calvin 12 nov 2018
                     //$angka = $this.text();
-                    $angka = convertToAngka($this.text());
+                    //$angka = convertToAngka($this.text());
+                    $angka = convertToAngkaForDec($this.text());
                     //end change by calvin 12 nov 2018
                 }
 
@@ -4288,7 +4289,9 @@
                     if ($class == 'harga-barang editable') {
                         $inputClass = 'harga-input';
                     }
-                    var $hargaBarangAwal = convertToAngka($($trElement + ' .harga-barang').text());
+                    //var $hargaBarangAwal = convertToAngka($($trElement + ' .harga-barang').text());
+                    var $hargaBarangAwal = convertToAngkaForDec($($trElement + ' .harga-barang').text());
+
                 }
 
                 //END ADD BY NURUL 28/6/2019
@@ -4479,7 +4482,8 @@
                                 $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > td.disc1-barang').click();
                                 e.preventDefault();
                             }
-                        } else if ($(this).hasClass('disc-input') && $(this).parent().hasClass('disc1-barang')) {
+                        }
+                        else if ($(this).hasClass('disc-input') && $(this).parent().hasClass('disc1-barang')) {
                             numOnlyOnKeyDown(e);
                             if (keyCode === 190 || keyCode === 188) e.preventDefault();
                             if (keyCode === 13 || keyCode === 9) {
@@ -5121,7 +5125,23 @@
                 return parseFloat(rupiah.replaceAll(',', '.'));
             }
             //end change by calvin 26 september 2018
+    }
+    function convertToAngkaForDec(rupiah) {
+        if (rupiah == '') {
+            rupiah = '0';
         }
+        //change by calvin 26 september 2018
+        //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
+        if (rupiah.includes(".")) {
+            return rupiah.replaceAll('.', '');
+        }
+        //else {
+        //    //jika bisa desimal
+        //    return parseFloat(rupiah.replaceAll(',', '.'));
+        //}
+        //end change by calvin 26 september 2018
+        return rupiah;
+    }
 
         var $idFaktur = "";
 
