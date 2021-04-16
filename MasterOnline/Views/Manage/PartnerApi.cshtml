@@ -482,6 +482,8 @@
             //    alert("Silahkan pilih email terlebih dahulu.");
             //    return false;
             //}
+            $("#partner_api_Status").val($("#api_status").val());
+            $("#partner_api_isPaid").val($("#inv_status").val());
             $.ajax({
                 type: "POST",
                 url: '@Url.Action("SavePartnerApi", "Manage")',
