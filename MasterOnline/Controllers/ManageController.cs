@@ -3812,7 +3812,7 @@ namespace MasterOnline.Controllers
                 Uri uri = urlBuilder.Uri;
                 string url_uri = urlBuilder.ToString() + "?email=" + email_to_accurate;
                 string url = "https://account.accurate.id/oauth/authorize?client_id=" + Uri.EscapeDataString(vm.partner_api.ClientId) + "&response_type=code&redirect_uri=" 
-                    + Uri.EscapeDataString(url_uri) + "&scope=" + Uri.EscapeDataString(scope);
+                    + url_uri + "&scope=" + Uri.EscapeDataString(scope);
                 //System.Diagnostics.Process.Start(url);
                 return new JsonResult { Data = url, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
