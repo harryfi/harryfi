@@ -177,7 +177,7 @@
                                                                 }
                                                             }
                                                             <br>
-                                                            @using (Html.BeginForm("SavePartnerApi", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-partner-api" }))
+                                                            @using (Html.BeginForm("SavePartnerApi", "Manage", FormMethod.Post, new { @autocomplete = "off", enctype = "multipart/form-data", id = "form-partnerapi" }))
                                                             {
                                                                 <div id="form-partner-api">
                                                                     @*@Html.Partial("FormPartnerApiPartial")*@
@@ -286,24 +286,24 @@
             //getStatusWebhook();
             //getSelectStatusPaid();
 
-            $("#api_status").change(function () {
-                if ($("#api_status").val() == "true") {
-                    $("#partner_api_Status").val('true');
-                    $("#api_status option:selected").text('Aktif');
-                } else if ($("#api_status").val() == "false") {
-                    $("#partner_api_Status").val('false');
-                    $("#api_status option:selected").text('Tidak Aktif');
-                }
-            });
-            $("#inv_status").change(function () {
-                if ($("#inv_status").val() == "true") {
-                    $("#partner_api_isPaid").val('true');
-                    $("#api_status option:selected").text('Aktif');
-                } else if ($("#inv_status").val() == "false") {
-                    $("#partner_api_isPaid").val('false');
-                    $("#inv_status option:selected").text('Tidak Aktif');
-                }
-            });
+            //$("#api_status").change(function () {
+            //    if ($("#api_status").val() == "True") {
+            //        $("#partner_api_Status").val('True');
+            //        $("#api_status option:selected").text('Aktif');
+            //    } else if ($("#api_status").val() == "False") {
+            //        $("#partner_api_Status").val('False');
+            //        $("#api_status option:selected").text('Tidak Aktif');
+            //    }
+            //});
+            //$("#inv_status").change(function () {
+            //    if ($("#inv_status").val() == "True") {
+            //        $("#partner_api_isPaid").val('True');
+            //        $("#api_status option:selected").text('Aktif');
+            //    } else if ($("#inv_status").val() == "False") {
+            //        $("#partner_api_isPaid").val('False');
+            //        $("#inv_status option:selected").text('Tidak Aktif');
+            //    }
+            //});
             //$("#api_status").change();
             //$('#api_status').val(tempType);
         }
@@ -482,13 +482,12 @@
             //    alert("Silahkan pilih email terlebih dahulu.");
             //    return false;
             //}
-            debugger;
             $.ajax({
                 type: "POST",
                 url: '@Url.Action("SavePartnerApi", "Manage")',
-                data: $('#form-partner-api').serialize(),
+                data: $('#form-partnerapi').serialize(),
                 success: function (response) {
-                    if (response.Errors[0] == null) {
+                    if (response.Errors == null) {
                         @*alert('Data berhasil tersimpan');
                         location.href = '@Url.Action("PartnerApi")';*@
                         var accAuthPopUp = window.open(response, "Accurate Authentication", "width=1000, height=600, scrollbars=yes");
@@ -504,12 +503,14 @@
                         alert(response.Errors[0]);
                         location.href = '@Url.Action("PartnerApi")';
                     }
+                    //alert(response);
                 },
                 error: function (xhr, status, error) {
-                    alert(response.mo_error);
+                    alert('Gagal link dengan partner. Silahkan hubungi support.');
                     console.log(error);
                 }
             });
+            return false;
         }
 
         function editPartnerApi(addonsId) {

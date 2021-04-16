@@ -3742,7 +3742,7 @@ namespace MasterOnline.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        //[ValidateAntiForgeryToken]
         public ActionResult SavePartnerApi(PartnerApiViewModel vm)
         {
             //if (!ModelState.IsValid)
@@ -3811,7 +3811,8 @@ namespace MasterOnline.Controllers
                 string email_to_accurate = MoDbContext.Account.Single(a => a.Username == usernameLogin).Email;
                 Uri uri = urlBuilder.Uri;
                 string url_uri = urlBuilder.ToString() + "?email=" + email_to_accurate;
-                string url = "https://account.accurate.id/oauth/authorize?client_id=" + vm.partner_api.ClientId + "&response_type=code&redirect_uri=" + url_uri + "&scope=" + scope;
+                string url = "https://account.accurate.id/oauth/authorize?client_id=" + Uri.EscapeDataString(vm.partner_api.ClientId) + "&response_type=code&redirect_uri=" 
+                    + Uri.EscapeDataString(url_uri) + "&scope=" + Uri.EscapeDataString(scope);
                 //System.Diagnostics.Process.Start(url);
                 return new JsonResult { Data = url, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
