@@ -6935,7 +6935,147 @@ namespace MasterOnline.Controllers
 
             return Json(ret, JsonRequestBehavior.AllowGet);
         }
+
+        //add by nurul 9/4/2021, download excel bayar piutang
+        public ActionResult ListPembayaranPiutangtoExcel(string nobuk, string recnum)
+        {
+            var ret = new BindDownloadExcel
+            {
+                Errors = new List<string>()
+            };
+
+            try
+            {
+                using (var package = new OfficeOpenXml.ExcelPackage())
+                {
+                    ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("PEMBAYARAN PIUTANG");
+
+                    string sSQL = "SELECT ISNULL(A.NFAKTUR,'') AS NFAKTUR,ISNULL(A.NOREF,'') AS NOREF,ISNULL(CASE WHEN CONVERT(DATE, A.TGL_REF) = '1900-01-01' THEN '' ELSE CONVERT(CHAR(10), A.TGL_REF, 103) END, '') AS TGL_REF,ISNULL((SELECT ISNULL(materai,0) AS ONGKIR FROM SIT01A (NOLOCK) WHERE NO_BUKTI = A.NFAKTUR),0) AS ONGKIR,ISNULL(A.SISA,0) AS FAKTUR,ISNULL(A.BAYAR,0) BAYAR,ISNULL(A.POT,0) POT,ISNULL(A.SISA,0) - ISNULL(A.BAYAR,0) - ISNULL(A.POT,0) AS SELISIH,ISNULL(A.LEBIH_BAYAR,0) AS LEBIH_BAYAR, " +
+                                  "CASE WHEN ISNULL(LEBIH_BAYAR, 0) > 0 THEN '+ ' + CONVERT(NVARCHAR, (CASE WHEN ROUND(ISNULL(LEBIH_BAYAR, 0) / ISNULL(A.SISA, 0) * 100, 2) = 0 THEN ROUND(ISNULL(LEBIH_BAYAR, 0) / ISNULL(A.SISA, 0) * 100, 3) ELSE ROUND(ISNULL(LEBIH_BAYAR, 0) / ISNULL(A.SISA, 0) * 100, 2) END)) " +
+                                  "WHEN ISNULL(A.SISA,0) -ISNULL(A.BAYAR, 0) - ISNULL(A.POT, 0) > 0 THEN '- ' + CONVERT(NVARCHAR, (CASE WHEN ROUND((ISNULL(A.SISA, 0) - ISNULL(A.BAYAR, 0) - ISNULL(A.POT, 0)) / ISNULL(A.SISA, 0) * 100, 2) = 0 THEN ROUND((ISNULL(A.SISA, 0) - ISNULL(A.BAYAR, 0) - ISNULL(A.POT, 0)) / ISNULL(A.SISA, 0) * 100, 3) ELSE ROUND((ISNULL(A.SISA, 0) - ISNULL(A.BAYAR, 0) - ISNULL(A.POT, 0)) / ISNULL(A.SISA, 0) * 100, 2) END)) " +
+                                  "ELSE '0' END AS PERSEN " +
+                                  "FROM ART03B A(NOLOCK) WHERE A.BUKTI = '" + nobuk + "'";
+                    var lsFaktur = EDB.GetDataSet("CString", "ART03B", sSQL);
+
+                    var sSQLHeader = "SELECT A.BUKTI,A.TGL, " +
+                                     "CASE WHEN ISNULL(PERSO, '') <> '' THEN ISNULL(NAMAMARKET,'') +' (' + ISNULL(PERSO, '') + ')' ELSE ISNULL(NAMAMARKET,'') END AS CUST,  " +
+                                     "ISNULL(SISA, 0) AS FAKTUR, ISNULL(BAYAR, 0) + ISNULL(POT, 0) AS PELUNASAN, ISNULL(BAYAR, 0) AS TBAYAR, ISNULL(POT, 0) AS TPOT, ISNULL(LEBIH_BAYAR, 0) AS TLEBIH_BAYAR, ISNULL(ISNULL(SISA, 0) - ISNULL(BAYAR, 0) - ISNULL(POT, 0), 0) AS SELISIH " +
+                                     "FROM ART03A A(NOLOCK) LEFT JOIN(SELECT BUKTI, SUM(ISNULL(SISA,0)) AS SISA, SUM(ISNULL(BAYAR, 0)) AS BAYAR, SUM(ISNULL(POT, 0)) AS POT, SUM(ISNULL(LEBIH_BAYAR, 0)) AS LEBIH_BAYAR FROM ART03B(NOLOCK) WHERE BUKTI = '" + nobuk + "' GROUP BY BUKTI) B ON A.BUKTI = B.BUKTI LEFT JOIN ARF01 C(NOLOCK) ON A.CUST = C.CUST LEFT JOIN MO..MARKETPLACE D(NOLOCK) ON C.NAMA = D.IDMARKET " +
+                                     "WHERE A.BUKTI = '" + nobuk + "'";
+                    var header = EDB.GetDataSet("CString", "ART03A", sSQLHeader);
+
+                    if (header.Tables[0].Rows.Count > 0)
+                    {
+                        if (lsFaktur.Tables[0].Rows.Count > 0)
+                        {
+                            worksheet.Cells["A1"].Value = "PEMBAYARAN PIUTANG";
+                            //worksheet.Cells["A2"].Value = "No. Bukti            : " + header.Tables[0].Rows[0]["BUKTI"];
+                            //worksheet.Cells["A3"].Value = "Tanggal              : " + Convert.ToDateTime(header.Tables[0].Rows[0]["TGL"]).ToString("dd/MM/yyyy");
+                            //worksheet.Cells["A4"].Value = "Nama Marketplace     : " + header.Tables[0].Rows[0]["CUST"];
+                            //worksheet.Cells["A5"].Value = "Total Faktur         : " + header.Tables[0].Rows[0]["FAKTUR"];
+                            //worksheet.Cells["A6"].Value = "Total Bayar          : " + header.Tables[0].Rows[0]["TBAYAR"];
+                            //worksheet.Cells["A7"].Value = "Total Potongan       : " + header.Tables[0].Rows[0]["TPOT"];
+                            //worksheet.Cells["A8"].Value = "Total Pelunasan      : " + header.Tables[0].Rows[0]["PELUNASAN"];
+                            //worksheet.Cells["A9"].Value = "Selisih              : " + header.Tables[0].Rows[0]["SELISIH"];
+                            //worksheet.Cells["A10"].Value = "Total Lebih Bayar   : " + header.Tables[0].Rows[0]["TLEBIH_BAYAR"];
+                            worksheet.Cells["A2"].Value = "No. Bukti";
+                            worksheet.Cells["A3"].Value = "Tanggal";
+                            worksheet.Cells["A4"].Value = "Nama Marketplace";
+                            worksheet.Cells["A5"].Value = "Total Faktur";
+                            worksheet.Cells["A6"].Value = "Total Bayar";
+                            worksheet.Cells["A7"].Value = "Total Potongan";
+                            worksheet.Cells["A8"].Value = "Total Pelunasan";
+                            worksheet.Cells["A9"].Value = "Selisih";
+                            worksheet.Cells["A10"].Value = "Total Lebih Bayar";
+
+                            worksheet.Cells["B2"].Value = ": " + header.Tables[0].Rows[0]["BUKTI"];
+                            worksheet.Cells["B3"].Value = ": " + Convert.ToDateTime(header.Tables[0].Rows[0]["TGL"]).ToString("dd/MM/yyyy");
+                            worksheet.Cells["B4"].Value = ": " + header.Tables[0].Rows[0]["CUST"];
+                            worksheet.Cells["B5"].Value = ": " + header.Tables[0].Rows[0]["FAKTUR"];
+                            worksheet.Cells["B6"].Value = ": " + header.Tables[0].Rows[0]["TBAYAR"];
+                            worksheet.Cells["B7"].Value = ": " + header.Tables[0].Rows[0]["TPOT"];
+                            worksheet.Cells["B8"].Value = ": " + header.Tables[0].Rows[0]["PELUNASAN"];
+                            worksheet.Cells["B9"].Value = ": " + header.Tables[0].Rows[0]["SELISIH"];
+                            worksheet.Cells["B10"].Value = ": " + header.Tables[0].Rows[0]["TLEBIH_BAYAR"];
+
+                            for (int i = 0; i < lsFaktur.Tables[0].Rows.Count; i++)
+                            {
+                                worksheet.Cells[13 + i, 1].Value = lsFaktur.Tables[0].Rows[i]["NFAKTUR"];
+                                worksheet.Cells[13 + i, 2].Value = lsFaktur.Tables[0].Rows[i]["NOREF"];
+                                worksheet.Cells[13 + i, 3].Value = lsFaktur.Tables[0].Rows[i]["TGL_REF"];
+                                worksheet.Cells[13 + i, 4].Value = lsFaktur.Tables[0].Rows[i]["ONGKIR"];
+                                worksheet.Cells[13 + i, 5].Value = lsFaktur.Tables[0].Rows[i]["FAKTUR"];
+                                worksheet.Cells[13 + i, 6].Value = lsFaktur.Tables[0].Rows[i]["BAYAR"];
+                                worksheet.Cells[13 + i, 7].Value = lsFaktur.Tables[0].Rows[i]["POT"];
+                                worksheet.Cells[13 + i, 8].Value = lsFaktur.Tables[0].Rows[i]["SELISIH"];
+                                worksheet.Cells[13 + i, 9].Value = lsFaktur.Tables[0].Rows[i]["LEBIH_BAYAR"];
+                                worksheet.Cells[13 + i, 10].Value = lsFaktur.Tables[0].Rows[i]["PERSEN"] + " %";
+                            }
+
+                            ExcelRange rg0 = worksheet.Cells[12, 1, worksheet.Dimension.End.Row, 10];
+                            string tableName0 = "TableFaktur";
+                            ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
+
+                            table0.Columns[0].Name = "NO FAKTUR";
+                            table0.Columns[1].Name = "NO REF";
+                            table0.Columns[2].Name = "TGL REF";
+                            table0.Columns[3].Name = "NILAI ONGKIR";
+                            table0.Columns[4].Name = "NILAI FAKTUR";
+                            table0.Columns[5].Name = "NILAI BAYAR";
+                            table0.Columns[6].Name = "NILAI POTONGAN";
+                            table0.Columns[7].Name = "KURANG BAYAR";
+                            table0.Columns[8].Name = "LEBIH BAYAR";
+                            table0.Columns[9].Name = "% SELISIH";
+
+                            using (var range = worksheet.Cells[12, 1, 12, 10])
+                            {
+                                range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                                range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                                range.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                                range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                            }
+
+                            table0.ShowHeader = true;
+                            table0.ShowFilter = true;
+                            table0.ShowRowStripes = false;
+                            worksheet.Cells.AutoFitColumns(0);
+
+                            ret.byteExcel = package.GetAsByteArray();
+                            ret.namaFile = username + "_PembayaranPiutang" + ".xlsx";
+                        }
+                        else
+                        {
+                            ret.Errors.Add("Tidak ada data detail bayar pada bukti " + nobuk + ".");
+                        }
+                    }
+                    else
+                    {
+                        ret.Errors.Add("Pembayaran " + nobuk + " tidak ditemukan.");
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+            }
+
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(ret),
+                ContentType = "application/json"
+            };
+
+            return result;
+
+        }
+        //end add by nurul 9/4/2021, download excel bayar piutang
     }
+    //end add by nurul 9/4/2021, download excel bayar piutang
+}
 
 
     //add by fauzi uploadStockSaldoAwal

@@ -356,24 +356,22 @@
                 </div>
             </div>
         </div>
-        @if (Model?.Piutang?.POSTING != "Y")
-        {
-            <div class="col-md-6 pull-right">
-                <div id="btn-upload-row" class="row">
-                    @*<div class="col-lg-4"></div>
-                        <div class="col-lg-4"></div>*@
-                    <div class="">
-                        <div class="form-group">
-                            <div class="col-md-5"></div>
-                            <div class="col-md-5">
-                                <button id="btn-createPot" type="button" onclick="validasiCreatePot()" class="btn btn-primary btn-block">Pelunasan</button>
+        <div class="col-md-6 pull-right">
+            <div id="btn-error-row" class="row">
+                <div class="">
+                    <div class="form-group">
+                        <div class="col-md-5"></div>
+                        <div class="col-md-5">
+                            <div>
+                                <button id="btn-download" type="button" onclick="DownloadExcelBayarPiutang('@(Model?.Piutang.BUKTI)', '@(Model?.Piutang?.RecNum)')" class="btn btn-primary btn-block">Download</button>
+                                @*<button id="btn-download" data-toggle="modal" data-target="#modalDownload" type="button" onclick="DownloadExcelBayarPiutang('@Model.Piutang.BUKTI', '@Model.Piutang.RecNum')" class="btn btn-primary btn-block">Download</button>*@
                             </div>
-                            <div class="col-md-2"></div>
                         </div>
+                        <div class="col-md-2"></div>
                     </div>
                 </div>
             </div>
-        }
+        </div>
     </div>
     <div class="row">
         <div class="col-md-6">
