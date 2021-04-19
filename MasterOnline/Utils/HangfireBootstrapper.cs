@@ -36,25 +36,6 @@ namespace MasterOnline.Utils
 
                 HostingEnvironment.RegisterObject(this);
 
-                ////initialize log txt
-                //#region Logging
-                //string messageErrorLog = "";
-                //string filename = "Log_Intitial_AppPreload_HangfireBootstrapper_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
-                //var path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
-
-                //if (!System.IO.File.Exists(path))
-                //{
-                //    System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
-                //    var asd = System.IO.File.Create(path);
-                //    asd.Close();
-                //}
-                //StreamWriter tw = new StreamWriter(path);
-                //var msglog = "Log HangfireBootstrapper Running...... Pada waktu " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
-                //tw.WriteLine(msglog);
-                //tw.Close();
-                //tw.Dispose();
-                //#endregion
-
 #if (Debug_AWS || DEBUG)
                 var testing = "";
 #elif (DEV)
@@ -274,13 +255,12 @@ namespace MasterOnline.Utils
 
                             if (checkDuplicate.Count() == 0)
                             {
-                                //foreach (var server in serverList)
-                                //{
-                                //    var serverConnection = sqlStorage.GetConnection();
-                                //    serverConnection.RemoveServer(server.Name);
-                                //    serverConnection.Dispose();
-                                //}
-                                startHangfireServer(sqlStorage);
+                                foreach (var server in serverList)
+                                {
+                                    var serverConnection = sqlStorage.GetConnection();
+                                    serverConnection.RemoveServer(server.Name);
+                                    serverConnection.Dispose();
+                                }
 
                                 if (item.DatabasePathErasoft == "ERASOFT_80069")
                                 {

@@ -685,7 +685,10 @@
                             @*//add by nurul 26/7/2019*@
                             <li class="center">
                                 <a class="member-profile center">
-                                    IP SERVER @IPSERVER
+                                    @if (sessionAccountEmail.ToString() == "rahmamk@gmail.com")
+                                    {
+                                        <label>IP SERVER @IPSERVER</label>
+                                    }                                    
                                     @if (member == "01")
                                     {
                                         <label>@nmMember </label>
