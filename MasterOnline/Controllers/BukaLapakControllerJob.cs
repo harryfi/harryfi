@@ -28,21 +28,21 @@ namespace MasterOnline.Controllers
         private string username;
 
 #if AWS
-        //private static string callBackUrl = "https://masteronline.co.id/bukalapak/auth";
-        //private static string client_id = "GovVusRdl0QwJCXu1F0th5lezoFYvVIW4XHv4U1M05U";
-        //private static string client_secret = "osqzx8n3y3YRJ0vydm_8qOZ9N9f95EvrZSvTFtKQCzM";
+        private static string callBackUrl = "https://masteronline.co.id/bukalapak/auth";
+        private static string client_id = "GovVusRdl0QwJCXu1F0th5lezoFYvVIW4XHv4U1M05U";
+        private static string client_secret = "osqzx8n3y3YRJ0vydm_8qOZ9N9f95EvrZSvTFtKQCzM";
 
-        private static string callBackUrl = "https://masteronline.my.id/bukalapak/auth";
-        private static string client_id = "Oot9vyRecx10Nd1iYgviHN4GN52aMquQ-7Nq7vIjhw4";
-        private static string client_secret = "7l_ZKSfga8pqbqBUhTTjL4EMAy4XFigoHBTTDqIaMEo";
+        //private static string callBackUrl = "https://masteronline.my.id/bukalapak/auth";
+        //private static string client_id = "Oot9vyRecx10Nd1iYgviHN4GN52aMquQ-7Nq7vIjhw4";
+        //private static string client_secret = "7l_ZKSfga8pqbqBUhTTjL4EMAy4XFigoHBTTDqIaMEo";
 #else
-        //private static string callBackUrl = "https://dev.masteronline.co.id/bukalapak/auth";
-        //private static string client_id = "laJXb5jh91BelPQg2VmE2ooa58UVJmlJkNq98EPJc6s";
-        //private static string client_secret = "AXe5u7JcYiSNLvOsGW92Dzc4li6mbrWpN9qjlLD4OxI";
+        private static string callBackUrl = "https://dev.masteronline.co.id/bukalapak/auth";
+        private static string client_id = "laJXb5jh91BelPQg2VmE2ooa58UVJmlJkNq98EPJc6s";
+        private static string client_secret = "AXe5u7JcYiSNLvOsGW92Dzc4li6mbrWpN9qjlLD4OxI";
 
-        private static string callBackUrl = "https://masteronline.my.id/bukalapak/auth";
-        private static string client_id = "Oot9vyRecx10Nd1iYgviHN4GN52aMquQ-7Nq7vIjhw4";
-        private static string client_secret = "7l_ZKSfga8pqbqBUhTTjL4EMAy4XFigoHBTTDqIaMEo";
+        //private static string callBackUrl = "https://masteronline.my.id/bukalapak/auth";
+        //private static string client_id = "Oot9vyRecx10Nd1iYgviHN4GN52aMquQ-7Nq7vIjhw4";
+        //private static string client_secret = "7l_ZKSfga8pqbqBUhTTjL4EMAy4XFigoHBTTDqIaMEo";
 #endif
         public BukaLapakControllerJob()
         {
