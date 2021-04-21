@@ -14,6 +14,31 @@
     <link href="~/Content/selectize.css" rel="stylesheet" />
 
     <style>
+        #loading_download {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            z-index: 100;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0,0,0,.5);
+        }
+
+        #loading_download_image {
+            width: 20px;
+            height: 20px;
+            margin-top: -90px;
+            margin-left: -90px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-width: 30px;
+            border-radius: 50%;
+        }
+
         #div-scroll-list {
             overflow-x: hidden;
             overflow-y: scroll;
@@ -3862,6 +3887,75 @@
             });
         }  
         //end add by nurul 14/12/2020
+
+        //add by nurul 9/4/2021
+        function DownloadExcelBayarPiutang($nobukti,$recnum) {
+            if ($('#NOBUK_bayar_piutang').val() == null && $('#NOBUK_bayar_piutang').val() == "") {
+                alert('Pembayaran belum terbentuk.');
+                return false;
+            }
+            var rows_detail = [];
+            $('.checkbox_detail_bayar').each(function (i, item) {
+                rows_detail.push($(item).attr("data-recnum"));
+            });
+            if (rows_detail.length < 1) {
+                alert('Pembayaran tidak memiliki detail.');
+                return false;
+            }
+
+            $('#loading_download').show();
+            //$('#modalDownload').modal('show');
+            var link = '@Html.Raw(Url.Action("ListPembayaranPiutangtoExcel", "TransferExcel"))';
+            link += "?nobuk=" + $nobukti + "&recnum=" + $recnum;
+
+            $.ajax({
+                xhr: function () {
+                    var xhr = $.ajaxSettings.xhr();
+                    xhr.onprogress = function (evt) {
+                        if (evt.lengthComputable) {
+                            $('#loading_download').hide();
+                        }
+                        $('#loading_download').hide();
+                    };
+                    return xhr;
+                },
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (response) {
+                    $('#loading_download').hide();
+                    if (response.Errors.length == 0) {
+                        var bytes = new Uint8Array(response.byteExcel);
+                        saveByteArray(response.namaFile, bytes);
+                    } else {
+                        alert(response.Errors[0]);
+                        //$('#modalDownload').modal('hide');
+                    }
+                    
+                },
+                error: function (xhr) {
+                    $('#loading_download').hide();
+                    //$('#modalDownload').modal('hide');
+                    console.log(xhr);
+                }
+            });
+            $('#loading_download').hide();
+            //$('#modalDownload').modal('hide');
+        }
+
+        function saveByteArray(reportName, byte) {
+            var blob = new Blob([byte], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            var fileName = reportName;
+            link.download = fileName;
+            //document.body.appendChild(link);
+            link.click();
+            //$('#modalDownload').modal('hide');
+            //document.body.removeChild(link);
+        };
+        //end add by nurul 9/4/2021
 
     </script>
 
