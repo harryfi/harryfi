@@ -1,4 +1,5 @@
-﻿using MasterOnline.Services;
+﻿using Hangfire;
+using MasterOnline.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -38,6 +39,15 @@ namespace MasterOnline.Utils
             //byte[] byteLog = System.IO.File.ReadAllBytes(path);
             //var pathLoc = UploadFileServices.UploadFile_Log(byteLog, filename);
             #endregion
+
+            //add by Tri 21 apr 2021, ikut function di application start
+            var optionsPrefix = new Hangfire.Pro.Redis.RedisStorageOptions
+            {
+                //InvisibilityTimeout = TimeSpan.FromMinutes(1440),
+                Prefix = "hangfire:app1:",
+            };
+            Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("mo-prod-redis.df2l2v.0001.apse1.cache.amazonaws.com:6379", optionsPrefix);
+            //end add by Tri 21 apr 2021, ikut function di application start
 
             HangfireBootstrapper.Instance.Start();
 #endif
