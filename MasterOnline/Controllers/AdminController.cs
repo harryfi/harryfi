@@ -777,7 +777,8 @@ namespace MasterOnline.Controllers
                     message.To.Add(email);
                     message.From = new MailAddress("csmasteronline@gmail.com");
                     message.Subject = "Email Payment Subscription";
-                    message.Body = System.IO.File.ReadAllText("~/Content/admin/PaymentSubscription.html")
+                    //message.Body = System.IO.File.ReadAllText("~/Content/admin/PaymentSubscription.html")
+                    message.Body = System.IO.File.ReadAllText("C://inetpub//wwwroot//MasterOnline//Content//admin//PaymentSubscription.html")
                         .Replace("EMAIL", Convert.ToString(email))
                         .Replace("TODAY", today)
                         .Replace("NAMA", nama)
@@ -4218,7 +4219,8 @@ namespace MasterOnline.Controllers
                     message.To.Add(email);
                     message.From = new MailAddress("csmasteronline@gmail.com");
                     message.Subject = "Email Payment Subscription";
-                    message.Body = System.IO.File.ReadAllText("~/Content/admin/PaymentSubscription.html")
+                    //message.Body = System.IO.File.ReadAllText("~/Content/admin/PaymentSubscription.html")
+                    message.Body = System.IO.File.ReadAllText("C://inetpub//wwwroot//MasterOnline//Content//admin//PaymentSubscription.html")
                         .Replace("EMAIL", Convert.ToString(email))
                         .Replace("TODAY", today)
                         .Replace("NAMA", nama)
