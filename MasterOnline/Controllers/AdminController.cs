@@ -4601,14 +4601,14 @@ namespace MasterOnline.Controllers
                                 //var sifsys_jtranretur = Convert.ToString(EDB.GetFieldValue("ConnID", "SIFSYS", "1=1", "JTRAN_RETUR"));
                                 Task.Run(() => new AccountController().SyncMarketplace(dbsource, nourut, EDBConnID, "", "auto_start", interval, null)).Wait();
                             }
-                            using (var connection = sqlStorage.GetConnection())
-                            {
-                                //update semua recurring job dengan interval sesuai setting timer
-                                foreach (var recurringJob in connection.GetRecurringJobs())
-                                {
-                                    recurJobM.AddOrUpdate(recurringJob.Id, recurringJob.Job, Cron.MinuteInterval(interval), recurJobOpt);
-                                }
-                            }
+                            //using (var connection = sqlStorage.GetConnection())
+                            //{
+                            //    //update semua recurring job dengan interval sesuai setting timer
+                            //    foreach (var recurringJob in connection.GetRecurringJobs())
+                            //    {
+                            //        recurJobM.AddOrUpdate(recurringJob.Id, recurringJob.Job, Cron.MinuteInterval(interval), recurJobOpt);
+                            //    }
+                            //}
                             vsuccess = true;
                             vstatus = "Hangfire untuk account " + item.Email.ToString() + " telah diaktifkan.";
                         }
