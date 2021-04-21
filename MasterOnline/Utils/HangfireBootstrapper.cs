@@ -154,167 +154,169 @@ namespace MasterOnline.Utils
                 //Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("mo-prod-redis.df2l2v.0001.apse1.cache.amazonaws.com:6379", optionsPrefix);
 
                 // END SETTING HANGFIRE PRO REDIS
+                #region pindah function terpisah
+                //var lastYear = DateTime.UtcNow.AddYears(-1);
+                //var last2Week = DateTime.UtcNow.AddHours(7).AddDays(-14);
+                //var datenow = DateTime.UtcNow.AddHours(7);
 
-                var lastYear = DateTime.UtcNow.AddYears(-1);
-                var last2Week = DateTime.UtcNow.AddHours(7).AddDays(-14);
-                var datenow = DateTime.UtcNow.AddHours(7);
+                //MoDbContext = new MoDbContext();
 
-                MoDbContext = new MoDbContext();
+                //var accountInDb = (from a in MoDbContext.Account
+                //                   where
+                //                   (a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
+                //                   &&
+                //                   (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
+                //                   orderby a.LAST_LOGIN_DATE descending
+                //                   select a).ToList();
+                //foreach (var item in accountInDb)
+                //{
+                //    if (!string.IsNullOrEmpty(item.DataSourcePath) && !string.IsNullOrEmpty(item.DatabasePathErasoft))
+                //    {
+                //        //var EDB = new DatabaseSQL(item.DatabasePathErasoft);
 
-                var accountInDb = (from a in MoDbContext.Account
-                                   where
-                                   (a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
-                                   &&
-                                   (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
-                                   orderby a.LAST_LOGIN_DATE descending
-                                   select a).ToList();
-                foreach (var item in accountInDb)
-                {
-                    if (!string.IsNullOrEmpty(item.DataSourcePath) && !string.IsNullOrEmpty(item.DatabasePathErasoft))
-                    {
-                        //var EDB = new DatabaseSQL(item.DatabasePathErasoft);
+                //        //string EDBConnID = EDB.GetConnectionString("ConnID");
+                //        //var sqlStorage = new SqlServerStorage(EDBConnID);
 
-                        //string EDBConnID = EDB.GetConnectionString("ConnID");
-                        //var sqlStorage = new SqlServerStorage(EDBConnID);
+                //        //var monitoringApi = sqlStorage.GetMonitoringApi();
+                //        //var serverList = monitoringApi.Servers();
 
-                        //var monitoringApi = sqlStorage.GetMonitoringApi();
-                        //var serverList = monitoringApi.Servers();
+                //        //if (serverList.Count() == 0)
+                //        //{
+                //        //    startHangfireServer(sqlStorage);
+                //        //}
+                //        //else
+                //        //{
+                //        //    foreach (var server in serverList)
+                //        //    {
+                //        //        var serverConnection = sqlStorage.GetConnection();
+                //        //        serverConnection.RemoveServer(server.Name);
+                //        //        serverConnection.Dispose();
+                //        //    }
+                //        //    startHangfireServer(sqlStorage);
+                //        //}
 
-                        //if (serverList.Count() == 0)
-                        //{
-                        //    startHangfireServer(sqlStorage);
-                        //}
-                        //else
-                        //{
-                        //    foreach (var server in serverList)
-                        //    {
-                        //        var serverConnection = sqlStorage.GetConnection();
-                        //        serverConnection.RemoveServer(server.Name);
-                        //        serverConnection.Dispose();
-                        //    }
-                        //    startHangfireServer(sqlStorage);
-                        //}
+                //        var EDB = new DatabaseSQL(item.DatabasePathErasoft);
+                //        var erasoft = new ErasoftContext(item.DataSourcePath, item.DatabasePathErasoft);
+                //        string sSQL = "select * from hangfire.server";
+                //        var check = erasoft.Database.SqlQuery<HANGFIRE_SERVER>(sSQL).ToList();
+                //        string EDBConnID = EDB.GetConnectionString("ConnID");
+                //        var sqlStorage = new SqlServerStorage(EDBConnID);
+                //        //var sqlStorage = new SqlServerStorage("Data Source=54.151.175.62, 12350;Initial Catalog=ERASOFT_rahmamk;Persist Security Info=True;User ID=sa;Password=admin123^");
 
-                        var EDB = new DatabaseSQL(item.DatabasePathErasoft);
-                        var erasoft = new ErasoftContext(item.DataSourcePath, item.DatabasePathErasoft);
-                        string sSQL = "select * from hangfire.server";
-                        var check = erasoft.Database.SqlQuery<HANGFIRE_SERVER>(sSQL).ToList();
-                        string EDBConnID = EDB.GetConnectionString("ConnID");
-                        var sqlStorage = new SqlServerStorage(EDBConnID);
-                        //var sqlStorage = new SqlServerStorage("Data Source=54.151.175.62, 12350;Initial Catalog=ERASOFT_rahmamk;Persist Security Info=True;User ID=sa;Password=admin123^");
-                        
-                        var monitoringApi = sqlStorage.GetMonitoringApi();
-                        var serverList = monitoringApi.Servers();
+                //        var monitoringApi = sqlStorage.GetMonitoringApi();
+                //        var serverList = monitoringApi.Servers();
 
-                        if (Convert.ToInt32(check.Count()) == 0)
-                        {
-                            //if (serverList.Count() == 0)
-                            //{
-                            //    startHangfireServer(sqlStorage);
-                            //}
-                            //else
-                            //{
-                            //foreach (var server in serverList)
-                            //{
-                            //    var serverConnection = sqlStorage.GetConnection();
-                            //    serverConnection.RemoveServer(server.Name);
-                            //    serverConnection.Dispose();
-                            //}
-                            startHangfireServer(sqlStorage);
-                            if (item.DatabasePathErasoft == "ERASOFT_80069")
-                            {
-                                //initialize log txt
-                                #region Logging
-                                string messageErrorLog = "";
-                                string filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_EMPTY_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
-                                var path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
+                //        if (Convert.ToInt32(check.Count()) == 0)
+                //        {
+                //            //if (serverList.Count() == 0)
+                //            //{
+                //            //    startHangfireServer(sqlStorage);
+                //            //}
+                //            //else
+                //            //{
+                //            //foreach (var server in serverList)
+                //            //{
+                //            //    var serverConnection = sqlStorage.GetConnection();
+                //            //    serverConnection.RemoveServer(server.Name);
+                //            //    serverConnection.Dispose();
+                //            //}
+                //            startHangfireServer(sqlStorage);
+                //            if (item.DatabasePathErasoft == "ERASOFT_80069")
+                //            {
+                //                //initialize log txt
+                //                #region Logging
+                //                string messageErrorLog = "";
+                //                string filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_EMPTY_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
+                //                var path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
 
-                                if (!System.IO.File.Exists(path))
-                                {
-                                    System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
-                                    var asd = System.IO.File.Create(path);
-                                    asd.Close();
-                                }
-                                StreamWriter tw = new StreamWriter(path);
-                                var msglog = "Log Masuk kondisi Hangfire Server Kosong lalu lanjutkan dengan startHangfireServer() untuk startUp Hangfire. Pada waktu " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
-                                tw.WriteLine(msglog);
-                                tw.Close();
-                                tw.Dispose();
+                //                if (!System.IO.File.Exists(path))
+                //                {
+                //                    System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
+                //                    var asd = System.IO.File.Create(path);
+                //                    asd.Close();
+                //                }
+                //                StreamWriter tw = new StreamWriter(path);
+                //                var msglog = "Log Masuk kondisi Hangfire Server Kosong lalu lanjutkan dengan startHangfireServer() untuk startUp Hangfire. Pada waktu " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
+                //                tw.WriteLine(msglog);
+                //                tw.Close();
+                //                tw.Dispose();
 
-                                //byte[] byteLog = System.IO.File.ReadAllBytes(path);
-                                //var pathLoc = UploadFileServices.UploadFile_Log(byteLog, filename);
-                                #endregion
+                //                //byte[] byteLog = System.IO.File.ReadAllBytes(path);
+                //                //var pathLoc = UploadFileServices.UploadFile_Log(byteLog, filename);
+                //                #endregion
 
-                            }
-                            //}
-                        }
-                        else
-                        {
-                            string sSQLCheckDuplicate = "select * from hangfire.server where lastheartbeat > dateadd(MINUTE, -2, GETDATE())";
-                            var checkDuplicate = erasoft.Database.SqlQuery<HANGFIRE_SERVER>(sSQLCheckDuplicate).ToList();
+                //            }
+                //            //}
+                //        }
+                //        else
+                //        {
+                //            string sSQLCheckDuplicate = "select * from hangfire.server where lastheartbeat > dateadd(MINUTE, -2, GETDATE())";
+                //            var checkDuplicate = erasoft.Database.SqlQuery<HANGFIRE_SERVER>(sSQLCheckDuplicate).ToList();
 
-                            if (checkDuplicate.Count() == 0)
-                            {
-                                foreach (var server in serverList)
-                                {
-                                    var serverConnection = sqlStorage.GetConnection();
-                                    serverConnection.RemoveServer(server.Name);
-                                    serverConnection.Dispose();
-                                }
+                //            if (checkDuplicate.Count() == 0)
+                //            {
+                //                foreach (var server in serverList)
+                //                {
+                //                    var serverConnection = sqlStorage.GetConnection();
+                //                    serverConnection.RemoveServer(server.Name);
+                //                    serverConnection.Dispose();
+                //                }
 
-                                if (item.DatabasePathErasoft == "ERASOFT_80069")
-                                {
-                                    #region Logging
-                                    string messageErrorLog = "";
-                                    string filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_ALREADYEXIST_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
-                                    var path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
+                //                if (item.DatabasePathErasoft == "ERASOFT_80069")
+                //                {
+                //                    #region Logging
+                //                    string messageErrorLog = "";
+                //                    string filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_ALREADYEXIST_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
+                //                    var path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
 
-                                    if (!System.IO.File.Exists(path))
-                                    {
-                                        System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
-                                        var asd = System.IO.File.Create(path);
-                                        asd.Close();
-                                    }
-                                    StreamWriter tw = new StreamWriter(path);
-                                    var msglog = "Log Masuk kondisi Hangfire Server Ada lalu lanjut dengan melakukan hapus server. Pada waktu " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
-                                    tw.WriteLine(msglog);
-                                    tw.Close();
-                                    tw.Dispose();
+                //                    if (!System.IO.File.Exists(path))
+                //                    {
+                //                        System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
+                //                        var asd = System.IO.File.Create(path);
+                //                        asd.Close();
+                //                    }
+                //                    StreamWriter tw = new StreamWriter(path);
+                //                    var msglog = "Log Masuk kondisi Hangfire Server Ada lalu lanjut dengan melakukan hapus server. Pada waktu " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
+                //                    tw.WriteLine(msglog);
+                //                    tw.Close();
+                //                    tw.Dispose();
 
-                                    //byte[] byteLog = System.IO.File.ReadAllBytes(path);
-                                    //var pathLoc = UploadFileServices.UploadFile_Log(byteLog, filename);
-                                    #endregion
-                                }
+                //                    //byte[] byteLog = System.IO.File.ReadAllBytes(path);
+                //                    //var pathLoc = UploadFileServices.UploadFile_Log(byteLog, filename);
+                //                    #endregion
+                //                }
 
-                                startHangfireServer(sqlStorage);
+                //                startHangfireServer(sqlStorage);
 
-                                if (item.DatabasePathErasoft == "ERASOFT_80069")
-                                {
-                                    #region Logging
-                                    string messageErrorLog = "";
-                                    string filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_ALREADYEXIST_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
-                                    var path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
+                //                if (item.DatabasePathErasoft == "ERASOFT_80069")
+                //                {
+                //                    #region Logging
+                //                    string messageErrorLog = "";
+                //                    string filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_ALREADYEXIST_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
+                //                    var path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
 
-                                    if (!System.IO.File.Exists(path))
-                                    {
-                                        System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
-                                        var asd = System.IO.File.Create(path);
-                                        asd.Close();
-                                    }
-                                    StreamWriter tw = new StreamWriter(path);
-                                    var msglog = "Log Masuk kondisi Hangfire Server Sudah terhapus lalu lanjut dengan melakukan startHangfireServer() untuk startUp Hangfire. Pada waktu " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
-                                    tw.WriteLine(msglog);
-                                    tw.Close();
-                                    tw.Dispose();
+                //                    if (!System.IO.File.Exists(path))
+                //                    {
+                //                        System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
+                //                        var asd = System.IO.File.Create(path);
+                //                        asd.Close();
+                //                    }
+                //                    StreamWriter tw = new StreamWriter(path);
+                //                    var msglog = "Log Masuk kondisi Hangfire Server Sudah terhapus lalu lanjut dengan melakukan startHangfireServer() untuk startUp Hangfire. Pada waktu " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
+                //                    tw.WriteLine(msglog);
+                //                    tw.Close();
+                //                    tw.Dispose();
 
-                                    //byte[] byteLog = System.IO.File.ReadAllBytes(path);
-                                    //var pathLoc = UploadFileServices.UploadFile_Log(byteLog, filename);
-                                    #endregion
-                                }
-                            }
-                        }
-                    }
-                } 
+                //                    //byte[] byteLog = System.IO.File.ReadAllBytes(path);
+                //                    //var pathLoc = UploadFileServices.UploadFile_Log(byteLog, filename);
+                //                    #endregion
+                //                }
+                //            }
+                //        }
+                //    }
+                //} 
+                #endregion
+                ActivateHangfireServer();
 #endif
             }
         }
@@ -386,7 +388,135 @@ namespace MasterOnline.Utils
                 HostingEnvironment.UnregisterObject(this);
             }
         }
+        public void ActivateHangfireServer()
+        {
+            var lastYear = DateTime.UtcNow.AddYears(-1);
+            var last2Week = DateTime.UtcNow.AddHours(7).AddDays(-14);
+            var datenow = DateTime.UtcNow.AddHours(7);
 
+            MoDbContext = new MoDbContext();
+
+            var accountInDb = (from a in MoDbContext.Account
+                               where
+                               (a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
+                               &&
+                               (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
+                               orderby a.LAST_LOGIN_DATE descending
+                               select a).ToList();
+            foreach (var item in accountInDb)
+            {
+                if (!string.IsNullOrEmpty(item.DataSourcePath) && !string.IsNullOrEmpty(item.DatabasePathErasoft))
+                {
+
+                    var EDB = new DatabaseSQL(item.DatabasePathErasoft);
+                    var erasoft = new ErasoftContext(item.DataSourcePath, item.DatabasePathErasoft);
+                    string sSQL = "select * from hangfire.server";
+                    var check = erasoft.Database.SqlQuery<HANGFIRE_SERVER>(sSQL).ToList();
+                    string EDBConnID = EDB.GetConnectionString("ConnID");
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    //var sqlStorage = new SqlServerStorage("Data Source=54.151.175.62, 12350;Initial Catalog=ERASOFT_rahmamk;Persist Security Info=True;User ID=sa;Password=admin123^");
+
+                    var monitoringApi = sqlStorage.GetMonitoringApi();
+                    var serverList = monitoringApi.Servers();
+
+                    if (Convert.ToInt32(check.Count()) == 0)
+                    {
+                        startHangfireServer(sqlStorage);
+                        if (item.DatabasePathErasoft == "ERASOFT_80069")
+                        {
+                            //initialize log txt
+                            #region Logging
+                            string messageErrorLog = "";
+                            string filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_EMPTY_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
+                            var path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
+
+                            if (!System.IO.File.Exists(path))
+                            {
+                                System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
+                                var asd = System.IO.File.Create(path);
+                                asd.Close();
+                            }
+                            StreamWriter tw = new StreamWriter(path);
+                            var msglog = "Log Masuk kondisi Hangfire Server Kosong lalu lanjutkan dengan startHangfireServer() untuk startUp Hangfire. Pada waktu " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
+                            tw.WriteLine(msglog);
+                            tw.Close();
+                            tw.Dispose();
+
+                            //byte[] byteLog = System.IO.File.ReadAllBytes(path);
+                            //var pathLoc = UploadFileServices.UploadFile_Log(byteLog, filename);
+                            #endregion
+
+                        }
+                       
+                    }
+                    else
+                    {
+                        string sSQLCheckDuplicate = "select * from hangfire.server where lastheartbeat > dateadd(MINUTE, -2, GETDATE())";
+                        var checkDuplicate = erasoft.Database.SqlQuery<HANGFIRE_SERVER>(sSQLCheckDuplicate).ToList();
+
+                        if (checkDuplicate.Count() == 0)
+                        {
+                            foreach (var server in serverList)
+                            {
+                                var serverConnection = sqlStorage.GetConnection();
+                                serverConnection.RemoveServer(server.Name);
+                                serverConnection.Dispose();
+                            }
+
+                            if (item.DatabasePathErasoft == "ERASOFT_80069")
+                            {
+                                #region Logging
+                                string messageErrorLog = "";
+                                string filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_ALREADYEXIST_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
+                                var path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
+
+                                if (!System.IO.File.Exists(path))
+                                {
+                                    System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
+                                    var asd = System.IO.File.Create(path);
+                                    asd.Close();
+                                }
+                                StreamWriter tw = new StreamWriter(path);
+                                var msglog = "Log Masuk kondisi Hangfire Server Ada lalu lanjut dengan melakukan hapus server. Pada waktu " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
+                                tw.WriteLine(msglog);
+                                tw.Close();
+                                tw.Dispose();
+
+                                //byte[] byteLog = System.IO.File.ReadAllBytes(path);
+                                //var pathLoc = UploadFileServices.UploadFile_Log(byteLog, filename);
+                                #endregion
+                            }
+
+                            startHangfireServer(sqlStorage);
+
+                            if (item.DatabasePathErasoft == "ERASOFT_80069")
+                            {
+                                #region Logging
+                                string messageErrorLog = "";
+                                string filename = "Log_AppPreload_HangfireBootstrapper_CONDITION_SERVER_ALREADYEXIST_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
+                                var path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
+
+                                if (!System.IO.File.Exists(path))
+                                {
+                                    System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
+                                    var asd = System.IO.File.Create(path);
+                                    asd.Close();
+                                }
+                                StreamWriter tw = new StreamWriter(path);
+                                var msglog = "Log Masuk kondisi Hangfire Server Sudah terhapus lalu lanjut dengan melakukan startHangfireServer() untuk startUp Hangfire. Pada waktu " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
+                                tw.WriteLine(msglog);
+                                tw.Close();
+                                tw.Dispose();
+
+                                //byte[] byteLog = System.IO.File.ReadAllBytes(path);
+                                //var pathLoc = UploadFileServices.UploadFile_Log(byteLog, filename);
+                                #endregion
+                            }
+                        }
+                    }
+                }
+            }
+        }
         void IRegisteredObject.Stop(bool immediate)
         {
             Stop();

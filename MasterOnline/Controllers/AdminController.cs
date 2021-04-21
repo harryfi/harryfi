@@ -22,6 +22,7 @@ using PagedList;
 
 using System.Globalization;
 using System.Web.Script.Serialization;
+using MasterOnline.Utils;
 
 namespace MasterOnline.Controllers
 {
@@ -4521,6 +4522,30 @@ namespace MasterOnline.Controllers
         }
 
         [SessionAdminCheck]
+        public ActionResult ActivateRecentActiveUsersV2()
+        {
+
+            //var lastYear = DateTime.UtcNow.AddYears(-1);
+            //var last2Week = DateTime.UtcNow.AddHours(7).AddDays(-14);
+            //var datenow = DateTime.UtcNow.AddHours(7);
+
+            //var accountInDb = (from a in MoDbContext.Account
+            //                   where
+            //                   //(a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
+            //                   //&&
+            //                   (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
+            //                   orderby a.LAST_LOGIN_DATE descending
+            //                   select a).ToList();
+            //foreach (var item in accountInDb)
+            //{
+            //    AdminStartHangfireServer(item.DataSourcePath, item.DatabasePathErasoft);
+            //}
+            HangfireBootstrapper.Instance.ActivateHangfireServer();
+
+            return Json("", JsonRequestBehavior.AllowGet);
+        }
+
+        [SessionAdminCheck]
         public ActionResult AdminStartHangfireServer(string dbsource, string nourut = "", string timer = "")
         {
             int interval = 30;
@@ -4603,14 +4628,14 @@ namespace MasterOnline.Controllers
                                 //var sifsys_jtranretur = Convert.ToString(EDB.GetFieldValue("ConnID", "SIFSYS", "1=1", "JTRAN_RETUR"));
                                 Task.Run(() => new AccountController().SyncMarketplace(dbsource, nourut, EDBConnID, "", "auto_start", interval, null)).Wait();
                             }
-                            using (var connection = sqlStorage.GetConnection())
-                            {
-                                //update semua recurring job dengan interval sesuai setting timer
-                                foreach (var recurringJob in connection.GetRecurringJobs())
-                                {
-                                    recurJobM.AddOrUpdate(recurringJob.Id, recurringJob.Job, Cron.MinuteInterval(interval), recurJobOpt);
-                                }
-                            }
+                            //using (var connection = sqlStorage.GetConnection())
+                            //{
+                            //    //update semua recurring job dengan interval sesuai setting timer
+                            //    foreach (var recurringJob in connection.GetRecurringJobs())
+                            //    {
+                            //        recurJobM.AddOrUpdate(recurringJob.Id, recurringJob.Job, Cron.MinuteInterval(interval), recurJobOpt);
+                            //    }
+                            //}
                             vsuccess = true;
                             vstatus = "Hangfire untuk account " + item.Email.ToString() + " telah diaktifkan.";
                         }
