@@ -38,8 +38,9 @@
     }
 
     function StartHangfireServer(sender) {
-        var timerMinute = prompt("Recurring Job Interval ?", "30");
-        if (timerMinute != null && timerMinute != "") {
+        //var timerMinute = prompt("Recurring Job Interval ?", "30");
+        //if (timerMinute != null && timerMinute != "")
+        {
             var sourcepath = $(sender).attr('data-dbsourceera');
             var jobid = $(sender).attr('data-dbpathera');
 
@@ -48,7 +49,7 @@
             $postdata = {
                 dbsource : sourcepath,
                 nourut : jobid,
-                timer : timerMinute
+                timer : "30"
             };
             
             $.ajax({

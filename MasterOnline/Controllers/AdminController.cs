@@ -22,6 +22,7 @@ using PagedList;
 
 using System.Globalization;
 using System.Web.Script.Serialization;
+using MasterOnline.Utils;
 
 namespace MasterOnline.Controllers
 {
@@ -4515,6 +4516,30 @@ namespace MasterOnline.Controllers
             {
                 AdminStartHangfireServer(item.DataSourcePath, item.DatabasePathErasoft);
             }
+            return Json("", JsonRequestBehavior.AllowGet);
+        }
+
+        [SessionAdminCheck]
+        public ActionResult ActivateRecentActiveUsersV2()
+        {
+
+            //var lastYear = DateTime.UtcNow.AddYears(-1);
+            //var last2Week = DateTime.UtcNow.AddHours(7).AddDays(-14);
+            //var datenow = DateTime.UtcNow.AddHours(7);
+
+            //var accountInDb = (from a in MoDbContext.Account
+            //                   where
+            //                   //(a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
+            //                   //&&
+            //                   (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
+            //                   orderby a.LAST_LOGIN_DATE descending
+            //                   select a).ToList();
+            //foreach (var item in accountInDb)
+            //{
+            //    AdminStartHangfireServer(item.DataSourcePath, item.DatabasePathErasoft);
+            //}
+            HangfireBootstrapper.Instance.ActivateHangfireServer();
+
             return Json("", JsonRequestBehavior.AllowGet);
         }
 

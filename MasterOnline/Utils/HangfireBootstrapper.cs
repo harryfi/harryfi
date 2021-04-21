@@ -386,7 +386,123 @@ namespace MasterOnline.Utils
                 HostingEnvironment.UnregisterObject(this);
             }
         }
+        public void ActivateHangfireServer()
+        {
+            var lastYear = DateTime.UtcNow.AddYears(-1);
+            var last2Week = DateTime.UtcNow.AddHours(7).AddDays(-14);
+            var datenow = DateTime.UtcNow.AddHours(7);
 
+            MoDbContext = new MoDbContext();
+
+            var accountInDb = (from a in MoDbContext.Account
+                               where
+                               //(a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
+                               //&&
+                               (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
+                               orderby a.LAST_LOGIN_DATE descending
+                               select a).ToList();
+            foreach (var item in accountInDb)
+            {
+                if (!string.IsNullOrEmpty(item.DataSourcePath) && !string.IsNullOrEmpty(item.DatabasePathErasoft))
+                {
+                    var EDB = new DatabaseSQL(item.DatabasePathErasoft);
+
+                    string EDBConnID = EDB.GetConnectionString("ConnID");
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                    var monitoringApi = sqlStorage.GetMonitoringApi();
+                    var serverList = monitoringApi.Servers();
+
+                    if (serverList.Count() == 0)
+                    {
+                        startHangfireServer(sqlStorage);
+
+                        if (item.DatabasePathErasoft == "ERASOFT_80069")
+                        {
+                            #region Logging
+                            string messageErrorLog = "";
+                            string filename = "Log_Initial_HangfireBootstrapper_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
+                            var path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
+
+                            if (!System.IO.File.Exists(path))
+                            {
+                                System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
+                                var asd = System.IO.File.Create(path);
+                                asd.Close();
+                            }
+                            StreamWriter tw = new StreamWriter(path);
+                            var msglog = "Log Masuk kondisi Hangfire Server Kosong lalu lanjutkan dengan startHangfireServer() untuk startUp Hangfire. Pada waktu " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
+                            tw.WriteLine(msglog);
+                            tw.Close();
+                            tw.Dispose();
+
+                            //byte[] byteLog = System.IO.File.ReadAllBytes(path);
+                            //var pathLoc = UploadFileServices.UploadFile_Log(byteLog, filename);
+                            #endregion
+                        }
+                    }
+                    else
+                    {
+                        foreach (var server in serverList)
+                        {
+                            var serverConnection = sqlStorage.GetConnection();
+                            serverConnection.RemoveServer(server.Name);
+                            serverConnection.Dispose();
+                        }
+
+                        if (item.DatabasePathErasoft == "ERASOFT_80069")
+                        {
+                            #region Logging
+                            string messageErrorLog = "";
+                            string filename = "Log_Initial_HangfireBootstrapper_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
+                            var path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
+
+                            if (!System.IO.File.Exists(path))
+                            {
+                                System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
+                                var asd = System.IO.File.Create(path);
+                                asd.Close();
+                            }
+                            StreamWriter tw = new StreamWriter(path);
+                            var msglog = "Log Masuk kondisi Hangfire Server Ada lalu lanjut dengan melakukan hapus server. Pada waktu " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
+                            tw.WriteLine(msglog);
+                            tw.Close();
+                            tw.Dispose();
+
+                            //byte[] byteLog = System.IO.File.ReadAllBytes(path);
+                            //var pathLoc = UploadFileServices.UploadFile_Log(byteLog, filename);
+                            #endregion
+                        }
+
+                        startHangfireServer(sqlStorage);
+
+                        if (item.DatabasePathErasoft == "ERASOFT_80069")
+                        {
+                            #region Logging
+                            string messageErrorLog = "";
+                            string filename = "Log_Initial_HangfireBootstrapper_" + item.DatabasePathErasoft + "_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
+                            var path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), filename);
+
+                            if (!System.IO.File.Exists(path))
+                            {
+                                System.IO.Directory.CreateDirectory(Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/Content/log/"), ""));
+                                var asd = System.IO.File.Create(path);
+                                asd.Close();
+                            }
+                            StreamWriter tw = new StreamWriter(path);
+                            var msglog = "Log Masuk kondisi Hangfire Server Sudah terhapus lalu lanjut dengan melakukan startHangfireServer() untuk startUp Hangfire. Pada waktu " + DateTime.Now.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss");
+                            tw.WriteLine(msglog);
+                            tw.Close();
+                            tw.Dispose();
+
+                            //byte[] byteLog = System.IO.File.ReadAllBytes(path);
+                            //var pathLoc = UploadFileServices.UploadFile_Log(byteLog, filename);
+                            #endregion
+                        }
+                    }
+                }
+            }
+        }
         void IRegisteredObject.Stop(bool immediate)
         {
             Stop();

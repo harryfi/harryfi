@@ -162,6 +162,10 @@
                         onclick="StopActiveUserServers()">
                     <span>Deactivate All Active Users</span>
                 </button>
+                <button class="btn btn-primary" type="button" style="height:34px; border:1px;padding:2px 8px 2px 8px;margin:0px" title="Start Recurring Jobs"
+                        onclick="StartActiveUserServersNew()">
+                    <span>Hangfire Bootstraper</span>
+                </button>
             </div>
             <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12" style="text-align: right">
                 @*<button class="btn btn-primary" type="button" style="height:34px; border:1px;padding:2px 8px 2px 8px;margin:0px" title="Proses Akhir Tahun Per Server"
@@ -425,6 +429,27 @@
     function StartActiveUserServers() {
         if(confirm("Yakin aktifkan Hangfire seluruh user aktif ?")){
             var link = '@Url.Action("ActivateRecentActiveUsers", "Admin")';
+
+            $.ajax({
+                type: "POST",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                beforeSend: function () {
+                    $('#loading_barang_tab').show();
+                },
+                success: function (response) {
+                    refreshTableLog();
+                },
+                error: function (response) {
+                }
+            });
+        }
+        }
+
+    function StartActiveUserServersNew() {
+        if(confirm("Yakin aktifkan Hangfire seluruh user aktif ?")){
+            var link = '@Url.Action("ActivateRecentActiveUsersV2", "Admin")';
 
             $.ajax({
                 type: "POST",
