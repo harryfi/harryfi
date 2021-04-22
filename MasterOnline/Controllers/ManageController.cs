@@ -69389,47 +69389,61 @@ namespace MasterOnline.Controllers
                 {
                     var getIP = "";
                     var getPort = "1433";
+                    var getFullIP = "";
                     if (dbSourceEra != "" && dbSourceEra != null)
                     {
-                        if (dbSourceEra.Contains("172.31.20.197") || dbSourceEra.Contains("13.250.232.74"))
+                        getIP = dbSourceEra.Split('\'').First();
+                        getPort = dbSourceEra.Split(new string[] { ", " }, StringSplitOptions.None).Last();
+                        if (dbSourceEra.Contains("\\SQLEXPRESS,"))
                         {
-                            getIP = "13.250.232.74";
+                            getFullIP = dbSourceEra.Replace("\\SQLEXPRESS, ", ", ");
                         }
-                        else if ((dbSourceEra.Contains("172.31.20.200") || dbSourceEra.Contains("54.179.169.195")) && dbSourceEra.Contains("1433"))
+                        else
                         {
-                            getIP = "54.179.169.195";
-                        }
-                        else if (dbSourceEra.Contains("172.31.17.194") || dbSourceEra.Contains("52.76.44.100"))
-                        {
-                            getIP = "52.76.44.100";
-                        }
-                        else if (dbSourceEra.Contains("172.31.26.111") || dbSourceEra.Contains("54.254.98.21"))
-                        {
-                            getIP = "54.254.98.21";
-                        }
-                        else if (dbSourceEra.Contains("172.31.14.140") || dbSourceEra.Contains("18.141.161.81"))
-                        {
-                            getIP = "18.141.161.81";
-                        }
-                        else if (dbSourceEra.Contains("172.31.1.127") || dbSourceEra.Contains("13.251.64.77"))
-                        {
-                            getIP = "13.251.64.77";
-                        }
-                        else if (dbSourceEra.Contains("172.31.40.234") || dbSourceEra.Contains("54.179.0.52"))
-                        {
-                            getIP = "54.179.0.52";
-                        }
-                        else if (dbSourceEra.Contains("13.251.222.53") || dbSourceEra.Contains("13.251.222.53"))
-                        {
-                            getIP = "13.251.222.53";
-                        }
-                        else if ((dbSourceEra.Contains("54.179.169.195") || dbSourceEra.Contains("54.179.169.195")) && dbSourceEra.Contains("1444"))
-                        {
-                            getIP = "54.179.169.195";
-                            getPort = "1444";
+                            getFullIP = dbSourceEra.Replace("\"SQLEXPRESS, ", ", ");
                         }
                     }
-                    var RemoteMODbContext = new MoDbContext(getPort, getIP);
+                    //if (dbSourceEra != "" && dbSourceEra != null)
+                    //{
+                    //    if (dbSourceEra.Contains("172.31.20.197") || dbSourceEra.Contains("13.250.232.74"))
+                    //    {
+                    //        getIP = "13.250.232.74";
+                    //    }
+                    //    else if ((dbSourceEra.Contains("172.31.20.200") || dbSourceEra.Contains("54.179.169.195")) && dbSourceEra.Contains("1433"))
+                    //    {
+                    //        getIP = "54.179.169.195";
+                    //    }
+                    //    else if (dbSourceEra.Contains("172.31.17.194") || dbSourceEra.Contains("52.76.44.100"))
+                    //    {
+                    //        getIP = "52.76.44.100";
+                    //    }
+                    //    else if (dbSourceEra.Contains("172.31.26.111") || dbSourceEra.Contains("54.254.98.21"))
+                    //    {
+                    //        getIP = "54.254.98.21";
+                    //    }
+                    //    else if (dbSourceEra.Contains("172.31.14.140") || dbSourceEra.Contains("18.141.161.81"))
+                    //    {
+                    //        getIP = "18.141.161.81";
+                    //    }
+                    //    else if (dbSourceEra.Contains("172.31.1.127") || dbSourceEra.Contains("13.251.64.77"))
+                    //    {
+                    //        getIP = "13.251.64.77";
+                    //    }
+                    //    else if (dbSourceEra.Contains("172.31.40.234") || dbSourceEra.Contains("54.179.0.52"))
+                    //    {
+                    //        getIP = "54.179.0.52";
+                    //    }
+                    //    else if (dbSourceEra.Contains("13.251.222.53") || dbSourceEra.Contains("13.251.222.53"))
+                    //    {
+                    //        getIP = "13.251.222.53";
+                    //    }
+                    //    else if ((dbSourceEra.Contains("54.179.169.195") || dbSourceEra.Contains("54.179.169.195")) && dbSourceEra.Contains("1444"))
+                    //    {
+                    //        getIP = "54.179.169.195";
+                    //        getPort = "1444";
+                    //    }
+                    //}
+                    var RemoteMODbContext = new MoDbContext(getPort, getFullIP);
                     var cekExist = RemoteMODbContext.Database.ExecuteSqlCommand("use " + dbPathEra);
 
                     //int tahunProses = Convert.ToInt32(Tahun);

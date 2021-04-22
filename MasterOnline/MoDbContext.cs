@@ -68,7 +68,7 @@ namespace MasterOnline
         {
         }
 
-#if (AWS || Debug_AWS)
+#if (AWS)
 
         //public MoDbContext(string dbSourceEra)
         //    : base($"Server=13.250.232.74, 1433;initial catalog=MO;" +
@@ -106,7 +106,7 @@ namespace MasterOnline
 
         //add by nurul 21/12/2020, khusus proses akhir tahun
         public MoDbContext(string dbSourceEra, string dbSourceEra2)
-            : base($"Server=" + dbSourceEra2 + ", 1433;initial catalog=MO;" +
+            : base($"Server=" + dbSourceEra2 + ";initial catalog=MO;" +
                    $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
                    $"application name=EntityFramework")
         {
@@ -119,6 +119,24 @@ namespace MasterOnline
         //          $"application name=EntityFramework")
         //{
         //}
+#elif (Debug_AWS)
+        public MoDbContext(string dbSourceEra)
+             : base($"Server=54.151.175.62, 12354;initial catalog=MO;" +
+                    $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
+                    $"application name=EntityFramework")
+        {
+        }
+        //end changes by fauzi for IP Private baru dari VPC baru 20/04/2021
+
+
+        //add by nurul 21/12/2020, khusus proses akhir tahun
+        public MoDbContext(string dbSourceEra, string dbSourceEra2)
+            : base($"Server=" + dbSourceEra2 + ";initial catalog=MO;" +
+                   $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
+                   $"application name=EntityFramework")
+        {
+        }
+        //end add by nurul 21/12/2020, khusus proses akhir tahun
 
 #elif (DEV || DEBUG)
         //remark by fauzi for testing REDIS elasticache AWS 26/01/2021
@@ -147,7 +165,7 @@ namespace MasterOnline
 
         //add by nurul 21/12/2020, khusus proses akhir tahun
         public MoDbContext(string dbSourceEra, string dbSourceEra2)
-             : base($"Server=" + dbSourceEra2 + ", " + dbSourceEra + ";initial catalog=MO;" +
+             : base($"Server=" + dbSourceEra2 + ";initial catalog=MO;" +
                     $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
                     $"application name=EntityFramework")
         {
