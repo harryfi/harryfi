@@ -40,6 +40,8 @@
     function StartHangfireServer(sender) {
         //var timerMinute = prompt("Recurring Job Interval ?", "30");
         //if (timerMinute != null && timerMinute != "")
+        var email = $(sender).attr('data-email');
+        if (confirm("Apakah Anda yakin untuk mengaktifkan hangfire akun " + email.toString() + "? \n\nLanjutkan ?"))
         {
             var sourcepath = $(sender).attr('data-dbsourceera');
             var jobid = $(sender).attr('data-dbpathera');
