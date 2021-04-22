@@ -21,6 +21,9 @@ namespace MasterOnline
         {
         }
 
+        public virtual DbSet<PARTNER_API> PARTNER_API { get; set; }
+        public virtual DbSet<PARTNER_API_LOG_ERROR> PARTNER_API_LOG_ERROR { get; set; }
+
         public virtual DbSet<Promosi> PROMOSI { get; set; }
         public virtual DbSet<DetailPromosi> DETAILPROMOSI { get; set; }
         public virtual DbSet<APF01> APF01 { get; set; }
@@ -487,6 +490,29 @@ namespace MasterOnline
 
             Database.SetInitializer<ErasoftContext>(null);
             base.OnModelCreating(modelBuilder);
+
+
+            modelBuilder.Entity<PARTNER_API>().Property(e => e.fs_id);
+            modelBuilder.Entity<PARTNER_API>().Property(e => e.Nama_Partner).IsUnicode(false);
+            modelBuilder.Entity<PARTNER_API>().Property(e => e.Access_Token).IsUnicode(false);
+            modelBuilder.Entity<PARTNER_API>().Property(e => e.Refresh_Token).IsUnicode(false);
+            modelBuilder.Entity<PARTNER_API>().Property(e => e.ClientId).IsUnicode(false);
+            modelBuilder.Entity<PARTNER_API>().Property(e => e.ClientSecret).IsUnicode(false);
+            modelBuilder.Entity<PARTNER_API>().Property(e => e.Session).IsUnicode(false);
+            modelBuilder.Entity<PARTNER_API>().Property(e => e.Host).IsUnicode(false);
+            modelBuilder.Entity<PARTNER_API>().Property(e => e.Token).IsUnicode(false);
+            modelBuilder.Entity<PARTNER_API>().Property(e => e.Token_ExpiredDate);
+            modelBuilder.Entity<PARTNER_API>().Property(e => e.IP_Address).IsUnicode(false);
+            modelBuilder.Entity<PARTNER_API>().Property(e => e.DatabaseId).IsUnicode(false);
+            modelBuilder.Entity<PARTNER_API>().Property(e => e.Status);
+            modelBuilder.Entity<PARTNER_API_LOG_ERROR>().Property(e => e.log_id);
+            modelBuilder.Entity<PARTNER_API_LOG_ERROR>().Property(e => e.fs_id);
+            modelBuilder.Entity<PARTNER_API_LOG_ERROR>().Property(e => e.Modul).IsUnicode(false);
+            modelBuilder.Entity<PARTNER_API_LOG_ERROR>().Property(e => e.No_Bukti).IsUnicode(false);
+            modelBuilder.Entity<PARTNER_API_LOG_ERROR>().Property(e => e.Keterangan).IsUnicode(false);
+            modelBuilder.Entity<PARTNER_API_LOG_ERROR>().Property(e => e.Created_Date);
+            modelBuilder.Entity<PARTNER_API_LOG_ERROR>().Property(e => e.JSON_String).IsUnicode(false);
+
             modelBuilder.Entity<APF01>()
                 .Property(e => e.AL3)
                 .IsUnicode(false);

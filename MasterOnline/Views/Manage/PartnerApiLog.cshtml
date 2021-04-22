@@ -1,0 +1,275 @@
+﻿@using System.Globalization
+@using MasterOnline.Models
+@using MasterOnline.ViewModels
+@{
+    ViewBag.Title = "Log Error Partner API";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+}
+
+@section styles
+{
+    <style>
+        .user-link {
+            text-decoration: underline;
+        }
+
+        .loading_barang_tab_class {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            z-index: 100;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0,0,0,0);
+        }
+
+        .loading_barang_tab_image_class {
+            width: 20px;
+            height: 20px;
+            margin-top: -90px;
+            margin-left: -90px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-width: 30px;
+            border-radius: 50%;
+        }
+
+
+        [data-tip] {
+            position: relative;
+        }
+
+            [data-tip]:before {
+                content: '';
+                /* hides the tooltip when not hovered */
+                display: none;
+                content: '';
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-bottom: 5px solid #1a1a1a;
+                position: absolute;
+                top: 30px;
+                left: 35px;
+                z-index: 8;
+                font-size: 0;
+                line-height: 0;
+                width: 0;
+                height: 0;
+            }
+
+            [data-tip]:after {
+                display: none;
+                content: attr(data-tip);
+                position: absolute;
+                top: 35px;
+                left: 0px;
+                padding: 2px 5px;
+                background: #1a1a1a;
+                color: #fff;
+                z-index: 9;
+                font-size: 0.85em;
+                height: auto;
+                line-break: normal;
+                max-width: 300px;
+                line-height: 18px;
+                -webkit-border-radius: 3px;
+                -moz-border-radius: 3px;
+                border-radius: 3px;
+                white-space: normal;
+                word-wrap: normal;
+            }
+
+            [data-tip]:hover:before,
+            [data-tip]:hover:after {
+                display: block;
+            }
+    </style>
+}
+
+<div class="modal fade" id="modalError" tabindex="-1" role="dialog" aria-labelledby="modalErrorLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modalErrorLabel">Keterangan</h4>
+            </div>
+            <div class="modal-body edit-content">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#search_api_log_btn').click(function () {
+            searchTableLog();
+        });
+
+        //$("#checkbox_all_partnerapi").click(function () {
+        //    $(".checkbox_partnerapi").prop('checked', $(this).prop('checked'));
+        //    if ($("#checkbox_all_partnerapi").prop('checked') == true) {
+        //        $(".retry-api").attr('disabled', 'disabled');
+        //    } else {
+        //        $(".retry-api").removeAttr('disabled');
+        //    }
+        //});
+
+        $('#search_api_log').keypress(function (e) {
+            var key = e.which;
+            if (key == 13)// the enter key code
+            {
+                searchTableLog();
+                return false;
+            }
+        });
+        refreshTableApiLog();
+    });
+
+    function searchTableLog() {
+        var $link = '@Html.Raw(Url.Action("RefreshTableApiLog", "Manage", new { search = "replaceSearch" }))';
+        $link = $link.replace("replaceSearch", encodeURIComponent($('#search_api_log').val()));
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                //$('#table-barang-1-partial').hide();
+                $('#search_api_log_btn')[0].disabled = true;
+                $('#loading_barang_tab').show();
+            },
+            success: function (response) {
+                $('#search_api_log_btn')[0].disabled = false;
+                $('#table-market-log-partial-div').html(response);
+                $('#loading_barang_tab').hide();
+
+
+            },
+            error: function (xhr, status, error) {
+                $('#search_api_log_btn')[0].disabled = false;
+                console.log(error);
+            }
+        });
+    }
+    function refreshTableApiLog() {
+        var $link = '@Html.Raw(Url.Action("RefreshTableApiLog", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+        $link = $link.replace("replaceSearch", encodeURIComponent($('#search_api_log').val()));
+        $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                //$('#table-barang-1-partial').hide();
+                $('#search_api_log_btn')[0].disabled = true;
+                $('#loading_barang_tab').show();
+            },
+            success: function (response) {
+                $('#search_api_log_btn')[0].disabled = false;
+                $('#table-market-log-partial-div').html(response);
+                $('#loading_barang_tab').hide();
+
+                $("#checkbox_all_partnerapi").click(function () {
+                    $(".checkbox_partnerapi").prop('checked', $(this).prop('checked'));
+                    if ($("#checkbox_all_partnerapi").prop('checked') == true) {
+                        $(".retry-api").attr('disabled', 'disabled');
+                    } else {
+                        $(".retry-api").removeAttr('disabled');
+                    }
+                });
+                $(".checkbox_partnerapi").each(function (i, item) {
+                    $(item).off('click').on('click', function () {
+                        if ($(item).prop('checked') == true) {
+                            $(".retry-api").attr('disabled', 'disabled');
+                        } else {
+                            var cekTrue = [];
+                            $(".checkbox_partnerapi").each(function (z, chk) {
+                                if ($(chk).prop('checked') == true) {
+                                    cekTrue.push($(chk).attr("data-rec"));
+                                }
+                            });
+                            if (cekTrue.length == 0) {
+                                $(".retry-api").removeAttr('disabled');
+                            }
+                        }
+                    });
+                });
+
+            },
+            error: function (xhr, status, error) {
+                $('#search_api_log_btn')[0].disabled = false;
+                console.log(error);
+            }
+        });
+    }
+
+    function RetryAllFailedInvoice() {
+        var rows_select = [];
+        $('.checkbox_partnerapi').each(function (i, item) {
+            if ($(item).is(":checked")) {
+                rows_select.push($(item).attr("data-recnum"));
+            }
+        });
+
+        var link = '@Url.Action("PartnerApiLogRetryAll", "Manage")';
+
+        $.ajax({
+            type: "POST",
+            url: link,
+            contentType: 'application/json',
+            cache: false,
+            beforeSend: function () {
+                $('#loading_barang_tab').show();
+            },
+            data: JSON.stringify(rows_select),
+            success: function (response) {
+                refreshTableApiLog();
+            },
+            error: function (response) {
+            }
+        });
+    }
+
+</script>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="row">
+            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                <div class="input-group">
+                    <input id="search_api_log" type="text" class="form-control" placeholder="Pencarian">
+                    <span class="input-group-btn">
+                        <button type="button" id="search_api_log_btn" class="btn btn-primary">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+            <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12 pull-right" style="text-align:right;">
+                <button class="btn btn-primary" type="button" style="height:34px; border:1px;padding:2px 8px 2px 8px;margin:0px"
+                        onclick="RetryAllFailedInvoice()">
+                    <span>Coba Lagi Semua</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="row" style="margin-top: 5px;">
+            <div class="col-sm-12" id="table-market-log-partial-div">
+                @* TableMarketPlaceLog.cshtml *@
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    //add by fauzi for popup modal refresh stock
+    function openModalRefreshStock() {
+        $('#modalRefreshStock').modal('show');
+    }
+</script>

@@ -1,0 +1,255 @@
+﻿@using System.Globalization
+@using MasterOnline.Models
+@using MasterOnline.ViewModels
+@{
+    ViewBag.Title = "Link Bank Partner API";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+}
+@section styles
+{
+    <style>
+        .user-link {
+            text-decoration: underline;
+        }
+
+        .loading_barang_tab_class {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            z-index: 100;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0,0,0,0);
+        }
+
+        .loading_barang_tab_image_class {
+            width: 20px;
+            height: 20px;
+            margin-top: -90px;
+            margin-left: -90px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-width: 30px;
+            border-radius: 50%;
+        }
+
+
+        [data-tip] {
+            position: relative;
+        }
+
+            [data-tip]:before {
+                content: '';
+                /* hides the tooltip when not hovered */
+                display: none;
+                content: '';
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-bottom: 5px solid #1a1a1a;
+                position: absolute;
+                top: 30px;
+                left: 35px;
+                z-index: 8;
+                font-size: 0;
+                line-height: 0;
+                width: 0;
+                height: 0;
+            }
+
+            [data-tip]:after {
+                display: none;
+                content: attr(data-tip);
+                position: absolute;
+                top: 35px;
+                left: 0px;
+                padding: 2px 5px;
+                background: #1a1a1a;
+                color: #fff;
+                z-index: 9;
+                font-size: 0.85em;
+                height: auto;
+                line-break: normal;
+                max-width: 300px;
+                line-height: 18px;
+                -webkit-border-radius: 3px;
+                -moz-border-radius: 3px;
+                border-radius: 3px;
+                white-space: normal;
+                word-wrap: normal;
+            }
+
+            [data-tip]:hover:before,
+            [data-tip]:hover:after {
+                display: block;
+            }
+    </style>
+}
+<div class="row" id="transfer-marketplace-section">
+    <div class="col-lg-12 col-md-12">
+        <div class="row customer_table_section">
+            <div class="col-lg-4 col-sm-6">
+                <div class="input-group">
+                    <input id="search-bank-api" type="text" class="form-control" placeholder="Pencarian">
+                    <span class="input-group-btn">
+                        <button type="button" id="search-bank-api-btn" class="btn btn-primary">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="row customer_table_section">
+            <div class="col-sm-12" id="table-link-bank-partner-api">
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#search-bank-api-btn').click(function () {
+                searchTableLog();
+            });
+
+            $('#search-bank-api').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableLog();
+                    return false;
+                }
+            });
+            refreshTableApiLog();
+        });
+
+        function searchTableLog() {
+            var $link = '@Html.Raw(Url.Action("RefreshTableBankPartnerApi", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search-bank-api').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    //$('#table-barang-1-partial').hide();
+                    //$('#search_api_log_btn')[0].disabled = true;
+                    $('#loading_link_bank').show();
+                },
+                success: function (response) {
+                    $('#search-bank-api-btn')[0].disabled = false;
+                    $('#table-link-bank-partner-api').html(response);
+                    $('#loading_link_bank').hide();
+
+
+                },
+                error: function (xhr, status, error) {
+                    $('#search-bank-api-btn')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+
+        function refreshTableApiLog() {
+            var $link = '@Html.Raw(Url.Action("RefreshTableBankPartnerApi", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search-bank-api').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    //$('#table-barang-1-partial').hide();
+                    //$('#search_api_log_btn')[0].disabled = true;
+                    $('#loading_link_bank').show();
+                },
+                success: function (response) {
+                    //$('#search_api_log_btn')[0].disabled = false;
+                    $('#table-link-bank-partner-api').html(response);
+                    $('#loading_link_bank').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_api_log_btn')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+
+        function editKodeSap($kodecust) {
+
+            var $tr = 'tr[data-kode-id="' + $kodecust + '"]';
+            var $btnEdit = $($tr + ' .icon-btn-edit');
+            var $kodesapInitialSpan = $($tr + ' .kodesap-initial');
+            var $kodesapInputBox = $($tr + ' .kodesap-input-box');
+            var $kodesapAwal = $kodesapInitialSpan.text();
+
+            var $branchInitialSpan = $($tr + ' .branch-initial');
+            var $branchInputBox = $($tr + ' .branch-input-box');
+            var $branchAwal = $branchInitialSpan.text();
+
+            if ($btnEdit.hasClass('glyphicon-pencil')) {
+                $btnEdit.parent().removeClass('btn-primary').addClass('btn-success');
+                $btnEdit.removeClass('glyphicon-pencil').addClass('glyphicon-floppy-disk');
+                $kodesapInitialSpan.hide();
+                $kodesapInputBox.val($kodesapAwal).show();
+                $branchInitialSpan.hide();
+                $branchInputBox.val($branchAwal).show();
+            } else {
+                var kodesapInitialBeforeValidation = $kodesapInitialSpan.val();
+                $kodesapInitialSpan.text($kodesapInputBox.val());
+                var branchInitialBeforeValidation = $branchInitialSpan.val();
+                $branchInitialSpan.text($branchInputBox.val());
+
+                simpanKodeSap($kodecust, $kodesapInputBox, $branchInputBox, $btnEdit, $kodesapInitialSpan, $branchInitialSpan, kodesapInitialBeforeValidation, branchInitialBeforeValidation);
+            }
+        }
+
+        function simpanKodeSap($kodecust, $kodesapInputBox, $branchInputBox, $btnEdit, $kodesapInitialSpan, $branchInitialSpan, kodesapInitialBeforeValidation, branchInitialBeforeValidation); {
+
+            $postdata = {
+                kodecust: $kodecust,
+                kodesap: $kodesapInputBox.val(),
+                branchname: $branchInputBox.val()
+            };
+
+            $.ajax({
+                type: "POST",
+                contentType: "application/json; charset=UTF-8",
+                url: '@Url.Action("SaveBankPartnerApi", "Manage")',
+                data: JSON.stringify($postdata),
+                cache: false,
+                beforeSend: function() {
+                    $('#loading_link_bank').show();
+                },
+                success: function (response) {
+
+                    if (response.Errors == null) {
+                        $modeEdit = 1; // 0 new, 1 edit
+                        $btnEdit.parent().removeClass('btn-success').addClass('btn-primary');
+                        $btnEdit.removeClass('glyphicon-floppy-disk').addClass('glyphicon-pencil');
+                        $kodesapInitialSpan.show();
+                        $kodesapInputBox.hide();
+                        $branchInitialSpan.show();
+                        $branchInputBox.hide();
+                        $('#loading_link_bank').hide();
+                    } else {
+                        $kodesapInitialSpan.text(kodesapInitialBeforeValidation);
+                        $branchInitialSpan.text(branchInitialBeforeValidation);
+                        //console.log(response.Errors);
+                        alert(response.Errors);
+                        $('#loading_link_bank').hide();
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+    </script>
+}
