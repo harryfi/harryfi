@@ -203,7 +203,15 @@ namespace MasterOnline.Controllers
             request.AddApiParameter("code", accessToken);
 
             ErasoftDbContext = new ErasoftContext(EraServerName, user);
-
+            //add 22 april 2021, handle spamming
+            var cekLog = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Get Token" && p.REQUEST_ATTRIBUTE_1 == cust 
+                && p.REQUEST_ATTRIBUTE_2 == accessToken && p.REQUEST_STATUS == "Success").FirstOrDefault();
+            if(cekLog != null)
+            {
+                ret = "data sudah ada";
+                return ret;
+            }
+            //end add 22 april 2021, handle spamming
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
