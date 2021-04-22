@@ -1,0 +1,817 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@model MasterOnline.ViewModels.PartnerApiViewModel
+@{ ViewBag.Title = "Link Partner API";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+
+    var editMode = 0;
+
+    if (ViewData["Editing"] != null)
+    {
+        editMode = (int)ViewData["Editing"];
+    }
+    var context = new MoDbContext("");
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+
+    var username = "";
+    long accId;
+    if (dataSession?.User != null)
+    {
+        accId = context.User.Single(u => u.Email == dataSession.User.Email).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+    }
+    else
+    {
+        username = dataSession?.Account?.Username;
+        accId = (dataSession?.Account?.AccountId ?? 0);
+    }
+    if (username.Length > 20)
+    {
+        username = username.Substring(0, 17) + "...";
+    }
+}
+
+@section styles
+{
+    <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+    <link href="~/Content/selectize.css" rel="stylesheet" />
+    <style>
+        #akun-section {
+            margin-top: 60px;
+            background: white;
+            padding: 20px;
+        }
+    </style>
+}
+
+<div class="row" id="partner-api-section">
+    <div class="col-lg-12 col-md-12">
+        <div class="row partner_api_table_section">
+            <div class="col-lg-4 col-sm-6">
+                <div class="input-group">
+                    <input id="search_addons" type="text" class="form-control" placeholder="Pencarian">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-primary">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+            <div class="col-lg-8 col-sm-6">
+                <div class="pull-right">
+                    <button type="button" class=" btn btn-default" data-style="expand-right" onclick="location.reload();">
+                        <span>Refresh</span>
+                    </button>
+                    <button class="btn btn-primary btn_tambah_data" id="tambah_partner_api">Tambah Baru</button>
+                </div>
+            </div>
+        </div>
+        <div class="row partner_api_table_section">
+            <div class="col-sm-12">
+                @if (ViewData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success">
+                        @ViewData["SuccessMessage"].ToString()
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                }
+                @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                {
+                    foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                    {
+                        <div class="alert alert-danger">
+                            @modelError.ErrorMessage
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+                }
+                <table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+                    <thead>
+                        <tr role="row">
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 30px;">Nama Partner</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 30px;">Client Id</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Client Secret</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Host</th>
+
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Edit</th>
+                            @*<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Hapus</th>*@
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null)
+                        {
+                            foreach (var partnerapi in Model.ListPartnerApi)
+                            {
+                                <tr>
+                                    <td>@partnerapi.Nama_Partner</td>
+                                    <td>@partnerapi.ClientId</td>
+                                    <td>@partnerapi.ClientSecret</td>
+                                    <td>@partnerapi.Host</td>
+                                    <td class="edit-hapus-col">
+                                        <button class="btn btn-primary" onclick="editPartnerApi(@partnerapi.fs_id)">
+                                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                        </button>
+                                    </td>
+                                    @*<td class="edit-hapus-col">
+                                            <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusEkspedisi" onclick="pass(@partnerapi.fs_id)">
+                                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                            </button>
+                                        </td>*@
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row partner_api_editor_section" style="display: none;">
+            <div class="col-lg-12">
+                <div class="page-editor">
+                    <h2 class="editor-title">Link Partner API</h2>
+                    <span class="title-accent"></span>
+                    <button id="partner-api-close-editor" type="button" class="pull-right page-close">
+                        <span class="close-btn thick"></span>
+                    </button>
+                    <div class="form-horizontal">
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="" role="tabpanel" data-example-id="togglable-tabs">
+                                    <ul id="partnerApiTab" class="nav nav-tabs" role="tablist">
+                                        <li role="presentation" class="active">
+                                            <a href="#tab_content_partner_api" id="partner-api-tab" role="tab" data-toggle="tab" aria-expanded="true">Partner API</a>
+                                        </li>
+                                        <li role="presentation" class="">
+                                            <a href="#tab_content_pengaturan" id="pengaturan-tab" role="tab" data-toggle="tab" aria-expanded="false">Pengaturan API</a>
+                                        </li>
+                                    </ul>
+                                    <div id="PembeliTabContent" class="tab-content" style="padding-top:10px">
+                                        <div role="tabpanel" class="tab-pane fade active in" id="tab_content_partner_api" aria-labelledby="partner-api-tab">
+                                            <div class="row">
+                                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                                    <div class="x_panel">
+                                                        <div class="x_title">
+                                                            <h2 style="font-size: 16px">Link Partner API</h2>
+                                                            <ul class="nav navbar-right panel_toolbox">
+                                                                <li>
+                                                                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                                                </li>
+                                                            </ul>
+                                                            <div class="clearfix"></div>
+                                                        </div>
+                                                        <div class="x_content">
+                                                            @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                                            {
+                                                                foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                                                {
+                                                                    <div class="alert alert-danger">
+                                                                        <span class="message-error">@modelError.ErrorMessage</span>
+                                                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                }
+                                                            }
+                                                            <br>
+                                                            @using (Html.BeginForm("SavePartnerApi", "Manage", FormMethod.Post, new { @autocomplete = "off", enctype = "multipart/form-data", id = "form-partnerapi" }))
+                                                            {
+                                                                <div id="form-partner-api">
+                                                                    @*@Html.Partial("FormPartnerApiPartial")*@
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div role="tabpanel" class="tab-pane fade in" id="tab_content_pengaturan" aria-labelledby="pengaturan-tab">
+                                            <div class="row">
+                                                <div class="col-sm-12" id="table-link-bank-partner-api">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="konfHapusEkspedisi" tabindex="-1" role="dialog" aria-labelledby="konfHapusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus data ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="deleteAddons()">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $addonsId = 0;
+        //var table = $('#datatable').DataTable({
+        //    "order": [[1, "asc"]], //, [9, "desc"]
+        //    "columnDefs": [{ "targets": 3, "type": "date-eu" }],
+        //});
+        $(document).on('ready',
+            function () {
+                $page = 0;
+                Initialize();
+
+                //getStatusWebhook();
+                //getStatusPaid(); //true
+                //getSelectStatusPaid();
+            });
+
+        function Initialize() {
+            $('#search_pembeli').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableBuyer();
+                    return false;
+                }
+            });
+
+            $('#search_addons').keyup(function () {
+                    table.search($(this).val()).draw();
+                });
+
+            $('#tambah_partner_api').on('click', function () {
+                //$('.partner_api_table_section').hide();
+                //$('.partner_api_editor_section').show();
+                //refreshTableApiLog();
+                editPartnerApi(0);
+            });
+
+            $('#partner-api-close-editor').on('click', function () {
+                $('.partner_api_table_section').show();
+                $('.partner_api_editor_section').hide();
+                //$('#partner_api_Nama_Partner, #partner_api_ClientId, #partner_api_ClientSecret, #partner_api_OAuthCallbackCode').val('');
+                $('#form-partner-api').html('');
+
+            });
+
+            if ($('.message-error').text() !== '') {
+                $('#tambah_pembeli').click();
+            }
+
+            //refreshTableApiLog();
+
+            getPartner();
+            //getStatusWebhook();
+            //getSelectStatusPaid();
+
+            //$("#api_status").change(function () {
+            //    if ($("#api_status").val() == "True") {
+            //        $("#partner_api_Status").val('True');
+            //        $("#api_status option:selected").text('Aktif');
+            //    } else if ($("#api_status").val() == "False") {
+            //        $("#partner_api_Status").val('False');
+            //        $("#api_status option:selected").text('Tidak Aktif');
+            //    }
+            //});
+            //$("#inv_status").change(function () {
+            //    if ($("#inv_status").val() == "True") {
+            //        $("#partner_api_isPaid").val('True');
+            //        $("#api_status option:selected").text('Aktif');
+            //    } else if ($("#inv_status").val() == "False") {
+            //        $("#partner_api_isPaid").val('False');
+            //        $("#inv_status option:selected").text('Tidak Aktif');
+            //    }
+            //});
+            //$("#api_status").change();
+            //$('#api_status').val(tempType);
+        }
+
+        function getStatusPaid() { //resp
+            var selectPaid = $('#partner_api_isPaid_select').selectize({
+                maxItems: 1,
+                valueField: 'value',
+                searchField: ['text'],
+                options: [
+                    { value: "true", text: "Lunas", selected: true },
+                    { value: "false", text: "Belum Lunas", selected: true },
+                ],
+                onChange: function (value) {
+                    if (value == "true") {
+                        $('#partner_api_isPaid').val("true");
+                        selectPaid[0].selectize.setValue($('#partner_api_isPaid').val(), true);
+                    }
+                    else {
+                        $('#partner_api_isPaid').val("false");
+                        selectPaid[0].selectize.setValue($('#partner_api_isPaid').val(), false);
+                    }
+                }
+            });
+            selectPaid[0].selectize.trigger('change', resp);
+        }
+
+        function getSelectStatusPaid() {
+            var selectStatusPaid = $('#partner_api_isPaid').selectize({
+                create: true,
+                maxItems: 1,
+                multiple: false,
+                addOption: false,
+                sortField: 'text',
+                valueField: 'value',
+                labelField: 'text',
+                searchField: ['text'],
+                options: [
+                    { value: "true", text: "Lunas", selected: true },
+                    { value: "false", text: "Belum Lunas", selected: true },
+                ],
+                selectedField: "selected",
+                onChange: function (value) {
+                    if (value == "true") {
+                        $('#partner_api_isPaid').val("true");
+                        selectStatusPaid[0].selectize.setValue(value, true);
+                    }
+                    else {
+                        $('#partner_api_isPaid').val("false");
+                        selectStatusPaid[0].selectize.setValue(value, true);
+                    }
+                }
+            });
+            selectStatusPaid[0].selectize.setValue($('#partner_api_isPaid').val(), true);
+        }
+
+        //function getStatusWebhook2(respon) {
+        //    $('#api_status').change(function () {
+        //        $("#partner_api_Status").val($('#api_status').val(respon))
+        //    });
+
+        //    //$("#api_status").change(function () {
+        //    //    if ($("#api_status").val() == "true") {
+        //    //        $("#partner_api_Status").val('true');
+        //    //    } else if ($("#api_status").val() == "false") {
+        //    //        $("#partner_api_Status").val('false');
+        //    //    }
+        //    //    //else {
+        //    //    //    $("#partner_api_Status").val('0');
+        //    //    //}
+        //    //});
+        //    //$("#api_status").change();
+        //    ////$('#api_status').val(tempType);
+        //}
+
+
+        function getStatusWebhook(respon) {
+            var resp = false;
+            var resultStatus = false;
+            if (respon == true) {
+                resp = "true01";
+            } else if (respon == false) {
+                resp = "false02";
+            }
+
+            var selectStatus = $('#partner_api_Status').selectize({
+                create: true,
+                maxItems: 1,
+                multiple: false,
+                addOption: false,
+                sortField: 'text',
+                valueField: 'value',
+                labelField: 'text',
+                searchField: ['text'],
+                options: [
+                    { value: "true", text: "Aktif", selected: true },
+                    { value: "false", text: "Tidak Aktif", selected: true },
+                ],
+                selectedField: "selected",
+                onChange: function (value) {
+                    if (value == "true") {
+                        $('#partner_api_Status').val("true");
+                        selectStatus[0].selectize.setValue($('#partner_api_Status').val(), true);
+                    }
+                    else if (value == "false") {
+                        $('#partner_api_Status').val("false");
+                        selectStatus[0].selectize.setValue($('#partner_api_Status').val(), false);
+                    }
+                    else if (value == "true01") {
+                        $('#partner_api_Status').val("true");
+                        selectStatus[0].selectize.setValue($('#partner_api_Status').val(), true);
+                    }
+                    else if (value == "false02") {
+                        $('#partner_api_Status').val("false");
+                        selectStatus[0].selectize.setValue($('#partner_api_Status').val(), false);
+                    }
+                }
+            });
+            selectStatus[0].selectize.setValue($('#partner_api_Status').val(), true);
+            //if (respon != null) {
+            //    selectStatus[0].selectize.trigger('change', respon);
+            //}
+        }
+
+        function getAddons(respon) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetAddons", "Admin")',
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var addonsList = [];
+                    $.each(data,
+                        function (i, item) {
+                            addonsList[i] = {
+                                id: item.RecNum,
+                                text: item.Fitur,
+                                cost: item.Harga,
+                            };
+                        });
+
+                    var addonsSelect = $('#Addons').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: addonsList,
+                        onChange: function (value) {
+                            var $objSup = $.grep(addonsList, function (data) { return data.id == value });
+                            if (value == null) {
+                                $('#Addons_Customer_ID_ADDON').val(null);
+                                $('#Addons_Customer_NamaAddons').val(null);
+                                addonsSelect[0].selectize.setValue($('#Addons_Customer_ID_ADDON').val(), true);
+                            } else {
+                                $('#Addons_Customer_ID_ADDON').val(value);
+                                addonsSelect[0].selectize.setValue($('#Addons_Customer_ID_ADDON').val(), true);
+                                if ($objSup[0] != null) {
+                                    $('#Addons_Customer_Harga').val($objSup[0].cost);
+                                    $('#Addons_Customer_NamaAddons').val($objSup[0].text);
+                                }
+                            }
+                        }
+                    });
+                    addonsSelect[0].selectize.setValue($('#Addons_Customer_ID_ADDON').val(), true);
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function simpanPartnerApi() {
+            //if ($('#Addons_Customer_NamaAddons').val() == undefined || $('#Addons_Customer_NamaAddons').val() == "" || $('#Addons_Customer_NamaAddons').val() == null) {
+            //    alert("Silahkan pilih nama addons terlebih dahulu.");
+            //    return false;
+            //}
+            //if ($('#Addons_Customer_Account').val() == undefined || $('#Addons_Customer_Account').val() == "" || $('#Addons_Customer_Account').val() == null) {
+            //    alert("Silahkan pilih email terlebih dahulu.");
+            //    return false;
+            //}
+            $("#partner_api_Status").val($("#api_status").val());
+            $("#partner_api_isPaid").val($("#inv_status").val());
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SavePartnerApi", "Manage")',
+                data: $('#form-partnerapi').serialize(),
+                success: function (response) {
+                    if (response.Errors == null) {
+                        @*alert('Data berhasil tersimpan');
+                        location.href = '@Url.Action("PartnerApi")';*@
+                        var accAuthPopUp = window.open(response, "Accurate Authentication", "width=1000, height=600, scrollbars=yes");
+                        var timer = setInterval(function () {
+                            if (accAuthPopUp.closed) {
+                                clearInterval(timer);
+                                $('#loading_spinner').hide();
+                                window.location.href = '@Url.Action("PartnerApi")';
+                            }
+                        }, 1000);
+                    }
+                    else {
+                        alert(response.Errors[0]);
+                        location.href = '@Url.Action("PartnerApi")';
+                    }
+                    //alert(response);
+                },
+                error: function (xhr, status, error) {
+                    alert('Gagal link dengan partner. Silahkan hubungi support.');
+                    console.log(error);
+                }
+            });
+            return false;
+        }
+
+        function editPartnerApi(addonsId) {
+            $modeEdit = 1;
+            var link = '@Url.Action("EditPartnerApi", "Manage", new { fs_id = "replaceId" })';
+            link = link.replace("replaceId", addonsId);
+
+            $.ajax({
+                async: true,
+                type: "GET",
+                contentType: 'application/json',
+                url: link,
+                success: function (response) {
+                    $('#form-partner-api').html(response);
+                    $('.partner_api_table_section').hide();
+                    $('.partner_api_editor_section').show();
+
+                    //$('#partner_api_ClientId').val(response.partner_api.ClientId);
+                    //$('#partner_api_ClientSecret').val(response.partner_api.ClientSecret);
+
+                    getPartner();
+                    if (addonsId != 0) {
+                        $('#api_status').val($('#partner_api_Status').val());
+                        $('#inv_status').val($('#partner_api_isPaid').val());
+                    }
+                    refreshTableApiLog();
+                    //getStatusWebhook2(response.partner_api.Status);
+                    //getSelectStatusPaid(response.partner_api.isPaid);
+                    //getAddons($('#Addons_Customer.NamaAddons').val());
+                    //getEmail($('#response.Addons_Customer.Account').val());
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function searchTableLog() {
+            var $link = '@Html.Raw(Url.Action("RefreshTableBankPartnerApi", "Manage", new { search = "replaceSearch", fsid = "replacefsid" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search-bank-api').val()));
+            $link = $link.replace("replacefsid", encodeURIComponent($("#partner_api_fs_id").val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    //$('#table-barang-1-partial').hide();
+                    //$('#search_api_log_btn')[0].disabled = true;
+                    $('#loading_link_bank').show();
+                },
+                success: function (response) {
+                    $('#search-bank-api-btn')[0].disabled = false;
+                    $('#table-link-bank-partner-api').html(response);
+                    $('#loading_link_bank').hide();
+
+                },
+                error: function (xhr, status, error) {
+                    $('#search-bank-api-btn')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+
+        function refreshTableApiLog() {
+            var $link = '@Html.Raw(Url.Action("RefreshTableBankPartnerApi", "Manage", new { page = "replaceLastPage", search = "replaceSearch", fsid = "replacefsid" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search-bank-api').val()));
+            $link = $link.replace("replacefsid", encodeURIComponent($("#partner_api_fs_id").val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    //$('#table-barang-1-partial').hide();
+                    //$('#search_api_log_btn')[0].disabled = true;
+                    $('#loading_link_bank').show();
+                },
+                success: function (response) {
+                    //$('#search_api_log_btn')[0].disabled = false;
+                    $('#table-link-bank-partner-api').html(response);
+                    $('#loading_link_bank').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_api_log_btn')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+
+        function getPartner() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetDataPartner", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var partnerList = [];
+                    $.each(data,
+                        function (i, item) {
+                            partnerList[i] = {
+                                id: item.PartnerId,
+                                text: item.Username,
+                            };
+                        });
+
+                    var partnerSelect = $('#Partner').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: partnerList,
+                        onChange: function (value) {
+                            var $objSup = $.grep(partnerList, function (data) { return data.id == value });
+                            if (value == null) {
+                                $('#partner_api_PartnerId').val(null);
+                                partnerSelect[0].selectize.setValue($('#partner_api_PartnerId').val(), true);
+                            } else {
+                                var url = '@Url.Action("CekPartner", "Manage")';
+                                url += "?partnerId=" + value;
+                                $.ajax({
+                                    type: "GET",
+                                    url: url,
+                                    contentType: 'application/json',
+                                    cache: false,
+                                    success: function (response) {
+                                        if (response.Errors[0] != "") {
+                                            alert(response.Errors[0]);
+                                            $('#partner_api_PartnerId').val(null);
+                                            partnerSelect[0].selectize.setValue($('#partner_api_PartnerId').val(), true);
+                                        }
+                                        else {
+                                            $('#partner_api_PartnerId').val(value);
+                                            partnerSelect[0].selectize.setValue($('#partner_api_PartnerId').val(), true);
+                                            if ($objSup[0] != null) {
+                                                //$('#partner_api_PartnerId').val($objSup[0].id);
+                                                $('#partner_api_Nama_Partner').val($objSup[0].text);
+                                            }
+                                        }
+                                    },
+                                    error: function (xhr) {
+                                        console.log(xhr);
+                                    }
+                                });
+                            }
+                        }
+                    });
+                    if (partnerSelect[0] != undefined) {
+                        partnerSelect[0].selectize.setValue($('#partner_api_PartnerId').val(), true);
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function editKodeSap($kodecust, flag) {
+            debugger;
+            var $tr = 'tr[data-kode-id="' + $kodecust + '"]';
+            var $btnEdit = $($tr + ' .icon-btn-edit');
+
+            var $branchInitialSpan = $($tr + ' .branch-initial');
+            var $branchInputBox = $($tr + ' .branch-input-box_'+$kodecust);
+            var $branchAwal = $branchInitialSpan.text();
+
+            var $kodesapInitialSpan = $($tr + ' .kodesap-initial');
+            var $kodesapInputBox = $($tr + ' .kodesap-input-box');
+            var $kodesapAwal = $kodesapInitialSpan.text();
+
+            if ($btnEdit.hasClass('glyphicon-pencil')) {
+                $btnEdit.parent().removeClass('btn-primary').addClass('btn-success');
+                $btnEdit.removeClass('glyphicon-pencil').addClass('glyphicon-floppy-disk');
+
+                if (flag == "true") {
+                    $kodesapInitialSpan.hide();
+                    $kodesapInputBox.val($kodesapAwal).show();
+                }
+
+                $branchInitialSpan.hide();
+                $branchInputBox.val($branchAwal).show();
+                getDataBranch($kodecust);
+            } else {
+                var kodesapInitialBeforeValidation = $kodesapInitialSpan.val();
+
+                if (flag == "true") {
+                    $kodesapInitialSpan.text($kodesapInputBox.val());
+                }
+                else {
+                    $kodesapInputBox.val($kodesapAwal);
+                    $kodesapInitialSpan.text($kodesapInputBox.val());
+                }
+
+                var branchid = $('.branch-input-box_' + $kodecust).val();
+                var branchname = $('#BRNCH').val();
+                var branchInitialBeforeValidation = $branchInitialSpan.val();
+                $branchInitialSpan.text(branchname);
+
+                simpanKodeSap($kodecust, $kodesapInputBox, $kodesapInitialSpan, kodesapInitialBeforeValidation, $branchInputBox, $btnEdit, $branchInitialSpan, branchInitialBeforeValidation, branchid, branchname); //, bank_code
+            }
+        }
+
+        function simpanKodeSap($kodecust, $kodesapInputBox, $kodesapInitialSpan, kodesapInitialBeforeValidation, $branchInputBox, $btnEdit, $branchInitialSpan, branchInitialBeforeValidation, branchid, branchname) {
+
+            $postdata = {
+                kodecust: $kodecust,
+                kodesap: $kodesapInputBox.val(),
+                branchname: branchname,
+                branchid: branchid
+            };
+
+            $.ajax({
+                type: "POST",
+                contentType: "application/json; charset=UTF-8",
+                url: '@Url.Action("SaveBankPartnerApi", "Manage")',
+                data: JSON.stringify($postdata),
+                cache: false,
+                beforeSend: function() {
+                    $('#loading_link_bank').show();
+                },
+                success: function (response) {
+
+                    if (response.Errors == null) {
+                        $modeEdit = 1; // 0 new, 1 edit
+                        $btnEdit.parent().removeClass('btn-success').addClass('btn-primary');
+                        $btnEdit.removeClass('glyphicon-floppy-disk').addClass('glyphicon-pencil');
+                        $kodesapInitialSpan.show();
+                        $kodesapInputBox.hide();
+                        $branchInitialSpan.show();
+                        $branchInputBox.hide();
+                        $('.branch-input-box_' + $kodecust).val('');
+                        $('#BRNCH').val('');
+                        $('#loading_link_bank').hide();
+                    } else {
+                        $kodesapInitialSpan.text(kodesapInitialBeforeValidation);
+                        $branchInitialSpan.text(branchInitialBeforeValidation);
+                        //console.log(response.Errors);
+                        alert(response.Errors);
+                        $('#loading_link_bank').hide();
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function getDataBranch(cust) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetDataBranchAccurate", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+                success: function(data) {
+                    var listKodeBarang = [];
+
+                    $.each(data,
+                        function(i, item) {
+                            listKodeBarang[i] = {
+                                id: item.id + ';' + item.name,
+                                text: item.name
+                            };
+                        });
+
+                    debugger;
+                    //#BRG _' + cust
+                    $('.branch-input-box_' + cust).selectivity({
+                        allowClear: true,
+                        items: listKodeBarang,
+                        placeholder: 'Harap pilih',
+                    }).change(function () {
+
+                        debugger;
+                        var val = $(this).selectivity('value');
+                        var $trId = $(this).closest('tr').attr('data-kode-id');
+                        var $trElement = 'tr[data-kode-id="' + $trId + '"]';
+                        var splitVal = val.split(';');
+
+                        if (val != null) {
+                            $('.branch-input-box_' + cust).val(splitVal[0]);
+                            $('#BRNCH').val(splitVal[1]);
+                            //$.each(data,
+                            //    function(i, item) {
+                            //        if (item.BRG === val) {
+                            //            return;
+                            //        }
+                            //    });
+                        } else {
+                            $($trElement + ' .nama-barang').text('-');
+                        }
+                    });
+
+                    if ($('.branch-input-box_' + cust).selectivity('value') != null) {
+                        $('.branch-input-box_' + cust).trigger('change');
+                    }
+                },
+                error: function(xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+    </script>
+}
+

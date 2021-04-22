@@ -205,5 +205,12 @@ namespace MasterOnline
 
         [StringLength(1)]
         public string STATUS_API { get; set; }
+
+        public int? BRANCH_ID_ACCURATE { get; set; }
+
+        [StringLength(100)]
+        public string BANK_NO_ACCURATE { get; set; }
+        [StringLength(200)]
+        public string BRANCH_NAME_ACCURATE { get; set; }
     }
 }

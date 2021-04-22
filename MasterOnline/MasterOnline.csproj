@@ -1082,6 +1082,8 @@
     <Compile Include="Models\SOT01H.cs" />
     <Compile Include="Models\SupportMenu.cs" />
     <Compile Include="Models\SOT01G.cs" />
+    <Compile Include="Models\PARTNER_API.cs" />
+    <Compile Include="Models\PARTNER_API_LOG_ERROR.cs" />
     <Compile Include="Models\SIT01H.cs" />
     <Compile Include="Models\STF03C.cs" />
     <Compile Include="Models\TEMP_SALDOAWAL.cs" />
@@ -1450,6 +1452,8 @@
     <Compile Include="ViewModels\AddonsViewModel.cs" />
     <Compile Include="ViewModels\BarcodeViewModels.cs" />
     <Compile Include="ViewModels\HargaJualMassalViewModel.cs" />
+    <Compile Include="ViewModels\LinkBankPartnerApiViewModel.cs" />
+    <Compile Include="ViewModels\PartnerApiViewModel.cs" />
     <Compile Include="ViewModels\mdlTempBayarBlibli.cs" />
     <Compile Include="ViewModels\mdlTempBayarTokped.cs" />
     <Compile Include="ViewModels\mdlSaldoAwal.cs" />
@@ -6908,6 +6912,13 @@
     <Content Include="Views\Manage\TransferToFTPParameterLinkFtp.cshtml" />
     <Content Include="Views\Manage\TransferBarangToFTP.cshtml" />
     <Content Include="Views\Manage\TableTransferBarangToFTP.cshtml" />
+    <Content Include="Views\Manage\PartnerApiLog.cshtml" />
+    <Content Include="Views\Manage\TablePartnerApiLog.cshtml" />
+    <Content Include="Views\Manage\LinkBankPartnerApi.cshtml" />
+    <Content Include="Views\Manage\TableLinkBankPartnerApi.cshtml" />
+    <Content Include="Views\Manage\PartnerApi.cshtml" />
+    <Content Include="Views\Manage\OauthCode.cshtml" />
+    <Content Include="Views\Manage\FormPartnerApiPartial.cshtml" />
     <Content Include="Views\Manage\Tutorial_List.cshtml" />
     <Content Include="Views\Manage\Tutorial.cshtml" />
     <Content Include="Views\Manage\Tutorial_Detail.cshtml" />
