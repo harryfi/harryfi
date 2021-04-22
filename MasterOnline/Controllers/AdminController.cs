@@ -4679,7 +4679,16 @@ namespace MasterOnline.Controllers
 
                 //var akun = MoDbContext.Account.Count();
                 //var user = MoDbContext.User.Count();
-
+#if (DEBUG || Debug_AWS)
+                var accountInDb = (from a in MoDbContext.Account
+                                   where
+                                   //(a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
+                                   //&&
+                                   (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
+                                   && !string.IsNullOrEmpty(a.DatabasePathErasoft)
+                                   orderby a.LAST_LOGIN_DATE descending
+                                   select new { db_name = a.DatabasePathErasoft, db_source = a.DataSourcePathDebug, onlineshopname = a.NamaTokoOnline }).ToList();
+#else
                 var accountInDb = (from a in MoDbContext.Account
                                    where
                                    //(a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
@@ -4688,7 +4697,7 @@ namespace MasterOnline.Controllers
                                    && !string.IsNullOrEmpty(a.DatabasePathErasoft)
                                    orderby a.LAST_LOGIN_DATE descending
                                    select new { db_name = a.DatabasePathErasoft, db_source = a.DataSourcePath, onlineshopname = a.NamaTokoOnline }).ToList();
-
+#endif
                 return new JsonResult { Data = new { arraydbname = accountInDb }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             catch (Exception ex)
@@ -4708,59 +4717,25 @@ namespace MasterOnline.Controllers
                 //var RemoteMODbContext = new MoDbContext("");
                 var getIP = "";
                 var getPort = "1433";
+                var getFullIP = "";
                 if (db_source != "" && db_source != null)
                 {
-                    if (db_source.Contains("172.31.20.197") || db_source.Contains("13.250.232.74"))
+                    getIP = db_source.Split('\'').First();
+                    getPort = db_source.Split(new string[] { ", " }, StringSplitOptions.None).Last();
+                    if (db_source.Contains("\\SQLEXPRESS,"))
                     {
-                        getIP = "13.250.232.74";
+                        getFullIP = db_source.Replace("\\SQLEXPRESS, ", ", ");
                     }
-                    else if ((db_source.Contains("172.31.20.200") || db_source.Contains("54.179.169.195")) && db_source.Contains("1433"))
+                    else
                     {
-                        getIP = "54.179.169.195";
-                    }
-                    else if (db_source.Contains("172.31.17.194") || db_source.Contains("52.76.44.100"))
-                    {
-                        getIP = "52.76.44.100";
-                    }
-                    else if (db_source.Contains("172.31.26.111") || db_source.Contains("54.254.98.21"))
-                    {
-                        getIP = "54.254.98.21";
-                    }
-                    else if (db_source.Contains("172.31.14.140") || db_source.Contains("18.141.161.81"))
-                    {
-                        getIP = "18.141.161.81";
-                    }
-                    else if (db_source.Contains("172.31.1.127") || db_source.Contains("13.251.64.77"))
-                    {
-                        getIP = "13.251.64.77";
-                    }
-                    else if (db_source.Contains("172.31.40.234") || db_source.Contains("54.179.0.52"))
-                    {
-                        getIP = "54.179.0.52";
-                    }
-                    else if (db_source.Contains("13.251.222.53") || db_source.Contains("13.251.222.53"))
-                    {
-                        getIP = "13.251.222.53";
-                    }
-                    else if (db_source.Contains("172.31.20.192"))  /// ADD for IP PRIVATE DB UTAMA SERVER AUTO SCALE LIVE.
-                    {
-                        getIP = "172.31.20.192";
-                    }
-                    else if (db_source.Contains("172.31.20.73"))  /// ADD for IP PRIVATE DB UTAMA REGISTER MO.
-                    {
-                        getIP = "172.31.20.73";
-                    }
-                    else if ((db_source.Contains("54.179.169.195") || db_source.Contains("54.179.169.195")) && db_source.Contains("1444"))
-                    {
-                        getIP = "54.179.169.195";
-                        getPort = "1444";
+                        getFullIP = db_source.Replace("\"SQLEXPRESS, ", ", ");
                     }
                 }
                 //var getIP = db_source.Split(new string[] { "\"" }, StringSplitOptions.None).First();
                 //var getPort = db_source.Split(new string[] { ", " }, StringSplitOptions.None).Last();
                 if (db_source != "" && db_source != null)
                 {
-                    var RemoteMODbContext = new MoDbContext(getPort, getIP);
+                    var RemoteMODbContext = new MoDbContext(getPort, getFullIP);
 
                     //var akun = MoDbContext.Account.Count();
                     //var user = MoDbContext.User.Count();
@@ -4807,54 +4782,21 @@ namespace MasterOnline.Controllers
                 //var MoDbContext = new MoDbContext("");
                 var getIP = "";
                 var getPort = "1433";
+                var getFullIP = "";
                 if (server != "" && server != null)
                 {
-                    if (server.Contains("172.31.20.197") || server.Contains("13.250.232.74"))
+                    getIP = server.Split('\'').First();
+                    getPort = server.Split(new string[] { ", " }, StringSplitOptions.None).Last();
+                    if (server.Contains("\\SQLEXPRESS,"))
                     {
-                        getIP = "13.250.232.74";
+                        getFullIP = server.Replace("\\SQLEXPRESS, ", ", ");
                     }
-                    else if ((server.Contains("172.31.20.200") || server.Contains("54.179.169.195")) && server.Contains("1433"))
+                    else
                     {
-                        getIP = "54.179.169.195";
-                    }
-                    else if (server.Contains("172.31.17.194") || server.Contains("52.76.44.100"))
-                    {
-                        getIP = "52.76.44.100";
-                    }
-                    else if (server.Contains("172.31.26.111") || server.Contains("54.254.98.21"))
-                    {
-                        getIP = "54.254.98.21";
-                    }
-                    else if (server.Contains("172.31.14.140") || server.Contains("18.141.161.81"))
-                    {
-                        getIP = "18.141.161.81";
-                    }
-                    else if (server.Contains("172.31.1.127") || server.Contains("13.251.64.77"))
-                    {
-                        getIP = "13.251.64.77";
-                    }
-                    else if (server.Contains("172.31.40.234") || server.Contains("54.179.0.52"))
-                    {
-                        getIP = "54.179.0.52";
-                    }
-                    else if (server.Contains("13.251.222.53") || server.Contains("13.251.222.53"))
-                    {
-                        getIP = "13.251.222.53";
-                    }
-                    else if (server.Contains("172.31.20.192"))  /// ADD for IP PRIVATE DB UTAMA SERVER AUTO SCALE LIVE.
-                    {
-                        getIP = "172.31.20.192";
-                    }
-                    else if (server.Contains("172.31.20.73"))  /// ADD for IP PRIVATE DB UTAMA REGISTER MO.
-                    {
-                        getIP = "172.31.20.73";
-                    }
-                    else if ((server.Contains("54.179.169.195") || server.Contains("54.179.169.195")) && server.Contains("1444"))
-                    {
-                        getIP = "54.179.169.195";
-                        getPort = "1444";
+                        getFullIP = server.Replace("\"SQLEXPRESS, ", ", ");
                     }
                 }
+                
                 //var getIP = server.Split(new string[] { "\"" }, StringSplitOptions.None).First();
                 //var getPort = server.Split(new string[] { ", " }, StringSplitOptions.None).Last();
                 var listDB = new List<string>();
@@ -4869,6 +4811,18 @@ namespace MasterOnline.Controllers
                     //var akun = MoDbContext.Account.Count();
                     //var user = MoDbContext.User.Count();
 
+#if (DEBUG || Debug_AWS)
+                    var accountInDb = (from a in MoDbContext.Account
+                                       where
+                                       //(a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
+                                       //&&
+                                       (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
+                                       && !string.IsNullOrEmpty(a.DatabasePathErasoft)
+                                       &&
+                                       listDB.Contains(a.DatabasePathErasoft)
+                                       orderby a.LAST_LOGIN_DATE descending
+                                       select new { db_name = a.DatabasePathErasoft, db_source = a.DataSourcePathDebug, onlineshopname = a.NamaTokoOnline }).ToList();
+#else
                     var accountInDb = (from a in MoDbContext.Account
                                        where
                                        //(a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
@@ -4879,7 +4833,7 @@ namespace MasterOnline.Controllers
                                        listDB.Contains(a.DatabasePathErasoft)
                                        orderby a.LAST_LOGIN_DATE descending
                                        select new { db_name = a.DatabasePathErasoft, db_source = a.DataSourcePath, onlineshopname = a.NamaTokoOnline }).ToList();
-
+#endif
                     return new JsonResult { Data = new { arraydbname = accountInDb }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
                 return new JsonResult { Data = new { mo_error = "Server tidak ditemukan." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
@@ -4897,9 +4851,16 @@ namespace MasterOnline.Controllers
         {
             var MoDbContext = new MoDbContext("");
             //listServer = MoDbContext.Account.Where(a => !string.IsNullOrEmpty(a.DataSourcePath)).Select(a => a.DataSourcePath).Distinct().ToList();
-            var listServer = (from a in MoDbContext.Account
+            var listServer = new List<listServer>();
+#if (AWS || DEV)
+            listServer = (from a in MoDbContext.Account
                          where !string.IsNullOrEmpty(a.DataSourcePath)
                          select new listServer { IP = a.DataSourcePath }).Distinct().ToList();
+#else
+            listServer = (from a in MoDbContext.Account
+                          where !string.IsNullOrEmpty(a.DataSourcePathDebug)
+                          select new listServer { IP = a.DataSourcePathDebug }).Distinct().ToList();
+#endif
             return Json(listServer, JsonRequestBehavior.AllowGet);
         }
 
@@ -4919,60 +4880,19 @@ namespace MasterOnline.Controllers
                 var getIP = "";
                 var getPort = "1433";
                 var getIPPrivate = "";
-                if (server.Contains("172.31.20.197") || server.Contains("13.250.232.74"))
+                var getFullIP = "";
+                if (server != "" && server != null)
                 {
-                    getIP = "13.250.232.74";
-                    getIPPrivate = "172.31.20.197";
-                }else if ((server.Contains("172.31.20.200") || server.Contains("54.179.169.195")) && server.Contains("1433"))
-                {
-                    getIP = "54.179.169.195";
-                    getIPPrivate = "172.31.20.200";
-                }
-                else if (server.Contains("172.31.17.194") || server.Contains("52.76.44.100"))
-                {
-                    getIP = "52.76.44.100";
-                    getIPPrivate = "172.31.17.194";
-                }
-                else if (server.Contains("172.31.26.111") || server.Contains("54.254.98.21"))
-                {
-                    getIP = "54.254.98.21";
-                    getIPPrivate = "172.31.26.111";
-                }
-                else if (server.Contains("172.31.14.140") || server.Contains("18.141.161.81"))
-                {
-                    getIP = "18.141.161.81";
-                    getIPPrivate = "172.31.14.140";
-                }
-                else if (server.Contains("172.31.1.127") || server.Contains("13.251.64.77"))
-                {
-                    getIP = "13.251.64.77";
-                    getIPPrivate = "172.31.1.127";
-                }
-                else if (server.Contains("172.31.40.234") || server.Contains("54.179.0.52"))
-                {
-                    getIP = "54.179.0.52";
-                    getIPPrivate = "172.31.40.234";
-                }
-                else if (server.Contains("13.251.222.53") || server.Contains("13.251.222.53"))
-                {
-                    getIP = "13.251.222.53";
-                    getIPPrivate = "13.251.222.53";
-                }
-                else if (server.Contains("172.31.20.192") || server.Contains("172.31.20.192"))
-                {
-                    getIP = "172.31.20.192";
-                    getIPPrivate = "172.31.20.192";
-                }
-                else if (server.Contains("172.31.20.73") || server.Contains("172.31.20.73"))
-                {
-                    getIP = "172.31.20.73";
-                    getIPPrivate = "172.31.20.73";
-                }
-                else if ((server.Contains("54.179.169.195") || server.Contains("54.179.169.195")) && server.Contains("1444"))
-                {
-                    getIP = "54.179.169.195";
-                    getIPPrivate = "54.179.169.195";
-                    getPort = "1444";
+                    getIP = server.Split('\'').First();
+                    getPort = server.Split(new string[] { ", " }, StringSplitOptions.None).Last();
+                    if (server.Contains("\\SQLEXPRESS,"))
+                    {
+                        getFullIP = server.Replace("\\SQLEXPRESS, ", ", ");
+                    }
+                    else
+                    {
+                        getFullIP = server.Replace("\"SQLEXPRESS, ", ", ");
+                    }
                 }
                 if (getIP != "")
                 {
@@ -4988,7 +4908,8 @@ namespace MasterOnline.Controllers
                                     (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
                                     && !string.IsNullOrEmpty(a.DatabasePathErasoft)
                                     &&
-                                    a.DataSourcePath.Contains(getIPPrivate)
+                                    //a.DataSourcePath.Contains(getIPPrivate)
+                                    (a.DataSourcePath.Contains(getIP) || a.DataSourcePathDebug.Contains(getIP))
                                     orderby a.LAST_LOGIN_DATE descending
                                     select new listAkunPerServer { db_name = a.DatabasePathErasoft, db_source = a.DataSourcePath, onlineshopname = a.NamaTokoOnline, email = a.Email, accountid = a.AccountId }).ToList();
                     vm.listAkun = listAkun;
@@ -5083,57 +5004,23 @@ namespace MasterOnline.Controllers
             {
                 var getIP = "";
                 var getPort = "1433";
+                var getFullIP = "";
                 if (db_source != "" && db_source != null)
                 {
-                    if (db_source.Contains("172.31.20.197") || db_source.Contains("13.250.232.74"))
+                    getIP = db_source.Split('\'').First();
+                    getPort = db_source.Split(new string[] { ", " }, StringSplitOptions.None).Last();
+                    if (db_source.Contains("\\SQLEXPRESS,"))
                     {
-                        getIP = "13.250.232.74";
+                        getFullIP = db_source.Replace("\\SQLEXPRESS, ", ", ");
                     }
-                    else if ((db_source.Contains("172.31.20.200") || db_source.Contains("54.179.169.195")) && db_source.Contains("1433"))
+                    else
                     {
-                        getIP = "54.179.169.195";
-                    }
-                    else if (db_source.Contains("172.31.17.194") || db_source.Contains("52.76.44.100"))
-                    {
-                        getIP = "52.76.44.100";
-                    }
-                    else if (db_source.Contains("172.31.26.111") || db_source.Contains("54.254.98.21"))
-                    {
-                        getIP = "54.254.98.21";
-                    }
-                    else if (db_source.Contains("172.31.14.140") || db_source.Contains("18.141.161.81"))
-                    {
-                        getIP = "18.141.161.81";
-                    }
-                    else if (db_source.Contains("172.31.1.127") || db_source.Contains("13.251.64.77"))
-                    {
-                        getIP = "13.251.64.77";
-                    }
-                    else if (db_source.Contains("172.31.40.234") || db_source.Contains("54.179.0.52"))
-                    {
-                        getIP = "54.179.0.52";
-                    }
-                    else if (db_source.Contains("13.251.222.53") || db_source.Contains("13.251.222.53"))
-                    {
-                        getIP = "13.251.222.53";
-                    }
-                    else if (db_source.Contains("172.31.20.192") || db_source.Contains("172.31.20.192"))
-                    {
-                        getIP = "172.31.20.192";
-                    }
-                    else if (db_source.Contains("172.31.20.73") || db_source.Contains("172.31.20.73"))
-                    {
-                        getIP = "172.31.20.73";
-                    }                    
-                    else if ((db_source.Contains("54.179.169.195") || db_source.Contains("54.179.169.195")) && db_source.Contains("1444"))
-                    {
-                        getIP = "54.179.169.195";
-                        getPort = "1444";
+                        getFullIP = db_source.Replace("\"SQLEXPRESS, ", ", ");
                     }
                 }
                 if (db_source != "" && db_source != null)
                 {
-                    var RemoteMODbContext = new MoDbContext(getPort, getIP);
+                    var RemoteMODbContext = new MoDbContext(getPort, getFullIP);
                     
                     try
                     {
@@ -5147,7 +5034,7 @@ namespace MasterOnline.Controllers
                         };
                         RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN_GL] @db_name, @THN", spParams);
 
-                        #region REMARK
+#region REMARK
                         //short tahunProses1 = Convert.ToInt16(tahunProses + 1);
 
                         //ErasoftContext ErasoftDbContext = new ErasoftContext(getIP, db_name);
@@ -5253,7 +5140,7 @@ namespace MasterOnline.Controllers
                         //var resultProsesAkhirTahunGLFMTL = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL3);
                         //ErasoftDbContext.SaveChanges();
                         //#endregion GLFMTL
-                        #endregion REMARK
+#endregion REMARK
                     }
                     catch (Exception ex)
                     {
