@@ -685,10 +685,13 @@
                             @*//add by nurul 26/7/2019*@
                             <li class="center">
                                 <a class="member-profile center">
-                                    @if (sessionAccountEmail.ToString() == "rahmamk@gmail.com")
+                                    @if (sessionAccount != null)
                                     {
-                                        <label>IP SERVER @IPSERVER</label>
-                                    }                                    
+                                        if (sessionAccountEmail.ToString() == "rahmamk@gmail.com")
+                                        {
+                                            <label>IP SERVER @IPSERVER</label>
+                                        }
+                                    }
                                     @if (member == "01")
                                     {
                                         <label>@nmMember </label>
@@ -704,18 +707,18 @@
                                     @if (drTgl != null)
                                     {
                                         @*if (member == "01")
-                                            {
-                                                <label>@nmMember </label>
-                                                <label> @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
-                                            }
-                                            else if (member == "02")
-                                            {
-                                                <label class="member-label-silver">@nmMember </label>
-                                                <label> @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
-                                            }
-                                            else if (member == "03")
-                                            {
-                                                <label class="member-label-gold">@nmMember </label>*@
+            {
+                <label>@nmMember </label>
+                <label> @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
+            }
+            else if (member == "02")
+            {
+                <label class="member-label-silver">@nmMember </label>
+                <label> @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
+            }
+            else if (member == "03")
+            {
+                <label class="member-label-gold">@nmMember </label>*@
                                         <label> @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
                                         //}
                                     }

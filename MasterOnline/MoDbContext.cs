@@ -86,13 +86,22 @@ namespace MasterOnline
         //end remark by fauzi for testing REDIS elasticache AWS 26/01/2021
 
         //changes by fauzi for testing REDIS elasticache AWS 26/01/2021
+        //public MoDbContext(string dbSourceEra)
+        //     : base($"Server=172.31.20.73, 1433;initial catalog=MO;" +
+        //            $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
+        //            $"application name=EntityFramework")
+        //{
+        //}
+        //end changes by fauzi for testing REDIS elasticache AWS 26/01/2021
+
+        //changes by fauzi for IP Private baru dari VPC baru 20/04/2021
         public MoDbContext(string dbSourceEra)
-             : base($"Server=172.31.20.73, 1433;initial catalog=MO;" +
+             : base($"Server=172.31.20.192, 1433;initial catalog=MO;" +
                     $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
                     $"application name=EntityFramework")
         {
         }
-        //end changes by fauzi for testing REDIS elasticache AWS 26/01/2021
+        //end changes by fauzi for IP Private baru dari VPC baru 20/04/2021
 
 
         //add by nurul 21/12/2020, khusus proses akhir tahun

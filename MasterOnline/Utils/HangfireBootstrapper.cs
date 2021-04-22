@@ -206,7 +206,7 @@ namespace MasterOnline.Utils
                         var monitoringApi = sqlStorage.GetMonitoringApi();
                         var serverList = monitoringApi.Servers();
 
-                        if (Convert.ToInt32(check.Count()) == 0)
+                        if (check.Count() == 0)
                         {
                             //if (serverList.Count() == 0)
                             //{
