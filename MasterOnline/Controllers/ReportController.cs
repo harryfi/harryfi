@@ -696,6 +696,36 @@ namespace MasterOnline.Controllers
 
         }
 
+        //add by nurul 16/4/2021
+        [Route("reports/17")]
+        public ActionResult LapPembayaranPiutang()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public string Preview17(ReportViewModel.Report17 data)
+        {
+#if AWS
+            return string.Format("https://" + sDomainLive + "/Report/Form/frm_LapPembayaranPiutang.aspx?UserID={0}&FromCust={1}&ToCust={2}&DrTanggal={3}&SdTanggal={4}&Username={5}",
+                Uri.EscapeDataString(data.UserId),
+                Uri.EscapeDataString(data.FromCust),
+                Uri.EscapeDataString(data.ToCust),
+                Uri.EscapeDataString(data.DrTanggal),
+                Uri.EscapeDataString(data.SdTanggal),
+                Uri.EscapeDataString(usernameLogin));
+#else
+            return string.Format("https://" + sDomainDev + "/Report/Form/frm_LapPembayaranPiutang.aspx?UserID={0}&FromCust={1}&ToCust={2}&DrTanggal={3}&SdTanggal={4}&Username={5}",
+                Uri.EscapeDataString(data.UserId),
+                Uri.EscapeDataString(data.FromCust),
+                Uri.EscapeDataString(data.ToCust),
+                Uri.EscapeDataString(data.DrTanggal),
+                Uri.EscapeDataString(data.SdTanggal),
+                Uri.EscapeDataString(usernameLogin));
+#endif
+        }
+        //end add by nurul 16/4/2021
+
         public ActionResult PromptCustomer()
         {
             //CHANGE BY NURUL 29/7/2019

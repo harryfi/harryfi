@@ -818,5 +818,42 @@ namespace MasterOnline.ViewModels
                 }
             }
         }
+
+        //add by nurul 16/4/2021
+        public class Report17
+        {
+            string _FromCust = "";
+            string _ToCust = "";
+
+            public string UserId { get; set; }
+
+            public string FromCust
+            {
+                get
+                {
+                    return _FromCust;
+                }
+                set
+                {
+                    _FromCust = string.IsNullOrEmpty(value) ? "" : value;
+                }
+            }
+
+            public string ToCust
+            {
+                get
+                {
+                    return _ToCust;
+                }
+                set
+                {
+                    _ToCust = string.IsNullOrEmpty(value) ? "" : value;
+                }
+            }
+
+            public string DrTanggal { get; set; }
+            public string SdTanggal { get; set; }
+        }
+        //end add by nurul 16/4/2021
     }
 }
