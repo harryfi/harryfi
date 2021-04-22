@@ -78,7 +78,7 @@ namespace MasterOnline
         //}
 
         public MoDbContext(string dbSourceEra)
-             : base($"Server=54.151.175.62, 12354;initial catalog=MO;" +
+             : base($"Server=172.31.20.192, 1433;initial catalog=MO;" +
                     $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
                     $"application name=EntityFramework")
         {
