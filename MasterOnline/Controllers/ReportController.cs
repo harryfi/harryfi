@@ -697,7 +697,7 @@ namespace MasterOnline.Controllers
         }
 
         //add by nurul 16/4/2021
-        [Route("reports/17")]
+        [Route("manage/reports/17")]
         public ActionResult LapPembayaranPiutang()
         {
             return View();

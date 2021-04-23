@@ -5080,7 +5080,7 @@ namespace MasterOnline.Controllers
                     var listNoRefInSO = OrderNoInDb.Select(p => p.NO_REFERENSI).ToList();
                     var orderWithOrderIdInSO = bindOrder.data.orders.Where(p => listNoRefInSO.Contains(p.order_id)).ToList();
                     var listNoRefUntukCekSIT01a = orderWithOrderIdInSO.Select(p => p.order_id).ToList();
-                    var getSIT01A = ErasoftDbContext.SIT01A.Where(p => listNoRefUntukCekSIT01a.Contains(p.NO_REF)).Select(p => p.NO_REF).ToList();
+                    var getSIT01A = ErasoftDbContext.SIT01A.Where(p => listNoRefUntukCekSIT01a.Contains(p.NO_REF) && p.CUST == cust).Select(p => p.NO_REF).ToList();
                     foreach (var order in orderWithOrderIdInSO)
                     {
                         //if (OrderNoInDb.Contains(Convert.ToString(order.order_id)))

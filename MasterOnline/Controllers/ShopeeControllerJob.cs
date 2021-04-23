@@ -5249,7 +5249,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        [AutomaticRetry(Attempts = 1)]
+        [AutomaticRetry(Attempts = 2)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Update Kurir Pesanan {obj} Shopee Gagal.")]
         public async Task<string> updateKurirShopee(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string[] ordersn_list, List<listUpdateOrder> listPesanan, string type)
@@ -5300,113 +5300,120 @@ namespace MasterOnline.Controllers
 
             if (responseFromServer != "")
             {
-                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderDetailsResult)) as ShopeeGetOrderDetailsResult;
-                List<listUpdateOrder> updateKurirSuccess = new List<listUpdateOrder>();
-                if (result.orders.Count() > 0)
+                try
                 {
-                    foreach (var order in result.orders)
+                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderDetailsResult)) as ShopeeGetOrderDetailsResult;
+                    List<listUpdateOrder> updateKurirSuccess = new List<listUpdateOrder>();
+                    if (result.orders.Count() > 0)
                     {
-                        if (order.shipping_carrier != null && order.shipping_carrier != "")
+                        foreach (var order in result.orders)
                         {
-                            try
+                            if (order.shipping_carrier != null && order.shipping_carrier != "")
                             {
-                                var Kurir = order.shipping_carrier;
-                                var tipe_pengiriman = order.checkout_shipping_carrier;
-                                var resi = "";
-                                if (order.tracking_no != null && order.tracking_no != "")
+                                try
                                 {
-                                    resi = order.tracking_no;
-                                }
-                                var noref = order.ordersn;
-                                var nobuk = listPesanan.Where(a => a.Noref == noref).Select(a => a.Nobuk).FirstOrDefault();
-                                var temp = new listUpdateOrder()
-                                {
-                                    Noref = noref,
-                                    Nobuk = nobuk
-                                };
-                                
-                                var pesananInDb = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == noref && p.NO_BUKTI == nobuk && p.CUST == log_CUST).FirstOrDefault();
-                                if (pesananInDb != null)
-                                {
-                                    if (type == "1")
+                                    var Kurir = order.shipping_carrier;
+                                    var tipe_pengiriman = order.checkout_shipping_carrier;
+                                    var resi = "";
+                                    if (order.tracking_no != null && order.tracking_no != "")
                                     {
-                                        try
-                                        {
-                                            pesananInDb.SHIPMENT = Kurir;
-                                            if (!string.IsNullOrEmpty(resi))
-                                            {
-                                                pesananInDb.TRACKING_SHIPMENT = resi;
-                                            }
-                                            ErasoftDbContext.SaveChanges();
-                                            updateKurirSuccess.Add(temp);
-                                        }
-                                        catch
-                                        {
-
-                                        }
+                                        resi = order.tracking_no;
                                     }
-                                    else if(type == "2")
+                                    var noref = order.ordersn;
+                                    var nobuk = listPesanan.Where(a => a.Noref == noref).Select(a => a.Nobuk).FirstOrDefault();
+                                    var temp = new listUpdateOrder()
                                     {
-                                        try
-                                        {
-                                            pesananInDb.SHIPMENT = Kurir;
-                                            if (!string.IsNullOrEmpty(resi))
-                                            {
-                                                pesananInDb.TRACKING_SHIPMENT = resi;
-                                            }
-                                            ErasoftDbContext.SaveChanges();
-                                            updateKurirSuccess.Add(temp);
-                                        }
-                                        catch
-                                        {
+                                        Noref = noref,
+                                        Nobuk = nobuk
+                                    };
 
-                                        }
-                                        if (pesananInDb.SHIPMENT != Kurir)
+                                    var pesananInDb = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == noref && p.NO_BUKTI == nobuk && p.CUST == log_CUST).FirstOrDefault();
+                                    if (pesananInDb != null)
+                                    {
+                                        var tempKurirBefore = pesananInDb.SHIPMENT;
+                                        if (type == "1")
                                         {
                                             try
                                             {
-                                                var sSQL = "UPDATE SIT01A SET NAMAPENGIRIM='" + Kurir + "' where NO_REF='" + noref + "' and NO_SO='" + nobuk + "' and CUST='" + log_CUST + "'";
-                                                ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
-                                                //var fakturInDb = ErasoftDbContext.SIT01A.Where(p => p.NO_REF == noref && p.NO_SO == nobuk && p.CUST == log_CUST).FirstOrDefault();
-                                                //if (fakturInDb != null)
-                                                //{
-                                                //    fakturInDb.NAMAPENGIRIM = Kurir;
-                                                //    ErasoftDbContext.SaveChanges();
-                                                //}
+                                                pesananInDb.SHIPMENT = Kurir;
+                                                if (!string.IsNullOrEmpty(resi))
+                                                {
+                                                    pesananInDb.TRACKING_SHIPMENT = resi;
+                                                }
+                                                ErasoftDbContext.SaveChanges();
+                                                updateKurirSuccess.Add(temp);
                                             }
                                             catch
                                             {
 
                                             }
                                         }
+                                        else if (type == "2")
+                                        {
+                                            try
+                                            {
+                                                pesananInDb.SHIPMENT = Kurir;
+                                                if (!string.IsNullOrEmpty(resi))
+                                                {
+                                                    pesananInDb.TRACKING_SHIPMENT = resi;
+                                                }
+                                                ErasoftDbContext.SaveChanges();
+                                                updateKurirSuccess.Add(temp);
+                                            }
+                                            catch
+                                            {
+
+                                            }
+                                            if (tempKurirBefore != Kurir)
+                                            {
+                                                try
+                                                {
+                                                    var sSQL = "UPDATE SIT01A SET NAMAPENGIRIM='" + Kurir + "' where NO_REF='" + noref + "' and NO_SO='" + nobuk + "' and CUST='" + log_CUST + "'";
+                                                    ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                                                    //var fakturInDb = ErasoftDbContext.SIT01A.Where(p => p.NO_REF == noref && p.NO_SO == nobuk && p.CUST == log_CUST).FirstOrDefault();
+                                                    //if (fakturInDb != null)
+                                                    //{
+                                                    //    fakturInDb.NAMAPENGIRIM = Kurir;
+                                                    //    ErasoftDbContext.SaveChanges();
+                                                    //}
+                                                }
+                                                catch
+                                                {
+
+                                                }
+                                            }
+                                        }
                                     }
                                 }
+                                catch (Exception ex)
+                                {
+
+                                }
+                            }
+                            else
+                            {
+                                //throw new Exception("Update Kurir Gagal. Kurir Null.");
+                            }
+                        }
+                        if (updateKurirSuccess.Count() > 0)
+                        {
+                            try
+                            {
+                                var listA = updateKurirSuccess.Select(b => b.Noref).ToList();
+                                var listB = updateKurirSuccess.Select(b => b.Nobuk).ToList();
+                                var listOnSOT01H = ErasoftDbContext.SOT01H.Where(a => listA.Contains(a.NO_REFERENSI) && listB.Contains(a.NO_PESANAN) && a.CUST == log_CUST).ToList();
+                                ErasoftDbContext.SOT01H.RemoveRange(listOnSOT01H);
+                                ErasoftDbContext.SaveChanges();
                             }
                             catch (Exception ex)
                             {
 
                             }
                         }
-                        else
-                        {
-                            //throw new Exception("Update Kurir Gagal. Kurir Null.");
-                        }
                     }
-                    if (updateKurirSuccess.Count() > 0)
-                    {
-                        try
-                        {
-                            var listA = updateKurirSuccess.Select(b => b.Noref).ToList();
-                            var listB = updateKurirSuccess.Select(b => b.Nobuk).ToList();
-                            var listOnSOT01H = ErasoftDbContext.SOT01H.Where(a => listA.Contains(a.NO_REFERENSI) && listB.Contains(a.NO_PESANAN) && a.CUST == log_CUST).ToList();
-                            ErasoftDbContext.SOT01H.RemoveRange(listOnSOT01H);
-                            ErasoftDbContext.SaveChanges();
-                        }
-                        catch (Exception ex)
-                        {
-
-                        }
-                    }
+                }catch (Exception ex)
+                {
+                    throw new Exception("Update Kurir Gagal. " + ex.InnerException == null ? ex.Message + System.Environment.NewLine : ex.InnerException.Message);
                 }
             }
             return ret;
