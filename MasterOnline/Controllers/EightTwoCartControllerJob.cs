@@ -381,7 +381,11 @@ namespace MasterOnline.Controllers
             postData += "&wholesale_price=" + Uri.EscapeDataString("0");
             postData += "&price=" + Uri.EscapeDataString(detailBrg.HJUAL.ToString());
             postData += "&on_sale=" + Uri.EscapeDataString("1");
-            postData += "&link_rewrite=" + Uri.EscapeDataString(brgInDb.NAMA.Replace(" ", "-").Replace("+", "plus").ToLower());
+            //postData += "&link_rewrite=" + Uri.EscapeDataString(brgInDb.NAMA.Replace(" ", "-").Replace("+", "plus").ToLower()); // remark karena karakter lain perlu ditambahkan seperti di bawah
+            postData += "&link_rewrite=" + Uri.EscapeDataString(brgInDb.NAMA.Replace(" ", "-").Replace("+", "plus").Replace("`", "") // add by fauzi 23 April 2021
+                .Replace("&", "n").Replace("(", "").Replace(")", "").Replace("[", "").Replace("]", "").Replace("!", "").Replace(".", "").Replace("|", "").Replace(":", "").Replace(";", "")
+                .Replace(@"\", "").Replace("/", "").Replace(",", "").Replace("~", "").Replace("@", "").Replace("#", "")
+                .Replace("$", "").Replace("%", "").Replace("^", "").Replace("*", "").Replace("=", "").ToLower());
             postData += "&width=" + Uri.EscapeDataString(brgInDb.LEBAR.ToString());
             postData += "&height=" + Uri.EscapeDataString(brgInDb.TINGGI.ToString());
             postData += "&depth=" + Uri.EscapeDataString("0");
@@ -725,7 +729,12 @@ namespace MasterOnline.Controllers
             postData += "&wholesale_price=" + Uri.EscapeDataString("0");
             postData += "&price=" + Uri.EscapeDataString(detailBrg.HJUAL.ToString());
             postData += "&on_sale=" + Uri.EscapeDataString("1");
-            postData += "&link_rewrite=" + Uri.EscapeDataString(brgInDb.NAMA.Replace(" ", "-").Replace("+", "plus").ToLower());
+            //postData += "&link_rewrite=" + Uri.EscapeDataString(brgInDb.NAMA.Replace(" ", "-").Replace("+", "plus").ToLower());  // remark karena karakter lain perlu ditambahkan seperti di bawah
+            postData += "&link_rewrite=" + Uri.EscapeDataString(brgInDb.NAMA.Replace(" ", "-").Replace("+", "plus").Replace("`", "") // add by fauzi 23 April 2021
+                .Replace("&", "n").Replace("(", "").Replace(")", "").Replace("[", "").Replace("]", "").Replace("!", "").Replace(".", "").Replace("|", "").Replace(":", "").Replace(";", "")
+                .Replace(@"\", "").Replace("/", "").Replace(",", "").Replace("~", "").Replace("@", "").Replace("#", "")
+                .Replace("$", "").Replace("%", "").Replace("^", "").Replace("*", "").Replace("=", "").ToLower());
+
             postData += "&width=" + Uri.EscapeDataString(brgInDb.LEBAR.ToString());
             postData += "&height=" + Uri.EscapeDataString(brgInDb.TINGGI.ToString());
             postData += "&depth=" + Uri.EscapeDataString("0");
