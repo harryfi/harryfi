@@ -10,25 +10,25 @@
     {
         editMode = (int)ViewData["Editing"];
     }
-    var context = new MoDbContext("");
-    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    //var context = new MoDbContext("");
+    //var dataSession = Session["SessionInfo"] as AccountUserViewModel;
 
-    var username = "";
-    long accId;
-    if (dataSession?.User != null)
-    {
-        accId = context.User.Single(u => u.Email == dataSession.User.Email).AccountId;
-        username = context.Account.Single(a => a.AccountId == accId).Username;
-    }
-    else
-    {
-        username = dataSession?.Account?.Username;
-        accId = (dataSession?.Account?.AccountId ?? 0);
-    }
-    if (username.Length > 20)
-    {
-        username = username.Substring(0, 17) + "...";
-    }
+    //var username = "";
+    //long accId;
+    //if (dataSession?.User != null)
+    //{
+    //    accId = context.User.Single(u => u.Email == dataSession.User.Email).AccountId;
+    //    username = context.Account.Single(a => a.AccountId == accId).Username;
+    //}
+    //else
+    //{
+    //    username = dataSession?.Account?.Username;
+    //    accId = (dataSession?.Account?.AccountId ?? 0);
+    //}
+    //if (username.Length > 20)
+    //{
+    //    username = username.Substring(0, 17) + "...";
+    //}
 }
 
 @section styles
