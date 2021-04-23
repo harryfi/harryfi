@@ -85,7 +85,7 @@
                             <div class="input-group">
                                 <input id="search_user" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
+                                    <button type="button" id="search_user_click" class="btn btn-primary">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </span>
@@ -104,7 +104,7 @@
                 <img src="~/Content/Images/spinner.gif" width="100" />
             </div>*@
                         <div class="col-sm-12" id="table-account">
-                            @Html.Partial("TableAccountEdit")
+                            @*@Html.Partial("TableAccountEdit")*@
                         </div>
                     </div>
                     <div class="row account_detail_section" style="display: none;">
@@ -116,7 +116,7 @@
                                     <span class="close-btn thick"></span>
                                 </button>
                                 <div id="form-partial-detail">
-                                    @Html.Partial("AccountDetailEdit")
+                                    @*@Html.Partial("AccountDetailEdit")*@
                                 </div>
                             </div>
                         </div>
@@ -389,7 +389,7 @@
                                     <span class="close-btn thick"></span>
                                 </button>
                                 <div id="form-partial-WillExpired">
-                                    @Html.Partial("AccountDetailEdit")
+                                    @*@Html.Partial("AccountDetailEdit")*@
                                 </div>
                             </div>
                         </div>
@@ -449,7 +449,7 @@
                                     <span class="close-btn thick"></span>
                                 </button>
                                 <div id="form-partial-Expired">
-                                    @Html.Partial("AccountDetailEdit")
+                                    @*@Html.Partial("AccountDetailEdit")*@
                                 </div>
                             </div>
                         </div>
@@ -509,11 +509,21 @@
             function () {
                 
                 
-                $('#search_user').keyup(function () {
-                    table.search($(this).val()).draw();
-                });
+                //$('#search_user').keyup(function () {
+                //    table.search($(this).val()).draw();
+                //});
                 //add by nurul 13/2/2019
-                
+                $('#search_user').keypress(function (e) {
+                    var key = e.which;
+                    if (key == 13)// the enter key code
+                    {
+                        searchTableAccount();
+                        return false;
+                    }
+                });
+                $('#search_user_click').click(function () {
+                    searchTableAccount();
+                });
 
                 $('#search_willexpired').keyup(function () {
                     tableWillexpired.search($(this).val()).draw();
@@ -688,6 +698,8 @@
                             $("#Account_jumlahUser").val('0');
                         }
                     });
+
+                $('#account-tab').click();
             });
 
         function editAccount($Id) {
@@ -774,37 +786,72 @@
 
         //add by nurul 13/2/2019
         function refreshTableAccount() {
-            var link = '@Url.Action("RefreshAccountMenuEdit", "Admin")';
+            //var link = '@Url.Action("RefreshAccountMenuEdit", "Admin")';
+            var link = '@Html.Raw(Url.Action("RefreshAccountMenuEdit", "Admin", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_user').val()));
+            link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
 
             $.ajax({
                 type: "GET",
                 url: link,
+                beforeSend: function () {
+                    //$('#datatable').hide();
+                    //$('#loading_account').show();
+                    $('#loading_akun_tab').show();
+                    $('#table-account').hide();
+                },
                 success: function (response) {
                     $('#table-account').html(response);
-                    var table = $('#datatable').DataTable({
-                        "order": [[5, "desc"], [1, "asc"]], //or asc
-                        "columnDefs": [{ "targets": 5, "type": "date-eu" }],
-                    });
-                    $('#search_user').keyup(function () {
-                        table.search($(this).val()).draw();
-                    });
-                    $('#datatable').show();
-                    table.search($('#search_user').val()).draw();
+                    $('#table-account').show();
+                    //var table = $('#datatable').DataTable({
+                    //    "order": [[5, "desc"], [1, "asc"]], //or asc
+                    //    "columnDefs": [{ "targets": 5, "type": "date-eu" }],
+                    //});
+                    //$('#search_user').keyup(function () {
+                    //    table.search($(this).val()).draw();
+                    //});
+                    //$('#datatable').show();
+                    //table.search($('#search_user').val()).draw();
 
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
-                    });
-                    $('#datatable').DataTable().page($page).draw(false);
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
-                    });
-                    $('#datatable').DataTable().page($page).draw(false);
+                    //$('#datatable').on('page.dt', function () {
+                    //    $page = $('#datatable').DataTable().page.info().page;
+                    //});
+                    //$('#datatable').DataTable().page($page).draw(false);
+                    //$('#datatable').on('page.dt', function () {
+                    //    $page = $('#datatable').DataTable().page.info().page;
+                    //});
+                    //$('#datatable').DataTable().page($page).draw(false);
+                    $('#loading_akun_tab').hide();
                 },
                 error: function (xhr, status, error) {
+                    console.log(error);
+                    $('#loading_akun_tab').hide();
+                }
+            });
+        }
+        function searchTableAccount(){
+            var $link = '@Html.Raw(Url.Action("RefreshAccountMenuEdit", "Admin", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_user').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_user_click')[0].disabled = true;
+                    $('#loading_akun_tab').show();
+                },
+                success: function (response) {
+                    $('#search_user_click')[0].disabled = false;
+                    $('#table-account').html(response);
+                    $('#loading_akun_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_user_click')[0].disabled = false;
                     console.log(error);
                 }
             });
         }
+
         function refreshTableWillexpired() {
             var link = '@Url.Action("AccountMenuWillExpiredEdit", "Admin", new { param = "replacedrtgl;replacesdtgl" })';
             link = link.replace("replacedrtgl", $('#DrTanggal').val());
