@@ -1344,8 +1344,8 @@ namespace MasterOnline.Controllers
             //return View(listAcc);
             var vm = new MenuAccount()
             {
-                ListAccount = MoDbContext.Account.OrderByDescending(a => a.TGL_DAFTAR).ToList(),
-                ListPartner = MoDbContext.Partner.ToList()
+                //ListAccount = MoDbContext.Account.OrderByDescending(a => a.TGL_DAFTAR).ToList(),
+                //ListPartner = MoDbContext.Partner.ToList()
             };
             return View(vm);
             //end change by nurul 13/2/2019
@@ -1370,14 +1370,78 @@ namespace MasterOnline.Controllers
         }
 
         //add by nurul 13/2/2019
-        public ActionResult RefreshAccountMenuEdit()
+        //public ActionResult RefreshAccountMenuEdit()
+        //{
+        //    var vm = new MenuAccount()
+        //    {
+        //        ListAccount = MoDbContext.Account.OrderByDescending(a => a.TGL_DAFTAR).ToList(),
+        //        ListPartner = MoDbContext.Partner.ToList()
+        //    };
+        //    return PartialView("TableAccountEdit", vm);
+        //}
+        public ActionResult RefreshAccountMenuEdit(int? page, string search = "")
         {
-            var vm = new MenuAccount()
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+
+            string[] getkata = search.Split(' ');
+            string sSQLemail = "";
+            string sSQLnama = "";
+            string sSQLusername = "";
+            string sSQLpartner = "";
+            if (getkata.Length > 0)
             {
-                ListAccount = MoDbContext.Account.OrderByDescending(a => a.TGL_DAFTAR).ToList(),
-                ListPartner = MoDbContext.Partner.ToList()
-            };
-            return PartialView("TableAccountEdit", vm);
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sSQLemail += " and ";
+                            sSQLnama += " and ";
+                            sSQLusername += " and ";
+                            sSQLpartner += " and ";
+                        }
+
+                        sSQLemail += " ( a.Email like '%" + getkata[i] + "%' ) ";
+                        sSQLnama += "  ( a.NamaTokoOnline like '%" + getkata[i] + "%' ) ";
+                        sSQLusername += " ( a.Username like '%" + getkata[i] + "%' ) ";
+                        sSQLpartner += "  ( isnull(b.Username,'') like '%" + getkata[i] + "%' ) ";
+
+                    }
+                }
+            }
+
+            string sSQLSelect = "";
+            sSQLSelect += "select a.*,isnull(b.Username,'') as nmPartner,c.KETERANGAN as Subscription ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(AccountId) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM account a(nolock) ";
+            sSQL2 += "left join partner b (nolock) on a.KODE_REFERRAL=convert(nvarchar,b.PartnerId) left join Subscription c(nolock) on a.KODE_SUBSCRIPTION=c.kode ";
+            //sSQL2 += "where LEVEL = '2' ";
+            if (search != "")
+            {
+                sSQL2 += " where ( " + sSQLemail + " or " + sSQLnama + " or " + sSQLusername + " or " + sSQLpartner + " ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = MoDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY TGL_DAFTAR desc ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var ListAkun = MoDbContext.Database.SqlQuery<mdlAkun>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<mdlAkun> pageOrders = new StaticPagedList<mdlAkun>(ListAkun, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TableAccountEdit", pageOrders);
         }
 
 
@@ -1479,22 +1543,86 @@ namespace MasterOnline.Controllers
             //return View(listAcc);
             var vm = new MenuAccount()
             {
-                ListAccount = MoDbContext.Account.OrderByDescending(a => a.TGL_DAFTAR).ToList(),
-                ListPartner = MoDbContext.Partner.ToList()
+                //ListAccount = MoDbContext.Account.OrderByDescending(a => a.TGL_DAFTAR).ToList(),
+                //ListPartner = MoDbContext.Partner.ToList()
             };
             return View(vm);
             //end change by nurul 13/2/2019
         }
 
         //add by nurul 13/2/2019
-        public ActionResult RefreshAccountMenu()
+        //public ActionResult RefreshAccountMenu()
+        //{
+        //    var vm = new MenuAccount()
+        //    {
+        //        ListAccount = MoDbContext.Account.OrderByDescending(a => a.TGL_DAFTAR).ToList(),
+        //        ListPartner = MoDbContext.Partner.ToList()
+        //    };
+        //    return PartialView("TableAccount", vm);
+        //}
+        public ActionResult RefreshAccountMenu(int? page, string search = "")
         {
-            var vm = new MenuAccount()
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            
+            string[] getkata = search.Split(' ');
+            string sSQLemail = "";
+            string sSQLnama = "";
+            string sSQLusername = "";
+            string sSQLpartner = "";
+            if (getkata.Length > 0)
             {
-                ListAccount = MoDbContext.Account.OrderByDescending(a => a.TGL_DAFTAR).ToList(),
-                ListPartner = MoDbContext.Partner.ToList()
-            };
-            return PartialView("TableAccount", vm);
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sSQLemail += " and ";
+                            sSQLnama += " and ";
+                            sSQLusername += " and ";
+                            sSQLpartner += " and ";
+                        }
+                        
+                        sSQLemail += " ( a.Email like '%" + getkata[i] + "%' ) ";
+                        sSQLnama += "  ( a.NamaTokoOnline like '%" + getkata[i] + "%' ) ";
+                        sSQLusername += " ( a.Username like '%" + getkata[i] + "%' ) ";
+                        sSQLpartner += "  ( isnull(b.Username,'') like '%" + getkata[i] + "%' ) ";
+
+                    }
+                }
+            }
+
+            string sSQLSelect = "";
+            sSQLSelect += "select a.*,isnull(b.Username,'') as nmPartner,c.KETERANGAN as Subscription ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(AccountId) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM account a(nolock) ";
+            sSQL2 += "left join partner b (nolock) on a.KODE_REFERRAL=convert(nvarchar,b.PartnerId) left join Subscription c(nolock) on a.KODE_SUBSCRIPTION=c.kode ";
+            //sSQL2 += "where LEVEL = '2' ";
+            if (search != "")
+            {
+                sSQL2 += " where ( " + sSQLemail + " or " + sSQLnama + " or " + sSQLusername + " or " + sSQLpartner + " ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = MoDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY TGL_DAFTAR desc ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var ListAkun = MoDbContext.Database.SqlQuery<mdlAkun>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<mdlAkun> pageOrders = new StaticPagedList<mdlAkun>(ListAkun, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TableAccount", pageOrders);
         }
 
 
@@ -1671,24 +1799,161 @@ namespace MasterOnline.Controllers
 
         //add by nurul 1/4/2019
         [SessionAdminCheck]
-        public ActionResult AccountMenuAktif()
+        //public ActionResult AccountMenuAktif()
+        //{
+        //    var vm = new MenuAccount()
+        //    {
+        //        ListAccount = MoDbContext.Account.Where(a => a.Status == true).ToList(),
+        //        ListPartner = MoDbContext.Partner.ToList()
+        //    };
+        //    return PartialView("TableAccountAktif", vm);
+        //}
+        public ActionResult RefreshTableAccountMenuAktif(string type, int? page, string search = "")
         {
-            var vm = new MenuAccount()
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+
+            string[] getkata = search.Split(' ');
+            string sSQLemail = "";
+            string sSQLnama = "";
+            string sSQLusername = "";
+            string sSQLpartner = "";
+            if (getkata.Length > 0)
             {
-                ListAccount = MoDbContext.Account.Where(a => a.Status == true).ToList(),
-                ListPartner = MoDbContext.Partner.ToList()
-            };
-            return PartialView("TableAccountAktif", vm);
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sSQLemail += " and ";
+                            sSQLnama += " and ";
+                            sSQLusername += " and ";
+                            sSQLpartner += " and ";
+                        }
+
+                        sSQLemail += " ( a.Email like '%" + getkata[i] + "%' ) ";
+                        sSQLnama += "  ( a.NamaTokoOnline like '%" + getkata[i] + "%' ) ";
+                        sSQLusername += " ( a.Username like '%" + getkata[i] + "%' ) ";
+                        sSQLpartner += "  ( isnull(b.Username,'') like '%" + getkata[i] + "%' ) ";
+
+                    }
+                }
+            }
+
+            string sSQLSelect = "";
+            sSQLSelect += "select a.*,isnull(b.Username,'') as nmPartner,c.KETERANGAN as Subscription ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(AccountId) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM account a(nolock) ";
+            sSQL2 += "left join partner b (nolock) on a.KODE_REFERRAL=convert(nvarchar,b.PartnerId) left join Subscription c(nolock) on a.KODE_SUBSCRIPTION=c.kode ";
+            sSQL2 += "where a.Status = '1' ";
+            if (search != "")
+            {
+                sSQL2 += " and ( " + sSQLemail + " or " + sSQLnama + " or " + sSQLusername + " or " + sSQLpartner + " ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = MoDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY TGL_DAFTAR desc ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var ListAkun = MoDbContext.Database.SqlQuery<mdlAkun>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<mdlAkun> pageOrders = new StaticPagedList<mdlAkun>(ListAkun, pagenumber + 1, 10, totalCount.JUMLAH);
+            if(type == "2")
+            {
+                return PartialView("TableAccAktif", pageOrders);
+            }
+            return PartialView("TableAccountAktif", pageOrders);
         }
+
         [SessionAdminCheck]
-        public ActionResult AccountMenuNonaktif(string param)
+        //public ActionResult AccountMenuNonaktif(string param)
+        //{
+        //    var vm = new MenuAccount()
+        //    {
+        //        ListAccount = MoDbContext.Account.Where(a => a.Status == false).ToList(),
+        //        ListPartner = MoDbContext.Partner.ToList()
+        //    };
+        //    return PartialView("TableAccountNonaktif", vm);
+        //}
+        public ActionResult RefreshTableAccountMenuNonaktif(string type, int? page, string search = "")
         {
-            var vm = new MenuAccount()
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+
+            string[] getkata = search.Split(' ');
+            string sSQLemail = "";
+            string sSQLnama = "";
+            string sSQLusername = "";
+            string sSQLpartner = "";
+            if (getkata.Length > 0)
             {
-                ListAccount = MoDbContext.Account.Where(a => a.Status == false).ToList(),
-                ListPartner = MoDbContext.Partner.ToList()
-            };
-            return PartialView("TableAccountNonaktif", vm);
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sSQLemail += " and ";
+                            sSQLnama += " and ";
+                            sSQLusername += " and ";
+                            sSQLpartner += " and ";
+                        }
+
+                        sSQLemail += " ( a.Email like '%" + getkata[i] + "%' ) ";
+                        sSQLnama += "  ( a.NamaTokoOnline like '%" + getkata[i] + "%' ) ";
+                        sSQLusername += " ( a.Username like '%" + getkata[i] + "%' ) ";
+                        sSQLpartner += "  ( isnull(b.Username,'') like '%" + getkata[i] + "%' ) ";
+
+                    }
+                }
+            }
+
+            string sSQLSelect = "";
+            sSQLSelect += "select a.*,isnull(b.Username,'') as nmPartner,c.KETERANGAN as Subscription ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(AccountId) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM account a(nolock) ";
+            sSQL2 += "left join partner b (nolock) on a.KODE_REFERRAL=convert(nvarchar,b.PartnerId) left join Subscription c(nolock) on a.KODE_SUBSCRIPTION=c.kode ";
+            sSQL2 += "where a.Status = '0' ";
+            if (search != "")
+            {
+                sSQL2 += " and ( " + sSQLemail + " or " + sSQLnama + " or " + sSQLusername + " or " + sSQLpartner + " ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = MoDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY TGL_DAFTAR desc ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var ListAkun = MoDbContext.Database.SqlQuery<mdlAkun>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<mdlAkun> pageOrders = new StaticPagedList<mdlAkun>(ListAkun, pagenumber + 1, 10, totalCount.JUMLAH);
+            if (type == "2")
+            {
+                return PartialView("TableAccNonaktif", pageOrders);
+            }
+            return PartialView("TableAccountNonaktif", pageOrders);
         }
         //end add by nurul 1/4/2019
 
@@ -1714,6 +1979,87 @@ namespace MasterOnline.Controllers
             };
             return PartialView("TableAccountWillExpired", vm);
         }
+        public ActionResult RefreshTableAccountMenuWillExpired(string type, string param, int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+
+            string dr = (param.Split(';')[param.Split(';').Length - 2]);
+            string sd = (param.Split(';')[param.Split(';').Length - 1]);
+            string tgl1 = (dr.Split('/')[dr.Split('/').Length - 3]);
+            string bln1 = (dr.Split('/')[dr.Split('/').Length - 2]);
+            string thn1 = (dr.Split('/')[dr.Split('/').Length - 1]);
+            string drtanggal = tgl1 + '/' + bln1 + '/' + thn1;
+            string tgl2 = (sd.Split('/')[sd.Split('/').Length - 3]);
+            string bln2 = (sd.Split('/')[sd.Split('/').Length - 2]);
+            string thn2 = (sd.Split('/')[sd.Split('/').Length - 1]);
+            string sdtanggal = tgl2 + '/' + bln2 + '/' + thn2;
+            var drTgl = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            var sdTgl = DateTime.ParseExact(sdtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+
+            string[] getkata = search.Split(' ');
+            string sSQLemail = "";
+            string sSQLnama = "";
+            string sSQLusername = "";
+            string sSQLpartner = "";
+            if (getkata.Length > 0)
+            {
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sSQLemail += " and ";
+                            sSQLnama += " and ";
+                            sSQLusername += " and ";
+                            sSQLpartner += " and ";
+                        }
+
+                        sSQLemail += " ( a.Email like '%" + getkata[i] + "%' ) ";
+                        sSQLnama += "  ( a.NamaTokoOnline like '%" + getkata[i] + "%' ) ";
+                        sSQLusername += " ( a.Username like '%" + getkata[i] + "%' ) ";
+                        sSQLpartner += "  ( isnull(b.Username,'') like '%" + getkata[i] + "%' ) ";
+
+                    }
+                }
+            }
+
+            string sSQLSelect = "";
+            sSQLSelect += "select a.*,isnull(b.Username,'') as nmPartner,c.KETERANGAN as Subscription ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(AccountId) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM account a(nolock) ";
+            sSQL2 += "left join partner b (nolock) on a.KODE_REFERRAL=convert(nvarchar,b.PartnerId) left join Subscription c(nolock) on a.KODE_SUBSCRIPTION=c.kode ";
+            sSQL2 += "where a.TGL_SUBSCRIPTION >= '" + drTgl.ToString("yyyy-MM-dd") + "' and a.TGL_SUBSCRIPTION <= '" + sdTgl.ToString("yyyy-MM-dd") + "' and a.Status='1' ";
+            if (search != "")
+            {
+                sSQL2 += " and ( " + sSQLemail + " or " + sSQLnama + " or " + sSQLusername + " or " + sSQLpartner + " ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = MoDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY TGL_DAFTAR desc ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var ListAkun = MoDbContext.Database.SqlQuery<mdlAkun>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<mdlAkun> pageOrders = new StaticPagedList<mdlAkun>(ListAkun, pagenumber + 1, 10, totalCount.JUMLAH);
+            if (type == "2")
+            {
+                return PartialView("TableAccWillExpired", pageOrders);
+            }
+            return PartialView("TableAccountWillExpired", pageOrders);
+        }
         [SessionAdminCheck]
         public ActionResult AccountMenuExpired(string param)
         {
@@ -1728,6 +2074,80 @@ namespace MasterOnline.Controllers
                 ListPartner = MoDbContext.Partner.ToList()
             };
             return PartialView("TableAccountExpired", vm);
+        }
+        public ActionResult RefreshTableAccountMenuExpired(string type, string param, int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+
+            string tgl1 = (param.Split('/')[param.Split('/').Length - 3]);
+            string bln1 = (param.Split('/')[param.Split('/').Length - 2]);
+            string thn1 = (param.Split('/')[param.Split('/').Length - 1]);
+            string tanggal = tgl1 + '/' + bln1 + '/' + thn1;
+            var perTgl = DateTime.ParseExact(tanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+
+            string[] getkata = search.Split(' ');
+            string sSQLemail = "";
+            string sSQLnama = "";
+            string sSQLusername = "";
+            string sSQLpartner = "";
+            if (getkata.Length > 0)
+            {
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sSQLemail += " and ";
+                            sSQLnama += " and ";
+                            sSQLusername += " and ";
+                            sSQLpartner += " and ";
+                        }
+
+                        sSQLemail += " ( a.Email like '%" + getkata[i] + "%' ) ";
+                        sSQLnama += "  ( a.NamaTokoOnline like '%" + getkata[i] + "%' ) ";
+                        sSQLusername += " ( a.Username like '%" + getkata[i] + "%' ) ";
+                        sSQLpartner += "  ( isnull(b.Username,'') like '%" + getkata[i] + "%' ) ";
+
+                    }
+                }
+            }
+
+            string sSQLSelect = "";
+            sSQLSelect += "select a.*,isnull(b.Username,'') as nmPartner,c.KETERANGAN as Subscription ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(AccountId) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM account a(nolock) ";
+            sSQL2 += "left join partner b (nolock) on a.KODE_REFERRAL=convert(nvarchar,b.PartnerId) left join Subscription c(nolock) on a.KODE_SUBSCRIPTION=c.kode ";
+            sSQL2 += "where a.TGL_SUBSCRIPTION <= '" + perTgl.ToString("yyyy-MM-dd") + "' and a.Status='1' ";
+            if (search != "")
+            {
+                sSQL2 += " and ( " + sSQLemail + " or " + sSQLnama + " or " + sSQLusername + " or " + sSQLpartner + " ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = MoDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY TGL_DAFTAR desc ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var ListAkun = MoDbContext.Database.SqlQuery<mdlAkun>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<mdlAkun> pageOrders = new StaticPagedList<mdlAkun>(ListAkun, pagenumber + 1, 10, totalCount.JUMLAH);
+            if (type == "2")
+            {
+                return PartialView("TableAccExpired", pageOrders);
+            }
+            return PartialView("TableAccountExpired", pageOrders);
         }
         //end add by nurul 13/2/2019
 
@@ -2308,20 +2728,84 @@ namespace MasterOnline.Controllers
         {
             var vm = new MenuAccount()
             {
-                ListAccount = MoDbContext.Account.OrderByDescending(a => a.TGL_DAFTAR).ToList(),
-                ListPartner = MoDbContext.Partner.ToList()
+                //ListAccount = MoDbContext.Account.OrderByDescending(a => a.TGL_DAFTAR).ToList(),
+                //ListPartner = MoDbContext.Partner.ToList()
             };
             return View(vm);
         }
 
-        public ActionResult RefreshAccMenu()
+        //public ActionResult RefreshAccMenu()
+        //{
+        //    var vm = new MenuAccount()
+        //    {
+        //        ListAccount = MoDbContext.Account.OrderByDescending(a => a.TGL_DAFTAR).ToList(),
+        //        ListPartner = MoDbContext.Partner.ToList()
+        //    };
+        //    return PartialView("TableAcc", vm);
+        //}
+        public ActionResult RefreshAccMenu(int? page, string search = "")
         {
-            var vm = new MenuAccount()
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+
+            string[] getkata = search.Split(' ');
+            string sSQLemail = "";
+            string sSQLnama = "";
+            string sSQLusername = "";
+            string sSQLpartner = "";
+            if (getkata.Length > 0)
             {
-                ListAccount = MoDbContext.Account.OrderByDescending(a => a.TGL_DAFTAR).ToList(),
-                ListPartner = MoDbContext.Partner.ToList()
-            };
-            return PartialView("TableAcc", vm);
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sSQLemail += " and ";
+                            sSQLnama += " and ";
+                            sSQLusername += " and ";
+                            sSQLpartner += " and ";
+                        }
+
+                        sSQLemail += " ( a.Email like '%" + getkata[i] + "%' ) ";
+                        sSQLnama += "  ( a.NamaTokoOnline like '%" + getkata[i] + "%' ) ";
+                        sSQLusername += " ( a.Username like '%" + getkata[i] + "%' ) ";
+                        sSQLpartner += "  ( isnull(b.Username,'') like '%" + getkata[i] + "%' ) ";
+
+                    }
+                }
+            }
+
+            string sSQLSelect = "";
+            sSQLSelect += "select a.*,isnull(b.Username,'') as nmPartner,c.KETERANGAN as Subscription ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(AccountId) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM account a(nolock) ";
+            sSQL2 += "left join partner b (nolock) on a.KODE_REFERRAL=convert(nvarchar,b.PartnerId) left join Subscription c(nolock) on a.KODE_SUBSCRIPTION=c.kode ";
+            //sSQL2 += "where LEVEL = '2' ";
+            if (search != "")
+            {
+                sSQL2 += " where ( " + sSQLemail + " or " + sSQLnama + " or " + sSQLusername + " or " + sSQLpartner + " ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = MoDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY TGL_DAFTAR desc ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var ListAkun = MoDbContext.Database.SqlQuery<mdlAkun>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<mdlAkun> pageOrders = new StaticPagedList<mdlAkun>(ListAkun, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TableAcc", pageOrders);
         }
 
         [SessionAdminCheck]

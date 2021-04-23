@@ -84,7 +84,7 @@
                             <div class="input-group">
                                 <input id="search_user" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
+                                    <button type="button" id="search_user_click" class="btn btn-primary">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </span>
@@ -103,7 +103,7 @@
                                 <img src="~/Content/Images/spinner.gif" width="100" />
                             </div>*@
                         <div class="col-sm-12" id="table-account">
-                            @Html.Partial("TableAccount")
+                            @*@Html.Partial("TableAccount")*@
                         </div>
                     </div>
                     <div class="row account_detail_section" style="display: none;">
@@ -115,7 +115,7 @@
                                     <span class="close-btn thick"></span>
                                 </button>
                                 <div id="form-partial-detail">
-                                    @Html.Partial("AccountDetail")
+                                    @*@Html.Partial("AccountDetail")*@
                                 </div>
                             </div>
                         </div>
@@ -177,7 +177,7 @@
                             <div class="input-group">
                                 <input id="search_aktif" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
+                                    <button type="button" id="search_aktif_click" class="btn btn-primary">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </span>
@@ -216,11 +216,11 @@
                             </div>
                         </div>*@
                     <div class="row user_table_section">
-                        <div id="loading_aktif" class="text-center">
+                        @*<div id="loading_aktif" class="text-center">
                             <img src="~/Content/Images/spinner.gif" width="100" />
-                        </div>
+                        </div>*@
                         <div class="col-sm-12" id="table-account-aktif">
-                            @Html.Partial("TableAccountAktif")
+                            @*@Html.Partial("TableAccountAktif")*@
                         </div>
                     </div>
                     <div class="row aktif_detail_section" style="display: none;">
@@ -232,7 +232,7 @@
                                     <span class="close-btn thick"></span>
                                 </button>
                                 <div id="form-partial-aktif">
-                                    @Html.Partial("AccountDetail")
+                                    @*@Html.Partial("AccountDetail")*@
                                 </div>
                             </div>
                         </div>
@@ -244,7 +244,7 @@
                             <div class="input-group">
                                 <input id="search_nonaktif" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
+                                    <button type="button" id="search_nonaktif_click" class="btn btn-primary">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </span>
@@ -283,11 +283,11 @@
                             </div>
                         </div>*@
                     <div class="row user_table_section">
-                        <div id="loading_nonaktif" class="text-center">
+                        @*<div id="loading_nonaktif" class="text-center">
                             <img src="~/Content/Images/spinner.gif" width="100" />
-                        </div>
+                        </div>*@
                         <div class="col-sm-12" id="table-account-nonaktif">
-                            @Html.Partial("TableAccountNonaktif")
+                            @*@Html.Partial("TableAccountNonaktif")*@
                         </div>
                     </div>
                     <div class="row nonaktif_detail_section" style="display: none;">
@@ -299,7 +299,7 @@
                                     <span class="close-btn thick"></span>
                                 </button>
                                 <div id="form-partial-nonaktif">
-                                    @Html.Partial("AccountDetail")
+                                    @*@Html.Partial("AccountDetail")*@
                                 </div>
                             </div>
                         </div>
@@ -312,7 +312,7 @@
                             <div class="input-group">
                                 <input id="search_willexpired" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
+                                    <button type="button" id="search_willexpired_click" class="btn btn-primary">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </span>
@@ -353,11 +353,11 @@
                         </div>
                     </div>
                     <div class="row user_table_section">
-                        <div id="loading_willexpired" class="text-center">
+                        @*<div id="loading_willexpired" class="text-center">
                             <img src="~/Content/Images/spinner.gif" width="100" />
-                        </div>
+                        </div>*@
                         <div class="col-sm-12" id="table-account-will-expired">
-                            @Html.Partial("TableAccountWillExpired")
+                            @*@Html.Partial("TableAccountWillExpired")*@
                         </div>
                     </div>
                     <div class="row WillExpired_detail_section" style="display: none;">
@@ -369,7 +369,7 @@
                                     <span class="close-btn thick"></span>
                                 </button>
                                 <div id="form-partial-WillExpired">
-                                    @Html.Partial("AccountDetail")
+                                    @*@Html.Partial("AccountDetail")*@
                                 </div>
                             </div>
                         </div>
@@ -382,7 +382,7 @@
                             <div class="input-group">
                                 <input id="search_expired" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
+                                    <button type="button" id="search_expired_click"  class="btn btn-primary">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </span>
@@ -412,11 +412,11 @@
                         </div>
                     </div>
                     <div class="row user_table_section">
-                        <div id="loading_expired" class="text-center">
+                        @*<div id="loading_expired" class="text-center">
                             <img src="~/Content/Images/spinner.gif" width="100" />
-                        </div>
+                        </div>*@
                         <div class="col-sm-12" id="table-account-expired">
-                            @Html.Partial("TableAccountExpired")
+                            @*@Html.Partial("TableAccountExpired")*@
                         </div>
                     </div>
                     <div class="row Expired_detail_section" style="display: none;">
@@ -428,7 +428,7 @@
                                     <span class="close-btn thick"></span>
                                 </button>
                                 <div id="form-partial-Expired">
-                                    @Html.Partial("AccountDetail")
+                                    @*@Html.Partial("AccountDetail")*@
                                 </div>
                             </div>
                         </div>
@@ -471,26 +471,26 @@
         var $accId = 0;
         var $status = 0;
         var $getstatus = "";
-        var table = $('#datatable').DataTable({
-            "order": [[5, "desc"], [1, "asc"]], //or asc
-            "columnDefs": [{ "targets": 5, "type": "date-eu" }],
-        });
-        var tableAktif = $('#datatable_aktif').DataTable({
-            "order": [[5, "desc"], [1, "asc"]], //or asc
-            "columnDefs": [{ "targets": 5, "type": "date-eu" }],
-        });
-        var tableNonaktif = $('#datatable_nonaktif').DataTable({
-            "order": [[5, "desc"], [1, "asc"]], //or asc
-            "columnDefs": [{ "targets": 5, "type": "date-eu" }],
-        });
-        var tableWillexpired = $('#datatable_willexpired').DataTable({
-            "order": [[5, "desc"], [1, "asc"]], //or asc
-            "columnDefs": [{ "targets": 5, "type": "date-eu" }],
-        });
-        var tableExpired = $('#datatable_expired').DataTable({
-            "order": [[5, "desc"], [1, "asc"]], //or asc
-            "columnDefs": [{ "targets": 5, "type": "date-eu" }],
-        });
+        //var table = $('#datatable').DataTable({
+        //    "order": [[5, "desc"], [1, "asc"]], //or asc
+        //    "columnDefs": [{ "targets": 5, "type": "date-eu" }],
+        //});
+        //var tableAktif = $('#datatable_aktif').DataTable({
+        //    "order": [[5, "desc"], [1, "asc"]], //or asc
+        //    "columnDefs": [{ "targets": 5, "type": "date-eu" }],
+        //});
+        //var tableNonaktif = $('#datatable_nonaktif').DataTable({
+        //    "order": [[5, "desc"], [1, "asc"]], //or asc
+        //    "columnDefs": [{ "targets": 5, "type": "date-eu" }],
+        //});
+        //var tableWillexpired = $('#datatable_willexpired').DataTable({
+        //    "order": [[5, "desc"], [1, "asc"]], //or asc
+        //    "columnDefs": [{ "targets": 5, "type": "date-eu" }],
+        //});
+        //var tableExpired = $('#datatable_expired').DataTable({
+        //    "order": [[5, "desc"], [1, "asc"]], //or asc
+        //    "columnDefs": [{ "targets": 5, "type": "date-eu" }],
+        //});
         $(document).on('ready',
             function () {
                 //var table = $('#datatable').DataTable();
@@ -499,23 +499,78 @@
                 //var tableExpired = $('#datatable_expired').DataTable();
                 //end add by nurul 13/2/2019
 
+                $('#search_user').keypress(function (e) {
+                    var key = e.which;
+                    if (key == 13)// the enter key code
+                    {
+                        searchTableAccount();
+                        return false;
+                    }
+                });
+                $('#search_user_click').click(function () {
+                    searchTableAccount();
+                });
+                $('#search_aktif').keypress(function (e) {
+                    var key = e.which;
+                    if (key == 13)// the enter key code
+                    {
+                        searchTableAktif();
+                        return false;
+                    }
+                });
+                $('#search_aktif_click').click(function () {
+                    searchTableAktif();
+                });
+                $('#search_nonaktif').keypress(function (e) {
+                    var key = e.which;
+                    if (key == 13)// the enter key code
+                    {
+                        searchTableNonaktif();
+                        return false;
+                    }
+                });
+                $('#search_nonaktif_click').click(function () {
+                    searchTableNonaktif();
+                });
+                $('#search_willexpired').keypress(function (e) {
+                    var key = e.which;
+                    if (key == 13)// the enter key code
+                    {
+                        searchTableWillexpired();
+                        return false;
+                    }
+                });
+                $('#search_willexpired_click').click(function () {
+                    searchTableWillexpired();
+                });
+                $('#search_expired').keypress(function (e) {
+                    var key = e.which;
+                    if (key == 13)// the enter key code
+                    {
+                        searchTableExpired();
+                        return false;
+                    }
+                });
+                $('#search_expired_click').click(function () {
+                    searchTableExpired();
+                });
 
-                $('#search_user').keyup(function () {
-                    table.search($(this).val()).draw();
-                });
+                //$('#search_user').keyup(function () {
+                //    table.search($(this).val()).draw();
+                //});
                 //add by nurul 13/2/2019
-                $('#search_aktif').keyup(function () {
-                    tableAktif.search($(this).val()).draw();
-                });
-                $('#search_nonaktif').keyup(function () {
-                    tableNonaktif.search($(this).val()).draw();
-                });
-                $('#search_willexpired').keyup(function () {
-                    tableWillexpired.search($(this).val()).draw();
-                });
-                $('#search_expired').keyup(function () {
-                    tableExpired.search($(this).val()).draw();
-                });
+                //$('#search_aktif').keyup(function () {
+                //    tableAktif.search($(this).val()).draw();
+                //});
+                //$('#search_nonaktif').keyup(function () {
+                //    tableNonaktif.search($(this).val()).draw();
+                //});
+                //$('#search_willexpired').keyup(function () {
+                //    tableWillexpired.search($(this).val()).draw();
+                //});
+                //$('#search_expired').keyup(function () {
+                //    tableExpired.search($(this).val()).draw();
+                //});
 
                 $('#account-tab').click(function () {
                     refreshTableAccount();
@@ -568,58 +623,58 @@
                         $(this).attr('data-toggle', 'tab');
                         $(this).removeClass('disabled-tab');
                     });
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
-                    });
+                    //$('#datatable').on('page.dt', function () {
+                    //    $page = $('#datatable').DataTable().page.info().page;
+                    //});
                         refreshTableAccount();
 
-                        $('#datatable').DataTable().page($page).draw(false);
+                        //$('#datatable').DataTable().page($page).draw(false);
                 });
                 $('#close-editor-4').off('click').on('click', function () {
                     $('.user_table_section').show();
                     $('.aktif_detail_section').hide();
-                    $('#datatable_aktif').on('page.dt', function () {
-                        $page = $('#datatable_aktif').DataTable().page.info().page;
-                    });
+                    //$('#datatable_aktif').on('page.dt', function () {
+                    //    $page = $('#datatable_aktif').DataTable().page.info().page;
+                    //});
                     refreshTableAktif();
 
-                    $('#datatable_aktif').DataTable().page($page).draw(false);
+                    //$('#datatable_aktif').DataTable().page($page).draw(false);
                 });
                 $('#close-editor-5').off('click').on('click', function () {
                     $('.user_table_section').show();
                     $('.nonaktif_detail_section').hide();
-                    $('#datatable_nonaktif').on('page.dt', function () {
-                        $page = $('#datatable_nonaktif').DataTable().page.info().page;
-                    });
+                    //$('#datatable_nonaktif').on('page.dt', function () {
+                    //    $page = $('#datatable_nonaktif').DataTable().page.info().page;
+                    //});
                     refreshTableNonaktif();
 
-                    $('#datatable_nonaktif').DataTable().page($page).draw(false);
+                    //$('#datatable_nonaktif').DataTable().page($page).draw(false);
                 });
                 $('#close-editor-2').off('click').on('click', function () {
                     $('.user_table_section').show();
                     $('.WillExpired_detail_section').hide();
-                    $('#datatable_willexpired').on('page.dt', function () {
-                        $page = $('#datatable_willexpired').DataTable().page.info().page;
-                    });
+                    //$('#datatable_willexpired').on('page.dt', function () {
+                    //    $page = $('#datatable_willexpired').DataTable().page.info().page;
+                    //});
                     refreshTableWillexpired();
 
-                    $('#datatable_willexpired').DataTable().page($page).draw(false);
+                    //$('#datatable_willexpired').DataTable().page($page).draw(false);
                 });
                 $('#close-editor-3').off('click').on('click', function () {
                     $('.user_table_section').show();
                     $('.Expired_detail_section').hide();
-                    $('#datatable_expired').on('page.dt', function () {
-                        $page = $('#datatable_expired').DataTable().page.info().page;
-                    });
+                    //$('#datatable_expired').on('page.dt', function () {
+                    //    $page = $('#datatable_expired').DataTable().page.info().page;
+                    //});
                     refreshTableExpired();
 
-                    $('#datatable_expired').DataTable().page($page).draw(false);
+                    //$('#datatable_expired').DataTable().page($page).draw(false);
                 });
 
-                $('#datatable').on('page.dt', function () {
-                    $page = $('#datatable').DataTable().page.info().page;
-                });
-                $('#datatable').DataTable().page($page).draw(false);
+                //$('#datatable').on('page.dt', function () {
+                //    $page = $('#datatable').DataTable().page.info().page;
+                //});
+                //$('#datatable').DataTable().page($page).draw(false);
                 //end add by nurul 20/2/2019
 
 
@@ -634,12 +689,12 @@
                         $(this).attr('data-toggle', 'tab');
                         $(this).removeClass('disabled-tab');
                     });
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
-                    });
+                    //$('#datatable').on('page.dt', function () {
+                    //    $page = $('#datatable').DataTable().page.info().page;
+                    //});
                     refreshTableAccount();
 
-                    $('#datatable').DataTable().page($page).draw(false);
+                    //$('#datatable').DataTable().page($page).draw(false);
                 });
                 if ($('.message-error').text() !== '') {
                     //if ($tabPage == 0) {
@@ -659,13 +714,14 @@
                     //    $(this).datepicker('hide');
                     //});
 
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
-                    });
-                    $('#datatable').DataTable().page($page).draw(false);
+                    //$('#datatable').on('page.dt', function () {
+                    //    $page = $('#datatable').DataTable().page.info().page;
+                    //});
+                    //$('#datatable').DataTable().page($page).draw(false);
                 }
                 //end add by nurul 12/3/2019
 
+                $('#account-tab').click();
             });
 
         function passAcc(accId, status) {
@@ -688,112 +744,258 @@
 
         //add by nurul 13/2/2019
         function refreshTableAccount() {
-            var link = '@Url.Action("RefreshAccountMenu", "Admin")';
+            //var link = '@Url.Action("RefreshAccountMenu", "Admin")';
+            var link = '@Html.Raw(Url.Action("RefreshAccountMenu", "Admin", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_user').val()));
+            link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
 
             $.ajax({
                 type: "GET",
                 url: link,
                 beforeSend: function () {
-                    $('#datatable').hide();
+                    //$('#datatable').hide();
                     //$('#loading_account').show();
+                    $('#loading_akun_tab').show();
+                    $('#table-account').hide();
                 },
                 success: function (response) {
                     $('#table-account').html(response);
-                    var table = $('#datatable').DataTable({
-                        "order": [[5, "desc"], [1, "asc"]], //or asc
-                        "columnDefs": [{ "targets": 5, "type": "date-eu" }],
-                    });
-                    $('#search_user').keyup(function () {
-                        table.search($(this).val()).draw();
-                    });
-                    $('#datatable').show();
+                    $('#table-account').show();
+                    //var table = $('#datatable').DataTable({
+                    //    "order": [[5, "desc"], [1, "asc"]], //or asc
+                    //    "columnDefs": [{ "targets": 5, "type": "date-eu" }],
+                    //});
+                    //$('#search_user').keyup(function () {
+                    //    table.search($(this).val()).draw();
+                    //});
+                    //$('#datatable').show();
                     //$('#loading_account').hide();
-                    table.search($('#search_user').val()).draw();
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
-                    });
-                    $('#datatable').DataTable().page($page).draw(false);
+                    //table.search($('#search_user').val()).draw();
+                    //$('#datatable').on('page.dt', function () {
+                    //    $page = $('#datatable').DataTable().page.info().page;
+                    //});
+                    //$('#datatable').DataTable().page($page).draw(false);
+                    $('#loading_akun_tab').hide();
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
                     //$('#loading_account').hide();
+                    $('#loading_akun_tab').hide();
                 }
             });
         }
+        function searchTableAccount(){
+            var link = '@Html.Raw(Url.Action("RefreshAccountMenu", "Admin", new { search = "replaceSearch" }))';
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_user').val()));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#search_user_click')[0].disabled = true;
+                    $('#loading_akun_tab').show();
+                },
+                success: function (response) {
+                    $('#search_user_click')[0].disabled = false;
+                    $('#table-account').html(response);
+                    $('#loading_akun_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_user_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+
         function refreshTableAktif() {
             @*var link = '@Url.Action("AccountMenuAktif", "Admin", new { param = "replacedrtgl;replacesdtgl" })';
             link = link.replace("replacedrtgl", $('#DrTanggal').val());
             link = link.replace("replacesdtgl", $('#SdTanggal').val());*@
-            var link = '@Url.Action("AccountMenuAktif", "Admin")';
+            //var link = '@Url.Action("AccountMenuAktif", "Admin")';
+            var link = '@Html.Raw(Url.Action("RefreshTableAccountMenuAktif", "Admin", new { page = "replaceLastPage", search = "replaceSearch", type= "replaceType" }))';
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_aktif').val()));
+            link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_2').val()));
+            link = link.replace("replaceType", encodeURIComponent("1"));
 
             $.ajax({
                 type: "GET",
                 url: link,
                 beforeSend: function () {
-                    $('#datatable_aktif').hide();
-                    $('#loading_aktif').show();
+                    //$('#datatable_aktif').hide();
+                    //$('#loading_aktif').show();
+                    $('#loading_aktif_tab').show();
+                    $('#table-account-aktif').hide();
                 },
                 success: function (response) {
                     $('#table-account-aktif').html(response);
-                    var tableAktif = $('#datatable_aktif').DataTable({
-                        "order": [[5, "desc"], [1, "asc"]], //or asc
-                        "columnDefs": [{ "targets": 5, "type": "date-eu" }],
-                    });
-                    $('#search_aktif').keyup(function () {
-                        tableAktif.search($(this).val()).draw();
-                    });
-                    $('#datatable_aktif').show();
-                    $('#loading_aktif').hide();
-                    tableAktif.search($('#search_aktif').val()).draw();
-                    $('#datatable_aktif').on('page.dt', function () {
-                        $page = $('#datatable_aktif').DataTable().page.info().page;
-                    });
-                    $('#datatable_aktif').DataTable().page($page).draw(false);
+                    $('#table-account-aktif').show();
+                    $('#loading_aktif_tab').hide();
+                    //var tableAktif = $('#datatable_aktif').DataTable({
+                    //    "order": [[5, "desc"], [1, "asc"]], //or asc
+                    //    "columnDefs": [{ "targets": 5, "type": "date-eu" }],
+                    //});
+                    //$('#search_aktif').keyup(function () {
+                    //    tableAktif.search($(this).val()).draw();
+                    //});
+                    //$('#datatable_aktif').show();
+                    //$('#loading_aktif').hide();
+                    //tableAktif.search($('#search_aktif').val()).draw();
+                    //$('#datatable_aktif').on('page.dt', function () {
+                    //    $page = $('#datatable_aktif').DataTable().page.info().page;
+                    //});
+                    //$('#datatable_aktif').DataTable().page($page).draw(false);
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
-                    $('#loading_aktif').hide();
+                    //$('#loading_aktif').hide();
+                    $('#loading_aktif_tab').hide();
                 }
             });
         }
+        function searchTableAktif(){
+            var link = '@Html.Raw(Url.Action("RefreshTableAccountMenuAktif", "Admin", new { search = "replaceSearch", type = "replaceType" }))';
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_aktif').val()));
+            link = link.replace("replaceType", encodeURIComponent("1"));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#search_aktif_click')[0].disabled = true;
+                    $('#loading_aktif_tab').show();
+                },
+                success: function (response) {
+                    $('#search_aktif_click')[0].disabled = false;
+                    $('#table-account-aktif').html(response);
+                    $('#loading_aktif_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_aktif_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+
         function refreshTableNonaktif() {
             @*var link = '@Url.Action("AccountMenuNonaktif", "Admin", new { param = "replacedrtgl;replacesdtgl" })';
             link = link.replace("replacedrtgl", $('#DrTanggal').val());
             link = link.replace("replacesdtgl", $('#SdTanggal').val());*@
-            var link = '@Url.Action("AccountMenuNonaktif", "Admin")';
+            @*var link = '@Url.Action("AccountMenuNonaktif", "Admin")';*@
+            var link = '@Html.Raw(Url.Action("RefreshTableAccountMenuNonaktif", "Admin", new { page = "replaceLastPage", search = "replaceSearch", type= "replaceType" }))';
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_nonaktif').val()));
+            link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_3').val()));
+            link = link.replace("replaceType", encodeURIComponent("1"));
 
             $.ajax({
                 type: "GET",
                 url: link,
                 beforeSend: function () {
-                    $('#datatable_aktif').hide();
-                    $('#loading_nonaktif').show();
+                    //$('#datatable_aktif').hide();
+                    //$('#loading_nonaktif').show();
+                    $('#loading_non_tab').show();
+                    $('#table-account-nonaktif').hide();
                 },
                 success: function (response) {
                     $('#table-account-nonaktif').html(response);
-                    var tableNonaktif = $('#datatable_nonaktif').DataTable({
-                        "order": [[5, "desc"], [1, "asc"]], //or asc
-                        "columnDefs": [{ "targets": 5, "type": "date-eu" }],
-                    });
-                    $('#search_nonaktif').keyup(function () {
-                        tableNonaktif.search($(this).val()).draw();
-                    });
-                    $('#datatable_nonaktif').show();
-                    $('#loading_nonaktif').hide();
-                    tableNonaktif.search($('#search_nonaktif').val()).draw();
-                    $('#datatable_nonaktif').on('page.dt', function () {
-                        $page = $('#datatable_nonaktif').DataTable().page.info().page;
-                    });
-                    $('#datatable_nonaktif').DataTable().page($page).draw(false);
+                    $('#table-account-nonaktif').show();
+                    $('#loading_non_tab').hide();
+                    //var tableNonaktif = $('#datatable_nonaktif').DataTable({
+                    //    "order": [[5, "desc"], [1, "asc"]], //or asc
+                    //    "columnDefs": [{ "targets": 5, "type": "date-eu" }],
+                    //});
+                    //$('#search_nonaktif').keyup(function () {
+                    //    tableNonaktif.search($(this).val()).draw();
+                    //});
+                    //$('#datatable_nonaktif').show();
+                    //$('#loading_nonaktif').hide();
+                    //tableNonaktif.search($('#search_nonaktif').val()).draw();
+                    //$('#datatable_nonaktif').on('page.dt', function () {
+                    //    $page = $('#datatable_nonaktif').DataTable().page.info().page;
+                    //});
+                    //$('#datatable_nonaktif').DataTable().page($page).draw(false);
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
-                    $('#loading_nonaktif').hide();
+                    //$('#loading_nonaktif').hide();
+                    $('#loading_non_tab').hide();
                 }
             });
         }
+        function searchTableNonaktif(){
+            var link = '@Html.Raw(Url.Action("RefreshTableAccountMenuNonaktif", "Admin", new { search = "replaceSearch", type = "replaceType" }))';
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_nonaktif').val()));
+            link = link.replace("replaceType", encodeURIComponent("1"));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#search_nonaktif_click')[0].disabled = true;
+                    $('#loading_non_tab').show();
+                },
+                success: function (response) {
+                    $('#search_nonaktif_click')[0].disabled = false;
+                    $('#table-account-nonaktif').html(response);
+                    $('#loading_non_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_nonaktif_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+
         function refreshTableWillexpired() {
-            var link = '@Url.Action("AccountMenuWillExpired", "Admin", new { param = "replacedrtgl;replacesdtgl" })';
+            @*var link = '@Url.Action("AccountMenuWillExpired", "Admin", new { param = "replacedrtgl;replacesdtgl" })';
+            link = link.replace("replacedrtgl", $('#DrTanggal').val());
+            link = link.replace("replacesdtgl", $('#SdTanggal').val());*@
+            var link = '@Html.Raw(Url.Action("RefreshTableAccountMenuWillExpired", "Admin", new { page = "replaceLastPage", search = "replaceSearch", type= "replaceType", param = "replacedrtgl;replacesdtgl" }))';
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_willexpired').val()));
+            link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_4').val()));
+            link = link.replace("replaceType", encodeURIComponent("1"));
+            link = link.replace("replacedrtgl", $('#DrTanggal').val());
+            link = link.replace("replacesdtgl", $('#SdTanggal').val());
+
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    //$('#datatable_willexpired').hide();
+                    //$('#loading_willexpired').show();
+                    $('#loading_will_tab').show();
+                    $('#table-account-will-expired').hide();
+                },
+                success: function (response) {
+                    //$('#loading_willexpired').hide();
+                    $('#table-account-will-expired').html(response);
+                    $('#table-account-will-expired').show();
+                    $('#loading_will_tab').hide();
+                    //var tableWillexpired = $('#datatable_willexpired').DataTable({
+                    //    "order": [[5, "desc"], [1, "asc"]], //or asc
+                    //    "columnDefs": [{ "targets": 5, "type": "date-eu" }],
+                    //});
+                    //$('#search_willexpired').keyup(function () {
+                    //    tableWillexpired.search($(this).val()).draw();
+                    //});
+                    //$('#datatable_willexpired').show();
+                    //$('#loading_willexpired').hide();
+                    //tableWillexpired.search($('#search_willexpired').val()).draw();
+                    //$('#datatable_willexpired').on('page.dt', function () {
+                    //    $page = $('#datatable_willexpired').DataTable().page.info().page;
+                    //});
+                    //$('#datatable_willexpired').DataTable().page($page).draw(false);
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    $('#loading_will_tab').hide();
+                }
+            });
+        }
+        function searchTableWillexpired(){
+            var link = '@Html.Raw(Url.Action("RefreshTableAccountMenuWillExpired", "Admin", new { search = "replaceSearch", type = "replaceType", param = "replacedrtgl;replacesdtgl" }))';
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_willexpired').val()));
+            link = link.replace("replaceType", encodeURIComponent("1"));
             link = link.replace("replacedrtgl", $('#DrTanggal').val());
             link = link.replace("replacesdtgl", $('#SdTanggal').val());
 
@@ -801,68 +1003,91 @@
                 type: "GET",
                 url: link,
                 beforeSend: function () {
-                    $('#datatable_willexpired').hide();
-                    $('#loading_willexpired').show();
+                    $('#search_willexpired_click')[0].disabled = true;
+                    $('#loading_will_tab').show();
                 },
                 success: function (response) {
-                    //$('#loading_willexpired').hide();
+                    $('#search_willexpired_click')[0].disabled = false;
                     $('#table-account-will-expired').html(response);
-                    var tableWillexpired = $('#datatable_willexpired').DataTable({
-                        "order": [[5, "desc"], [1, "asc"]], //or asc
-                        "columnDefs": [{ "targets": 5, "type": "date-eu" }],
-                    });
-                    $('#search_willexpired').keyup(function () {
-                        tableWillexpired.search($(this).val()).draw();
-                    });
-                    $('#datatable_willexpired').show();
-                    $('#loading_willexpired').hide();
-                    tableWillexpired.search($('#search_willexpired').val()).draw();
-                    $('#datatable_willexpired').on('page.dt', function () {
-                        $page = $('#datatable_willexpired').DataTable().page.info().page;
-                    });
-                    $('#datatable_willexpired').DataTable().page($page).draw(false);
+                    $('#loading_will_tab').hide();
                 },
                 error: function (xhr, status, error) {
+                    $('#search_willexpired_click')[0].disabled = false;
                     console.log(error);
-                    $('#loading_willexpired').hide();
                 }
             });
         }
+
         function refreshTableExpired() {
-            var link = '@Url.Action("AccountMenuExpired", "Admin", new { param = "replacepertgl" })';
+            @*var link = '@Url.Action("AccountMenuExpired", "Admin", new { param = "replacepertgl" })';
+            link = link.replace("replacepertgl", $('#PerTanggal').val());*@
+            var link = '@Html.Raw(Url.Action("RefreshTableAccountMenuExpired", "Admin", new { page = "replaceLastPage", search = "replaceSearch", type= "replaceType", param = "replacepertgl" }))';
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_expired').val()));
+            link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_5').val()));
+            link = link.replace("replaceType", encodeURIComponent("1"));
             link = link.replace("replacepertgl", $('#PerTanggal').val());
 
             $.ajax({
                 type: "GET",
                 url: link,
                 beforeSend: function () {
-                    $('#datatable_expired').hide();
-                    $('#loading_expired').show();
+                    //$('#datatable_expired').hide();
+                    //$('#loading_expired').show();
+                    $('#loading_exp_tab').show();
+                    $('#table-account-expired').hide();
                 },
                 success: function (response) {
                     //$('#loading_expired').hide();
                     $('#table-account-expired').html(response);
-                    var tableExpired = $('#datatable_expired').DataTable({
-                        "order": [[5, "desc"], [1, "asc"]], //or asc
-                        "columnDefs": [{ "targets": 5, "type": "date-eu" }],
-                    });
-                    $('#search_expired').keyup(function () {
-                        tableExpired.search($(this).val()).draw();
-                    });
-                    $('#datatable_expired').show();
-                    $('#loading_expired').hide();
-                    tableExpired.search($('#search_expired').val()).draw();
-                    $('#datatable_expired').on('page.dt', function () {
-                        $page = $('#datatable_expired').DataTable().page.info().page;
-                    });
-                    $('#datatable_expired').DataTable().page($page).draw(false);
+                    $('#table-account-expired').show();
+                    $('#loading_exp_tab').hide();
+                    //var tableExpired = $('#datatable_expired').DataTable({
+                    //    "order": [[5, "desc"], [1, "asc"]], //or asc
+                    //    "columnDefs": [{ "targets": 5, "type": "date-eu" }],
+                    //});
+                    //$('#search_expired').keyup(function () {
+                    //    tableExpired.search($(this).val()).draw();
+                    //});
+                    //$('#datatable_expired').show();
+                    //$('#loading_expired').hide();
+                    //tableExpired.search($('#search_expired').val()).draw();
+                    //$('#datatable_expired').on('page.dt', function () {
+                    //    $page = $('#datatable_expired').DataTable().page.info().page;
+                    //});
+                    //$('#datatable_expired').DataTable().page($page).draw(false);
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
-                    $('#loading_expired').hide();
+                    //$('#loading_expired').hide();
+                    $('#loading_exp_tab').hide();
                 }
             });
         }
+        function searchTableExpired(){
+            var link = '@Html.Raw(Url.Action("RefreshTableAccountMenuExpired", "Admin", new { search = "replaceSearch", type = "replaceType", param = "replacepertgl" }))';
+            link = $link.replace("replaceSearch", encodeURIComponent($('#search_expired').val()));
+            link = link.replace("replaceType", encodeURIComponent("1"));
+            link = link.replace("replacepertgl", $('#PerTanggal').val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#search_expired_click')[0].disabled = true;
+                    $('#loading_exp_tab').show();
+                },
+                success: function (response) {
+                    $('#search_expired_click')[0].disabled = false;
+                    $('#table-account-expired').html(response);
+                    $('#loading_exp_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_expired_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+
         function LihatAccount(IdAccount) {
             var link = '@Url.Action("AccountDetail", "Admin", new { accId = "replaceId" })';
             link = link.replace("replaceId", IdAccount);

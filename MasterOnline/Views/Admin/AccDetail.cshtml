@@ -15,7 +15,17 @@
     var namaToko = "";
     if (Model?.Account?.PhotoKtpUrl != null)
     {
-        ktp = Model.Account.PhotoKtpUrl;
+        var tempKtp = Model.Account.PhotoKtpUrl;
+        if (tempKtp.Contains("~/Content/Uploaded"))
+        {
+            var filename = tempKtp.Split('/').Last();
+            ktp = "C://inetpub//wwwroot//MasterOnline//Content//Uploaded//" + filename;
+        }
+        else
+        {
+            ktp = Model.Account.PhotoKtpUrl;
+        }
+        //ktp = Model.Account.PhotoKtpUrl;
     }
     if (Model?.Account?.Email != null)
     {
