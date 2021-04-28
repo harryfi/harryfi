@@ -446,7 +446,10 @@
                         var counter = 0;
                         $.each(data.attribute,
                             function (i, item) {
-                                for (var a = 0; a < 30; a++) {
+                                //changed by Tri 28 april 2021, bugs tokped return all attribute not filtered by category code
+                                //for (var a = 0; a < 30; a++) {
+                                for (var a = 0; a < 40; a++) {
+                                //end changed by Tri 28 april 2021, bugs tokped return all attribute not filtered by category code
                                     var VARIANT_ID = item["VARIANT_ID_" + (a + 1)];
                                     var HAS_UNIT = item["HAS_UNIT_" + (a + 1)];
                                     var ANAME = item["ANAME_" + (a + 1)];
