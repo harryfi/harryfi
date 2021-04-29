@@ -2736,7 +2736,7 @@ namespace MasterOnline.Controllers
                 {
                     listOrderPaid = listOrderPaid.Substring(0, listOrderPaid.Length - 1);
                     var execSQL = EDB.ExecuteSQL("", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE CUST = '" + CUST 
-                        + "' AND STATUS_TRANSAKSI = '0' AND NO_REFERENSI IN ('"+ listOrderPaid + "')");
+                        + "' AND STATUS_TRANSAKSI = '0' AND NO_REFERENSI IN ("+ listOrderPaid + ")");
                 }
                 if (!string.IsNullOrEmpty(ordersn))
                 {
@@ -2754,37 +2754,37 @@ namespace MasterOnline.Controllers
                     {
                         var sSQL1 = "";
                         var sSQL2 = "SELECT * INTO #TEMP FROM (";
-                    //ordersDetail = await GetOrderDetailsForCancelReasonAPIV2(iden, ordersn_list);
-                    var ord = result.orders.Where(m => listOrderCanceled.Contains(m.ordersn)).ToList();
-                    foreach (var order in ord)
-                    {
-                            //if (currentOrder != null)
+                        //ordersDetail = await GetOrderDetailsForCancelReasonAPIV2(iden, ordersn_list);
+                        var ord = result.orders.Where(m => listOrderCanceled.Contains(m.ordersn)).ToList();
+                        foreach (var order in ord)
                         {
-                            if (!string.IsNullOrEmpty(sSQL1))
+                                //if (currentOrder != null)
                             {
-                                sSQL1 += " UNION ALL ";
+                                if (!string.IsNullOrEmpty(sSQL1))
+                                {
+                                    sSQL1 += " UNION ALL ";
+                                }
+                                sSQL1 += " SELECT '" + order.ordersn + "' NO_REFERENSI, '" + (order.cancel_reason ?? "") + "' ALASAN ";
                             }
-                            sSQL1 += " SELECT '" + order.ordersn + "' NO_REFERENSI, '" + (order.cancel_reason ?? "") + "' ALASAN ";
                         }
-                    }
-                    sSQL2 += sSQL1 + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
-                    sSQL2 += " SELECT A.NO_BUKTI, ALASAN, 'AUTO_SHOPEE' FROM SOT01A A INNER JOIN #TEMP T ON A.NO_REFERENSI = T.NO_REFERENSI ";
-                    sSQL2 += " LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = '' AND A.CUST = '" + CUST + "'; DROP TABLE #TEMP";
-                    EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL2);
+                        sSQL2 += sSQL1 + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
+                        sSQL2 += " SELECT A.NO_BUKTI, ALASAN, 'AUTO_SHOPEE' FROM SOT01A A INNER JOIN #TEMP T ON A.NO_REFERENSI = T.NO_REFERENSI ";
+                        sSQL2 += " LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = '' AND A.CUST = '" + CUST + "'; DROP TABLE #TEMP";
+                        EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL2);
 
-                    //string qry_Retur = "SELECT F.NO_REF FROM SIT01A (NOLOCK) F INNER JOIN SOT01A (NOLOCK) P ON P.NO_BUKTI = F.NO_SO AND F.JENIS_FORM = '2' ";
-                    //qry_Retur += "WHERE P.NO_REFERENSI IN (" + ordersn + ") AND ISNULL(F.NO_FA_OUTLET, '-') LIKE '%-%' AND P.CUST = '" + CUST + "' AND ISNULL(P.TIPE_KIRIM,0) <> 1";
-                    //var dsFaktur = EDB.GetDataSet("MOConnectionString", "RETUR", qry_Retur);
-                    //if (dsFaktur.Tables[0].Rows.Count > 0)
-                    //{
-                    //    var listFaktur = "";
-                    //    for (int j = 0; j < dsFaktur.Tables[0].Rows.Count; j++)
-                    //    {
-                    //        listFaktur += "'" + dsFaktur.Tables[0].Rows[j]["NO_REF"].ToString() + "',";
-                    //    }
-                    //    listFaktur = listFaktur.Substring(0, listFaktur.Length - 1);
-                    //    var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + listFaktur + ") AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + CUST + "'");
-                    //}
+                        //string qry_Retur = "SELECT F.NO_REF FROM SIT01A (NOLOCK) F INNER JOIN SOT01A (NOLOCK) P ON P.NO_BUKTI = F.NO_SO AND F.JENIS_FORM = '2' ";
+                        //qry_Retur += "WHERE P.NO_REFERENSI IN (" + ordersn + ") AND ISNULL(F.NO_FA_OUTLET, '-') LIKE '%-%' AND P.CUST = '" + CUST + "' AND ISNULL(P.TIPE_KIRIM,0) <> 1";
+                        //var dsFaktur = EDB.GetDataSet("MOConnectionString", "RETUR", qry_Retur);
+                        //if (dsFaktur.Tables[0].Rows.Count > 0)
+                        //{
+                        //    var listFaktur = "";
+                        //    for (int j = 0; j < dsFaktur.Tables[0].Rows.Count; j++)
+                        //    {
+                        //        listFaktur += "'" + dsFaktur.Tables[0].Rows[j]["NO_REF"].ToString() + "',";
+                        //    }
+                        //    listFaktur = listFaktur.Substring(0, listFaktur.Length - 1);
+                        //    var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + listFaktur + ") AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + CUST + "'");
+                        //}
                     }
                     var sSQLInsertTempBundling = "INSERT INTO TEMP_ALL_MP_ORDER_ITEM_BUNDLING ([BRG],[CONN_ID],[TGL]) " +
                                                     "SELECT DISTINCT C.UNIT AS BRG, '" + connID + "' AS CONN_ID, DATEADD(HOUR, +7, GETUTCDATE()) AS TGL " +
@@ -2794,7 +2794,7 @@ namespace MasterOnline.Controllers
                                                     "WHERE ISNULL(A.CONN_ID,'') = '" + connID + "' " +
                                                     "AND ISNULL(B.BRG,'') = '' AND A.BRG <> 'NOT_FOUND'";
                     var execInsertTempBundling = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLInsertTempBundling);
-                    //end add by nurul 14/4/2021, stok bundling
+                    
 
                     new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
 

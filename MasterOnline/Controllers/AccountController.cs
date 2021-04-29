@@ -1393,6 +1393,11 @@ namespace MasterOnline.Controllers
                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatusCancelled(iden, ShopeeControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
                         //end change by nurul 10/12/2019, ubah interval
 
+                        //add by Tri 29 April 2021, cek pesanan belum dibayar lebih dari 1 hari
+                        connId_JobId = dbPathEra + "_shopee_pesanan_cek_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderCekUnpaid(iden, ShopeeControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(15), recurJobOpt);
+                        //end add by Tri 29 April 2021, cek pesanan belum dibayar lebih dari 1 hari
+
                         //add by nurul 17/3/2020
                         //var list_ordersn = LocalErasoftDbContext.SOT01A.Where(a => (a.TRACKING_SHIPMENT == null || a.TRACKING_SHIPMENT == "-" || a.TRACKING_SHIPMENT == "") && a.NO_PO_CUST.Contains("SH") && a.CUST == tblCustomer.CUST).Select(a => a.NO_REFERENSI).ToList();
                         //if (list_ordersn.Count() > 0)
@@ -1446,6 +1451,9 @@ namespace MasterOnline.Controllers
                         recurJobM.RemoveIfExists(connId_JobId);
 
                         connId_JobId = dbPathEra + "_shopee_update_resi_job_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.RemoveIfExists(connId_JobId);
+
+                        connId_JobId = dbPathEra + "_shopee_pesanan_cek_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.RemoveIfExists(connId_JobId);
                     }
                 }
