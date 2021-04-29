@@ -2712,6 +2712,7 @@ namespace MasterOnline.Controllers
 
                 var listOrderPaid = "";
                 string ordersn = "";
+                var listOrdertoPaid = new List<string>();
                 var listOrderCanceled = new List<string>();
                 if (result.orders != null)
                 foreach (var order in result.orders)
@@ -2729,7 +2730,8 @@ namespace MasterOnline.Controllers
                     else // bukan batal dan unpaid, dianggap sudah dibayar
                     {
                         listOrderPaid += "'"+order.ordersn+"',";
-                    }
+                            listOrdertoPaid.Add(order.ordersn);
+                        }
                 }
 
                 if (!string.IsNullOrEmpty(listOrderPaid))
@@ -2737,6 +2739,115 @@ namespace MasterOnline.Controllers
                     listOrderPaid = listOrderPaid.Substring(0, listOrderPaid.Length - 1);
                     var execSQL = EDB.ExecuteSQL("", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE CUST = '" + CUST 
                         + "' AND STATUS_TRANSAKSI = '0' AND NO_REFERENSI IN ("+ listOrderPaid + ")");
+                    if(execSQL > 0)
+                    {
+                        #region update kurir
+                        try
+                        {
+                            List<listUpdateOrder> updateKurirSuccess = new List<listUpdateOrder>();
+                            if (result.orders.Count() > 0)
+                            {
+                                foreach (var order in result.orders.Where(m => listOrdertoPaid.Contains(m.ordersn)).ToList())
+                                {
+                                    //if (order.shipping_carrier != null && order.shipping_carrier != "")
+                                    if (!string.IsNullOrEmpty(order.shipping_carrier))
+                                    {
+                                        try
+                                        {
+                                            var Kurir = order.shipping_carrier;
+                                            var tipe_pengiriman = order.checkout_shipping_carrier;
+                                            var resi = "";
+                                            //if (order.tracking_no != null && order.tracking_no != "")
+                                            if (!string.IsNullOrEmpty(order.tracking_no))
+                                            {
+                                                resi = order.tracking_no;
+                                            }
+                                            var noref = order.ordersn;
+                                            //var nobuk = listPesanan.Where(a => a.Noref == noref).Select(a => a.Nobuk).FirstOrDefault();
+                                            //var temp = new listUpdateOrder()
+                                            //{
+                                            //    Noref = noref,
+                                            //    Nobuk = nobuk
+                                            //};
+
+                                            //var pesananInDb = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == noref && p.NO_BUKTI == nobuk && p.CUST == CUST).FirstOrDefault();
+                                            var pesananInDb = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == noref && p.CUST == CUST).FirstOrDefault();
+                                            if (pesananInDb != null)
+                                            {
+                                                var tempKurirBefore = pesananInDb.SHIPMENT;
+                                                var temp = new listUpdateOrder()
+                                                {
+                                                    Noref = noref,
+                                                    Nobuk = pesananInDb.NO_BUKTI
+                                                };
+                                                try
+                                                {
+                                                    pesananInDb.SHIPMENT = Kurir;
+                                                    if (!string.IsNullOrEmpty(resi))
+                                                    {
+                                                        pesananInDb.TRACKING_SHIPMENT = resi;
+                                                    }
+                                                    ErasoftDbContext.SaveChanges();
+                                                    updateKurirSuccess.Add(temp);
+                                                }
+                                                catch
+                                                {
+
+                                                }
+                                                if (tempKurirBefore != Kurir)
+                                                {
+                                                    try
+                                                    {
+                                                        var sSQL = "UPDATE SIT01A SET NAMAPENGIRIM='" + Kurir + "' where NO_REF='" + noref + "' and NO_SO='" + temp.Nobuk + "' and CUST='" + CUST + "'";
+                                                        ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                                                        //var fakturInDb = ErasoftDbContext.SIT01A.Where(p => p.NO_REF == noref && p.NO_SO == nobuk && p.CUST == log_CUST).FirstOrDefault();
+                                                        //if (fakturInDb != null)
+                                                        //{
+                                                        //    fakturInDb.NAMAPENGIRIM = Kurir;
+                                                        //    ErasoftDbContext.SaveChanges();
+                                                        //}
+                                                    }
+                                                    catch
+                                                    {
+
+                                                    }
+                                                }
+                                                
+                                            }
+                                        }
+                                        catch (Exception ex)
+                                        {
+
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //throw new Exception("Update Kurir Gagal. Kurir Null.");
+                                    }
+                                }
+                                if (updateKurirSuccess.Count() > 0)
+                                {
+                                    try
+                                    {
+                                        var listA = updateKurirSuccess.Select(b => b.Noref).ToList();
+                                        var listB = updateKurirSuccess.Select(b => b.Nobuk).ToList();
+                                        var listOnSOT01H = ErasoftDbContext.SOT01H.Where(a => listA.Contains(a.NO_REFERENSI) && listB.Contains(a.NO_PESANAN) && a.CUST == CUST).ToList();
+                                        ErasoftDbContext.SOT01H.RemoveRange(listOnSOT01H);
+                                        ErasoftDbContext.SaveChanges();
+                                    }
+                                    catch (Exception ex)
+                                    {
+
+                                    }
+                                }
+                            }
+                        }
+                        catch(Exception ex)
+                        {
+
+                        }
+                        #endregion
+                    }
                 }
                 if (!string.IsNullOrEmpty(ordersn))
                 {
