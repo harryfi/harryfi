@@ -60,6 +60,7 @@ namespace MasterOnline.ViewModels
         public string AKHIR { get; set; }
         public int MARKET { get; set; }
         public string Bundling { get; set; }
+        public string newParent { get; set; }
     }
     
 }
