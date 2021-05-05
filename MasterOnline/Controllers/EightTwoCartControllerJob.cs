@@ -395,7 +395,11 @@ namespace MasterOnline.Controllers
             postData += "&out_of_stock=" + Uri.EscapeDataString("0");
             postData += "&id_category_default=" + Uri.EscapeDataString(categoryIDDefault.ToString());
             postData += "&category=" + Uri.EscapeDataString("[" + categoryID.ToString() + "]");
-            postData += "&id_manufacturer=" + Uri.EscapeDataString(detailBrg.AVALUE_38.ToString());
+            //change by Tri, brand merupakan fitur berbayar di 82cart dan tidak required saat create product
+            //postData += "&id_manufacturer=" + Uri.EscapeDataString(detailBrg.AVALUE_38.ToString());
+            if(!string.IsNullOrEmpty(detailBrg.AVALUE_38))
+            postData += "&id_manufacturer=" + Uri.EscapeDataString(detailBrg.AVALUE_38 ?? "");
+            //end change by Tri, brand merupakan fitur berbayar di 82cart dan tidak required saat create product
 
             //Start handle Check Category
             EightTwoCartControllerJob.E2CartAPIData dataLocal = new EightTwoCartControllerJob.E2CartAPIData
@@ -744,7 +748,11 @@ namespace MasterOnline.Controllers
             postData += "&out_of_stock=" + Uri.EscapeDataString("0");
             postData += "&id_category_default=" + Uri.EscapeDataString(categoryIDDefault.ToString());
             postData += "&category=" + Uri.EscapeDataString("[" + categoryID.ToString() + "]");
-            postData += "&id_manufacturer=" + Uri.EscapeDataString(detailBrg.AVALUE_38.ToString());
+            //change by Tri, brand merupakan fitur berbayar di 82cart dan tidak required saat create product
+            //postData += "&id_manufacturer=" + Uri.EscapeDataString(detailBrg.AVALUE_38.ToString());
+            if(!string.IsNullOrEmpty(detailBrg.AVALUE_38))
+                postData += "&id_manufacturer=" + Uri.EscapeDataString(detailBrg.AVALUE_38 ?? "");
+            //end change by Tri, brand merupakan fitur berbayar di 82cart dan tidak required saat create product
 
             //Start handle Check Category
             EightTwoCartControllerJob.E2CartAPIData dataLocal = new EightTwoCartControllerJob.E2CartAPIData
