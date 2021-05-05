@@ -397,6 +397,7 @@ namespace MasterOnline.Controllers
             postData += "&category=" + Uri.EscapeDataString("[" + categoryID.ToString() + "]");
             //change by Tri, brand merupakan fitur berbayar di 82cart dan tidak required saat create product
             //postData += "&id_manufacturer=" + Uri.EscapeDataString(detailBrg.AVALUE_38.ToString());
+            if(!string.IsNullOrEmpty(detailBrg.AVALUE_38))
             postData += "&id_manufacturer=" + Uri.EscapeDataString(detailBrg.AVALUE_38 ?? "");
             //end change by Tri, brand merupakan fitur berbayar di 82cart dan tidak required saat create product
 
@@ -749,7 +750,8 @@ namespace MasterOnline.Controllers
             postData += "&category=" + Uri.EscapeDataString("[" + categoryID.ToString() + "]");
             //change by Tri, brand merupakan fitur berbayar di 82cart dan tidak required saat create product
             //postData += "&id_manufacturer=" + Uri.EscapeDataString(detailBrg.AVALUE_38.ToString());
-            postData += "&id_manufacturer=" + Uri.EscapeDataString(detailBrg.AVALUE_38 ?? "");
+            if(!string.IsNullOrEmpty(detailBrg.AVALUE_38))
+                postData += "&id_manufacturer=" + Uri.EscapeDataString(detailBrg.AVALUE_38 ?? "");
             //end change by Tri, brand merupakan fitur berbayar di 82cart dan tidak required saat create product
 
             //Start handle Check Category
