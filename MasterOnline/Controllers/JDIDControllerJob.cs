@@ -2867,7 +2867,7 @@ namespace MasterOnline.Controllers
             }
         }
 
-        public async Task<string> JD_printLabelJDID(JDIDAPIDataJob data, string noref)
+        public string JD_printLabelJDID(JDIDAPIDataJob data, string noref)
         {
 
             string ret = "";
@@ -2907,7 +2907,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> JD_printLabelJDIDV2(JDIDAPIDataJob data, string noref)
+        public string JD_printLabelJDIDV2(JDIDAPIDataJob data, string noref)
         {
 
             string ret = "";
@@ -2937,7 +2937,7 @@ namespace MasterOnline.Controllers
                 string responseFromServer = "";
                 try
                 {
-                    using (WebResponse response = await myReq.GetResponseAsync())
+                    using (WebResponse response = myReq.GetResponse())
                     {
                         using (Stream stream = response.GetResponseStream())
                         {
@@ -2966,15 +2966,15 @@ namespace MasterOnline.Controllers
                 if (!string.IsNullOrEmpty(responseFromServer))
                 {
                     var respons = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDLabelV2)) as JDIDLabelV2;
-                    if (respons.data.result != null)
+                    if (respons.jingdong_seller_order_printorder_response.result != null)
                     {
-                        if (respons.data.result.success)
+                        if (respons.jingdong_seller_order_printorder_response.result.success)
                         {
-                            if (respons.data.result.model != null)
+                            if (respons.jingdong_seller_order_printorder_response.result.model != null)
                             {
-                                if (!string.IsNullOrEmpty(respons.data.result.model.content))
+                                if (!string.IsNullOrEmpty(respons.jingdong_seller_order_printorder_response.result.model.content))
                                 {
-                                    ret = respons.data.result.model.content.ToString();
+                                    ret = respons.jingdong_seller_order_printorder_response.result.model.content.ToString();
                                 }
                             }
                         }
@@ -2993,7 +2993,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> JD_sendGoodJDID(JDIDAPIDataJob data, string noref, string noresi)
+        public string JD_sendGoodJDID(JDIDAPIDataJob data, string noref, string noresi)
         {
 
             string ret = "";
@@ -3034,7 +3034,7 @@ namespace MasterOnline.Controllers
         }
 
         //add by nurul 4/5/2021, JDID versi 2
-        public async Task<string> JD_sendGoodJDIDV2(JDIDAPIDataJob data, string noref, string noresi)
+        public string JD_sendGoodJDIDV2(JDIDAPIDataJob data, string noref, string noresi)
         {
 
             string ret = "";
@@ -3064,7 +3064,7 @@ namespace MasterOnline.Controllers
                 string responseFromServer = "";
                 try
                 {
-                    using (WebResponse response = await myReq.GetResponseAsync())
+                    using (WebResponse response = myReq.GetResponse())
                     {
                         using (Stream stream = response.GetResponseStream())
                         {
@@ -3093,22 +3093,22 @@ namespace MasterOnline.Controllers
                 if (!string.IsNullOrEmpty(responseFromServer))
                 {
                     var respons = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDRTSV2)) as JDIDRTSV2;
-                    if (respons.data.result != null)
+                    if (respons.jingdong_seller_order_sendgoodsopenapi_response.result != null)
                     {
-                        if (respons.data.result.success)
+                        if (respons.jingdong_seller_order_sendgoodsopenapi_response.result.success)
                         {
-                            if (respons.data.result.model != null)
+                            if (respons.jingdong_seller_order_sendgoodsopenapi_response.result.model != null)
                             {
                                 //if (!string.IsNullOrEmpty(respons.data.result.model.expressCompany))
                                 //{
                                 //    ret = respons.data.result.model.expressCompany.ToString();
                                 //}
-                                ret = respons.data.result.message.ToString();
+                                ret = respons.jingdong_seller_order_sendgoodsopenapi_response.result.message.ToString();
                             }
                         }
                         else
                         {
-                            ret = "error. " + respons.data.result.message.ToString();
+                            ret = "error. " + respons.jingdong_seller_order_sendgoodsopenapi_response.result.message.ToString();
                         }
                     }
                     else
@@ -4180,13 +4180,13 @@ namespace MasterOnline.Controllers
                     if (!string.IsNullOrEmpty(responseFromServer))
                     {
                         var respons = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDGetOrderDetailV2Result)) as JDIDGetOrderDetailV2Result;
-                        if (respons.data.result != null)
+                        if (respons.jingdong_seller_order_batchgetorderinfolist_response.result != null)
                         {
-                            if (respons.data.result.success)
+                            if (respons.jingdong_seller_order_batchgetorderinfolist_response.result.success)
                             {
-                                if (respons.data.result.model != null)
+                                if (respons.jingdong_seller_order_batchgetorderinfolist_response.result.model != null)
                                 {
-                                    var listDetails = respons.data.result.model;
+                                    var listDetails = respons.jingdong_seller_order_batchgetorderinfolist_response.result.model;
                                     if (listDetails != null)
                                     {
                                         if (listDetails.Count() > 0)
@@ -4833,9 +4833,9 @@ namespace MasterOnline.Controllers
                 try
                 {
                     var listOrderId = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDGetOrderDetailV2Result)) as JDIDGetOrderDetailV2Result;
-                    if (listOrderId.data.result.success)
+                    if (listOrderId.jingdong_seller_order_batchgetorderinfolist_response.result.success)
                     {
-                        var listDetails = listOrderId.data.result.model;
+                        var listDetails = listOrderId.jingdong_seller_order_batchgetorderinfolist_response.result.model;
                         if (listDetails != null)
                         {
                             string insertQ = "INSERT INTO TEMP_ORDER_JD ([ADDRESS_CUSTOMER],[AREA],[BOOKTIME],[CITY],[COUPON_AMOUNT],[CUSTOMER_NAME],";
@@ -5899,7 +5899,7 @@ namespace MasterOnline.Controllers
 
         public class JDIDGetOrderDetailV2Result
         {
-            public Jingdong_Seller_Order_Batchgetorderinfolist_Response data { get; set; }
+            public Jingdong_Seller_Order_Batchgetorderinfolist_Response jingdong_seller_order_batchgetorderinfolist_response { get; set; }
         }
 
         public class Jingdong_Seller_Order_Batchgetorderinfolist_Response
@@ -5990,7 +5990,7 @@ namespace MasterOnline.Controllers
 
         public class JDIDLabelV2
         {
-            public Jingdong_Seller_Order_Printorder_Response data { get; set; }
+            public Jingdong_Seller_Order_Printorder_Response jingdong_seller_order_printorder_response { get; set; }
         }
 
         public class Jingdong_Seller_Order_Printorder_Response
@@ -6019,7 +6019,7 @@ namespace MasterOnline.Controllers
 
         public class JDIDRTSV2
         {
-            public Jingdong_Seller_Order_Sendgoodsopenapi_Response data { get; set; }
+            public Jingdong_Seller_Order_Sendgoodsopenapi_Response jingdong_seller_order_sendgoodsopenapi_response { get; set; }
         }
 
         public class Jingdong_Seller_Order_Sendgoodsopenapi_Response
