@@ -47,6 +47,11 @@
                 <img src="~/Content/Images/spinner.gif" />
             </div>
         </div>
+        @Html.HiddenFor(m => m.parentPosting)
+        @if (Model.parentPosting == 1)
+        {
+            <label style="color:red;">Barang induk ini sudah ada transaksi dan posting, tidak bisa dibuat menjadi barang varian.</label>
+        }
         <table id="table_setting_kode_variasi" class="table table-bordered" role="grid">
             <thead>
                 <tr>
@@ -70,5 +75,30 @@
                 }
             </tbody>
         </table>
-    </div>
+        @if (Model.parentPosting != 1 && Model.parentTrans == 1)
+        {
+            <div>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <label>Transaksi dan stok pada barang induk akan dipindah ke varian :</label>
+                            </td>
+                            <td>
+                                <select class="form-control" id="cbVarTrans" required="required">
+                                    @foreach (var Variasi in MapNamaVarTemp)
+                                    {
+                                        <option value="@Variasi.Key">@Variasi.Value</option>
+                                    }
+                                </select>
+
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        }
+
+        </div>
 </div>

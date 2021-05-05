@@ -1913,7 +1913,8 @@
                     code: $('#txtKodeKategori').val(),
                     opt_selected_1: $('#select_opt_level_1').val(),
                     opt_selected_2: $('#select_opt_level_2').val(),
-                    opt_selected_3: $('#select_opt_level_3').val()
+                    opt_selected_3: $('#select_opt_level_3').val(),
+                    newParent: $('#txtNewParent').val()
                 }
                 $.ajax({
                     type: "POST",
@@ -2093,7 +2094,8 @@
                     opt_selected_1: $('#select_opt_level_1').val(),
                     opt_selected_2: $('#select_opt_level_2').val(),
                     opt_selected_3: $('#select_opt_level_3').val(),
-                    kode_custom: kodeVariant
+                    kode_custom: kodeVariant,
+                    transfer_trans: $('#cbVarTrans').val()
                 }
                 $.ajax({
                     type: "POST",
