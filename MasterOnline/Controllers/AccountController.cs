@@ -1628,6 +1628,9 @@ namespace MasterOnline.Controllers
                         iden.nama_cust = tblCustomer.PERSO;
                         iden.email = tblCustomer.EMAIL;
                         iden.DatabasePathErasoft = dbPathEra;
+                        //add by nurul 4/5/2021, JDID versi 2
+                        iden.versi = tblCustomer.KD_ANALISA;
+                        //end add by nurul 4/5/2021, JDID versi 2
 
                         connId_JobId = dbPathEra + "_JDID_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<JDIDControllerJob>(x => x.JD_GetOrderByStatusPaid(iden, JDIDControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
@@ -1651,6 +1654,9 @@ namespace MasterOnline.Controllers
                         iden.nama_cust = tblCustomer.PERSO;
                         iden.email = tblCustomer.EMAIL;
                         iden.DatabasePathErasoft = dbPathEra;
+                        //add by nurul 4/5/2021, JDID versi 2
+                        iden.versi = tblCustomer.KD_ANALISA;
+                        //end add by nurul 4/5/2021, JDID versi 2
 
                         await new JDIDControllerJob().JD_GetOrderByStatusPaid(iden, JDIDControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
 

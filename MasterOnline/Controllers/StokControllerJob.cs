@@ -217,6 +217,11 @@ namespace MasterOnline.Controllers
         public string ParamFile_JDID;
         //end add by fauzi for JD.ID
 
+        //add by nurul 4/5/2021, JDID versi 2 
+        public string ServerUrl_JDID_V2 = "https://open-api.jd.id/routerjson";
+        public string Version_JDID_V2 = "2.0";
+        //end add 
+
 
         public StokControllerJob()
         {
@@ -249,7 +254,7 @@ namespace MasterOnline.Controllers
                 else
                 {
                     var maxNama2 = length_nama - lastIndexOfSpaceIn30;
-                    if(maxNama2 > 255)
+                    if (maxNama2 > 255)
                     {
                         maxNama2 = 255;
                     }
@@ -1428,11 +1433,24 @@ namespace MasterOnline.Controllers
                             };
                             if (stf02h.BRG_MP != "")
                             {
+                                //add by nurul 4/5/2021, JDID versi 2
+                                if (marketPlace.KD_ANALISA == "2")
+                                {
 #if (DEBUG || Debug_AWS)
-                                Task.Run(() => JD_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+                                    Task.Run(() => JD_updateStockV2(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+#else
+                                client.Enqueue<StokControllerJob>(x => x.JD_updateStockV2(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
+#endif
+                                }
+                                else
+                                //end add by nurul 4/5/2021, JDID versi 2
+                                {
+#if (DEBUG || Debug_AWS)
+                                    Task.Run(() => JD_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
 #else
                                 client.Enqueue<StokControllerJob>(x => x.JD_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
 #endif
+                                }
                             }
                         }
                     }
@@ -1583,7 +1601,7 @@ namespace MasterOnline.Controllers
             {
                 list_brg = "''";
             }
-            var sSQL = "SELECT BRG FROM STF02 WHERE BRG IN (" + list_brg + ") OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")) OR BRG IN (SELECT BRG FROM STF02 WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")))";           
+            var sSQL = "SELECT BRG FROM STF02 WHERE BRG IN (" + list_brg + ") OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")) OR BRG IN (SELECT BRG FROM STF02 WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")))";
             var listBrg = ErasoftDbContext.Database.SqlQuery<string>(sSQL).ToList();
             //end change by nurul 14/9/2020, handle barang multi sku
 
@@ -1862,11 +1880,24 @@ namespace MasterOnline.Controllers
                             };
                             if (stf02h.BRG_MP != "")
                             {
+                                //add by nurul 4/5/2021, JDID versi 2
+                                if (marketPlace.KD_ANALISA == "2")
+                                {
 #if (DEBUG || Debug_AWS)
-                                Task.Run(() => JD_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+                                    Task.Run(() => JD_updateStockV2(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+#else
+                                client.Enqueue<StokControllerJob>(x => x.JD_updateStockV2(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
+#endif
+                                }
+                                else
+                                //end add by nurul 4/5/2021, JDID versi 2
+                                {
+#if (DEBUG || Debug_AWS)
+                                    Task.Run(() => JD_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
 #else
                                 client.Enqueue<StokControllerJob>(x => x.JD_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
 #endif
+                                }
                             }
                         }
                     }
@@ -2022,13 +2053,13 @@ namespace MasterOnline.Controllers
             //end add by calvin 17 juni 2019
 
             var splitKode = brgmp.Split(';');
-            if(splitKode.Length != 2)
+            if (splitKode.Length != 2)
             {
                 throw new Exception("invalid item code");
             }
-            string urll = "https://api.bukalapak.com/products/"+splitKode[0]+ "/skus/" + splitKode[1];
+            string urll = "https://api.bukalapak.com/products/" + splitKode[0] + "/skus/" + splitKode[1];
 
-            string myData = "{\"stock\":"+qtyOnHand+"}";
+            string myData = "{\"stock\":" + qtyOnHand + "}";
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "PATCH";
@@ -2051,21 +2082,21 @@ namespace MasterOnline.Controllers
                     responseFromServer = reader.ReadToEnd();
                 }
             }
-            if(responseFromServer != "")
+            if (responseFromServer != "")
             {
                 var resp = JsonConvert.DeserializeObject(responseFromServer, typeof(BukalapakResponseAPI)) as BukalapakResponseAPI;
-                if(resp != null)
+                if (resp != null)
                 {
-                    if(resp.meta != null)
+                    if (resp.meta != null)
                     {
-                        if(resp.meta.http_status != 200)
+                        if (resp.meta.http_status != 200)
                         {
-                            if(resp.errors != null)
+                            if (resp.errors != null)
                             {
-                                if(resp.errors.Length > 0)
+                                if (resp.errors.Length > 0)
                                 {
                                     string errMsg = "";
-                                    foreach(var error in resp.errors)
+                                    foreach (var error in resp.errors)
                                     {
                                         errMsg += error.code + ":" + error.message + "\n";
                                     }
@@ -2156,7 +2187,7 @@ namespace MasterOnline.Controllers
             //end add 12-04-2019, cek qty on lazada
             #region cek stok tertahan lazada
             var itemData = Lazada_cekItem(token, kdBrg);
-            if(itemData.status == 1)
+            if (itemData.status == 1)
             {
                 qtyOnHand = qtyOnHand + itemData.witholding_stock;
                 qty = (qtyOnHand > 0) ? qtyOnHand.ToString() : "0";
@@ -2212,7 +2243,7 @@ namespace MasterOnline.Controllers
                 xmlString += "<ItemId>" + itemData.item_id + "</ItemId>";
             }
 
-                xmlString += "</Sku></Skus></Product></Request>";
+            xmlString += "</Sku></Skus></Product></Request>";
 
             //ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             //LazopRequest request = new LazopRequest();
@@ -2269,7 +2300,7 @@ namespace MasterOnline.Controllers
             LazopRequest request = new LazopRequest();
             request.SetApiName("/products/get");
             request.AddApiParameter("filter", "all");
-            request.AddApiParameter("sku_seller_list", "[\""+seller_sku+"\"]");
+            request.AddApiParameter("sku_seller_list", "[\"" + seller_sku + "\"]");
             request.AddApiParameter("options", "1");
             request.SetHttpMethod("GET");
 
@@ -2277,14 +2308,14 @@ namespace MasterOnline.Controllers
             var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaGetItemSimpleResponse)) as LazadaGetItemSimpleResponse;
             if (res.code.Equals("0"))
             {
-                if(res.data != null)
+                if (res.data != null)
                 {
-                    if(res.data.products != null)
+                    if (res.data.products != null)
                     {
-                        if(res.data.products[0].skus != null)
+                        if (res.data.products[0].skus != null)
                         {
                             var item = res.data.products[0].skus.Where(m => m.SellerSku == seller_sku).FirstOrDefault();
-                            if(item != null)
+                            if (item != null)
                             {
                                 ret.status = 1;
                                 ret.item_id = res.data.products[0].item_id;
@@ -2847,18 +2878,18 @@ namespace MasterOnline.Controllers
                             try
                             {
 
-                            myReq.ContentLength = myData.Length;
-                            using (var dataStream = myReq.GetRequestStream())
-                            {
-                                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-                            }
-                            using (WebResponse response = await myReq.GetResponseAsync())
-                            {
-                                using (Stream stream = response.GetResponseStream())
+                                myReq.ContentLength = myData.Length;
+                                using (var dataStream = myReq.GetRequestStream())
                                 {
-                                    StreamReader reader = new StreamReader(stream);
-                                    responseFromServer = reader.ReadToEnd();
+                                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
                                 }
+                                using (WebResponse response = await myReq.GetResponseAsync())
+                                {
+                                    using (Stream stream = response.GetResponseStream())
+                                    {
+                                        StreamReader reader = new StreamReader(stream);
+                                        responseFromServer = reader.ReadToEnd();
+                                    }
                                 }
                             }
                             catch (WebException e)
@@ -2875,14 +2906,14 @@ namespace MasterOnline.Controllers
                                     }
                                     var response = e.Response as HttpWebResponse;
                                     var status = (int)response.StatusCode;
-                                    if(status == 429)
+                                    if (status == 429)
                                     {
                                         if (string.IsNullOrEmpty(data.berat))
                                         {
                                             data.berat = "0";
                                         }
                                         var loop = Convert.ToInt32(data.berat);
-                                        if(loop < 2)
+                                        if (loop < 2)
                                         {
                                             await Task.Delay(60000);
                                             data.berat = (loop + 1).ToString();
@@ -4541,7 +4572,139 @@ namespace MasterOnline.Controllers
             return "";
         }
 
+        //add by nurul 4/5/2021, JDID versi 2
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_update_stok")]
+        [NotifyOnFailed("Update Stok {obj} ke JD.ID gagal.")]
+        public async Task<string> JD_updateStockV2(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIData data, string id, int stok, string uname, PerformContext context)
+        {
+            SetupContext(DatabasePathErasoft, uname);
 
+            var brgMp = "";
+            if (id.Contains(";"))
+            {
+                string[] brgSplit = id.Split(';');
+                if (brgSplit[1] != "0")
+                {
+                    brgMp = brgSplit[1].ToString();
+                }
+            }
+            else
+            {
+                brgMp = id;
+            }
+
+            var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
+
+            if (qtyOnHand < 0)
+            {
+                qtyOnHand = 0;
+            }
+
+            stok = Convert.ToInt32(qtyOnHand);
+
+            try
+            {
+                var sysParams = new Dictionary<string, string>();
+                this.ParamJson_JDID = "{\"wareStockUpdateListStr\":[{\"skuId\":" + brgMp + ", \"realNum\": " + stok + "}]}";
+                sysParams.Add("360buy_param_json", this.ParamJson_JDID);
+
+                sysParams.Add("access_token", data.accessToken);
+                sysParams.Add("app_key", data.appKey);
+                this.Method_JDID = "jingdong.epistock.updateEpiMerchantWareStock"; //this API is for query sku information via spuId
+                sysParams.Add("method", this.Method_JDID);
+                var gettimestamp = getCurrentTimeFormatted();
+                sysParams.Add("timestamp", gettimestamp);
+                sysParams.Add("v", this.Version_JDID_V2);
+                sysParams.Add("format", this.Format_JDID);
+                sysParams.Add("sign_method", this.SignMethod_JDID);
+
+                var signature = this.generateSign(sysParams, data.appSecret);
+
+                string urll = ServerUrl_JDID_V2 + " ? v=" + Uri.EscapeDataString(Version_JDID_V2) + "&method=" + this.Method_JDID + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson_JDID) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
+                urll += "&format=json&sign_method=md5";
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                string responseFromServer = "";
+                try
+                {
+                    using (WebResponse response = await myReq.GetResponseAsync())
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                        }
+                    }
+                }
+                //catch (WebException ex)
+                //{
+                //    string err1 = "";
+                //    if (ex.Status == WebExceptionStatus.ProtocolError)
+                //    {
+                //        WebResponse resp1 = ex.Response;
+                //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                //        {
+                //            err1 = sr1.ReadToEnd();
+                //        }
+                //    }
+                //    //throw new Exception(err1);
+                //}
+                catch (Exception ex)
+                {
+                    string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                    throw new Exception(msg);
+                }
+
+                if (!string.IsNullOrEmpty(responseFromServer))
+                {
+                    try
+                    {
+                        var retStok = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDupdateStockV2Result)) as JDIDupdateStockV2Result;
+                        if (retStok.jingdong_epistock_updateEpiMerchantWareStock_response.EptRemoteResult != null)
+                        {
+                            if (retStok.jingdong_epistock_updateEpiMerchantWareStock_response.EptRemoteResult.success)
+                            {
+                            }
+                            else
+                            {
+                                var getMessage = "";
+                                if (retStok.jingdong_epistock_updateEpiMerchantWareStock_response.EptRemoteResult.model != null)
+                                {
+                                    var model = retStok.jingdong_epistock_updateEpiMerchantWareStock_response.EptRemoteResult.model;
+                                    getMessage = " " + Convert.ToString(model).Replace("\"", "").Split(new string[] { "message\":\"" }, StringSplitOptions.None).Last().Split(new string[] { "\",\"" }, StringSplitOptions.None).First();
+                                    
+                                }
+
+                                throw new Exception(retStok.jingdong_epistock_updateEpiMerchantWareStock_response.EptRemoteResult.message.ToString() + getMessage);
+                                
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("Tidak ada respon dari API.");
+                        }
+                    }
+                    catch (Exception ex2)
+                    {
+                        string msg = ex2.InnerException != null ? ex2.InnerException.Message : ex2.Message;
+                        throw new Exception(msg);
+                    }
+                }
+                else
+                {
+                    throw new Exception("Tidak ada respon dari API.");
+                }
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                throw new Exception(msg);
+            }
+
+            return "";
+        }
+        //add by nurul 4/5/2021, JDID versi 2
 
         //add by nurul 29/7/2020
         [AutomaticRetry(Attempts = 2)]
@@ -4563,11 +4726,11 @@ namespace MasterOnline.Controllers
                     //var cekSI = ErasoftDbContext.SIT01A.AsNoTracking().Where(p => p.NO_BUKTI == nobukSI && p.JENIS_FORM == "2").FirstOrDefault();
                     //if (cekSI != null)
                     //{
-                        //cekSI.BRUTO = bruto;
-                        //string sSQL = "update sit01a set BRUTO = '" + bruto + "' where NO_BUKTI = '" + nobukSI + "' and JENIS_FORM ='2'";
-                        string sSQL = "update sit01a set BRUTO = BRUTO where NO_BUKTI = '" + nobukSI + "' and JENIS_FORM ='2'";
-                        ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
-                        ErasoftDbContext.SaveChanges();
+                    //cekSI.BRUTO = bruto;
+                    //string sSQL = "update sit01a set BRUTO = '" + bruto + "' where NO_BUKTI = '" + nobukSI + "' and JENIS_FORM ='2'";
+                    string sSQL = "update sit01a set BRUTO = BRUTO where NO_BUKTI = '" + nobukSI + "' and JENIS_FORM ='2'";
+                    ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                    ErasoftDbContext.SaveChanges();
                     //}
                     //else
                     //{
@@ -4799,7 +4962,7 @@ namespace MasterOnline.Controllers
                                         "where a.unit in (" + string_brg + ")";
                             ErasoftDbContext.Database.ExecuteSqlCommand(sSQL2);
                             ErasoftDbContext.SaveChanges();
-                            
+
                             var cekListBrgBundlingSudahAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) inner join stf08a b (nolock) on a.unit=b.brg where b.tahun='" + Tahun + "' and b.gd ='" + default_gudang + "' and a.unit in (" + string_brg + ")").ToList();
                             var cekListBrgBundlingBelumAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) left join stf08a b (nolock) on a.unit=b.brg where isnull(b.brg,'')='' and a.unit in (" + string_brg + ")").ToList();
 
@@ -5944,5 +6107,31 @@ namespace MasterOnline.Controllers
 
         }
         #endregion
+
+        //add by nurul 4/5/2021, JDID versi 2
+        public class JDIDupdateStockV2Result
+        {
+            public Jingdong_Epistock_Updateepimerchantwarestock_Response jingdong_epistock_updateEpiMerchantWareStock_response { get; set; }
+        }
+
+        public class Jingdong_Epistock_Updateepimerchantwarestock_Response
+        {
+            public string code { get; set; }
+            public Eptremoteresult EptRemoteResult { get; set; }
+        }
+
+        public class Eptremoteresult
+        {
+            public int code { get; set; }
+            public string message { get; set; }
+            //public dynamic model { get; set; }
+            public object model { get; set; }
+            public bool success { get; set; }
+        }
+        //public class ModelupdateStockJdV2
+        //{
+        //    public string _623816874 { get; set; }
+        //}
+        //end add by nurul 4/5/2021, JDID versi 2
     }
 }
