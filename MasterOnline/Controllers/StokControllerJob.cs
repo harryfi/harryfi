@@ -4621,7 +4621,7 @@ namespace MasterOnline.Controllers
 
                 var signature = this.generateSign(sysParams, data.appSecret);
 
-                string urll = ServerUrl_JDID_V2 + " ? v=" + Uri.EscapeDataString(Version_JDID_V2) + "&method=" + this.Method_JDID + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson_JDID) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
+                string urll = ServerUrl_JDID_V2 + "?v=" + Uri.EscapeDataString(Version_JDID_V2) + "&method=" + this.Method_JDID + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson_JDID) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
                 urll += "&format=json&sign_method=md5";
                 HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
                 myReq.Method = "GET";
