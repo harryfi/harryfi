@@ -1613,6 +1613,31 @@ namespace MasterOnline.Controllers
             {
                 foreach (ARF01 tblCustomer in listJDIDShop)
                 {
+                    //add by nurul 5/5/2021
+                    #region refresh token JD.ID versi 2
+
+                    if (tblCustomer.KD_ANALISA == "2")
+                    {
+                        JDIDControllerJob.JDIDAPIDataJob iden = new JDIDControllerJob.JDIDAPIDataJob();
+                        iden.merchant_code = tblCustomer.Sort1_Cust;
+                        iden.DatabasePathErasoft = dbPathEra;
+                        iden.username = username;
+                        iden.no_cust = tblCustomer.CUST;
+                        iden.tgl_expired = tblCustomer.TGL_EXPIRED;
+                        iden.appKey = tblCustomer.API_KEY;
+                        iden.appSecret = tblCustomer.API_CLIENT_U;
+                        iden.accessToken = tblCustomer.TOKEN;
+                        iden.refreshToken = tblCustomer.REFRESH_TOKEN;
+
+                        // proses cek dan get token
+#if (AWS || DEV)
+                    client.Enqueue<JDIDControllerJob>(x => x.GetTokenJDID(iden, false, false));
+#else
+                        Task.Run(() => new JDIDControllerJob().GetTokenJDID(iden, false, false)).Wait();
+#endif
+                    }
+                    #endregion refresh token JD.ID versi 2
+                    //end add by nurul 5/5/2021
 
                     string connId_JobId = "";
                     //add by fauzi 22 Juli 2020

@@ -194,38 +194,6 @@ namespace MasterOnline.Controllers
             return uri;
         }
 
-        //[HttpGet]
-        //public string LinkGetTokenJDID(string loc, string code)
-        //{
-        //    var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
-        //    var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
-        //    var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
-        //    var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
-        //    var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
-        //    var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
-
-        //    var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
-        //    var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
-        //    var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
-
-        //    string url = "";
-        //    if (!string.IsNullOrEmpty(loc))
-        //    {
-        //        var splitloc = loc.Split(new string[] { "_param_" }, StringSplitOptions.None);
-        //        var idxParam = loc.IndexOf("_param_", 0);
-        //        var idxaftParam = loc.IndexOf("&", idxParam);
-        //        var cust = loc.Substring(idxParam + 7, idxaftParam - (idxParam + 7));
-        //        var arf01 = EDB.GetDataSet("CSString", "ARF01", "SELECT TOP 1 API_KEY,API_CLIENT_U FROM ARF01 WHERE CUST='" + cust + "'");
-        //        if (arf01.Tables[0].Rows.Count > 0)
-        //        {
-        //            var appKey = arf01.Tables[0].Rows[0]["API_KEY"].ToString();
-        //            var appSecret = arf01.Tables[0].Rows[0]["API_CLIENT_U"].ToString();
-        //            url = "https://oauth.jd.id/oauth2/access_token?app_key=" + appKey + "&app_secret=" + appSecret + "&grant_type=authorization_code&code=" + code;
-        //        }
-        //    }
-        //    return url;
-        //}
-
         #region jdid tools
         private string getCurrentTimeFormatted()
         {
