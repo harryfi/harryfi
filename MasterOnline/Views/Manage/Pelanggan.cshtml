@@ -3280,7 +3280,8 @@
         //add by calvin 10 desember 2018
         function GetShopeeShopId(kdCust) {
             //alert(kdCust);
-            var link = '@Url.Action("ShopeeUrl", "Shopee", new { cust = "replaceCust" })';
+            //var link = '@Url.Action("ShopeeUrl", "Shopee", new { cust = "replaceCust" })';
+            var link = '@Url.Action("ShopeeUrl_V2", "Shopee", new { cust = "replaceCust" })';
             link = link.replace("replaceCust", encodeURIComponent(kdCust));
 
             $.ajax({
