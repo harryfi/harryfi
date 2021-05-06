@@ -5329,6 +5329,47 @@ namespace MasterOnline.Controllers
             string uri = "https://partner.shopeemobile.com/api/v1/shop/auth_partner?id=" + Convert.ToString(MOPartnerID) + "&token=" + token + "&redirect=" + compUrl;
             return uri;
         }
+
+        [HttpGet]
+        public string ShopeeUrl_V2(string cust)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            string userId = "";
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+
+            if (sessionAccount != null)
+            {
+                userId = sessionAccountDatabasePathErasoft.ToString();
+            }
+            else
+            {
+                if (sessionUser != null)
+                {
+                    var userAccID = Convert.ToInt64(sessionUserAccountID);
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == userAccID);
+                    userId = accFromUser.DatabasePathErasoft;
+                }
+            }
+
+            string compUrl = shpCallbackUrl + userId + "_param_" + cust;
+            string token = CreateTokenAuthenShop(Convert.ToString(MOPartnerID), MOPartnerKey, compUrl);
+            var milis = CurrentTimeSecond();
+            string baseString = Convert.ToString(MOPartnerID) + "" + milis;
+            string uri = "https://partner.shopeemobile.com/api/v2/shop/auth_partner?partner_id=" + Convert.ToString(MOPartnerID) + "&sign=" + token 
+                + "&redirect=" + compUrl + "&timestamp=" + milis;
+            return uri;
+        }
         public enum StatusOrder
         {
             IN_CANCEL = 1,
@@ -5347,6 +5388,20 @@ namespace MasterOnline.Controllers
         }
 
         public string CreateTokenAuthenShop(string partnerID, string partnerKey, string redirectUrl)
+        {
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(partnerKey + redirectUrl));
+
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                return builder.ToString();
+            }
+        }
+        public string CreateSingAuthenShop_V2(string partnerID, string partnerKey, string redirectUrl)
         {
             using (SHA256 sha256Hash = SHA256.Create())
             {
