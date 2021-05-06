@@ -28,8 +28,10 @@ namespace MasterOnline.Controllers
         private static readonly DateTime Jan1st1970 = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);//string auth = Base64Encode();
 #if AWS
         string shpCallbackUrl = "https://masteronline.co.id/shp/code?user=";
+        string shpCallbackUrlV2 = "https://masteronline.co.id/shpv2/code?user=";
 #else
         string shpCallbackUrl = "https://dev.masteronline.co.id/shp/code?user=";
+        string shpCallbackUrlV2 = "https://dev.masteronline.co.id/shpv2/code?user=";
         //string shpCallbackUrl = "https://masteronline.my.id/shp/code?user=";
 #endif
 
@@ -5362,11 +5364,11 @@ namespace MasterOnline.Controllers
                 }
             }
 
-            string compUrl = shpCallbackUrl + userId + "_param_" + cust;
-            string token = CreateTokenAuthenShop(Convert.ToString(MOPartnerID), MOPartnerKey, compUrl);
+            string compUrl = shpCallbackUrlV2 + userId + "_param_" + cust;
             var milis = CurrentTimeSecond();
-            string baseString = Convert.ToString(MOPartnerID) + "" + milis;
-            string uri = "https://partner.shopeemobile.com/api/v2/shop/auth_partner?partner_id=" + Convert.ToString(MOPartnerID) + "&sign=" + token 
+            string baseString = Convert.ToString(MOPartnerID) + "/api/v2/shop/auth_partner" + milis;
+            var sign = CreateSingAuthenShop_V2(baseString);
+            string uri = "https://partner.shopeemobile.com/api/v2/shop/auth_partner?partner_id=" + Convert.ToString(MOPartnerID) + "&sign=" + sign 
                 + "&redirect=" + compUrl + "&timestamp=" + milis;
             return uri;
         }
@@ -5401,11 +5403,11 @@ namespace MasterOnline.Controllers
                 return builder.ToString();
             }
         }
-        public string CreateSingAuthenShop_V2(string partnerID, string partnerKey, string redirectUrl)
+        public string CreateSingAuthenShop_V2(string data)
         {
             using (SHA256 sha256Hash = SHA256.Create())
             {
-                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(partnerKey + redirectUrl));
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(data));
 
                 StringBuilder builder = new StringBuilder();
                 for (int i = 0; i < bytes.Length; i++)
