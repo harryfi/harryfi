@@ -1874,7 +1874,7 @@ namespace MasterOnline.Controllers
                 string path = "/api/v2/auth/token/get";
 
                 var baseString = MOPartnerID + path + seconds;
-                var sign = CreateSignAuthenShop_V2(baseString, MOPartnerID.ToString());
+                var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
 
                 string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds+"&sign=" + sign;
                 //ganti
@@ -5532,7 +5532,7 @@ namespace MasterOnline.Controllers
             string compUrl = shpCallbackUrlV2 + userId + "_param_" + cust;
             var milis = CurrentTimeSecond();
             string baseString = Convert.ToString(MOPartnerID) + "/api/v2/shop/auth_partner" + milis;
-            var sign = CreateSignAuthenShop_V2(baseString, Convert.ToString(MOPartnerID));
+            var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
             string uri = "https://partner.shopeemobile.com/api/v2/shop/auth_partner?partner_id=" + Convert.ToString(MOPartnerID) + "&sign=" + sign 
                 + "&redirect=" + compUrl + "&timestamp=" + milis;
             return uri;
