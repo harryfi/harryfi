@@ -1874,7 +1874,7 @@ namespace MasterOnline.Controllers
                 string path = "/api/v2/auth/token/get";
 
                 var baseString = MOPartnerID + path + seconds;
-                var sign = CreateSignAuthenShop_V2(baseString);
+                var sign = CreateSignAuthenShop_V2(baseString, MOPartnerID.ToString());
 
                 string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds+"&sign=" + sign;
                 //ganti
@@ -5532,7 +5532,7 @@ namespace MasterOnline.Controllers
             string compUrl = shpCallbackUrlV2 + userId + "_param_" + cust;
             var milis = CurrentTimeSecond();
             string baseString = Convert.ToString(MOPartnerID) + "/api/v2/shop/auth_partner" + milis;
-            var sign = CreateSignAuthenShop_V2(baseString);
+            var sign = CreateSignAuthenShop_V2(baseString, Convert.ToString(MOPartnerID));
             string uri = "https://partner.shopeemobile.com/api/v2/shop/auth_partner?partner_id=" + Convert.ToString(MOPartnerID) + "&sign=" + sign 
                 + "&redirect=" + compUrl + "&timestamp=" + milis;
             return uri;
@@ -5568,18 +5568,28 @@ namespace MasterOnline.Controllers
                 return builder.ToString();
             }
         }
-        public string CreateSignAuthenShop_V2(string data)
+        public string CreateSignAuthenShop_V2(string data, string secretKey)
         {
-            using (SHA256 sha256Hash = SHA256.Create())
-            {
-                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(data));
+            //using (SHA256 sha256Hash = SHA256.Create())
+            //{
+            //    byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(data));
 
-                StringBuilder builder = new StringBuilder();
-                for (int i = 0; i < bytes.Length; i++)
-                {
-                    builder.Append(bytes[i].ToString("x2"));
-                }
-                return builder.ToString();
+            //    StringBuilder builder = new StringBuilder();
+            //    for (int i = 0; i < bytes.Length; i++)
+            //    {
+            //        builder.Append(bytes[i].ToString("x2"));
+            //    }
+            //    return builder.ToString();
+            //}
+            secretKey = secretKey ?? "";
+            var encoding = new System.Text.ASCIIEncoding();
+            byte[] keyByte = encoding.GetBytes(secretKey);
+            byte[] messageBytes = encoding.GetBytes(data);
+            using (var hmacsha256 = new HMACSHA256(keyByte))
+            {
+                byte[] hashmessage = hmacsha256.ComputeHash(messageBytes);
+                return BitConverter.ToString(hashmessage).Replace("-", "").ToLower();
+                //return BitConverter.ToString(hashmessage).ToLower();
             }
         }
         private string CreateSign(string signBase, string secretKey)
