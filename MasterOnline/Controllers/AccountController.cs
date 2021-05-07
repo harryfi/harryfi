@@ -1346,7 +1346,8 @@ namespace MasterOnline.Controllers
 #endif
 
                     // proses reminder expired token
-                    if (!string.IsNullOrWhiteSpace(tblCustomer.TGL_EXPIRED.ToString()))
+                    //if (!string.IsNullOrWhiteSpace(tblCustomer.TGL_EXPIRED.ToString()))
+                    if (!string.IsNullOrWhiteSpace(tblCustomer.TGL_EXPIRED.ToString()) && (tblCustomer.KDHARGA ?? "") != "2")
                     {
                         var accFromMoDB = MoDbContext.Account.Single(a => a.DatabasePathErasoft == dbPathEra);
                         var connection_id_proses_checktoken = dbPathEra + "_proses_checktoken_expired_shopee_" + tblCustomer.CUST.ToString();

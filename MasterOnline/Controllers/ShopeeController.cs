@@ -1922,18 +1922,19 @@ namespace MasterOnline.Controllers
                 if (responseFromServer != null)
                 {
                     //temp
-                    var simpanResponse = new BUKALAPAK_TOKEN()
-                    {
-                        ACCOUNT = "test_auth_shopee",
-                        CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss"),
-                        VAR_1 = responseFromServer
-                    };
-                    MoDbContext.BUKALAPAK_TOKEN.Add(simpanResponse);
-                    MoDbContext.SaveChanges();
+                    //var simpanResponse = new BUKALAPAK_TOKEN()
+                    //{
+                    //    ACCOUNT = "test_auth_shopee",
+                    //    CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss"),
+                    //    VAR_1 = responseFromServer,
+                    //    CREATED_AT = DateTime.UtcNow.AddHours(7)
+                    //};
+                    //MoDbContext.BUKALAPAK_TOKEN.Add(simpanResponse);
+                    //MoDbContext.SaveChanges();
                     try
                     {
                         var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetTokenShopResult_V2)) as ShopeeGetTokenShopResult_V2;
-                        if (result.error == null && !string.IsNullOrWhiteSpace(result.ToString()))
+                        if (!string.IsNullOrWhiteSpace(result.error))
                         {
                             //if (result.authed_shops.Length > 0)
                             //{
@@ -1945,7 +1946,7 @@ namespace MasterOnline.Controllers
                             var dateExpired = DateTime.UtcNow.AddHours(7).AddSeconds(result.expire_in).ToString("yyyy-MM-dd HH:mm:ss");
 
                             DatabaseSQL EDB = new DatabaseSQL(dataAPI.DatabasePathErasoft);
-                            var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', Sort1_Cust = '" 
+                            var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', KD_ANALISA = '2', Sort1_Cust = '"
                                 + dataAPI.merchant_code + "', TGL_EXPIRED = '" + dateExpired + "', API_KEY = '" + dataAPI.API_secret_key
                                  + "', TOKEN = '" + result.access_token + "', REFRESH_TOKEN = '" + result.refresh_token
                                 + "' WHERE CUST = '" + dataAPI.no_cust + "'");
