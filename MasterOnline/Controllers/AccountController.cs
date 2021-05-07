@@ -1621,6 +1621,31 @@ namespace MasterOnline.Controllers
             {
                 foreach (ARF01 tblCustomer in listJDIDShop)
                 {
+                    //add by nurul 5/5/2021
+                    #region refresh token JD.ID versi 2
+
+                    if (tblCustomer.KD_ANALISA == "2")
+                    {
+                        JDIDControllerJob.JDIDAPIDataJob iden = new JDIDControllerJob.JDIDAPIDataJob();
+                        iden.merchant_code = tblCustomer.Sort1_Cust;
+                        iden.DatabasePathErasoft = dbPathEra;
+                        iden.username = username;
+                        iden.no_cust = tblCustomer.CUST;
+                        iden.tgl_expired = tblCustomer.TGL_EXPIRED;
+                        iden.appKey = tblCustomer.API_KEY;
+                        iden.appSecret = tblCustomer.API_CLIENT_U;
+                        iden.accessToken = tblCustomer.TOKEN;
+                        iden.refreshToken = tblCustomer.REFRESH_TOKEN;
+
+                        // proses cek dan get token
+#if (AWS || DEV)
+                    client.Enqueue<JDIDControllerJob>(x => x.GetTokenJDID(iden, false, false));
+#else
+                        Task.Run(() => new JDIDControllerJob().GetTokenJDID(iden, false, false)).Wait();
+#endif
+                    }
+                    #endregion refresh token JD.ID versi 2
+                    //end add by nurul 5/5/2021
 
                     string connId_JobId = "";
                     //add by fauzi 22 Juli 2020
@@ -1636,6 +1661,9 @@ namespace MasterOnline.Controllers
                         iden.nama_cust = tblCustomer.PERSO;
                         iden.email = tblCustomer.EMAIL;
                         iden.DatabasePathErasoft = dbPathEra;
+                        //add by nurul 4/5/2021, JDID versi 2
+                        iden.versi = tblCustomer.KD_ANALISA;
+                        //end add by nurul 4/5/2021, JDID versi 2
 
                         connId_JobId = dbPathEra + "_JDID_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<JDIDControllerJob>(x => x.JD_GetOrderByStatusPaid(iden, JDIDControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
@@ -1659,6 +1687,9 @@ namespace MasterOnline.Controllers
                         iden.nama_cust = tblCustomer.PERSO;
                         iden.email = tblCustomer.EMAIL;
                         iden.DatabasePathErasoft = dbPathEra;
+                        //add by nurul 4/5/2021, JDID versi 2
+                        iden.versi = tblCustomer.KD_ANALISA;
+                        //end add by nurul 4/5/2021, JDID versi 2
 
                         await new JDIDControllerJob().JD_GetOrderByStatusPaid(iden, JDIDControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
 
