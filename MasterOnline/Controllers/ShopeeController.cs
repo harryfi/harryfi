@@ -31,7 +31,7 @@ namespace MasterOnline.Controllers
         string shpCallbackUrlV2 = "https://masteronline.co.id/shp/v2/code?user=";
 #else
         string shpCallbackUrl = "https://dev.masteronline.co.id/shp/code?user=";
-        string shpCallbackUrlV2 = "http://localhost:50109/shp/v2/code?user=";
+        string shpCallbackUrlV2 = "https://dev.masteronline.co.id/shp/v2/code?user=";
         //string shpCallbackUrl = "https://masteronline.my.id/shp/code?user=";
 #endif
 
