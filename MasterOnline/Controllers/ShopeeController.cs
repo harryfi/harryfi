@@ -2009,14 +2009,14 @@ namespace MasterOnline.Controllers
                 long seconds = CurrentTimeSecond();
                 DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
-                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-                {
-                    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
-                    REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
-                    REQUEST_DATETIME = milisBack,
-                    REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
-                    REQUEST_STATUS = "Pending",
-                };
+                //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                //{
+                //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+                //    REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
+                //    REQUEST_DATETIME = milisBack,
+                //    REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
+                //    REQUEST_STATUS = "Pending",
+                //};
 
                 //ganti
                 string urll = "https://partner.shopeemobile.com";
@@ -2025,14 +2025,7 @@ namespace MasterOnline.Controllers
                 var baseString = MOPartnerID + path + seconds;
                 var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
 
-                string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds + "&sign=" + sign;
-                //ganti
-                //ShopeeGetTokenShop_V2 HttpBody = new ShopeeGetTokenShop_V2
-                //{
-                //    partner_id = MOPartnerID,
-                //    shop_id = Convert.ToInt32(dataAPI.merchant_code),
-                //    code = dataAPI.API_secret_key
-                //};
+                string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds + "&sign=" + sign;               
 
                 //string myData = JsonConvert.SerializeObject(HttpBody);
                 string myData = "{\"refresh_token\":\"" + dataAPI.refresh_token + "\",\"partner_id\":" + MOPartnerID + ",\"shop_id\":" + dataAPI.merchant_code + "}";
@@ -2059,13 +2052,22 @@ namespace MasterOnline.Controllers
                             responseFromServer = reader.ReadToEnd();
                         }
                     }
-                    currentLog.REQUEST_RESULT = "Process Get API Token Shopee";
-                    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
+                    //currentLog.REQUEST_RESULT = "Process Get API Token Shopee";
+                    //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
                 }
-                catch (Exception ex)
+                catch (WebException e)
                 {
-                    currentLog.REQUEST_EXCEPTION = ex.Message.ToString();
-                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
+                    string err = "";
+                    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                    if (e.Status == WebExceptionStatus.ProtocolError)
+                    {
+                        WebResponse resp = e.Response;
+                        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                        {
+                            err = sr.ReadToEnd();
+                        }
+                    }
                 }
 
                 if (responseFromServer != null)
@@ -2104,14 +2106,14 @@ namespace MasterOnline.Controllers
                                 + "' WHERE CUST = '" + dataAPI.no_cust + "'");
                             if (resultquery != 0)
                             {
-                                currentLog.REQUEST_RESULT = "Update Status API Complete";
-                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, dataAPI, currentLog);
+                                //currentLog.REQUEST_RESULT = "Update Status API Complete";
+                                //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, dataAPI, currentLog);
                             }
                             else
                             {
-                                currentLog.REQUEST_RESULT = "Update Status API Failed";
-                                currentLog.REQUEST_EXCEPTION = "Failed Update Table";
-                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, dataAPI, currentLog);
+                                //currentLog.REQUEST_RESULT = "Update Status API Failed";
+                                //currentLog.REQUEST_EXCEPTION = "Failed Update Table";
+                                //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, dataAPI, currentLog);
                             }
                             //        }
                             //    }
@@ -2121,23 +2123,23 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrWhiteSpace(result.message.ToString()))
                             {
-                                currentLog.REQUEST_EXCEPTION = result.message.ToString();
-                                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
+                                //currentLog.REQUEST_EXCEPTION = result.message.ToString();
+                                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        currentLog.REQUEST_EXCEPTION = ex.Message.ToString();
-                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
+                        //currentLog.REQUEST_EXCEPTION = ex.Message.ToString();
+                        //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
                     }
                 }
             }
             return ret;
         }
-        public async Task<string> GetKategoryShopee_V2(ShopeeAPIData dataAPI)
+        public async Task<string> GetCategoryShopee_V2(ShopeeAPIData dataAPI)
         {
-            dataAPI = await RefreshTokenShopee_V2(dataAPI, true);
+            dataAPI = await RefreshTokenShopee_V2(dataAPI, false);
             string ret = "";
             DateTime dateNow = DateTime.UtcNow.AddHours(7);
            
@@ -2155,9 +2157,10 @@ namespace MasterOnline.Controllers
                 var baseString = MOPartnerID + path + seconds + dataAPI.token + dataAPI.merchant_code;
                 var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
 
-                string param = "?language=id";
+                string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds + "&access_token=" + dataAPI.token 
+                    + "&shop_id=" + dataAPI.merchant_code + "&sign=" + sign +"&language=id";
                 
-                string myData = "{\"refresh_token\":\"" + dataAPI.refresh_token + "\",\"partner_id\":" + MOPartnerID + ",\"shop_id\":" + dataAPI.merchant_code + "}";
+                //string myData = "{\"refresh_token\":\"" + dataAPI.refresh_token + "\",\"partner_id\":" + MOPartnerID + ",\"shop_id\":" + dataAPI.merchant_code + "}";
                 
                 HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
                 myReq.Method = "GET";
@@ -2197,22 +2200,76 @@ namespace MasterOnline.Controllers
 
                 if (responseFromServer != null)
                 {
-                    try
+
+                    if (responseFromServer != null)
                     {
-                        //var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetTokenShopResult_V2)) as ShopeeGetTokenShopResult_V2;
-                        //if (string.IsNullOrWhiteSpace(result.error))
-                        //{
-                            
-                        //}
-                        //else
-                        //{
-                        //    if (!string.IsNullOrWhiteSpace(result.message.ToString()))
-                        //    {
-                        //    }
-                        //}
-                    }
-                    catch (Exception ex)
-                    {
+                        try
+                        {
+                            var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetCategoryResult_V2)) as ShopeeGetCategoryResult_V2;
+#if AWS
+                    string con = "Data Source=172.31.20.192;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#elif Debug_AWS
+                    string con = "Data Source=54.151.175.62, 12354;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#elif DEV
+                            string con = "Data Source=172.31.20.73;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#else
+                            string con = "Data Source=54.151.175.62, 45650;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#endif
+
+                            using (SqlConnection oConnection = new SqlConnection(con))
+                            {
+                                oConnection.Open();
+                                //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+                                //{
+                                using (SqlCommand oCommand = oConnection.CreateCommand())
+                                {
+                                    oCommand.CommandText = "DELETE FROM [CATEGORY_SHOPEE_V2]";
+                                    oCommand.ExecuteNonQuery();
+                                    //oCommand.Transaction = oTransaction;
+                                    oCommand.CommandType = CommandType.Text;
+                                    oCommand.CommandText = "INSERT INTO [CATEGORY_SHOPEE_V2] ([CATEGORY_CODE], [CATEGORY_NAME], [PARENT_CODE], [IS_LAST_NODE], [MASTER_CATEGORY_CODE]) VALUES (@CATEGORY_CODE, @CATEGORY_NAME, @PARENT_CODE, @IS_LAST_NODE, @MASTER_CATEGORY_CODE)";
+                                    //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
+                                    oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
+                                    oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
+                                    oCommand.Parameters.Add(new SqlParameter("@PARENT_CODE", SqlDbType.NVarChar, 50));
+                                    oCommand.Parameters.Add(new SqlParameter("@IS_LAST_NODE", SqlDbType.NVarChar, 1));
+                                    oCommand.Parameters.Add(new SqlParameter("@MASTER_CATEGORY_CODE", SqlDbType.NVarChar, 50));
+
+                                    try
+                                    {
+                                        //foreach (var item in result.categories.Where(P => P.parent_id == 0)) //foreach parent level top
+                                        foreach (var item in result.response.category_list) //foreach parent level top
+                                        {
+                                            oCommand.Parameters[0].Value = item.category_id;
+                                            oCommand.Parameters[1].Value = item.display_category_name;
+                                            oCommand.Parameters[2].Value = item.parent_category_id == 0 ? "" : item.parent_category_id.ToString();
+                                            oCommand.Parameters[3].Value = item.has_children ? "0" : "1";
+                                            oCommand.Parameters[4].Value = "";
+                                            if (oCommand.ExecuteNonQuery() > 0)
+                                            {
+                                                //if (item.has_children)
+                                                //{
+                                                //    RecursiveInsertCategory(oCommand, result.categories, item.category_id, item.category_id);
+                                                //}
+                                            }
+                                            else
+                                            {
+
+                                            }
+                                        }
+                                        //oTransaction.Commit();
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        //oTransaction.Rollback();
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex2)
+                        {
+
+                        }
                     }
                 }
             }
@@ -6190,13 +6247,37 @@ namespace MasterOnline.Controllers
             public ShopeeGetCategoryCategory[] categories { get; set; }
             public string request_id { get; set; }
         }
+        public class ShopeeGetCategoryResult_V2 : ShopeeDefaultResponse_V2
+        {
+            public ListCategoryShopee response { get; set; }
+        }
+        public class ListCategoryShopee
+        {
+            public ShopeeGetCategoryCategory_V2[] category_list { get; set; }
 
+        }
+        public class ShopeeDefaultResponse_V2
+        {
+            public string error { get; set; }
+            public string message { get; set; }
+            public string warning { get; set; }
+            public string request_id { get; set; }
+
+        }
         public class ShopeeGetCategoryCategory
         {
             public long parent_id { get; set; }
             public bool has_children { get; set; }
             public long category_id { get; set; }
             public string category_name { get; set; }
+        }
+        public class ShopeeGetCategoryCategory_V2
+        {
+            public long parent_category_id { get; set; }
+            public bool has_children { get; set; }
+            public long category_id { get; set; }
+            public string original_category_name { get; set; }
+            public string display_category_name { get; set; }
         }
 
         public class ShopeeGetAttributeResult

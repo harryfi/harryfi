@@ -257,7 +257,7 @@ namespace MasterOnline.Controllers
             {
                 dbPathEra = _viewModel.Account.DatabasePathErasoft;
                 //dbSourceEra = _viewModel.Account.DataSourcePath;
-#if (Debug_AWS)
+#if (DEBUG || Debug_AWS)
                 dbSourceEra = _viewModel.Account.DataSourcePathDebug;
 #else
                 dbSourceEra = _viewModel.Account.DataSourcePath;
@@ -274,7 +274,7 @@ namespace MasterOnline.Controllers
                 var accFromUser = MoDbContext.Account.Single(a => a.AccountId == _viewModel.User.AccountId);
                 dbPathEra = accFromUser.DatabasePathErasoft;
                 //dbSourceEra = accFromUser.DataSourcePath;
-#if (Debug_AWS)
+#if (DEBUG || Debug_AWS)
                 dbSourceEra = accFromUser.DataSourcePathDebug;
 #else
                 dbSourceEra = accFromUser.DataSourcePath;
@@ -541,7 +541,7 @@ namespace MasterOnline.Controllers
             {
                 dbPathEra = _viewModel.Account.DatabasePathErasoft;
                 //dbSourceEra = _viewModel.Account.DataSourcePath;
-#if (Debug_AWS)
+#if (DEBUG || Debug_AWS)
                 dbSourceEra = _viewModel.Account.DataSourcePathDebug;
 #else
                 dbSourceEra = _viewModel.Account.DataSourcePath;
@@ -559,7 +559,7 @@ namespace MasterOnline.Controllers
                 var accFromUser = MoDbContext.Account.Single(a => a.AccountId == _viewModel.User.AccountId);
                 dbPathEra = accFromUser.DatabasePathErasoft;
                 //dbSourceEra = accFromUser.DataSourcePath;
-#if (Debug_AWS)
+#if (DEBUG || Debug_AWS)
                 dbSourceEra = accFromUser.DataSourcePathDebug;
 #else
                 dbSourceEra = accFromUser.DataSourcePath;
