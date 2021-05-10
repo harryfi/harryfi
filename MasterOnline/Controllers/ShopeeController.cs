@@ -1983,6 +1983,241 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+
+        public async Task<ShopeeAPIData> RefreshTokenShopee_V2(ShopeeAPIData dataAPI, bool bForceRefresh)
+        {
+            ShopeeAPIData ret = dataAPI;
+            DateTime dateNow = DateTime.UtcNow.AddHours(7);
+            bool TokenExpired = false;
+            if (!string.IsNullOrWhiteSpace(dataAPI.tgl_expired.ToString()))
+            {
+                if (dateNow >= dataAPI.tgl_expired)
+                {
+                    TokenExpired = true;
+                }
+            }
+            else
+            {
+                TokenExpired = true;
+            }
+
+            if (TokenExpired || bForceRefresh)
+            {
+                int MOPartnerID = 841371;
+                string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+
+                long seconds = CurrentTimeSecond();
+                DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                {
+                    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+                    REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
+                    REQUEST_DATETIME = milisBack,
+                    REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
+                    REQUEST_STATUS = "Pending",
+                };
+
+                //ganti
+                string urll = "https://partner.shopeemobile.com";
+                string path = "/api/v2/auth/access_token/get";
+
+                var baseString = MOPartnerID + path + seconds;
+                var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
+
+                string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds + "&sign=" + sign;
+                //ganti
+                //ShopeeGetTokenShop_V2 HttpBody = new ShopeeGetTokenShop_V2
+                //{
+                //    partner_id = MOPartnerID,
+                //    shop_id = Convert.ToInt32(dataAPI.merchant_code),
+                //    code = dataAPI.API_secret_key
+                //};
+
+                //string myData = JsonConvert.SerializeObject(HttpBody);
+                string myData = "{\"refresh_token\":\"" + dataAPI.refresh_token + "\",\"partner_id\":" + MOPartnerID + ",\"shop_id\":" + dataAPI.merchant_code + "}";
+                //string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
+                myReq.Method = "POST";
+                //myReq.Headers.Add("Authorization", signature);
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                string responseFromServer = "";
+                try
+                {
+                    myReq.ContentLength = myData.Length;
+                    using (var dataStream = myReq.GetRequestStream())
+                    {
+                        dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                    }
+                    using (WebResponse response = await myReq.GetResponseAsync())
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                        }
+                    }
+                    currentLog.REQUEST_RESULT = "Process Get API Token Shopee";
+                    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
+                }
+                catch (Exception ex)
+                {
+                    currentLog.REQUEST_EXCEPTION = ex.Message.ToString();
+                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
+                }
+
+                if (responseFromServer != null)
+                {
+                    //temp
+                    //var simpanResponse = new BUKALAPAK_TOKEN()
+                    //{
+                    //    ACCOUNT = "test_auth_shopee",
+                    //    CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss"),
+                    //    VAR_1 = responseFromServer,
+                    //    CREATED_AT = DateTime.UtcNow.AddHours(7)
+                    //};
+                    //MoDbContext.BUKALAPAK_TOKEN.Add(simpanResponse);
+                    //MoDbContext.SaveChanges();
+                    try
+                    {
+                        var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetTokenShopResult_V2)) as ShopeeGetTokenShopResult_V2;
+                        if (string.IsNullOrWhiteSpace(result.error))
+                        {
+                            dataAPI.token = result.access_token;
+                            dataAPI.refresh_token = result.refresh_token;
+                            dataAPI.tgl_expired = DateTime.UtcNow.AddHours(7).AddSeconds(result.expire_in);
+                            //if (result.authed_shops.Length > 0)
+                            //{
+                            //    foreach (var item in result.authed_shops)
+                            //    {
+                            //        if (item.shopid.ToString() == dataAPI.merchant_code.ToString())
+                            //        {
+                            //var dateExpired = DateTimeOffset.FromUnixTimeSeconds(result.expire_in).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                            var dateExpired = DateTime.UtcNow.AddHours(7).AddSeconds(result.expire_in).ToString("yyyy-MM-dd HH:mm:ss");
+
+                            DatabaseSQL EDB = new DatabaseSQL(dataAPI.DatabasePathErasoft);
+                            var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', KD_ANALISA = '2', Sort1_Cust = '"
+                                + dataAPI.merchant_code + "', TGL_EXPIRED = '" + dateExpired + "', API_KEY = '" + dataAPI.API_secret_key
+                                 + "', TOKEN = '" + result.access_token + "', REFRESH_TOKEN = '" + result.refresh_token
+                                + "' WHERE CUST = '" + dataAPI.no_cust + "'");
+                            if (resultquery != 0)
+                            {
+                                currentLog.REQUEST_RESULT = "Update Status API Complete";
+                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, dataAPI, currentLog);
+                            }
+                            else
+                            {
+                                currentLog.REQUEST_RESULT = "Update Status API Failed";
+                                currentLog.REQUEST_EXCEPTION = "Failed Update Table";
+                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, dataAPI, currentLog);
+                            }
+                            //        }
+                            //    }
+                            //}
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrWhiteSpace(result.message.ToString()))
+                            {
+                                currentLog.REQUEST_EXCEPTION = result.message.ToString();
+                                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        currentLog.REQUEST_EXCEPTION = ex.Message.ToString();
+                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
+                    }
+                }
+            }
+            return ret;
+        }
+        public async Task<string> GetKategoryShopee_V2(ShopeeAPIData dataAPI)
+        {
+            dataAPI = await RefreshTokenShopee_V2(dataAPI, true);
+            string ret = "";
+            DateTime dateNow = DateTime.UtcNow.AddHours(7);
+           
+            {
+                int MOPartnerID = 841371;
+                string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+
+                long seconds = CurrentTimeSecond();
+                DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+                //ganti
+                string urll = "https://partner.shopeemobile.com";
+                string path = "/api/v2/product/get_category";
+
+                var baseString = MOPartnerID + path + seconds + dataAPI.token + dataAPI.merchant_code;
+                var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
+
+                string param = "?language=id";
+                
+                string myData = "{\"refresh_token\":\"" + dataAPI.refresh_token + "\",\"partner_id\":" + MOPartnerID + ",\"shop_id\":" + dataAPI.merchant_code + "}";
+                
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
+                myReq.Method = "GET";
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                string responseFromServer = "";
+                try
+                {
+                    //myReq.ContentLength = myData.Length;
+                    //using (var dataStream = myReq.GetRequestStream())
+                    //{
+                    //    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                    //}
+                    using (WebResponse response = await myReq.GetResponseAsync())
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                        }
+                    }
+                }
+                catch (WebException e)
+                {
+                    string err = "";
+                    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                    if (e.Status == WebExceptionStatus.ProtocolError)
+                    {
+                        WebResponse resp = e.Response;
+                        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                        {
+                            err = sr.ReadToEnd();
+                        }
+                    }
+                }
+
+                if (responseFromServer != null)
+                {
+                    try
+                    {
+                        //var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetTokenShopResult_V2)) as ShopeeGetTokenShopResult_V2;
+                        //if (string.IsNullOrWhiteSpace(result.error))
+                        //{
+                            
+                        //}
+                        //else
+                        //{
+                        //    if (!string.IsNullOrWhiteSpace(result.message.ToString()))
+                        //    {
+                        //    }
+                        //}
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+                }
+            }
+            return ret;
+        }
         public async Task<string> GetAttribute(ShopeeAPIData iden)
         {
             int MOPartnerID = 841371;
@@ -5744,6 +5979,7 @@ namespace MasterOnline.Controllers
             public string username { get; set; }
             public string no_cust { get; set; }
             public DateTime? tgl_expired { get; set; }
+            public string refresh_token { get; set; }//add for api v2
         }
         public class ShopeeGetAttributeData
         {
