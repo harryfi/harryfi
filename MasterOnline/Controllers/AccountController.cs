@@ -1338,12 +1338,14 @@ namespace MasterOnline.Controllers
                     iden2.no_cust = tblCustomer.CUST;
                     iden2.tgl_expired = tblCustomer.TGL_EXPIRED;
 
+                    //remark, tidak perlu cek detail toko
                     // proses cek dan get token
-#if (AWS || DEV)
-                    client.Enqueue<ShopeeControllerJob>(x => x.GetTokenShopee(iden, false));
-#else
-                    Task.Run(() => new ShopeeControllerJob().GetTokenShopee(iden, false)).Wait();
-#endif
+                    //#if (AWS || DEV)
+                    //                    client.Enqueue<ShopeeControllerJob>(x => x.GetTokenShopee(iden, false));
+                    //#else
+                    //                    Task.Run(() => new ShopeeControllerJob().GetTokenShopee(iden, false)).Wait();
+                    //#endif
+                    //end remark, tidak perlu cek detail toko
 
                     // proses reminder expired token
                     //if (!string.IsNullOrWhiteSpace(tblCustomer.TGL_EXPIRED.ToString()))
