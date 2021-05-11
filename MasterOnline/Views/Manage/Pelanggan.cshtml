@@ -1491,13 +1491,14 @@
                     <h4>2. Pilih menu Console.</h4>
                     <h4>3. Isi form Registration, centang agreement, lalu klik tombol Register</h4>
                     <h4>4. Klik tombol Create App.</h4>
-                    <h4>4. Klik tanda panah bawah pada baris Seller to JD.</h4>
-                    <h4>5. Klik tombol Create App pada baris Normal seller standard API.</h4>
-                    <h4>6. Ketik nama toko Anda dan klik tombol Submit.</h4>
-                    <h4>7. Pada kotak App toko Anda, jika sudah bertanda approve, klik App Management.</h4>
-                    <h4>8. Pada menu samping App Overview, akan tertera AppKey dan App Secret. Klik View untuk melihat App Sercet.</h4>
-                    <h4>9. Pada menu samping App Setting, isi App Name dengan nama toko Anda dan Callback URL dengan https://masteronline.co.id/jdid/auth?shop_id= (Tambahkan Shop ID Anda disini) \n Untuk mendapatkan data Shop ID Anda, login akun JD.ID anda pada web : https://seller.jd.id/login , buka menu My Shop => Shop Information.</h4>
-                    <h4>10. Klik Save.</h4>
+                    <h4>5. Klik tanda panah bawah pada baris Seller to JD.</h4>
+                    <h4>6. Klik tombol Create App pada baris Normal seller standard API.</h4>
+                    <h4>7. Ketik nama toko Anda dan klik tombol Submit.</h4>
+                    <h4>8. Pada kotak App toko Anda, jika sudah bertanda approve, klik App Management.</h4>
+                    <h4>9. Pada menu samping App Overview, akan tertera AppKey dan App Secret. Klik View untuk melihat App Sercet.</h4>
+                    <h4>10. Pada menu samping App Setting, isi App Name dengan nama toko Anda dan Callback URL dengan https://masteronline.co.id/jdid/auth?shop_id= (Tambahkan Shop ID Anda disini)</h4>
+                    <h4>    Untuk mendapatkan data Shop ID Anda, login akun JD.ID anda pada web : https://seller.jd.id/login , buka menu My Shop => Shop Information.</h4>
+                    <h4>11. Klik Save.</h4>
                 </div>
             </div>
             <div class="modal-footer">
@@ -1962,6 +1963,28 @@
                                     showHideBlibliForm(false);
                                 }
                                 //unremark by nurul 25/3/2019
+                                if (@jd == value) {
+                                    showHideJDForm(true);
+                                    //$('#JDAppSecret').show();
+                                    //$('#JDAccessToken').show();
+                                    //$('#divAPIKey').show();
+                                    if ($('#Customers_KD_ANALISA').val() == "2") {
+                                        $('#JDAppSecret').show();
+                                        $('#JDShopId').show();
+                                        $('#JDAccessToken').hide();
+                                        $('#divAPIKey').show();
+                                    } else {
+                                        $('#JDAppSecret').show();
+                                        $('#JDShopId').hide();
+                                        $('#JDAccessToken').show();
+                                        $('#divAPIKey').show();
+                                    }
+                                    getVersiJDID($('#Customers_KD_ANALISA').val());
+                                    lblDesc.innerText = "APP key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.";
+                                } else {
+                                    showHideJDForm(false);
+                                    lblDesc.innerText = "API key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.";
+                                }
                                 if (@tokped == value) {
                                     showHideTokpedForm(true);
                                     //add by fauzi 23 Januari 2020
@@ -1992,28 +2015,7 @@
                                     $('#descAPIKey').show();
                                     $('#descAPIKey2').show();
                                 }
-                                if (@jd == value) {
-                                    showHideJDForm(true);
-                                    //$('#JDAppSecret').show();
-                                    //$('#JDAccessToken').show();
-                                    //$('#divAPIKey').show();
-                                    if ($('#Customers_KD_ANALISA').val() == "2") {
-                                        $('#JDAppSecret').show();
-                                        $('#JDShopId').show();
-                                        $('#JDAccessToken').hide();
-                                        $('#divAPIKey').show();
-                                    } else {
-                                        $('#JDAppSecret').show();
-                                        $('#JDShopId').hide();
-                                        $('#JDAccessToken').show();
-                                        $('#divAPIKey').show();
-                                    }
-                                    getVersiJDID($('#Customers_KD_ANALISA').val());
-                                    lblDesc.innerText = "APP key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.";
-                                } else {
-                                    showHideJDForm(false);
-                                    lblDesc.innerText = "API key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.";
-                                }
+                                
                                 //end unremark by nurul 25/3/2019
 
                                 //end add by Tri, remove/append api_key
