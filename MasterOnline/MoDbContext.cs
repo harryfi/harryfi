@@ -138,7 +138,22 @@ namespace MasterOnline
         }
         //end add by nurul 21/12/2020, khusus proses akhir tahun
 
-#elif (DEV || DEBUG)
+#elif (DEV)
+        public MoDbContext(string dbSourceEra)
+             : base($"Server=172.31.20.73, 1433;initial catalog=MO;" +
+                    $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
+                    $"application name=EntityFramework")
+        {
+        }
+        
+        public MoDbContext(string dbSourceEra, string dbSourceEra2)
+            : base($"Server=" + dbSourceEra2 + ";initial catalog=MO;" +
+                   $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
+                   $"application name=EntityFramework")
+        {
+        }
+
+#elif (DEBUG)
         //remark by fauzi for testing REDIS elasticache AWS 26/01/2021
         //public MoDbContext(string dbSourceEra)
         //     : base($"Server=13.251.222.53, 1433;initial catalog=MO;" +
@@ -147,7 +162,7 @@ namespace MasterOnline
         //{
         //}
         public MoDbContext(string dbSourceEra)
-             : base($"Server=54.151.175.62, 12350;initial catalog=MO;" +
+             : base($"Server=54.151.175.62, 45650;initial catalog=MO;" +
                     $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
                     $"application name=EntityFramework")
         {

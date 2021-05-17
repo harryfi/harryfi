@@ -6331,6 +6331,8 @@ namespace MasterOnline.Controllers
             public string name { get; set; }
             public List<string> options { get; set; }
             public bool variantCreation { get; set; }
+            public bool mandatory { get; set; }
+            public bool skuValue { get; set; }
         }
 
 
@@ -6464,6 +6466,369 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
+
+        //add by nurul 10/5/2021, limit blibli
+        public string GetCategoryTreeV2(BlibliAPIData data)
+        {
+            //HASIL MEETING : SIMPAN CATEGORY DAN ATTRIBUTE NYA KE DATABASE MO
+            //INSERT JIKA CATEGORY_CODE UTAMA BELUM ADA DI MO
+            EDB = new DatabaseSQL(data.DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+#if AWS
+                        string con = "Data Source=172.31.20.192;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#elif Debug_AWS
+                        string con = "Data Source=54.151.175.62\\SQLEXPRESS,12354;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#elif DEV
+                        string con = "Data Source=172.31.20.73;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#elif DEBUG
+            string con = "Data Source=54.151.175.62\\SQLEXPRESS,45650;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#endif
+            using (SqlConnection oConnection = new SqlConnection(con))
+            {
+                oConnection.Open();
+            }
+
+            string ret = "1";
+
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
+            string userMTA = data.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = data.mta_password_password_merchant;//<-- pass merchant
+
+            //add by nurul 13/7/2020
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getCategory?";
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            //end add by nurul 13/7/2020
+
+            //change by nurul 13/7/2020
+            if (data.versiToken != "2")
+            {
+                string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getCategory", data.API_secret_key);
+                urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getCategory?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&channelId=MasterOnline";
+
+
+                myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("bearer " + data.token));
+                myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+                myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("requestId", milis.ToString());
+                myReq.Headers.Add("sessionId", milis.ToString());
+                myReq.Headers.Add("username", userMTA);
+            }
+            else
+            {
+                string usernameMO = data.API_client_username;
+                //string passMO = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk";
+                string passMO = data.API_client_password;
+                urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getCategory?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&channelId=MasterOnline";
+
+                myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(usernameMO + ":" + passMO))));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("Api-Seller-Key", data.API_secret_key.ToString());
+                myReq.Headers.Add("Signature-Time", milis.ToString());
+            }
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ret = "0";
+            }
+
+            //Stream dataStream = myReq.GetRequestStream();
+            //WebResponse response = myReq.GetResponse();
+            //dataStream = response.GetResponseStream();
+            //StreamReader reader = new StreamReader(dataStream);
+            //string responseFromServer = reader.ReadToEnd();
+            //dataStream.Close();
+            //response.Close();
+
+            // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
+            //cek refreshToken
+            if (responseFromServer != "")
+            {
+                dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                if (string.IsNullOrEmpty(result.errorCode.Value))
+                {
+                    if (result.content.Count > 0)
+                    {
+                        var successInsert = false;
+                        using (SqlConnection oConnection = new SqlConnection(con))
+                        //using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                        {
+                            oConnection.Open();
+                            //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+                            //{
+                            using (SqlCommand oCommand = oConnection.CreateCommand())
+                            {
+                                //oCommand.CommandText = "DELETE FROM [CATEGORY_BLIBLI] WHERE ARF01_SORT1_CUST='" + data.merchant_code + "'";
+                                //oCommand.ExecuteNonQuery();
+                                //oCommand.Transaction = oTransaction;
+                                oCommand.CommandText = "DELETE FROM [CATEGORY_BLIBLI]";
+                                oCommand.ExecuteNonQuery();
+
+                                oCommand.CommandType = CommandType.Text;
+                                oCommand.CommandText = "INSERT INTO [CATEGORY_BLIBLI] ([CATEGORY_CODE], [CATEGORY_NAME], [PARENT_CODE], [IS_LAST_NODE], [MASTER_CATEGORY_CODE]) VALUES (@CATEGORY_CODE, @CATEGORY_NAME, @PARENT_CODE, @IS_LAST_NODE, @MASTER_CATEGORY_CODE)";
+                                //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
+                                oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
+                                oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
+                                oCommand.Parameters.Add(new SqlParameter("@PARENT_CODE", SqlDbType.NVarChar, 50));
+                                oCommand.Parameters.Add(new SqlParameter("@IS_LAST_NODE", SqlDbType.NVarChar, 1));
+                                oCommand.Parameters.Add(new SqlParameter("@MASTER_CATEGORY_CODE", SqlDbType.NVarChar, 50));
+
+                                try
+                                {
+                                    //oCommand.Parameters[0].Value = data.merchant_code;
+                                    foreach (var item in result.content) //foreach parent level top
+                                    {
+                                        oCommand.Parameters[0].Value = item.categoryCode.Value;
+                                        oCommand.Parameters[1].Value = item.categoryName.Value;
+                                        oCommand.Parameters[2].Value = "";
+                                        oCommand.Parameters[3].Value = item.children == null ? "1" : "0";
+                                        oCommand.Parameters[4].Value = "";
+                                        if (oCommand.ExecuteNonQuery() == 1)
+                                        {
+                                            if (item.children != null)
+                                            {
+                                                RecursiveInsertCategory(oCommand, item.children, item.categoryCode.Value, item.categoryCode.Value, data);
+                                            }
+                                            //throw new InvalidProgramException();
+                                            //string getCatCode = Convert.ToString(item.categoryCode.Value);
+                                            //var CategoryBlibli = MoDbContext.CategoryBlibli.Where(k => k.CATEGORY_CODE == getCatCode).FirstOrDefault();
+                                            //var listAttributeBlibli = await GetAttributeToListV2(data, CategoryBlibli);
+                                            successInsert = true;
+                                        }
+                                    }
+                                    //oTransaction.Commit();
+                                }
+                                catch (Exception ex)
+                                {
+                                    //oTransaction.Rollback();
+                                    successInsert = false;
+                                }
+                            }
+                            //}
+                        }
+                        //await GetAttributeToListV2(data);
+                        if (successInsert)
+                        {
+                            MoDbContext = new MoDbContext("");
+                            var ListCategory = MoDbContext.CategoryBlibli.ToList();
+                            foreach (var cat in ListCategory)
+                            {
+                                var listAttributeBlibli = GetAttributeToListV2(data, cat);
+                            }
+                        }
+                        else
+                        {
+                            ret = "0";
+                        }
+                    }
+                    else
+                    {
+                        ret = "0";
+                    }
+                }
+                else
+                {
+                    ret = "0";
+                }
+            }
+            else
+            {
+                ret = "0";
+            }
+
+            return ret;
+        }
+
+        public ATTRIBUTE_BLIBLI_AND_OPT_New GetAttributeToListV2(BlibliAPIData data, CATEGORY_BLIBLI category)
+        {
+            MoDbContext = new MoDbContext("");
+            //var category = MoDbContext.CategoryBlibli.Where(p => p.IS_LAST_NODE.Equals("1")).ToList();
+            //string ret = "";
+            ATTRIBUTE_BLIBLI_AND_OPT_New ret = new ATTRIBUTE_BLIBLI_AND_OPT_New();
+            //foreach (var item in category)
+            //{
+            string categoryCode = category.CATEGORY_CODE;
+            string categoryName = category.CATEGORY_NAME;
+            //    string categoryCode = "3 -1000001";
+            //string categoryName = "3 Kamar +";
+
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
+            string userMTA = data.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = data.mta_password_password_merchant;//<-- pass merchant
+
+            //add by nurul 13/7/2020
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getCategoryAttributes?";
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            //end add by nurul 13/7/2020
+
+            //change by nurul 13/7/2020
+            if (data.versiToken != "2")
+            {
+                string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getCategoryAttributes", data.API_secret_key);
+                urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getCategoryAttributes?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&categoryCode=" + Uri.EscapeDataString(categoryCode) + "&channelId=MasterOnline";
+                //string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/getCategoryAttributes", data.API_secret_key);
+                //    string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/getCategoryAttributes?requestId=" + milis + "&businessPartnerCode=" + data.merchant_code + "&categoryCode=" + categoryCode;
+
+                myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("bearer " + data.token));
+                myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+                myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("requestId", milis.ToString());
+                myReq.Headers.Add("sessionId", milis.ToString());
+                myReq.Headers.Add("username", userMTA);
+            }
+            else
+            {
+                string usernameMO = data.API_client_username;
+                //string passMO = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk";
+                string passMO = data.API_client_password;
+                urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getCategoryAttributes?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&categoryCode=" + Uri.EscapeDataString(categoryCode) + "&channelId=MasterOnline";
+
+                myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(usernameMO + ":" + passMO))));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("Api-Seller-Key", data.API_secret_key.ToString());
+                myReq.Headers.Add("Signature-Time", milis.ToString());
+            }
+            //end change by nurul 13/7/2020
+
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            //Stream dataStream = myReq.GetRequestStream();
+            //WebResponse response = myReq.GetResponse();
+            //dataStream = response.GetResponseStream();
+            //StreamReader reader = new StreamReader(dataStream);
+            //string responseFromServer = reader.ReadToEnd();
+            //dataStream.Close();
+            //response.Close();
+
+            // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
+            //cek refreshToken
+            if (responseFromServer != "")
+            {
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(GetAttributeBlibliResult)) as GetAttributeBlibliResult;
+                if (string.IsNullOrEmpty(Convert.ToString(result.errorCode)))
+                {
+                    if (result.value.attributes.Count() > 0)
+                    {
+                        ATTRIBUTE_BLIBLI returnData = new ATTRIBUTE_BLIBLI();
+                        int i = 0;
+                        string a = "";
+                        foreach (var attribs in result.value.attributes)
+                        {
+                            a = Convert.ToString(i + 1);
+                            returnData.CATEGORY_CODE = category.CATEGORY_CODE;
+                            returnData.CATEGORY_NAME = category.CATEGORY_NAME;
+
+                            //sSQL += "[ACODE_" + a + "],[ATYPE_" + a + "],[ANAME_" + a + "],[AOPTIONS_" + a + "],";
+                            //oCommand.Parameters[(i * 4) + 2].Value = result.value.attributes[i].attributeCode.Value;
+                            //oCommand.Parameters[(i * 4) + 3].Value = result.value.attributes[i].attributeType.Value;
+                            //oCommand.Parameters[(i * 4) + 4].Value = result.value.attributes[i].name.Value;
+                            //oCommand.Parameters[(i * 4) + 5].Value = result.value.attributes[i].options.Count > 0 ? "1" : "0";
+                            returnData["ACODE_" + a] = Convert.ToString(attribs.attributeCode);
+                            returnData["ATYPE_" + a] = Convert.ToString(attribs.attributeType);
+                            returnData["ANAME_" + a] = Convert.ToString(attribs.name);
+                            returnData["AOPTIONS_" + a] = attribs.options.Count > 0 ? "1" : "0";
+                            //returnData["AOPTIONS_" + a] = attribs.attributeType != "DESCRIPTIVE_ATTRIBUTE" ? "1" : "0";
+                            returnData["AMANDATORY_" + a] = attribs.mandatory ? "1" : "0";
+                            returnData["AVARCREATE_" + a] = attribs.variantCreation ? "1" : "0";
+                            returnData["ASKUVALUE_" + a] = attribs.skuValue ? "1" : "0";
+
+                            if (attribs.options.Count() > 0)
+                            {
+                                var optList = attribs.options.ToList();
+                                var listOpt = optList.Select(x => new ATTRIBUTE_OPT_BLIBLI(attribs.attributeCode.ToString(), attribs.attributeType.ToString(), attribs.name.ToString(), x)).ToList();
+                                ret.attribute_opt.AddRange(listOpt);
+                            }
+                            i = i + 1;
+                        }
+                        ret.attributes.Add(returnData);
+                        try
+                        {
+                            var getAttributeOld = MoDbContext.AttributeBlibli.Where(b => b.CATEGORY_CODE == categoryCode).ToList();
+                            if (getAttributeOld.Count() > 0)
+                            {
+                                MoDbContext.AttributeBlibli.RemoveRange(getAttributeOld);
+                                MoDbContext.SaveChanges();
+                            }
+                            MoDbContext.AttributeBlibli.AddRange(ret.attributes);
+                            MoDbContext.SaveChanges();
+                            var getAttribute = MoDbContext.AttributeBlibli.Where(b => b.CATEGORY_CODE == categoryCode).ToList();
+                            var listAttributeOpt = new List<ATTRIBUTE_OPT_BLIBLI>();
+                            foreach (var attr in getAttribute)
+                            {
+                                var getAttributeOpt = MoDbContext.AttributeOptBlibli.Where(b => b.ACODE == attr.ACODE_1 || b.ACODE == attr.ACODE_2 || b.ACODE == attr.ACODE_3 || b.ACODE == attr.ACODE_4 || b.ACODE == attr.ACODE_5 || b.ACODE == attr.ACODE_6 || b.ACODE == attr.ACODE_7 || b.ACODE == attr.ACODE_8 || b.ACODE == attr.ACODE_9 || b.ACODE == attr.ACODE_10 ||
+                                                                                                b.ACODE == attr.ACODE_11 || b.ACODE == attr.ACODE_12 || b.ACODE == attr.ACODE_13 || b.ACODE == attr.ACODE_14 || b.ACODE == attr.ACODE_15 || b.ACODE == attr.ACODE_16 || b.ACODE == attr.ACODE_17 || b.ACODE == attr.ACODE_18 || b.ACODE == attr.ACODE_19 || b.ACODE == attr.ACODE_20 ||
+                                                                                                b.ACODE == attr.ACODE_21 || b.ACODE == attr.ACODE_22 || b.ACODE == attr.ACODE_23 || b.ACODE == attr.ACODE_24 || b.ACODE == attr.ACODE_25 || b.ACODE == attr.ACODE_26 || b.ACODE == attr.ACODE_27 || b.ACODE == attr.ACODE_28 || b.ACODE == attr.ACODE_29 || b.ACODE == attr.ACODE_30 ||
+                                                                                                b.ACODE == attr.ACODE_31 || b.ACODE == attr.ACODE_32 || b.ACODE == attr.ACODE_33 || b.ACODE == attr.ACODE_34 || b.ACODE == attr.ACODE_35).ToList();
+                                listAttributeOpt.AddRange(getAttributeOpt);
+                            };
+                            //if (getAttribute.Count() > 0)
+                            //{
+                            //    MoDbContext.AttributeBlibli.RemoveRange(getAttribute);
+                            if (listAttributeOpt.Count() > 0)
+                            {
+                                MoDbContext.AttributeOptBlibli.RemoveRange(listAttributeOpt);
+                                MoDbContext.SaveChanges();
+                            }
+                            //}
+                            MoDbContext.AttributeOptBlibli.AddRange(ret.attribute_opt);
+                            MoDbContext.SaveChanges();
+                        }catch(Exception ex)
+                        {
+
+                        }
+                    }
+                }
+            }
+            //}
+
+            return ret;
+        }
+        //end add by nurul 10/5/2021, limit blibli
 
         public async Task<string> GetAttributeList(BlibliAPIData data)
         {
@@ -7505,7 +7870,7 @@ namespace MasterOnline.Controllers
                 productStory = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
             };
             //add 6 april 2021, validasi big product
-            if(newData.weight > 50000)// berat lebih dari 50kg -> big product
+            if (newData.weight > 50000)// berat lebih dari 50kg -> big product
             {
                 newData.productType = 2;
             }
@@ -7525,7 +7890,24 @@ namespace MasterOnline.Controllers
             //DataSet dsVariasi = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE = 'DEFINING_ATTRIBUTE' ");
 
             var CategoryBlibli = MoDbContext.CategoryBlibli.Where(k => k.CATEGORY_CODE == data.CategoryCode).FirstOrDefault();
-            var listAttributeBlibli = await GetAttributeToList(iden, CategoryBlibli);
+            //change by nurul 11/5/2021, limit blibli
+            //var listAttributeBlibli = await GetAttributeToList(iden, CategoryBlibli);
+            var getAttribute = MoDbContext.AttributeBlibli.Where(a => a.CATEGORY_CODE == data.CategoryCode).ToList();
+            var listAttributeOpt = new List<ATTRIBUTE_OPT_BLIBLI>();
+            foreach (var attr in getAttribute)
+            {
+                var getAttributeOpt = MoDbContext.AttributeOptBlibli.Where(a => a.ACODE == attr.ACODE_1 || a.ACODE == attr.ACODE_2 || a.ACODE == attr.ACODE_3 || a.ACODE == attr.ACODE_4 || a.ACODE == attr.ACODE_5 || a.ACODE == attr.ACODE_6 || a.ACODE == attr.ACODE_7 || a.ACODE == attr.ACODE_8 || a.ACODE == attr.ACODE_9 || a.ACODE == attr.ACODE_10 ||
+                                                                                a.ACODE == attr.ACODE_11 || a.ACODE == attr.ACODE_12 || a.ACODE == attr.ACODE_13 || a.ACODE == attr.ACODE_14 || a.ACODE == attr.ACODE_15 || a.ACODE == attr.ACODE_16 || a.ACODE == attr.ACODE_17 || a.ACODE == attr.ACODE_18 || a.ACODE == attr.ACODE_19 || a.ACODE == attr.ACODE_20 ||
+                                                                                a.ACODE == attr.ACODE_21 || a.ACODE == attr.ACODE_22 || a.ACODE == attr.ACODE_23 || a.ACODE == attr.ACODE_24 || a.ACODE == attr.ACODE_25 || a.ACODE == attr.ACODE_26 || a.ACODE == attr.ACODE_27 || a.ACODE == attr.ACODE_28 || a.ACODE == attr.ACODE_29 || a.ACODE == attr.ACODE_30 ||
+                                                                                a.ACODE == attr.ACODE_31 || a.ACODE == attr.ACODE_32 || a.ACODE == attr.ACODE_33 || a.ACODE == attr.ACODE_34 || a.ACODE == attr.ACODE_35).ToList();
+                listAttributeOpt.AddRange(getAttributeOpt);
+            };
+            var listAttributeBlibli = new ATTRIBUTE_BLIBLI_AND_OPT_New()
+            {
+                attributes = getAttribute,
+                attribute_opt = listAttributeOpt,
+            };
+            //end change by nurul 11/5/2021, limit blibli
 
             List<string> dsFeature = new List<string>();
             List<string> dsVariasi = new List<string>();
@@ -9187,7 +9569,24 @@ namespace MasterOnline.Controllers
             //DataSet dsVariasi = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE = 'DEFINING_ATTRIBUTE' ");
 
             var CategoryBlibli = MoDbContext.CategoryBlibli.Where(k => k.CATEGORY_CODE == data.CategoryCode).FirstOrDefault();
-            var listAttributeBlibli = await GetAttributeToList(iden, CategoryBlibli);
+            //change by nurul 11/5/2021, limit blibli
+            //var listAttributeBlibli = await GetAttributeToList(iden, CategoryBlibli);
+            var getAttribute = MoDbContext.AttributeBlibli.Where(a => a.CATEGORY_CODE == data.CategoryCode).ToList();
+            var listAttributeOpt = new List<ATTRIBUTE_OPT_BLIBLI>();
+            foreach (var attr in getAttribute)
+            {
+                var getAttributeOpt = MoDbContext.AttributeOptBlibli.Where(a => a.ACODE == attr.ACODE_1 || a.ACODE == attr.ACODE_2 || a.ACODE == attr.ACODE_3 || a.ACODE == attr.ACODE_4 || a.ACODE == attr.ACODE_5 || a.ACODE == attr.ACODE_6 || a.ACODE == attr.ACODE_7 || a.ACODE == attr.ACODE_8 || a.ACODE == attr.ACODE_9 || a.ACODE == attr.ACODE_10 ||
+                                                                                a.ACODE == attr.ACODE_11 || a.ACODE == attr.ACODE_12 || a.ACODE == attr.ACODE_13 || a.ACODE == attr.ACODE_14 || a.ACODE == attr.ACODE_15 || a.ACODE == attr.ACODE_16 || a.ACODE == attr.ACODE_17 || a.ACODE == attr.ACODE_18 || a.ACODE == attr.ACODE_19 || a.ACODE == attr.ACODE_20 ||
+                                                                                a.ACODE == attr.ACODE_21 || a.ACODE == attr.ACODE_22 || a.ACODE == attr.ACODE_23 || a.ACODE == attr.ACODE_24 || a.ACODE == attr.ACODE_25 || a.ACODE == attr.ACODE_26 || a.ACODE == attr.ACODE_27 || a.ACODE == attr.ACODE_28 || a.ACODE == attr.ACODE_29 || a.ACODE == attr.ACODE_30 ||
+                                                                                a.ACODE == attr.ACODE_31 || a.ACODE == attr.ACODE_32 || a.ACODE == attr.ACODE_33 || a.ACODE == attr.ACODE_34 || a.ACODE == attr.ACODE_35).ToList();
+                listAttributeOpt.AddRange(getAttributeOpt);
+            };
+            var listAttributeBlibli = new ATTRIBUTE_BLIBLI_AND_OPT_New()
+            {
+                attributes = getAttribute,
+                attribute_opt = listAttributeOpt,
+            };
+            //end change by nurul 11/5/2021, limit blibli
 
             List<string> dsFeature = new List<string>();
             List<string> dsVariasi = new List<string>();

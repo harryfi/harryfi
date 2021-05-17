@@ -176,10 +176,22 @@
                             onclick="popupProsesAkhirTahun()">
                         <span>Akhir Tahun All DB</span>
                     </button>*@
-
-                <div class="btn-group" role="group">
+                <div class="btn-group pull-right" role="group">
+                    <button id="category_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Get Category <span class="caret"></span>
+                    </button>
+                    <div class="dropdown-menu">
+                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btn_category_blibli" class="btn btn-primary" onclick="popupCategoryBlibli()">
+                            <span aria-hidden="true"> Get Category & Attribute Blibli</span>
+                        </button>
+                        @*<button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btn_category_blibli" class="btn btn-primary" onclick="popupCategoryBlibli()">
+                            <span aria-hidden="true"> Get Category & Attribute Blibli2</span>
+                        </button>*@
+                    </div>
+                </div>
+                <div class="btn-group pull-right" role="group">
                     <button id="akhir_tahun_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Proses Akhir Tahun <span class="caret"></span>
+                        Akhir Tahun <span class="caret"></span>
                     </button>
                     <div class="dropdown-menu">
                         <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btn_akhir_tahun_all" class="btn btn-primary" onclick="popupProsesAkhirTahunPerServer()">
@@ -316,7 +328,31 @@
         </div>
     </div>
 </div>
-
+<div class="modal fade" id="konfGetCategoryNAttribute" tabindex="-1" role="dialog" aria-labelledby="konfTarikPesananHangfireJobLabel">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document" style="width:510px;">
+        <div class="modal-content center" style="width:500px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfTarikPesananHangfireJobLabel">Konfirmasi Get Category & Attribute</h4>
+            </div>
+            <div class="modal-body" style="max-height: calc(100vh - 210px); overflow-y: auto;">
+                <div class="row" style="margin-top: 15px;">
+                    <div class="x_content">
+                        <div id="loading_CatAttr" class="text-center" hidden="hidden">
+                            <div id="loading_CatAttr_image">
+                                <img style="width: 40px;" src="~/Content/Images/spinner.gif" />
+                            </div>
+                        </div>
+                        <button type="button" id="btnCatAttrBlibli" class="btn btn-success" onclick="ProsesCatAttrBlibli();">Proses Get Category & Attribute Blibli</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnClosePesananHangfireJob" class="btn btn-danger" data-dismiss="modal" onclick="$('#konfTarikPesananHangfireJob').modal('hide');">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 @section scripts
 {
     @*<script src="~/Content/vendors/jquery/dist/jquery.min.js"></script>*@
@@ -610,6 +646,17 @@
         });
         getServer();
     }
+
+    //add by nurul 11/5/2021
+        function popupCategoryBlibli() {
+            $('#konfGetCategoryNAttribute').modal({
+                show: true,
+                backdrop: 'static',
+                keyboard: false
+            });
+            $('#loading_CatAttr').hide();
+        }
+    //end add by nurul 11/5/2021
 
     var refreshingPesanan = false;
     function onRefreshSemuaPesananMPComplete() {
@@ -909,5 +956,67 @@
         });
     }
     //end add by nurul 5/1/2021
+
+    //add by nurul 17/5/2021
+    function ProsesCatAttrBlibli() {
+        //let tahun = $('#txtTahun').val();
+        //var rows_selected = [];
+        //$('.checkbox_akun').each(function (i, item) {
+        //    if ($(item).is(":checked")) {
+        //        rows_selected.push($(item).attr("data-path"));
+        //    }
+        //});
+        //if (rows_selected.length <= 0) {
+        //    alert("Mohon pilih akun.");
+        //    return false;
+        //}
+        //if(tahun){
+        var $link = '@Html.Raw(Url.Action("GetCategoryBlibli", "Admin", new { email = "replaceEmail" }))';
+        $link = $link.replace("replaceEmail", "putrajulian004@gmail.com");
+
+            //$postdata = {
+            //    tahun: tahun,
+            //    server: $('#ServerIdx').val(),
+            //    db_name: rows_selected
+            //};
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                contentType: 'application/json',
+                cache: false,
+                //contentType: "application/json; charset=UTF-8",
+                //cache: false,
+                //data: JSON.stringify($postdata),
+                beforeSend: function () {
+                    // $('#loading_spinner').show();
+                    $('#loading_CatAttr').show();
+                    $('#btnCatAttrBlibli').attr('disabled', 'disabled');
+                },
+                success: function (response) {
+                    //$('#txtTahun2').attr('disabled', true);
+                    //$('#btnSyncAllPerServer').attr('disabled', true);
+                    //$('#btnSyncAllGLPerServer').attr('disabled', true);
+                    //$('#btnCloseProsesAkhirTahunPerServer').attr('disabled', true);
+
+                    //$('#proses_akhir_tahun_log_perserver').val('');
+                    //$('#proses_akhir_tahun_label_perserver').html(response.arraydbname.length + ' accounts left, processing [' + response.arraydbname[0].onlineshopname + '] ');
+                    //ProsesAkhirTahunAccountPerServer(response.arraydbname, response.arraydbname[0].db_source, response.arraydbname[0].db_name, response.arraydbname[0].onlineshopname);
+                    alert(response);
+                    $('#loading_CatAttr').hide();
+                    $('#btnCatAttrBlibli').removeAttr('disabled');
+                },
+                //complete: function () {
+
+                //},
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        //}else{
+        //    alert('Silahkan isi tahun proses terlebih dahulu.');
+        //}
+    }
+    //end add by nurul 17/5/2021
     </script>
 }
