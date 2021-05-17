@@ -105,7 +105,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-#if (Debug_AWS)
+#if Debug_AWS || DEBUG
                     dbSourceEra = sessionAccountDataSourcePathDebug.ToString();
 #else
                     dbSourceEra = sessionAccountDataSourcePath.ToString();
@@ -1528,7 +1528,10 @@ namespace MasterOnline.Controllers
                                 //loop all worksheets
                                 var worksheet = excelPackage.Workbook.Worksheets[1];
 
-                                ret.countAll = Convert.ToInt32(worksheet.Dimension.End.Row - 5);
+                                //change 17 mei 2021
+                                //ret.countAll = Convert.ToInt32(worksheet.Dimension.End.Row - 5);
+                                ret.countAll = Convert.ToInt32(worksheet.Dimension.End.Row - 4);
+                                //end change 17 mei 2021
 
                                 if (Convert.ToInt32(prog[1]) == 0)
                                 {
@@ -1607,7 +1610,8 @@ namespace MasterOnline.Controllers
                                                 ("Upload Excel Pesanan"),
                                                 (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                 ("FAILED"),
-                                                (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                (success + " / " + Convert.ToInt32(ret.countAll)),
                                                 (username),
                                                 (filename));
                                                     var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -1915,7 +1919,8 @@ namespace MasterOnline.Controllers
                                                                                                         ("Upload Excel Pesanan"),
                                                                                                         (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                                         ("FAILED"),
-                                                                                                        (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                                        //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                                        (success + " / " + Convert.ToInt32(ret.countAll)),
                                                                                                         (username),
                                                                                                         (filename));
                                                                                                             var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2096,7 +2101,8 @@ namespace MasterOnline.Controllers
                                                                                                         ("Upload Excel Pesanan"),
                                                                                                         (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                                         ("FAILED"),
-                                                                                                        (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                                        //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                                        (success + " / " + Convert.ToInt32(ret.countAll)),
                                                                                                         (username),
                                                                                                         (filename));
                                                                                                         var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2124,7 +2130,8 @@ namespace MasterOnline.Controllers
                                                                                                 //}
                                                                                                 iProcess = iProcess + 1;
                                                                                                 success = success + 1;
-                                                                                                Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                                                                //Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                                                                Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll));
 
                                                                                             }
                                                                                             else
@@ -2133,7 +2140,8 @@ namespace MasterOnline.Controllers
                                                                                                 //transaction.Commit();
 
                                                                                                 iProcess = iProcess + 1;
-                                                                                                Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                                                                //Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                                                                Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll));
 
                                                                                                 int IDMarket = Convert.ToInt32(dataToko.NAMA);
                                                                                                 var dataMP = MoDbContext.Marketplaces.AsNoTracking().Where(p => p.IdMarket == IDMarket).SingleOrDefault();
@@ -2148,7 +2156,8 @@ namespace MasterOnline.Controllers
                                                                                                     ("Upload Excel Pesanan"),
                                                                                                     (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                                     ("FAILED"),
-                                                                                                    (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                                    //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                                    (success + " / " + Convert.ToInt32(ret.countAll)),
                                                                                                     (username),
                                                                                                     (filename));
                                                                                                     var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2174,7 +2183,8 @@ namespace MasterOnline.Controllers
                                                                                             //transaction.Commit();
 
                                                                                             iProcess = iProcess + 1;
-                                                                                            Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                                                            //Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                                                            Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll));
 
                                                                                             int IDMarket = Convert.ToInt32(dataToko.NAMA);
                                                                                             var dataMP = MoDbContext.Marketplaces.AsNoTracking().Where(p => p.IdMarket == IDMarket).SingleOrDefault();
@@ -2189,7 +2199,8 @@ namespace MasterOnline.Controllers
                                                                                                 ("Upload Excel Pesanan"),
                                                                                                 (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                                 ("FAILED"),
-                                                                                                (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                                //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                                (success + " / " + Convert.ToInt32(ret.countAll)),
                                                                                                 (username),
                                                                                                 (filename));
                                                                                                 var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2214,7 +2225,8 @@ namespace MasterOnline.Controllers
                                                                                         //transaction.Rollback();
                                                                                         //transaction.Commit();
                                                                                         iProcess = iProcess + 1;
-                                                                                        Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                                                        //Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                                                        Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll));
 
                                                                                         messageErrorLog = "Kode Customer Toko " + no_cust[0] + " tidak ditemukan.";
                                                                                         tw.WriteLine(messageErrorLog);
@@ -2227,7 +2239,8 @@ namespace MasterOnline.Controllers
                                                                                             ("Upload Excel Pesanan"),
                                                                                             (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                             ("FAILED"),
-                                                                                            (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                            //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                            (success + " / " + Convert.ToInt32(ret.countAll)),
                                                                                             (username),
                                                                                             (filename));
                                                                                             var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2252,7 +2265,8 @@ namespace MasterOnline.Controllers
                                                                                     //transaction.Rollback();
                                                                                     //transaction.Commit();
                                                                                     iProcess = iProcess + 1;
-                                                                                    Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                                                    //Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                                                    Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll));
 
                                                                                     messageErrorLog = "Kode Kurir " + kode_kurir[0] + " tidak ditemukan.";
                                                                                     tw.WriteLine(messageErrorLog);
@@ -2265,7 +2279,8 @@ namespace MasterOnline.Controllers
                                                                                         ("Upload Excel Pesanan"),
                                                                                         (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                         ("FAILED"),
-                                                                                        (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                        //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                        (success + " / " + Convert.ToInt32(ret.countAll)),
                                                                                         (username),
                                                                                         (filename));
                                                                                         var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2290,7 +2305,8 @@ namespace MasterOnline.Controllers
                                                                                 //transaction.Rollback();
                                                                                 //transaction.Commit();
                                                                                 iProcess = iProcess + 1;
-                                                                                Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                                                //Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                                                Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll));
 
                                                                                 messageErrorLog = "Kode Barang " + kode_brg + " tidak ditemukan.";
                                                                                 tw.WriteLine(messageErrorLog);
@@ -2303,7 +2319,8 @@ namespace MasterOnline.Controllers
                                                                                      ("Upload Excel Pesanan"),
                                                                                      (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                      ("FAILED"),
-                                                                                     (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                     //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                     (success + " / " + Convert.ToInt32(ret.countAll)),
                                                                                      (username),
                                                                                      (filename));
                                                                                     var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2329,7 +2346,8 @@ namespace MasterOnline.Controllers
                                                                             //transaction.Rollback();
                                                                             //transaction.Commit();
                                                                             iProcess = iProcess + 1;
-                                                                            Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                                            //Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                                            Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll));
 
                                                                             messageErrorLog = "kode barang lebih dari 20 karakter pada row " + i;
                                                                             tw.WriteLine(messageErrorLog);
@@ -2342,7 +2360,8 @@ namespace MasterOnline.Controllers
                                                                                 ("Upload Excel Pesanan"),
                                                                                 (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                 ("FAILED"),
-                                                                                (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                (success + " / " + Convert.ToInt32(ret.countAll)),
                                                                                 (username),
                                                                                 (filename));
                                                                                 var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2367,7 +2386,8 @@ namespace MasterOnline.Controllers
                                                                         //transaction.Rollback();
                                                                         //transaction.Commit();
                                                                         iProcess = iProcess + 1;
-                                                                        Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                                        //Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                                        Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll));
 
                                                                         var errorMessage = "";
                                                                         if (string.IsNullOrEmpty(qty))
@@ -2389,7 +2409,8 @@ namespace MasterOnline.Controllers
                                                                             ("Upload Excel Pesanan"),
                                                                             (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                             ("FAILED"),
-                                                                            (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                            //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                            (success + " / " + Convert.ToInt32(ret.countAll)),
                                                                             (username),
                                                                             (filename));
                                                                             var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2414,7 +2435,8 @@ namespace MasterOnline.Controllers
                                                                     //transaction.Rollback();
                                                                     //transaction.Commit();
                                                                     iProcess = iProcess + 1;
-                                                                    Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                                    //Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                                    Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll));
 
                                                                     messageErrorLog = "kode barang kosong pada row " + i;
                                                                     tw.WriteLine(messageErrorLog);
@@ -2427,7 +2449,8 @@ namespace MasterOnline.Controllers
                                                                         ("Upload Excel Pesanan"),
                                                                         (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                         ("FAILED"),
-                                                                        (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                        //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                        (success + " / " + Convert.ToInt32(ret.countAll)),
                                                                         (username),
                                                                         (filename));
                                                                         var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2452,7 +2475,8 @@ namespace MasterOnline.Controllers
                                                                 //transaction.Rollback();
                                                                 //transaction.Commit();
                                                                 iProcess = iProcess + 1;
-                                                                Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                                //Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                                Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll));
 
                                                                 messageErrorLog = "terdapat karakter koma pada kolom pengisian angka di row " + i;
                                                                 tw.WriteLine(messageErrorLog);
@@ -2465,7 +2489,8 @@ namespace MasterOnline.Controllers
                                                                     ("Upload Excel Pesanan"),
                                                                     (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                     ("FAILED"),
-                                                                    (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                    //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                    (success + " / " + Convert.ToInt32(ret.countAll)),
                                                                     (username),
                                                                     (filename));
                                                                     var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2490,7 +2515,8 @@ namespace MasterOnline.Controllers
                                                             //transaction.Rollback();
                                                             //transaction.Commit();
                                                             iProcess = iProcess + 1;
-                                                            Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                            //Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                            Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll));
 
                                                             messageErrorLog = "terdapat karakter titik pada kolom pengisian angka di row " + i;
                                                             tw.WriteLine(messageErrorLog);
@@ -2503,7 +2529,8 @@ namespace MasterOnline.Controllers
                                                                 ("Upload Excel Pesanan"),
                                                                 (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                 ("FAILED"),
-                                                                (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                (success + " / " + Convert.ToInt32(ret.countAll)),
                                                                 (username),
                                                                 (filename));
                                                                 var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2528,7 +2555,8 @@ namespace MasterOnline.Controllers
                                                         //transaction.Rollback();
                                                         //transaction.Commit();
                                                         iProcess = iProcess + 1;
-                                                        Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                        //Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                        Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll));
 
                                                         messageErrorLog = "no telepon kosong di row " + i;
                                                         tw.WriteLine(messageErrorLog);
@@ -2541,7 +2569,8 @@ namespace MasterOnline.Controllers
                                                             ("Upload Excel Pesanan"),
                                                             (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                             ("FAILED"),
-                                                            (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                            //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                            (success + " / " + Convert.ToInt32(ret.countAll)),
                                                             (username),
                                                             (filename));
                                                             var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2566,7 +2595,8 @@ namespace MasterOnline.Controllers
                                                     //transaction.Rollback();
                                                     //transaction.Commit();
                                                     iProcess = iProcess + 1;
-                                                    Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                    //Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                    Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll));
 
                                                     messageErrorLog = "kode kurir kosong pada row " + i;
                                                     tw.WriteLine(messageErrorLog);
@@ -2581,7 +2611,8 @@ namespace MasterOnline.Controllers
                                                         ("Upload Excel Pesanan"),
                                                         (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                         ("FAILED"),
-                                                        (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                        //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                        (success + " / " + Convert.ToInt32(ret.countAll)),
                                                         (username),
                                                         (filename));
                                                         var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2604,7 +2635,8 @@ namespace MasterOnline.Controllers
                                             else
                                             {
                                                 iProcess = iProcess + 1;
-                                                Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                //Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll));
 
                                                 messageErrorLog = "marketplace kosong pada row " + i;
                                                 tw.WriteLine(messageErrorLog);
@@ -2619,7 +2651,8 @@ namespace MasterOnline.Controllers
                                                     ("Upload Excel Pesanan"),
                                                     (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                     ("FAILED"),
-                                                    (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                    //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                    (success + " / " + Convert.ToInt32(ret.countAll)),
                                                     (username),
                                                     (filename));
                                                     var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2634,7 +2667,10 @@ namespace MasterOnline.Controllers
                                         else
                                         {
                                             iProcess = iProcess + 1;
-                                            Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                            //change 17 mei 2021
+                                            //Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                            Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll));
+                                            //end change 17 mei 2021
 
                                             messageErrorLog = "no referensi lebih dari 70 karakter pada row " + i;
                                             tw.WriteLine(messageErrorLog);
@@ -2647,7 +2683,8 @@ namespace MasterOnline.Controllers
                                                 ("Upload Excel Pesanan"),
                                                 (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                 ("FAILED"),
-                                                (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                (success + " / " + Convert.ToInt32(ret.countAll)),
                                                 (username),
                                                 (filename));
                                                 var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2662,7 +2699,10 @@ namespace MasterOnline.Controllers
                                     else
                                     {
                                         iProcess = iProcess + 1;
-                                        Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                        //change 17 mei 2021
+                                        //Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                        Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll));
+                                        //end change 17 mei 2021
 
                                         if (string.IsNullOrEmpty(kode_brg))
                                         {
@@ -2683,7 +2723,8 @@ namespace MasterOnline.Controllers
                                             ("Upload Excel Pesanan"),
                                             (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                             ("FAILED"),
-                                            (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                            //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                            (success + " / " + Convert.ToInt32(ret.countAll)),
                                             (username),
                                             (filename));
                                             var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
