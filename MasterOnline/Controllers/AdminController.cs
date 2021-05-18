@@ -6210,7 +6210,7 @@ namespace MasterOnline.Controllers
                                 username = getAkunRahma.Username
 
                             };
-                            var result = await BliApi.GetCategoryTreeV2(data);
+                            var result = BliApi.GetCategoryTreeV2(data);
                             //Task.Run(() => BliApi.GetCategoryTreeV2(data)).Wait();
                             //BliApi.GetCategoryTree(data);
                             //if (result == "1")
