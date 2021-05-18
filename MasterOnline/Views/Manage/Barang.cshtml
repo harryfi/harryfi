@@ -3849,8 +3849,9 @@
             });
         }
         function FuncGetKategoriShopeeByCode(selectCategoryShopeeID,listMarket_i_Kode,listMarket_i_RecNum,nextselectID,categoryShopeeSelanjutnya,fieldCategoryCode,fieldCategoryName,listMarketRecNum){
-            var link = '@Url.Action("GetKategoriShopeeByCode", "Manage", new { code = "replaceCode" })';
+            var link = '@Url.Action("GetKategoriShopeeByCode", "Manage", new { code = "replaceCode", recnumArf01 = "replaceRecnumArf01" })';
             link = link.replace("replaceCode", encodeURIComponent(listMarket_i_Kode));
+            link = link.replace("replaceRecnumArf01", encodeURIComponent(listMarket_i_RecNum));
 
             //buat select pertama
             var nextselect = '<select id="'+ selectCategoryShopeeID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select>';
