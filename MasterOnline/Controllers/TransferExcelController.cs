@@ -1789,7 +1789,7 @@ namespace MasterOnline.Controllers
                                                                                                     //var kodePembeliLast = eraDB.ARF01C.AsNoTracking().Select(p => p.BUYER_CODE).ToList().LastOrDefault();
                                                                                                     //kodePembeliLast = Convert.ToString(Convert.ToInt32(kodePembeliLast) + 1).PadLeft(10, '0');
                                                                                                     var kodePembeliLast = "";
-                                                                                                    var tblPembeli = eraDB.ARF01C.OrderBy(p => p.RecNum).LastOrDefault();
+                                                                                                    var tblPembeli = eraDB.ARF01C.OrderByDescending(p => p.RecNum).FirstOrDefault();
                                                                                                     if (tblPembeli == null)
                                                                                                     {
                                                                                                         kodePembeliLast = Convert.ToString(1).PadLeft(10, '0');
