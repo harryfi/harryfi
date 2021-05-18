@@ -1785,8 +1785,20 @@ namespace MasterOnline.Controllers
                                                                                                 if (dataPembeli == null)
                                                                                                 {
                                                                                                     var connIdARF01C = Guid.NewGuid().ToString();
-                                                                                                    var kodePembeliLast = eraDB.ARF01C.AsNoTracking().Select(p => p.BUYER_CODE).ToList().LastOrDefault();
-                                                                                                    kodePembeliLast = Convert.ToString(Convert.ToInt32(kodePembeliLast) + 1).PadLeft(10, '0');
+                                                                                                    //change by Tri 18 mei 2021, ubah cara auto number
+                                                                                                    //var kodePembeliLast = eraDB.ARF01C.AsNoTracking().Select(p => p.BUYER_CODE).ToList().LastOrDefault();
+                                                                                                    //kodePembeliLast = Convert.ToString(Convert.ToInt32(kodePembeliLast) + 1).PadLeft(10, '0');
+                                                                                                    var kodePembeliLast = "";
+                                                                                                    var tblPembeli = eraDB.ARF01C.OrderBy(p => p.RecNum).LastOrDefault();
+                                                                                                    if (tblPembeli == null)
+                                                                                                    {
+                                                                                                        kodePembeliLast = Convert.ToString(1).PadLeft(10, '0');
+                                                                                                    }
+                                                                                                    else
+                                                                                                    {
+                                                                                                        kodePembeliLast = Convert.ToString(Convert.ToInt32(tblPembeli.BUYER_CODE) + 1).PadLeft(10, '0');
+                                                                                                    }
+                                                                                                    //end change by Tri, ubah cara auto number
 
                                                                                                     string insertPembeli = "INSERT INTO ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
                                                                                                     insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
