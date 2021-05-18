@@ -6160,72 +6160,82 @@ namespace MasterOnline.Controllers
 
         //add by nurul 17/5/2021
         public ErasoftContext ErasoftDbContextNew { get; set; }
-        public ActionResult GetCategoryBlibli(string email)
+        public async System.Threading.Tasks.Task<string> GetCategoryBlibli(string email)
         {
-            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            try
+            {
+                var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
 
-            //            dbPathEra = sessionAccountDatabasePathErasoft.ToString();
-            //            //dbSourceEra = accFromUser.DataSourcePath;
-            //#if (Debug_AWS)
-            //            dbSourceEra = sessionAccountDataSourcePathDebug.ToString();
-            //#else
-            //                dbSourceEra = sessionAccountDataSourcePath.ToString();
-            //#endif
+                //            dbPathEra = sessionAccountDatabasePathErasoft.ToString();
+                //            //dbSourceEra = accFromUser.DataSourcePath;
+                //#if (Debug_AWS)
+                //            dbSourceEra = sessionAccountDataSourcePathDebug.ToString();
+                //#else
+                //                dbSourceEra = sessionAccountDataSourcePath.ToString();
+                //#endif
 #if (AWS || Debug_AWS)
             var getAkunRahma = MoDbContext.Account.Where(a => a.Email == "aniesuprijati@gmail.com").FirstOrDefault();
 #elif (DEV || DEBUG)
-            var getAkunRahma = MoDbContext.Account.Where(a => a.Email == "rahmamk@gmail.com").FirstOrDefault();
+                var getAkunRahma = MoDbContext.Account.Where(a => a.Email == "rahmamk@gmail.com").FirstOrDefault();
 #endif
-            if (getAkunRahma != null)
-            {
-                //if (sessionAccountUserID.ToString() == "admin_manage")
-                //    ErasoftDbContextNew = new ErasoftContext();
-                //else
+                if (getAkunRahma != null)
+                {
+                    //if (sessionAccountUserID.ToString() == "admin_manage")
+                    //    ErasoftDbContextNew = new ErasoftContext();
+                    //else
                     ErasoftDbContextNew = new ErasoftContext(getAkunRahma.DatabasePathErasoft);
 
-                var idmarket = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket.ToString();
-                //var custInDb = ErasoftDbContextNew.ARF01.Where(c => c.NAMA == idmarket).ToList();
-                //foreach (var customer in custInDb)
-                var customer = ErasoftDbContextNew.ARF01.Where(c => c.NAMA == idmarket && c.EMAIL == email).FirstOrDefault();
-                if (customer != null)
-                {
-#region BLIBLI get token
-                    if (!string.IsNullOrEmpty(customer.API_CLIENT_P) && !string.IsNullOrEmpty(customer.API_CLIENT_U))
+                    var idmarket = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket.ToString();
+                    //var custInDb = ErasoftDbContextNew.ARF01.Where(c => c.NAMA == idmarket).ToList();
+                    //foreach (var customer in custInDb)
+                    var customer = ErasoftDbContextNew.ARF01.Where(c => c.NAMA == idmarket && c.EMAIL == email).FirstOrDefault();
+                    if (customer != null)
                     {
-                        var BliApi = new BlibliControllerJob();
-                        BlibliControllerJob.BlibliAPIData data = new BlibliControllerJob.BlibliAPIData()
+                        #region BLIBLI get token
+                        if (!string.IsNullOrEmpty(customer.API_CLIENT_P) && !string.IsNullOrEmpty(customer.API_CLIENT_U))
                         {
-                            API_client_username = customer.API_CLIENT_U,
-                            API_client_password = customer.API_CLIENT_P,
-                            API_secret_key = customer.API_KEY,
-                            mta_username_email_merchant = customer.EMAIL,
-                            mta_password_password_merchant = customer.PASSWORD,
-                            merchant_code = customer.Sort1_Cust,
-                            token = customer.TOKEN,
-                            idmarket = customer.RecNum.Value,
-                            versiToken = customer.KD_ANALISA,
-                            DatabasePathErasoft = getAkunRahma.DatabasePathErasoft,
-                            username = getAkunRahma.Username
+                            var BliApi = new BlibliControllerJob();
+                            BlibliControllerJob.BlibliAPIData data = new BlibliControllerJob.BlibliAPIData()
+                            {
+                                API_client_username = customer.API_CLIENT_U,
+                                API_client_password = customer.API_CLIENT_P,
+                                API_secret_key = customer.API_KEY,
+                                mta_username_email_merchant = customer.EMAIL,
+                                mta_password_password_merchant = customer.PASSWORD,
+                                merchant_code = customer.Sort1_Cust,
+                                token = customer.TOKEN,
+                                idmarket = customer.RecNum.Value,
+                                versiToken = customer.KD_ANALISA,
+                                DatabasePathErasoft = getAkunRahma.DatabasePathErasoft,
+                                username = getAkunRahma.Username
 
-                        };
-                        var result = BliApi.GetCategoryTreeV2(data);
-                        //BliApi.GetCategoryTree(data);
-                        if (result == "1")
-                        {
-                            //return "Get Category & Attribute Blibli berhasil.";
-                            return Json("Get Category & Attribute Blibli berhasil.", JsonRequestBehavior.AllowGet);
+                            };
+                            var result = await BliApi.GetCategoryTreeV2(data);
+                            //Task.Run(() => BliApi.GetCategoryTreeV2(data)).Wait();
+                            //BliApi.GetCategoryTree(data);
+                            //if (result == "1")
+                            //{
+                            //    //return "Get Category & Attribute Blibli berhasil.";
+                            //    return Json("Get Category & Attribute Blibli berhasil.", JsonRequestBehavior.AllowGet);
+                            //}
+                            //else
+                            //{
+                            //    //return "Get Category & Attribute Blibli gagal.";
+                            //    return Json("Get Category & Attribute Blibli gagal.", JsonRequestBehavior.AllowGet);
+                            //}
+                            //return Json("Get Category & Attribute Blibli sedang berlangsung.", JsonRequestBehavior.AllowGet);
+                            return "Get Category & Attribute Blibli sedang berlangsung.";
                         }
-                        else
-                        {
-                            //return "Get Category & Attribute Blibli gagal.";
-                            return Json("Get Category & Attribute Blibli gagal.", JsonRequestBehavior.AllowGet);
-                        }
+                        #endregion
                     }
-#endregion
                 }
+                return "Akun tidak ditemukan.";
+                //return Json("Akun tidak ditemukan.", JsonRequestBehavior.AllowGet);
             }
-            //return "Akun tidak ditemukan.";
-            return Json("Akun tidak ditemukan.", JsonRequestBehavior.AllowGet);
+            catch (Exception ex)
+            {
+                return "Get Category & Attribute Blibli gagal.";
+            }
         }
         //end add by nurul 17/5/2021
     }

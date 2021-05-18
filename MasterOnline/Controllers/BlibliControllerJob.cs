@@ -6468,7 +6468,7 @@ namespace MasterOnline.Controllers
         }
 
         //add by nurul 10/5/2021, limit blibli
-        public string GetCategoryTreeV2(BlibliAPIData data)
+        public async Task<string> GetCategoryTreeV2(BlibliAPIData data)
         {
             //HASIL MEETING : SIMPAN CATEGORY DAN ATTRIBUTE NYA KE DATABASE MO
             //INSERT JIKA CATEGORY_CODE UTAMA BELUM ADA DI MO
@@ -6538,7 +6538,7 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             try
             {
-                using (WebResponse response = myReq.GetResponse())
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {
@@ -6633,7 +6633,7 @@ namespace MasterOnline.Controllers
                             var ListCategory = MoDbContext.CategoryBlibli.ToList();
                             foreach (var cat in ListCategory)
                             {
-                                var listAttributeBlibli = GetAttributeToListV2(data, cat);
+                                var listAttributeBlibli = await GetAttributeToListV2(data, cat);
                             }
                         }
                         else
@@ -6659,7 +6659,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public ATTRIBUTE_BLIBLI_AND_OPT_New GetAttributeToListV2(BlibliAPIData data, CATEGORY_BLIBLI category)
+        public async Task<ATTRIBUTE_BLIBLI_AND_OPT_New> GetAttributeToListV2(BlibliAPIData data, CATEGORY_BLIBLI category)
         {
             MoDbContext = new MoDbContext("");
             //var category = MoDbContext.CategoryBlibli.Where(p => p.IS_LAST_NODE.Equals("1")).ToList();
@@ -6723,7 +6723,7 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             try
             {
-                using (WebResponse response = myReq.GetResponse())
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {
@@ -6817,7 +6817,8 @@ namespace MasterOnline.Controllers
                             //}
                             MoDbContext.AttributeOptBlibli.AddRange(ret.attribute_opt);
                             MoDbContext.SaveChanges();
-                        }catch(Exception ex)
+                        }
+                        catch (Exception ex)
                         {
 
                         }
