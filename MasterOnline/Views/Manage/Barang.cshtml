@@ -4059,13 +4059,13 @@
                                             fieldAVALUE = "";
                                             loop = 2;
                                             for (var i = 0; i < (SelectList.length / 6); i++) {
-                                                getAttributeOptionShopee(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], data.attribute_opts);
+                                                getAttributeOptionShopee(SelectList[(i * 6) + 0], SelectList[(i * 6) + 1], SelectList[(i * 6) + 2], SelectList[(i * 6) + 3], SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], data.attribute_opts, data.attribute_opts_v2);
                                             }
                                         }
                                         else if (loop == 0) {
                                             loop = 2;
                                             for (var i = 0; i < (SelectList.length / 6); i++) {
-                                                getAttributeOptionShopee(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], data.attribute_opts);
+                                                getAttributeOptionShopee(SelectList[(i * 6) + 0], SelectList[(i * 6) + 1], SelectList[(i * 6) + 2], SelectList[(i * 6) + 3], SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], data.attribute_opts, data.attribute_opts_v2);
                                             }
                                         }
                                     }
@@ -4076,13 +4076,13 @@
                                         fieldAVALUE = "";
                                         loop = 2;
                                         for (var i = 0; i < (SelectList.length / 6); i++) {
-                                            getAttributeOptionShopee(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], data.attribute_opts);
+                                            getAttributeOptionShopee(SelectList[(i * 6) + 0], SelectList[(i * 6) + 1], SelectList[(i * 6) + 2], SelectList[(i * 6) + 3], SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], data.attribute_opts, data.attribute_opts_v2);
                                         }
                                     }
                                     else if (loop == 0) {
                                         loop = 2;
                                         for (var i = 0; i < (SelectList.length / 6); i++) {
-                                            getAttributeOptionShopee(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], data.attribute_opts);
+                                            getAttributeOptionShopee(SelectList[(i * 6) + 0], SelectList[(i * 6) + 1], SelectList[(i * 6) + 2], SelectList[(i * 6) + 3], SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], data.attribute_opts, data.attribute_opts_v2);
                                         }
                                     }
                                 }
@@ -4095,7 +4095,7 @@
             });
         }
 
-        function getAttributeOptionShopee(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue,ATYPE,optAttributes){
+        function getAttributeOptionShopee(ACODE, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, ATYPE, optAttributes, attribute_opts_v2){
             @*var link = '@Url.Action("GetAttributeOptShopee", "Manage", new { code = "replaceCode" })';
             link = link.replace("replaceCode", ACODE);
 
@@ -4106,14 +4106,23 @@
                 cache: false,
                 success: function (data) {*@
             var listAttributeOpt = [];
-            $.each(optAttributes.filter(p=>p.ACODE == ACODE),
-                function (i, item) {
-                    listAttributeOpt[i] = {
-                        id: item.OPTION_VALUE,
-                        text: item.OPTION_VALUE
-                    };
-                });
-
+            if (attribute_opts_v2 == null) {
+                $.each(optAttributes.filter(p => p.ACODE == ACODE),
+                    function (i, item) {
+                        listAttributeOpt[i] = {
+                            id: item.OPTION_VALUE,
+                            text: item.OPTION_VALUE
+                        };
+                    });
+            } else {
+                $.each(attribute_opts_v2.filter(p => p.ACODE == ACODE),
+                    function (i, item) {
+                        listAttributeOpt[i] = {
+                            id: item.OPTION_VALUE,
+                            text: item.OPTION_NAME
+                        };
+                    });
+            }
             if (ATYPE == "DEFINING_ATTRIBUTE") {
 
                 var AttributeOptSelectMultiple = $('#' + selectID).selectize({

@@ -31,10 +31,12 @@ namespace MasterOnline.Controllers
         string shpCallbackUrlV2 = "https://masteronline.co.id/shp/v2/code?user=";
 #else
         string shpCallbackUrl = "https://dev.masteronline.co.id/shp/code?user=";
-        string shpCallbackUrlV2 = "https://dev.masteronline.co.id/shp/v2/code?user=";
+        string shpCallbackUrlV2 = "http://localhost:50109/shp/v2/code?user=";
         //string shpCallbackUrl = "https://masteronline.my.id/shp/code?user=";
 #endif
-        //string shopeeV2Url = "https://partner.shopeemobile.com";
+        //string shopeeV2Url = "https://partner.shopeemobile.com"; 
+        //int MOPartnerIDV2 = 841371;
+        //string MOPartnerKeyV2 = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
         string shopeeV2Url = "https://partner.test-stable.shopeemobile.com";
         int MOPartnerIDV2 = 1000723;
         string MOPartnerKeyV2 = "d59a300f63f9d36b92f71b0ccb5b37e4e2b43e9c567df3f2e2808136dd4893dd";
@@ -1711,7 +1713,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<ATTRIBUTE_SHOPEE_AND_OPT> GetAttributeToList_V2(ShopeeAPIData dataAPI, CATEGORY_SHOPEE category)
+        public async Task<ATTRIBUTE_SHOPEE_AND_OPT> GetAttributeToList_V2(ShopeeAPIData dataAPI, CATEGORY_SHOPEE_V2 category)
         {
             dataAPI = await RefreshTokenShopee_V2(dataAPI, false);
             int MOPartnerID = MOPartnerIDV2;
@@ -1798,8 +1800,8 @@ namespace MasterOnline.Controllers
                         if (attribs.attribute_value_list.Count() > 0)
                         {
                             var optList = attribs.attribute_value_list.ToList();
-                            var listOpt = optList.Select(x => new ATTRIBUTE_OPT_SHOPEE(attribs.attribute_id.ToString(), x.original_value_name)).ToList();
-                            ret.attribute_opts.AddRange(listOpt);
+                            var listOpt = optList.Select(x => new ATTRIBUTE_OPT_SHOPEE_V2(attribs.attribute_id.ToString(), x.original_value_name, x.value_id.ToString())).ToList();
+                            ret.attribute_opts_v2.AddRange(listOpt);
                         }
                         i = i + 1;
                     }
@@ -5935,7 +5937,7 @@ namespace MasterOnline.Controllers
             var milis = CurrentTimeSecond();
             string baseString = Convert.ToString(MOPartnerID) + "/api/v2/shop/auth_partner" + milis;
             var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
-            string uri = "https://partner.shopeemobile.com/api/v2/shop/auth_partner?partner_id=" + Convert.ToString(MOPartnerID) + "&sign=" + sign
+            string uri = shopeeV2Url + "/api/v2/shop/auth_partner?partner_id=" + Convert.ToString(MOPartnerID) + "&sign=" + sign
                 + "&redirect=" + compUrl + "&timestamp=" + milis;
             return uri;
         }

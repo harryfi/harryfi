@@ -10,6 +10,7 @@ namespace MasterOnline.Models
     public class ATTRIBUTE_SHOPEE_AND_OPT {
         public List<ATTRIBUTE_SHOPEE> attributes { get; set; } = new List<ATTRIBUTE_SHOPEE>();
         public List<ATTRIBUTE_OPT_SHOPEE> attribute_opts { get; set; } = new List<ATTRIBUTE_OPT_SHOPEE>();
+        public List<ATTRIBUTE_OPT_SHOPEE_V2> attribute_opts_v2 { get; set; } = new List<ATTRIBUTE_OPT_SHOPEE_V2>();
     }
     [Table("ATTRIBUTE_SHOPEE")]
     public class ATTRIBUTE_SHOPEE
