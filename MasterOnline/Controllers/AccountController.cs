@@ -257,7 +257,7 @@ namespace MasterOnline.Controllers
             {
                 dbPathEra = _viewModel.Account.DatabasePathErasoft;
                 //dbSourceEra = _viewModel.Account.DataSourcePath;
-#if (Debug_AWS)
+#if (Debug_AWS || DEBUG)
                 dbSourceEra = _viewModel.Account.DataSourcePathDebug;
 #else
                 dbSourceEra = _viewModel.Account.DataSourcePath;
@@ -274,7 +274,7 @@ namespace MasterOnline.Controllers
                 var accFromUser = MoDbContext.Account.Single(a => a.AccountId == _viewModel.User.AccountId);
                 dbPathEra = accFromUser.DatabasePathErasoft;
                 //dbSourceEra = accFromUser.DataSourcePath;
-#if (Debug_AWS)
+#if (Debug_AWS || DEBUG)
                 dbSourceEra = accFromUser.DataSourcePathDebug;
 #else
                 dbSourceEra = accFromUser.DataSourcePath;
@@ -541,7 +541,7 @@ namespace MasterOnline.Controllers
             {
                 dbPathEra = _viewModel.Account.DatabasePathErasoft;
                 //dbSourceEra = _viewModel.Account.DataSourcePath;
-#if (Debug_AWS)
+#if (Debug_AWS || DEBUG)
                 dbSourceEra = _viewModel.Account.DataSourcePathDebug;
 #else
                 dbSourceEra = _viewModel.Account.DataSourcePath;
@@ -559,7 +559,7 @@ namespace MasterOnline.Controllers
                 var accFromUser = MoDbContext.Account.Single(a => a.AccountId == _viewModel.User.AccountId);
                 dbPathEra = accFromUser.DatabasePathErasoft;
                 //dbSourceEra = accFromUser.DataSourcePath;
-#if (Debug_AWS)
+#if (Debug_AWS || DEBUG)
                 dbSourceEra = accFromUser.DataSourcePathDebug;
 #else
                 dbSourceEra = accFromUser.DataSourcePath;
@@ -632,7 +632,7 @@ namespace MasterOnline.Controllers
 
             if (serverList.Count() > 0)
             {
-#if Debug_AWS
+#if (Debug_AWS  || DEBUG)
                 if (lakukanHapusServer)
                 {
                     foreach (var server in serverList)
@@ -1089,7 +1089,12 @@ namespace MasterOnline.Controllers
                             versiToken = tblCustomer.KD_ANALISA
                         };
 
-                        client.Enqueue<BlibliControllerJob>(x => x.GetToken(data, true, false));
+                        //add by nurul 11/5/2021, limit blibli
+                        if (data.versiToken != "2")
+                        {
+                            client.Enqueue<BlibliControllerJob>(x => x.GetToken(data, true, false));
+                        }
+                        //end add by nurul 11/5/2021, limit blibli
 
                         string connId_JobId = dbPathEra + "_blibli_get_queue_feed_detail_" + Convert.ToString(tblCustomer.RecNum.Value);
                         //change 17 july 2020, ubah jd 30mnit
@@ -1941,7 +1946,7 @@ namespace MasterOnline.Controllers
             //var clientKirimEmail = new BackgroundJobClient(sqlStorage);
             //var monitoringApi = sqlStorage.GetMonitoringApi();
             //var serverList = monitoringApi.Servers();
-#if Debug_AWS
+#if (Debug_AWS || DEBUG)
             //if (serverList.Count() > 0)
             //{
             //    bool lakukanHapusServer = false;
@@ -2105,7 +2110,7 @@ namespace MasterOnline.Controllers
                 //change by calvin 3 oktober 2018
                 //ErasoftContext ErasoftDbContext = new ErasoftContext(userId);
                 string dbSourceEra = "";
-#if (Debug_AWS)
+#if (Debug_AWS || DEBUG)
                 dbSourceEra = accInDb.DataSourcePathDebug;
 #else
                 dbSourceEra = accInDb.DataSourcePath;
@@ -2148,7 +2153,7 @@ namespace MasterOnline.Controllers
         // Proses Logging Out + Hapus Session
         public ActionResult LoggingOut()
         {
-#if Debug_AWS
+#if Debug_AWS || DEBUG
             var doSyncMarketplace = false;
             if (doSyncMarketplace)
             {

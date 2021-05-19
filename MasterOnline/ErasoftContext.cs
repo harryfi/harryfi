@@ -21,6 +21,39 @@ namespace MasterOnline
         {
         }
 
+#if (AWS)
+        public ErasoftContext(string dbPathEra)
+             : base($"Server=172.31.20.192, 1433;initial catalog={dbPathEra};" +
+                    $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
+                    $"application name=EntityFramework")
+        {
+        }
+#elif (Debug_AWS)
+        public ErasoftContext(string dbPathEra)
+             : base($"Server=54.151.175.62, 12354;initial catalog={dbPathEra};" +
+                    $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
+                    $"application name=EntityFramework")
+        {
+        }
+
+#elif (DEV)
+        public ErasoftContext(string dbPathEra)
+             : base($"Server=172.31.20.73, 1433;initial catalog={dbPathEra};" +
+                    $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
+                    $"application name=EntityFramework")
+        {
+        }
+
+#elif (DEBUG)
+        public ErasoftContext(string dbPathEra)
+             : base($"Server=54.151.175.62, 45650;initial catalog={dbPathEra};" +
+                    $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
+                    $"application name=EntityFramework")
+        {
+        }
+
+#endif
+
         public virtual DbSet<PARTNER_API> PARTNER_API { get; set; }
         public virtual DbSet<PARTNER_API_LOG_ERROR> PARTNER_API_LOG_ERROR { get; set; }
 
