@@ -3080,7 +3080,10 @@ namespace MasterOnline.Controllers
                     var listBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDGetListProductResult)) as JDIDGetListProductResult;
                     if (listBrg.jingdong_seller_product_getWareInfoListByVendorId_response.returnType != null)
                     {
-                        if (listBrg.jingdong_seller_product_getWareInfoListByVendorId_response.returnType.isSuccess)
+                        //change by nurul 19/5/2021
+                        //if (listBrg.jingdong_seller_product_getWareInfoListByVendorId_response.returnType.isSuccess)
+                        if (listBrg.jingdong_seller_product_getWareInfoListByVendorId_response.returnType.isSuccess || listBrg.jingdong_seller_product_getWareInfoListByVendorId_response.returnType.success)
+                        //end change by nurul 19/5/2021
                         {
                             string msg = "";
                             bool adaError = false;
@@ -3221,7 +3224,10 @@ namespace MasterOnline.Controllers
                         var dataProduct = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDGetProductV2Result)) as JDIDGetProductV2Result;
                         if (dataProduct.jingdong_seller_product_getSkuInfoBySpuIdAndVenderId_response.returnType != null)
                         {
-                            if (dataProduct.jingdong_seller_product_getSkuInfoBySpuIdAndVenderId_response.returnType.isSuccess)
+                            //change by nurul 19/5/2021
+                            //if (dataProduct.jingdong_seller_product_getSkuInfoBySpuIdAndVenderId_response.returnType.isSuccess)
+                            if (dataProduct.jingdong_seller_product_getSkuInfoBySpuIdAndVenderId_response.returnType.isSuccess || dataProduct.jingdong_seller_product_getSkuInfoBySpuIdAndVenderId_response.returnType.success)
+                            //end change by nurul 19/5/2021
                             {
                                 var stf02h_local = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == IdMarket).ToList();
                                 var tempBrg_local = ErasoftDbContext.TEMP_BRG_MP.Where(m => m.IDMARKET == IdMarket).ToList();
