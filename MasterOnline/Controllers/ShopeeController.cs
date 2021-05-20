@@ -124,7 +124,7 @@ namespace MasterOnline.Controllers
                 else
                 {
 #if (Debug_AWS)
-                    dbSourceEra = sessionAccountDataSourcePathDebug.ToString(); 
+                    dbSourceEra = sessionAccountDataSourcePathDebug.ToString();
 #else
                     dbSourceEra = sessionAccountDataSourcePath.ToString();
 #endif
@@ -1775,7 +1775,7 @@ namespace MasterOnline.Controllers
             {
             }
 
-            if (responseFromServer != null)
+            if (!string.IsNullOrEmpty(responseFromServer))
             {
                 try
                 {
@@ -1784,28 +1784,85 @@ namespace MasterOnline.Controllers
                     string a = "";
                     int i = 0;
                     ATTRIBUTE_SHOPEE returnData = new ATTRIBUTE_SHOPEE();
-                    if(result.response.attribute_list != null)
-                    foreach (var attribs in result.response.attribute_list)
-                    {
-                        a = Convert.ToString(i + 1);
-                        returnData.CATEGORY_CODE = category.CATEGORY_CODE;
-                        returnData.CATEGORY_NAME = category.CATEGORY_NAME;
-
-                        returnData["ACODE_" + a] = Convert.ToString(attribs.attribute_id);
-                        returnData["ATYPE_" + a] = attribs.input_type + "|" + attribs.input_validation_type;
-                        returnData["ANAME_" + a] = attribs.display_attribute_name;
-                        returnData["AOPTIONS_" + a] = attribs.attribute_value_list.Count() > 0 ? "1" : "0";
-                        returnData["AMANDATORY_" + a] = attribs.is_mandatory ? "1" : "0";
-
-                        if (attribs.attribute_value_list.Count() > 0)
+                    if (result.response.attribute_list != null)
+                        foreach (var attribs in result.response.attribute_list)
                         {
-                            var optList = attribs.attribute_value_list.ToList();
-                            var listOpt = optList.Select(x => new ATTRIBUTE_OPT_SHOPEE_V2(attribs.attribute_id.ToString(), x.original_value_name, x.value_id.ToString())).ToList();
-                            ret.attribute_opts_v2.AddRange(listOpt);
+                            a = Convert.ToString(i + 1);
+                            returnData.CATEGORY_CODE = category.CATEGORY_CODE;
+                            returnData.CATEGORY_NAME = category.CATEGORY_NAME;
+
+                            returnData["ACODE_" + a] = Convert.ToString(attribs.attribute_id);
+                            returnData["ATYPE_" + a] = attribs.input_type + "|" + attribs.input_validation_type;
+                            returnData["ANAME_" + a] = attribs.display_attribute_name;
+                            returnData["AOPTIONS_" + a] = attribs.attribute_value_list.Count() > 0 ? "1" : "0";
+                            returnData["AMANDATORY_" + a] = attribs.is_mandatory ? "1" : "0";
+
+                            if (attribs.attribute_value_list.Count() > 0)
+                            {
+                                var optList = attribs.attribute_value_list.ToList();
+                                var listOpt = optList.Select(x => new ATTRIBUTE_OPT_SHOPEE_V2(attribs.attribute_id.ToString(), x.original_value_name, x.value_id.ToString())).ToList();
+                                ret.attribute_opts_v2.AddRange(listOpt);
+                            }
+                            i = i + 1;
                         }
-                        i = i + 1;
-                    }
                     ret.attributes.Add(returnData);
+
+                }
+                catch (Exception ex2)
+                {
+
+                }
+            }
+
+            return ret;
+        }
+
+        public async Task<ShopeeGetBrandResult_V2> GetBrand_V2(ShopeeAPIData dataAPI, string category, int page)
+        {
+            dataAPI = await RefreshTokenShopee_V2(dataAPI, false);
+            int MOPartnerID = MOPartnerIDV2;
+            string MOPartnerKey = MOPartnerKeyV2;
+            ShopeeGetBrandResult_V2 ret = new ShopeeGetBrandResult_V2();
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = shopeeV2Url;
+            string path = "/api/v2/product/get_brand_list";
+
+            var baseString = MOPartnerID + path + seconds + dataAPI.token + dataAPI.merchant_code;
+            var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
+
+            string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds + "&access_token=" + dataAPI.token
+                + "&shop_id=" + dataAPI.merchant_code + "&sign=" + sign + "&status=1&page_size=10&category_id=" + category + "&offset=" + (page * 10);
+
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
+            myReq.Method = "GET";
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            if (!string.IsNullOrEmpty(responseFromServer))
+            {
+                try
+                {
+                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetBrandResult_V2)) as ShopeeGetBrandResult_V2;
+                    ret = result;
 
                 }
                 catch (Exception ex2)
@@ -2030,7 +2087,7 @@ namespace MasterOnline.Controllers
                     manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
                 }
 
-                if (responseFromServer != null)
+                if (!string.IsNullOrEmpty(responseFromServer))
                 {
                     //temp
                     //var simpanResponse = new BUKALAPAK_TOKEN()
@@ -2309,78 +2366,74 @@ namespace MasterOnline.Controllers
                     }
                 }
 
-                if (responseFromServer != null)
+                if (!string.IsNullOrEmpty(responseFromServer))
                 {
-
-                    if (responseFromServer != null)
+                    try
                     {
-                        try
-                        {
-                            var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetCategoryResult_V2)) as ShopeeGetCategoryResult_V2;
+                        var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetCategoryResult_V2)) as ShopeeGetCategoryResult_V2;
 #if AWS
-                    string con = "Data Source=172.31.20.192;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+                string con = "Data Source=172.31.20.192;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #elif Debug_AWS
-                    string con = "Data Source=54.151.175.62, 12354;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+                        string con = "Data Source=54.151.175.62, 12354;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #elif DEV
-                            string con = "Data Source=172.31.20.73;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+                        string con = "Data Source=172.31.20.73;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #else
-                            string con = "Data Source=54.151.175.62, 45650;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+                        string con = "Data Source=54.151.175.62, 45650;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #endif
 
-                            using (SqlConnection oConnection = new SqlConnection(con))
+                        using (SqlConnection oConnection = new SqlConnection(con))
+                        {
+                            oConnection.Open();
+                            //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+                            //{
+                            using (SqlCommand oCommand = oConnection.CreateCommand())
                             {
-                                oConnection.Open();
-                                //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
-                                //{
-                                using (SqlCommand oCommand = oConnection.CreateCommand())
+                                oCommand.CommandText = "DELETE FROM [CATEGORY_SHOPEE_V2]";
+                                oCommand.ExecuteNonQuery();
+                                //oCommand.Transaction = oTransaction;
+                                oCommand.CommandType = CommandType.Text;
+                                oCommand.CommandText = "INSERT INTO [CATEGORY_SHOPEE_V2] ([CATEGORY_CODE], [CATEGORY_NAME], [PARENT_CODE], [IS_LAST_NODE], [MASTER_CATEGORY_CODE]) VALUES (@CATEGORY_CODE, @CATEGORY_NAME, @PARENT_CODE, @IS_LAST_NODE, @MASTER_CATEGORY_CODE)";
+                                //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
+                                oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
+                                oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
+                                oCommand.Parameters.Add(new SqlParameter("@PARENT_CODE", SqlDbType.NVarChar, 50));
+                                oCommand.Parameters.Add(new SqlParameter("@IS_LAST_NODE", SqlDbType.NVarChar, 1));
+                                oCommand.Parameters.Add(new SqlParameter("@MASTER_CATEGORY_CODE", SqlDbType.NVarChar, 50));
+
+                                try
                                 {
-                                    oCommand.CommandText = "DELETE FROM [CATEGORY_SHOPEE_V2]";
-                                    oCommand.ExecuteNonQuery();
-                                    //oCommand.Transaction = oTransaction;
-                                    oCommand.CommandType = CommandType.Text;
-                                    oCommand.CommandText = "INSERT INTO [CATEGORY_SHOPEE_V2] ([CATEGORY_CODE], [CATEGORY_NAME], [PARENT_CODE], [IS_LAST_NODE], [MASTER_CATEGORY_CODE]) VALUES (@CATEGORY_CODE, @CATEGORY_NAME, @PARENT_CODE, @IS_LAST_NODE, @MASTER_CATEGORY_CODE)";
-                                    //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
-                                    oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
-                                    oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
-                                    oCommand.Parameters.Add(new SqlParameter("@PARENT_CODE", SqlDbType.NVarChar, 50));
-                                    oCommand.Parameters.Add(new SqlParameter("@IS_LAST_NODE", SqlDbType.NVarChar, 1));
-                                    oCommand.Parameters.Add(new SqlParameter("@MASTER_CATEGORY_CODE", SqlDbType.NVarChar, 50));
-
-                                    try
+                                    //foreach (var item in result.categories.Where(P => P.parent_id == 0)) //foreach parent level top
+                                    foreach (var item in result.response.category_list) //foreach parent level top
                                     {
-                                        //foreach (var item in result.categories.Where(P => P.parent_id == 0)) //foreach parent level top
-                                        foreach (var item in result.response.category_list) //foreach parent level top
+                                        oCommand.Parameters[0].Value = item.category_id;
+                                        oCommand.Parameters[1].Value = item.display_category_name;
+                                        oCommand.Parameters[2].Value = item.parent_category_id == 0 ? "" : item.parent_category_id.ToString();
+                                        oCommand.Parameters[3].Value = item.has_children ? "0" : "1";
+                                        oCommand.Parameters[4].Value = "";
+                                        if (oCommand.ExecuteNonQuery() > 0)
                                         {
-                                            oCommand.Parameters[0].Value = item.category_id;
-                                            oCommand.Parameters[1].Value = item.display_category_name;
-                                            oCommand.Parameters[2].Value = item.parent_category_id == 0 ? "" : item.parent_category_id.ToString();
-                                            oCommand.Parameters[3].Value = item.has_children ? "0" : "1";
-                                            oCommand.Parameters[4].Value = "";
-                                            if (oCommand.ExecuteNonQuery() > 0)
-                                            {
-                                                //if (item.has_children)
-                                                //{
-                                                //    RecursiveInsertCategory(oCommand, result.categories, item.category_id, item.category_id);
-                                                //}
-                                            }
-                                            else
-                                            {
-
-                                            }
+                                            //if (item.has_children)
+                                            //{
+                                            //    RecursiveInsertCategory(oCommand, result.categories, item.category_id, item.category_id);
+                                            //}
                                         }
-                                        //oTransaction.Commit();
+                                        else
+                                        {
+
+                                        }
                                     }
-                                    catch (Exception ex)
-                                    {
-                                        //oTransaction.Rollback();
-                                    }
+                                    //oTransaction.Commit();
+                                }
+                                catch (Exception ex)
+                                {
+                                    //oTransaction.Rollback();
                                 }
                             }
                         }
-                        catch (Exception ex2)
-                        {
+                    }
+                    catch (Exception ex2)
+                    {
 
-                        }
                     }
                 }
             }
@@ -6447,7 +6500,33 @@ namespace MasterOnline.Controllers
             public string original_value_name { get; set; }
             public string display_value_name { get; set; }
         }
-//
+
+        public class ShopeeGetBrandResult_V2
+        {
+            public string error { get; set; }
+            public string message { get; set; }
+            public string warning { get; set; }
+            public string request_id { get; set; }
+            public ShopeeGetBrand_V2 response { get; set; }
+        }
+
+        public class ShopeeGetBrand_V2
+        {
+            public Brand_List_V2[] brand_list { get; set; }
+            public bool has_next_page { get; set; }
+            public int next_offset { get; set; }
+            public bool is_mandatory { get; set; }
+            public string input_type { get; set; }
+        }
+
+        public class Brand_List_V2
+        {
+            public long brand_id { get; set; }
+            public string original_brand_name { get; set; }
+            public string display_brand_name { get; set; }
+        }
+
+        //
         public class ShopeeGetOrderByStatusResult
         {
             public string request_id { get; set; }
