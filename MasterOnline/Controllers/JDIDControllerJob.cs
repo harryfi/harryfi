@@ -399,30 +399,38 @@ namespace MasterOnline.Controllers
 
             if (urll != "")
             {
-                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-                myReq.Method = "GET";
                 string responseFromServer = "";
-                try
+                bool responseApi = false;
+                int retry = 0;
+                while (!responseApi && retry <= 3)
                 {
-                    using (WebResponse response = await myReq.GetResponseAsync())
+                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                    myReq.Method = "GET";
+
+                    try
                     {
-                        using (Stream stream = response.GetResponseStream())
+                        using (WebResponse response = await myReq.GetResponseAsync())
                         {
-                            StreamReader reader = new StreamReader(stream);
-                            responseFromServer = reader.ReadToEnd();
+                            using (Stream stream = response.GetResponseStream())
+                            {
+                                StreamReader reader = new StreamReader(stream);
+                                responseFromServer = reader.ReadToEnd();
+                                responseApi = true; break;
+                            }
                         }
                     }
-                }
-                catch (WebException e)
-                {
-                    string err = "";
-                    if (e.Status == WebExceptionStatus.ProtocolError)
+                    catch (WebException e)
                     {
-                        WebResponse resp = e.Response;
-                        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                        retry = retry + 1;
+                        string err = "";
+                        if (e.Status == WebExceptionStatus.ProtocolError)
                         {
-                            err = sr.ReadToEnd();
-                            responseFromServer = err;
+                            WebResponse resp = e.Response;
+                            using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                            {
+                                err = sr.ReadToEnd();
+                                responseFromServer = err;
+                            }
                         }
                     }
                 }

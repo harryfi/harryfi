@@ -3019,58 +3019,65 @@ namespace MasterOnline.Controllers
             };
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data, currentLog);
 
-            var sysParams = new Dictionary<string, string>();
-            this.ParamJson = "{\"page\":\"" + (page + 1) + "\",\"size\":\"10\"}";
-            sysParams.Add("360buy_param_json", this.ParamJson);
-
-            sysParams.Add("access_token", data.accessToken);
-            sysParams.Add("app_key", data.appKey);
-            this.Method = "jingdong.seller.product.getWareInfoListByVendorId"; //this API is for query product information list via venderId( this API is only for POP sellers)
-            sysParams.Add("method", this.Method);
-            var gettimestamp = getCurrentTimeFormatted();
-            sysParams.Add("timestamp", gettimestamp);
-            sysParams.Add("v", this.Version2);
-            sysParams.Add("format", this.Format);
-            sysParams.Add("sign_method", this.SignMethod);
-
-            var signature = this.generateSign(sysParams, data.appSecret);
-
-            string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
-            urll += "&format=json&sign_method=md5";
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-            myReq.Method = "GET";
             string responseFromServer = "";
-            try
+            bool responseApi = false;
+            int retry = 0;
+            while (!responseApi && retry <= 3)
             {
-                using (WebResponse response = await myReq.GetResponseAsync())
+                var sysParams = new Dictionary<string, string>();
+                this.ParamJson = "{\"page\":\"" + (page + 1) + "\",\"size\":\"10\"}";
+                sysParams.Add("360buy_param_json", this.ParamJson);
+
+                sysParams.Add("access_token", data.accessToken);
+                sysParams.Add("app_key", data.appKey);
+                this.Method = "jingdong.seller.product.getWareInfoListByVendorId"; //this API is for query product information list via venderId( this API is only for POP sellers)
+                sysParams.Add("method", this.Method);
+                var gettimestamp = getCurrentTimeFormatted();
+                sysParams.Add("timestamp", gettimestamp);
+                sysParams.Add("v", this.Version2);
+                sysParams.Add("format", this.Format);
+                sysParams.Add("sign_method", this.SignMethod);
+
+                var signature = this.generateSign(sysParams, data.appSecret);
+
+                string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
+                urll += "&format=json&sign_method=md5";
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                try
                 {
-                    using (Stream stream = response.GetResponseStream())
+                    using (WebResponse response = await myReq.GetResponseAsync())
                     {
-                        StreamReader reader = new StreamReader(stream);
-                        responseFromServer = reader.ReadToEnd();
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                            responseApi = true; break;
+                        }
                     }
                 }
-            }
-            //catch (WebException ex)
-            //{
-            //    string err1 = "";
-            //    if (ex.Status == WebExceptionStatus.ProtocolError)
-            //    {
-            //        WebResponse resp1 = ex.Response;
-            //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
-            //        {
-            //            err1 = sr1.ReadToEnd();
-            //        }
-            //    }
-            //    //throw new Exception(err1);
-            //}
-            catch (Exception ex)
-            {
-                ret.nextPage = 1;
-                ret.exception = 1;
-                ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                currentLog.REQUEST_EXCEPTION = ret.message;
-                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data, currentLog);
+                //catch (WebException ex)
+                //{
+                //    string err1 = "";
+                //    if (ex.Status == WebExceptionStatus.ProtocolError)
+                //    {
+                //        WebResponse resp1 = ex.Response;
+                //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                //        {
+                //            err1 = sr1.ReadToEnd();
+                //        }
+                //    }
+                //    //throw new Exception(err1);
+                //}
+                catch (Exception ex)
+                {
+                    retry = retry + 1;
+                    ret.nextPage = 1;
+                    ret.exception = 1;
+                    ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    currentLog.REQUEST_EXCEPTION = ret.message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data, currentLog);
+                }
             }
 
             if (!string.IsNullOrEmpty(responseFromServer))
@@ -3146,6 +3153,7 @@ namespace MasterOnline.Controllers
                 }
                 catch (Exception ex2)
                 {
+                    retry = retry + 1;
                     ret.nextPage = 1;
                     ret.exception = 1;
                     currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
@@ -3166,55 +3174,61 @@ namespace MasterOnline.Controllers
 
             try
             {
-                var sysParams = new Dictionary<string, string>();
-                this.ParamJson = "{\"spuId\":\"" + itemFromList.spuId + "\"}";
-                sysParams.Add("360buy_param_json", this.ParamJson);
-
-                sysParams.Add("access_token", data.accessToken);
-                sysParams.Add("app_key", data.appKey);
-                this.Method = "jingdong.seller.product.getSkuInfoBySpuIdAndVenderId"; //this API is for query sku information via spuId
-                sysParams.Add("method", this.Method);
-                var gettimestamp = getCurrentTimeFormatted();
-                sysParams.Add("timestamp", gettimestamp);
-                sysParams.Add("v", this.Version2);
-                sysParams.Add("format", this.Format);
-                sysParams.Add("sign_method", this.SignMethod);
-
-                var signature = this.generateSign(sysParams, data.appSecret);
-
-                string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
-                urll += "&format=json&sign_method=md5";
-                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-                myReq.Method = "GET";
                 string responseFromServer = "";
-                try
+                bool responseApi = false;
+                int retry = 0;
+                while (!responseApi && retry <= 3)
                 {
-                    using (WebResponse response = await myReq.GetResponseAsync())
+                    var sysParams = new Dictionary<string, string>();
+                    this.ParamJson = "{\"spuId\":\"" + itemFromList.spuId + "\"}";
+                    sysParams.Add("360buy_param_json", this.ParamJson);
+
+                    sysParams.Add("access_token", data.accessToken);
+                    sysParams.Add("app_key", data.appKey);
+                    this.Method = "jingdong.seller.product.getSkuInfoBySpuIdAndVenderId"; //this API is for query sku information via spuId
+                    sysParams.Add("method", this.Method);
+                    var gettimestamp = getCurrentTimeFormatted();
+                    sysParams.Add("timestamp", gettimestamp);
+                    sysParams.Add("v", this.Version2);
+                    sysParams.Add("format", this.Format);
+                    sysParams.Add("sign_method", this.SignMethod);
+
+                    var signature = this.generateSign(sysParams, data.appSecret);
+
+                    string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
+                    urll += "&format=json&sign_method=md5";
+                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                    myReq.Method = "GET";
+                    try
                     {
-                        using (Stream stream = response.GetResponseStream())
+                        using (WebResponse response = await myReq.GetResponseAsync())
                         {
-                            StreamReader reader = new StreamReader(stream);
-                            responseFromServer = reader.ReadToEnd();
+                            using (Stream stream = response.GetResponseStream())
+                            {
+                                StreamReader reader = new StreamReader(stream);
+                                responseFromServer = reader.ReadToEnd();
+                                responseApi = true; break;
+                            }
                         }
                     }
-                }
-                //catch (WebException ex)
-                //{
-                //    string err1 = "";
-                //    if (ex.Status == WebExceptionStatus.ProtocolError)
-                //    {
-                //        WebResponse resp1 = ex.Response;
-                //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
-                //        {
-                //            err1 = sr1.ReadToEnd();
-                //        }
-                //    }
-                //    //throw new Exception(err1);
-                //}
-                catch (Exception ex)
-                {
-                    ret.exception = 1;
-                    ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    //catch (WebException ex)
+                    //{
+                    //    string err1 = "";
+                    //    if (ex.Status == WebExceptionStatus.ProtocolError)
+                    //    {
+                    //        WebResponse resp1 = ex.Response;
+                    //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                    //        {
+                    //            err1 = sr1.ReadToEnd();
+                    //        }
+                    //    }
+                    //    //throw new Exception(err1);
+                    //}
+                    catch (Exception ex)
+                    {
+                        ret.exception = 1;
+                        ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(responseFromServer))
@@ -3351,55 +3365,62 @@ namespace MasterOnline.Controllers
 
             try
             {
-                var sysParams = new Dictionary<string, string>();
-                this.ParamJson = "{\"skuId\":\"" + skuId + "\"}";
-                sysParams.Add("360buy_param_json", this.ParamJson);
-
-                sysParams.Add("access_token", data.accessToken);
-                sysParams.Add("app_key", data.appKey);
-                this.Method = "jingdong.seller.product.sku.read.getSkuBySkuIds"; //this API is for query sku information via spuId
-                sysParams.Add("method", this.Method);
-                var gettimestamp = getCurrentTimeFormatted();
-                sysParams.Add("timestamp", gettimestamp);
-                sysParams.Add("v", this.Version2);
-                sysParams.Add("format", this.Format);
-                sysParams.Add("sign_method", this.SignMethod);
-
-                var signature = this.generateSign(sysParams, data.appSecret);
-
-                string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
-                urll += "&format=json&sign_method=md5";
-                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-                myReq.Method = "GET";
                 string responseFromServer = "";
-                try
+                bool responseApi = false;
+                int retry = 0;
+                while (!responseApi && retry <= 3)
                 {
-                    using (WebResponse response = await myReq.GetResponseAsync())
+                    var sysParams = new Dictionary<string, string>();
+                    this.ParamJson = "{\"skuId\":\"" + skuId + "\"}";
+                    sysParams.Add("360buy_param_json", this.ParamJson);
+
+                    sysParams.Add("access_token", data.accessToken);
+                    sysParams.Add("app_key", data.appKey);
+                    this.Method = "jingdong.seller.product.sku.read.getSkuBySkuIds"; //this API is for query sku information via spuId
+                    sysParams.Add("method", this.Method);
+                    var gettimestamp = getCurrentTimeFormatted();
+                    sysParams.Add("timestamp", gettimestamp);
+                    sysParams.Add("v", this.Version2);
+                    sysParams.Add("format", this.Format);
+                    sysParams.Add("sign_method", this.SignMethod);
+
+                    var signature = this.generateSign(sysParams, data.appSecret);
+
+                    string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
+                    urll += "&format=json&sign_method=md5";
+                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                    myReq.Method = "GET";
+                    try
                     {
-                        using (Stream stream = response.GetResponseStream())
+                        using (WebResponse response = await myReq.GetResponseAsync())
                         {
-                            StreamReader reader = new StreamReader(stream);
-                            responseFromServer = reader.ReadToEnd();
+                            using (Stream stream = response.GetResponseStream())
+                            {
+                                StreamReader reader = new StreamReader(stream);
+                                responseFromServer = reader.ReadToEnd();
+                                responseApi = true; break;
+                            }
                         }
                     }
-                }
-                //catch (WebException ex)
-                //{
-                //    string err1 = "";
-                //    if (ex.Status == WebExceptionStatus.ProtocolError)
-                //    {
-                //        WebResponse resp1 = ex.Response;
-                //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
-                //        {
-                //            err1 = sr1.ReadToEnd();
-                //        }
-                //    }
-                //    //throw new Exception(err1);
-                //}
-                catch (Exception ex)
-                {
-                    ret.exception = 1;
-                    ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    //catch (WebException ex)
+                    //{
+                    //    string err1 = "";
+                    //    if (ex.Status == WebExceptionStatus.ProtocolError)
+                    //    {
+                    //        WebResponse resp1 = ex.Response;
+                    //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                    //        {
+                    //            err1 = sr1.ReadToEnd();
+                    //        }
+                    //    }
+                    //    //throw new Exception(err1);
+                    //}
+                    catch (Exception ex)
+                    {
+                        retry = retry + 1;
+                        ret.exception = 1;
+                        ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(responseFromServer))
@@ -3490,55 +3511,62 @@ namespace MasterOnline.Controllers
 
             try
             {
-                var sysParams = new Dictionary<string, string>();
-                this.ParamJson = "{\"spuId\":\"" + item.spuId + "\",\"spuDescription\":\"1\",\"spuImgs\":\"1\",\"brandInfo\":\"1\",\"skuIds\":\"1\"}";
-                sysParams.Add("360buy_param_json", this.ParamJson);
-
-                sysParams.Add("access_token", data.accessToken);
-                sysParams.Add("app_key", data.appKey);
-                this.Method = "jingdong.seller.product.getWareBySpuIds"; //query product information via productId list, tambahan untuk dapetin warrantyPeriod
-                sysParams.Add("method", this.Method);
-                var gettimestamp = getCurrentTimeFormatted();
-                sysParams.Add("timestamp", gettimestamp);
-                sysParams.Add("v", this.Version2);
-                sysParams.Add("format", this.Format);
-                sysParams.Add("sign_method", this.SignMethod);
-
-                var signature = this.generateSign(sysParams, data.appSecret);
-
-                string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
-                urll += "&format=json&sign_method=md5";
-                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-                myReq.Method = "GET";
                 string responseFromServer = "";
-                try
+                bool responseApi = false;
+                int retry = 0;
+                while (!responseApi && retry <= 3)
                 {
-                    using (WebResponse response = await myReq.GetResponseAsync())
+                    var sysParams = new Dictionary<string, string>();
+                    this.ParamJson = "{\"spuId\":\"" + item.spuId + "\",\"spuDescription\":\"1\",\"spuImgs\":\"1\",\"brandInfo\":\"1\",\"skuIds\":\"1\"}";
+                    sysParams.Add("360buy_param_json", this.ParamJson);
+
+                    sysParams.Add("access_token", data.accessToken);
+                    sysParams.Add("app_key", data.appKey);
+                    this.Method = "jingdong.seller.product.getWareBySpuIds"; //query product information via productId list, tambahan untuk dapetin warrantyPeriod
+                    sysParams.Add("method", this.Method);
+                    var gettimestamp = getCurrentTimeFormatted();
+                    sysParams.Add("timestamp", gettimestamp);
+                    sysParams.Add("v", this.Version2);
+                    sysParams.Add("format", this.Format);
+                    sysParams.Add("sign_method", this.SignMethod);
+
+                    var signature = this.generateSign(sysParams, data.appSecret);
+
+                    string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
+                    urll += "&format=json&sign_method=md5";
+                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                    myReq.Method = "GET";
+                    try
                     {
-                        using (Stream stream = response.GetResponseStream())
+                        using (WebResponse response = await myReq.GetResponseAsync())
                         {
-                            StreamReader reader = new StreamReader(stream);
-                            responseFromServer = reader.ReadToEnd();
+                            using (Stream stream = response.GetResponseStream())
+                            {
+                                StreamReader reader = new StreamReader(stream);
+                                responseFromServer = reader.ReadToEnd();
+                                responseApi = true; break;
+                            }
                         }
                     }
-                }
-                //catch (WebException ex)
-                //{
-                //    string err1 = "";
-                //    if (ex.Status == WebExceptionStatus.ProtocolError)
-                //    {
-                //        WebResponse resp1 = ex.Response;
-                //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
-                //        {
-                //            err1 = sr1.ReadToEnd();
-                //        }
-                //    }
-                //    //throw new Exception(err1);
-                //}
-                catch (Exception ex)
-                {
-                    ret.exception = 1;
-                    ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    //catch (WebException ex)
+                    //{
+                    //    string err1 = "";
+                    //    if (ex.Status == WebExceptionStatus.ProtocolError)
+                    //    {
+                    //        WebResponse resp1 = ex.Response;
+                    //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                    //        {
+                    //            err1 = sr1.ReadToEnd();
+                    //        }
+                    //    }
+                    //    //throw new Exception(err1);
+                    //}
+                    catch (Exception ex)
+                    {
+                        retry = retry + 1;
+                        ret.exception = 1;
+                        ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(responseFromServer))
@@ -3632,55 +3660,62 @@ namespace MasterOnline.Controllers
 
             try
             {
-                var sysParams = new Dictionary<string, string>();
-                this.ParamJson = "{\"skuId\":\"" + skuId + "\"}";
-                sysParams.Add("360buy_param_json", this.ParamJson);
-
-                sysParams.Add("access_token", data.accessToken);
-                sysParams.Add("app_key", data.appKey);
-                this.Method = "jingdong.seller.product.sku.read.getSkuBySkuIds"; //this API is for query sku information via spuId
-                sysParams.Add("method", this.Method);
-                var gettimestamp = getCurrentTimeFormatted();
-                sysParams.Add("timestamp", gettimestamp);
-                sysParams.Add("v", this.Version2);
-                sysParams.Add("format", this.Format);
-                sysParams.Add("sign_method", this.SignMethod);
-
-                var signature = this.generateSign(sysParams, data.appSecret);
-
-                string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
-                urll += "&format=json&sign_method=md5";
-                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-                myReq.Method = "GET";
                 string responseFromServer = "";
-                try
+                bool responseApi = false;
+                int retry = 0;
+                while (!responseApi && retry <= 3)
                 {
-                    using (WebResponse response = await myReq.GetResponseAsync())
+                    var sysParams = new Dictionary<string, string>();
+                    this.ParamJson = "{\"skuId\":\"" + skuId + "\"}";
+                    sysParams.Add("360buy_param_json", this.ParamJson);
+
+                    sysParams.Add("access_token", data.accessToken);
+                    sysParams.Add("app_key", data.appKey);
+                    this.Method = "jingdong.seller.product.sku.read.getSkuBySkuIds"; //this API is for query sku information via spuId
+                    sysParams.Add("method", this.Method);
+                    var gettimestamp = getCurrentTimeFormatted();
+                    sysParams.Add("timestamp", gettimestamp);
+                    sysParams.Add("v", this.Version2);
+                    sysParams.Add("format", this.Format);
+                    sysParams.Add("sign_method", this.SignMethod);
+
+                    var signature = this.generateSign(sysParams, data.appSecret);
+
+                    string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
+                    urll += "&format=json&sign_method=md5";
+                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                    myReq.Method = "GET";
+                    try
                     {
-                        using (Stream stream = response.GetResponseStream())
+                        using (WebResponse response = await myReq.GetResponseAsync())
                         {
-                            StreamReader reader = new StreamReader(stream);
-                            responseFromServer = reader.ReadToEnd();
+                            using (Stream stream = response.GetResponseStream())
+                            {
+                                StreamReader reader = new StreamReader(stream);
+                                responseFromServer = reader.ReadToEnd();
+                                responseApi = true; break;
+                            }
                         }
                     }
-                }
-                //catch (WebException ex)
-                //{
-                //    string err1 = "";
-                //    if (ex.Status == WebExceptionStatus.ProtocolError)
-                //    {
-                //        WebResponse resp1 = ex.Response;
-                //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
-                //        {
-                //            err1 = sr1.ReadToEnd();
-                //        }
-                //    }
-                //    //throw new Exception(err1);
-                //}
-                catch (Exception ex)
-                {
-                    ret.exception = 1;
-                    ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    //catch (WebException ex)
+                    //{
+                    //    string err1 = "";
+                    //    if (ex.Status == WebExceptionStatus.ProtocolError)
+                    //    {
+                    //        WebResponse resp1 = ex.Response;
+                    //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                    //        {
+                    //            err1 = sr1.ReadToEnd();
+                    //        }
+                    //    }
+                    //    //throw new Exception(err1);
+                    //}
+                    catch (Exception ex)
+                    {
+                        retry = retry + 1;
+                        ret.exception = 1;
+                        ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(responseFromServer))
@@ -3742,55 +3777,62 @@ namespace MasterOnline.Controllers
 
             try
             {
-                var sysParams = new Dictionary<string, string>();
-                this.ParamJson = "{\"spuId\":\"" + item.spuId + "\",\"spuDescription\":\"1\",\"spuImgs\":\"1\",\"brandInfo\":\"1\",\"skuIds\":\"1\"}";
-                sysParams.Add("360buy_param_json", this.ParamJson);
-
-                sysParams.Add("access_token", data.accessToken);
-                sysParams.Add("app_key", data.appKey);
-                this.Method = "jingdong.seller.product.getWareBySpuIds"; //query product information via productId list, tambahan untuk dapetin warrantyPeriod
-                sysParams.Add("method", this.Method);
-                var gettimestamp = getCurrentTimeFormatted();
-                sysParams.Add("timestamp", gettimestamp);
-                sysParams.Add("v", this.Version2);
-                sysParams.Add("format", this.Format);
-                sysParams.Add("sign_method", this.SignMethod);
-
-                var signature = this.generateSign(sysParams, data.appSecret);
-
-                string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
-                urll += "&format=json&sign_method=md5";
-                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-                myReq.Method = "GET";
                 string responseFromServer = "";
-                try
+                bool responseApi = false;
+                int retry = 0;
+                while (!responseApi && retry <= 3)
                 {
-                    using (WebResponse response = await myReq.GetResponseAsync())
+                    var sysParams = new Dictionary<string, string>();
+                    this.ParamJson = "{\"spuId\":\"" + item.spuId + "\",\"spuDescription\":\"1\",\"spuImgs\":\"1\",\"brandInfo\":\"1\",\"skuIds\":\"1\"}";
+                    sysParams.Add("360buy_param_json", this.ParamJson);
+
+                    sysParams.Add("access_token", data.accessToken);
+                    sysParams.Add("app_key", data.appKey);
+                    this.Method = "jingdong.seller.product.getWareBySpuIds"; //query product information via productId list, tambahan untuk dapetin warrantyPeriod
+                    sysParams.Add("method", this.Method);
+                    var gettimestamp = getCurrentTimeFormatted();
+                    sysParams.Add("timestamp", gettimestamp);
+                    sysParams.Add("v", this.Version2);
+                    sysParams.Add("format", this.Format);
+                    sysParams.Add("sign_method", this.SignMethod);
+
+                    var signature = this.generateSign(sysParams, data.appSecret);
+
+                    string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
+                    urll += "&format=json&sign_method=md5";
+                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                    myReq.Method = "GET";
+                    try
                     {
-                        using (Stream stream = response.GetResponseStream())
+                        using (WebResponse response = await myReq.GetResponseAsync())
                         {
-                            StreamReader reader = new StreamReader(stream);
-                            responseFromServer = reader.ReadToEnd();
+                            using (Stream stream = response.GetResponseStream())
+                            {
+                                StreamReader reader = new StreamReader(stream);
+                                responseFromServer = reader.ReadToEnd();
+                                responseApi = true; break;
+                            }
                         }
                     }
-                }
-                //catch (WebException ex)
-                //{
-                //    string err1 = "";
-                //    if (ex.Status == WebExceptionStatus.ProtocolError)
-                //    {
-                //        WebResponse resp1 = ex.Response;
-                //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
-                //        {
-                //            err1 = sr1.ReadToEnd();
-                //        }
-                //    }
-                //    //throw new Exception(err1);
-                //}
-                catch (Exception ex)
-                {
-                    ret.exception = 1;
-                    ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    //catch (WebException ex)
+                    //{
+                    //    string err1 = "";
+                    //    if (ex.Status == WebExceptionStatus.ProtocolError)
+                    //    {
+                    //        WebResponse resp1 = ex.Response;
+                    //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                    //        {
+                    //            err1 = sr1.ReadToEnd();
+                    //        }
+                    //    }
+                    //    //throw new Exception(err1);
+                    //}
+                    catch (Exception ex)
+                    {
+                        retry = retry + 1;
+                        ret.exception = 1;
+                        ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(responseFromServer))
