@@ -4508,6 +4508,10 @@
         //end add
 
         function simpanbrg($id) {
+            if ($('#Invoice_NO_INVOICE_SUPP').val() == undefined || $('#Invoice_NO_INVOICE_SUPP').val() == "") {
+                $('#Invoice_NO_INVOICE_SUPP').val('-');
+            }
+
             if (!validateForm()) return false;
             //add by nurul 15/10/2018
             if (!validasiTambahan()) return false;
