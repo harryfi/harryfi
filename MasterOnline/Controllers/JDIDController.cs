@@ -3153,7 +3153,6 @@ namespace MasterOnline.Controllers
                 }
                 catch (Exception ex2)
                 {
-                    retry = retry + 1;
                     ret.nextPage = 1;
                     ret.exception = 1;
                     currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
@@ -3226,6 +3225,7 @@ namespace MasterOnline.Controllers
                     //}
                     catch (Exception ex)
                     {
+                        retry = retry + 1;
                         ret.exception = 1;
                         ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                     }
