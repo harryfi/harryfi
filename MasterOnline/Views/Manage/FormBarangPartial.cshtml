@@ -1486,9 +1486,24 @@
                                                                                 <div id="attribute_shopee_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
                                                                                 </div>
                                                                             </div>
+                                                                            //add 21 mei 2021 
+                                                                            <div class="row">
+                                                                                <div class="col-md-12">
+                                                                                    <div class="row">
+                                                                                        <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                            @Html.Label("Logistic", new { @class = "control-label" })
+                                                                                        </div>
+                                                                                        <div class="col-md-4 col-sm-4 col-xs-12 form-group">
+                                                                                            <select id="LOGISTIC_SHOPEE_@recnumArf01" class="LOGISTIC_SHOPEE" placeholder="Harap pilih"></select>
+                                                                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_39, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_39 })
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            //end add 21 mei 2021 
                                                                         }
                                                                     </div>
-                                                                </div>
+                                                                 </div>
                                                             }
                                                         }
                                                     </div>
