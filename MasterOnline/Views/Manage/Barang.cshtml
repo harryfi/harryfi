@@ -912,6 +912,8 @@
             getKategori();
             getMerk();
 
+            getLogisticShopee();
+
             $("#Stf02_HJUAL").off('focus').focus(function () {
                 $(this).val(convertToAngka($(this).val()));
             });
@@ -1594,7 +1596,7 @@
                                         //$('#attribute_blibli_' + listMarketRecNum).append('<div class="col-md-2" style="margin-top:10px;">' + label + fieldACODE + fieldANAME + '</div>');
 
                                         var fieldAVALUE_ID = 'ListHargaJualPermarket_' + listmarket_i + '__AVALUE_' + (i + 1);
-                                      
+
                                         var adaValue = "";
                                         if (ListHargaJualPermarketView != null) {
                                             if (ListHargaJualPermarketView.length > 0) {
@@ -1874,7 +1876,7 @@
 
                                 var fieldCategoryCodeValue = $(fieldCategoryCode).val();
                                 FuncGetKategoriJDByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView);
-                                
+
                                 var fielTipeBarangCodeValue = $(fieldTipeBarangCode).val();
                                 FuncGetTipeBarangJD(fielTipeBarangCodeValue, selectTipeBarangJDID, listMarket[i].RecNum, fieldTipeBarangCode, fieldTipeBarangName, listMarketRecNum, clear);
 
@@ -1903,7 +1905,7 @@
         }
 
         function FuncGetTipeBarangJD(valueTipeBarang, selectTipeBarangJDID, listMarket_i_RecNum, fieldTipeBarangCode, fieldTipeBarangName, listMarketRecNum, clear){
-            
+
             //buat select pertama
             var nextselect = '<select id="' + selectTipeBarangJDID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select>';
             if (clear == false) {
@@ -1921,7 +1923,7 @@
                 id: "1",
                 text: "Big item > 20KG"
             };
-            
+
             var comboSelect = $('#' + selectTipeBarangJDID).selectize({
                 valueField: 'id',
                 searchField: 'text',
@@ -1934,7 +1936,7 @@
             if (valueTipeBarang != null) {
                 comboSelect[0].selectize.setValue(valueTipeBarang, true);
             }
-            
+
         }
 
         function TipeBarangJDOnChange(value, selectTipeBarangJDID, fieldTipeBarangCode, fieldTipeBarangName, listMarketRecNum, s) {
@@ -1996,7 +1998,7 @@
             var nextselect = '<select id="' + selectWarrantyJDID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select>';
             if (clear == false) {
                 $('#warranty_JD_' + listMarket_i_RecNum).append(nextselect);
-            }            
+            }
             //end buat select pertama
 
             var listReason = [];
@@ -2121,7 +2123,7 @@
             $(fieldWarrantyCode).val(value);
             $(fieldWarrantyName).val($('#' + selectWarrantyJDID + " option:selected").text());
         }
-        
+
         //add by fauzi for Tipe Barang JDID
         function getTipeBarangJDID() {
             var listReason = [];
@@ -2165,7 +2167,7 @@
                 }
             }
 
-            
+
         }
     // end add
 
@@ -2180,7 +2182,7 @@
             listReason[1] = {
                 id: "2",
                 text: "Not Support 7 Days Refund And 15 Days Exchange"
-            }; 
+            };
             listReason[2] = {
                 id: "3",
                 text: "Support 7 Days Refund And 15 Days Exchange"
@@ -2357,12 +2359,12 @@
                         comboSelect[0].selectize.setValue(selectedValue, true);
                     }
                 }
-            }            
+            }
 
             $('#ListHargaJualPermarket_4__ACODE_41').val("ACODE 41");
             $('#ListHargaJualPermarket_4__ACODE_40').val("ACODE 40");
         }
-        
+
     // end add
 
         function FuncGetKategoriJDByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
@@ -4745,6 +4747,60 @@
                 }
             });
         }
+
+        function getLogisticShopee() {
+            var idMarketShopee = "17";
+            var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
+            for (var i = 0; i < listMarket.length; i++) {
+                if (listMarket[i].NAMA == idMarketShopee.toString()) {
+                    setComboBoxLogisticShopee(listMarket[i].RecNum, i);
+                }
+            }
+        }
+        function setComboBoxLogisticShopee(idmarket, i) {
+            var urll = '@Url.Action("GetLogisticShopee", "Manage")';
+            urll += "?idmarket=" + idmarket;
+            $.ajax({
+                type: "GET",
+                url: urll,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listKategori = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listKategori[i] = {
+                                id: item.KODE,
+                                text: item.KET
+                            };
+                        });
+
+                    var kategoriSelect = $('#LOGISTIC_SHOPEE_' + idmarket).selectize({
+                        maxItems: 10,
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listKategori,
+                        onChange: function (value) {
+                            $('#ListHargaJualPermarket_' + i +'__AVALUE_39').val(value);
+                            //$('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
+                        }
+                    });
+                    if (kategoriSelect[0] != undefined) {
+                        //change by calvin 15 februari 2019, saat pertama kali load form, dan mengisi nilai default, jangan trigger kategoriSelect.onchange
+                        //kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val());
+                        if ($('#ListHargaJualPermarket_' + i + '__AVALUE_39').val() != undefined) {
+                            var listLog = $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val().split(',');
+                            kategoriSelect[0].selectize.setValue(listLog, true);
+                        }
+                        //end change by calvin 15 februari 2019
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
         function CekStrukturVariant(){
             //untuk saat ganti kategori
             if ($('#Stf02_Sort1').val() != undefined) {
@@ -5270,11 +5326,11 @@
             //    }
             //});
 
-            //add by nurul 17/9/2020, brg multi sku 
+            //add by nurul 17/9/2020, brg multi sku
             if ($('#Stf02_KUBILASI').val() != 1) {
                 $('#Stf02_KUBILASI').val(0)
             }
-            //end add by nurul 17/9/2020, brg multi sku 
+            //end add by nurul 17/9/2020, brg multi sku
 
             //add by calvin 20 juni 2019, kasus barang dari sync lazada, ada html tag nya
             $.each($(".removeHTMLTag"),
@@ -5389,11 +5445,11 @@
             $("#Stf02_HJUAL").val(angka);
             $('#Stf02_STN').val($('#Stf02_STN2').val());
 
-            //add by nurul 17/9/2020, brg multi sku 
+            //add by nurul 17/9/2020, brg multi sku
             if ($('#Stf02_KUBILASI').val() != 1) {
                 $('#Stf02_KUBILASI').val(0)
             }
-            //end add by nurul 17/9/2020, brg multi sku 
+            //end add by nurul 17/9/2020, brg multi sku
 
             //add by calvin 20 juni 2019, kasus barang dari sync lazada, ada html tag nya
             $.each($(".removeHTMLTag"),
@@ -5655,7 +5711,7 @@
                     });
                 }
             }
-            //add by nurul 16/9/2020, brg multi sku 
+            //add by nurul 16/9/2020, brg multi sku
             //if ($("#cbxStf02Type").is(":checked") == true) {
             //    $('#multi-sku').hide();
             //} else if ($("#cbxStf02Type").is(":checked") == false) {
@@ -5997,14 +6053,14 @@
                             var $this = $(this);
                             $this.show();
                         });
-                        
+
                         enableFotoProdukSection();
                         //end checkbox on click event
                         alert(response.Errors[0]);
                     }
                     //end change by calvin 25 april 2019
 
-                    //add by nurul 16/9/2020, brg multi sku 
+                    //add by nurul 16/9/2020, brg multi sku
                     //if ($("#cbxStf02Type").is(":checked") == true) {
                     //    $('#multi-sku').hide();
                     //} else if ($("#cbxStf02Type").is(":checked") == false) {
