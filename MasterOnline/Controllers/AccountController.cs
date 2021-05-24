@@ -1018,6 +1018,21 @@ namespace MasterOnline.Controllers
                             recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.HourInterval(6), recurJobOpt);
                             //end change by nurul 21/1/2020, interval ubah jadi 30
 #endif
+                            //add by Tri 24 mei 2021, get order -3hari untuk akun baru go live
+                            if (!string.IsNullOrEmpty(sync_pesanan_stok))
+                            {
+                                if (sync_pesanan_stok == tblCustomer.CUST)
+                                {
+#if (AWS || DEV)
+                                    client.Enqueue<LazadaControllerJob>(x => x.GetOrders_GoLive_Pending(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username));
+                                    client.Enqueue<LazadaControllerJob>(x => x.GetOrders_GoLive_RTS(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username));
+#else
+                                    new LazadaControllerJob().GetOrders_GoLive_Pending(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
+                                    new LazadaControllerJob().GetOrders_GoLive_RTS(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
+#endif
+                                }
+                            }
+                            //end add by Tri 24 mei 2021, get order -3hari untuk akun baru go live
 
                         }
                         else
