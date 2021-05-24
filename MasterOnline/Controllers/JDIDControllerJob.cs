@@ -2762,7 +2762,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-
+                ret = "error";
             }
 
             return ret;
@@ -2822,6 +2822,7 @@ namespace MasterOnline.Controllers
                 //}
                 catch (Exception ex)
                 {
+                    ret = "error";
                 }
 
                 if (!string.IsNullOrEmpty(responseFromServer))
@@ -2852,7 +2853,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-
+                ret = "error";
             }
 
             return ret;
@@ -2892,7 +2893,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-
+                ret = "error";
             }
 
             return ret;
@@ -2953,6 +2954,7 @@ namespace MasterOnline.Controllers
                 //}
                 catch (Exception ex)
                 {
+                    ret = "error";
                 }
 
                 if (!string.IsNullOrEmpty(responseFromServer))
@@ -2984,7 +2986,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-
+                ret = "error.";
             }
 
             return ret;
@@ -5139,7 +5141,8 @@ namespace MasterOnline.Controllers
                         var arf01 = ErasoftDbContext.ARF01.Where(p => p.TOKEN == iden.accessToken).FirstOrDefault();
                         var apiLog = new MasterOnline.API_LOG_MARKETPLACE
                         {
-                            CUST = arf01 != null ? arf01.CUST : iden.accessToken,
+                            //CUST = arf01 != null ? arf01.CUST : iden.accessToken,
+                            CUST = arf01 != null ? arf01.CUST : iden.no_cust != null ? iden.no_cust : iden.merchant_code != null ? iden.merchant_code : "",
                             CUST_ATTRIBUTE_1 = iden.accessToken,
                             CUST_ATTRIBUTE_2 = data.CUST_ATTRIBUTE_2 != null ? data.CUST_ATTRIBUTE_2 : "",
                             CUST_ATTRIBUTE_3 = data.CUST_ATTRIBUTE_3 != null ? data.CUST_ATTRIBUTE_3 : "",
