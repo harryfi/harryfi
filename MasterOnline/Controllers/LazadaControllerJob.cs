@@ -2410,27 +2410,48 @@ namespace MasterOnline.Controllers
                                 }
                                 if(!unpaid && !cancel)
                                 {
-                                    listNoRef += order.order_id + ",";
                                     var orderMO = ErasoftDbContext.SOT01A.Where(m => m.NO_REFERENSI == order.order_id && m.CUST == cust).FirstOrDefault();
                                     if (orderMO != null)
                                     {
-                                        if (string.IsNullOrEmpty(orderMO.PEMESAN) && order.order_items[0].address_billing != null)
+                                        listNoRef += "'" + orderMO.NO_BUKTI + "',";
+                                        if (string.IsNullOrEmpty(orderMO.PEMESAN))
                                         {
-                                            if (!string.IsNullOrEmpty(order.address_billing.phone))
+                                            var cekOrder = GetSinlgelOrder(accessToken, order.order_id);
+                                            if(cekOrder.code == "0")
                                             {
-                                                InsertPembeli(order, connectionID, dbPathEra, username);
-                                                var pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
-                                                if (pembeliInDB != null)
+                                                if(cekOrder.data.address_billing != null)
                                                 {
-                                                    var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + orderMO.NO_BUKTI + "'");
-                                                }
-                                                else
-                                                {
-                                                    var adaPembeliGagalInsert = true;
+                                                    if (!string.IsNullOrEmpty(cekOrder.data.address_billing.phone))
+                                                    {
+                                                        InsertPembeli(cekOrder.data, connectionID, dbPathEra, username);
+                                                        var pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == cekOrder.data.address_billing.phone).FirstOrDefault();
+                                                        if (pembeliInDB != null)
+                                                        {
+                                                            var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + orderMO.NO_BUKTI + "'");
+                                                        }
+                                                        else
+                                                        {
+                                                            var adaPembeliGagalInsert = true;
+                                                        }
+                                                    }
+
                                                 }
                                             }
+
                                         }
                                     }
+                                }
+                            }
+                            if (!string.IsNullOrEmpty(listNoRef))
+                            {
+                                listNoRef = listNoRef.Substring(0, listNoRef.Length-1);
+                                var recordCount = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_BUKTI IN ("+listNoRef+ ") AND  STATUS_TRANSAKSI = '0'");
+
+                                if (recordCount > 0)
+                                {
+                                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                    contextNotif.Clients.Group(dbPathEra).moNewOrder("" + Convert.ToString(recordCount) + " Pesanan dari Lazada sudah dibayar.");
+
                                 }
                             }
                         }
@@ -2455,7 +2476,29 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-
+        public SingleOrderReturn GetSinlgelOrder(string accessToken, string noref)
+        {
+            var ret = new SingleOrderReturn();
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/order/get");
+            request.SetHttpMethod("GET");
+            request.AddApiParameter("order_id", noref);
+            try
+            {
+                LazopResponse response = client.Execute(request, accessToken);
+                var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(SingleOrderReturn)) as SingleOrderReturn;
+                if (bindOrder != null)
+                {
+                    ret = bindOrder;
+                }
+               
+            }
+            catch (Exception ex)
+            {
+            }
+            return ret;
+        }
         public BindingBase GetOrdersWithPage(string cust, string accessToken, string dbPathEra, string uname, int page, string statusLzd, DateTime fromDt, DateTime toDt)
         {
             var ret = new BindingBase();
