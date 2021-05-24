@@ -2738,14 +2738,21 @@ namespace MasterOnline.Controllers
                     if (result.openapi_msg.ToLower() == "success")
                     {
                         var listPrintLabel = JsonConvert.DeserializeObject(result.openapi_data, typeof(Data_PrintLabel)) as Data_PrintLabel;
-                        var str = "{\"data\":" + listPrintLabel.model + "}";
-                        foreach (var dataDetail in listPrintLabel.model.data)
+                        if (listPrintLabel.success)
                         {
-                            ret = dataDetail.PDF.ToString();
-                        }
-                        //var listDetails = JsonConvert.DeserializeObject(str, typeof(ModelOrderJob)) as ModelOrderJob;
+                            var str = "{\"data\":" + listPrintLabel.model + "}";
+                            foreach (var dataDetail in listPrintLabel.model.data)
+                            {
+                                ret = dataDetail.PDF.ToString();
+                            }
+                            //var listDetails = JsonConvert.DeserializeObject(str, typeof(ModelOrderJob)) as ModelOrderJob;
 
-                        //var test = result;
+                            //var test = result;
+                        }
+                        else
+                        {
+                            ret = "error. " + listPrintLabel.message;
+                        }
                     }
                     else
                     {
@@ -2755,7 +2762,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-
+                ret = "error";
             }
 
             return ret;
@@ -2815,6 +2822,7 @@ namespace MasterOnline.Controllers
                 //}
                 catch (Exception ex)
                 {
+                    ret = "error";
                 }
 
                 if (!string.IsNullOrEmpty(responseFromServer))
@@ -2831,17 +2839,21 @@ namespace MasterOnline.Controllers
                                     ret = respons.jingdong_seller_order_printorder_response.result.model.content.ToString();
                                 }
                             }
+                            else
+                            {
+                                ret = "error. " + respons.jingdong_seller_order_printorder_response.result.message;
+                            }
                         }
                         else
                         {
-                            ret = "error";
+                            ret = "error. " + respons.jingdong_seller_order_printorder_response.result.message;
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-
+                ret = "error";
             }
 
             return ret;
@@ -2881,7 +2893,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-
+                ret = "error";
             }
 
             return ret;
@@ -2942,6 +2954,7 @@ namespace MasterOnline.Controllers
                 //}
                 catch (Exception ex)
                 {
+                    ret = "error";
                 }
 
                 if (!string.IsNullOrEmpty(responseFromServer))
@@ -2973,7 +2986,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-
+                ret = "error.";
             }
 
             return ret;
@@ -5128,7 +5141,8 @@ namespace MasterOnline.Controllers
                         var arf01 = ErasoftDbContext.ARF01.Where(p => p.TOKEN == iden.accessToken).FirstOrDefault();
                         var apiLog = new MasterOnline.API_LOG_MARKETPLACE
                         {
-                            CUST = arf01 != null ? arf01.CUST : iden.accessToken,
+                            //CUST = arf01 != null ? arf01.CUST : iden.accessToken,
+                            CUST = arf01 != null ? arf01.CUST : iden.no_cust != null ? iden.no_cust : iden.merchant_code != null ? iden.merchant_code : "",
                             CUST_ATTRIBUTE_1 = iden.accessToken,
                             CUST_ATTRIBUTE_2 = data.CUST_ATTRIBUTE_2 != null ? data.CUST_ATTRIBUTE_2 : "",
                             CUST_ATTRIBUTE_3 = data.CUST_ATTRIBUTE_3 != null ? data.CUST_ATTRIBUTE_3 : "",
@@ -5248,6 +5262,7 @@ namespace MasterOnline.Controllers
             public int code { get; set; }
             public bool success { get; set; }
             public Model_PrintLabel model { get; set; }
+            public string message { get; set; }
         }
 
         public class Model_PrintLabel
