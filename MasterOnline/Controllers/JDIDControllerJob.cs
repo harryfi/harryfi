@@ -2738,14 +2738,21 @@ namespace MasterOnline.Controllers
                     if (result.openapi_msg.ToLower() == "success")
                     {
                         var listPrintLabel = JsonConvert.DeserializeObject(result.openapi_data, typeof(Data_PrintLabel)) as Data_PrintLabel;
-                        var str = "{\"data\":" + listPrintLabel.model + "}";
-                        foreach (var dataDetail in listPrintLabel.model.data)
+                        if (listPrintLabel.success)
                         {
-                            ret = dataDetail.PDF.ToString();
-                        }
-                        //var listDetails = JsonConvert.DeserializeObject(str, typeof(ModelOrderJob)) as ModelOrderJob;
+                            var str = "{\"data\":" + listPrintLabel.model + "}";
+                            foreach (var dataDetail in listPrintLabel.model.data)
+                            {
+                                ret = dataDetail.PDF.ToString();
+                            }
+                            //var listDetails = JsonConvert.DeserializeObject(str, typeof(ModelOrderJob)) as ModelOrderJob;
 
-                        //var test = result;
+                            //var test = result;
+                        }
+                        else
+                        {
+                            ret = "error. " + listPrintLabel.message;
+                        }
                     }
                     else
                     {
@@ -2831,10 +2838,14 @@ namespace MasterOnline.Controllers
                                     ret = respons.jingdong_seller_order_printorder_response.result.model.content.ToString();
                                 }
                             }
+                            else
+                            {
+                                ret = "error. " + respons.jingdong_seller_order_printorder_response.result.message;
+                            }
                         }
                         else
                         {
-                            ret = "error";
+                            ret = "error. " + respons.jingdong_seller_order_printorder_response.result.message;
                         }
                     }
                 }
@@ -5248,6 +5259,7 @@ namespace MasterOnline.Controllers
             public int code { get; set; }
             public bool success { get; set; }
             public Model_PrintLabel model { get; set; }
+            public string message { get; set; }
         }
 
         public class Model_PrintLabel

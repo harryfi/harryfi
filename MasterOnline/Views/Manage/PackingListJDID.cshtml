@@ -691,54 +691,80 @@
                     cache: false,
                     data: JSON.stringify($postdata),
                     success: function (response) {
-                        if (response.mo_error != undefined) {
-                            $('#modalPrintJDID__textarea__' + cust).html(response.mo_error);
-                        }
-                        else {
-                            var textareaValue = "";
-
-                            var adaUrl = false;
-                            var urlValue = "";
-                            var countUrl = 0;
-                            if (response.mo_label != null) {
-                                //response.mo_label.forEach(function (item) {
-                                window.open('/Manage/Download_PrintLabel?path=' + response.mo_label, '_blank');
-                                textareaValue += response.mo_label + "</br>";
-                            //});
+                        if (response != null) {
+                            if (response.mo_error != undefined) {
+                                $('#modalPrintJDID__textarea__' + cust).html(response.mo_error);
+                            } else {
+                                var textareaValue = "";
+                                var adaError = false;
+                                var errorValue = "";
+                                response.listErrors.forEach(function (item) {
+                                    adaError = true;
+                                    errorValue += item.errorMessage + ". </br>";
+                                });
+                                if (adaError) {
+                                    textareaValue += "</br>";
+                                    textareaValue += "Errors :</br>";
+                                    textareaValue += errorValue;
+                                }
+                                $('#modalPrintJDID__textarea__' + cust).html(textareaValue);
+                                //if (response.mo_label != null) {
+                                if (response.mo_label.length > 0) {
+                                    window.open('/Manage/Download_PrintLabel?path=' + response.mo_label, '_blank');
+                                }
+                                if (!adaError) {
+                                    $('#modalPrintJDID__' + cust).modal('hide');
+                                }
                             }
-
-                            $('#modalPrintJDID__' + cust).modal('hide');
-
-                            //response.ret.batch_result.airway_bills.forEach(function (item) {
-                            //    adaUrl = true;
-                            //    //urlValue += item + " \n";
-                            //    countUrl++;
-                            //    //$("<iframe id='iframe_" + countUrl + "_" + cust + "'>")                             // create a new iframe element
-                            //    //    .hide()                               // make it invisible
-                            //    //    .attr("src", item) // point the iframe to the page you want to print
-                            //    //    .appendTo("body");
-
-                            //    var buttonHtml = "<a class='btn btn-success' target='_blank' href='" + item + "'>Print</a> </br>";
-                            //    urlValue += buttonHtml;
-                            //});
-                            //if (adaUrl) {
-                            //    textareaValue += "Url AWB :</br>";
-                            //    textareaValue += urlValue;
-                            //}
-
-                            //var adaError = false;
-                            //var errorValue = "";
-                            //response.ret.batch_result.errors.forEach(function (item) {
-                            //    adaError = true;
-                            //    errorValue += item.ordersn + " : " + item.error_description + ". </br>";
-                            //});
-                            //if (adaError) {
-                            //    textareaValue += "</br>";
-                            //    textareaValue += "Error Orders :</br>";
-                            //    textareaValue += errorValue;
-                            //}
-                            $('#modalPrintJDID__textarea__' + cust).html(textareaValue);
                         }
+                        //if (response.mo_error != undefined) {
+                        //    $('#modalPrintJDID__textarea__' + cust).html(response.mo_error);
+                        //}
+                        //else {
+                        //    var textareaValue = "";
+
+                        //    var adaUrl = false;
+                        //    var urlValue = "";
+                        //    var countUrl = 0;
+                        //    if (response.mo_label != null) {
+                        //        //response.mo_label.forEach(function (item) {
+                        //        window.open('/Manage/Download_PrintLabel?path=' + response.mo_label, '_blank');
+                        //        textareaValue += response.mo_label + "</br>";
+                        //    //});
+                        //    }
+
+                        //    $('#modalPrintJDID__' + cust).modal('hide');
+
+                        //    //response.ret.batch_result.airway_bills.forEach(function (item) {
+                        //    //    adaUrl = true;
+                        //    //    //urlValue += item + " \n";
+                        //    //    countUrl++;
+                        //    //    //$("<iframe id='iframe_" + countUrl + "_" + cust + "'>")                             // create a new iframe element
+                        //    //    //    .hide()                               // make it invisible
+                        //    //    //    .attr("src", item) // point the iframe to the page you want to print
+                        //    //    //    .appendTo("body");
+
+                        //    //    var buttonHtml = "<a class='btn btn-success' target='_blank' href='" + item + "'>Print</a> </br>";
+                        //    //    urlValue += buttonHtml;
+                        //    //});
+                        //    //if (adaUrl) {
+                        //    //    textareaValue += "Url AWB :</br>";
+                        //    //    textareaValue += urlValue;
+                        //    //}
+
+                        //    //var adaError = false;
+                        //    //var errorValue = "";
+                        //    //response.ret.batch_result.errors.forEach(function (item) {
+                        //    //    adaError = true;
+                        //    //    errorValue += item.ordersn + " : " + item.error_description + ". </br>";
+                        //    //});
+                        //    //if (adaError) {
+                        //    //    textareaValue += "</br>";
+                        //    //    textareaValue += "Error Orders :</br>";
+                        //    //    textareaValue += errorValue;
+                        //    //}
+                        //    $('#modalPrintJDID__textarea__' + cust).html(textareaValue);
+                        //}
                     },
                     error: function (xhr, status, error) {
                         console.log(error);
