@@ -37,4 +37,19 @@
         public TimeSpan? JAM4 { get; set; }
         public TimeSpan? JAM5 { get; set; }
     }
+
+    [Table("TEMP_SHOPEE_BRAND")]
+    public partial class TEMP_SHOPEE_BRAND
+    {
+        [Key]
+        [Column(Order = 0)]
+        public string CATEGORY_CODE { get; set; }
+
+        [Key]
+        [Column(Order = 1)]
+        public string BRAND_ID { get; set; }
+
+        public string NAME { get; set; }
+
+    }
 }

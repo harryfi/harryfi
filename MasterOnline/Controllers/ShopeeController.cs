@@ -1856,7 +1856,7 @@ namespace MasterOnline.Controllers
             var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
 
             string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds + "&access_token=" + dataAPI.token
-                + "&shop_id=" + dataAPI.merchant_code + "&sign=" + sign + "&status=1&page_size=10&category_id=" + category + "&offset=" + (page * 10);
+                + "&shop_id=" + dataAPI.merchant_code + "&sign=" + sign + "&status=1&page_size=100&category_id=" + category + "&offset=" + (page * 100);
 
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
@@ -1885,7 +1885,25 @@ namespace MasterOnline.Controllers
                 {
                     var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetBrandResult_V2)) as ShopeeGetBrandResult_V2;
                     ret = result;
-
+                    if (string.IsNullOrEmpty(ret.error))
+                    {
+                        foreach (var brand in result.response.brand_list)
+                        {
+                            var newData = new TEMP_SHOPEE_BRAND()
+                            {
+                                CATEGORY_CODE = category,
+                                BRAND_ID = brand.brand_id.ToString(),
+                                NAME = brand.display_brand_name.Replace('\'','`')
+                            };
+                            ErasoftDbContext.TEMP_SHOPEE_BRAND.Add(newData);
+                            ErasoftDbContext.SaveChanges();
+                        }
+                        if (result.response.has_next_page)
+                        {
+                            await GetBrand_V2(dataAPI, category, page + 1);
+                        }
+                    }
+                      
                 }
                 catch (Exception ex2)
                 {

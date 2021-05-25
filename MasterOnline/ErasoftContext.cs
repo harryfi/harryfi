@@ -518,6 +518,10 @@ namespace MasterOnline
         public virtual DbSet<SOT01H> SOT01H { get; set; }
         //end add by nurul 19/3/2021
 
+        //add by nurul 19/3/2021
+        public virtual DbSet<TEMP_SHOPEE_BRAND> TEMP_SHOPEE_BRAND { get; set; }
+        //end add by nurul 19/3/2021
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
 
