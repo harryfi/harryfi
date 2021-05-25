@@ -1895,8 +1895,12 @@ namespace MasterOnline.Controllers
                                 BRAND_ID = brand.brand_id.ToString(),
                                 NAME = brand.display_brand_name.Replace('\'','`')
                             };
-                            ErasoftDbContext.TEMP_SHOPEE_BRAND.Add(newData);
-                            ErasoftDbContext.SaveChanges();
+                            if (ErasoftDbContext.TEMP_SHOPEE_BRAND.Where(m => m.CATEGORY_CODE == category && m.BRAND_ID == newData.BRAND_ID).ToList().Count == 0)
+                            {
+                                ErasoftDbContext.TEMP_SHOPEE_BRAND.Add(newData);
+                                ErasoftDbContext.SaveChanges();
+                            }
+                                
                         }
                         if (result.response.has_next_page)
                         {

@@ -1,7 +1,7 @@
 ﻿@using System.Globalization
 @using PagedList.Mvc
 @using MasterOnline.Models
-@model PagedList.IPagedList<BRAND_SHOPEE>
+@model PagedList.IPagedList<TEMP_SHOPEE_BRAND>
 @{
     string currentFilter = ViewBag.CurrentFilter;
     string currentSort = ViewBag.CurrentSort;
@@ -55,11 +55,11 @@
             {
                 <tr>
                     <td class="edit-hapus-col">
-                        <button class="btn btn-primary" data-value="@item.brand_id" data-valuename="@item.name" onclick="pilihPrompt(this)">
+                        <button class="btn btn-primary" data-value="@item.BRAND_ID" data-valuename="@item.NAME" onclick="pilihPrompt(this)">
                             <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
                         </button>
                     </td>
-                    <td>@item.name</td>
+                    <td>@item.NAME</td>
                 </tr>
             }
         </tbody>
