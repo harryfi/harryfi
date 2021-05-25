@@ -512,12 +512,14 @@ namespace MasterOnline.Controllers
                     {
                         if (resultAPI.error == "none" && resultAPI.results == "success")
                         {
-                            if (resultAPI.data.data[0].id_product != null)
+                            //if (resultAPI.data.data[0].id_product != null)
+                            if (resultAPI.data[0].id_product != null)
                             {
                                 var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == kodeProduk.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
                                 if (item != null)
                                 {
-                                    item.BRG_MP = Convert.ToString(resultAPI.data.data[0].id_product) + ";0";
+                                    //item.BRG_MP = Convert.ToString(resultAPI.data.data[0].id_product) + ";0";
+                                    item.BRG_MP = Convert.ToString(resultAPI.data[0].id_product) + ";0";
                                     item.LINK_STATUS = "Buat Produk Berhasil";
                                     item.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                                     item.LINK_ERROR = "0;Buat Produk;;";
@@ -2983,14 +2985,14 @@ namespace MasterOnline.Controllers
             public string requestid { get; set; }
             public string error { get; set; }
             public string results { get; set; }
-            public ResultCreateProduct82CartData data { get; set; }
+            public ResultCreateProduct82CartData[] data { get; set; }
         }
 
-        public class ResultCreateProduct82CartData
+        public class ResultCreateProduct82CartData : ResultCreateProductDetail
         {
-            public string requestid { get; set; }
-            public string error { get; set; }
-            public ResultCreateProductDetail[] data { get; set; }
+            //public string requestid { get; set; }
+            //public string error { get; set; }
+            //public ResultCreateProductDetail[] data { get; set; }
         }
 
         public class ResultCreateProductDetail

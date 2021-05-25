@@ -2649,6 +2649,9 @@
             $('#Invoice_TERM').blur(function () {
                 $('#btn-simpan-perubahan-row').show();
             });
+            $('#Invoice_NO_INVOICE_SUPP').change(function () {
+                $('#btn-simpan-perubahan-row').show();
+            });
 
             refreshInputan();
             refreshNetto();
@@ -2948,6 +2951,9 @@
                         //add by nurul 24/7/2019
                         Dropship: $('#Invoice_DROPSHIPPER').val(),
                         //end add by nurul 24/7/2019
+                        //add by nurul 18/5/2021
+                        Noref: $('#Invoice_NO_INVOICE_SUPP').val(),
+                        //end add by nurul 18/5/2021
                     }),
                     contentType: 'application/json; charset=UTF-8',
                     cache: false,
@@ -4502,6 +4508,10 @@
         //end add
 
         function simpanbrg($id) {
+            if ($('#Invoice_NO_INVOICE_SUPP').val() == undefined || $('#Invoice_NO_INVOICE_SUPP').val() == "") {
+                $('#Invoice_NO_INVOICE_SUPP').val('-');
+            }
+
             if (!validateForm()) return false;
             //add by nurul 15/10/2018
             if (!validasiTambahan()) return false;

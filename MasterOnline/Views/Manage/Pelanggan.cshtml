@@ -1080,183 +1080,187 @@
                                         {
                                             foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
                                             {
-                                                <div class="alert alert-danger">
-                                                    <span class="message-error">@modelError.ErrorMessage</span>
-                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
+                                        <div class="alert alert-danger">
+                                            <span class="message-error">@modelError.ErrorMessage</span>
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
                                             }
                                         }
                                         <br>
                                         @using (Html.BeginForm("SaveCustomer", "Manage", FormMethod.Post, new { @autocomplete = "off", enctype = "multipart/form-data", id = "form-customer" }))
                                         {
-                                            @Html.HiddenFor(m => m.Customers.USERNAME, new { Value = username })
-                                            @Html.HiddenFor(m => m.Customers.KLINK, new { Value = "1" })
-                                            @Html.HiddenFor(m => m.Customers.TGL_INPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
-                                            @Html.HiddenFor(m => m.Customers.RecNum)
-                                            @Html.HiddenFor(m => m.Customers.AL, new { Value = "." })
-                                            @Html.HiddenFor(m => m.Customers.TLP, new { Value = "." })
-                                            @Html.HiddenFor(m => m.Customers.KODEKABKOT, new { Value = "3174" })
-                                            @Html.HiddenFor(m => m.Customers.KODEPOS, new { Value = "." })
-                                            @Html.HiddenFor(m => m.Customers.KODEPROV, new { Value = "31" })
-                                            @Html.HiddenFor(m => m.Customers.TOP, new { Value = "1" })
+                                        @Html.HiddenFor(m => m.Customers.USERNAME, new { Value = username })
+                                        @Html.HiddenFor(m => m.Customers.KLINK, new { Value = "1" })
+                                        @Html.HiddenFor(m => m.Customers.TGL_INPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+                                        @Html.HiddenFor(m => m.Customers.RecNum)
+                                        @Html.HiddenFor(m => m.Customers.AL, new { Value = "." })
+                                        @Html.HiddenFor(m => m.Customers.TLP, new { Value = "." })
+                                        @Html.HiddenFor(m => m.Customers.KODEKABKOT, new { Value = "3174" })
+                                        @Html.HiddenFor(m => m.Customers.KODEPOS, new { Value = "." })
+                                        @Html.HiddenFor(m => m.Customers.KODEPROV, new { Value = "31" })
+                                        @Html.HiddenFor(m => m.Customers.TOP, new { Value = "1" })
 
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Customers.CUST, "Kode", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.HiddenFor(m => m.Customers.CUST)
-                                                    @if (Model.Customers != null)
+                                        <div class="form-group">
+                                            @Html.LabelFor(m => m.Customers.CUST, "Kode", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @Html.HiddenFor(m => m.Customers.CUST)
+                                                @if (Model.Customers != null)
                                                     {
-                                                        <input type="text" value="@Model.Customers.CUST" disabled class="form-control" />
+                                                <input type="text" value="@Model.Customers.CUST" disabled class="form-control" />
                                                     }
                                                     else
                                                     {
-                                                        <input id="CUSTNUMBER" type="text" value="[AUTO]" disabled class="form-control" />
+                                                <input id="CUSTNUMBER" type="text" value="[AUTO]" disabled class="form-control" />
                                                     }
-                                                </div>
                                             </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Customers.NAMA, "Nama Marketplace *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.HiddenFor(m => m.Customers.NAMA)
-                                                    <select id="MARKET" placeholder="Harap pilih" required="required" ></select>
-                                                </div>
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.LabelFor(m => m.Customers.NAMA, "Nama Marketplace *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @Html.HiddenFor(m => m.Customers.NAMA)
+                                                <select id="MARKET" placeholder="Harap pilih" required="required"></select>
                                             </div>
+                                        </div>
                                             //add by nurul 15/7/2020
-                                            <div class="form-group" id="versi-blibli" hidden="hidden">
-                                                @Html.LabelFor(m => m.Customers.KD_ANALISA, "Versi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.HiddenFor(m => m.Customers.KD_ANALISA)
-                                                    <select style="display:none" single class="selectize-dropdown single" id="Customers_KD_ANALISA" placeholder="Harap pilih" ></select>
-                                                </div>
+                                        <div class="form-group" id="versi-blibli" hidden="hidden">
+                                            @Html.LabelFor(m => m.Customers.KD_ANALISA, "Versi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @Html.HiddenFor(m => m.Customers.KD_ANALISA)
+                                                <select style="display:none" single class="selectize-dropdown single" id="Customers_KD_ANALISA" placeholder="Harap pilih"></select>
                                             </div>
+                                        </div>
                                             //add by nurul 15/7/2020
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Customers.PERSO, "Nama Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", id = "id-nama-akun" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Customers.PERSO, new { @class = "form-control", required = "required", id = "txt-nama-akun" })
-                                                </div>
+                                        <div class="form-group">
+                                            @Html.LabelFor(m => m.Customers.PERSO, "Nama Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", id = "id-nama-akun" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @Html.TextBoxFor(m => m.Customers.PERSO, new { @class = "form-control", required = "required", id = "txt-nama-akun" })
                                             </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Customers.EMAIL, "Email Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Customers.EMAIL, new { @class = "form-control", @autocomplete = "off", type = "email", required = "required" })
-                                                </div>
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.LabelFor(m => m.Customers.EMAIL, "Email Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @Html.TextBoxFor(m => m.Customers.EMAIL, new { @class = "form-control", @autocomplete = "off", type = "email", required = "required" })
                                             </div>
-                                            <div id="BlibliSellerID" class="form-group"></div>
-                                            <div class="form-group" id="password-akun">
-                                                @Html.LabelFor(m => m.Customers.PASSWORD, "Password Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Customers.PASSWORD, new { @class = "form-control", @autocomplete = "off", type = "password", required = "required" })
-                                                </div>
+                                        </div>
+                                        <div id="BlibliSellerID" class="form-group"></div>
+                                        <div class="form-group" id="password-akun">
+                                            @Html.LabelFor(m => m.Customers.PASSWORD, "Password Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @Html.TextBoxFor(m => m.Customers.PASSWORD, new { @class = "form-control", @autocomplete = "off", type = "password", required = "required" })
                                             </div>
+                                        </div>
                                             //add by nurul 16/7/2020
-                                            <div id="blibliAPIKey" class="form-group">
-                                            </div>
+                                        <div id="blibliAPIKey" class="form-group">
+                                        </div>
                                             //end add by nurul 16/7/2020
                                             // add by fauzi, add selection untuk setting status sync pesanan stok marketplace 25 November 2019
-                                            <div class="form-group" id="status-sync">
-                                                @Html.LabelFor(m => m.Customers.TIDAK_HIT_UANG_R, "Status Sync Pesanan & Stok", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.HiddenFor(m => m.Customers.TIDAK_HIT_UANG_R)
-                                                    <select style="display:none" single class="selectize-dropdown single" id="Customers_TIDAK_HIT_UANG_R" placeholder="Harap pilih" required="disabled"></select>
-                                                </div>
+                                        <div class="form-group" id="status-sync">
+                                            @Html.LabelFor(m => m.Customers.TIDAK_HIT_UANG_R, "Status Sync Pesanan & Stok", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @Html.HiddenFor(m => m.Customers.TIDAK_HIT_UANG_R)
+                                                <select style="display:none" single class="selectize-dropdown single" id="Customers_TIDAK_HIT_UANG_R" placeholder="Harap pilih" required="disabled"></select>
                                             </div>
+                                        </div>
                                             // end add by fauzi, add selection untuk setting status sync pesanan stok marketplace 25 November 2019
 
-                                            @*<div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.AL, "Alamat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextAreaFor(m => m.Customers.AL, new { @class = "form-control", maxlength = 200, required = "required" })
-                                                    </div>
-                                                </div>*@
-                                            @*<div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.TOP, "Term Of Payment (TOP) *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-6">
-                                                        @Html.TextBoxFor(m => m.Customers.TOP, new { @class = "form-control limited_number_textbox num-only", required = "required", maxlength = 3, min = 0, max = 999 })
-                                                    </div>
-                                                    <div class="col-md-2 col-sm-2 col-xs-6">
-                                                        <h5>Hari</h5>
-                                                    </div>
-                                                </div>*@
-                                            @*<div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.KODEPROV, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.HiddenFor(m => m.Customers.KODEPROV)
-                                                        <div id="KODEPROV" class="selectivity-input" tabindex="0"></div>
-                                                    </div>
+                                        @*<div class="form-group">
+                                                @Html.LabelFor(m => m.Customers.AL, "Alamat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextAreaFor(m => m.Customers.AL, new { @class = "form-control", maxlength = 200, required = "required" })
                                                 </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.KODEKABKOT, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.HiddenFor(m => m.Customers.KODEKABKOT)
-                                                        <div id="KODEKABKOT" class="selectivity-input" tabindex="0"></div>
-                                                    </div>
+                                            </div>*@
+                                        @*<div class="form-group">
+                                                @Html.LabelFor(m => m.Customers.TOP, "Term Of Payment (TOP) *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-6">
+                                                    @Html.TextBoxFor(m => m.Customers.TOP, new { @class = "form-control limited_number_textbox num-only", required = "required", maxlength = 3, min = 0, max = 999 })
                                                 </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.KODEPOS, "Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextBoxFor(m => m.Customers.KODEPOS, new { @class = "form-control", required = "required", type = "number" })
-                                                    </div>
+                                                <div class="col-md-2 col-sm-2 col-xs-6">
+                                                    <h5>Hari</h5>
                                                 </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.TLP, "Telepon *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextBoxFor(m => m.Customers.TLP, new { @class = "form-control", required = "required", type = "number" })
-                                                    </div>
-                                                </div>*@
-                                            @*<div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.API_KEY, "API Key *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", @id = "lbl_Customers_API_KEY" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-6">
-                                                        @Html.TextBoxFor(m => m.Customers.API_KEY, new { @class = "form-control" })
-                                                    </div>
-                                                    <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
-                                                </div>*@
+                                            </div>*@
+                                        @*<div class="form-group">
+                                                @Html.LabelFor(m => m.Customers.KODEPROV, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.HiddenFor(m => m.Customers.KODEPROV)
+                                                    <div id="KODEPROV" class="selectivity-input" tabindex="0"></div>
+                                                </div>
+                                            </div>
                                             <div class="form-group">
-                                                <div id="divAPIKey"></div>
+                                                @Html.LabelFor(m => m.Customers.KODEKABKOT, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.HiddenFor(m => m.Customers.KODEKABKOT)
+                                                    <div id="KODEKABKOT" class="selectivity-input" tabindex="0"></div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Customers.KODEPOS, "Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Customers.KODEPOS, new { @class = "form-control", required = "required", type = "number" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Customers.TLP, "Telepon *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Customers.TLP, new { @class = "form-control", required = "required", type = "number" })
+                                                </div>
+                                            </div>*@
+                                        @*<div class="form-group">
+                                                @Html.LabelFor(m => m.Customers.API_KEY, "API Key *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", @id = "lbl_Customers_API_KEY" })
+                                                <div class="col-md-6 col-sm-6 col-xs-6">
+                                                    @Html.TextBoxFor(m => m.Customers.API_KEY, new { @class = "form-control" })
+                                                </div>
                                                 <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
-                                            </div>
-                                            <div id="descAPIKey" class="form-group">
-                                                <div id="emptyDiv" class=" col-md-3 col-sm-3 col-xs-1"></div>
-                                                @*<label id="lblDesc" style="visibility:hidden">API key harus terisi untuk dapat terintegrasi dengan marketplace.</label>*@
-                                                <label id="lblDesc" style="visibility:hidden">API key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.</label>
-                                                <br />
-                                                @*<label id="lblDesc2" style="visibility:hidden">API key harus terisi untuk dapat terintegrasi dengan marketplace.</label>*@
-                                                <label id="lblDesc2" style="visibility:hidden">API key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.</label>
-                                                <label id="lblPopUp" style="visibility:hidden;color:blue" onclick="openModalDesc(MARKET.value)"><u>Di Sini</u></label>
-                                                <div id="emptyDiv2" class=" col-md-3 col-sm-3 col-xs-1"></div>
-                                            </div>
-                                            <div id="BlibliMerchantID" class="form-group">
-                                            </div>
-                                            <div id="BlibliClient" class="form-group">
-                                            </div>
-                                            <div id="BlibliClientPass" class="form-group">
-                                            </div>
-                                            @*add by Tri 10/04/2019*@
-                                            <div id="JDAppSecret" class="form-group">
-                                            </div>
-                                            <div id="JDAccessToken" class="form-group">
-                                            </div>
-                                            @*end add by Tri 10/04/2019*@
-                                            @*add by nurul 24/10/2018*@
-                                            <div id="descAPIKey2" class="form-group">
-                                                <div id="emptyDiv3" class="col-md-3 col-sm-3 col-xs-1"></div>
-                                                <label id="lblDesc3" style="visibility:hidden">1. Untuk dapat tersambung secara otomatis ke Tokopedia, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Tokopedia, silahkan hubungi customer service kami.</label>
-                                                <br />
-                                                <label id="lblDesc4" style="visibility:hidden"></label>
-                                                <div id="emptyDiv4" class="col-md-3 col-sm-3 col-xs-1"></div>
-                                            </div>
-                                            @*end add by nurul 24/10/2018*@
-                                            @*add by nurul 25/03/2019*@
-                                            <div id="TokpedShopID" class="form-group">
-                                            </div>
-                                            <div id="LabelTokped1" class="form-group">
-                                            </div>
-                                            <div id="LabelTokped2" class="form-group">
-                                            </div>
-                                            @*end add by nurul 25/03/2019*@
-                                            <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanCustomer(this)" />
+                                            </div>*@
+                                        @*add by nurul 28/4/2021*@
+                                        <div id="JDShopId" class="form-group">
+                                        </div>
+                                        @*add by nurul 28/4/2021*@
+                                        <div class="form-group">
+                                            <div id="divAPIKey"></div>
+                                            <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
+                                        </div>
+                                        <div id="descAPIKey" class="form-group">
+                                            <div id="emptyDiv" class=" col-md-3 col-sm-3 col-xs-1"></div>
+                                            @*<label id="lblDesc" style="visibility:hidden">API key harus terisi untuk dapat terintegrasi dengan marketplace.</label>*@
+                                            <label id="lblDesc" style="visibility:hidden">API key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.</label>
+                                            <br />
+                                            @*<label id="lblDesc2" style="visibility:hidden">API key harus terisi untuk dapat terintegrasi dengan marketplace.</label>*@
+                                            <label id="lblDesc2" style="visibility:hidden">API key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.</label>
+                                            <label id="lblPopUp" style="visibility:hidden;color:blue" onclick="openModalDesc(MARKET.value)"><u>Di Sini</u></label>
+                                            <div id="emptyDiv2" class=" col-md-3 col-sm-3 col-xs-1"></div>
+                                        </div>
+                                        <div id="BlibliMerchantID" class="form-group">
+                                        </div>
+                                        <div id="BlibliClient" class="form-group">
+                                        </div>
+                                        <div id="BlibliClientPass" class="form-group">
+                                        </div>
+                                        @*add by Tri 10/04/2019*@
+                                        <div id="JDAppSecret" class="form-group">
+                                        </div>
+                                        <div id="JDAccessToken" class="form-group">
+                                        </div>
+                                        @*end add by Tri 10/04/2019*@
+                                        @*add by nurul 24/10/2018*@
+                                        <div id="descAPIKey2" class="form-group">
+                                            <div id="emptyDiv3" class="col-md-3 col-sm-3 col-xs-1"></div>
+                                            <label id="lblDesc3" style="visibility:hidden">1. Untuk dapat tersambung secara otomatis ke Tokopedia, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Tokopedia, silahkan hubungi customer service kami.</label>
+                                            <br />
+                                            <label id="lblDesc4" style="visibility:hidden"></label>
+                                            <div id="emptyDiv4" class="col-md-3 col-sm-3 col-xs-1"></div>
+                                        </div>
+                                        @*end add by nurul 24/10/2018*@
+                                        @*add by nurul 25/03/2019*@
+                                        <div id="TokpedShopID" class="form-group">
+                                        </div>
+                                        <div id="LabelTokped1" class="form-group">
+                                        </div>
+                                        <div id="LabelTokped2" class="form-group">
+                                        </div>
+                                        @*end add by nurul 25/03/2019*@
+                                        <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanCustomer(this)" />
                                         }
                                     </div>
                                 </div>
@@ -1397,14 +1401,14 @@
             </div>
             <div class="modal-body">
                 @*<div class="row text-left">
-                    <h4>1. Login akun JD.ID anda di web : http://api.jd.id/ctrlCenter/appList </h4>
-                    <h4>2. Klik +New App.</h4>
-                    <h4>3. Isi Nama aplikasi : Master Online, dan isi email anda. Kemudian Save</h4>
-                    <h4>4. Aplikasi yang anda buat akan muncul pada list, Klik Manage.</h4>
-                    <h4>5. Pilih Category : Seller to JD, pastikan di bagian Waiting to auth semua sudah tercentang. Kemudian Save.</h4>
-                    <h4>6. Setelah kembali ke list App, klik view dibagian Key dan Token.</h4>
-                    <h4>7. Isi field di Master Online sesuai data yang tampil.</h4>
-                </div>*@
+                        <h4>1. Login akun JD.ID anda di web : http://api.jd.id/ctrlCenter/appList </h4>
+                        <h4>2. Klik +New App.</h4>
+                        <h4>3. Isi Nama aplikasi : Master Online, dan isi email anda. Kemudian Save</h4>
+                        <h4>4. Aplikasi yang anda buat akan muncul pada list, Klik Manage.</h4>
+                        <h4>5. Pilih Category : Seller to JD, pastikan di bagian Waiting to auth semua sudah tercentang. Kemudian Save.</h4>
+                        <h4>6. Setelah kembali ke list App, klik view dibagian Key dan Token.</h4>
+                        <h4>7. Isi field di Master Online sesuai data yang tampil.</h4>
+                    </div>*@
                 <div class="row text-left">
                     <h4>1. Login akun JD.ID anda di web : http://api.jd.id/ctrlCenter/appList.</h4>
                     <h4>2. Klik +New App.</h4>
@@ -1473,6 +1477,37 @@
     </div>
 </div>
 @*//end add by nurul 16/7/2020*@
+@*//add by nurul 28/4/2021*@
+<div class="modal fade" id="modalJDAPIKeyVersi2" tabindex="-1" role="dialog" aria-labelledby="jdDescLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">JD ID API Key</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-left">
+                    <h4>1. Login akun JD.ID anda di web : https://jos.jd.id/home/home#/index bagian sebelah kanan atas.</h4>
+                    <h4>2. Pilih menu Console.</h4>
+                    <h4>3. Isi form Registration, centang agreement, lalu klik tombol Register</h4>
+                    <h4>4. Klik tombol Create App.</h4>
+                    <h4>5. Klik tanda panah bawah pada baris Seller to JD.</h4>
+                    <h4>6. Klik tombol Create App pada baris Normal seller standard API.</h4>
+                    <h4>7. Ketik nama toko Anda dan klik tombol Submit.</h4>
+                    <h4>8. Pada kotak App toko Anda, jika sudah bertanda approve, klik App Management.</h4>
+                    <h4>9. Pada menu samping App Overview, akan tertera AppKey dan App Secret. Klik View untuk melihat App Sercet.</h4>
+                    <h4>10. Pada menu samping App Setting, isi App Name dengan nama toko Anda dan Callback URL dengan https://masteronline.co.id/jdid/auth?shop_id= (Tambahkan Shop ID Anda disini)</h4>
+                    <h4>    Untuk mendapatkan data Shop ID Anda, login akun JD.ID anda pada web : https://seller.jd.id/login , buka menu My Shop => Shop Information.</h4>
+                    <h4>11. Klik Save.</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*//end add by nurul 28/4/2021*@
 @section scripts
 {
     <script src="~/Content/selectize.js" type="text/javascript"></script>
@@ -1481,7 +1516,8 @@
     @*<script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>*@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
-<script type="text/javascript">
+    <script type="text/javascript">
+        var getLink = "";
         var $Sort1_Cust = "";
         var $API_CLIENT_U = "";
         var $API_CLIENT_P = "";
@@ -1798,7 +1834,16 @@
                                         $('#versi-blibli').show();
                                         getVersiBlibli($('#Customers_KD_ANALISA').val());
                                     //}
-                                } else {
+                                }
+                                //add by nurul 28/4/2021
+                                else if (@jd == value) {
+                                    $('#password-akun').hide();
+                                    $('#Customers_PASSWORD').removeAttr('required');
+                                    $('#versi-blibli').show();
+                                    getVersiJDID($('#Customers_KD_ANALISA').val());
+                                }
+                                //end add by nurul 28/4/2021
+                                else {
                                     $('#password-akun').hide();
                                     $('#Customers_PASSWORD').removeAttr('required');
                                     $('#versi-blibli').hide();
@@ -1918,6 +1963,28 @@
                                     showHideBlibliForm(false);
                                 }
                                 //unremark by nurul 25/3/2019
+                                if (@jd == value) {
+                                    showHideJDForm(true);
+                                    //$('#JDAppSecret').show();
+                                    //$('#JDAccessToken').show();
+                                    //$('#divAPIKey').show();
+                                    if ($('#Customers_KD_ANALISA').val() == "2") {
+                                        $('#JDAppSecret').show();
+                                        $('#JDShopId').show();
+                                        $('#JDAccessToken').hide();
+                                        $('#divAPIKey').show();
+                                    } else {
+                                        $('#JDAppSecret').show();
+                                        $('#JDShopId').hide();
+                                        $('#JDAccessToken').show();
+                                        $('#divAPIKey').show();
+                                    }
+                                    getVersiJDID($('#Customers_KD_ANALISA').val());
+                                    lblDesc.innerText = "APP key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.";
+                                } else {
+                                    showHideJDForm(false);
+                                    lblDesc.innerText = "API key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.";
+                                }
                                 if (@tokped == value) {
                                     showHideTokpedForm(true);
                                     //add by fauzi 23 Januari 2020
@@ -1948,16 +2015,7 @@
                                     $('#descAPIKey').show();
                                     $('#descAPIKey2').show();
                                 }
-                                if (@jd == value) {
-                                    showHideJDForm(true);
-                                    $('#JDAppSecret').show();
-                                    $('#JDAccessToken').show();
-                                    $('#divAPIKey').show();
-                                    lblDesc.innerText = "APP key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.";
-                                } else {
-                                    showHideJDForm(false);
-                                    lblDesc.innerText = "API key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.";
-                                }
+                                
                                 //end unremark by nurul 25/3/2019
 
                                 //end add by Tri, remove/append api_key
@@ -2029,7 +2087,11 @@
                 $('#modalEleveniaAPIKey').modal('show');
             }
             else if (codeMarketplace == @kdJd){
-                $('#modalJDAPIKey').modal('show');
+                if ($('#Customers_KD_ANALISA').val() == "2") {
+                    $('#modalJDAPIKeyVersi2').modal('show');
+                } else {
+                    $('#modalJDAPIKey').modal('show');
+                }
             }
             else if (codeMarketplace == @kdShopify) {
                 $('#modalShopifyAPIKey').modal('show');
@@ -2106,6 +2168,14 @@
                                                 GenerateBukalapakCode(custCode);
                                             }
                                             //end change
+                                        } else if (response.marketplace == "JD.ID") {
+                                            if ($('#Customers_KD_ANALISA').val() == "2") {
+                                                if (confirm("Authorization JD.ID account?")) {
+                                                    GetTokenJDID(custCode, $('#Customers_API_KEY').val(), $('#Customers_Sort1_Cust').val());
+                                                }
+                                            } else {
+                                                refreshTableCustomer();
+                                            }
                                         }
                                         //add by nurul 7/1/2019
                                         $('#loading_spinner').hide();
@@ -2166,29 +2236,57 @@
             $('#txtTOKEN').remove();
             $('#labelAPP_SECRET').remove();
             $('#txtAPP_SECRET').remove();
-
-
+            //ADD BY NURUL 28/4/2021
+            $('#labelSort1_Cust').remove();
+            $('#txtSort1_Cust').remove();
+            //END ADD BY NURUL 28/4/2021
             if (show) {
+                if ($('#Customers_KD_ANALISA').val() == "2") {
+                    var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">Shop ID *</label>';
+                    var valuetxtSort1_Cust = "";
+                    if ($('#Customers_Sort1_Cust').val() != null) {
+                        valuetxtSort1_Cust = $('#Customers_Sort1_Cust').val();
+                    }
+                    //else {
+                    //    valuetxtSort1_Cust = $Sort1_Cust;
+                    //}
+                    var txtSort1_Cust = '<div id="txtSort1_Cust" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field Shop ID must be a string with a maximum length of 30." data-val-length-max="30" id="Customers_Sort1_Cust" name="Customers.Sort1_Cust" required="required" type="text" value="' + valuetxtSort1_Cust + '" maxlength="30"></div>';
 
-                var labelTOKEN = '<label id="labelTOKEN" class="control-label col-md-3 col-sm-3 col-xs-12" for="labelTOKEN">Access Token *</label>';
 
-                var valuetxtToken = "";
-                if ($('#Customers_TOKEN').val() != null) {
-                    valuetxtToken = $('#Customers_TOKEN').val();
+                    var labelAPP_SECRET = '<label id="labelAPP_SECRET" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_U">APP Secret *</label>';
+
+                    var valuetxtAPP_SECRET = "";
+                    if ($('#Customers_API_CLIENT_U').val() != null) {
+                        valuetxtAPP_SECRET = $('#Customers_API_CLIENT_U').val();
+                    }
+                    var txtAPI_CLIENT_U = '<div id="txtAPP_SECRET" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field API_CLIENT_U must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_API_CLIENT_U" name="Customers.API_CLIENT_U" required="required" type="text" value="' + valuetxtAPP_SECRET + '" maxlength="50"></div>';
+
+                    $('#JDAppSecret').append(labelAPP_SECRET + txtAPI_CLIENT_U);
+                    $('#JDShopId').append(labelSort1_Cust + txtSort1_Cust);
+                    $('#lbl_Customers_API_KEY').html("APP Key *");
+                } else {
+                    var labelTOKEN = '<label id="labelTOKEN" class="control-label col-md-3 col-sm-3 col-xs-12" for="labelTOKEN">Access Token *</label>';
+
+                    var valuetxtToken = "";
+                    if ($('#Customers_TOKEN').val() != null) {
+                        valuetxtToken = $('#Customers_TOKEN').val();
+                    }
+                    var txtToken = '<div id="txtTOKEN" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field TOKEN must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_TOKEN" name="Customers.TOKEN" required="required" type="text" value="' + valuetxtToken + '" maxlength="50"></div>';
+
+
+                    var labelAPP_SECRET = '<label id="labelAPP_SECRET" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_U">APP Secret *</label>';
+
+                    var valuetxtAPP_SECRET = "";
+                    if ($('#Customers_API_CLIENT_U').val() != null) {
+                        valuetxtAPP_SECRET = $('#Customers_API_CLIENT_U').val();
+                    }
+                    var txtAPI_CLIENT_U = '<div id="txtAPP_SECRET" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field API_CLIENT_U must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_API_CLIENT_U" name="Customers.API_CLIENT_U" required="required" type="text" value="' + valuetxtAPP_SECRET + '" maxlength="50"></div>';
+
+                    $('#JDAppSecret').append(labelAPP_SECRET + txtAPI_CLIENT_U);
+                    $('#JDAccessToken').append(labelTOKEN + txtToken);
+                    $('#lbl_Customers_API_KEY').html("APP Key *");
+
                 }
-                var txtToken = '<div id="txtTOKEN" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field TOKEN must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_TOKEN" name="Customers.TOKEN" required="required" type="text" value="' + valuetxtToken + '" maxlength="50"></div>';
-
-                var labelAPP_SECRET = '<label id="labelAPP_SECRET" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_U">APP Secret *</label>';
-
-                var valuetxtAPP_SECRET = "";
-                if ($('#Customers_API_CLIENT_U').val() != null) {
-                    valuetxtAPP_SECRET = $('#Customers_API_CLIENT_U').val();
-                }
-                var txtAPI_CLIENT_U = '<div id="txtAPP_SECRET" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field API_CLIENT_U must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_API_CLIENT_U" name="Customers.API_CLIENT_U" required="required" type="text" value="' + valuetxtAPP_SECRET + '" maxlength="50"></div>';
-
-                $('#JDAppSecret').append(labelAPP_SECRET + txtAPI_CLIENT_U);
-                $('#JDAccessToken').append(labelTOKEN + txtToken);
-                $('#lbl_Customers_API_KEY').html("APP Key *");
             }
         }
         function RemoveAllAdds() {
@@ -2838,28 +2936,64 @@
                         //$('#LabelTokped2').append(labelKetTokped2);
                     }
                     if (@jd == response.Customers.NAMA) {
-                        var labelTOKEN = '<label id="labelTOKEN" class="control-label col-md-3 col-sm-3 col-xs-12" for="labelTOKEN">Access Token *</label>';
+                        //var labelTOKEN = '<label id="labelTOKEN" class="control-label col-md-3 col-sm-3 col-xs-12" for="labelTOKEN">Access Token *</label>';
 
-                        var valuetxtToken = "";
-                        if (response.Customers.TOKEN != null) {
-                            valuetxtToken = response.Customers.TOKEN;
+                        //var valuetxtToken = "";
+                        //if (response.Customers.TOKEN != null) {
+                        //    valuetxtToken = response.Customers.TOKEN;
+                        //}
+                        //var txtToken = '<div id="txtTOKEN" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field TOKEN must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_TOKEN" name="Customers.TOKEN" required="required" type="text" value="' + valuetxtToken + '" maxlength="50"></div>';
+                        $('#versi-blibli').show();
+                        $('#Customers_KD_ANALISA').change(function () {
+                            getVersiJDID($('#Customers_KD_ANALISA').val());
+                        });
+                        $('#Customers_KD_ANALISA').val(response.Customers.KD_ANALISA);
+                        getVersiJDID($('#Customers_KD_ANALISA').val());
+                        if ($('#Customers_KD_ANALISA').val() == "2") {
+                            var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">Shop ID *</label>';
+                            var valuetxtSort1_Cust = "";
+                            if (response.Customers.Sort1_Cust != null) {
+                                valuetxtSort1_Cust = response.Customers.Sort1_Cust;
+                            }
+                            var txtSort1_Cust = '<div id="txtSort1_Cust" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field Merchant ID must be a string with a maximum length of 10." data-val-length-max="10" id="Customers_Sort1_Cust" name="Customers.Sort1_Cust" required="required" type="text" value="' + valuetxtSort1_Cust + '" maxlength="10"></div>';
+
+
+                            var labelAPP_SECRET = '<label id="labelAPP_SECRET" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_U">APP Secret *</label>';
+
+                            var valuetxtAPP_SECRET = "";
+                            if (response.Customers.API_CLIENT_U != null) {
+                                valuetxtAPP_SECRET = response.Customers.API_CLIENT_U;
+                            }
+                            var txtAPI_CLIENT_U = '<div id="txtAPP_SECRET" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field API_CLIENT_U must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_API_CLIENT_U" name="Customers.API_CLIENT_U" required="required" type="text" value="' + valuetxtAPP_SECRET + '" maxlength="50"></div>';
+
+                            $('#JDAppSecret').append(labelAPP_SECRET + txtAPI_CLIENT_U);
+                            $('#JDShopId').append(labelSort1_Cust + txtSort1_Cust);
+                        } else {
+                            var labelTOKEN = '<label id="labelTOKEN" class="control-label col-md-3 col-sm-3 col-xs-12" for="labelTOKEN">Access Token *</label>';
+
+                            var valuetxtToken = "";
+                            if ($('#Customers_TOKEN').val() != null) {
+                                valuetxtToken = response.Customers.TOKEN;
+                            }
+                            var txtToken = '<div id="txtTOKEN" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field TOKEN must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_TOKEN" name="Customers.TOKEN" required="required" type="text" value="' + valuetxtToken + '" maxlength="50"></div>';
+
+
+                            var labelAPP_SECRET = '<label id="labelAPP_SECRET" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_U">APP Secret *</label>';
+
+                            var valuetxtAPP_SECRET = "";
+                            if (response.Customers.API_CLIENT_U != null) {
+                                valuetxtAPP_SECRET = response.Customers.API_CLIENT_U;
+                            }
+                            var txtAPI_CLIENT_U = '<div id="txtAPP_SECRET" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field API_CLIENT_U must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_API_CLIENT_U" name="Customers.API_CLIENT_U" required="required" type="text" value="' + valuetxtAPP_SECRET + '" maxlength="50"></div>';
+
+                            $('#JDAppSecret').append(labelAPP_SECRET + txtAPI_CLIENT_U);
+                            $('#JDAccessToken').append(labelTOKEN + txtToken);
                         }
-                        var txtToken = '<div id="txtTOKEN" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field TOKEN must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_TOKEN" name="Customers.TOKEN" required="required" type="text" value="' + valuetxtToken + '" maxlength="50"></div>';
-
-                        var labelAPP_SECRET = '<label id="labelAPP_SECRET" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_U">APP Secret *</label>';
-
-                        var valuetxtAPP_SECRET = "";
-                        if (response.Customers.API_CLIENT_U != null) {
-                            valuetxtAPP_SECRET = response.Customers.API_CLIENT_U;
-                        }
-                        var txtAPI_CLIENT_U = '<div id="txtAPP_SECRET" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field API_CLIENT_U must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_API_CLIENT_U" name="Customers.API_CLIENT_U" required="required" type="text" value="' + valuetxtAPP_SECRET + '" maxlength="50"></div>';
-
-                        $('#JDAppSecret').append(labelAPP_SECRET + txtAPI_CLIENT_U);
-                        $('#JDAccessToken').append(labelTOKEN + txtToken);
                         $('#lbl_Customers_API_KEY').html("APP Key *");
                         //add by fauzi 24 Agustus 2020
                         $('#divAPIKey').show();
                         lblDesc.innerText = "APP key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.";
+
                     } else {
                         lblDesc.innerText = "API key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.";
                     }//end add
@@ -3304,6 +3438,33 @@
             });
         }
         //end add by calvin 10 desember 2018
+        function GetTokenJDID(kdCust, appKey, shopid) {
+            //var shpAuthPopUp = window.open("https://oauth.jd.id/oauth2/to_login?app_key=" + appKey + "&response_type=code&redirect_uri=https://masteronline.co.id/manage/master/marketplace&state=20200428&scope=snsapi_base", "JD.ID Authentication", "width=600, height=600, scrollbars=yes");
+            //var link = '@Url.Action("JDIDUrl", "JDID")';
+            var link = '@Html.Raw(Url.Action("JDIDUrl", "Manage", new { cust = "replaceCust", appkey= "replaceAppkey", shopid ="replaceShopid" }))';
+            link = link.replace("replaceCust", encodeURIComponent(kdCust));
+            link = link.replace("replaceAppkey", encodeURIComponent(appKey));
+            link = link.replace("replaceShopid", encodeURIComponent(shopid));
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    var shpAuthPopUp = window.open(response, "JD.ID Authentication", "width=600, height=600, scrollbars=yes");
+                    getLink = window.location.href;
+                    var timer = setInterval(function () {
+                        if (shpAuthPopUp.closed) {
+                            clearInterval(timer);
+                            $('#loading_spinner').hide();
+                            window.location.href = '@Url.Action("Pelanggan", "Manage")';
+                        }
+                    }, 1000);
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
         function pass(customerId, akunMarket) {
             this.$customerId = customerId;
             $('#hapus_label').text(akunMarket);
@@ -3539,5 +3700,62 @@
             versiBlibli[0].selectize.setValue($('#Customers_KD_ANALISA').val(), true);
         }
         //end add by nurul 15/7/2020
-</script>
+
+        //add by nurul 28/4/2021
+        function getVersiJDID(response) {
+            var resp = false;
+            //var resultStatus = false;
+            if (response == "2") {
+                resp = "2";
+            } else {
+                resp = "1";
+            }
+            $('#Customers_KD_ANALISA').val(resp);
+            if ($('#Customers_CUST').val() == "") {
+                $('#Customers_KD_ANALISA').val("2");
+            }
+
+            var versiJD = $('#Customers_KD_ANALISA').selectize({
+                create: true,
+                maxItems: 1,
+                multiple: false,
+                addOption: false,
+                sortField: 'text',
+                valueField: 'value',
+                labelField: 'text',
+                searchField: ['text'],
+                options: [
+                    { value: "1", text: "Lama", selected: true },
+                    { value: "2", text: "Baru", selected: true },
+                ],
+                selectedField: "selected",
+                //onInitialize: function () {
+                //this.trigger('change', resp);
+                //},
+                onChange: function (value) {
+                    if (value == "2") {
+                        $('#Customers_KD_ANALISA').val("2");
+                        versiJD[0].selectize.setValue(value, true);
+                        showHideJDForm(true);
+                        $('#JDAppSecret').show();
+                        $('#JDShopId').show();
+                        $('#JDAccessToken').hide();
+                        $('#divAPIKey').show();
+                    }
+                    else {
+                        $('#Customers_KD_ANALISA').val("1");
+                        versiJD[0].selectize.setValue(value, true);
+                        showHideJDForm(true);
+                        $('#JDAppSecret').show();
+                        $('#JDShopId').hide();
+                        $('#JDAccessToken').show();
+                        $('#divAPIKey').show();
+                    }
+                }
+            });
+            //versiBlibli[0].selectize.trigger('change', resp);
+            versiJD[0].selectize.setValue($('#Customers_KD_ANALISA').val(), true);
+        }
+        //end add by nurul 28/4/2021
+    </script>
 }

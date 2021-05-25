@@ -912,6 +912,8 @@
             getKategori();
             getMerk();
 
+            getLogisticShopee();
+
             $("#Stf02_HJUAL").off('focus').focus(function () {
                 $(this).val(convertToAngka($(this).val()));
             });
@@ -4749,6 +4751,60 @@
                         //change by calvin 15 februari 2019, saat pertama kali load form, dan mengisi nilai default, jangan trigger kategoriSelect.onchange
                         //kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val());
                         kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val(),true);
+                        //end change by calvin 15 februari 2019
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function getLogisticShopee() {
+            var idMarketShopee = "17";
+            var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
+            for (var i = 0; i < listMarket.length; i++) {
+                if (listMarket[i].NAMA == idMarketShopee.toString()) {
+                    setComboBoxLogisticShopee(listMarket[i].RecNum, i);
+                }
+            }
+        }
+        function setComboBoxLogisticShopee(idmarket, i) {
+            var urll = '@Url.Action("GetLogisticShopee", "Manage")';
+            urll += "?idmarket=" + idmarket;
+            $.ajax({
+                type: "GET",
+                url: urll,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listKategori = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listKategori[i] = {
+                                id: item.KODE,
+                                text: item.KET
+                            };
+                        });
+
+                    var kategoriSelect = $('#LOGISTIC_SHOPEE_' + idmarket).selectize({
+                        maxItems: 10,
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listKategori,
+                        onChange: function (value) {
+                            $('#ListHargaJualPermarket_' + i +'__AVALUE_39').val(value);
+                            //$('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
+                        }
+                    });
+                    if (kategoriSelect[0] != undefined) {
+                        //change by calvin 15 februari 2019, saat pertama kali load form, dan mengisi nilai default, jangan trigger kategoriSelect.onchange
+                        //kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val());
+                        if ($('#ListHargaJualPermarket_' + i + '__AVALUE_39').val() != undefined) {
+                            var listLog = $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val().split(',');
+                            kategoriSelect[0].selectize.setValue(listLog, true);
+                        }
                         //end change by calvin 15 februari 2019
                     }
                 },

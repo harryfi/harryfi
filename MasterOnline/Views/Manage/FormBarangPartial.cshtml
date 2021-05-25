@@ -1486,6 +1486,21 @@
                                                                                 <div id="attribute_shopee_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
                                                                                 </div>
                                                                             </div>
+                                                                            //add 21 mei 2021 
+                                                                            <div class="row">
+                                                                                <div class="col-md-12">
+                                                                                    <div class="row">
+                                                                                        <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                            @Html.Label("Logistic", new { @class = "control-label" })
+                                                                                        </div>
+                                                                                        <div class="col-md-4 col-sm-4 col-xs-12 form-group">
+                                                                                            <select id="LOGISTIC_SHOPEE_@recnumArf01" class="LOGISTIC_SHOPEE" placeholder="Harap pilih"></select>
+                                                                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_39, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_39 })
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            //end add 21 mei 2021 
                                                                             if (listMarket[i].KD_ANALISA == "2")
                                                                             {
                                                                             <div class="row">
@@ -1520,7 +1535,7 @@
                                                                             }
                                                                         }
                                                                     </div>
-                                                                </div>
+                                                                 </div>
                                                             }
                                                         }
                                                     </div>
@@ -1676,6 +1691,15 @@
                                                                         @($"JD.ID ({listMarket[i].PERSO})")
                                                                     </h2>
                                                                 </div>
+                                                                if (!string.IsNullOrEmpty(listMarket[i].KD_ANALISA) && listMarket[i].KD_ANALISA == "2")
+                                                                {
+                                                                    <div>
+                                                                        <h3 style="font-size: 12px">(Fitur ini masih dalam pengembangan.)</h3>
+                                                                        <br />
+                                                                    </div>
+                                                                }
+                                                                else
+                                                                {
                                                                 <div class="form-group">
                                                                     <div class="col-md-12 col-sm-12 col-xs-12" id="div_detail_@(recnumArf01)">
                                                                         @if (string.IsNullOrEmpty(listMarket[i].TOKEN))
@@ -1687,15 +1711,15 @@
                                                                             @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_CODE, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_CODE })
                                                                             @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_NAME, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_NAME })
                                                                             @*@Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_1, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_1 })
-            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_1, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_1 })
-            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_2, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_2 })
-            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_2, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_2 })
-            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_3, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_3 })
-            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_3, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_3 })
-            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_4, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_4 })
-            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_4, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_4 })
-            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_5, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_5 })
-            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_5, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_5 })*@
+                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_1, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_1 })
+                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_2, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_2 })
+                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_2, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_2 })
+                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_3, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_3 })
+                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_3, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_3 })
+                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_4, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_4 })
+                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_4, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_4 })
+                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_5, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_5 })
+                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_5, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_5 })*@
                                                                             <div class="row">
                                                                                 <div class="col-md-1 col-sm-1 col-xs-12">
                                                                                     <label>Category *</label>
@@ -1745,19 +1769,19 @@
                                                                                     </div>
                                                                                 </div>
                                                                                 @*<div class="col-md-2 col-sm-2 col-xs-12">
-            @Html.Label("Video Url ", new { @class = "control-label" })
-        </div>
-        <div class="col-md-4 col-sm-4 col-xs-12 form-group">
-            <div class="input-group text">
-                <table>
-                    <tr>
-                        <td>
-                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].AVALUE_42, new { @class = "form-control", style = "width:300px", @MaxLength = "100", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_42 })
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        </div>*@
+                                    @Html.Label("Video Url ", new { @class = "control-label" })
+                                </div>
+                                <div class="col-md-4 col-sm-4 col-xs-12 form-group">
+                                    <div class="input-group text">
+                                        <table>
+                                            <tr>
+                                                <td>
+                                                    @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].AVALUE_42, new { @class = "form-control", style = "width:300px", @MaxLength = "100", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_42 })
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>*@
                                                                                 <div class="col-md-2 col-sm-2 col-xs-12">
                                                                                     @Html.Label("Promo Wording ", new { @class = "control-label" })
                                                                                 </div>
@@ -1941,6 +1965,7 @@
                                                                         }
                                                                     </div>
                                                                 </div>
+                                                                }
                                                             }
                                                         }
                                                     </div>

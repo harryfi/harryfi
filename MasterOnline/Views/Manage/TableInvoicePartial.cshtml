@@ -67,6 +67,9 @@
         <thead>
             <tr role="row">
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">No. Invoice</th>
+                @*//add by nurul 18/5/2021*@
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 120px;">No. Referensi</th>
+                @*//end add by nurul 18/5/2021*@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tanggal Invoice</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 117px;">Supplier</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total</th>
@@ -87,6 +90,9 @@
 
                     <tr>
                         <td>@invoice.NO_FAKTUR</td>
+                        @*//add by nurul 18/5/2021*@
+                        <td>@invoice.REFERENSI</td>
+                        @*//end add by nurul 18/5/2021*@
                         <td>@(invoice.TGL?.ToString("dd/MM/yyyy"))</td>
                         <td>@invoice.SUPPLIER</td>
                         <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", invoice.TOTAL)</td>

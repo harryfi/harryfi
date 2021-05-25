@@ -2818,7 +2818,10 @@ namespace MasterOnline.Controllers
 
                         //var attributeBlibli = MoDbContext.AttributeBlibli.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
                         var CategoryBlibli = MoDbContext.CategoryBlibli.Where(k => k.CATEGORY_CODE == categoryCode).FirstOrDefault();
-                        var attributeBlibli = GetAttributeToListSync(iden, CategoryBlibli).attributes.FirstOrDefault();
+                        //change by nurul 11/5/2021, limit blibli
+                        //var attributeBlibli = GetAttributeToListSync(iden, CategoryBlibli).attributes.FirstOrDefault();
+                        var attributeBlibli = MoDbContext.AttributeBlibli.Where(a => a.CATEGORY_CODE == categoryCode).FirstOrDefault();
+                        //end change by nurul 11/5/2021, limit blibli
                         #region set attribute
                         if (attributeBlibli != null)
                         {
@@ -3982,6 +3985,13 @@ namespace MasterOnline.Controllers
                             }
 
                         }
+                        else
+                        {
+                            sSQL += ", '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''";
+                            sSQL += ", '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''";
+                            sSQL += ", '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''";
+                            sSQL += ", '', '', '', '', '', '', '', '', '', '', '', '', '', '', '')";
+                        }
                         #endregion
 
                         if (insertParent)
@@ -4058,7 +4068,10 @@ namespace MasterOnline.Controllers
             //var attributeBlibli = MoDbContext.AttributeBlibli.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
             var CategoryBlibli = MoDbContext.CategoryBlibli.Where(k => k.CATEGORY_CODE == categoryCode).FirstOrDefault();
             //var attributeBlibli = Task.Run(() => GetAttributeToList(iden, CategoryBlibli).Wait());
-            var attributeBlibli = GetAttributeToListSync(iden, CategoryBlibli).attributes.FirstOrDefault();
+            //change by nurul 11/5/2021, limit blibli
+            //var attributeBlibli = GetAttributeToListSync(iden, CategoryBlibli).attributes.FirstOrDefault();
+            var attributeBlibli = MoDbContext.AttributeBlibli.Where(a => a.CATEGORY_CODE == categoryCode).FirstOrDefault();
+            //end change by nurul 11/5/2021, limit blibli
             #region set attribute
             if (attributeBlibli != null)
             {
@@ -5220,6 +5233,13 @@ namespace MasterOnline.Controllers
                 {
                     sSQL += ", '', '', '')";
                 }
+            }
+            else
+            {
+                sSQL += ", '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''";
+                sSQL += ", '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''";
+                sSQL += ", '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''";
+                sSQL += ", '', '', '', '', '', '', '', '', '', '', '', '', '', '', '')";
             }
             #endregion
 

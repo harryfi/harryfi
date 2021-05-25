@@ -1,0 +1,62 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>JD.ID Authentication Finish</title>
+</head>
+<body>
+    <div>
+        <br />
+        <center><h3>Anda Berhasil link ke JD.ID.</h3></center>
+        <br />
+        <br />
+        <center><h3>Silahkan tutup halaman ini, anda dapat lanjutkan di halaman utama.</h3></center>
+
+    </div>
+</body>
+</html>
+@*<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>JD.ID Authentication Loading</title>
+</head>
+<body>
+    <div>
+        <br />
+        <center><h3>Mohon tunggu sebentar, proses sedang berlangsung ..</h3></center>
+    </div>
+</body>
+</html>*@
+@*@section scripts
+{
+<script type="text/javascript">
+    var newLoc = "";
+        $(document).ready(function () {
+            var loc = window.location.href;
+            var splitloc = loc.split('=');
+            var lengthloc = splitloc.length;
+            var code = splitloc[lengthloc - 1];
+            var link = '@Url.Action("LinkGetTokenJDID", "JDID", new { loc = "replaceLoc", code = "replaceId" })';
+            link = link.replace("replaceLoc", encodeURIComponent(loc));
+            link = link.replace("replaceId", encodeURIComponent(code));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    //window.location.href = '@Url.Action("Pelanggan", "Manage")';
+                    //var nextUrl = window.open("https://oauth.jd.id/oauth2/access_token?app_key=796C5C4F5BB261D091F1000013F361FF&app_secret=09730485f76942f486c46e2659879646&grant_type=authorization_code&code=xtCEIp")
+                    window.location.href = response;
+                    newLoc = window.location.href;
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        });
+</script>
+}*@

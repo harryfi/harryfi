@@ -6976,6 +6976,7 @@
     <Content Include="Views\Report\LapPembayaranPiutang.cshtml" />
     <Content Include="Views\Manage\TablePromptBrandShopee.cshtml" />
     <Content Include="Views\Manage\PromptBrandShopee.cshtml" />
+    <Content Include="Views\Manage\JDIDAuth.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
