@@ -2047,9 +2047,10 @@ namespace MasterOnline.Controllers
 
             // tunning untuk tidak duplicate
             var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
-            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrders%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%GetOrdersUnpaid%' and invocationdata not like '%GetOrdersRTS%' and invocationdata not like '%GetOrdersCancelled%' and invocationdata not like '%GetOrdersToUpdateMO%' ");
+            //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrders%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%GetOrdersUnpaid%' and invocationdata not like '%GetOrdersRTS%' and invocationdata not like '%GetOrdersCancelled%' and invocationdata not like '%GetOrdersToUpdateMO%' ");
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrders\"%' and statename like '%Enque%' ");
             // end tunning untuk tidak duplicate
-            
+
             return ret;
         }
 
@@ -4536,13 +4537,13 @@ namespace MasterOnline.Controllers
                                                 break;
                                         }
                                         //jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
-                                        if (statusEra == "01")
-                                        {
-                                            var currentStatus = EDB.GetFieldValue("", "SOT01B", "ORDER_IEM_ID = '" + items.order_item_id + "'", "STATUS_BRG").ToString();
-                                            if (!string.IsNullOrEmpty(currentStatus))
-                                                if (currentStatus == "02" || currentStatus == "03")
-                                                    statusEra = currentStatus;
-                                        }
+                                        //if (statusEra == "01")
+                                        //{
+                                        //    var currentStatus = EDB.GetFieldValue("", "SOT01B", "ORDER_IEM_ID = '" + items.order_item_id + "'", "STATUS_BRG").ToString();
+                                        //    if (!string.IsNullOrEmpty(currentStatus))
+                                        //        if (currentStatus == "02" || currentStatus == "03")
+                                        //            statusEra = currentStatus;
+                                        //}
                                         //end jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
                                         #region cut max length dan ubah petik
                                         var order_item_id = string.IsNullOrEmpty(items.order_item_id) ? "" : items.order_item_id.Replace('\'', '`');
@@ -4619,7 +4620,10 @@ namespace MasterOnline.Controllers
                                         //sSQL_Value += "','" + items.purchase_order_number + "','" + items.package_id + "','" + items.extra_attributes.Replace('\'', '`') + "','" + items.shipping_provider_type + "','" + items.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + items.updated_at.ToString("yyyy-MM-dd HH:mm:ss");
                                         //sSQL_Value += "','" + items.return_status + "','" + items.product_main_image + "','" + items.variation.Replace('\'', '`') + "','" + items.product_detail_url + "','" + items.invoice_number + "','" + username + "','" + connectionID + "')";
                                         sSQL_Value += "('" + order_item_id + "','" + shop_id + "','" + order_id + "','" + items_name + "','" + sku + "','" + shop_sku + "','" + shipping_type;
-                                        sSQL_Value += "'," + items.item_price + "," + items.paid_price + ",'" + currency + "'," + items.tax_amount + "," + items.shipping_amount + "," + items.shipping_service_cost + "," + items.voucher_amount;
+                                        //change 27 mei 2021, set voucher seller sebagai nilai disc
+                                        //sSQL_Value += "'," + items.item_price + "," + items.paid_price + ",'" + currency + "'," + items.tax_amount + "," + items.shipping_amount + "," + items.shipping_service_cost + "," + items.voucher_amount;
+                                        sSQL_Value += "'," + items.item_price + "," + items.paid_price + ",'" + currency + "'," + items.tax_amount + "," + items.shipping_amount + "," + items.shipping_service_cost + "," + (items.voucher_seller ?? 0);
+                                        //end change 27 mei 2021, set voucher seller sebagai nilai disc
                                         sSQL_Value += ",'" + statusEra + "','" + shipment_provider + "'," + items.is_digital + ",'" + tracking_code + "','" + reason + "','" + reason_detail + "','" + purchase_order_id;
                                         sSQL_Value += "','" + purchase_order_number + "','" + package_id + "','" + extra_attributes + "','" + shipping_provider_type + "','" + items.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + items.updated_at.ToString("yyyy-MM-dd HH:mm:ss");
                                         sSQL_Value += "','" + return_status + "','" + product_main_image + "','" + variation + "','" + product_detail_url + "','" + items.invoice_number + "','" + username + "','" + connectionID + "')";
