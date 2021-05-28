@@ -488,6 +488,9 @@
                 type: "POST",
                 url: '@Url.Action("SavePartnerApi", "Manage")',
                 data: $('#form-partnerapi').serialize(),
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
                 success: function (response) {
                     if (response.Errors == null) {
                         @*alert('Data berhasil tersimpan');
