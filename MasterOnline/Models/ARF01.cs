@@ -212,5 +212,6 @@ namespace MasterOnline
         public string BANK_NO_ACCURATE { get; set; }
         [StringLength(200)]
         public string BRANCH_NAME_ACCURATE { get; set; }
+        public DateTime? TOKEN_EXPIRED { get; set; }//add 28 mei 2021, for shopee
     }
 }

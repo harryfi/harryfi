@@ -2046,6 +2046,82 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+        public async Task<string> GetShopDetail_V2(ShopeeAPIData dataAPI)
+        {
+            string ret = "";
+            DateTime dateNow = DateTime.UtcNow.AddHours(7);
+           
+            int MOPartnerID = MOPartnerIDV2;
+            string MOPartnerKey = MOPartnerKeyV2;
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            //ganti
+            string urll = shopeeV2Url;
+            string path = "/api/v2/shop/get_shop_info";
+
+            var baseString = MOPartnerID + path + seconds;
+            var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
+
+            string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds + "&sign=" + sign 
+                + "&access_token=" + dataAPI.token + "&shop_id=" + dataAPI.merchant_code;
+            //ganti
+            ShopeeGetTokenShop_V2 HttpBody = new ShopeeGetTokenShop_V2
+            {
+                partner_id = MOPartnerID,
+                shop_id = Convert.ToInt32(dataAPI.merchant_code),
+                code = dataAPI.API_secret_key
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            //string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
+            myReq.Method = "POST";
+            //myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            if (!string.IsNullOrEmpty(responseFromServer))
+            {
+                try
+                {
+                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetTokenShopResult_V2)) as ShopeeGetTokenShopResult_V2;
+                    if (string.IsNullOrWhiteSpace(result.error))
+                    {
+                        
+                    }
+                   
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+            
+            return ret;
+        }
 
         public async Task<string> GetTokenShopee_V2(ShopeeAPIData dataAPI, bool bForceRefresh)
         {
@@ -2159,7 +2235,7 @@ namespace MasterOnline.Controllers
 
                             DatabaseSQL EDB = new DatabaseSQL(dataAPI.DatabasePathErasoft);
                             var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', KD_ANALISA = '2', Sort1_Cust = '"
-                                + dataAPI.merchant_code + "', TGL_EXPIRED = '" + dateExpired + "', API_KEY = '" + dataAPI.API_secret_key
+                                + dataAPI.merchant_code + "', TOKEN_EXPIRED = '" + dateExpired + "', API_KEY = '" + dataAPI.API_secret_key
                                  + "', TOKEN = '" + result.access_token + "', REFRESH_TOKEN = '" + result.refresh_token
                                 + "' WHERE CUST = '" + dataAPI.no_cust + "'");
                             if (resultquery != 0)
@@ -2313,7 +2389,7 @@ namespace MasterOnline.Controllers
 
                             DatabaseSQL EDB = new DatabaseSQL(dataAPI.DatabasePathErasoft);
                             var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', KD_ANALISA = '2', Sort1_Cust = '"
-                                + dataAPI.merchant_code + "', TGL_EXPIRED = '" + dateExpired + "', API_KEY = '" + dataAPI.API_secret_key
+                                + dataAPI.merchant_code + "', TOKEN_EXPIRED = '" + dateExpired + "', API_KEY = '" + dataAPI.API_secret_key
                                  + "', TOKEN = '" + result.access_token + "', REFRESH_TOKEN = '" + result.refresh_token
                                 + "' WHERE CUST = '" + dataAPI.no_cust + "'");
                             if (resultquery != 0)
