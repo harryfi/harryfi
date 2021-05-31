@@ -3285,9 +3285,9 @@ namespace MasterOnline.Controllers
                                         //if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0)
                                         if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0 && checkResultPBVarian.Count() == 0)
                                         {
-                                            if (resultCekMultiSKUVarian.Count() > 0)
+                                            if (resultCekMultiSKUVarian.Count() == 0)
                                             {
-                                                if (resultCekBundlingVarian.Count() > 0)
+                                                if (resultCekBundlingVarian.Count() == 0)
                                                 {
                                                     // kondisi kalau belum posting
                                                     sqlListKodeLama += "'" + listKodeBaru + "',";
@@ -3735,9 +3735,9 @@ namespace MasterOnline.Controllers
                                         //if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0)
                                         if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0 && checkResultPBVarian.Count() == 0)
                                         {
-                                            if (resultCekMultiSKUVarian.Count() > 0)
+                                            if (resultCekMultiSKUVarian.Count() == 0)
                                             {
-                                                if (resultCekBundlingVarian.Count() > 0)
+                                                if (resultCekBundlingVarian.Count() == 0)
                                                 {
                                                     // kondisi kalau belum posting
                                                     sqlListKodeLama += "'" + barangvariant.BRG.ToString() + "',";
