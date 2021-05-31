@@ -3258,23 +3258,23 @@ namespace MasterOnline.Controllers
                                                                b.POSTING
                                                            }
                                             ).ToList();
-                                        var resultCekMultiSKUVarian = (from a in ErasoftDbContext.STF03C
-                                                                 where a.BRG.ToLower() == barangvariant.BRG.ToString().ToLower() || a.BRG_ACUAN.ToLower() == barangvariant.BRG.ToString().ToLower()
-                                                                 select new
-                                                                 {
-                                                                     a.BRG_ACUAN,
-                                                                     a.BRG
-                                                                 }
-                                            ).ToList();
+                                        //var resultCekMultiSKUVarian = (from a in ErasoftDbContext.STF03C
+                                        //                         where a.BRG.ToLower() == barangvariant.BRG.ToString().ToLower() || a.BRG_ACUAN.ToLower() == barangvariant.BRG.ToString().ToLower()
+                                        //                         select new
+                                        //                         {
+                                        //                             a.BRG_ACUAN,
+                                        //                             a.BRG
+                                        //                         }
+                                        //    ).ToList();
 
-                                        var resultCekBundlingVarian = (from a in ErasoftDbContext.STF03
-                                                                 where a.Brg.ToLower() == barangvariant.BRG.ToString().ToLower() || a.Unit.ToLower() == barangvariant.BRG.ToString().ToLower()
-                                                                 select new
-                                                                 {
-                                                                     a.Unit,
-                                                                     a.Brg
-                                                                 }
-                                            ).ToList();
+                                        //var resultCekBundlingVarian = (from a in ErasoftDbContext.STF03
+                                        //                         where a.Brg.ToLower() == barangvariant.BRG.ToString().ToLower() || a.Unit.ToLower() == barangvariant.BRG.ToString().ToLower()
+                                        //                         select new
+                                        //                         {
+                                        //                             a.Unit,
+                                        //                             a.Brg
+                                        //                         }
+                                        //    ).ToList();
 
                                         var checkResultPBVarian = resultCekPBVarian.Where(p => p.POSTING.Contains("Y")).ToList();
                                         //end add by nurul 25/5/2021
@@ -3285,10 +3285,10 @@ namespace MasterOnline.Controllers
                                         //if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0)
                                         if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0 && checkResultPBVarian.Count() == 0)
                                         {
-                                            if (resultCekMultiSKUVarian.Count() == 0)
-                                            {
-                                                if (resultCekBundlingVarian.Count() == 0)
-                                                {
+                                            //if (resultCekMultiSKUVarian.Count() == 0)
+                                            //{
+                                            //    if (resultCekBundlingVarian.Count() == 0)
+                                            //    {
                                                     // kondisi kalau belum posting
                                                     sqlListKodeLama += "'" + listKodeBaru + "',";
 
@@ -3297,18 +3297,18 @@ namespace MasterOnline.Controllers
                                                         );
 
                                                     resultEdit = true;
-                                                }
-                                                else
-                                                {
-                                                    //kondisi kalau sudah dijadikan barang bundling/komponen 
-                                                    vlistKodeBundling += "" + barangvariant.BRG.ToString() + ",";
-                                                }
-                                            }
-                                            else
-                                            {
-                                                //kondisi kalau sudah dijadikan barang multi sku/brg acuan 
-                                                vlistKodeMultiSKU += "" + barangvariant.BRG.ToString() + ",";
-                                            }
+                                            //    }
+                                            //    else
+                                            //    {
+                                            //        //kondisi kalau sudah dijadikan barang bundling/komponen 
+                                            //        vlistKodeBundling += "" + barangvariant.BRG.ToString() + ",";
+                                            //    }
+                                            //}
+                                            //else
+                                            //{
+                                            //    //kondisi kalau sudah dijadikan barang multi sku/brg acuan 
+                                            //    vlistKodeMultiSKU += "" + barangvariant.BRG.ToString() + ",";
+                                            //}
                                         }
                                         else
                                         {
@@ -3708,23 +3708,23 @@ namespace MasterOnline.Controllers
                                                                  }
                                             ).ToList();
 
-                                        var resultCekMultiSKUVarian = (from a in ErasoftDbContext.STF03C
-                                                                       where a.BRG.ToLower() == barangvariant.BRG.ToString().ToLower() || a.BRG_ACUAN.ToLower() == barangvariant.BRG.ToString().ToLower()
-                                                                       select new
-                                                                       {
-                                                                           a.BRG_ACUAN,
-                                                                           a.BRG
-                                                                       }
-                                            ).ToList();
+                                        //var resultCekMultiSKUVarian = (from a in ErasoftDbContext.STF03C
+                                        //                               where a.BRG.ToLower() == barangvariant.BRG.ToString().ToLower() || a.BRG_ACUAN.ToLower() == barangvariant.BRG.ToString().ToLower()
+                                        //                               select new
+                                        //                               {
+                                        //                                   a.BRG_ACUAN,
+                                        //                                   a.BRG
+                                        //                               }
+                                        //    ).ToList();
 
-                                        var resultCekBundlingVarian = (from a in ErasoftDbContext.STF03
-                                                                       where a.Brg.ToLower() == barangvariant.BRG.ToString().ToLower() || a.Unit.ToLower() == barangvariant.BRG.ToString().ToLower()
-                                                                       select new
-                                                                       {
-                                                                           a.Unit,
-                                                                           a.Brg
-                                                                       }
-                                            ).ToList();
+                                        //var resultCekBundlingVarian = (from a in ErasoftDbContext.STF03
+                                        //                               where a.Brg.ToLower() == barangvariant.BRG.ToString().ToLower() || a.Unit.ToLower() == barangvariant.BRG.ToString().ToLower()
+                                        //                               select new
+                                        //                               {
+                                        //                                   a.Unit,
+                                        //                                   a.Brg
+                                        //                               }
+                                        //    ).ToList();
 
                                         var checkResultPBVarian = resultCekPBVarian.Where(p => p.POSTING.Contains("Y")).ToList();
                                         //end add by nurul 25/5/2021
@@ -3735,10 +3735,10 @@ namespace MasterOnline.Controllers
                                         //if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0)
                                         if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0 && checkResultPBVarian.Count() == 0)
                                         {
-                                            if (resultCekMultiSKUVarian.Count() == 0)
-                                            {
-                                                if (resultCekBundlingVarian.Count() == 0)
-                                                {
+                                            //if (resultCekMultiSKUVarian.Count() == 0)
+                                            //{
+                                            //    if (resultCekBundlingVarian.Count() == 0)
+                                            //    {
                                                     // kondisi kalau belum posting
                                                     sqlListKodeLama += "'" + barangvariant.BRG.ToString() + "',";
 
@@ -3755,18 +3755,18 @@ namespace MasterOnline.Controllers
                                                         );
 
                                                     resultMerge = true;
-                                                }
-                                                else
-                                                {
-                                                    //kondisi kalau sudah dijadikan barang bundling/komponen 
-                                                    vlistKodeBundling += "" + barangvariant.BRG.ToString() + ",";
-                                                }
-                                            }
-                                            else
-                                            {
-                                                //kondisi kalau sudah dijadikan barang multi sku/brg acuan 
-                                                vlistKodeMultiSKU += "" + barangvariant.BRG.ToString() + ",";
-                                            }
+                                            //    }
+                                            //    else
+                                            //    {
+                                            //        //kondisi kalau sudah dijadikan barang bundling/komponen 
+                                            //        vlistKodeBundling += "" + barangvariant.BRG.ToString() + ",";
+                                            //    }
+                                            //}
+                                            //else
+                                            //{
+                                            //    //kondisi kalau sudah dijadikan barang multi sku/brg acuan 
+                                            //    vlistKodeMultiSKU += "" + barangvariant.BRG.ToString() + ",";
+                                            //}
                                         }
                                         else
                                         {
