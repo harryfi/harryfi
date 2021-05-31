@@ -6202,6 +6202,67 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        public async Task<ShopeeGetLogisticsResult> GetLogistics_V2(ShopeeAPIData iden)
+        {
+            int MOPartnerID = MOPartnerIDV2;
+            string MOPartnerKey = MOPartnerKeyV2;
+            ShopeeGetLogisticsResult ret = null;
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.test-stable.shopeemobile.com/api/v1/logistics/channel/get";
+
+            ShopeeGetLogisticsData HttpBody = new ShopeeGetLogisticsData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            if (responseFromServer != null)
+            {
+                try
+                {
+                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetLogisticsResult)) as ShopeeGetLogisticsResult;
+                    ret = result;
+                }
+                catch (Exception ex2)
+                {
+                }
+            }
+            return ret;
+        }
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Update Status Cancel Pesanan {obj} ke Shopee Gagal.")]
@@ -6854,6 +6915,480 @@ namespace MasterOnline.Controllers
                             item.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                             item.LINK_ERROR = "0;Buat Produk;;";
                             string urlBrg = "https://shopee.co.id/product/"+iden.merchant_code+"/" + resServer.item_id;
+                            item.AVALUE_34 = urlBrg;
+                            ErasoftDbContext.SaveChanges();
+
+                            if (brgInDb.TYPE == "4")
+                            {
+                                //await InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, resServer.item_id, marketplace);
+                                string EDBConnID = EDB.GetConnectionString("ConnId");
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var client = new BackgroundJobClient(sqlStorage);
+
+                                //delay 1 menit, karena API shopee ada delay saat create barang.
+                                //client.Enqueue<ShopeeControllerJob>(x => x.InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog));
+#if (DEBUG || Debug_AWS)
+                                await InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog);
+#else
+                                client.Schedule<ShopeeControllerJob>(x => x.InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog), TimeSpan.FromSeconds(30));
+#endif
+                            }
+                            else
+                            {
+                                var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
+                                if (tblCustomer.TIDAK_HIT_UANG_R)
+                                {
+                                    StokControllerJob.ShopeeAPIData data = new StokControllerJob.ShopeeAPIData()
+                                    {
+                                        merchant_code = iden.merchant_code,
+                                    };
+#if (DEBUG || Debug_AWS)
+                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+                                    Task.Run(() => stokAPI.Shopee_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.BRG_MP, 0, username, null)).Wait();
+#else
+                                                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                                                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                                                        var Jobclient = new BackgroundJobClient(sqlStorage);
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.BRG_MP, 0, username, null));
+#endif
+                                }
+                            }
+
+                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            //add 21 Nov 2019, check create product duplicate
+                            if (dbPathEra == "ERASOFT_120157")
+                            {
+                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            }
+                            //end add 21 Nov 2019, check create product duplicate
+
+                        }
+                        else
+                        {
+                            currentLog.REQUEST_EXCEPTION = "item not found";
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                            throw new Exception("item not found");
+                        }
+                    }
+                    else
+                    {
+                        currentLog.REQUEST_RESULT = resServer.msg;
+                        currentLog.REQUEST_EXCEPTION = resServer.error + ";" + resServer.msg;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        throw new Exception(currentLog.REQUEST_EXCEPTION);
+                    }
+                }
+
+                //}
+                //catch (Exception ex2)
+                //{
+                //    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+                //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                //}
+            }
+            return ret;
+        }
+
+        [AutomaticRetry(Attempts = 0)]
+        [Queue("1_create_product")]
+        [NotifyOnFailed("Create Product {obj} ke Shopee Gagal.")]
+        public async Task<string> CreateProduct_V2(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string brg, string cust, List<ShopeeLogisticsClass> logistics)
+        {
+            string ret = "";
+            SetupContext(iden);
+            iden = await RefreshTokenShopee_V2(iden, false);
+
+            var brgInDb = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper() == brg.ToUpper()).FirstOrDefault();
+            var marketplace = ErasoftDbContext.ARF01.Where(c => c.CUST.ToUpper() == cust.ToUpper()).FirstOrDefault();
+            if (brgInDb == null || marketplace == null)
+                return "invalid passing data";
+            var detailBrg = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).FirstOrDefault();
+            if (detailBrg == null)
+                return "invalid passing data";
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            //string urll = "https://partner.shopeemobile.com/api/v1/item/add";
+            //change by Tri 21 mei 2021, logistic bisa pilih di master barang
+            if (string.IsNullOrEmpty(detailBrg.AVALUE_39))
+            {
+                //add by calvin 21 desember 2018, default nya semua logistic enabled
+                var ShopeeGetLogisticsResult = await GetLogistics_V2(iden);
+
+                foreach (var log in ShopeeGetLogisticsResult.logistics.Where(p => p.enabled == true && p.fee_type.ToUpper() != "CUSTOM_PRICE"
+                && p.fee_type.ToUpper() != "SIZE_SELECTION" && p.mask_channel_id == 0))
+                {
+                    bool lolosValidLogistic = true;
+                    var cLog = ShopeeGetLogisticsResult.logistics.Where(p => p.mask_channel_id == log.logistic_id && p.enabled == true).ToList();
+                    if (cLog.ToList().Count > 0)
+                    {
+                        foreach (var cekLogistic in cLog)
+                        {
+                            if (cekLogistic.weight_limits != null)
+                            {
+                                if (cekLogistic.weight_limits.item_max_weight > 0)
+                                {
+                                    if (cekLogistic.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
+                                    {
+                                        lolosValidLogistic = false;
+                                    }
+                                }
+                                if (cekLogistic.weight_limits.item_min_weight > (brgInDb.BERAT / 1000))
+                                {
+                                    lolosValidLogistic = false;
+                                }
+                            }
+
+                            if (cekLogistic.item_max_dimension != null)
+                            {
+                                if (cekLogistic.item_max_dimension.length > 0)
+                                {
+                                    if (cekLogistic.item_max_dimension.length < (Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG)))
+                                    {
+                                        lolosValidLogistic = false;
+                                    }
+                                }
+                                if (cekLogistic.item_max_dimension.height > 0)
+                                {
+                                    if (cekLogistic.item_max_dimension.height < (Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI)))
+                                    {
+                                        lolosValidLogistic = false;
+                                    }
+                                }
+                                if (cekLogistic.item_max_dimension.width > 0)
+                                {
+                                    if (cekLogistic.item_max_dimension.width < (Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR)))
+                                    {
+                                        lolosValidLogistic = false;
+                                    }
+                                }
+                            }
+                            if (lolosValidLogistic)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (log.weight_limits != null)
+                        {
+                            if (log.weight_limits.item_max_weight > 0)
+                            {
+                                if (log.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
+                                {
+                                    lolosValidLogistic = false;
+                                }
+                            }
+                            if (log.weight_limits.item_min_weight > (brgInDb.BERAT / 1000))
+                            {
+                                lolosValidLogistic = false;
+                            }
+                        }
+
+                        if (log.item_max_dimension != null)
+                        {
+                            if (log.item_max_dimension.length > 0)
+                            {
+                                if (log.item_max_dimension.length < (Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG)))
+                                {
+                                    lolosValidLogistic = false;
+                                }
+                            }
+                            if (log.item_max_dimension.height > 0)
+                            {
+                                if (log.item_max_dimension.height < (Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI)))
+                                {
+                                    lolosValidLogistic = false;
+                                }
+                            }
+                            if (log.item_max_dimension.width > 0)
+                            {
+                                if (log.item_max_dimension.width < (Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR)))
+                                {
+                                    lolosValidLogistic = false;
+                                }
+                            }
+                        }
+                    }
+
+
+                    if (lolosValidLogistic)
+                    {
+                        logistics.Add(new ShopeeLogisticsClass()
+                        {
+                            enabled = log.enabled,
+                            is_free = false,
+                            logistic_id = log.logistic_id,
+                        });
+                    }
+                }
+                //end add by calvin 21 desember 2018, default nya semua logistic enabled
+            }
+            else
+            {
+                var listLog = detailBrg.AVALUE_39.Split(',');
+                foreach (var dataLog in listLog)
+                {
+                    logistics.Add(new ShopeeLogisticsClass()
+                    {
+                        enabled = true,
+                        is_free = false,
+                        logistic_id = Convert.ToInt64(dataLog),
+                    });
+                }
+            }
+            //end change by Tri 21 mei 2021, logistic bisa pilih di master barang
+
+            ShopeeProductData_V2 HttpBody = new ShopeeProductData_V2
+            {
+                //partner_id = MOPartnerID,
+                //shopid = Convert.ToInt32(iden.merchant_code),
+                //timestamp = seconds,
+                item_sku = brg,
+                category_id = Convert.ToInt64(detailBrg.CATEGORY_CODE),
+                condition = "NEW",
+                item_name = (brgInDb.NAMA + " " + brgInDb.NAMA2).Trim().Replace("’", "`"),
+                description = brgInDb.Deskripsi.Replace("’", "`"),
+                //package_height = Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI),
+                //package_length = Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG),
+                //package_width = Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR),
+                weight = brgInDb.BERAT / 1000,
+                original_price = detailBrg.HJUAL,
+                normal_stock = 1,//create product min stock = 1
+                image = new ShopeeImageClass_V2(),
+                attributes = new List<ShopeeAttributeClass>(),
+                logistic_info = logistics,
+                brand = new ShopeeItemBrand_V2(),
+                dimension = new ShopeeDimension_V2(),
+                item_dangerous = 0,
+                item_status = "NORMAL",
+            };
+            HttpBody.dimension.package_height = Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI);
+            HttpBody.dimension.package_length = Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG);
+            HttpBody.dimension.package_width = Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR);
+            HttpBody.brand.brand_id = Convert.ToInt32(detailBrg.AVALUE_38);
+            HttpBody.image.image_id_list = new List<string>();
+            //add by calvin 10 mei 2019
+            HttpBody.description = new StokControllerJob().RemoveSpecialCharacters(HttpBody.description);
+            //end add by calvin 10 mei 2019
+
+            //add by nurul 20/1/2020, handle <p> dan enter double di shopee
+            HttpBody.description = HttpBody.description.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
+            HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<ul>", "").Replace("</ul>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("&nbsp;\r\n\r\n", "\n").Replace("&nbsp;<em>", " ");
+            HttpBody.description = HttpBody.description.Replace("</em>&nbsp;", " ").Replace("&nbsp;", " ").Replace("</em>", "");
+            HttpBody.description = HttpBody.description.Replace("<br />\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("\r\n", "");
+            //end add by nurul 20/1/2020, handle <p> dan enter double di shopee
+
+            //add by calvin 10 september 2019
+            HttpBody.description = HttpBody.description.Replace("<h1>", "\r\n").Replace("</h1>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<h2>", "\r\n").Replace("</h2>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<h3>", "\r\n").Replace("</h3>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<p>", "\r\n").Replace("</p>", "\r\n");
+            //HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
+            //HttpBody.description = HttpBody.description.Replace("&nbsp;", "");
+
+            HttpBody.description = System.Text.RegularExpressions.Regex.Replace(HttpBody.description, "<.*?>", String.Empty);
+            //end add by calvin 10 september 2019
+
+            //add by calvin 1 mei 2019
+            var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(brg, "ALL");
+            if (qty_stock > 0)
+            {
+                HttpBody.normal_stock = Convert.ToInt32(qty_stock);
+            }
+            //end add by calvin 1 mei 2019
+            int jmlPic = 0;
+            //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
+            //List<string> byteGambarUploaded = new List<string>();
+            //end add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
+
+            if (jmlPic < 9)
+            {
+                //if (!byteGambarUploaded.Contains(brgInDb.Sort5))
+                {
+                    if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
+                    {
+                        HttpBody.image.image_id_list.Add(brgInDb.LINK_GAMBAR_1);
+                        jmlPic++;
+                        //byteGambarUploaded.Add(brgInDb.Sort5);
+                    }
+                }
+            }
+            if (jmlPic < 9)
+            {
+                //if (!byteGambarUploaded.Contains(brgInDb.Sort6))
+                {
+                    if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
+                    {
+                        HttpBody.image.image_id_list.Add(brgInDb.LINK_GAMBAR_2 );
+                        jmlPic++;
+                        //byteGambarUploaded.Add(brgInDb.Sort6);
+                    }
+                }
+            }
+            if (jmlPic < 9)
+            {
+                //if (!byteGambarUploaded.Contains(brgInDb.Sort7))
+                {
+                    if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
+                    {
+                        HttpBody.image.image_id_list.Add(brgInDb.LINK_GAMBAR_3 );
+                        jmlPic++;
+                        //byteGambarUploaded.Add(brgInDb.Sort7);
+                    }
+                }
+            }
+            if (jmlPic < 9)
+            {
+                //if (!byteGambarUploaded.Contains(brgInDb.SIZE_GAMBAR_4))
+                {
+                    if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_4))
+                    {
+                        HttpBody.image.image_id_list.Add(brgInDb.LINK_GAMBAR_4);
+                        jmlPic++;
+                        //byteGambarUploaded.Add(brgInDb.SIZE_GAMBAR_4);
+                    }
+                }
+            }
+            if (jmlPic < 9)
+            {
+                //if (!byteGambarUploaded.Contains(brgInDb.SIZE_GAMBAR_5))
+                {
+                    if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
+                    {
+                        HttpBody.image.image_id_list.Add(brgInDb.LINK_GAMBAR_5 );
+                        jmlPic++;
+                        //byteGambarUploaded.Add(brgInDb.SIZE_GAMBAR_5);
+                    }
+                }
+            }
+            try
+            {
+                for (int i = 1; i <= 30; i++)
+                {
+                    string attribute_id = Convert.ToString(detailBrg["ACODE_" + i.ToString()]);
+                    string value = Convert.ToString(detailBrg["AVALUE_" + i.ToString()]);
+                    if (!string.IsNullOrWhiteSpace(attribute_id) && !string.IsNullOrWhiteSpace(value))
+                    {
+                        if (value != "null")
+                        {
+                            HttpBody.attributes.Add(new ShopeeAttributeClass
+                            {
+                                attributes_id = Convert.ToInt64(attribute_id),
+                                value = value.Trim()
+                            });
+                        }
+
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            int MOPartnerID = MOPartnerIDV2;
+            string MOPartnerKey = MOPartnerKeyV2;
+            string urll = shopeeV2Url;
+            string path = "/api/v2/product/add_item";
+
+            var baseString = MOPartnerID + path + seconds + iden.token + iden.merchant_code;
+            var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds + "&sign=" + sign
+                + "&access_token=" + iden.token + "&shop_id=" + iden.merchant_code;
+            //string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            string responseFromServer = "";
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
+            myReq.Method = "POST";
+            //myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = seconds.ToString(),
+                REQUEST_ACTION = "Create Product V2",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = brg,
+                REQUEST_ATTRIBUTE_2 = brgInDb.NAMA,
+                REQUEST_STATUS = "Pending",
+            };
+
+            try
+            {
+                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+
+            string sSQL = "UPDATE S SET LINK_STATUS='Buat Produk Pending', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', ";
+            //jobid;request_action;request_result;request_exception
+            string Link_Error = "0;Buat Produk;;";
+            sSQL += "LINK_ERROR = '" + Link_Error + "' FROM STF02H S INNER JOIN ARF01 A ON S.IDMARKET = A.RECNUM AND A.CUST = '" + log_CUST + "' WHERE S.BRG = '" + kodeProduk + "' ";
+            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            }
+            catch (WebException e)
+            {
+                string err = "";
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                }
+            }
+
+            if (responseFromServer != null)
+            {
+                //try
+                //{
+                var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCreateProdResponse)) as ShopeeCreateProdResponse;
+                if (resServer != null)
+                {
+                    if (string.IsNullOrEmpty(resServer.error))
+                    {
+                        if (!string.IsNullOrEmpty(resServer.err_msg))
+                        {
+                            if (resServer.err_msg == "err_gateway")
+                            {
+                                currentLog.REQUEST_EXCEPTION = "item data have special character.";
+                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                                throw new Exception(currentLog.REQUEST_EXCEPTION);
+                            }
+                        }
+                        var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
+                        if (item != null)
+                        {
+                            item.BRG_MP = Convert.ToString(resServer.item_id) + ";0";
+                            item.LINK_STATUS = "Buat Produk Berhasil";
+                            item.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                            item.LINK_ERROR = "0;Buat Produk;;";
+                            string urlBrg = "https://shopee.co.id/product/" + iden.merchant_code + "/" + resServer.item_id;
                             item.AVALUE_34 = urlBrg;
                             ErasoftDbContext.SaveChanges();
 
@@ -10509,6 +11044,56 @@ namespace MasterOnline.Controllers
 
         }
 
+        public class ShopeeProductData_V2
+        {
+            public long category_id { get; set; }
+            public string item_name { get; set; }
+            public string description { get; set; }
+            public double original_price { get; set; }
+            public int normal_stock { get; set; }
+            public string item_sku { get; set; }
+            //public List<ShopeeVariationClass> variations { get; set; }
+            public ShopeeImageClass_V2 image { get; set; }
+            public List<ShopeeAttributeClass> attributes { get; set; }
+            public List<ShopeeLogisticsClass> logistic_info { get; set; }
+            public double weight { get; set; } // in kg
+            //public int package_length { get; set; }
+            //public int package_width { get; set; }
+            //public int package_height { get; set; }
+            //public long partner_id { get; set; }
+            //public long shopid { get; set; }
+            //public long timestamp { get; set; }
+            public string condition { get; set; }//NEW or USED
+            public string item_status { get; set; }//UNLIST or NORMAL
+            public ShopeeDimension_V2 dimension { get; set; }
+            public ShopeeItemPreOrder_V2 pre_order { get; set; }
+            public ShopeeItemBrand_V2 brand { get; set; }
+            public int item_dangerous { get; set; }
+
+        }
+        public class ShopeeDimension_V2
+        {
+            public int package_length { get; set; }
+            public int package_width { get; set; }
+            public int package_height { get; set; }
+
+        }
+        public class ShopeeImageClass_V2
+        {
+            public List<string> image_id_list { get; set; }
+        }
+        public class ShopeeItemPreOrder_V2
+        {
+            public bool is_pre_order { get; set; }
+            public int days_to_ship { get; set; }//7-30days
+
+        }
+        public class ShopeeItemBrand_V2
+        {
+            public string original_brand_name { get; set; }
+            public int brand_id { get; set; }
+
+        }
         public class ShopeeUpdateProductData
         {
             public long item_id { get; set; }
