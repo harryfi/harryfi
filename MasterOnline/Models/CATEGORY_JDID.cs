@@ -28,6 +28,14 @@ namespace MasterOnline.Models
         [StringLength(50)]
         public string PARENT_CODE { get; set; }
 
+        //ADD BY NURUL 27/5/2021
+        [StringLength(1)]
+        public string IS_LAST_NODE { get; set; }
+
+        [StringLength(50)]
+        public string MASTER_CATEGORY_CODE { get; set; }
+        //END ADD BY NURUL 27/5/2021
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int? RecNum { get; set; }

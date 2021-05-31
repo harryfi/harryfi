@@ -6238,5 +6238,104 @@ namespace MasterOnline.Controllers
             }
         }
         //end add by nurul 17/5/2021
+
+        //add by nurul 27/5/2021
+        public async System.Threading.Tasks.Task<string> GetCategoryJDID(string email)
+        {
+            try
+            {
+                var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+
+#if (AWS || Debug_AWS)
+            var getAkunRahma = MoDbContext.Account.Where(a => a.Email == "aniesuprijati@gmail.com").FirstOrDefault();
+#elif (DEV || DEBUG)
+                var getAkunRahma = MoDbContext.Account.Where(a => a.Email == "rahmamk@gmail.com").FirstOrDefault();
+#endif
+                if (getAkunRahma != null)
+                {
+                    ErasoftDbContextNew = new ErasoftContext(getAkunRahma.DatabasePathErasoft);
+
+                    var idmarket = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "JD.ID").IdMarket.ToString();
+                    var customer = ErasoftDbContextNew.ARF01.Where(c => c.NAMA == idmarket && c.EMAIL == email).FirstOrDefault();
+                    if (customer != null)
+                    {
+                        DateTime dateNow = DateTime.UtcNow.AddHours(7);
+                        if (dateNow >= customer.TGL_EXPIRED)
+                        {
+                            JDIDControllerJob.JDIDAPIDataJob iden = new JDIDControllerJob.JDIDAPIDataJob();
+                            iden.merchant_code = customer.Sort1_Cust;
+                            iden.DatabasePathErasoft = getAkunRahma.DatabasePathErasoft;
+                            iden.username = getAkunRahma.Username;
+                            iden.no_cust = customer.CUST;
+                            iden.tgl_expired = customer.TGL_EXPIRED;
+                            iden.appKey = customer.API_KEY;
+                            iden.appSecret = customer.API_CLIENT_U;
+                            iden.accessToken = customer.TOKEN;
+                            iden.refreshToken = customer.REFRESH_TOKEN;
+
+                            // proses cek dan get token
+                            //#if (AWS || DEV)
+                            //                    client.Enqueue<JDIDControllerJob>(x => x.GetTokenJDID(iden, false, false));
+                            //#else
+                            //                                                Task.Run(() => new JDIDControllerJob().GetTokenJDID(iden, false, false)).Wait();
+                            //#endif
+                            await new JDIDControllerJob().GetTokenJDID(iden, false, false);
+
+                            var arf01_2 = ErasoftDbContext.ARF01.Where(t => t.CUST == customer.CUST).FirstOrDefault();
+                            if (arf01_2 != null)
+                            {
+                                if (!string.IsNullOrEmpty(arf01_2.TOKEN) && !string.IsNullOrEmpty(arf01_2.API_CLIENT_U) && !string.IsNullOrEmpty(arf01_2.API_KEY))
+                                {
+                                    var jdAPI2 = new JDIDController();
+                                    JDIDAPIData data = new JDIDAPIData()
+                                    {
+                                        no_cust = arf01_2.CUST,
+                                        email = arf01_2.EMAIL,
+                                        accessToken = arf01_2.TOKEN,
+                                        appKey = arf01_2.API_KEY,
+                                        appSecret = arf01_2.API_CLIENT_U,
+                                        DatabasePathErasoft = getAkunRahma.DatabasePathErasoft,
+                                        merchant_code = arf01_2.Sort1_Cust,
+                                        tgl_expired = arf01_2.TGL_EXPIRED,
+                                        versi = arf01_2.KD_ANALISA,
+                                        username = getAkunRahma.Username
+                                    };
+                                    var result = await jdAPI2.JDID_getCategoryV2(data);
+                                    return "Get Category & Attribute JDID sedang berlangsung.";
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(customer.TOKEN) && !string.IsNullOrEmpty(customer.API_CLIENT_U) && !string.IsNullOrEmpty(customer.API_KEY))
+                            {
+                                var jdAPI2 = new JDIDController();
+                                JDIDAPIData data = new JDIDAPIData()
+                                {
+                                    no_cust = customer.CUST,
+                                    email = customer.EMAIL,
+                                    accessToken = customer.TOKEN,
+                                    appKey = customer.API_KEY,
+                                    appSecret = customer.API_CLIENT_U,
+                                    DatabasePathErasoft = getAkunRahma.DatabasePathErasoft,
+                                    merchant_code = customer.Sort1_Cust,
+                                    tgl_expired = customer.TGL_EXPIRED,
+                                    versi = customer.KD_ANALISA,
+                                    username = getAkunRahma.Username
+                                };
+                                var result = await jdAPI2.JDID_getCategoryV2(data);
+                                return "Get Category & Attribute JDID sedang berlangsung.";
+                            }
+                        }
+                    }
+                }
+                return "Akun tidak ditemukan.";
+            }
+            catch (Exception ex)
+            {
+                return "Get Category & Attribute JDID gagal.";
+            }
+        }
+        //end add by nurul 27/5/2021
     }
 }
