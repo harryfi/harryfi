@@ -228,6 +228,75 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        public async Task<string> UploadImage(ShopeeAPIData iden, string[] imageUrl)
+        {
+            SetupContext(iden);
+            iden = await RefreshTokenShopee_V2(iden, false);
+
+            int MOPartnerID = MOPartnerIDV2;
+            string MOPartnerKey = MOPartnerKeyV2;
+            string ret = "";
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+
+            string urll = shopeeV2Url + "/api/v1/image/upload";
+
+
+            ShopeeUploadImageData HttpBody = new ShopeeUploadImageData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                images = imageUrl
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != null)
+            {
+                try
+                {
+
+                }
+                catch (Exception ex2)
+                {
+
+                }
+            }
+            return ret;
+        }
         public async Task<ShopeeAPIData> UploadImage_V2(ShopeeAPIData dataAPI, string imageUrl)
         {
             SetupContext(dataAPI);
@@ -10899,6 +10968,13 @@ namespace MasterOnline.Controllers
             public long item_id { get; set; }
             public long variation_id { get; set; }
             public int stock { get; set; }
+        }
+        public class ShopeeUploadImageData
+        {
+            public int partner_id { get; set; }
+            public int shopid { get; set; }
+            public long timestamp { get; set; }
+            public string[] images { get; set; }
         }
         public class ShopeeError
         {
