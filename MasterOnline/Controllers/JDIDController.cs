@@ -4802,8 +4802,9 @@ namespace MasterOnline.Controllers
                                     {
                                         returnData["AOPTIONS_" + a] = "0";
                                     }
-                                    i = i + 1;
                                 }
+                                i = i + 1;
+
                             }
                             retAttr = returnData;
                             try
