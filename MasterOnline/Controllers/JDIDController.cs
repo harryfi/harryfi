@@ -4422,13 +4422,13 @@ namespace MasterOnline.Controllers
                                     //oCommand.Transaction = oTransaction;
                                     oCommand.CommandType = CommandType.Text;
                                     //oCommand.CommandText = "INSERT INTO [CATEGORY_JDID] ([CATEGORY_CODE], [CATEGORY_NAME], [CATE_STATE], [TYPE], [LEAF], [PARENT_CODE]) VALUES (@CATEGORY_CODE, @CATEGORY_NAME, @CATE_STATE, @TYPE, @LEAF, @PARENT_CODE)";
-                                    oCommand.CommandText = "INSERT INTO [CATEGORY_JDID] ([CATEGORY_CODE], [CATEGORY_NAME], [TYPE], [PARENT_CODE], [IS_LAST_NODE], [MASTER_CATEGORY_CODE]) VALUES (@CATEGORY_CODE, @CATEGORY_NAME, @TYPE, @PARENT_CODE, @IS_LAST_NODE, @MASTER_CATEGORY_CODE)";
+                                    oCommand.CommandText = "INSERT INTO [CATEGORY_JDID] ([CATEGORY_CODE], [CATEGORY_NAME], [CATE_STATE], [TYPE], [LEAF], [PARENT_CODE], [IS_LAST_NODE], [MASTER_CATEGORY_CODE]) VALUES (@CATEGORY_CODE, @CATEGORY_NAME, @CATE_STATE, @TYPE, @LEAF, @PARENT_CODE, @IS_LAST_NODE, @MASTER_CATEGORY_CODE)";
                                     //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
                                     oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
                                     oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
-                                    //oCommand.Parameters.Add(new SqlParameter("@CATE_STATE", SqlDbType.NVarChar, 3));
+                                    oCommand.Parameters.Add(new SqlParameter("@CATE_STATE", SqlDbType.NVarChar, 3));
                                     oCommand.Parameters.Add(new SqlParameter("@TYPE", SqlDbType.NVarChar, 3));
-                                    //oCommand.Parameters.Add(new SqlParameter("@LEAF", SqlDbType.NVarChar, 1));
+                                    oCommand.Parameters.Add(new SqlParameter("@LEAF", SqlDbType.NVarChar, 1));
                                     oCommand.Parameters.Add(new SqlParameter("@PARENT_CODE", SqlDbType.NVarChar, 50));
                                     oCommand.Parameters.Add(new SqlParameter("@IS_LAST_NODE", SqlDbType.NVarChar, 3));
                                     oCommand.Parameters.Add(new SqlParameter("@MASTER_CATEGORY_CODE", SqlDbType.NVarChar, 1));
@@ -4440,15 +4440,17 @@ namespace MasterOnline.Controllers
                                         {
                                             oCommand.Parameters[0].Value = item.id;
                                             oCommand.Parameters[1].Value = item.name;
-                                            oCommand.Parameters[2].Value = item.level;
+                                            oCommand.Parameters[2].Value = "1";
+                                            oCommand.Parameters[3].Value = item.level;
+                                            oCommand.Parameters[4].Value = "1";
                                             var parentID = "";
                                             if (!string.IsNullOrEmpty(item.parentId.ToString()))
                                             {
                                                 parentID = item.parentId.ToString();
                                             }
-                                            oCommand.Parameters[3].Value = parentID;
-                                            oCommand.Parameters[4].Value = (item.parentId != null ? "1" : "0");
-                                            oCommand.Parameters[5].Value = "";
+                                            oCommand.Parameters[5].Value = parentID;
+                                            oCommand.Parameters[6].Value = (item.parentId != null ? "1" : "0");
+                                            oCommand.Parameters[7].Value = "";
                                             try
                                             {
                                                 if (oCommand.ExecuteNonQuery() > 0)
@@ -4627,15 +4629,18 @@ namespace MasterOnline.Controllers
                             {
                                 oCommand.Parameters[0].Value = detail.id;
                                 oCommand.Parameters[1].Value = detail.name;
-                                oCommand.Parameters[2].Value = detail.level;
+
+                                oCommand.Parameters[2].Value = "1";
+                                oCommand.Parameters[3].Value = detail.level;
+                                oCommand.Parameters[4].Value = "0";
                                 var parentIDParent = "";
                                 if (!string.IsNullOrEmpty(detail.parentId.ToString()))
                                 {
                                     parentIDParent = detail.parentId.ToString();
                                 }
-                                oCommand.Parameters[3].Value = parentIDParent;
-                                oCommand.Parameters[4].Value = (detail.parentId != null ? "1" : "0");
-                                oCommand.Parameters[5].Value = "";
+                                oCommand.Parameters[5].Value = parentIDParent;
+                                oCommand.Parameters[6].Value = (detail.parentId != null ? "1" : "0");
+                                oCommand.Parameters[7].Value = "";
                                 try
                                 {
                                     if (oCommand.ExecuteNonQuery() > 0)
@@ -4761,41 +4766,44 @@ namespace MasterOnline.Controllers
                             string a = "";
                             foreach (var attribs in result.jingdong_category_api_read_getAttributesByCatId_response.returnType.model)
                             {
-                                var tempRetAttrOPt = new List<ATTRIBUTE_OPT_JDID>();
-                                a = Convert.ToString(i + 1);
-                                returnData.CATEGORY_CODE = catId;
-                                returnData.CATEGORY_NAME = catName;
+                                if (i < 35)
+                                {
+                                    var tempRetAttrOPt = new List<ATTRIBUTE_OPT_JDID>();
+                                    a = Convert.ToString(i + 1);
+                                    returnData.CATEGORY_CODE = catId;
+                                    returnData.CATEGORY_NAME = catName;
 
-                                //sSQL += "[ACODE_" + a + "],[ATYPE_" + a + "],[ANAME_" + a + "],[AOPTIONS_" + a + "],";
-                                //oCommand.Parameters[(i * 4) + 2].Value = result.value.attributes[i].attributeCode.Value;
-                                //oCommand.Parameters[(i * 4) + 3].Value = result.value.attributes[i].attributeType.Value;
-                                //oCommand.Parameters[(i * 4) + 4].Value = result.value.attributes[i].name.Value;
-                                //oCommand.Parameters[(i * 4) + 5].Value = result.value.attributes[i].options.Count > 0 ? "1" : "0";
-                                returnData["ACODE_" + a] = Convert.ToString(attribs.propertyId);
-                                returnData["ATYPE_" + a] = Convert.ToString(attribs.type);
-                                returnData["ANAME_" + a] = Convert.ToString(attribs.name);
-                                //returnData["AOPTIONS_" + a] = attribs.options.Count > 0 ? "1" : "0";
+                                    //sSQL += "[ACODE_" + a + "],[ATYPE_" + a + "],[ANAME_" + a + "],[AOPTIONS_" + a + "],";
+                                    //oCommand.Parameters[(i * 4) + 2].Value = result.value.attributes[i].attributeCode.Value;
+                                    //oCommand.Parameters[(i * 4) + 3].Value = result.value.attributes[i].attributeType.Value;
+                                    //oCommand.Parameters[(i * 4) + 4].Value = result.value.attributes[i].name.Value;
+                                    //oCommand.Parameters[(i * 4) + 5].Value = result.value.attributes[i].options.Count > 0 ? "1" : "0";
+                                    returnData["ACODE_" + a] = Convert.ToString(attribs.propertyId);
+                                    returnData["ATYPE_" + a] = Convert.ToString(attribs.type);
+                                    returnData["ANAME_" + a] = Convert.ToString(attribs.name);
+                                    //returnData["AOPTIONS_" + a] = attribs.options.Count > 0 ? "1" : "0";
 
-                                if (!string.IsNullOrEmpty(Convert.ToString(attribs.propertyId)))
-                                {
-                                    //var optList = attribs.options.ToList();
-                                    //var listOpt = optList.Select(x => new ATTRIBUTE_OPT_BLIBLI(attribs.attributeCode.ToString(), attribs.attributeType.ToString(), attribs.name.ToString(), x)).ToList();
-                                    //ret.attribute_opt.AddRange(listOpt);
-                                    var attrId = Convert.ToString(attribs.propertyId);
-                                    var attrName = Convert.ToString(attribs.name);
-                                    var listOpt = await getAttributeOptV2(data, catId, catName, attrId, attrName, 1);
-                                    retAttrOPt.AddRange(listOpt);
-                                    tempRetAttrOPt.AddRange(listOpt);
+                                    if (!string.IsNullOrEmpty(Convert.ToString(attribs.propertyId)))
+                                    {
+                                        //var optList = attribs.options.ToList();
+                                        //var listOpt = optList.Select(x => new ATTRIBUTE_OPT_BLIBLI(attribs.attributeCode.ToString(), attribs.attributeType.ToString(), attribs.name.ToString(), x)).ToList();
+                                        //ret.attribute_opt.AddRange(listOpt);
+                                        var attrId = Convert.ToString(attribs.propertyId);
+                                        var attrName = Convert.ToString(attribs.name);
+                                        var listOpt = await getAttributeOptV2(data, catId, catName, attrId, attrName, 1);
+                                        retAttrOPt.AddRange(listOpt);
+                                        tempRetAttrOPt.AddRange(listOpt);
+                                    }
+                                    if (tempRetAttrOPt.Count() > 0)
+                                    {
+                                        returnData["AOPTIONS_" + a] = "1";
+                                    }
+                                    else
+                                    {
+                                        returnData["AOPTIONS_" + a] = "0";
+                                    }
+                                    i = i + 1;
                                 }
-                                if(tempRetAttrOPt.Count() > 0)
-                                {
-                                    returnData["AOPTIONS_" + a] = "1";
-                                }
-                                else
-                                {
-                                    returnData["AOPTIONS_" + a] = "0";
-                                }
-                                i = i + 1;
                             }
                             retAttr = returnData;
                             try
@@ -5104,6 +5112,259 @@ namespace MasterOnline.Controllers
             //}
 
 
+            return listOpt;
+        }
+
+        public ATTRIBUTE_JDID getAttributeV2Lama(JDIDAPIData data, string catId)
+        {
+            var retAttr = new ATTRIBUTE_JDID();
+            var retAttrOPt = new List<ATTRIBUTE_OPT_JDID>();
+
+            string responseFromServer = "";
+            bool responseApi = false;
+            int retry = 0;
+            while (!responseApi && retry <= 3)
+            {
+                var sysParams = new Dictionary<string, string>();
+                this.ParamJson = "{\"catId\":\"" + catId + "\"}";
+                sysParams.Add("360buy_param_json", this.ParamJson);
+
+                sysParams.Add("access_token", data.accessToken);
+                sysParams.Add("app_key", data.appKey);
+                this.Method = "jingdong.category.api.read.getAttributesByCatId"; //query category information by category id， this API only for POP sellers
+                sysParams.Add("method", this.Method);
+                var gettimestamp = getCurrentTimeFormatted();
+                sysParams.Add("timestamp", gettimestamp);
+                sysParams.Add("v", this.Version2);
+                sysParams.Add("format", this.Format);
+                sysParams.Add("sign_method", this.SignMethod);
+
+                var signature = this.generateSign(sysParams, data.appSecret);
+
+                string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
+                urll += "&format=json&sign_method=md5";
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                try
+                {
+                    using (WebResponse response = myReq.GetResponse())
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                            responseApi = true; break;
+                        }
+                    }
+                }
+                catch (WebException ex)
+                {
+                    retry = retry + 1;
+                    string err1 = "";
+                    if (ex.Status == WebExceptionStatus.ProtocolError)
+                    {
+                        WebResponse resp1 = ex.Response;
+                        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                        {
+                            err1 = sr1.ReadToEnd();
+                        }
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(responseFromServer))
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDgetAttributeV2)) as JDIDgetAttributeV2;
+                if (result.jingdong_category_api_read_getAttributesByCatId_response.returnType != null)
+                {
+                    if (result.jingdong_category_api_read_getAttributesByCatId_response.returnType.success)
+                    {
+                        if (result.jingdong_category_api_read_getAttributesByCatId_response.returnType.model.Count() > 0)
+                        {
+                            string a = "";
+                            int i = 2;
+                            retAttr.CATEGORY_CODE = catId;
+
+                            retAttr["ACODE_1"] = "9170";
+                            retAttr["AVALUE_1"] = "";
+                            retAttr["ANAME_1"] = "Warna";
+
+                            retAttr["ACODE_2"] = "9248";
+                            retAttr["AVALUE_2"] = "";
+                            retAttr["ANAME_2"] = "Ukuran";
+                            foreach (var attr in result.jingdong_category_api_read_getAttributesByCatId_response.returnType.model)
+                            {
+                                if (!string.IsNullOrEmpty(attr.name) && !string.IsNullOrEmpty(Convert.ToString(attr.propertyId)))
+                                {
+                                    if (!attr.name.Contains("Coming Soon")
+                                        //&& !attr.name.Contains("Warna") 
+                                        //&& !attr.name.Contains("Ukuran") 
+                                        && !attr.name.Contains("Test11")
+                                        //&& !attr.name.Contains("Network") 
+                                        && !attr.name.Contains("Operating system")
+                                        && !attr.name.Contains("Upgradable")
+                                        //&& !attr.name.Contains("OS Upgrade to") 
+                                        //&& !attr.name.Contains("Chipset") 
+                                        //&& !attr.name.Contains("CPU")
+                                        && !attr.name.Contains("GPU")
+                                        //&& !attr.name.Contains("RAM") 
+                                        //&& !attr.name.Contains("Memory Internal")
+                                        //&& !attr.name.Contains("Memory External") 
+                                        //&& !attr.name.Contains("Rear Camera 1") 
+                                        //&& !attr.name.Contains("Rear Camera 2")
+                                        //&& !attr.name.Contains("Rear Camera 3") 
+                                        //&& !attr.name.Contains("Rear Camera 4") 
+                                        //&& !attr.name.Contains("Front Camera 1")
+                                        && !attr.name.Contains("Front Camera 2")
+                                        && !attr.name.Contains("Video")
+                                        //&& !attr.name.Contains("Battery Type")
+                                        //&& !attr.name.Contains("Removable Battery") 
+                                        //&& !attr.name.Contains("Battery Capacity") 
+                                        && !attr.name.Contains("LCD Size")
+                                        //&& !attr.name.Contains("LCD Type") 
+                                        //&& !attr.name.Contains("Screen Resolution") && !attr.name.Contains("Dimensions")
+                                        //&& !attr.name.Contains("Sensor") 
+                                        //&& !attr.name.Contains("SIM Card") 
+                                        //&& !attr.name.Contains("WLAN")
+                                        //&& !attr.name.Contains("NFC") 
+                                        && !attr.name.Contains("ROM")
+                                        && !attr.name.Contains("Megapixel(MP)")
+                                        && !attr.name.Contains("MicroSD")
+                                        //&& !attr.name.Contains("OS") 
+                                        && !attr.name.Contains("Secondary")
+                                        && !attr.name.Contains("Primary")
+                                        && !attr.name.Contains("GPRS")
+                                        && !attr.name.Contains("Multitouch")
+                                        && !attr.name.Contains("EDGE")
+                                        //&& !attr.name.Contains("Dual SIM") 
+                                        && !attr.name.Contains("Screen size (inch)")
+                                        //&& !attr.name.Contains("Price") 
+                                        //&& !attr.name.Contains("Kapasitas")
+                                        )
+                                    {
+                                        if (i < 20)
+                                        {
+                                            a = Convert.ToString(i + 1);
+                                            retAttr["ACODE_" + a] = Convert.ToString(attr.propertyId) ?? "";
+                                            retAttr["AVALUE_" + a] = attr.type.ToString() ?? "";
+                                            retAttr["ANAME_" + a] = attr.nameEn ?? "";
+                                            i = i + 1;
+                                        }
+                                    }
+                                }
+                            }
+                            for (int j = i; j < 20; j++)
+                            {
+                                a = Convert.ToString(j + 1);
+                                retAttr["ACODE_" + a] = "";
+                                retAttr["AVALUE_" + a] = "";
+                                retAttr["ANAME_" + a] = "";
+                            }
+                        }
+                    }
+                }
+            }
+
+            
+            return retAttr;
+        }
+
+        public List<ATTRIBUTE_OPT_JDID> getAttributeOptV2Lama(JDIDAPIData data, string catId, string attrId, int page)
+        {
+            var listOpt = new List<ATTRIBUTE_OPT_JDID>();
+            string responseFromServer = "";
+            bool responseApi = false;
+            int retry = 0;
+            while (!responseApi && retry <= 3)
+            {
+                var sysParams = new Dictionary<string, string>();
+                this.ParamJson = "{\"catId\":\"" + catId + "\", \"attrId\":\"" + attrId + "\", \"currentPage\":\"" + page + "\", \"pageSize\":\"20\",}";
+                sysParams.Add("360buy_param_json", this.ParamJson);
+
+                sysParams.Add("access_token", data.accessToken);
+                sysParams.Add("app_key", data.appKey);
+                this.Method = "jingdong.category.api.read.getAttrValuesByCatIdAndAttrId"; //query the attribute value information by attribute id and category id
+                sysParams.Add("method", this.Method);
+                var gettimestamp = getCurrentTimeFormatted();
+                sysParams.Add("timestamp", gettimestamp);
+                sysParams.Add("v", this.Version2);
+                sysParams.Add("format", this.Format);
+                sysParams.Add("sign_method", this.SignMethod);
+
+                var signature = this.generateSign(sysParams, data.appSecret);
+
+                string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
+                urll += "&format=json&sign_method=md5";
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                try
+                {
+                    using (WebResponse response = myReq.GetResponse())
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                            responseApi = true; break;
+                        }
+                    }
+                }
+                catch (WebException ex)
+                {
+                    retry = retry + 1;
+                    string err1 = "";
+                    if (ex.Status == WebExceptionStatus.ProtocolError)
+                    {
+                        WebResponse resp1 = ex.Response;
+                        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                        {
+                            err1 = sr1.ReadToEnd();
+                        }
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(responseFromServer))
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDgetAttributeOptV2)) as JDIDgetAttributeOptV2;
+                if (result.jingdong_category_api_read_getAttrValuesByCatIdAndAttrId_response.returnType != null)
+                {
+                    if (result.jingdong_category_api_read_getAttrValuesByCatIdAndAttrId_response.returnType.success)
+                    {
+                        if (result.jingdong_category_api_read_getAttrValuesByCatIdAndAttrId_response.returnType.model != null)
+                        {
+                            if (result.jingdong_category_api_read_getAttrValuesByCatIdAndAttrId_response.returnType.model.result.Count() > 0)
+                            {
+                                foreach (var opt in result.jingdong_category_api_read_getAttrValuesByCatIdAndAttrId_response.returnType.model.result)
+                                {
+                                    var newOpt = new ATTRIBUTE_OPT_JDID()
+                                    {
+                                        //ACODE = opt.attributeValueId.ToString(),
+                                        //OPTION_VALUE = opt.nameEn
+                                        ACODE = opt.attributeValueId.ToString(),
+                                        //ANAME = attrName,
+                                        SORT = opt.sort.ToString(),
+                                        ATTRIBUTEVALUEID = opt.attributeId.ToString(),
+                                        OPTION_VALUE = opt.nameEn,
+                                        OPTION_NAMEEN = opt.name
+                                    };
+                                    listOpt.Add(newOpt);
+                                }
+                                //if(retOpt.model.data.Count == 20)
+                                //{
+                                var cursiveOpt = getAttributeOptV2Lama(data, catId, attrId, page + 1);
+                                if (cursiveOpt.Count > 0)
+                                {
+                                    foreach (var opt2 in cursiveOpt)
+                                    {
+                                        listOpt.Add(opt2);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             return listOpt;
         }
         //end add by nurul 27/5/2021, JDID versi 2 tahap 2 

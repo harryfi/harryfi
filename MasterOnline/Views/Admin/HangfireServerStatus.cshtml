@@ -346,6 +346,7 @@
                         <button type="button" id="btnCatAttrBlibli" class="btn btn-success" onclick="ProsesCatAttrBlibli();">Proses Get Category & Attribute Blibli</button>
 
                         <button type="button" id="btnCatAttrJDID" class="btn btn-success" onclick="ProsesCatAttrJDID();">Proses Get Category & Attribute JDID</button>
+                        <button type="button" id="btnAttrJDID" class="btn btn-success" onclick="ProsesAttrJDID();">Proses Get Attribute JDID</button>
                     </div>
                 </div>
             </div>
@@ -660,6 +661,7 @@
             $('#loading_CatAttr').hide();
             $('#btnCatAttrBlibli').show();
             $('#btnCatAttrJDID').hide();
+            $('#btnAttrJDID').hide();
         }
     //end add by nurul 11/5/2021
 
@@ -673,6 +675,7 @@
             $('#loading_CatAttr').hide();
             $('#btnCatAttrBlibli').hide();
             $('#btnCatAttrJDID').show();
+            $('#btnAttrJDID').show();
         }
     //end add by nurul 27/5/2021
 
@@ -1059,6 +1062,33 @@
                     alert(response);
                     //$('#loading_CatAttr').hide();
                     $('#btnCatAttrJDID').removeAttr('disabled');
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+    function ProsesAttrJDID() {
+
+        var $link = '@Html.Raw(Url.Action("GetAttributeJDID", "Admin", new { email = "replaceEmail" }))';
+        $link = $link.replace("replaceEmail", "camellilac@gmail.com");
+        
+            $.ajax({
+                type: "GET",
+                url: $link,
+                contentType: 'application/json',
+                cache: false,
+                beforeSend: function () {
+                    // $('#loading_spinner').show();
+                    //$('#loading_CatAttr').show();
+                    alert('Get Attribute JD.ID sedang berlangsung.');
+                    $('#btnAttrJDID').attr('disabled', 'disabled');
+                },
+                success: function (response) {
+                    alert(response);
+                    //$('#loading_CatAttr').hide();
+                    $('#btnAttrJDID').removeAttr('disabled');
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
