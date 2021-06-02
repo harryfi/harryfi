@@ -230,8 +230,8 @@ namespace MasterOnline.Controllers
 
         public async Task<string> UploadImage(ShopeeAPIData iden, string[] imageUrl)
         {
-            SetupContext(iden);
-            iden = await RefreshTokenShopee_V2(iden, false);
+            //SetupContext(iden);
+            //iden = await RefreshTokenShopee_V2(iden, false);
 
             int MOPartnerID = MOPartnerIDV2;
             string MOPartnerKey = MOPartnerKeyV2;
@@ -279,16 +279,30 @@ namespace MasterOnline.Controllers
                 }
 
             }
-            catch (Exception ex)
+            catch (WebException e)
             {
-
+                string err = "";
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                }
             }
 
             if (responseFromServer != null)
             {
                 try
                 {
-
+                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeUploadImageResult)) as ShopeeUploadImageResult;
+                    if(result.images != null)
+                    if (string.IsNullOrWhiteSpace(result.images[0].error))
+                    {
+                            var imageid = result.images[0].shopee_image_url.Split('/');
+                            ret = imageid[imageid.Length-1];
+                    }
                 }
                 catch (Exception ex2)
                 {
@@ -7228,7 +7242,7 @@ namespace MasterOnline.Controllers
                 original_price = detailBrg.HJUAL,
                 normal_stock = 1,//create product min stock = 1
                 image = new ShopeeImageClass_V2(),
-                attributes = new List<ShopeeAttributeClass>(),
+                attribute_list = new List<ShopeeAttributeClass_V2>(),
                 logistic_info = logistics,
                 brand = new ShopeeItemBrand_V2(),
                 dimension = new ShopeeDimension_V2(),
@@ -7275,14 +7289,16 @@ namespace MasterOnline.Controllers
             //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
             //List<string> byteGambarUploaded = new List<string>();
             //end add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
-
+            var listImg = new string[1];
             if (jmlPic < 9)
             {
                 //if (!byteGambarUploaded.Contains(brgInDb.Sort5))
                 {
                     if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
                     {
-                        HttpBody.image.image_id_list.Add(brgInDb.LINK_GAMBAR_1);
+                        listImg[0] = brgInDb.LINK_GAMBAR_1;
+                        var img1 = await UploadImage(iden, listImg);
+                        HttpBody.image.image_id_list.Add(img1);
                         jmlPic++;
                         //byteGambarUploaded.Add(brgInDb.Sort5);
                     }
@@ -7294,7 +7310,9 @@ namespace MasterOnline.Controllers
                 {
                     if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
                     {
-                        HttpBody.image.image_id_list.Add(brgInDb.LINK_GAMBAR_2 );
+                        listImg[0] = brgInDb.LINK_GAMBAR_2;
+                        var img2 = await UploadImage(iden, listImg);
+                        HttpBody.image.image_id_list.Add(img2);
                         jmlPic++;
                         //byteGambarUploaded.Add(brgInDb.Sort6);
                     }
@@ -7306,7 +7324,9 @@ namespace MasterOnline.Controllers
                 {
                     if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
                     {
-                        HttpBody.image.image_id_list.Add(brgInDb.LINK_GAMBAR_3 );
+                        listImg[0] = brgInDb.LINK_GAMBAR_3;
+                        var img3 = await UploadImage(iden, listImg);
+                        HttpBody.image.image_id_list.Add(img3);
                         jmlPic++;
                         //byteGambarUploaded.Add(brgInDb.Sort7);
                     }
@@ -7318,7 +7338,9 @@ namespace MasterOnline.Controllers
                 {
                     if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_4))
                     {
-                        HttpBody.image.image_id_list.Add(brgInDb.LINK_GAMBAR_4);
+                        listImg[0] = brgInDb.LINK_GAMBAR_4;
+                        var img4 = await UploadImage(iden, listImg);
+                        HttpBody.image.image_id_list.Add(img4);
                         jmlPic++;
                         //byteGambarUploaded.Add(brgInDb.SIZE_GAMBAR_4);
                     }
@@ -7330,7 +7352,9 @@ namespace MasterOnline.Controllers
                 {
                     if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
                     {
-                        HttpBody.image.image_id_list.Add(brgInDb.LINK_GAMBAR_5 );
+                        listImg[0] = brgInDb.LINK_GAMBAR_5;
+                        var img5 = await UploadImage(iden, listImg);
+                        HttpBody.image.image_id_list.Add(img5);
                         jmlPic++;
                         //byteGambarUploaded.Add(brgInDb.SIZE_GAMBAR_5);
                     }
@@ -7346,11 +7370,28 @@ namespace MasterOnline.Controllers
                     {
                         if (value != "null")
                         {
-                            HttpBody.attributes.Add(new ShopeeAttributeClass
+                            var newAttr = new ShopeeAttributeClass_V2
                             {
-                                attributes_id = Convert.ToInt64(attribute_id),
-                                value = value.Trim()
-                            });
+                                attribute_id = Convert.ToInt64(attribute_id),
+                                //value = value.Trim()
+                                attribute_value_list = new List<ShopeeAttributeValueClass_V2>()
+                            };
+
+                            var attrValue = new ShopeeAttributeValueClass_V2();
+                            long n;
+                            bool isNumeric = long.TryParse(value.Trim(), out n);
+                            if (isNumeric)
+                            {
+                                attrValue.value_id = n;
+                            }
+                            else
+                            {
+                                attrValue.value_id = 0;
+                                attrValue.original_value_name = value.Trim();
+                            }
+                            newAttr.attribute_value_list.Add(attrValue);
+
+                            HttpBody.attribute_list.Add(newAttr);
                         }
 
                     }
@@ -11130,7 +11171,7 @@ namespace MasterOnline.Controllers
             public string item_sku { get; set; }
             //public List<ShopeeVariationClass> variations { get; set; }
             public ShopeeImageClass_V2 image { get; set; }
-            public List<ShopeeAttributeClass> attributes { get; set; }
+            public List<ShopeeAttributeClass_V2> attribute_list { get; set; }
             public List<ShopeeLogisticsClass> logistic_info { get; set; }
             public double weight { get; set; } // in kg
             //public int package_length { get; set; }
@@ -11168,6 +11209,18 @@ namespace MasterOnline.Controllers
         {
             public string original_brand_name { get; set; }
             public int brand_id { get; set; }
+
+        }
+        public class ShopeeAttributeClass_V2
+        {
+            public long attribute_id { get; set; }
+            public List<ShopeeAttributeValueClass_V2> attribute_value_list { get; set; }
+
+        }
+        public class ShopeeAttributeValueClass_V2
+        {
+            public long value_id { get; set; }
+            public string original_value_name { get; set; }
 
         }
         public class ShopeeUpdateProductData
@@ -11655,6 +11708,18 @@ namespace MasterOnline.Controllers
         public class ShopeeImage
         {
             public string image { get; set; }
+        }
+        public class ShopeeUploadImageResult
+        {
+            public string request_id { get; set; }
+            public List<ShopeeUploadImageDetail> images { get; set; }
+        }
+        public class ShopeeUploadImageDetail
+        {
+            public string error_desc { get; set; }
+            public string error { get; set; }
+            public string image_url { get; set; }
+            public string shopee_image_url { get; set; }
         }
     }
 }

@@ -2237,6 +2237,7 @@ namespace MasterOnline.Controllers
                         if (string.IsNullOrWhiteSpace(result.error))
                         {
                             var tglExpired = "";
+                            dataAPI.token = result.access_token;
                             var cekShopDetail = await GetShopDetail_V2(dataAPI);
                             if (cekShopDetail.expire_time > 0)
                             {
@@ -6093,8 +6094,8 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public string ShopeeUrl_V2(string cust)
         {
-            int MOPartnerID = 841371;
-            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            int MOPartnerID = MOPartnerIDV2;
+            string MOPartnerKey = MOPartnerKeyV2;
             string userId = "";
 
             var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
