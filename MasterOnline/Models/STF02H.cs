@@ -54,7 +54,7 @@ namespace MasterOnline
 
         public bool DISPLAY { get; set; }
 
-        [StringLength(10)]
+        //[StringLength(10)]
         public string DeliveryTempElevenia { get; set; }
 
         [StringLength(50)]

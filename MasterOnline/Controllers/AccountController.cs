@@ -997,6 +997,9 @@ namespace MasterOnline.Controllers
 
                             connId_JobId = dbPathEra + "_lazada_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
                             new LazadaControllerJob().GetOrdersRTS(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);//pesanan sudah dibayar
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_updatepaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            new LazadaControllerJob().GetOrderCekUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);//update pesanan unpaid
 #else
                             string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
                             recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
@@ -1017,7 +1020,26 @@ namespace MasterOnline.Controllers
                             //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(30), recurJobOpt);
                             recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.HourInterval(6), recurJobOpt);
                             //end change by nurul 21/1/2020, interval ubah jadi 30
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_updatepaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrderCekUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(15), recurJobOpt);
+
 #endif
+                            //add by Tri 24 mei 2021, get order -3hari untuk akun baru go live
+                            if (!string.IsNullOrEmpty(sync_pesanan_stok))
+                            {
+                                if (sync_pesanan_stok == tblCustomer.CUST)
+                                {
+#if (AWS || DEV)
+                                    client.Enqueue<LazadaControllerJob>(x => x.GetOrders_GoLive_Pending(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username));
+                                    client.Enqueue<LazadaControllerJob>(x => x.GetOrders_GoLive_RTS(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username));
+#else
+                                    new LazadaControllerJob().GetOrders_GoLive_Pending(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
+                                    new LazadaControllerJob().GetOrders_GoLive_RTS(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
+#endif
+                                }
+                            }
+                            //end add by Tri 24 mei 2021, get order -3hari untuk akun baru go live
 
                         }
                         else

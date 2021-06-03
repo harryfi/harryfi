@@ -6149,119 +6149,136 @@ namespace MasterOnline.Controllers
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
             string urll = "https://partner.shopeemobile.com/api/v1/item/add";
-
-            //add by calvin 21 desember 2018, default nya semua logistic enabled
-            var ShopeeGetLogisticsResult = await GetLogistics(iden);
-
-            foreach (var log in ShopeeGetLogisticsResult.logistics.Where(p => p.enabled == true && p.fee_type.ToUpper() != "CUSTOM_PRICE" 
-            && p.fee_type.ToUpper() != "SIZE_SELECTION" && p.mask_channel_id == 0))
+            //change by Tri 21 mei 2021, logistic bisa pilih di master barang
+            if (string.IsNullOrEmpty(detailBrg.AVALUE_39))
             {
-                bool lolosValidLogistic = true;
-                var cLog = ShopeeGetLogisticsResult.logistics.Where(p => p.mask_channel_id == log.logistic_id && p.enabled == true).ToList();
-                if (cLog.ToList().Count > 0)
+                //add by calvin 21 desember 2018, default nya semua logistic enabled
+                var ShopeeGetLogisticsResult = await GetLogistics(iden);
+
+                foreach (var log in ShopeeGetLogisticsResult.logistics.Where(p => p.enabled == true && p.fee_type.ToUpper() != "CUSTOM_PRICE"
+                && p.fee_type.ToUpper() != "SIZE_SELECTION" && p.mask_channel_id == 0))
                 {
-                    foreach (var cekLogistic in cLog)
+                    bool lolosValidLogistic = true;
+                    var cLog = ShopeeGetLogisticsResult.logistics.Where(p => p.mask_channel_id == log.logistic_id && p.enabled == true).ToList();
+                    if (cLog.ToList().Count > 0)
                     {
-                        if (cekLogistic.weight_limits != null)
+                        foreach (var cekLogistic in cLog)
                         {
-                            if (cekLogistic.weight_limits.item_max_weight > 0)
+                            if (cekLogistic.weight_limits != null)
                             {
-                                if (cekLogistic.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
+                                if (cekLogistic.weight_limits.item_max_weight > 0)
+                                {
+                                    if (cekLogistic.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
+                                    {
+                                        lolosValidLogistic = false;
+                                    }
+                                }
+                                if (cekLogistic.weight_limits.item_min_weight > (brgInDb.BERAT / 1000))
                                 {
                                     lolosValidLogistic = false;
                                 }
                             }
-                            if (cekLogistic.weight_limits.item_min_weight > (brgInDb.BERAT / 1000))
+
+                            if (cekLogistic.item_max_dimension != null)
+                            {
+                                if (cekLogistic.item_max_dimension.length > 0)
+                                {
+                                    if (cekLogistic.item_max_dimension.length < (Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG)))
+                                    {
+                                        lolosValidLogistic = false;
+                                    }
+                                }
+                                if (cekLogistic.item_max_dimension.height > 0)
+                                {
+                                    if (cekLogistic.item_max_dimension.height < (Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI)))
+                                    {
+                                        lolosValidLogistic = false;
+                                    }
+                                }
+                                if (cekLogistic.item_max_dimension.width > 0)
+                                {
+                                    if (cekLogistic.item_max_dimension.width < (Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR)))
+                                    {
+                                        lolosValidLogistic = false;
+                                    }
+                                }
+                            }
+                            if (lolosValidLogistic)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (log.weight_limits != null)
+                        {
+                            if (log.weight_limits.item_max_weight > 0)
+                            {
+                                if (log.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
+                                {
+                                    lolosValidLogistic = false;
+                                }
+                            }
+                            if (log.weight_limits.item_min_weight > (brgInDb.BERAT / 1000))
                             {
                                 lolosValidLogistic = false;
                             }
                         }
 
-                        if (cekLogistic.item_max_dimension != null)
+                        if (log.item_max_dimension != null)
                         {
-                            if (cekLogistic.item_max_dimension.length > 0)
+                            if (log.item_max_dimension.length > 0)
                             {
-                                if (cekLogistic.item_max_dimension.length < (Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG)))
+                                if (log.item_max_dimension.length < (Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG)))
                                 {
                                     lolosValidLogistic = false;
                                 }
                             }
-                            if (cekLogistic.item_max_dimension.height > 0)
+                            if (log.item_max_dimension.height > 0)
                             {
-                                if (cekLogistic.item_max_dimension.height < (Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI)))
+                                if (log.item_max_dimension.height < (Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI)))
                                 {
                                     lolosValidLogistic = false;
                                 }
                             }
-                            if (cekLogistic.item_max_dimension.width > 0)
+                            if (log.item_max_dimension.width > 0)
                             {
-                                if (cekLogistic.item_max_dimension.width < (Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR)))
+                                if (log.item_max_dimension.width < (Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR)))
                                 {
                                     lolosValidLogistic = false;
                                 }
                             }
                         }
-                        if (lolosValidLogistic)
+                    }
+
+
+                    if (lolosValidLogistic)
+                    {
+                        logistics.Add(new ShopeeLogisticsClass()
                         {
-                            break;
-                        }
+                            enabled = log.enabled,
+                            is_free = false,
+                            logistic_id = log.logistic_id,
+                        });
                     }
                 }
-                else
-                {
-                    if (log.weight_limits != null)
-                    {
-                        if (log.weight_limits.item_max_weight > 0)
-                        {
-                            if (log.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
-                            {
-                                lolosValidLogistic = false;
-                            }
-                        }
-                        if (log.weight_limits.item_min_weight > (brgInDb.BERAT / 1000))
-                        {
-                            lolosValidLogistic = false;
-                        }
-                    }
-
-                    if (log.item_max_dimension != null)
-                    {
-                        if (log.item_max_dimension.length > 0)
-                        {
-                            if (log.item_max_dimension.length < (Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG)))
-                            {
-                                lolosValidLogistic = false;
-                            }
-                        }
-                        if (log.item_max_dimension.height > 0)
-                        {
-                            if (log.item_max_dimension.height < (Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI)))
-                            {
-                                lolosValidLogistic = false;
-                            }
-                        }
-                        if (log.item_max_dimension.width > 0)
-                        {
-                            if (log.item_max_dimension.width < (Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR)))
-                            {
-                                lolosValidLogistic = false;
-                            }
-                        }
-                    }
-                }
-                
-
-                if (lolosValidLogistic)
+                //end add by calvin 21 desember 2018, default nya semua logistic enabled
+            }
+            else
+            {
+                var listLog = detailBrg.AVALUE_39.Split(',');
+                foreach(var dataLog in listLog)
                 {
                     logistics.Add(new ShopeeLogisticsClass()
                     {
-                        enabled = log.enabled,
+                        enabled = true,
                         is_free = false,
-                        logistic_id = log.logistic_id,
+                        logistic_id = Convert.ToInt64(dataLog),
                     });
                 }
             }
-            //end add by calvin 21 desember 2018, default nya semua logistic enabled
+            //end change by Tri 21 mei 2021, logistic bisa pilih di master barang
 
             ShopeeProductData HttpBody = new ShopeeProductData
             {
@@ -7704,8 +7721,11 @@ namespace MasterOnline.Controllers
 
             string urll = "https://partner.shopeemobile.com/api/v1/item/update";
 
-            //add by calvin 21 desember 2018, default nya semua logistic enabled
-            var ShopeeGetLogisticsResult = await GetLogistics(iden);
+            //change by Tri 21 mei 2021, logistic bisa pilih di master barang
+            if (string.IsNullOrEmpty(detailBrg.AVALUE_39))
+            {
+                //add by calvin 21 desember 2018, default nya semua logistic enabled
+                var ShopeeGetLogisticsResult = await GetLogistics(iden);
 
             foreach (var log in ShopeeGetLogisticsResult.logistics.Where(p => p.enabled == true && p.fee_type.ToUpper() != "CUSTOM_PRICE" 
             && p.fee_type.ToUpper() != "SIZE_SELECTION" && p.mask_channel_id == 0))
@@ -7820,7 +7840,22 @@ namespace MasterOnline.Controllers
                     });
                 }
             }
-            //end add by calvin 21 desember 2018, default nya semua logistic enabled
+                //end add by calvin 21 desember 2018, default nya semua logistic enabled
+            }
+            else
+            {
+                var listLog = detailBrg.AVALUE_39.Split(',');
+                foreach (var dataLog in listLog)
+                {
+                    logistics.Add(new ShopeeLogisticsClass()
+                    {
+                        enabled = true,
+                        is_free = false,
+                        logistic_id = Convert.ToInt64(dataLog),
+                    });
+                }
+            }
+            //end change by Tri 21 mei 2021, logistic bisa pilih di master barang
 
             ShopeeUpdateProductData HttpBody = new ShopeeUpdateProductData
             {
