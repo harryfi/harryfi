@@ -53,4 +53,25 @@ namespace MasterOnline.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int? RecNum { get; set; }
     }
+    public class ATTRIBUTE_UNIT_SHOPEE_V2
+    {
+        public ATTRIBUTE_UNIT_SHOPEE_V2()
+        {
+        }
+        public ATTRIBUTE_UNIT_SHOPEE_V2(string attr_code, string option_name, string option_code)
+        {
+            ACODE = attr_code;
+            OPTION_VALUE = option_code;
+            OPTION_NAME = option_name;
+        }
+
+        [StringLength(50)]
+        public string ACODE { get; set; }
+
+        [StringLength(250)]
+        public string OPTION_VALUE { get; set; }
+        [StringLength(250)]
+        public string OPTION_NAME { get; set; }
+
+    }
 }

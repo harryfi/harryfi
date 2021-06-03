@@ -1735,12 +1735,12 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<ATTRIBUTE_SHOPEE_AND_OPT> GetAttributeToList_V2(ShopeeAPIData dataAPI, CATEGORY_SHOPEE_V2 category)
+        public async Task<ATTRIBUTE_SHOPEE_AND_OPT_v2> GetAttributeToList_V2(ShopeeAPIData dataAPI, CATEGORY_SHOPEE_V2 category)
         {
             dataAPI = await RefreshTokenShopee_V2(dataAPI, false);
             int MOPartnerID = MOPartnerIDV2;
             string MOPartnerKey = MOPartnerKeyV2;
-            ATTRIBUTE_SHOPEE_AND_OPT ret = new ATTRIBUTE_SHOPEE_AND_OPT();
+            var ret = new ATTRIBUTE_SHOPEE_AND_OPT_v2();
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -1805,7 +1805,7 @@ namespace MasterOnline.Controllers
 
                     string a = "";
                     int i = 0;
-                    ATTRIBUTE_SHOPEE returnData = new ATTRIBUTE_SHOPEE();
+                    ATTRIBUTE_SHOPEE_V2 returnData = new ATTRIBUTE_SHOPEE_V2();
                     if (result.response.attribute_list != null)
                         foreach (var attribs in result.response.attribute_list)
                         {
@@ -1818,12 +1818,24 @@ namespace MasterOnline.Controllers
                             returnData["ANAME_" + a] = attribs.display_attribute_name;
                             returnData["AOPTIONS_" + a] = attribs.attribute_value_list.Count() > 0 ? "1" : "0";
                             returnData["AMANDATORY_" + a] = attribs.is_mandatory ? "1" : "0";
+                            returnData["AUNIT_" + a] = "0";
 
                             if (attribs.attribute_value_list.Count() > 0)
                             {
                                 var optList = attribs.attribute_value_list.ToList();
                                 var listOpt = optList.Select(x => new ATTRIBUTE_OPT_SHOPEE_V2(attribs.attribute_id.ToString(), x.original_value_name, x.value_id.ToString())).ToList();
                                 ret.attribute_opts_v2.AddRange(listOpt);
+                            }
+                            if (attribs.attribute_unit != null)
+                            {
+                                if(attribs.attribute_unit.Length > 1)
+                                {
+                                    returnData["AUNIT_" + a] = "1";
+                                    var unitList = attribs.attribute_unit.ToList();
+                                    var listOpt = unitList.Select(x => new ATTRIBUTE_UNIT_SHOPEE_V2(attribs.attribute_id.ToString(), x, x)).ToList();
+                                    ret.attribute_unit.AddRange(listOpt);
+                                }
+                                
                             }
                             i = i + 1;
                         }
@@ -6638,7 +6650,7 @@ namespace MasterOnline.Controllers
             public bool is_mandatory { get; set; }
             public string input_validation_type { get; set; }
             public string input_type { get; set; }
-            //public object[] attribute_unit { get; set; }
+            public string[] attribute_unit { get; set; }
             public Attribute_Value_List_V2[] attribute_value_list { get; set; }
         }
 

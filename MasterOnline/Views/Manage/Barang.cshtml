@@ -3976,6 +3976,7 @@
                     var loop = 0;
                     var fieldAVALUE = "";
                     var SelectList = [];
+                    var SelectUnitList = [];
                     $.each(data.attributes,
                         function (i, item) {
                             for (var i = 0; i < 30; i++) {
@@ -3983,6 +3984,7 @@
                                 var ATYPE = item["ATYPE_" + (i + 1)];
                                 var ANAME = item["ANAME_" + (i + 1)];
                                 var AOPTIONS = item["AOPTIONS_" + (i + 1)];
+                                var AUNITS = item["AUNIT_" + (i + 1)];
                                 var AMANDATORY = item["AMANDATORY_" + (i + 1)];
                                 if (ACODE != null) {
                                     if (ACODE != "") {
@@ -4016,30 +4018,65 @@
 
                                         if (AOPTIONS == "1")
                                         {
-                                            //hidden
-                                            fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="'+ fieldAVALUE_ID + '" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE_'+ (i + 1) + '" value="'+ adaValue +'" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
+                                            if (AUNITS != "1") {
+                                                //hidden
+                                                fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
 
-                                            //select
-                                            var selectID = 'attribute_select_shopee_'+ listMarketRecNum +'_'+ (i + 1);
-                                            SelectList.push(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue, ATYPE);
-                                            //change by calvin 1 maret 2019
-                                            //fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
-                                            if (AMANDATORY == "1") {
-                                                fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                                //select
+                                                var selectID = 'attribute_select_shopee_' + listMarketRecNum + '_' + (i + 1);
+                                                SelectList.push(ACODE, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, ATYPE);
+                                                //change by calvin 1 maret 2019
+                                                //fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                                if (AMANDATORY == "1") {
+                                                    fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                                }
+                                                else {
+                                                    fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih"></select></div>';
+                                                }
+                                                //end change by calvin 1 maret 2019
                                             }
                                             else {
-                                                fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih"></select></div>';
+                                                //hidden
+                                                fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
+
+                                                //select
+                                                var selectID = 'attribute_select_shopee_' + listMarketRecNum + '_' + (i + 1);
+                                                SelectList.push(ACODE, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, ATYPE);
+                                                //change by calvin 1 maret 2019
+                                                //fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                                if (AMANDATORY == "1") {
+                                                    fieldAVALUE += '<div class="col-md-2"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                                }
+                                                else {
+                                                    fieldAVALUE += '<div class="col-md-2"><select id="' + selectID + '" placeholder="Harap pilih"></select></div>';
+                                                }
+                                                //end change by calvin 1 maret 2019
+                                                //add 3 jun 2021, attr unit for shopee v2
+                                                var selectUnitID = 'attribute_unit_select_shopee_' + listMarketRecNum + '_' + (i + 1);
+                                                SelectUnitList.push(ACODE, listMarketRecNum, selectUnitID, fieldAVALUE_ID, adaValue, ATYPE);
+
+                                                //end add 3 jun 2021, attr unit for shopee v2
                                             }
-                                            //end change by calvin 1 maret 2019
                                         }
                                         else
                                         {
-                                            //textbox
-                                            if (AMANDATORY == "1") {
-                                                fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-valid-toggle-required="1" required="required" data-val-required="This field is required." data-val="true" class="form-control" data-val-length-max="250" id="'+ fieldAVALUE_ID +'" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE_'+ (i + 1) + '" value="'+ adaValue +'" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                            if (AUNITS != "1") {
+                                                //textbox
+                                                if (AMANDATORY == "1") {
+                                                    fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-valid-toggle-required="1" required="required" data-val-required="This field is required." data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                                }
+                                                else {
+                                                    fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                                }
                                             }
-                                            else {
-                                                fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" class="form-control" data-val-length-max="250" id="'+ fieldAVALUE_ID +'" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE_'+ (i + 1) + '" value="'+ adaValue +'" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                            else {//textbox
+                                                if (AMANDATORY == "1") {
+                                                    fieldAVALUE += '<div class="col-md-2 form-group"><input type="text" data-valid-toggle-required="1" required="required" data-val-required="This field is required." data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                                }
+                                                else {
+                                                    fieldAVALUE += '<div class="col-md-2"><input type="text" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                                }
+
                                             }
                                         }
 
@@ -4125,8 +4162,8 @@
                         };
                     });
             }
-            if (ATYPE == "DEFINING_ATTRIBUTE") {
-
+            //if (ATYPE == "DEFINING_ATTRIBUTE") {
+            if (ATYPE.includes("MULTIPLE_SELECT")) {
                 var AttributeOptSelectMultiple = $('#' + selectID).selectize({
                     maxItems : 7,
                     valueField: 'id',
