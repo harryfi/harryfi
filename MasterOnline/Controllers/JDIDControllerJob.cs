@@ -469,6 +469,88 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        public JDIDAPIDataJob RefreshToken(JDIDAPIDataJob data)
+        {
+            SetupContext(data);
+            var ret = data;
+            if (data.tgl_expired < DateTime.UtcNow.AddHours(7).AddMinutes(30))
+            {
+                var cekInDB = ErasoftDbContext.ARF01.Where(m => m.CUST == data.no_cust).FirstOrDefault();
+                if (cekInDB != null)
+                {
+                    if (data.accessToken != cekInDB.TOKEN)
+                    {
+                        data.appKey = cekInDB.API_KEY;
+                        data.refreshToken = cekInDB.REFRESH_TOKEN;
+                        data.tgl_expired = cekInDB.TGL_EXPIRED.Value;
+                        data.accessToken = cekInDB.TOKEN;
+
+                        if (cekInDB.TGL_EXPIRED.Value.AddMinutes(-30) > DateTime.UtcNow.AddHours(7))
+                        {
+                            return data;
+                        }
+                    }
+                }
+                var urll = "https://oauth.jd.id/oauth2/refresh_token?app_key=" + data.appKey + "&app_secret=" + data.appSecret + "&grant_type=refresh_token&refresh_token=" + data.refreshToken;
+                if (urll != "")
+                {
+                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                    myReq.Method = "GET";
+                    string responseFromServer = "";
+                    try
+                    {
+                        using (WebResponse response = myReq.GetResponse())
+                        {
+                            using (Stream stream = response.GetResponseStream())
+                            {
+                                StreamReader reader = new StreamReader(stream);
+                                responseFromServer = reader.ReadToEnd();
+                            }
+                        }
+                    }
+                    catch (WebException e)
+                    {
+                        string err = "";
+                        if (e.Status == WebExceptionStatus.ProtocolError)
+                        {
+                            WebResponse resp = e.Response;
+                            using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                            {
+                                err = sr.ReadToEnd();
+                                responseFromServer = err;
+                            }
+                        }
+                    }
+
+                    if (responseFromServer != "")
+                    {
+                        try
+                        {
+                            var result = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDGetTokenResult)) as JDIDGetTokenResult;
+                            if (!string.IsNullOrEmpty(result.access_token) && !string.IsNullOrEmpty(result.refresh_token))
+                            {
+                                var getTimeExec = DateTimeOffset.FromUnixTimeSeconds(result.time / 1000).UtcDateTime.AddHours(7);
+                                var timeExpired = getTimeExec.AddSeconds(result.expires_in).ToString("yyyy-MM-dd HH:mm:ss");
+                                DatabaseSQL EDB = new DatabaseSQL(data.DatabasePathErasoft);
+                                var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', TOKEN = '" + result.access_token + "', REFRESH_TOKEN = '" + result.refresh_token + "', tgl_expired ='" + timeExpired + "'  WHERE CUST = '" + data.no_cust + "'");
+                                if (resultquery != 0)
+                                {
+                                    ret.accessToken = result.access_token;
+                                    ret.tgl_expired = Convert.ToDateTime(timeExpired);
+                                    ret.refreshToken = result.refresh_token;
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                        }
+                    }
+                }
+
+            }
+            return ret;
+        }
+
         protected void SetupContext(string DatabasePathErasoft, string uname)
         {
             MoDbContext = new MoDbContext("");
@@ -1243,18 +1325,9 @@ namespace MasterOnline.Controllers
                                                                 {
                                                                     namafullVariant += dataVar.NAMA3;
                                                                 }
-
-                                                                //change by nurul 21/5/2021, JDID versi 2 
-                                                                //await JD_updateSKU(data, namafullVariant, dataVar.BRG, brgSTF02h.HJUAL.ToString(), brgSTF02h.HJUAL.ToString(), dataSKU.skuId.ToString());
-                                                                if (data.versi == "2")
-                                                                {
-                                                                    await JD_updateSKUV2(data, namafullVariant, dataVar.BRG, brgSTF02h.HJUAL.ToString(), brgSTF02h.HJUAL.ToString(), dataSKU.skuId.ToString(), spuID[0].ToString());
-                                                                }
-                                                                else
-                                                                {
-                                                                    await JD_updateSKU(data, namafullVariant, dataVar.BRG, brgSTF02h.HJUAL.ToString(), brgSTF02h.HJUAL.ToString(), dataSKU.skuId.ToString());
-                                                                }
-                                                                //end change by nurul 21/5/2021, JDID versi 2 
+ 
+                                                                await JD_updateSKU(data, namafullVariant, dataVar.BRG, brgSTF02h.HJUAL.ToString(), brgSTF02h.HJUAL.ToString(), dataSKU.skuId.ToString());
+                                                                
 
                                                                 if (lGambarUploaded.Count() > 0)
                                                                 {
@@ -1342,17 +1415,8 @@ namespace MasterOnline.Controllers
                                                             namafullVariant += brgInDb.NAMA3;
                                                         }
 
-                                                        //change by nurul 21/5/2021, JDID versi 2 
-                                                        //await JD_updateSKU(data, namafullVariant, detailBrg.BRG, detailBrg.HJUAL.ToString(), detailBrg.HJUAL.ToString(), dataSKU.skuId.ToString());
-                                                        if (data.versi == "2")
-                                                        {
-                                                            await JD_updateSKUV2(data, namafullVariant, detailBrg.BRG, detailBrg.HJUAL.ToString(), detailBrg.HJUAL.ToString(), dataSKU.skuId.ToString(), spuID[0].ToString());
-                                                        }
-                                                        else
-                                                        {
-                                                            await JD_updateSKU(data, namafullVariant, detailBrg.BRG, detailBrg.HJUAL.ToString(), detailBrg.HJUAL.ToString(), dataSKU.skuId.ToString());
-                                                        }
-                                                        //end change by nurul 21/5/2021, JDID versi 2
+                                                        await JD_updateSKU(data, namafullVariant, detailBrg.BRG, detailBrg.HJUAL.ToString(), detailBrg.HJUAL.ToString(), dataSKU.skuId.ToString());
+
 
                                                         if (lGambarUploaded.Count() > 0)
                                                         {
@@ -1726,22 +1790,6 @@ namespace MasterOnline.Controllers
                                         {
                                             if (!string.IsNullOrEmpty(stf02h.BRG_MP))
                                             {
-                                                //add by nurul 4/5/2021, JDID versi 2
-                                                if (tblCustomer.KD_ANALISA == "2")
-                                                {
-#if (DEBUG || Debug_AWS)
-                                                    Task.Run(() => stokAPI.JD_updateStockV2(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null)).Wait();
-#else
-                                                    string EDBConnID = EDB.GetConnectionString("ConnId");
-                                                var sqlStorage = new SqlServerStorage(EDBConnID);
-
-                                                var Jobclient = new BackgroundJobClient(sqlStorage);
-                                                Jobclient.Enqueue<StokControllerJob>(x => x.JD_updateStockV2(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null));
-#endif
-                                                }
-                                                else
-                                                //end add by nurul 4/5/2021, JDID versi 2
-                                                {
 #if (DEBUG || Debug_AWS)
                                                     Task.Run(() => stokAPI.JD_updateStock(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null)).Wait();
 #else
@@ -1751,7 +1799,6 @@ namespace MasterOnline.Controllers
                                                 var Jobclient = new BackgroundJobClient(sqlStorage);
                                                 Jobclient.Enqueue<StokControllerJob>(x => x.JD_updateStock(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null));
 #endif
-                                                }
                                             }
                                         }
                                     }
@@ -1763,22 +1810,6 @@ namespace MasterOnline.Controllers
                                     {
                                         if (!string.IsNullOrEmpty(stf02h.BRG_MP))
                                         {
-                                            //add by nurul 4/5/2021, JDID versi 2
-                                            if (tblCustomer.KD_ANALISA == "2")
-                                            {
-#if (DEBUG || Debug_AWS)
-                                                Task.Run(() => stokAPI.JD_updateStockV2(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null)).Wait();
-#else
-                                            string EDBConnID = EDB.GetConnectionString("ConnId");
-                                            var sqlStorage = new SqlServerStorage(EDBConnID);
-
-                                            var Jobclient = new BackgroundJobClient(sqlStorage);
-                                            Jobclient.Enqueue<StokControllerJob>(x => x.JD_updateStockV2(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null));
-#endif
-                                            }
-                                            else
-                                            //end add by nurul 4/5/2021, JDID versi 2
-                                            {
 #if (DEBUG || Debug_AWS)
                                                 Task.Run(() => stokAPI.JD_updateStock(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null)).Wait();
 #else
@@ -1788,7 +1819,6 @@ namespace MasterOnline.Controllers
                                             var Jobclient = new BackgroundJobClient(sqlStorage);
                                             Jobclient.Enqueue<StokControllerJob>(x => x.JD_updateStock(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null));
 #endif
-                                            }
                                         }
                                     }
                                 }
@@ -2777,9 +2807,9 @@ namespace MasterOnline.Controllers
         {
 
             string ret = "";
-
             try
             {
+                data = RefreshToken(data);
                 var sysParams = new Dictionary<string, string>();
                 this.ParamJson = "{\"printType\":\"1\",\"printNum\":\"1\",\"orderId\":\"" + noref + "\"}";
                 sysParams.Add("360buy_param_json", this.ParamJson);
@@ -2904,9 +2934,9 @@ namespace MasterOnline.Controllers
         {
 
             string ret = "";
-
             try
             {
+                data = RefreshToken(data);
                 var sysParams = new Dictionary<string, string>();
                 this.ParamJson = "{\"orderId\":\"" + noref + "\",\"expressNo\":\"" + noresi + "\"}";
                 sysParams.Add("360buy_param_json", this.ParamJson);
@@ -3991,6 +4021,7 @@ namespace MasterOnline.Controllers
             SetupContext(data.DatabasePathErasoft, data.username);
             try
             {
+                data = RefreshToken(data);
                 if (!string.IsNullOrEmpty(listOrderIds) && ListOrderNobuk.Count() > 0)
                 {
                     var sysParams = new Dictionary<string, string>();
@@ -4549,6 +4580,8 @@ namespace MasterOnline.Controllers
         public List<long> GetOrderListV2(JDIDAPIDataJob data, string status, int page, long addDays, long addDays2)
         {
             var ret = new List<long>();
+
+            data = RefreshToken(data);
             //string sMethod = "epi.popOrder.getOrderIdListByCondition";
             //string sParamJson = "{\"orderStatus\":" + status + ", \"startRow\": " + page * 20 + ", \"createdTimeBegin\": "
             //    + addDays + ", \"createdTimeEnd\": " + addDays2 + " }";
@@ -4634,6 +4667,7 @@ namespace MasterOnline.Controllers
 
         public BindingBase GetOrderDetailV2(JDIDAPIDataJob data, string listOrderIds, string cust, string conn_id_arf01c, string conn_id_order)
         {
+            data = RefreshToken(data);
             //var ret = new List<long>();
             var ret = new BindingBase();
             ret.status = 0;
@@ -5131,9 +5165,9 @@ namespace MasterOnline.Controllers
         public async Task<string> JD_updatePriceV2(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data, string id, int price, string uname)
         {
             SetupContext(DatabasePathErasoft, uname);
-
             try
             {
+                data = RefreshToken(data);
                 var brgMp = "";
                 if (id.Contains(";"))
                 {
@@ -5272,6 +5306,7 @@ namespace MasterOnline.Controllers
         {
             try
             {
+                data = RefreshToken(data);
                 string responseFromServer = "";
                 bool responseApi = false;
                 int retry = 0;
@@ -5342,7 +5377,7 @@ namespace MasterOnline.Controllers
                         {
                             if (retPrice.jingdong_seller_product_sku_write_updateSkuList_response.returnType.success)
                             {
-                                
+
                             }
                             else
                             {
@@ -5382,10 +5417,11 @@ namespace MasterOnline.Controllers
             return (long)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         }
 
-        public async Task<string> JD_addSKUDetailPictureV2(JDIDAPIDataJob data, string skuID, string urlPicture, int urutan)
+        public async Task<string> JD_addSKUDetailPictureV2(JDIDAPIDataJob data, string skuID, string urlPicture, int urutan, bool mainPic)
         {
             try
             {
+                data = RefreshToken(data);
                 string responseFromServer = "";
                 bool responseApi = false;
                 int retry = 0;
@@ -5394,7 +5430,14 @@ namespace MasterOnline.Controllers
                     long milis = CurrentTimeMillis();
                     var image = Convert.ToBase64String(Encoding.ASCII.GetBytes(urlPicture));
                     var sysParams = new Dictionary<string, string>();
-                    this.ParamJson = "{\"imageApiVo\":[{\"colorId\":\"" + milis.ToString()  +"\",\"order\":\"" + urutan + "\",\"productId\":\"" + skuID + "\",\"imageByteBase64\":\"" + image + "\"}]}";
+                    if (mainPic)
+                    {
+                        this.ParamJson = "{\"imageApiVo\":[{\"colorId\":\"0000000000\",\"order\":\"" + urutan + "\",\"productId\":\"" + skuID + "\",\"imageByteBase64\":\"" + image + "\"}]}";
+                    }
+                    else
+                    {
+                        this.ParamJson = "{\"imageApiVo\":[{\"colorId\":\"1\",\"order\":\"" + urutan + "\",\"productId\":\"" + skuID + "\",\"imageByteBase64\":\"" + image + "\"}]}";
+                    }
                     sysParams.Add("360buy_param_json", this.ParamJson);
 
                     sysParams.Add("access_token", data.accessToken);
@@ -5493,6 +5536,7 @@ namespace MasterOnline.Controllers
         {
             try
             {
+                data = RefreshToken(data);
                 string responseFromServer = "";
                 bool responseApi = false;
                 int retry = 0;
@@ -5690,6 +5734,7 @@ namespace MasterOnline.Controllers
         [NotifyOnFailed("Create Product {obj} ke JDID Gagal.")]
         public async Task<string> JD_CreateProductV2(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data)
         {
+            data = RefreshToken(data);
             SetupContext(data.DatabasePathErasoft, data.username);
 
             var brgInDb = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper() == kodeProduk.ToUpper()).FirstOrDefault();
@@ -5953,13 +5998,14 @@ namespace MasterOnline.Controllers
             spuInfoJD.countryId = 10000000;
             spuInfoJD.warrantyPeriod = Convert.ToInt32(detailBrg.ACODE_41);
             spuInfoJD.productArea = detailBrg.ACODE_47;
-            //spuInfoJD.minQuantity =;
-            spuInfoJD.crossProductType =1;
+            spuInfoJD.minQuantity = 1;
+            spuInfoJD.crossProductType = 1;
             spuInfoJD.packHeight = Convert.ToString(brgInDb.TINGGI);
-            spuInfoJD.taxesType =2;
+            spuInfoJD.taxesType = 2;
             spuInfoJD.appDescription = vDescription;
-            spuInfoJD.weight =Convert.ToString(weight);
-            if (!string.IsNullOrEmpty(tempUrlHref)) {
+            spuInfoJD.weight = Convert.ToString(weight);
+            if (!string.IsNullOrEmpty(tempUrlHref))
+            {
                 spuInfoJD.subtitleHrefM = tempUrlHref;
             }
             if (!string.IsNullOrEmpty(detailBrg.ANAME_47))
@@ -5980,11 +6026,12 @@ namespace MasterOnline.Controllers
             {
                 spuInfoJD.subtitleHref = tempUrlHref;
             }
-            //spuInfoJD.maxQuantity =;
+            spuInfoJD.maxQuantity = 1000000;
 
 
             //end add by nurul 28/5/2021
-            CreateProductJDID newData = new CreateProductJDID() {
+            CreateProductJDID newData = new CreateProductJDID()
+            {
                 spuInfo = spuInfoJD,
                 skuList = skuListJD
             };
@@ -6055,39 +6102,136 @@ namespace MasterOnline.Controllers
             {
                 try
                 {
-                    var retPrice = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDUpdatePriceV2)) as JDIDUpdatePriceV2;
-                    if (retPrice.jingdong_seller_price_updatePriceBySkuIds_response.returnType != null)
+                    var retData = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDCreateProductV2)) as JDIDCreateProductV2;
+                    if (retData.jingdong_seller_product_api_write_addProduct_response.returnType != null)
                     {
-                        if (retPrice.jingdong_seller_price_updatePriceBySkuIds_response.returnType.success)
+                        if (retData.jingdong_seller_product_api_write_addProduct_response.returnType.success)
                         {
-                            if (log_ActionName.Contains("UPDATE_MASSAL"))
+                            if (retData.jingdong_seller_product_api_write_addProduct_response.returnType.model != null)
                             {
-                                var dataLog = log_ActionName.Split('_');
-                                if (dataLog.Length >= 4)
+                                if (retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.skuIdList != null)
                                 {
-                                    var nobuk = dataLog[2];
-                                    var indexData = Convert.ToInt32(dataLog[3]);
-                                    var log_b = ErasoftDbContext.LOG_HARGAJUAL_B.Where(m => m.NO_BUKTI == nobuk && m.NO_FILE == indexData).FirstOrDefault();
-                                    if (log_b != null)
+                                    if (retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.skuIdList.Count() > 0)
                                     {
-                                        var currentProgress = log_b.KET.Split('/');
-                                        if (currentProgress.Length == 2)
+                                        var dataSkuResult = JD_getSKUVariantbySPUV2(data, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId));
+                                        if (dataSkuResult != null)
                                         {
-                                            log_b.KET = (Convert.ToInt32(currentProgress[0]) + 1) + "/" + currentProgress[1];
-                                            ErasoftDbContext.SaveChanges();
+                                            var brgMPInduk = "";
+                                            foreach (var dataSKU in dataSkuResult.model)
+                                            {
+                                                if (brgInDb.TYPE == "4") // punya variasi
+                                                {
+                                                    brgMPInduk = Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId) + ";0";
+                                                    //handle variasi product
+                                                    #region variasi product
+                                                    var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == kodeProduk).ToList();
+                                                    foreach (var itemDatas in var_stf02)
+                                                    {
+                                                        if (dataSKU.sellerSkuId == itemDatas.BRG)
+                                                        {
+                                                            var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == itemDatas.BRG && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
+                                                            if (item != null)
+                                                            {
+                                                                item.BRG_MP = Convert.ToString(dataSKU.spuId) + ";" + dataSKU.skuId;
+                                                                item.LINK_STATUS = "Buat Produk Berhasil";
+                                                                item.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                                                                item.LINK_ERROR = "0;Buat Produk;;";
+                                                                ErasoftDbContext.SaveChanges();
+                                                            }
+                                                            if (lGambarUploaded.Count() > 0)
+                                                            {
+                                                                //JD_addSKUMainPicture(data, Convert.ToString(dataSKU.skuId), brgInDb.LINK_GAMBAR_1);
+                                                                JD_addSKUDetailPictureV2(data, Convert.ToString(dataSKU.skuId), itemDatas.LINK_GAMBAR_1, 1, true);
+                                                                JD_addSKUDetailPictureV2(data, Convert.ToString(dataSKU.skuId), itemDatas.LINK_GAMBAR_1, 1, false);
+                                                                if (lGambarUploaded.Count() > 1)
+                                                                {
+                                                                    for (int i = 1; i < lGambarUploaded.Count(); i++)
+                                                                    {
+                                                                        var urlImageJDID = "";
+                                                                        switch (i)
+                                                                        {
+                                                                            case 1:
+                                                                                urlImageJDID = brgInDb.LINK_GAMBAR_2;
+                                                                                break;
+                                                                            case 2:
+                                                                                urlImageJDID = brgInDb.LINK_GAMBAR_3;
+                                                                                break;
+                                                                            case 3:
+                                                                                urlImageJDID = brgInDb.LINK_GAMBAR_4;
+                                                                                break;
+                                                                            case 4:
+                                                                                urlImageJDID = brgInDb.LINK_GAMBAR_5;
+                                                                                break;
+                                                                        }
+                                                                        JD_addSKUDetailPictureV2(data, Convert.ToString(dataSKU.skuId), urlImageJDID, i + 1, false);
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+
+                                                    #endregion
+                                                    //end handle variasi product
+                                                }
+                                                else
+                                                {
+                                                    brgMPInduk = Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId) + ";" + retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.skuIdList[0].skuId.ToString();
+                                                    if (lGambarUploaded.Count() > 0)
+                                                    {
+                                                        //JD_addSKUMainPicture(data, retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.skuIdList[0].skuId.ToString(), brgInDb.LINK_GAMBAR_1);
+                                                        JD_addSKUDetailPictureV2(data, retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.skuIdList[0].skuId.ToString(), brgInDb.LINK_GAMBAR_1, 1, true);
+                                                        if (lGambarUploaded.Count() > 1)
+                                                        {
+                                                            for (int i = 1; i < lGambarUploaded.Count(); i++)
+                                                            {
+                                                                var urlImageJDID = "";
+                                                                switch (i)
+                                                                {
+                                                                    case 1:
+                                                                        urlImageJDID = brgInDb.LINK_GAMBAR_2;
+                                                                        break;
+                                                                    case 2:
+                                                                        urlImageJDID = brgInDb.LINK_GAMBAR_3;
+                                                                        break;
+                                                                    case 3:
+                                                                        urlImageJDID = brgInDb.LINK_GAMBAR_4;
+                                                                        break;
+                                                                    case 4:
+                                                                        urlImageJDID = brgInDb.LINK_GAMBAR_5;
+                                                                        break;
+                                                                }
+                                                                JD_addSKUDetailPictureV2(data, retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.skuIdList[0].skuId.ToString(), urlImageJDID, i + 1, false);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            var itemDataInduk = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == kodeProduk.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
+                                            if (itemDataInduk != null)
+                                            {
+                                                itemDataInduk.BRG_MP = brgMPInduk;
+                                                itemDataInduk.LINK_STATUS = "Buat Produk Berhasil";
+                                                itemDataInduk.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                                                itemDataInduk.LINK_ERROR = "0;Buat Produk;;";
+                                                ErasoftDbContext.SaveChanges();
+                                            }
+
+                                            JD_doAuditProductV2(data, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId), kodeProduk);
                                         }
                                     }
+
                                 }
                             }
                         }
                         else
                         {
-                            throw new Exception(retPrice.jingdong_seller_price_updatePriceBySkuIds_response.returnType.message.ToString());
+                            throw new Exception(retData.jingdong_seller_product_api_write_addProduct_response.returnType.message.ToString());
                         }
                     }
                     else
                     {
-                        throw new Exception("Update harga gagal.");
+                        throw new Exception("API error. Please contact support.");
                     }
 
                 }
@@ -6098,173 +6242,8 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                throw new Exception("Tidak ada respon dari API.");
+                throw new Exception("No response API. Please contact support.");
             }
-
-            var response = Call(data.appKey, data.accessToken, data.appSecret, sMethod, sParamJson);
-            var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RESJob)) as JDID_RESJob;
-            if (ret != null)
-            {
-                if (ret.openapi_msg.ToLower() == "success")
-                {
-                    var retData = JsonConvert.DeserializeObject(ret.openapi_data, typeof(JDID_DetailResultCreateProduct)) as JDID_DetailResultCreateProduct;
-                    if (retData != null)
-                    {
-                        if (retData.success)
-                        {
-                            try
-                            {
-                                if (retData.model != null)
-                                {
-                                    if (retData.model.skuIdList != null)
-                                    {
-                                        if (retData.model.skuIdList.Count() > 0)
-                                        {
-                                            var dataSkuResult = JD_getSKUVariantbySPU(data, Convert.ToString(retData.model.spuId));
-                                            if (dataSkuResult != null)
-                                            {
-                                                var brgMPInduk = "";
-                                                foreach (var dataSKU in dataSkuResult.model)
-                                                {
-                                                    if (brgInDb.TYPE == "4") // punya variasi
-                                                    {
-                                                        brgMPInduk = Convert.ToString(retData.model.spuId) + ";0";
-                                                        //handle variasi product
-                                                        #region variasi product
-                                                        var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == kodeProduk).ToList();
-                                                        foreach (var itemDatas in var_stf02)
-                                                        {
-                                                            if (dataSKU.sellerSkuId == itemDatas.BRG)
-                                                            {
-                                                                var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == itemDatas.BRG && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
-                                                                if (item != null)
-                                                                {
-                                                                    item.BRG_MP = Convert.ToString(dataSKU.spuId) + ";" + dataSKU.skuId;
-                                                                    item.LINK_STATUS = "Buat Produk Berhasil";
-                                                                    item.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
-                                                                    item.LINK_ERROR = "0;Buat Produk;;";
-                                                                    ErasoftDbContext.SaveChanges();
-                                                                }
-                                                                if (lGambarUploaded.Count() > 0)
-                                                                {
-                                                                    JD_addSKUMainPicture(data, Convert.ToString(dataSKU.skuId), brgInDb.LINK_GAMBAR_1);
-                                                                    JD_addSKUDetailPicture(data, Convert.ToString(dataSKU.skuId), itemDatas.LINK_GAMBAR_1, 1);
-                                                                    if (lGambarUploaded.Count() > 1)
-                                                                    {
-                                                                        for (int i = 1; i < lGambarUploaded.Count(); i++)
-                                                                        {
-                                                                            var urlImageJDID = "";
-                                                                            switch (i)
-                                                                            {
-                                                                                case 1:
-                                                                                    urlImageJDID = brgInDb.LINK_GAMBAR_2;
-                                                                                    break;
-                                                                                case 2:
-                                                                                    urlImageJDID = brgInDb.LINK_GAMBAR_3;
-                                                                                    break;
-                                                                                case 3:
-                                                                                    urlImageJDID = brgInDb.LINK_GAMBAR_4;
-                                                                                    break;
-                                                                                case 4:
-                                                                                    urlImageJDID = brgInDb.LINK_GAMBAR_5;
-                                                                                    break;
-                                                                            }
-                                                                            JD_addSKUDetailPicture(data, Convert.ToString(dataSKU.skuId), urlImageJDID, i + 1);
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-
-                                                        #endregion
-                                                        //end handle variasi product
-                                                    }
-                                                    else
-                                                    {
-                                                        brgMPInduk = Convert.ToString(retData.model.spuId) + ";" + retData.model.skuIdList[0].skuId.ToString();
-                                                        if (lGambarUploaded.Count() > 0)
-                                                        {
-                                                            JD_addSKUMainPicture(data, retData.model.skuIdList[0].skuId.ToString(), brgInDb.LINK_GAMBAR_1);
-                                                            if (lGambarUploaded.Count() > 1)
-                                                            {
-                                                                for (int i = 1; i < lGambarUploaded.Count(); i++)
-                                                                {
-                                                                    var urlImageJDID = "";
-                                                                    switch (i)
-                                                                    {
-                                                                        case 1:
-                                                                            urlImageJDID = brgInDb.LINK_GAMBAR_2;
-                                                                            break;
-                                                                        case 2:
-                                                                            urlImageJDID = brgInDb.LINK_GAMBAR_3;
-                                                                            break;
-                                                                        case 3:
-                                                                            urlImageJDID = brgInDb.LINK_GAMBAR_4;
-                                                                            break;
-                                                                        case 4:
-                                                                            urlImageJDID = brgInDb.LINK_GAMBAR_5;
-                                                                            break;
-                                                                    }
-                                                                    JD_addSKUDetailPicture(data, retData.model.skuIdList[0].skuId.ToString(), urlImageJDID, i + 1);
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-
-                                                var itemDataInduk = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == kodeProduk.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
-                                                if (itemDataInduk != null)
-                                                {
-                                                    itemDataInduk.BRG_MP = brgMPInduk;
-                                                    itemDataInduk.LINK_STATUS = "Buat Produk Berhasil";
-                                                    itemDataInduk.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
-                                                    itemDataInduk.LINK_ERROR = "0;Buat Produk;;";
-                                                    ErasoftDbContext.SaveChanges();
-                                                }
-
-                                                JD_doAuditProduct(data, Convert.ToString(retData.model.spuId), kodeProduk);
-                                            }
-                                        }
-
-                                    }
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                throw new Exception(Convert.ToString(ex.Message));
-                                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-                            }
-                        }
-                        else
-                        {
-                            throw new Exception(Convert.ToString(retData.message));
-                            //currentLog.REQUEST_EXCEPTION = retStok.message;
-                            //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception("No response API. Please contact support.");
-                        //currentLog.REQUEST_EXCEPTION = ret.openapi_data;
-                        //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
-                    }
-                }
-                else
-                {
-                    throw new Exception("API error. Please contact support.");
-                    //currentLog.REQUEST_EXCEPTION = ret.openapi_data;
-                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
-                }
-            }
-            else
-            {
-                throw new Exception("API error.Please contact support.");
-                //currentLog.REQUEST_EXCEPTION = response;
-                //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
-            }
-
-
 
             return "";
         }
@@ -6274,6 +6253,7 @@ namespace MasterOnline.Controllers
         [NotifyOnFailed("Update Product {obj} ke JDID Gagal.")]
         public async Task<string> JD_UpdateProductV2(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data)
         {
+            data = RefreshToken(data);
             SetupContext(data.DatabasePathErasoft, data.username);
 
             var brgInDb = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper() == kodeProduk.ToUpper()).FirstOrDefault();
@@ -6476,11 +6456,11 @@ namespace MasterOnline.Controllers
                 "\"subtitle\":\"" + detailBrg.AVALUE_43 + "\", \"subtitleHref\":\"" + urlHref + "\", \"subtitleHrefM\":\"" + urlHref + "\", \"transportId\":42, \"isQuality\":" + detailBrg.AVALUE_47 + ", " +
                 paramQualityAsurance +
                 "\"warrantyPeriod\":" + detailBrg.ACODE_41 +
-                ", \"afterSale\":" + Convert.ToInt32(detailBrg.ACODE_40) + 
+                ", \"afterSale\":" + Convert.ToInt32(detailBrg.ACODE_40) +
                 ", \"whetherCod\":" + detailBrg.AVALUE_45 + ", " +
                 "\"weight\":\"" + weight + "\",  \"Piece\": " + detailBrg.ACODE_39 + ", \"netWeight\":\"" + weight + "\", \"packHeight\":\"" + brgInDb.TINGGI + "\", \"packLong\":\"" + brgInDb.PANJANG + "\", \"packWide\":\"" + brgInDb.LEBAR + "\"," +
                 "\"appDescription\":\"" + vDescription + "\"" +
-                ", \"description\":\"" + vDescription + "\"" + 
+                ", \"description\":\"" + vDescription + "\"" +
                 "}}";
             //"\"skuList\":[ " +
             //paramSKUVariant +
@@ -6490,43 +6470,6 @@ namespace MasterOnline.Controllers
             //description,minQuantity,packageInfo,afterSale,shopCategoryIds,maxQuantity
 
             //add by nurul 28/5/2021
-            spuInfoJD.packLong = Convert.ToString(brgInDb.PANJANG);
-            spuInfoJD.spuName = namafull;
-            spuInfoJD.commonAttributeIds = tempcommonAttributeIds;
-            spuInfoJD.keywords = skeyword;
-            spuInfoJD.description = vDescription;
-            spuInfoJD.countryId = 10000000;
-            spuInfoJD.warrantyPeriod = Convert.ToInt32(detailBrg.ACODE_41);
-            spuInfoJD.productArea = detailBrg.ACODE_47;
-            //spuInfoJD.minQuantity =;
-            spuInfoJD.crossProductType = 1;
-            spuInfoJD.packHeight = Convert.ToString(brgInDb.TINGGI);
-            spuInfoJD.taxesType = 2;
-            spuInfoJD.appDescription = vDescription;
-            spuInfoJD.weight = Convert.ToString(weight);
-            if (!string.IsNullOrEmpty(tempUrlHref))
-            {
-                spuInfoJD.subtitleHrefM = tempUrlHref;
-            }
-            if (!string.IsNullOrEmpty(detailBrg.ANAME_47))
-            {
-                spuInfoJD.qualityDays = Convert.ToInt32(detailBrg.ANAME_47);
-            }
-            spuInfoJD.packWide = Convert.ToString(brgInDb.LEBAR);
-            spuInfoJD.catId = Convert.ToInt64(detailBrg.CATEGORY_CODE);
-            spuInfoJD.whetherCod = Convert.ToInt32(detailBrg.AVALUE_45);
-            spuInfoJD.piece = Convert.ToInt32(detailBrg.ACODE_39);
-            spuInfoJD.brandId = Convert.ToInt64(detailBrg.AVALUE_38);
-            spuInfoJD.subtitle = detailBrg.AVALUE_43;
-            spuInfoJD.isQuality = Convert.ToInt32(detailBrg.AVALUE_47);
-            spuInfoJD.packageInfo = "PAKET INFO";
-            spuInfoJD.afterSale = Convert.ToInt32(detailBrg.ACODE_40);
-            spuInfoJD.clearanceType = 2;
-            if (!string.IsNullOrEmpty(tempUrlHref))
-            {
-                spuInfoJD.subtitleHref = tempUrlHref;
-            }
-            //spuInfoJD.maxQuantity =;
             UpdateProductJDID newData = new UpdateProductJDID()
             {
                 packLong = Convert.ToString(brgInDb.PANJANG),
@@ -6537,7 +6480,7 @@ namespace MasterOnline.Controllers
                 countryId = 10000000,
                 warrantyPeriod = Convert.ToInt32(detailBrg.ACODE_41),
                 productArea = detailBrg.ACODE_47,
-                //minQuantity =;
+                minQuantity = 1,
                 crossProductType = 1,
                 packHeight = Convert.ToString(brgInDb.TINGGI),
                 taxesType = 2,
@@ -6556,6 +6499,9 @@ namespace MasterOnline.Controllers
                 afterSale = Convert.ToInt32(detailBrg.ACODE_40),
                 clearanceType = 2,
                 //subtitleHref
+                maxQuantity = 1000000,
+                spuId = Convert.ToInt64(spuID[0]),
+
             };
             if (!string.IsNullOrEmpty(tempUrlHref))
             {
@@ -6567,7 +6513,7 @@ namespace MasterOnline.Controllers
             }
             if (!string.IsNullOrEmpty(tempUrlHref))
             {
-                spuInfoJD.subtitleHref = tempUrlHref;
+                newData.subtitleHref = tempUrlHref;
             }
 
             string myData = JsonConvert.SerializeObject(newData);
@@ -6637,39 +6583,201 @@ namespace MasterOnline.Controllers
             {
                 try
                 {
-                    var retPrice = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDUpdatePriceV2)) as JDIDUpdatePriceV2;
-                    if (retPrice.jingdong_seller_price_updatePriceBySkuIds_response.returnType != null)
+                    var retData = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDUpdateProductV2)) as JDIDUpdateProductV2;
+                    if (retData.jingdong_seller_product_api_write_updateProduct_response.returnType != null)
                     {
-                        if (retPrice.jingdong_seller_price_updatePriceBySkuIds_response.returnType.success)
+                        if (retData.jingdong_seller_product_api_write_updateProduct_response.returnType.success)
                         {
-                            if (log_ActionName.Contains("UPDATE_MASSAL"))
+                            if (retData.jingdong_seller_product_api_write_updateProduct_response.returnType.model != null)
                             {
-                                var dataLog = log_ActionName.Split('_');
-                                if (dataLog.Length >= 4)
+                                var dataSkuResult = JD_getSKUVariantbySPUV2(data, spuID[0]);
+
+                                if (dataSkuResult != null)
                                 {
-                                    var nobuk = dataLog[2];
-                                    var indexData = Convert.ToInt32(dataLog[3]);
-                                    var log_b = ErasoftDbContext.LOG_HARGAJUAL_B.Where(m => m.NO_BUKTI == nobuk && m.NO_FILE == indexData).FirstOrDefault();
-                                    if (log_b != null)
+                                    var urutanGambar = 0;
+                                    var listattributeIDAllVariantGroupCreate = "";
+                                    var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == kodeProduk).ToList();
+                                    var var_strukturVar = ErasoftDbContext.STF02I.Where(p => p.BRG == kodeProduk && p.MARKET == "JDID").ToList().OrderBy(p => p.RECNUM);
+
+                                    foreach (var dataVar in var_stf02)
                                     {
-                                        var currentProgress = log_b.KET.Split('/');
-                                        if (currentProgress.Length == 2)
+                                        if (brgInDb.TYPE == "4") // punya variasi
                                         {
-                                            log_b.KET = (Convert.ToInt32(currentProgress[0]) + 1) + "/" + currentProgress[1];
-                                            ErasoftDbContext.SaveChanges();
+                                            var brgSTF02h = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == dataVar.BRG.ToUpper() && b.IDMARKET == marketplace.RecNum).FirstOrDefault();
+                                            if (!string.IsNullOrEmpty(brgSTF02h.BRG_MP))
+                                            {
+                                                if (dataSkuResult.model.Count() > 0)
+                                                {
+                                                    foreach (var dataSKU in dataSkuResult.model)
+                                                    {
+                                                        if (dataSKU.sellerSkuId == dataVar.BRG)
+                                                        {
+                                                            urutanGambar = urutanGambar + 1;
+                                                            var namafullVariant = "";
+                                                            namafullVariant = dataVar.NAMA;
+                                                            if (!string.IsNullOrEmpty(dataVar.NAMA2))
+                                                            {
+                                                                namafullVariant += dataVar.NAMA2;
+                                                            }
+                                                            if (!string.IsNullOrEmpty(dataVar.NAMA3))
+                                                            {
+                                                                namafullVariant += dataVar.NAMA3;
+                                                            }
+
+                                                            await JD_updateSKUV2(data, namafullVariant, dataVar.BRG, brgSTF02h.HJUAL.ToString(), brgSTF02h.HJUAL.ToString(), dataSKU.skuId.ToString(), spuID[0].ToString());
+
+
+                                                            if (lGambarUploaded.Count() > 0)
+                                                            {
+                                                                if (!string.IsNullOrEmpty(dataVar.LINK_GAMBAR_1))
+                                                                {
+                                                                    //await JD_addSKUMainPicture(data, Convert.ToString(dataSKU.skuId), dataVar.LINK_GAMBAR_1);
+                                                                    await JD_addSKUDetailPictureV2(data, Convert.ToString(dataSKU.skuId), dataVar.LINK_GAMBAR_1, urutanGambar, true);
+                                                                    await JD_addSKUDetailPictureV2(data, Convert.ToString(dataSKU.skuId), dataVar.LINK_GAMBAR_1, urutanGambar, false);
+                                                                }
+
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+
+                                                #region varian LV1
+                                                if (!string.IsNullOrEmpty(dataVar.Sort8))
+                                                {
+                                                    var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == dataVar.Sort8).FirstOrDefault();
+                                                    if (!listattributeIDAllVariantGroupCreate.Contains(variant_id_group.MP_JUDUL_VAR + ":" + variant_id_group.MP_VALUE_VAR))
+                                                        listattributeIDAllVariantGroupCreate += variant_id_group.MP_JUDUL_VAR + ":" + variant_id_group.MP_VALUE_VAR + ";";
+                                                }
+                                                #endregion
+
+                                                #region varian LV2
+                                                if (!string.IsNullOrEmpty(dataVar.Sort9))
+                                                {
+                                                    var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == dataVar.Sort9).FirstOrDefault();
+                                                    if (!listattributeIDAllVariantGroupCreate.Contains(variant_id_group.MP_JUDUL_VAR + ":" + variant_id_group.MP_VALUE_VAR))
+                                                        listattributeIDAllVariantGroupCreate += variant_id_group.MP_JUDUL_VAR + ":" + variant_id_group.MP_VALUE_VAR + ";";
+                                                }
+                                                #endregion
+
+                                                if (listattributeIDAllVariantGroupCreate.Length > 0)
+                                                {
+                                                    listattributeIDAllVariantGroupCreate = listattributeIDAllVariantGroupCreate.Substring(0, listattributeIDAllVariantGroupCreate.Length - 1);
+                                                }
+
+                                                var namafullVariant = "";
+                                                namafullVariant = dataVar.NAMA;
+                                                if (!string.IsNullOrEmpty(dataVar.NAMA2))
+                                                {
+                                                    namafullVariant += dataVar.NAMA2;
+                                                }
+                                                if (!string.IsNullOrEmpty(dataVar.NAMA3))
+                                                {
+                                                    namafullVariant += dataVar.NAMA3;
+                                                }
+
+                                                //DataAddSKUVariant dataSKUVar = new DataAddSKUVariant();
+                                                //dataSKUVar.sellerSkuId = dataVar.BRG;
+                                                //dataSKUVar.skuName = namafullVariant;
+                                                //dataSKUVar.saleAttributeIds = listattributeIDAllVariantGroupCreate;
+                                                //dataSKUVar.stock = 0;
+                                                //dataSKUVar.weight = Convert.ToString(weight);
+                                                //dataSKUVar.piece = Convert.ToInt32(detailBrg.ACODE_41);
+                                                //dataSKUVar.packWide = Convert.ToString(brgInDb.LEBAR);
+                                                //dataSKUVar.packLong = Convert.ToString(brgInDb.PANJANG);
+                                                //dataSKUVar.packHeight = Convert.ToString(brgInDb.TINGGI);
+                                                //dataSKUVar.netWeight = Convert.ToString(weight);
+                                                //dataSKUVar.jdPrice = Convert.ToInt64(brgSTF02h.HJUAL);
+                                                //dataSKUVar.costPrice = Convert.ToInt64(brgSTF02h.HJUAL);
+
+                                                addSKUVariantJDID dataSKUVar = new addSKUVariantJDID();
+                                                dataSKUVar.spuId = Convert.ToInt64(spuID[0]);
+                                                dataSKUVar.packLong.Add(Convert.ToString(brgInDb.PANJANG));
+                                                dataSKUVar.saleAttributeIds.Add(listattributeIDAllVariantGroupCreate);
+                                                dataSKUVar.costPrice.Add(Convert.ToInt64(brgSTF02h.HJUAL));
+                                                dataSKUVar.upc.Add("upc");
+                                                dataSKUVar.weight.Add(Convert.ToString(weight));
+                                                dataSKUVar.sellerSkuId.Add(dataVar.BRG);
+                                                dataSKUVar.saleAttrValueAlias.Add(listattributeIDAllVariantGroupCreate);
+                                                dataSKUVar.skuName.Add(namafullVariant);
+                                                dataSKUVar.packWide.Add(Convert.ToString(brgInDb.LEBAR));
+                                                dataSKUVar.piece.Add(Convert.ToInt32(detailBrg.ACODE_41));
+                                                dataSKUVar.jdPrice.Add(Convert.ToInt64(brgSTF02h.HJUAL));
+                                                dataSKUVar.packHeight.Add(Convert.ToString(brgInDb.TINGGI));
+                                                dataSKUVar.stock.Add(0);
+
+                                                await JD_addSKUVariantV2(data, dataSKUVar, dataSkuResult.model[0].spuId.ToString(), dataVar.BRG, dataVar.LINK_GAMBAR_1, marketplace.RecNum);
+
+                                                listattributeIDAllVariantGroupCreate = "";
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (dataSkuResult.model.Count() > 0)
+                                            {
+                                                foreach (var dataSKU in dataSkuResult.model)
+                                                {
+                                                    var namafullVariant = "";
+                                                    namafullVariant = brgInDb.NAMA;
+                                                    if (!string.IsNullOrEmpty(brgInDb.NAMA2))
+                                                    {
+                                                        namafullVariant += brgInDb.NAMA2;
+                                                    }
+                                                    if (!string.IsNullOrEmpty(brgInDb.NAMA3))
+                                                    {
+                                                        namafullVariant += brgInDb.NAMA3;
+                                                    }
+
+                                                    await JD_updateSKUV2(data, namafullVariant, detailBrg.BRG, detailBrg.HJUAL.ToString(), detailBrg.HJUAL.ToString(), dataSKU.skuId.ToString(), spuID[0].ToString());
+
+
+                                                    if (lGambarUploaded.Count() > 0)
+                                                    {
+                                                        //await JD_addSKUMainPicture(data, dataSKU.skuId.ToString(), brgInDb.LINK_GAMBAR_1);
+                                                        await JD_addSKUDetailPictureV2(data, dataSKU.skuId.ToString(), brgInDb.LINK_GAMBAR_1, urutanGambar, true);
+                                                        if (lGambarUploaded.Count() > 1)
+                                                        {
+                                                            for (int i = 1; i < lGambarUploaded.Count(); i++)
+                                                            {
+                                                                var urlImageJDID = "";
+                                                                switch (i)
+                                                                {
+                                                                    case 1:
+                                                                        urlImageJDID = brgInDb.LINK_GAMBAR_2;
+                                                                        break;
+                                                                    case 2:
+                                                                        urlImageJDID = brgInDb.LINK_GAMBAR_3;
+                                                                        break;
+                                                                    case 3:
+                                                                        urlImageJDID = brgInDb.LINK_GAMBAR_4;
+                                                                        break;
+                                                                    case 4:
+                                                                        urlImageJDID = brgInDb.LINK_GAMBAR_5;
+                                                                        break;
+                                                                }
+                                                                await JD_addSKUDetailPictureV2(data, dataSKU.skuId.ToString(), urlImageJDID, i + 1, false);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
+
+                                    JD_doAuditProductV2(data, Convert.ToString(dataSkuResult.model[0].spuId), kodeProduk);
                                 }
                             }
                         }
                         else
                         {
-                            throw new Exception(retPrice.jingdong_seller_price_updatePriceBySkuIds_response.returnType.message.ToString());
+                            throw new Exception(retData.jingdong_seller_product_api_write_updateProduct_response.returnType.message.ToString());
                         }
                     }
                     else
                     {
-                        throw new Exception("Update harga gagal.");
+                        throw new Exception("API error. Please contact support.");
                     }
 
                 }
@@ -6680,225 +6788,258 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                throw new Exception("Tidak ada respon dari API.");
+                throw new Exception("No response API. Please contact support.");
             }
 
-            var response = Call(data.appKey, data.accessToken, data.appSecret, sMethod, sParamJson);
-            var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RESJob)) as JDID_RESJob;
-            if (ret != null)
+            return "";
+        }
+
+        public ReturntypeGetSKUVariantBySPUV2 JD_getSKUVariantbySPUV2(JDIDAPIDataJob data, string sSPUID)
+        {
+            ReturntypeGetSKUVariantBySPUV2 datasku = new ReturntypeGetSKUVariantBySPUV2();
+            try
             {
-                if (ret.openapi_msg.ToLower() == "success")
+                data = RefreshToken(data);
+                //string[] spuID = sSPUID.Split(';');
+                string responseFromServer = "";
+                bool responseApi = false;
+                int retry = 0;
+                while (!responseApi && retry <= 2)
                 {
-                    var retData = JsonConvert.DeserializeObject(ret.openapi_data, typeof(JDID_DetailResultUpdateProduct)) as JDID_DetailResultUpdateProduct;
-                    if (retData != null)
+                    var sysParams = new Dictionary<string, string>();
+                    this.ParamJson = "{\"spuId\":\"" + sSPUID + "\"}";
+                    sysParams.Add("360buy_param_json", this.ParamJson);
+
+                    sysParams.Add("access_token", data.accessToken);
+                    sysParams.Add("app_key", data.appKey);
+                    this.Method = "jingdong.seller.product.getSkuInfoBySpuIdAndVenderId"; //this API is for query sku information via spuId
+                    sysParams.Add("method", this.Method);
+                    var gettimestamp = getCurrentTimeFormatted();
+                    sysParams.Add("timestamp", gettimestamp);
+                    sysParams.Add("v", this.Version2);
+                    sysParams.Add("format", this.Format);
+                    sysParams.Add("sign_method", this.SignMethod);
+
+                    var signature = this.generateSign(sysParams, data.appSecret);
+
+                    string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
+                    urll += "&format=json&sign_method=md5";
+                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                    myReq.Method = "GET";
+                    try
                     {
-                        if (retData.success)
+                        using (WebResponse response = myReq.GetResponse())
                         {
-                            try
+                            using (Stream stream = response.GetResponseStream())
                             {
-                                if (retData.model)
+                                StreamReader reader = new StreamReader(stream);
+                                responseFromServer = reader.ReadToEnd();
+                                responseApi = true; break;
+                            }
+                        }
+                    }
+                    //catch (WebException ex)
+                    //{
+                    //    string err1 = "";
+                    //    if (ex.Status == WebExceptionStatus.ProtocolError)
+                    //    {
+                    //        WebResponse resp1 = ex.Response;
+                    //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                    //        {
+                    //            err1 = sr1.ReadToEnd();
+                    //        }
+                    //    }
+                    //    //throw new Exception(err1);
+                    //}
+                    catch (Exception ex)
+                    {
+                        retry = retry + 1;
+                        string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                        if (retry == 3)
+                        {
+                            throw new Exception(msg);
+                        }
+                    }
+                }
+                if (!string.IsNullOrEmpty(responseFromServer))
+                {
+                    try
+                    {
+                        var ret = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDGetSKUVariantBySPUV2)) as JDIDGetSKUVariantBySPUV2;
+                        if (ret.jingdong_seller_product_getSkuInfoBySpuIdAndVenderId_response.returnType != null)
+                        {
+                            if (ret.jingdong_seller_product_getSkuInfoBySpuIdAndVenderId_response.returnType.success)
+                            {
+                                if(ret.jingdong_seller_product_getSkuInfoBySpuIdAndVenderId_response.returnType.model != null)
                                 {
-                                    var dataSkuResult = JD_getSKUVariantbySPU(data, spuID[0]);
-
-                                    if (dataSkuResult != null)
-                                    {
-                                        var urutanGambar = 0;
-                                        var listattributeIDAllVariantGroupCreate = "";
-                                        var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == kodeProduk).ToList();
-                                        var var_strukturVar = ErasoftDbContext.STF02I.Where(p => p.BRG == kodeProduk && p.MARKET == "JDID").ToList().OrderBy(p => p.RECNUM);
-
-                                        foreach (var dataVar in var_stf02)
-                                        {
-                                            if (brgInDb.TYPE == "4") // punya variasi
-                                            {
-                                                var brgSTF02h = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == dataVar.BRG.ToUpper() && b.IDMARKET == marketplace.RecNum).FirstOrDefault();
-                                                if (!string.IsNullOrEmpty(brgSTF02h.BRG_MP))
-                                                {
-                                                    if (dataSkuResult.model.Count() > 0)
-                                                    {
-                                                        foreach (var dataSKU in dataSkuResult.model)
-                                                        {
-                                                            if (dataSKU.sellerSkuId == dataVar.BRG)
-                                                            {
-                                                                urutanGambar = urutanGambar + 1;
-                                                                var namafullVariant = "";
-                                                                namafullVariant = dataVar.NAMA;
-                                                                if (!string.IsNullOrEmpty(dataVar.NAMA2))
-                                                                {
-                                                                    namafullVariant += dataVar.NAMA2;
-                                                                }
-                                                                if (!string.IsNullOrEmpty(dataVar.NAMA3))
-                                                                {
-                                                                    namafullVariant += dataVar.NAMA3;
-                                                                }
-
-                                                                await JD_updateSKUV2(data, namafullVariant, dataVar.BRG, brgSTF02h.HJUAL.ToString(), brgSTF02h.HJUAL.ToString(), dataSKU.skuId.ToString(), spuID[0].ToString());
-                                                                
-
-                                                                if (lGambarUploaded.Count() > 0)
-                                                                {
-                                                                    if (!string.IsNullOrEmpty(dataVar.LINK_GAMBAR_1))
-                                                                    {
-                                                                        await JD_addSKUMainPicture(data, Convert.ToString(dataSKU.skuId), dataVar.LINK_GAMBAR_1);
-                                                                        await JD_addSKUDetailPicture(data, Convert.ToString(dataSKU.skuId), dataVar.LINK_GAMBAR_1, urutanGambar);
-                                                                    }
-
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                                else
-                                                {
-
-                                                    #region varian LV1
-                                                    if (!string.IsNullOrEmpty(dataVar.Sort8))
-                                                    {
-                                                        var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == dataVar.Sort8).FirstOrDefault();
-                                                        if (!listattributeIDAllVariantGroupCreate.Contains(variant_id_group.MP_JUDUL_VAR + ":" + variant_id_group.MP_VALUE_VAR))
-                                                            listattributeIDAllVariantGroupCreate += variant_id_group.MP_JUDUL_VAR + ":" + variant_id_group.MP_VALUE_VAR + ";";
-                                                    }
-                                                    #endregion
-
-                                                    #region varian LV2
-                                                    if (!string.IsNullOrEmpty(dataVar.Sort9))
-                                                    {
-                                                        var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == dataVar.Sort9).FirstOrDefault();
-                                                        if (!listattributeIDAllVariantGroupCreate.Contains(variant_id_group.MP_JUDUL_VAR + ":" + variant_id_group.MP_VALUE_VAR))
-                                                            listattributeIDAllVariantGroupCreate += variant_id_group.MP_JUDUL_VAR + ":" + variant_id_group.MP_VALUE_VAR + ";";
-                                                    }
-                                                    #endregion
-
-                                                    if (listattributeIDAllVariantGroupCreate.Length > 0)
-                                                    {
-                                                        listattributeIDAllVariantGroupCreate = listattributeIDAllVariantGroupCreate.Substring(0, listattributeIDAllVariantGroupCreate.Length - 1);
-                                                    }
-
-                                                    var namafullVariant = "";
-                                                    namafullVariant = dataVar.NAMA;
-                                                    if (!string.IsNullOrEmpty(dataVar.NAMA2))
-                                                    {
-                                                        namafullVariant += dataVar.NAMA2;
-                                                    }
-                                                    if (!string.IsNullOrEmpty(dataVar.NAMA3))
-                                                    {
-                                                        namafullVariant += dataVar.NAMA3;
-                                                    }
-
-                                                    DataAddSKUVariant dataSKUVar = new DataAddSKUVariant();
-                                                    dataSKUVar.sellerSkuId = dataVar.BRG;
-                                                    dataSKUVar.skuName = namafullVariant;
-                                                    dataSKUVar.saleAttributeIds = listattributeIDAllVariantGroupCreate;
-                                                    dataSKUVar.stock = 0;
-                                                    dataSKUVar.weight = Convert.ToString(weight);
-                                                    dataSKUVar.piece = Convert.ToInt32(detailBrg.ACODE_41);
-                                                    dataSKUVar.packWide = Convert.ToString(brgInDb.LEBAR);
-                                                    dataSKUVar.packLong = Convert.ToString(brgInDb.PANJANG);
-                                                    dataSKUVar.packHeight = Convert.ToString(brgInDb.TINGGI);
-                                                    dataSKUVar.netWeight = Convert.ToString(weight);
-                                                    dataSKUVar.jdPrice = Convert.ToInt64(brgSTF02h.HJUAL);
-                                                    dataSKUVar.costPrice = Convert.ToInt64(brgSTF02h.HJUAL);
-
-                                                    await JD_addSKUVariant(data, dataSKUVar, dataSkuResult.model[0].spuId.ToString(), dataVar.BRG, dataVar.LINK_GAMBAR_1, marketplace.RecNum);
-
-                                                    listattributeIDAllVariantGroupCreate = "";
-                                                }
-                                            }
-                                            else
-                                            {
-                                                if (dataSkuResult.model.Count() > 0)
-                                                {
-                                                    foreach (var dataSKU in dataSkuResult.model)
-                                                    {
-                                                        var namafullVariant = "";
-                                                        namafullVariant = brgInDb.NAMA;
-                                                        if (!string.IsNullOrEmpty(brgInDb.NAMA2))
-                                                        {
-                                                            namafullVariant += brgInDb.NAMA2;
-                                                        }
-                                                        if (!string.IsNullOrEmpty(brgInDb.NAMA3))
-                                                        {
-                                                            namafullVariant += brgInDb.NAMA3;
-                                                        }
-
-                                                        await JD_updateSKUV2(data, namafullVariant, detailBrg.BRG, detailBrg.HJUAL.ToString(), detailBrg.HJUAL.ToString(), dataSKU.skuId.ToString(), spuID[0].ToString());
-                                                        
-
-                                                        if (lGambarUploaded.Count() > 0)
-                                                        {
-                                                            await JD_addSKUMainPicture(data, dataSKU.skuId.ToString(), brgInDb.LINK_GAMBAR_1);
-                                                            if (lGambarUploaded.Count() > 1)
-                                                            {
-                                                                for (int i = 1; i < lGambarUploaded.Count(); i++)
-                                                                {
-                                                                    var urlImageJDID = "";
-                                                                    switch (i)
-                                                                    {
-                                                                        case 1:
-                                                                            urlImageJDID = brgInDb.LINK_GAMBAR_2;
-                                                                            break;
-                                                                        case 2:
-                                                                            urlImageJDID = brgInDb.LINK_GAMBAR_3;
-                                                                            break;
-                                                                        case 3:
-                                                                            urlImageJDID = brgInDb.LINK_GAMBAR_4;
-                                                                            break;
-                                                                        case 4:
-                                                                            urlImageJDID = brgInDb.LINK_GAMBAR_5;
-                                                                            break;
-                                                                    }
-                                                                    await JD_addSKUDetailPicture(data, dataSKU.skuId.ToString(), urlImageJDID, i + 1);
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        
-                                        JD_doAuditProductV2(data, Convert.ToString(dataSkuResult.model[0].spuId), kodeProduk);
-                                    }
+                                    datasku = ret.jingdong_seller_product_getSkuInfoBySpuIdAndVenderId_response.returnType;
                                 }
                             }
-                            catch (Exception ex)
+                            else
                             {
-                                throw new Exception(Convert.ToString(ex.Message));
-                                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                                throw new Exception(ret.jingdong_seller_product_getSkuInfoBySpuIdAndVenderId_response.returnType.message.ToString());
                             }
                         }
                         else
                         {
-                            throw new Exception(Convert.ToString(retData.message));
-                            //currentLog.REQUEST_EXCEPTION = retStok.message;
-                            //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                            throw new Exception("API error. Please contact support.");
                         }
+
                     }
-                    else
+                    catch (Exception ex2)
                     {
-                        throw new Exception("No response API. Please contact support.");
-                        //currentLog.REQUEST_EXCEPTION = ret.openapi_data;
-                        //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                        throw new Exception(ex2.InnerException == null ? ex2.Message.ToString() : ex2.InnerException.Message.ToString());
                     }
                 }
                 else
                 {
-                    throw new Exception("API error. Please contact support.");
-                    //currentLog.REQUEST_EXCEPTION = ret.openapi_data;
-                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                    throw new Exception("Tidak ada respon dari API.");
                 }
             }
-            else
+            catch (Exception ex)
             {
-                throw new Exception("API error. Please contact support.");
-                //currentLog.REQUEST_EXCEPTION = response;
-                //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                throw new Exception(msg);
+            }
+            
+            return datasku;
+        }
+
+        public async Task<string> JD_addSKUVariantV2(JDIDAPIDataJob data, addSKUVariantJDID dataSKU, string sSPUID, string kodeProduk, string urlImage, int? recnum)
+        {
+            var resultSKUID = "";
+            try
+            {
+                data = RefreshToken(data);
+                string responseFromServer = "";
+                bool responseApi = false;
+                int retry = 0;
+                string myData = JsonConvert.SerializeObject(dataSKU);
+                while (!responseApi && retry <= 2)
+                {
+                    var sysParams = new Dictionary<string, string>();
+                //    string sParamJson = "{\"spuId\":\"" + sSPUID + "\", \"skuList\": " +
+                //"[{\"skuName\":\"" + dataSKU.skuName + "\", \"sellerSkuId\":\"" + dataSKU.sellerSkuId + "\", \"saleAttributeIds\":\"" + dataSKU.saleAttributeIds + "\", \"jdPrice\":" + dataSKU.jdPrice + ", " +
+                //"\"costPrice\":" + dataSKU.costPrice + ", \"stock\":" + dataSKU.stock + ", \"weight\":\"" + dataSKU.weight + "\", \"netWeight\":\"" + dataSKU.netWeight + "\", " +
+                //"\"packHeight\":\"" + dataSKU.packHeight + "\", \"packLong\":\"" + dataSKU.packLong + "\", \"packWide\":\"" + dataSKU.packWide + "\", \"piece\":" + dataSKU.piece + "}]}";
+
+                    this.ParamJson = myData;
+                    sysParams.Add("360buy_param_json", this.ParamJson);
+
+                    sysParams.Add("access_token", data.accessToken);
+                    sysParams.Add("app_key", data.appKey);
+                    this.Method = "jingdong.seller.product.sku.write.addSkuInfo"; //this API is for query sku information via spuId
+                    sysParams.Add("method", this.Method);
+                    var gettimestamp = getCurrentTimeFormatted();
+                    sysParams.Add("timestamp", gettimestamp);
+                    sysParams.Add("v", this.Version2);
+                    sysParams.Add("format", this.Format);
+                    sysParams.Add("sign_method", this.SignMethod);
+
+                    var signature = this.generateSign(sysParams, data.appSecret);
+
+                    string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
+                    urll += "&format=json&sign_method=md5";
+                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                    myReq.Method = "GET";
+                    try
+                    {
+                        using (WebResponse response = myReq.GetResponse())
+                        {
+                            using (Stream stream = response.GetResponseStream())
+                            {
+                                StreamReader reader = new StreamReader(stream);
+                                responseFromServer = reader.ReadToEnd();
+                                responseApi = true; break;
+                            }
+                        }
+                    }
+                    //catch (WebException ex)
+                    //{
+                    //    string err1 = "";
+                    //    if (ex.Status == WebExceptionStatus.ProtocolError)
+                    //    {
+                    //        WebResponse resp1 = ex.Response;
+                    //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                    //        {
+                    //            err1 = sr1.ReadToEnd();
+                    //        }
+                    //    }
+                    //    //throw new Exception(err1);
+                    //}
+                    catch (Exception ex)
+                    {
+                        retry = retry + 1;
+                        string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                        if (retry == 3)
+                        {
+                            throw new Exception(msg);
+                        }
+                    }
+                }
+                if (!string.IsNullOrEmpty(responseFromServer))
+                {
+                    try
+                    {
+                        var ret = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDAddSKUVariantV2)) as JDIDAddSKUVariantV2;
+                        if (ret.jingdong_seller_product_sku_write_addSkuInfo_response.returnType != null)
+                        {
+                            if (ret.jingdong_seller_product_sku_write_addSkuInfo_response.returnType.success)
+                            {
+                                if (ret.jingdong_seller_product_sku_write_addSkuInfo_response.returnType.model != null)
+                                {
+                                    if (ret.jingdong_seller_product_sku_write_addSkuInfo_response.returnType.model.Count() > 0)
+                                    {
+                                        resultSKUID = ret.jingdong_seller_product_sku_write_addSkuInfo_response.returnType.model[0].skuId.ToString();
+
+                                        var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == kodeProduk && b.IDMARKET == recnum).SingleOrDefault();
+                                        if (item != null)
+                                        {
+                                            item.BRG_MP = sSPUID + ";" + resultSKUID;
+                                            item.LINK_STATUS = "Buat Produk Berhasil";
+                                            item.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                                            item.LINK_ERROR = "0;Buat Produk;;";
+                                            ErasoftDbContext.SaveChanges();
+                                        }
+                                        if (!string.IsNullOrEmpty(urlImage))
+                                        {
+                                            //await JD_addSKUMainPicture(data, Convert.ToString(skuidVar), dataVar.LINK_GAMBAR_1);
+                                            await JD_addSKUDetailPictureV2(data, resultSKUID, urlImage, 1, false);
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                throw new Exception(ret.jingdong_seller_product_sku_write_addSkuInfo_response.returnType.message.ToString());
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("API error. Please contact support.");
+                        }
+
+                    }
+                    catch (Exception ex2)
+                    {
+                        throw new Exception(ex2.InnerException == null ? ex2.Message.ToString() : ex2.InnerException.Message.ToString());
+                    }
+                }
+                else
+                {
+                    throw new Exception("Tidak ada respon dari API.");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                throw new Exception(msg);
             }
 
-
-
-            return "";
+            return resultSKUID;
         }
+        
         //end add by nurul 21/5/2021, JDID versi 2 tahap 2 
 
         protected enum api_status
@@ -7853,6 +7994,174 @@ namespace MasterOnline.Controllers
             public string subtitleHref { get; set; }
             public long maxQuantity { get; set; }
             public List<long> shopCategoryIds { get; set; }
+        }
+
+        //------------------------------------------------
+
+        public class JDIDCreateProductV2
+        {
+            public Jingdong_Seller_Product_Api_Write_Addproduct_Response jingdong_seller_product_api_write_addProduct_response { get; set; }
+        }
+
+        public class Jingdong_Seller_Product_Api_Write_Addproduct_Response
+        {
+            public string code { get; set; }
+            public ReturntypeCreateProductV2 returnType { get; set; }
+        }
+
+        public class ReturntypeCreateProductV2
+        {
+            public ModelCreateProductV2 model { get; set; }
+            public int code { get; set; }
+            public bool success { get; set; }
+            public string message { get; set; }
+        }
+
+        public class ModelCreateProductV2
+        {
+            public long spuId { get; set; }
+            public SkuidlistCreateProductV2[] skuIdList { get; set; }
+        }
+
+        public class SkuidlistCreateProductV2
+        {
+            public long skuId { get; set; }
+        }
+
+        //------------------------------
+
+        public class JDIDUpdateProductV2
+        {
+            public Jingdong_Seller_Product_Api_Write_Updateproduct_Response jingdong_seller_product_api_write_updateProduct_response { get; set; }
+        }
+
+        public class Jingdong_Seller_Product_Api_Write_Updateproduct_Response
+        {
+            public string code { get; set; }
+            public ReturntypeUpdateProductV2 returnType { get; set; }
+        }
+
+        public class ReturntypeUpdateProductV2
+        {
+            public string message { get; set; }
+            public bool model { get; set; }
+            public int code { get; set; }
+            public bool success { get; set; }
+        }
+
+        //-----------------------------------------
+
+        public class JDIDGetSKUVariantBySPUV2
+        {
+            public Jingdong_Seller_Product_Getskuinfobyspuidandvenderid_Response jingdong_seller_product_getSkuInfoBySpuIdAndVenderId_response { get; set; }
+        }
+
+        public class Jingdong_Seller_Product_Getskuinfobyspuidandvenderid_Response
+        {
+            public string code { get; set; }
+            public ReturntypeGetSKUVariantBySPUV2 returnType { get; set; }
+        }
+
+        public class ReturntypeGetSKUVariantBySPUV2
+        {
+            public int code { get; set; }
+            public bool success { get; set; }
+            public ModelGetSKUVariantBySPUV2[] model { get; set; }
+            public string message { get; set; }
+        }
+
+        public class ModelGetSKUVariantBySPUV2
+        {
+            public string packLong { get; set; }
+            public string weight { get; set; }
+            public string upc { get; set; }
+            public string sellerSkuId { get; set; }
+            public string packWide { get; set; }
+            public string skuName { get; set; }
+            public string netWeight { get; set; }
+            public int piece { get; set; }
+            public int spuId { get; set; }
+            public int jdPrice { get; set; }
+            public string packHeight { get; set; }
+            public int skuId { get; set; }
+            public int status { get; set; }
+            public string mainImgUri { get; set; }
+            public string saleAttributeIds { get; set; }
+            public dynamic saleAttributeNameMap { get; set; }
+        }
+
+        //---------------------------------------
+        public class addSKUVariantJDID
+        {
+            public long spuId { get; set; }
+            public List<string> packLong { get; set; }
+            public List<string> saleAttributeIds { get; set; }
+            public List<long> costPrice { get; set; }
+            public List<string> upc { get; set; }
+            public List<string> weight { get; set; }
+            public List<string> sellerSkuId { get; set; }
+            public List<string> saleAttrValueAlias { get; set; }
+            public List<string> skuName { get; set; }
+            public List<string> packWide { get; set; }
+            public List<int> piece { get; set; }
+            public List<long> jdPrice { get; set; }
+            public List<string> packHeight { get; set; }
+            public List<long> stock { get; set; }
+
+            //public string[] packLong { get; set; }
+            //public string[] saleAttributeIds { get; set; }
+            //public long[] costPrice { get; set; }
+            //public string[] upc { get; set; }
+            //public string[] weight { get; set; }
+            //public string[] sellerSkuId { get; set; }
+            //public string[] saleAttrValueAlias { get; set; }
+            //public string[] skuName { get; set; }
+            //public string[] packWide { get; set; }
+            //public int[] piece { get; set; }
+            //public long[] jdPrice { get; set; }
+            //public string[] packHeight { get; set; }
+            //public long[] stock { get; set; }
+        }
+
+        //-----------------------------------------
+
+        public class JDIDAddSKUVariantV2
+        {
+            public Jingdong_Seller_Product_Sku_Write_AddSkuInfo_Response jingdong_seller_product_sku_write_addSkuInfo_response { get; set; }
+        }
+
+        public class Jingdong_Seller_Product_Sku_Write_AddSkuInfo_Response
+        {
+            public string code { get; set; }
+            public ReturntypeAddSKUVariantV2 returnType { get; set; }
+        }
+
+        public class ReturntypeAddSKUVariantV2
+        {
+            public int code { get; set; }
+            public bool success { get; set; }
+            public ModelAddSKUVariantV2[] model { get; set; }
+            public string message { get; set; }
+        }
+
+        public class ModelAddSKUVariantV2
+        {
+            public string packLong { get; set; }
+            public string weight { get; set; }
+            public string upc { get; set; }
+            public string sellerSkuId { get; set; }
+            public string packWide { get; set; }
+            public string skuName { get; set; }
+            public string netWeight { get; set; }
+            public int piece { get; set; }
+            public int spuId { get; set; }
+            public int jdPrice { get; set; }
+            public string packHeight { get; set; }
+            public int skuId { get; set; }
+            public int status { get; set; }
+            public string mainImgUri { get; set; }
+            public string saleAttributeIds { get; set; }
+            public dynamic saleAttributeNameMap { get; set; }
         }
         //end add by nurul 21/5/2021, JDID versi 2 tahap 2 
 

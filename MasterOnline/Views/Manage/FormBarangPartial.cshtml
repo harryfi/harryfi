@@ -1644,7 +1644,7 @@
                                                                         @($"JD.ID ({listMarket[i].PERSO})")
                                                                     </h2>
                                                                 </div>
-                                                                if (!string.IsNullOrEmpty(listMarket[i].KD_ANALISA) && listMarket[i].KD_ANALISA == "2")
+                                                                @*if (!string.IsNullOrEmpty(listMarket[i].KD_ANALISA) && listMarket[i].KD_ANALISA == "2")
                                                                 {
                                                                     <div>
                                                                         <h3 style="font-size: 12px">(Fitur ini masih dalam pengembangan.)</h3>
@@ -1652,7 +1652,7 @@
                                                                     </div>
                                                                 }
                                                                 else
-                                                                {
+                                                                {*@
                                                                 <div class="form-group">
                                                                     <div class="col-md-12 col-sm-12 col-xs-12" id="div_detail_@(recnumArf01)">
                                                                         @if (string.IsNullOrEmpty(listMarket[i].TOKEN))
@@ -1918,7 +1918,7 @@
                                                                         }
                                                                     </div>
                                                                 </div>
-                                                                }
+                                                                //}
                                                             }
                                                         }
                                                     </div>
