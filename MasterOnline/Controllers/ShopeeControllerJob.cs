@@ -7477,7 +7477,7 @@ namespace MasterOnline.Controllers
             {
                 //try
                 //{
-                var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCreateProdResponse)) as ShopeeCreateProdResponse;
+                var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCreateProdResponse_V2)) as ShopeeCreateProdResponse_V2;
                 if (resServer != null)
                 {
                     if (string.IsNullOrEmpty(resServer.error))
@@ -7494,11 +7494,11 @@ namespace MasterOnline.Controllers
                         var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
                         if (item != null)
                         {
-                            item.BRG_MP = Convert.ToString(resServer.item_id) + ";0";
+                            item.BRG_MP = Convert.ToString(resServer.response.item_id) + ";0";
                             item.LINK_STATUS = "Buat Produk Berhasil";
                             item.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                             item.LINK_ERROR = "0;Buat Produk;;";
-                            string urlBrg = "https://shopee.co.id/product/" + iden.merchant_code + "/" + resServer.item_id;
+                            string urlBrg = "https://shopee.co.id/product/" + iden.merchant_code + "/" + resServer.response.item_id;
                             item.AVALUE_34 = urlBrg;
                             ErasoftDbContext.SaveChanges();
 
@@ -7514,7 +7514,7 @@ namespace MasterOnline.Controllers
 #if (DEBUG || Debug_AWS)
                                 await InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog);
 #else
-                                client.Schedule<ShopeeControllerJob>(x => x.InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog), TimeSpan.FromSeconds(30));
+                                client.Schedule<ShopeeControllerJob>(x => x.InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.response.item_id, marketplace, currentLog), TimeSpan.FromSeconds(30));
 #endif
                             }
                             else
@@ -11296,6 +11296,14 @@ namespace MasterOnline.Controllers
         {
             public long item_id { get; set; }
             public Item item { get; set; }
+        }
+        public class ShopeeCreateProdResponse_V2 : ShopeeError
+        {
+            public ShopeeCreateProdResponseDetail response { get; set; }
+        }
+        public class ShopeeCreateProdResponseDetail
+        {
+            public long item_id { get; set; }
         }
 
         public class ShopeeCreatePromoRes : ShopeeError
