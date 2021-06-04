@@ -4000,9 +4000,11 @@
                                         fieldAVALUE += '<div class="col-md-2">' + label + fieldACODE + fieldANAME + '</div>'
                                         //$('#attribute_shopee_' + listMarketRecNum).append('<div class="col-md-2" style="margin-top:10px;">' + label + fieldACODE + fieldANAME + '</div>');
 
-                                        var fieldAVALUE_ID = 'ListHargaJualPermarket_'+ listmarket_i +'__AVALUE_'+ (i + 1);
+                                        var fieldAVALUE_ID = 'ListHargaJualPermarket_' + listmarket_i + '__AVALUE_' + (i + 1);
+                                        var fieldAUNIT_ID = 'ListHargaJualPermarket_' + listmarket_i + '__AUNIT_' + (i + 1);
 
                                         var adaValue = "";
+                                        var adaValueUnit = "";
                                         if (ListHargaJualPermarketView != null) {
                                             if (ListHargaJualPermarketView.length > 0) {
                                                 //change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
@@ -4011,6 +4013,9 @@
                                                 if (keyName != undefined) {
                                                     keyName = keyName.replace('ANAME_','AVALUE_');
                                                     adaValue = ListHargaJualPermarketView[0][keyName];
+
+                                                    keyNameUnit = keyName.replace('ANAME_', 'AUNIT_');
+                                                    adaValueUnit = ListHargaJualPermarketView[0][keyNameUnit];
                                                 }
                                                 //end change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
                                             }
@@ -4052,8 +4057,11 @@
                                                 }
                                                 //end change by calvin 1 maret 2019
                                                 //add 3 jun 2021, attr unit for shopee v2
+                                                //hidden
+                                                fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAUNIT_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValueUnit + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
+
                                                 var selectUnitID = 'attribute_unit_select_shopee_' + listMarketRecNum + '_' + (i + 1);
-                                                SelectUnitList.push(ACODE, listMarketRecNum, selectUnitID, fieldAVALUE_ID, '', ATYPE);
+                                                SelectUnitList.push(ACODE, listMarketRecNum, selectUnitID, fieldAUNIT_ID, adaValueUnit, ATYPE);
 
                                                 fieldAVALUE += '<div class="col-md-2"><select id="' + selectUnitID + '" placeholder="Harap pilih"></select></div>';
                                                 //end add 3 jun 2021, attr unit for shopee v2
@@ -4078,8 +4086,11 @@
                                                     fieldAVALUE += '<div class="col-md-2"><input type="text" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
                                                 }
                                                 //add 3 jun 2021, attr unit for shopee v2
+                                                //hidden
+                                                fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAUNIT_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValueUnit + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
+
                                                 var selectUnitID = 'attribute_unit_select_shopee_' + listMarketRecNum + '_' + (i + 1);
-                                                SelectUnitList.push(ACODE, listMarketRecNum, selectUnitID, fieldAVALUE_ID, '', ATYPE);
+                                                SelectUnitList.push(ACODE, listMarketRecNum, selectUnitID, fieldAUNIT_ID, adaValueUnit, ATYPE);
 
                                                 fieldAVALUE += '<div class="col-md-2"><select id="' + selectUnitID + '" placeholder="Harap pilih"></select></div>';
                                                 //end add 3 jun 2021, attr unit for shopee v2
