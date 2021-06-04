@@ -2191,6 +2191,38 @@ namespace MasterOnline.Controllers
                     more = false;
                 }
             }
+
+            //add by Tri 2 jun 2021, cek order dgn status packed
+            page = 0;
+            more = true;
+            while (more)
+            {
+                //var count = GetOrdersUnpaidWithPage(cust, accessToken, dbPathEra, uname, page, fromDt, toDt);
+                var count = GetOrdersWithPage(cust, accessToken, dbPathEra, uname, page, "packed", fromDt, toDt);
+                page++;
+                //add by nurul 20/1/2021, bundling 
+                if (count.AdaPesanan)
+                {
+                    AdaPesanan = count.AdaPesanan;
+                }
+                if (count.ConnId != "")
+                {
+                    tempConnId.Add(count.ConnId);
+                    connIdProses += "'" + count.ConnId + "' , ";
+                }
+                if (count.AdaKomponen)
+                {
+                    AdaKomponen = count.AdaKomponen;
+                }
+                //end add by nurul 20/1/2021, bundling 
+                if (count.recordCount < 100)
+                {
+                    more = false;
+                }
+            }
+
+            //end add by Tri 2 jun 2021, cek order dgn status packed
+
             //add by nurul 20/1/2021, bundling 
             //List<string> listBrgKomponen = new List<string>();
             //if (tempConnId.Count() > 0)
@@ -2277,6 +2309,47 @@ namespace MasterOnline.Controllers
                 toDt = toDt.AddDays(-1);
                 page = 0;
             }
+
+            //add by Tri 2 jun 2021, cek order dgn status packed
+            page = 0;
+            more = true;
+            fromDt = fromDt.AddDays(3);
+            toDt = toDt.AddDays(3);
+            while (fromDt >= maxFromDt)
+            {
+                while (more)
+                {
+                    //var count = GetOrdersUnpaidWithPage(cust, accessToken, dbPathEra, uname, page, fromDt, toDt);
+                    var count = GetOrdersWithPage(cust, accessToken, dbPathEra, uname, page, "packed", fromDt, toDt);
+                    page++;
+                    //add by nurul 20/1/2021, bundling 
+                    if (count.AdaPesanan)
+                    {
+                        AdaPesanan = count.AdaPesanan;
+                    }
+                    if (count.ConnId != "")
+                    {
+                        tempConnId.Add(count.ConnId);
+                        connIdProses += "'" + count.ConnId + "' , ";
+                    }
+                    if (count.AdaKomponen)
+                    {
+                        AdaKomponen = count.AdaKomponen;
+                    }
+                    //end add by nurul 20/1/2021, bundling 
+                    if (count.recordCount < 100)
+                    {
+                        more = false;
+                    }
+                }
+                more = false;
+                fromDt = fromDt.AddDays(-1);
+                toDt = toDt.AddDays(-1);
+                page = 0;
+            }
+
+            //end add by Tri 2 jun 2021, cek order dgn status packed
+
             //add by nurul 20/1/2021, bundling 
             //List<string> listBrgKomponen = new List<string>();
             //if (tempConnId.Count() > 0)
@@ -2813,6 +2886,7 @@ namespace MasterOnline.Controllers
                                     switch (order.statuses[0].ToString())
                                     {
                                         case "processing":
+                                        case "packed":
                                         case "pending":
                                             statusEra = "01";
                                             break;
@@ -2850,15 +2924,17 @@ namespace MasterOnline.Controllers
                                             statusEra = "99";
                                             break;
                                     }
-                                    //jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
-                                    if (statusEra == "01")
-                                    {
-                                        var currentStatus = EDB.GetFieldValue("", "SOT01A", "NO_REFERENSI = '" + order.order_id + "'", "STATUS_TRANSAKSI").ToString();
-                                        if (!string.IsNullOrEmpty(currentStatus))
-                                            if (currentStatus == "02" || currentStatus == "03")
-                                                statusEra = currentStatus;
-                                    }
-                                    //end jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
+                                    //remark 2 jun 2021, tidak perlu cek status di mo lagi, karena function ini khusus insert
+                                    ////jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
+                                    //if (statusEra == "01")
+                                    //{
+                                    //    var currentStatus = EDB.GetFieldValue("", "SOT01A", "NO_REFERENSI = '" + order.order_id + "'", "STATUS_TRANSAKSI").ToString();
+                                    //    if (!string.IsNullOrEmpty(currentStatus))
+                                    //        if (currentStatus == "02" || currentStatus == "03")
+                                    //            statusEra = currentStatus;
+                                    //}
+                                    ////end jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
+                                    //remark 2 jun 2021, tidak perlu cek status di mo lagi, karena function ini khusus insert
                                     #endregion convert status
                                     var nama1 = order.customer_first_name.Replace("'", "`");
                                     if (nama1.Length > 30)
