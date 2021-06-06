@@ -481,30 +481,34 @@ namespace MasterOnline.Controllers
         {
             SetupContext(data);
             var ret = data;
-            if (data.tgl_expired < DateTime.UtcNow.AddHours(7).AddMinutes(30))
+            DateTime dateNow = DateTime.UtcNow.AddHours(7);
+            bool TokenExpired = false;
+            if (!string.IsNullOrWhiteSpace(data.tgl_expired.ToString()))
             {
-                var cekInDB = ErasoftDbContext.ARF01.Where(m => m.CUST == data.no_cust).FirstOrDefault();
-                if (cekInDB != null)
+                if (dateNow >= data.tgl_expired)
                 {
-                    if (data.accessToken != cekInDB.TOKEN)
-                    {
-                        data.appKey = cekInDB.API_KEY;
-                        data.refreshToken = cekInDB.REFRESH_TOKEN;
-                        data.tgl_expired = cekInDB.TGL_EXPIRED.Value;
-                        data.accessToken = cekInDB.TOKEN;
-
-                        if (cekInDB.TGL_EXPIRED.Value.AddMinutes(-30) > DateTime.UtcNow.AddHours(7))
-                        {
-                            return data;
-                        }
-                    }
+                    TokenExpired = true;
                 }
-                var urll = "https://oauth.jd.id/oauth2/refresh_token?app_key=" + data.appKey + "&app_secret=" + data.appSecret + "&grant_type=refresh_token&refresh_token=" + data.refreshToken;
-                if (urll != "")
+            }
+            else
+            {
+                TokenExpired = true;
+            }
+            string urll = "";
+            if (TokenExpired)
+            {
+                urll = "https://oauth.jd.id/oauth2/refresh_token?app_key=" + data.appKey + "&app_secret=" + data.appSecret + "&grant_type=refresh_token&refresh_token=" + data.refreshToken;
+            }
+            if (urll != "")
+            {
+                string responseFromServer = "";
+                bool responseApi = false;
+                int retry = 0;
+                while (!responseApi && retry <= 3)
                 {
                     HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
                     myReq.Method = "GET";
-                    string responseFromServer = "";
+
                     try
                     {
                         using (WebResponse response = myReq.GetResponse())
@@ -513,11 +517,13 @@ namespace MasterOnline.Controllers
                             {
                                 StreamReader reader = new StreamReader(stream);
                                 responseFromServer = reader.ReadToEnd();
+                                responseApi = true; break;
                             }
                         }
                     }
                     catch (WebException e)
                     {
+                        retry = retry + 1;
                         string err = "";
                         if (e.Status == WebExceptionStatus.ProtocolError)
                         {
@@ -529,32 +535,37 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
+                }
 
-                    if (responseFromServer != "")
+                if (responseFromServer != "")
+                {
+                    try
                     {
-                        try
+                        var result = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDGetTokenResult)) as JDIDGetTokenResult;
+                        if (!string.IsNullOrEmpty(result.access_token) && !string.IsNullOrEmpty(result.refresh_token))
                         {
-                            var result = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDGetTokenResult)) as JDIDGetTokenResult;
-                            if (!string.IsNullOrEmpty(result.access_token) && !string.IsNullOrEmpty(result.refresh_token))
+                            var getTimeExec = DateTimeOffset.FromUnixTimeSeconds(result.time / 1000).UtcDateTime.AddHours(7);
+                            var timeExpired = getTimeExec.AddSeconds(result.expires_in).ToString("yyyy-MM-dd HH:mm:ss");
+                            DatabaseSQL EDB = new DatabaseSQL(data.DatabasePathErasoft);
+                            var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', TOKEN = '" + result.access_token + "', REFRESH_TOKEN = '" + result.refresh_token + "', tgl_expired ='" + timeExpired + "'  WHERE CUST = '" + data.no_cust + "'");
+                            if (resultquery != 0)
                             {
-                                var getTimeExec = DateTimeOffset.FromUnixTimeSeconds(result.time / 1000).UtcDateTime.AddHours(7);
-                                var timeExpired = getTimeExec.AddSeconds(result.expires_in).ToString("yyyy-MM-dd HH:mm:ss");
-                                DatabaseSQL EDB = new DatabaseSQL(data.DatabasePathErasoft);
-                                var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', TOKEN = '" + result.access_token + "', REFRESH_TOKEN = '" + result.refresh_token + "', tgl_expired ='" + timeExpired + "'  WHERE CUST = '" + data.no_cust + "'");
-                                if (resultquery != 0)
-                                {
-                                    ret.accessToken = result.access_token;
-                                    ret.tgl_expired = Convert.ToDateTime(timeExpired);
-                                    ret.refreshToken = result.refresh_token;
-                                }
+                                ret.accessToken = result.access_token;
+                                ret.tgl_expired = Convert.ToDateTime(timeExpired);
+                                ret.refreshToken = result.refresh_token;
+                            }
+                            else
+                            {
                             }
                         }
-                        catch (Exception ex)
+                        else
                         {
                         }
                     }
+                    catch (Exception ex)
+                    {
+                    }
                 }
-
             }
             return ret;
         }
@@ -2824,55 +2835,63 @@ namespace MasterOnline.Controllers
             string ret = "";
             try
             {
-                data = RefreshToken(data);
-                var sysParams = new Dictionary<string, string>();
-                this.ParamJson = "{\"printType\":\"1\",\"printNum\":\"1\",\"orderId\":\"" + noref + "\"}";
-                sysParams.Add("360buy_param_json", this.ParamJson);
-
-                sysParams.Add("access_token", data.accessToken);
-                sysParams.Add("app_key", data.appKey);
-                this.Method = "jingdong.seller.order.printOrder";
-                sysParams.Add("method", this.Method);
-                var gettimestamp = getCurrentTimeFormatted();
-                sysParams.Add("timestamp", gettimestamp);
-                sysParams.Add("v", this.Version2);
-                sysParams.Add("format", this.Format);
-                sysParams.Add("sign_method", this.SignMethod);
-
-                var signature = this.generateSign(sysParams, data.appSecret);
-
-                string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
-                urll += "&format=json&sign_method=md5";
-                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-                myReq.Method = "GET";
                 string responseFromServer = "";
-                try
+                bool responseApi = false;
+                int retry = 0;
+                while (!responseApi && retry <= 3)
                 {
-                    using (WebResponse response = myReq.GetResponse())
+                    data = RefreshToken(data);
+                    var sysParams = new Dictionary<string, string>();
+                    this.ParamJson = "{\"printType\":\"1\",\"printNum\":\"1\",\"orderId\":\"" + noref + "\"}";
+                    sysParams.Add("360buy_param_json", this.ParamJson);
+
+                    sysParams.Add("access_token", data.accessToken);
+                    sysParams.Add("app_key", data.appKey);
+                    this.Method = "jingdong.seller.order.printOrder";
+                    sysParams.Add("method", this.Method);
+                    var gettimestamp = getCurrentTimeFormatted();
+                    sysParams.Add("timestamp", gettimestamp);
+                    sysParams.Add("v", this.Version2);
+                    sysParams.Add("format", this.Format);
+                    sysParams.Add("sign_method", this.SignMethod);
+
+                    var signature = this.generateSign(sysParams, data.appSecret);
+
+                    string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
+                    urll += "&format=json&sign_method=md5";
+                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                    myReq.Method = "GET";
+                    responseFromServer = "";
+                    try
                     {
-                        using (Stream stream = response.GetResponseStream())
+                        using (WebResponse response = myReq.GetResponse())
                         {
-                            StreamReader reader = new StreamReader(stream);
-                            responseFromServer = reader.ReadToEnd();
+                            using (Stream stream = response.GetResponseStream())
+                            {
+                                StreamReader reader = new StreamReader(stream);
+                                responseFromServer = reader.ReadToEnd();
+                                responseApi = true; break;
+                            }
                         }
                     }
-                }
-                //catch (WebException ex)
-                //{
-                //    string err1 = "";
-                //    if (ex.Status == WebExceptionStatus.ProtocolError)
-                //    {
-                //        WebResponse resp1 = ex.Response;
-                //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
-                //        {
-                //            err1 = sr1.ReadToEnd();
-                //        }
-                //    }
-                //    //throw new Exception(err1);
-                //}
-                catch (Exception ex)
-                {
-                    ret = "error";
+                    //catch (WebException ex)
+                    //{
+                    //    string err1 = "";
+                    //    if (ex.Status == WebExceptionStatus.ProtocolError)
+                    //    {
+                    //        WebResponse resp1 = ex.Response;
+                    //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                    //        {
+                    //            err1 = sr1.ReadToEnd();
+                    //        }
+                    //    }
+                    //    //throw new Exception(err1);
+                    //}
+                    catch (Exception ex)
+                    {
+                        retry = retry + 1;
+                        ret = "error";
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(responseFromServer))
@@ -2956,55 +2975,63 @@ namespace MasterOnline.Controllers
             string ret = "";
             try
             {
-                data = RefreshToken(data);
-                var sysParams = new Dictionary<string, string>();
-                this.ParamJson = "{\"orderId\":\"" + noref + "\",\"expressNo\":\"" + noresi + "\"}";
-                sysParams.Add("360buy_param_json", this.ParamJson);
-
-                sysParams.Add("access_token", data.accessToken);
-                sysParams.Add("app_key", data.appKey);
-                this.Method = "jingdong.seller.order.sendGoodsOpenApi";
-                sysParams.Add("method", this.Method);
-                var gettimestamp = getCurrentTimeFormatted();
-                sysParams.Add("timestamp", gettimestamp);
-                sysParams.Add("v", this.Version2);
-                sysParams.Add("format", this.Format);
-                sysParams.Add("sign_method", this.SignMethod);
-
-                var signature = this.generateSign(sysParams, data.appSecret);
-
-                string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
-                urll += "&format=json&sign_method=md5";
-                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-                myReq.Method = "GET";
                 string responseFromServer = "";
-                try
+                bool responseApi = false;
+                int retry = 0;
+                while (!responseApi && retry <= 3)
                 {
-                    using (WebResponse response = myReq.GetResponse())
+                    data = RefreshToken(data);
+                    var sysParams = new Dictionary<string, string>();
+                    this.ParamJson = "{\"orderId\":\"" + noref + "\",\"expressNo\":\"" + noresi + "\"}";
+                    sysParams.Add("360buy_param_json", this.ParamJson);
+
+                    sysParams.Add("access_token", data.accessToken);
+                    sysParams.Add("app_key", data.appKey);
+                    this.Method = "jingdong.seller.order.sendGoodsOpenApi";
+                    sysParams.Add("method", this.Method);
+                    var gettimestamp = getCurrentTimeFormatted();
+                    sysParams.Add("timestamp", gettimestamp);
+                    sysParams.Add("v", this.Version2);
+                    sysParams.Add("format", this.Format);
+                    sysParams.Add("sign_method", this.SignMethod);
+
+                    var signature = this.generateSign(sysParams, data.appSecret);
+
+                    string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
+                    urll += "&format=json&sign_method=md5";
+                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                    myReq.Method = "GET";
+                    responseFromServer = "";
+                    try
                     {
-                        using (Stream stream = response.GetResponseStream())
+                        using (WebResponse response = myReq.GetResponse())
                         {
-                            StreamReader reader = new StreamReader(stream);
-                            responseFromServer = reader.ReadToEnd();
+                            using (Stream stream = response.GetResponseStream())
+                            {
+                                StreamReader reader = new StreamReader(stream);
+                                responseFromServer = reader.ReadToEnd();
+                                responseApi = true; break;
+                            }
                         }
                     }
-                }
-                //catch (WebException ex)
-                //{
-                //    string err1 = "";
-                //    if (ex.Status == WebExceptionStatus.ProtocolError)
-                //    {
-                //        WebResponse resp1 = ex.Response;
-                //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
-                //        {
-                //            err1 = sr1.ReadToEnd();
-                //        }
-                //    }
-                //    //throw new Exception(err1);
-                //}
-                catch (Exception ex)
-                {
-                    ret = "error";
+                    //catch (WebException ex)
+                    //{
+                    //    string err1 = "";
+                    //    if (ex.Status == WebExceptionStatus.ProtocolError)
+                    //    {
+                    //        WebResponse resp1 = ex.Response;
+                    //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                    //        {
+                    //            err1 = sr1.ReadToEnd();
+                    //        }
+                    //    }
+                    //    //throw new Exception(err1);
+                    //}
+                    catch (Exception ex)
+                    {
+                        retry = retry + 1;
+                        ret = "error";
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(responseFromServer))
@@ -4042,57 +4069,65 @@ namespace MasterOnline.Controllers
             SetupContext(data.DatabasePathErasoft, data.username);
             try
             {
-                data = RefreshToken(data);
                 if (!string.IsNullOrEmpty(listOrderIds) && ListOrderNobuk.Count() > 0)
                 {
-                    var sysParams = new Dictionary<string, string>();
-                    this.ParamJson = "{\"orderId\":\"" + listOrderIds + "\" }";
-                    sysParams.Add("360buy_param_json", this.ParamJson);
-
-                    sysParams.Add("access_token", data.accessToken);
-                    sysParams.Add("app_key", data.appKey);
-                    this.Method = "jingdong.seller.order.batchGetOrderInfoList";
-                    sysParams.Add("method", this.Method);
-                    var gettimestamp = getCurrentTimeFormatted();
-                    sysParams.Add("timestamp", gettimestamp);
-                    sysParams.Add("v", this.Version2);
-                    sysParams.Add("format", this.Format);
-                    sysParams.Add("sign_method", this.SignMethod);
-
-                    var signature = this.generateSign(sysParams, data.appSecret);
-
-                    string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
-                    urll += "&format=json&sign_method=md5";
-                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-                    myReq.Method = "GET";
                     string responseFromServer = "";
-                    try
+                    bool responseApi = false;
+                    int retry = 0;
+                    while (!responseApi && retry <= 3)
                     {
-                        using (WebResponse response = myReq.GetResponse())
+                        data = RefreshToken(data);
+                        var sysParams = new Dictionary<string, string>();
+                        this.ParamJson = "{\"orderId\":\"" + listOrderIds + "\" }";
+                        sysParams.Add("360buy_param_json", this.ParamJson);
+
+                        sysParams.Add("access_token", data.accessToken);
+                        sysParams.Add("app_key", data.appKey);
+                        this.Method = "jingdong.seller.order.batchGetOrderInfoList";
+                        sysParams.Add("method", this.Method);
+                        var gettimestamp = getCurrentTimeFormatted();
+                        sysParams.Add("timestamp", gettimestamp);
+                        sysParams.Add("v", this.Version2);
+                        sysParams.Add("format", this.Format);
+                        sysParams.Add("sign_method", this.SignMethod);
+
+                        var signature = this.generateSign(sysParams, data.appSecret);
+
+                        string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
+                        urll += "&format=json&sign_method=md5";
+                        HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                        myReq.Method = "GET";
+                        responseFromServer = "";
+                        try
                         {
-                            using (Stream stream = response.GetResponseStream())
+                            using (WebResponse response = myReq.GetResponse())
                             {
-                                StreamReader reader = new StreamReader(stream);
-                                responseFromServer = reader.ReadToEnd();
+                                using (Stream stream = response.GetResponseStream())
+                                {
+                                    StreamReader reader = new StreamReader(stream);
+                                    responseFromServer = reader.ReadToEnd();
+                                    responseApi = true; break;
+                                }
                             }
                         }
-                    }
-                    //catch (WebException ex)
-                    //{
-                    //    string err1 = "";
-                    //    if (ex.Status == WebExceptionStatus.ProtocolError)
-                    //    {
-                    //        WebResponse resp1 = ex.Response;
-                    //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
-                    //        {
-                    //            err1 = sr1.ReadToEnd();
-                    //        }
-                    //    }
-                    //    //throw new Exception(err1);
-                    //}
-                    catch (Exception ex)
-                    {
-                        var message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                        //catch (WebException ex)
+                        //{
+                        //    string err1 = "";
+                        //    if (ex.Status == WebExceptionStatus.ProtocolError)
+                        //    {
+                        //        WebResponse resp1 = ex.Response;
+                        //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                        //        {
+                        //            err1 = sr1.ReadToEnd();
+                        //        }
+                        //    }
+                        //    //throw new Exception(err1);
+                        //}
+                        catch (Exception ex)
+                        {
+                            retry = retry + 1;
+                            var message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                        }
                     }
 
                     if (!string.IsNullOrEmpty(responseFromServer))
@@ -4602,61 +4637,74 @@ namespace MasterOnline.Controllers
         {
             var ret = new List<long>();
 
-            data = RefreshToken(data);
-            //string sMethod = "epi.popOrder.getOrderIdListByCondition";
-            //string sParamJson = "{\"orderStatus\":" + status + ", \"startRow\": " + page * 20 + ", \"createdTimeBegin\": "
-            //    + addDays + ", \"createdTimeEnd\": " + addDays2 + " }";
-
-
-            var sysParams = new Dictionary<string, string>();
-            this.ParamJson = "{\"orderStatus\":\"" + status + "\", \"startRow\": \"" + page * 20 + "\", \"createdTimeBegin\": \""
-                + addDays + "\", \"createdTimeEnd\": \"" + addDays2 + "\" }";
-            sysParams.Add("360buy_param_json", this.ParamJson);
-
-            sysParams.Add("access_token", data.accessToken);
-            sysParams.Add("app_key", data.appKey);
-            this.Method = "jingdong.seller.order.getOrderIdListByCondition";
-            sysParams.Add("method", this.Method);
-            var gettimestamp = getCurrentTimeFormatted();
-            sysParams.Add("timestamp", gettimestamp);
-            sysParams.Add("v", this.Version2);
-            sysParams.Add("format", this.Format);
-            sysParams.Add("sign_method", this.SignMethod);
-
-            var signature = this.generateSign(sysParams, data.appSecret);
-
-            string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
-            urll += "&format=json&sign_method=md5";
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-            myReq.Method = "GET";
             string responseFromServer = "";
-            try
+            bool responseApi = false;
+            int retry = 0;
+            while (!responseApi && retry <= 3)
             {
-                using (WebResponse response = myReq.GetResponse())
+                data = RefreshToken(data);
+                //string sMethod = "epi.popOrder.getOrderIdListByCondition";
+                //string sParamJson = "{\"orderStatus\":" + status + ", \"startRow\": " + page * 20 + ", \"createdTimeBegin\": "
+                //    + addDays + ", \"createdTimeEnd\": " + addDays2 + " }";
+
+
+                var sysParams = new Dictionary<string, string>();
+                var dayFrom = DateTimeOffset.FromUnixTimeMilliseconds(addDays).UtcDateTime;
+                var dayTo = DateTimeOffset.FromUnixTimeMilliseconds(addDays2).UtcDateTime;
+                var dayFrom1 = dayFrom.ToString("yyyy-MM-dd HH:mm:ss");
+                var dayTo1 = dayTo.ToString("yyyy-MM-dd HH:mm:ss");
+
+                this.ParamJson = "{\"orderStatus\":\"" + status + "\", \"startRow\": \"" + page * 20 + "\", \"createdTimeBegin\": \""
+                    + dayFrom1 + "\", \"createdTimeEnd\": \"" + dayTo1 + "\" }";
+                sysParams.Add("360buy_param_json", this.ParamJson);
+
+                sysParams.Add("access_token", data.accessToken);
+                sysParams.Add("app_key", data.appKey);
+                this.Method = "jingdong.seller.order.getOrderIdListByCondition";
+                sysParams.Add("method", this.Method);
+                var gettimestamp = getCurrentTimeFormatted();
+                sysParams.Add("timestamp", gettimestamp);
+                sysParams.Add("v", this.Version2);
+                sysParams.Add("format", this.Format);
+                sysParams.Add("sign_method", this.SignMethod);
+
+                var signature = this.generateSign(sysParams, data.appSecret);
+
+                string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
+                urll += "&format=json&sign_method=md5";
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                responseFromServer = "";
+                try
                 {
-                    using (Stream stream = response.GetResponseStream())
+                    using (WebResponse response = myReq.GetResponse())
                     {
-                        StreamReader reader = new StreamReader(stream);
-                        responseFromServer = reader.ReadToEnd();
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                            responseApi = true; break;
+                        }
                     }
                 }
-            }
-            //catch (WebException ex)
-            //{
-            //    string err1 = "";
-            //    if (ex.Status == WebExceptionStatus.ProtocolError)
-            //    {
-            //        WebResponse resp1 = ex.Response;
-            //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
-            //        {
-            //            err1 = sr1.ReadToEnd();
-            //        }
-            //    }
-            //    //throw new Exception(err1);
-            //}
-            catch (Exception ex)
-            {
-                var message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //catch (WebException ex)
+                //{
+                //    string err1 = "";
+                //    if (ex.Status == WebExceptionStatus.ProtocolError)
+                //    {
+                //        WebResponse resp1 = ex.Response;
+                //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                //        {
+                //            err1 = sr1.ReadToEnd();
+                //        }
+                //    }
+                //    //throw new Exception(err1);
+                //}
+                catch (Exception ex)
+                {
+                    retry = retry + 1;
+                    var message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                }
             }
 
             if (!string.IsNullOrEmpty(responseFromServer))
@@ -4668,11 +4716,14 @@ namespace MasterOnline.Controllers
                     {
                         if (listOrderId.jingdong_seller_order_getOrderIdListByCondition_response.result.success)
                         {
-                            ret = listOrderId.jingdong_seller_order_getOrderIdListByCondition_response.result.model;
-                            if (listOrderId.jingdong_seller_order_getOrderIdListByCondition_response.result.model.Count() == 20)
+                            if (listOrderId.jingdong_seller_order_getOrderIdListByCondition_response.result.model != null)
                             {
-                                var nextOrders = GetOrderListV2(data, status, page + 1, addDays, addDays2);
-                                ret.AddRange(nextOrders);
+                                ret = listOrderId.jingdong_seller_order_getOrderIdListByCondition_response.result.model;
+                                if (listOrderId.jingdong_seller_order_getOrderIdListByCondition_response.result.model.Count() == 20)
+                                {
+                                    var nextOrders = GetOrderListV2(data, status, page + 1, addDays, addDays2);
+                                    ret.AddRange(nextOrders);
+                                }
                             }
                         }
                     }
@@ -4688,7 +4739,6 @@ namespace MasterOnline.Controllers
 
         public BindingBase GetOrderDetailV2(JDIDAPIDataJob data, string listOrderIds, string cust, string conn_id_arf01c, string conn_id_order)
         {
-            data = RefreshToken(data);
             //var ret = new List<long>();
             var ret = new BindingBase();
             ret.status = 0;
@@ -4697,54 +4747,63 @@ namespace MasterOnline.Controllers
             //string sMethod = "epi.popOrder.getOrderInfoListForBatch";
             //string sParamJson = "[" + listOrderIds + "]";
 
-            var sysParams = new Dictionary<string, string>();
-            this.ParamJson = "{\"orderId\":\"" + listOrderIds + "\" }";
-            sysParams.Add("360buy_param_json", this.ParamJson);
-
-            sysParams.Add("access_token", data.accessToken);
-            sysParams.Add("app_key", data.appKey);
-            this.Method = "jingdong.seller.order.batchGetOrderInfoList";
-            sysParams.Add("method", this.Method);
-            var gettimestamp = getCurrentTimeFormatted();
-            sysParams.Add("timestamp", gettimestamp);
-            sysParams.Add("v", this.Version2);
-            sysParams.Add("format", this.Format);
-            sysParams.Add("sign_method", this.SignMethod);
-
-            var signature = this.generateSign(sysParams, data.appSecret);
-
-            string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
-            urll += "&format=json&sign_method=md5";
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-            myReq.Method = "GET";
             string responseFromServer = "";
-            try
+            bool responseApi = false;
+            int retry = 0;
+            while (!responseApi && retry <= 3)
             {
-                using (WebResponse response = myReq.GetResponse())
+                data = RefreshToken(data);
+                var sysParams = new Dictionary<string, string>();
+                this.ParamJson = "{\"orderId\":\"" + listOrderIds + "\" }";
+                sysParams.Add("360buy_param_json", this.ParamJson);
+
+                sysParams.Add("access_token", data.accessToken);
+                sysParams.Add("app_key", data.appKey);
+                this.Method = "jingdong.seller.order.batchGetOrderInfoList";
+                sysParams.Add("method", this.Method);
+                var gettimestamp = getCurrentTimeFormatted();
+                sysParams.Add("timestamp", gettimestamp);
+                sysParams.Add("v", this.Version2);
+                sysParams.Add("format", this.Format);
+                sysParams.Add("sign_method", this.SignMethod);
+
+                var signature = this.generateSign(sysParams, data.appSecret);
+
+                string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
+                urll += "&format=json&sign_method=md5";
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                responseFromServer = "";
+                try
                 {
-                    using (Stream stream = response.GetResponseStream())
+                    using (WebResponse response = myReq.GetResponse())
                     {
-                        StreamReader reader = new StreamReader(stream);
-                        responseFromServer = reader.ReadToEnd();
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                            responseApi = true; break;
+                        }
                     }
                 }
-            }
-            //catch (WebException ex)
-            //{
-            //    string err1 = "";
-            //    if (ex.Status == WebExceptionStatus.ProtocolError)
-            //    {
-            //        WebResponse resp1 = ex.Response;
-            //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
-            //        {
-            //            err1 = sr1.ReadToEnd();
-            //        }
-            //    }
-            //    //throw new Exception(err1);
-            //}
-            catch (Exception ex)
-            {
-                var message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //catch (WebException ex)
+                //{
+                //    string err1 = "";
+                //    if (ex.Status == WebExceptionStatus.ProtocolError)
+                //    {
+                //        WebResponse resp1 = ex.Response;
+                //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                //        {
+                //            err1 = sr1.ReadToEnd();
+                //        }
+                //    }
+                //    //throw new Exception(err1);
+                //}
+                catch (Exception ex)
+                {
+                    retry = retry + 1;
+                    var message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                }
             }
 
 
@@ -5188,7 +5247,6 @@ namespace MasterOnline.Controllers
             SetupContext(DatabasePathErasoft, uname);
             try
             {
-                data = RefreshToken(data);
                 var brgMp = "";
                 if (id.Contains(";"))
                 {
@@ -5208,6 +5266,7 @@ namespace MasterOnline.Controllers
                 int retry = 0;
                 while (!responseApi && retry <= 2)
                 {
+                    data = RefreshToken(data);
                     var sysParams = new Dictionary<string, string>();
                     this.ParamJson = "{\"salePrice\":\"" + price + "\",\"skuId\":\"" + brgMp + "\"}";
                     sysParams.Add("360buy_param_json", this.ParamJson);
@@ -5327,12 +5386,12 @@ namespace MasterOnline.Controllers
         {
             try
             {
-                data = RefreshToken(data);
                 string responseFromServer = "";
                 bool responseApi = false;
                 int retry = 0;
                 while (!responseApi && retry <= 2)
                 {
+                    data = RefreshToken(data);
                     var sysParams = new Dictionary<string, string>();
                     this.ParamJson = "{\"spuId\":\"" + spuId + "\",\"costPrice\":\"" + sCostPrice + "\",\"sellerSkuId\":\"" + sSellerSKUID + "\",\"skuName\":\"" + sSKUName + "\",\"jdPrice\":\"" + sJDPrice + "\",\"skuId\":\"" + sSKUID + "\"}";
                     sysParams.Add("360buy_param_json", this.ParamJson);
@@ -5438,26 +5497,26 @@ namespace MasterOnline.Controllers
             return (long)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         }
 
-        public async Task<string> JD_addSKUDetailPictureV2(JDIDAPIDataJob data, string skuID, string urlPicture, int urutan, bool mainPic)
+        public async Task<string> JD_addSKUDetailPictureV2(JDIDAPIDataJob data, string skuID, string urlPicture, int urutan, bool mainPic, string kodeBrg)
         {
             try
             {
-                data = RefreshToken(data);
                 string responseFromServer = "";
                 bool responseApi = false;
                 int retry = 0;
                 while (!responseApi && retry <= 2)
                 {
+                    data = RefreshToken(data);
                     long milis = CurrentTimeMillis();
                     var image = Convert.ToBase64String(Encoding.ASCII.GetBytes(urlPicture));
                     var sysParams = new Dictionary<string, string>();
                     if (mainPic)
                     {
-                        this.ParamJson = "{\"imageApiVo\":[{\"colorId\":\"0000000000\",\"order\":\"" + urutan + "\",\"productId\":\"" + skuID + "\",\"imageByteBase64\":\"" + image + "\"}]}";
+                        this.ParamJson = "{\"imageApiVo\":{\"imageApiVo\":[{\"colorId\":\"0000000000\",\"order\":\"" + urutan + "\",\"productId\":\"" + kodeBrg + "\",\"imageByteBase64\":\"" + image + "\"}]}}";
                     }
                     else
                     {
-                        this.ParamJson = "{\"imageApiVo\":[{\"colorId\":\"1\",\"order\":\"" + urutan + "\",\"productId\":\"" + skuID + "\",\"imageByteBase64\":\"" + image + "\"}]}";
+                        this.ParamJson = "{\"imageApiVo\":{\"imageApiVo\":[{\"colorId\":\"1\",\"order\":\"" + urutan + "\",\"productId\":\"" + kodeBrg + "\",\"imageByteBase64\":\"" + image + "\"}]}}";
                     }
                     sysParams.Add("360buy_param_json", this.ParamJson);
 
@@ -5557,12 +5616,12 @@ namespace MasterOnline.Controllers
         {
             try
             {
-                data = RefreshToken(data);
                 string responseFromServer = "";
                 bool responseApi = false;
                 int retry = 0;
                 while (!responseApi && retry <= 2)
                 {
+                    data = RefreshToken(data);
                     var sysParams = new Dictionary<string, string>();
                     this.ParamJson = "{\"spuId\":\"" + spuid + "\"}";
                     sysParams.Add("360buy_param_json", this.ParamJson);
@@ -5639,6 +5698,16 @@ namespace MasterOnline.Controllers
                                             accessToken = data.accessToken,
                                             appKey = data.appKey,
                                             appSecret = data.appSecret,
+                                            //add by nurul 6/6/2021
+                                            no_cust = data.no_cust,
+                                            username = data.username,
+                                            email = data.email,
+                                            DatabasePathErasoft = data.DatabasePathErasoft,
+                                            versi = data.versi,
+                                            tgl_expired = data.tgl_expired,
+                                            merchant_code = data.merchant_code,
+                                            refreshToken = data.refreshToken
+                                            //add by nurul 6/6/2021
                                         };
                                         StokControllerJob stokAPI = new StokControllerJob(data.DatabasePathErasoft, username);
                                         if (stf02.TYPE == "4")
@@ -5755,7 +5824,6 @@ namespace MasterOnline.Controllers
         [NotifyOnFailed("Create Product {obj} ke JDID Gagal.")]
         public async Task<string> JD_CreateProductV2(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data)
         {
-            data = RefreshToken(data);
             SetupContext(data.DatabasePathErasoft, data.username);
 
             var brgInDb = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper() == kodeProduk.ToUpper()).FirstOrDefault();
@@ -6063,6 +6131,7 @@ namespace MasterOnline.Controllers
             int retry = 0;
             while (!responseApi && retry <= 2)
             {
+                data = RefreshToken(data);
                 var sysParams = new Dictionary<string, string>();
                 this.ParamJson = myData;
                 sysParams.Add("360buy_param_json", this.ParamJson);
@@ -6162,8 +6231,8 @@ namespace MasterOnline.Controllers
                                                             if (lGambarUploaded.Count() > 0)
                                                             {
                                                                 //JD_addSKUMainPicture(data, Convert.ToString(dataSKU.skuId), brgInDb.LINK_GAMBAR_1);
-                                                                JD_addSKUDetailPictureV2(data, Convert.ToString(dataSKU.skuId), itemDatas.LINK_GAMBAR_1, 1, true);
-                                                                JD_addSKUDetailPictureV2(data, Convert.ToString(dataSKU.skuId), itemDatas.LINK_GAMBAR_1, 1, false);
+                                                                JD_addSKUDetailPictureV2(data, Convert.ToString(dataSKU.skuId), itemDatas.LINK_GAMBAR_1, 1, true, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId));
+                                                                JD_addSKUDetailPictureV2(data, Convert.ToString(dataSKU.skuId), itemDatas.LINK_GAMBAR_1, 1, false, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId));
                                                                 if (lGambarUploaded.Count() > 1)
                                                                 {
                                                                     for (int i = 1; i < lGambarUploaded.Count(); i++)
@@ -6184,7 +6253,7 @@ namespace MasterOnline.Controllers
                                                                                 urlImageJDID = brgInDb.LINK_GAMBAR_5;
                                                                                 break;
                                                                         }
-                                                                        JD_addSKUDetailPictureV2(data, Convert.ToString(dataSKU.skuId), urlImageJDID, i + 1, false);
+                                                                        JD_addSKUDetailPictureV2(data, Convert.ToString(dataSKU.skuId), urlImageJDID, i + 1, false, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId));
                                                                     }
                                                                 }
                                                             }
@@ -6200,7 +6269,7 @@ namespace MasterOnline.Controllers
                                                     if (lGambarUploaded.Count() > 0)
                                                     {
                                                         //JD_addSKUMainPicture(data, retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.skuIdList[0].skuId.ToString(), brgInDb.LINK_GAMBAR_1);
-                                                        JD_addSKUDetailPictureV2(data, retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.skuIdList[0].skuId.ToString(), brgInDb.LINK_GAMBAR_1, 1, true);
+                                                        JD_addSKUDetailPictureV2(data, retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.skuIdList[0].skuId.ToString(), brgInDb.LINK_GAMBAR_1, 1, true, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId));
                                                         if (lGambarUploaded.Count() > 1)
                                                         {
                                                             for (int i = 1; i < lGambarUploaded.Count(); i++)
@@ -6221,7 +6290,7 @@ namespace MasterOnline.Controllers
                                                                         urlImageJDID = brgInDb.LINK_GAMBAR_5;
                                                                         break;
                                                                 }
-                                                                JD_addSKUDetailPictureV2(data, retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.skuIdList[0].skuId.ToString(), urlImageJDID, i + 1, false);
+                                                                JD_addSKUDetailPictureV2(data, retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.skuIdList[0].skuId.ToString(), urlImageJDID, i + 1, false, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId));
                                                             }
                                                         }
                                                     }
@@ -6274,7 +6343,6 @@ namespace MasterOnline.Controllers
         [NotifyOnFailed("Update Product {obj} ke JDID Gagal.")]
         public async Task<string> JD_UpdateProductV2(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data)
         {
-            data = RefreshToken(data);
             SetupContext(data.DatabasePathErasoft, data.username);
 
             var brgInDb = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper() == kodeProduk.ToUpper()).FirstOrDefault();
@@ -6544,6 +6612,7 @@ namespace MasterOnline.Controllers
             int retry = 0;
             while (!responseApi && retry <= 2)
             {
+                data = RefreshToken(data);
                 var sysParams = new Dictionary<string, string>();
                 this.ParamJson = myData;
                 sysParams.Add("360buy_param_json", this.ParamJson);
@@ -6609,7 +6678,7 @@ namespace MasterOnline.Controllers
                     {
                         if (retData.jingdong_seller_product_api_write_updateProduct_response.returnType.success)
                         {
-                            if (retData.jingdong_seller_product_api_write_updateProduct_response.returnType.model != null)
+                            if (retData.jingdong_seller_product_api_write_updateProduct_response.returnType.model)
                             {
                                 var dataSkuResult = JD_getSKUVariantbySPUV2(data, spuID[0]);
 
@@ -6653,8 +6722,8 @@ namespace MasterOnline.Controllers
                                                                 if (!string.IsNullOrEmpty(dataVar.LINK_GAMBAR_1))
                                                                 {
                                                                     //await JD_addSKUMainPicture(data, Convert.ToString(dataSKU.skuId), dataVar.LINK_GAMBAR_1);
-                                                                    await JD_addSKUDetailPictureV2(data, Convert.ToString(dataSKU.skuId), dataVar.LINK_GAMBAR_1, urutanGambar, true);
-                                                                    await JD_addSKUDetailPictureV2(data, Convert.ToString(dataSKU.skuId), dataVar.LINK_GAMBAR_1, urutanGambar, false);
+                                                                    await JD_addSKUDetailPictureV2(data, Convert.ToString(dataSKU.skuId), dataVar.LINK_GAMBAR_1, urutanGambar, true, kodeProduk);
+                                                                    await JD_addSKUDetailPictureV2(data, Convert.ToString(dataSKU.skuId), dataVar.LINK_GAMBAR_1, urutanGambar, false, kodeProduk);
                                                                 }
 
                                                             }
@@ -6757,7 +6826,7 @@ namespace MasterOnline.Controllers
                                                     if (lGambarUploaded.Count() > 0)
                                                     {
                                                         //await JD_addSKUMainPicture(data, dataSKU.skuId.ToString(), brgInDb.LINK_GAMBAR_1);
-                                                        await JD_addSKUDetailPictureV2(data, dataSKU.skuId.ToString(), brgInDb.LINK_GAMBAR_1, urutanGambar, true);
+                                                        await JD_addSKUDetailPictureV2(data, dataSKU.skuId.ToString(), brgInDb.LINK_GAMBAR_1, urutanGambar, true, kodeProduk);
                                                         if (lGambarUploaded.Count() > 1)
                                                         {
                                                             for (int i = 1; i < lGambarUploaded.Count(); i++)
@@ -6778,7 +6847,7 @@ namespace MasterOnline.Controllers
                                                                         urlImageJDID = brgInDb.LINK_GAMBAR_5;
                                                                         break;
                                                                 }
-                                                                await JD_addSKUDetailPictureV2(data, dataSKU.skuId.ToString(), urlImageJDID, i + 1, false);
+                                                                await JD_addSKUDetailPictureV2(data, dataSKU.skuId.ToString(), urlImageJDID, i + 1, false, kodeProduk);
                                                             }
                                                         }
                                                     }
@@ -6820,13 +6889,13 @@ namespace MasterOnline.Controllers
             ReturntypeGetSKUVariantBySPUV2 datasku = new ReturntypeGetSKUVariantBySPUV2();
             try
             {
-                data = RefreshToken(data);
                 //string[] spuID = sSPUID.Split(';');
                 string responseFromServer = "";
                 bool responseApi = false;
                 int retry = 0;
                 while (!responseApi && retry <= 2)
                 {
+                    data = RefreshToken(data);
                     var sysParams = new Dictionary<string, string>();
                     this.ParamJson = "{\"spuId\":\"" + sSPUID + "\"}";
                     sysParams.Add("360buy_param_json", this.ParamJson);
@@ -6931,13 +7000,13 @@ namespace MasterOnline.Controllers
             var resultSKUID = "";
             try
             {
-                data = RefreshToken(data);
                 string responseFromServer = "";
                 bool responseApi = false;
                 int retry = 0;
                 string myData = JsonConvert.SerializeObject(dataSKU);
                 while (!responseApi && retry <= 2)
                 {
+                    data = RefreshToken(data);
                     var sysParams = new Dictionary<string, string>();
                 //    string sParamJson = "{\"spuId\":\"" + sSPUID + "\", \"skuList\": " +
                 //"[{\"skuName\":\"" + dataSKU.skuName + "\", \"sellerSkuId\":\"" + dataSKU.sellerSkuId + "\", \"saleAttributeIds\":\"" + dataSKU.saleAttributeIds + "\", \"jdPrice\":" + dataSKU.jdPrice + ", " +
@@ -7025,7 +7094,7 @@ namespace MasterOnline.Controllers
                                         if (!string.IsNullOrEmpty(urlImage))
                                         {
                                             //await JD_addSKUMainPicture(data, Convert.ToString(skuidVar), dataVar.LINK_GAMBAR_1);
-                                            await JD_addSKUDetailPictureV2(data, resultSKUID, urlImage, 1, false);
+                                            await JD_addSKUDetailPictureV2(data, resultSKUID, urlImage, 1, false, kodeProduk);
                                         }
                                     }
                                 }
@@ -8104,7 +8173,7 @@ namespace MasterOnline.Controllers
             public string netWeight { get; set; }
             public int piece { get; set; }
             public int spuId { get; set; }
-            public int jdPrice { get; set; }
+            public float jdPrice { get; set; }
             public string packHeight { get; set; }
             public int skuId { get; set; }
             public int status { get; set; }

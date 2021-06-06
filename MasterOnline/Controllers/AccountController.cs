@@ -1690,6 +1690,9 @@ namespace MasterOnline.Controllers
                         iden.DatabasePathErasoft = dbPathEra;
                         //add by nurul 4/5/2021, JDID versi 2
                         iden.versi = tblCustomer.KD_ANALISA;
+                        iden.tgl_expired = tblCustomer.TGL_EXPIRED;
+                        iden.merchant_code = tblCustomer.Sort1_Cust;
+                        iden.refreshToken = tblCustomer.REFRESH_TOKEN;
                         //end add by nurul 4/5/2021, JDID versi 2
 
                         connId_JobId = dbPathEra + "_JDID_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
@@ -1716,6 +1719,9 @@ namespace MasterOnline.Controllers
                         iden.DatabasePathErasoft = dbPathEra;
                         //add by nurul 4/5/2021, JDID versi 2
                         iden.versi = tblCustomer.KD_ANALISA;
+                        iden.tgl_expired = tblCustomer.TGL_EXPIRED;
+                        iden.merchant_code = tblCustomer.Sort1_Cust;
+                        iden.refreshToken = tblCustomer.REFRESH_TOKEN;
                         //end add by nurul 4/5/2021, JDID versi 2
 
                         await new JDIDControllerJob().JD_GetOrderByStatusPaid(iden, JDIDControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);

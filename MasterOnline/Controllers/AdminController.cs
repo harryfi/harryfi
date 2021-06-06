@@ -6581,6 +6581,10 @@ namespace MasterOnline.Controllers
                             iden.appSecret = customer.API_CLIENT_U;
                             iden.accessToken = customer.TOKEN;
                             iden.refreshToken = customer.REFRESH_TOKEN;
+                            //add by nurul 4/5/2021, JDID versi 2
+                            iden.versi = customer.KD_ANALISA;
+                            iden.merchant_code = customer.Sort1_Cust;
+                            //end add by nurul 4/5/2021, JDID versi 2
 
                             // proses cek dan get token
                             //#if (AWS || DEV)
@@ -6607,7 +6611,10 @@ namespace MasterOnline.Controllers
                                         merchant_code = arf01_2.Sort1_Cust,
                                         tgl_expired = arf01_2.TGL_EXPIRED,
                                         versi = arf01_2.KD_ANALISA,
-                                        username = getAkunRahma.Username
+                                        username = getAkunRahma.Username,
+                                        //add by nurul 6/6/2021
+                                        refreshToken = customer.REFRESH_TOKEN
+                                        //add by nurul 6/6/2021
                                     };
                                     var result = await jdAPI2.JDID_getCategoryV2(data);
                                     return "Get Category & Attribute JDID sedang berlangsung.";
@@ -6630,7 +6637,10 @@ namespace MasterOnline.Controllers
                                     merchant_code = customer.Sort1_Cust,
                                     tgl_expired = customer.TGL_EXPIRED,
                                     versi = customer.KD_ANALISA,
-                                    username = getAkunRahma.Username
+                                    username = getAkunRahma.Username,
+                                    //add by nurul 6/6/2021
+                                    refreshToken = customer.REFRESH_TOKEN
+                                    //add by nurul 6/6/2021
                                 };
                                 var result = await jdAPI2.JDID_getCategoryV2(data);
                                 return "Get Category & Attribute JDID sedang berlangsung.";
@@ -6678,6 +6688,9 @@ namespace MasterOnline.Controllers
                             iden.appSecret = customer.API_CLIENT_U;
                             iden.accessToken = customer.TOKEN;
                             iden.refreshToken = customer.REFRESH_TOKEN;
+                            //add by nurul 4/5/2021, JDID versi 2
+                            iden.versi = customer.KD_ANALISA;
+                            //end add by nurul 4/5/2021, JDID versi 2
 
                             // proses cek dan get token
                             //#if (AWS || DEV)
@@ -6704,7 +6717,10 @@ namespace MasterOnline.Controllers
                                         merchant_code = arf01_2.Sort1_Cust,
                                         tgl_expired = arf01_2.TGL_EXPIRED,
                                         versi = arf01_2.KD_ANALISA,
-                                        username = getAkunRahma.Username
+                                        username = getAkunRahma.Username,
+                                        //add by nurul 6/6/2021
+                                        refreshToken = customer.REFRESH_TOKEN
+                                        //add by nurul 6/6/2021
                                     };
                                     var getCat = MoDbContext.CATEGORY_JDID.Where(a => a.TYPE == "3").ToList();
                                     if (getCat.Count() > 0)
@@ -6738,7 +6754,10 @@ namespace MasterOnline.Controllers
                                     merchant_code = customer.Sort1_Cust,
                                     tgl_expired = customer.TGL_EXPIRED,
                                     versi = customer.KD_ANALISA,
-                                    username = getAkunRahma.Username
+                                    username = getAkunRahma.Username,
+                                    //add by nurul 6/6/2021
+                                    refreshToken = customer.REFRESH_TOKEN
+                                    //add by nurul 6/6/2021
                                 };
                                 var getCat = MoDbContext.CATEGORY_JDID.Where(a => a.TYPE == "3").ToList();
                                 if (getCat.Count() > 0)

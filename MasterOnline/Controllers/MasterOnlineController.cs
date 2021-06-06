@@ -302,7 +302,13 @@ namespace MasterOnline.Controllers
                                     appSecret = customer.API_CLIENT_U,
                                     username = customer.USERNAME,
                                     email = customer.EMAIL,
-                                    DatabasePathErasoft = dbPathEra
+                                    DatabasePathErasoft = dbPathEra,
+                                    //add by nurul 6/6/2021
+                                    versi = customer.KD_ANALISA,
+                                    tgl_expired = customer.TGL_EXPIRED,
+                                    merchant_code = customer.Sort1_Cust,
+                                    refreshToken = customer.REFRESH_TOKEN
+                                    //add by nurul 6/6/2021
                                 };
                                 for (int i = 0; i < dsUpdate.Tables[0].Rows.Count; i++)
                                 {
