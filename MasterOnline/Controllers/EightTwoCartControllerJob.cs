@@ -1359,23 +1359,25 @@ namespace MasterOnline.Controllers
             myReq.ContentType = "application/json";
             string responseServer = "";
 
-            //try
-            //{
-            using (WebResponse response = await myReq.GetResponseAsync())
+            try
             {
-                using (Stream stream = response.GetResponseStream())
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
-                    StreamReader reader = new StreamReader(stream);
-                    responseServer = reader.ReadToEnd();
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseServer = reader.ReadToEnd();
+                    }
                 }
             }
-            //}
-            //catch (Exception ex)
-            //{
+            catch (Exception ex)
+            {
+                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                throw new Exception(msg);
+            }
 
-            //}
-
-            if (responseServer != null)
+            //if (responseServer != null)
+            if (!string.IsNullOrEmpty(responseServer))
             {
                 //try
                 //{
@@ -2125,24 +2127,26 @@ namespace MasterOnline.Controllers
             myReq.ContentType = "application/json";
             string responseServer = "";
 
-            //try
-            //{
-            using (WebResponse response = await myReq.GetResponseAsync())
+            try
             {
-                using (Stream stream = response.GetResponseStream())
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
-                    StreamReader reader = new StreamReader(stream);
-                    responseServer = reader.ReadToEnd();
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseServer = reader.ReadToEnd();
+                    }
                 }
             }
-            //}
-            //catch (Exception ex)
-            //{
+            catch (Exception ex)
+            {
+                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                throw new Exception(msg);
+            }
 
-            //}
 
-
-            if (responseServer != null)
+            //if (responseServer != null)
+            if (!string.IsNullOrEmpty(responseServer))
             {
                 //try
                 //{
@@ -2287,16 +2291,25 @@ namespace MasterOnline.Controllers
             myReq.ContentType = "application/json";
             string responseServer = "";
 
-            using (WebResponse response = await myReq.GetResponseAsync())
+            try
             {
-                using (Stream stream = response.GetResponseStream())
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
-                    StreamReader reader = new StreamReader(stream);
-                    responseServer = reader.ReadToEnd();
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseServer = reader.ReadToEnd();
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                throw new Exception(msg);
+            }
 
-            if (responseServer != null)
+            //if (responseServer != null)
+            if (!string.IsNullOrEmpty(responseServer))
             {
                 //try
                 //{
