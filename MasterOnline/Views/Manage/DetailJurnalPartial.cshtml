@@ -236,6 +236,7 @@
                         <th style="width: 50px; max-width: 50px;">Kode Rekening</th>
                         <th width="200">Nama Rekening</th>
                         <th width="150">D/K</th>
+                        <th width="200">Ket</th>
                         <th width="150">Nilai</th>
                         <th width="40">Simpan</th>
                         <th width="40">Hapus</th>
@@ -266,6 +267,9 @@
                                 }
                                 @*end change*@
                             </td>
+                            <td class="ket-rekening">
+                                @jurnal.urai
+                            </td>
                             <td class="dk-rekening">
                                 @if (jurnal.dk == "D")
                                 {
@@ -276,6 +280,7 @@
                                     @("Kredit (K)")
                                 }
                             </td>
+
                             <td class="nilai-rekening" style="text-align:right">
                                 @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", jurnal.nilai)
                             </td>
@@ -300,6 +305,9 @@
                         </td>
                         <td class="nama-rekening">
                             -
+                        </td>
+                        <td class="ket-rekening">
+                            @Html.TextBoxFor(m => m.JurnalDetail.urai, new { @class = "form-control", maxlength = 75, @data_val_length_max = 75 })
                         </td>
                         <td class="dk-rekening">
                             <span class="span-dk-rekening">-</span>
