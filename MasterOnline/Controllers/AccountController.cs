@@ -1651,26 +1651,26 @@ namespace MasterOnline.Controllers
                     //add by nurul 5/5/2021
                     #region refresh token JD.ID versi 2
 
-                    if (tblCustomer.KD_ANALISA == "2")
-                    {
-                        JDIDControllerJob.JDIDAPIDataJob iden = new JDIDControllerJob.JDIDAPIDataJob();
-                        iden.merchant_code = tblCustomer.Sort1_Cust;
-                        iden.DatabasePathErasoft = dbPathEra;
-                        iden.username = username;
-                        iden.no_cust = tblCustomer.CUST;
-                        iden.tgl_expired = tblCustomer.TGL_EXPIRED;
-                        iden.appKey = tblCustomer.API_KEY;
-                        iden.appSecret = tblCustomer.API_CLIENT_U;
-                        iden.accessToken = tblCustomer.TOKEN;
-                        iden.refreshToken = tblCustomer.REFRESH_TOKEN;
+//                    if (tblCustomer.KD_ANALISA == "2")
+//                    {
+//                        JDIDControllerJob.JDIDAPIDataJob iden = new JDIDControllerJob.JDIDAPIDataJob();
+//                        iden.merchant_code = tblCustomer.Sort1_Cust;
+//                        iden.DatabasePathErasoft = dbPathEra;
+//                        iden.username = username;
+//                        iden.no_cust = tblCustomer.CUST;
+//                        iden.tgl_expired = tblCustomer.TGL_EXPIRED;
+//                        iden.appKey = tblCustomer.API_KEY;
+//                        iden.appSecret = tblCustomer.API_CLIENT_U;
+//                        iden.accessToken = tblCustomer.TOKEN;
+//                        iden.refreshToken = tblCustomer.REFRESH_TOKEN;
 
-                        // proses cek dan get token
-#if (AWS || DEV)
-                    client.Enqueue<JDIDControllerJob>(x => x.GetTokenJDID(iden, false, false));
-#else
-                        Task.Run(() => new JDIDControllerJob().GetTokenJDID(iden, false, false)).Wait();
-#endif
-                    }
+//                        // proses cek dan get token
+//#if (AWS || DEV)
+//                    client.Enqueue<JDIDControllerJob>(x => x.GetTokenJDID(iden, false, false));
+//#else
+//                        Task.Run(() => new JDIDControllerJob().GetTokenJDID(iden, false, false)).Wait();
+//#endif
+//                    }
                     #endregion refresh token JD.ID versi 2
                     //end add by nurul 5/5/2021
 
@@ -1690,6 +1690,11 @@ namespace MasterOnline.Controllers
                         iden.DatabasePathErasoft = dbPathEra;
                         //add by nurul 4/5/2021, JDID versi 2
                         iden.versi = tblCustomer.KD_ANALISA;
+                        iden.tgl_expired = tblCustomer.TGL_EXPIRED;
+                        iden.merchant_code = tblCustomer.Sort1_Cust;
+                        iden.refreshToken = tblCustomer.REFRESH_TOKEN;
+
+                        iden = new JDIDControllerJob().RefreshToken(iden);
                         //end add by nurul 4/5/2021, JDID versi 2
 
                         connId_JobId = dbPathEra + "_JDID_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
@@ -1716,6 +1721,11 @@ namespace MasterOnline.Controllers
                         iden.DatabasePathErasoft = dbPathEra;
                         //add by nurul 4/5/2021, JDID versi 2
                         iden.versi = tblCustomer.KD_ANALISA;
+                        iden.tgl_expired = tblCustomer.TGL_EXPIRED;
+                        iden.merchant_code = tblCustomer.Sort1_Cust;
+                        iden.refreshToken = tblCustomer.REFRESH_TOKEN;
+
+                        iden = new JDIDControllerJob().RefreshToken(iden);
                         //end add by nurul 4/5/2021, JDID versi 2
 
                         await new JDIDControllerJob().JD_GetOrderByStatusPaid(iden, JDIDControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);

@@ -1430,6 +1430,16 @@ namespace MasterOnline.Controllers
                                 accessToken = marketPlace.TOKEN,
                                 appKey = marketPlace.API_KEY,
                                 appSecret = marketPlace.API_CLIENT_U,
+                                //add by nurul 6/6/2021
+                                versi = marketPlace.KD_ANALISA,
+                                tgl_expired = marketPlace.TGL_EXPIRED,
+                                merchant_code = marketPlace.Sort1_Cust,
+                                refreshToken = marketPlace.REFRESH_TOKEN,
+                                username = marketPlace.USERNAME,
+                                email = marketPlace.EMAIL,
+                                DatabasePathErasoft = dbPathEra,
+                                no_cust = marketPlace.CUST,
+                                //add by nurul 6/6/2021
                             };
                             if (stf02h.BRG_MP != "")
                             {
@@ -1876,7 +1886,13 @@ namespace MasterOnline.Controllers
                                 appSecret = marketPlace.API_CLIENT_U,
                                 username = marketPlace.USERNAME,
                                 email = marketPlace.EMAIL,
-                                DatabasePathErasoft = dbPathEra
+                                DatabasePathErasoft = dbPathEra,
+                                //add by nurul 6/6/2021
+                                versi = marketPlace.KD_ANALISA,
+                                tgl_expired = marketPlace.TGL_EXPIRED,
+                                merchant_code = marketPlace.Sort1_Cust,
+                                refreshToken = marketPlace.REFRESH_TOKEN
+                                //add by nurul 6/6/2021
                             };
                             if (stf02h.BRG_MP != "")
                             {
@@ -4579,7 +4595,6 @@ namespace MasterOnline.Controllers
         public async Task<string> JD_updateStockV2(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIData data, string id, int stok, string uname, PerformContext context)
         {
             SetupContext(DatabasePathErasoft, uname);
-
             var brgMp = "";
             if (id.Contains(";"))
             {
@@ -4605,55 +4620,68 @@ namespace MasterOnline.Controllers
 
             try
             {
-                var sysParams = new Dictionary<string, string>();
-                this.ParamJson_JDID = "{\"wareStockUpdateListStr\":[{\"skuId\":" + brgMp + ", \"realNum\": " + stok + "}]}";
-                sysParams.Add("360buy_param_json", this.ParamJson_JDID);
-
-                sysParams.Add("access_token", data.accessToken);
-                sysParams.Add("app_key", data.appKey);
-                this.Method_JDID = "jingdong.epistock.updateEpiMerchantWareStock"; //this API is for query sku information via spuId
-                sysParams.Add("method", this.Method_JDID);
-                var gettimestamp = getCurrentTimeFormatted();
-                sysParams.Add("timestamp", gettimestamp);
-                sysParams.Add("v", this.Version_JDID_V2);
-                sysParams.Add("format", this.Format_JDID);
-                sysParams.Add("sign_method", this.SignMethod_JDID);
-
-                var signature = this.generateSign(sysParams, data.appSecret);
-
-                string urll = ServerUrl_JDID_V2 + "?v=" + Uri.EscapeDataString(Version_JDID_V2) + "&method=" + this.Method_JDID + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson_JDID) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
-                urll += "&format=json&sign_method=md5";
-                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-                myReq.Method = "GET";
                 string responseFromServer = "";
-                try
+                bool responseApi = false;
+                int retry = 0;
+                while (!responseApi && retry <= 2)
                 {
-                    using (WebResponse response = await myReq.GetResponseAsync())
+                    data = new JDIDController().RefreshToken(data);
+                    var sysParams = new Dictionary<string, string>();
+                    this.ParamJson_JDID = "{\"wareStockUpdateListStr\":[{\"skuId\":" + brgMp + ", \"realNum\": " + stok + "}]}";
+                    sysParams.Add("360buy_param_json", this.ParamJson_JDID);
+
+                    sysParams.Add("access_token", data.accessToken);
+                    sysParams.Add("app_key", data.appKey);
+                    this.Method_JDID = "jingdong.epistock.updateEpiMerchantWareStock"; //this API is for query sku information via spuId
+                    sysParams.Add("method", this.Method_JDID);
+                    var gettimestamp = getCurrentTimeFormatted();
+                    sysParams.Add("timestamp", gettimestamp);
+                    sysParams.Add("v", this.Version_JDID_V2);
+                    sysParams.Add("format", this.Format_JDID);
+                    sysParams.Add("sign_method", this.SignMethod_JDID);
+
+                    var signature = this.generateSign(sysParams, data.appSecret);
+
+                    string urll = ServerUrl_JDID_V2 + "?v=" + Uri.EscapeDataString(Version_JDID_V2) + "&method=" + this.Method_JDID + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson_JDID) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
+                    urll += "&format=json&sign_method=md5";
+                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                    myReq.Method = "GET";
+                    responseFromServer = "";
+                    try
                     {
-                        using (Stream stream = response.GetResponseStream())
+                        using (WebResponse response = await myReq.GetResponseAsync())
                         {
-                            StreamReader reader = new StreamReader(stream);
-                            responseFromServer = reader.ReadToEnd();
+                            using (Stream stream = response.GetResponseStream())
+                            {
+                                StreamReader reader = new StreamReader(stream);
+                                responseFromServer = reader.ReadToEnd();
+                                responseApi = true; break;
+                            }
                         }
                     }
-                }
-                //catch (WebException ex)
-                //{
-                //    string err1 = "";
-                //    if (ex.Status == WebExceptionStatus.ProtocolError)
-                //    {
-                //        WebResponse resp1 = ex.Response;
-                //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
-                //        {
-                //            err1 = sr1.ReadToEnd();
-                //        }
-                //    }
-                //    //throw new Exception(err1);
-                //}
-                catch (Exception ex)
-                {
-                    string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-                    throw new Exception(msg);
+                    //catch (WebException ex)
+                    //{
+                    //    string err1 = "";
+                    //    if (ex.Status == WebExceptionStatus.ProtocolError)
+                    //    {
+                    //        WebResponse resp1 = ex.Response;
+                    //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                    //        {
+                    //            err1 = sr1.ReadToEnd();
+                    //        }
+                    //    }
+                    //    //throw new Exception(err1);
+                    //}
+                    catch (Exception ex)
+                    {
+                        retry = retry + 1;
+                        string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                        //throw new Exception(msg);
+                        if (retry == 3)
+                        {
+                            throw new Exception(msg);
+                        }
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(responseFromServer))
