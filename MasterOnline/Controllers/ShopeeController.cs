@@ -1828,7 +1828,7 @@ namespace MasterOnline.Controllers
                             }
                             if (attribs.attribute_unit != null)
                             {
-                                if(attribs.attribute_unit.Length > 1)
+                                if(attribs.attribute_unit.Length > 0)
                                 {
                                     returnData["AUNIT_" + a] = "1";
                                     var unitList = attribs.attribute_unit.ToList();

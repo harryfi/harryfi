@@ -7362,10 +7362,12 @@ namespace MasterOnline.Controllers
             }
             try
             {
+                var listAttrShopee = await GetAttribute_V2(iden, detailBrg.CATEGORY_CODE);
                 for (int i = 1; i <= 30; i++)
                 {
                     string attribute_id = Convert.ToString(detailBrg["ACODE_" + i.ToString()]);
                     string value = Convert.ToString(detailBrg["AVALUE_" + i.ToString()]);
+                    string unit = Convert.ToString(detailBrg["AUNIT_" + i.ToString()]);
                     if (!string.IsNullOrWhiteSpace(attribute_id) && !string.IsNullOrWhiteSpace(value))
                     {
                         if (value != "null")
@@ -7383,11 +7385,40 @@ namespace MasterOnline.Controllers
                             if (isNumeric)
                             {
                                 attrValue.value_id = n;
+                                attrValue.value_unit = unit ?? "";
+
+                                if (listAttrShopee.response != null)
+                                {
+                                    if(listAttrShopee.response.attribute_list != null)
+                                    {
+                                        var lattribute_id = Convert.ToInt64(attribute_id);
+                                        var dataAttr = listAttrShopee.response.attribute_list.Where(p => p.attribute_id == lattribute_id).FirstOrDefault();
+                                        if(dataAttr != null)
+                                        {
+                                            if(dataAttr.attribute_value_list != null)
+                                            {
+                                                if(dataAttr.attribute_value_list.Length == 0)
+                                                {
+                                                    attrValue.value_id = 0;
+                                                    attrValue.original_value_name = value.Trim();
+                                                    attrValue.value_unit = unit ?? "";
+                                                }
+                                            }
+                                            else
+                                            {
+                                                attrValue.value_id = 0;
+                                                attrValue.original_value_name = value.Trim();
+                                                attrValue.value_unit = unit ?? "";
+                                            }
+                                        }
+                                    }
+                                }
                             }
                             else
                             {
                                 attrValue.value_id = 0;
                                 attrValue.original_value_name = value.Trim();
+                                attrValue.value_unit = unit ?? "";
                             }
                             newAttr.attribute_value_list.Add(attrValue);
 
@@ -7574,6 +7605,66 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        public async Task<ShopeeController.ShopeeGetAttributeResult_V2> GetAttribute_V2(ShopeeAPIData dataAPI, string category)
+        {
+            dataAPI = await RefreshTokenShopee_V2(dataAPI, false);
+            int MOPartnerID = MOPartnerIDV2;
+            string MOPartnerKey = MOPartnerKeyV2;
+            var ret = new ShopeeController.ShopeeGetAttributeResult_V2();
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = shopeeV2Url;
+            string path = "/api/v2/product/get_attributes";
+
+            var baseString = MOPartnerID + path + seconds + dataAPI.token + dataAPI.merchant_code;
+            var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
+
+            string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds + "&access_token=" + dataAPI.token
+                + "&shop_id=" + dataAPI.merchant_code + "&sign=" + sign + "&language=id&category_id=" + category;
+
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
+            myReq.Method = "GET";
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            if (!string.IsNullOrEmpty(responseFromServer))
+            {
+                try
+                {
+                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeController.ShopeeGetAttributeResult_V2)) as ShopeeController.ShopeeGetAttributeResult_V2;
+
+                    if (result.response.attribute_list != null)
+                    {
+                        ret = result;
+                    }
+
+                }
+                catch (Exception ex2)
+                {
+
+                }
+            }
+
+            return ret;
+        }
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Variasi Product {obj} ke Shopee Berhasil. Link Produk Gagal.")]
@@ -11221,6 +11312,7 @@ namespace MasterOnline.Controllers
         {
             public long value_id { get; set; }
             public string original_value_name { get; set; }
+            public string value_unit { get; set; }
 
         }
         public class ShopeeUpdateProductData

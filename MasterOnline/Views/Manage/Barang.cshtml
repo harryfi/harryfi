@@ -4237,12 +4237,16 @@
         function getAttributeUnitShopee(ACODE, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, ATYPE, optAttributes) {
            
             var listAttributeOpt = [];
+            var defaultVal = "";
             $.each(optAttributes.filter(p => p.ACODE == ACODE),
                 function (i, item) {
                     listAttributeOpt[i] = {
                         id: item.OPTION_VALUE,
                         text: item.OPTION_VALUE
                     };
+                    if (defaultVal == "") {
+                        defaultVal = item.OPTION_VALUE
+                    }
                 });
                     
 
@@ -4257,6 +4261,9 @@
 
             if (adaValue != "" && adaValue != null) {
                 AttributeOptSelect[0].selectize.setValue(adaValue, true);
+            }
+            else {
+                AttributeOptSelect[0].selectize.setValue(defaultVal, true);
             }
         
         }
