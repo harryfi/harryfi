@@ -5273,6 +5273,7 @@ namespace MasterOnline.Controllers
 
                 if (serverList.Count() > 0)
                 {
+                    EDB.ExecuteSQL("", System.Data.CommandType.Text, "DELETE FROM HANGFIRE.JOB WHERE STATENAME LIKE 'PROC%'");
                     foreach (var server in serverList)
                     {
                         //var serverConnection = sqlStorage.GetConnection().RemoveServer(server.Name);

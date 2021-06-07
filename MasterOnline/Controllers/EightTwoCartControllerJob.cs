@@ -1359,23 +1359,25 @@ namespace MasterOnline.Controllers
             myReq.ContentType = "application/json";
             string responseServer = "";
 
-            //try
-            //{
-            using (WebResponse response = await myReq.GetResponseAsync())
+            try
             {
-                using (Stream stream = response.GetResponseStream())
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
-                    StreamReader reader = new StreamReader(stream);
-                    responseServer = reader.ReadToEnd();
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseServer = reader.ReadToEnd();
+                    }
                 }
             }
-            //}
-            //catch (Exception ex)
-            //{
+            catch (Exception ex)
+            {
+                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                throw new Exception(msg);
+            }
 
-            //}
-
-            if (responseServer != null)
+            //if (responseServer != null)
+            if (!string.IsNullOrEmpty(responseServer))
             {
                 //try
                 //{
@@ -1388,8 +1390,9 @@ namespace MasterOnline.Controllers
 
                         //string[] ordersn_list = listOrder.data.Select(p => p.id_order).ToArray();
                         //var dariTgl = DateTimeOffset.UtcNow.AddDays(-10).DateTime;
+                        var dariTgl = DateTime.UtcNow.AddHours(7).AddDays(-14);
                         //jmlhNewOrder = 0;
-                        var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
+                        var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && p.TGL.Value >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
 
                         #region UNPAID
                         if (stat == StatusOrder.UNPAID)
@@ -2125,24 +2128,26 @@ namespace MasterOnline.Controllers
             myReq.ContentType = "application/json";
             string responseServer = "";
 
-            //try
-            //{
-            using (WebResponse response = await myReq.GetResponseAsync())
+            try
             {
-                using (Stream stream = response.GetResponseStream())
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
-                    StreamReader reader = new StreamReader(stream);
-                    responseServer = reader.ReadToEnd();
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseServer = reader.ReadToEnd();
+                    }
                 }
             }
-            //}
-            //catch (Exception ex)
-            //{
+            catch (Exception ex)
+            {
+                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                throw new Exception(msg);
+            }
 
-            //}
 
-
-            if (responseServer != null)
+            //if (responseServer != null)
+            if (!string.IsNullOrEmpty(responseServer))
             {
                 //try
                 //{
@@ -2152,8 +2157,9 @@ namespace MasterOnline.Controllers
                     if (listOrder.data != null)
                     {
                         var statusCompleted = "5";
+                        var dariTgl = DateTime.UtcNow.AddHours(7).AddDays(-14);
                         var orderFilterCompleted = listOrder.data.Where(p => p.current_state == statusCompleted).ToList();
-                        var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
+                        var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && p.TGL.Value >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
                         string ordersn = "";
                         jmlhOrderCompeleted = 0;
                         if (orderFilterCompleted != null)
@@ -2179,7 +2185,7 @@ namespace MasterOnline.Controllers
                                 //add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
                                 if (!string.IsNullOrEmpty(ordersn))
                                 {
-                                    var dateTimeNow = Convert.ToDateTime(DateTime.Now.AddHours(7).ToString("yyyy-MM-dd"));
+                                    var dateTimeNow = Convert.ToDateTime(DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd"));
                                     string sSQLUpdateDatePesananSelesai = "UPDATE SIT01A SET TGL_KIRIM = '" + dateTimeNow + "' WHERE NO_REF IN (" + ordersn + ")";
                                     var resultUpdateDatePesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdateDatePesananSelesai);
                                 }
@@ -2287,16 +2293,25 @@ namespace MasterOnline.Controllers
             myReq.ContentType = "application/json";
             string responseServer = "";
 
-            using (WebResponse response = await myReq.GetResponseAsync())
+            try
             {
-                using (Stream stream = response.GetResponseStream())
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
-                    StreamReader reader = new StreamReader(stream);
-                    responseServer = reader.ReadToEnd();
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseServer = reader.ReadToEnd();
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                throw new Exception(msg);
+            }
 
-            if (responseServer != null)
+            //if (responseServer != null)
+            if (!string.IsNullOrEmpty(responseServer))
             {
                 //try
                 //{
@@ -2307,7 +2322,8 @@ namespace MasterOnline.Controllers
                     {
                         var statusCancel = "6";
                         var orderFilterCancel = listOrder.data.Where(p => p.current_state == statusCancel).ToList();
-                        var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
+                        var dariTgl = DateTime.UtcNow.AddHours(7).AddDays(-14);
+                        var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && p.TGL.Value >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
                         string ordersn = "";
                         jmlhOrderCancel = 0;
                         if (orderFilterCancel != null)
