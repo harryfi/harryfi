@@ -7976,7 +7976,7 @@ namespace MasterOnline.Controllers
             public string popSkuId { get; set; }
             public float promotionAmount { get; set; }
             public string skuImage { get; set; }
-            public float skuId { get; set; }
+            public long skuId { get; set; }
         }
 
         //------------------------------------------
