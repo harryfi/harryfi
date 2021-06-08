@@ -1345,9 +1345,9 @@ namespace MasterOnline.Controllers
             }
         }
 
-        public ATTRIBUTE_JDID getAttribute(JDIDAPIData data, string catId)
+        public ATTRIBUTE_JDID_LAMA getAttribute(JDIDAPIData data, string catId)
         {
-            var retAttr = new ATTRIBUTE_JDID();
+            var retAttr = new ATTRIBUTE_JDID_LAMA();
             var mgrApiManager = new JDIDController();
 
             mgrApiManager.AppKey = data.appKey;
@@ -1465,10 +1465,10 @@ namespace MasterOnline.Controllers
             return retAttr;
         }
 
-        public List<ATTRIBUTE_OPT_JDID> getAttributeOpt(JDIDAPIData data, string catId, string attrId, int page)
+        public List<ATTRIBUTE_OPT_JDID_LAMA> getAttributeOpt(JDIDAPIData data, string catId, string attrId, int page)
         {
             var mgrApiManager = new JDIDController();
-            var listOpt = new List<ATTRIBUTE_OPT_JDID>();
+            var listOpt = new List<ATTRIBUTE_OPT_JDID_LAMA>();
             mgrApiManager.AppKey = data.appKey;
             mgrApiManager.AppSecret = data.appSecret;
             mgrApiManager.AccessToken = data.accessToken;
@@ -1491,7 +1491,7 @@ namespace MasterOnline.Controllers
                             {
                                 foreach (var opt in retOpt.model.data)
                                 {
-                                    var newOpt = new ATTRIBUTE_OPT_JDID()
+                                    var newOpt = new ATTRIBUTE_OPT_JDID_LAMA()
                                     {
                                         ACODE = opt.attributeValueId.ToString(),
                                         OPTION_VALUE = opt.nameEn
