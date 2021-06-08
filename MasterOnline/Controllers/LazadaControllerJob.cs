@@ -1649,7 +1649,10 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Konfirmasi Pengiriman Pesanan {obj} ke Lazada Gagal.")]
-        public LazadaToDeliver GetToPackedToDeliver(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string uname, List<string> orderItemId, string shippingProvider, string accessToken)
+        //change by nurul 8/6/2021
+        //public LazadaToDeliver GetToPackedToDeliver(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string uname, List<string> orderItemId, string shippingProvider, string accessToken)
+        public LazadaToDeliver GetToPackedToDeliver(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string uname, List<string> orderItemId, string shippingProvider, string accessToken, string orderId)
+        //end change by nurul 8/6/2021
         {
             SetupContext(dbPathEra, uname);
             var ret = new LazadaToDeliver();
@@ -1714,6 +1717,12 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
+            //add by nurul 8/6/2021
+            else if (ret.code.Equals("82")) //All order items must have status Pending.
+            {
+                GetKurirAndAwb(orderId, accessToken);
+            }
+            //end add by nurul 8/6/2021
             else
             {
                 var orderid = orderItemId[0];
@@ -1732,6 +1741,52 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
+
+        //add by nurul 8/6/2021
+        public LazadaGetOrderItem GetKurirAndAwb(string orderid, string accessToken)
+        {
+            var ret = new LazadaGetOrderItem();
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/order/items/get");
+            request.SetHttpMethod("GET");
+            request.AddApiParameter("order_id", orderid);
+            LazopResponse response = client.Execute(request, accessToken);
+            try
+            {
+                var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaGetOrderItem)) as LazadaGetOrderItem;
+                if (bindOrder != null)
+                {
+                    if (bindOrder.code.Equals("0"))
+                    {
+                        var order = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == orderid).FirstOrDefault();
+                        if (order != null)
+                        {
+                            var resi = "";
+                            var kurir = "";
+                            if (!string.IsNullOrEmpty(bindOrder.data[0].tracking_code))
+                            {
+                                resi = bindOrder.data[0].tracking_code;
+                            }
+                            if (!string.IsNullOrEmpty(bindOrder.data[0].shipment_provider))
+                            {
+                                kurir = bindOrder.data[0].shipment_provider;
+                            }
+                            //order.TRACKING_SHIPMENT = bindOrder.data[0].tracking_code;
+                            //order.SHIPMENT = bindOrder.data[0].shipment_provider;
+                            order.TRACKING_SHIPMENT = resi;
+                            order.SHIPMENT = kurir;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+            return ret;
+        }
+        //end add by nurul 8/6/2021
 
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
