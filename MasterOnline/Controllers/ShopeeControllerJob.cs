@@ -311,11 +311,13 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public async Task<ShopeeAPIData> UploadImage_V2(ShopeeAPIData dataAPI, string imageUrl)
+        public async Task<string> UploadImage_V2(ShopeeAPIData dataAPI, string imageUrl)
         {
             SetupContext(dataAPI);
             dataAPI = await RefreshTokenShopee_V2(dataAPI, false);
-            ShopeeAPIData ret = dataAPI;
+            //ShopeeAPIData ret = dataAPI;
+            var ret = "";
+
             DateTime dateNow = DateTime.UtcNow.AddHours(7);
 
             int MOPartnerID = MOPartnerIDV2;
@@ -338,62 +340,27 @@ namespace MasterOnline.Controllers
             //string myData = "{\"image\":\"" + imageUrl + "\"}";
             //string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
 
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
-            myReq.Method = "POST";
-            //myReq.Headers.Add("Authorization", signature);
-            myReq.Accept = "application/json";
-            myReq.ContentType = "application/json";
-            string responseFromServer = "";
-            try
-            {
-                myReq.ContentLength = myData.Length;
-                using (var dataStream = myReq.GetRequestStream())
-                {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-                }
-                using (WebResponse response = await myReq.GetResponseAsync())
-                {
-                    using (Stream stream = response.GetResponseStream())
-                    {
-                        StreamReader reader = new StreamReader(stream);
-                        responseFromServer = reader.ReadToEnd();
-                    }
-                }
-            }
-            catch (WebException e)
-            {
-                string err = "";
-                if (e.Status == WebExceptionStatus.ProtocolError)
-                {
-                    WebResponse resp = e.Response;
-                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
-                    {
-                        err = sr.ReadToEnd();
-                    }
-                }
-            }
-
-            //var client = new RestClient(urll + path + param);
-            //client.Timeout = -1;
-            //var request = new RestRequest(Method.POST);
-            ////request.AlwaysMultipartFormData = true;
-            ////request.AddParameter("grant_type", "authorization_code");
-            ////request.AddParameter("client_id", client_id);
-            //request.AddHeader("Content-Type", "multipart/form-data");
-            ////var req = System.Net.WebRequest.Create(imageUrl);
-            ////System.IO.Stream stream = req.GetResponse().GetResponseStream();
-
-            //using (var clientImage = new HttpClient())
-            //{
-
-            //    var bytes = await clientImage.GetByteArrayAsync(imageUrl);
-            //    request.AddFile("image_1", bytes, "img123", "image/jpeg");
-            //}
-            //string stringRet = "";
+            //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
+            //myReq.Method = "POST";
+            ////myReq.Headers.Add("Authorization", signature);
+            //myReq.Accept = "application/json";
+            //myReq.ContentType = "application/json";
+            //string responseFromServer = "";
             //try
             //{
-            //    IRestResponse response = client.Execute(request);
-            //    stringRet = response.Content;
+            //    myReq.ContentLength = myData.Length;
+            //    using (var dataStream = myReq.GetRequestStream())
+            //    {
+            //        dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            //    }
+            //    using (WebResponse response = await myReq.GetResponseAsync())
+            //    {
+            //        using (Stream stream = response.GetResponseStream())
+            //        {
+            //            StreamReader reader = new StreamReader(stream);
+            //            responseFromServer = reader.ReadToEnd();
+            //        }
+            //    }
             //}
             //catch (WebException e)
             //{
@@ -406,18 +373,59 @@ namespace MasterOnline.Controllers
             //            err = sr.ReadToEnd();
             //        }
             //    }
-
             //}
 
-            if (responseFromServer != null)
+            var client = new RestClient(urll + path + param);
+            client.Timeout = -1;
+            var request = new RestRequest(Method.POST);
+            //request.AlwaysMultipartFormData = true;
+            //request.AddParameter("grant_type", "authorization_code");
+            //request.AddParameter("client_id", client_id);
+            request.AddHeader("Content-Type", "multipart/form-data");
+            //var req = System.Net.WebRequest.Create(imageUrl);
+            //System.IO.Stream stream = req.GetResponse().GetResponseStream();
+
+            //using (var clientImage = new HttpClient())
+            //{
+
+            //    var bytes = await clientImage.GetByteArrayAsync(imageUrl);
+            //    request.AddFile("image_1", bytes, "img123", "image/jpeg");
+            //}
+            using (var webClient = new WebClient())
+            {
+                byte[] imageBytes = webClient.DownloadData(imageUrl);
+                request.AddFile("image", imageBytes, "img123", null) ;
+
+            }
+            string stringRet = "";
+            try
+            {
+                IRestResponse response = client.Execute(request);
+                stringRet = response.Content;
+            }
+            catch (WebException e)
+            {
+                string err = "";
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                }
+
+            }
+
+            if (stringRet != "")
             {
                 try
                 {
-                    //var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeController.ShopeeGetTokenShopResult_V2)) as ShopeeController.ShopeeGetTokenShopResult_V2;
-                    //if (string.IsNullOrWhiteSpace(result.error))
-                    //{
-
-                    //}
+                    var result = JsonConvert.DeserializeObject(stringRet, typeof(ShopeeUploadImageResult_V2)) as ShopeeUploadImageResult_V2;
+                    if (string.IsNullOrWhiteSpace(result.error))
+                    {
+                        ret = result.response.image_info.image_id;
+                    }
 
                 }
                 catch (Exception ex)
@@ -426,7 +434,7 @@ namespace MasterOnline.Controllers
                     //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
                 }
             }
-            
+
             return ret;
         }
         protected void SetupContext(ShopeeAPIData data)
@@ -7289,15 +7297,14 @@ namespace MasterOnline.Controllers
             //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
             //List<string> byteGambarUploaded = new List<string>();
             //end add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
-            var listImg = new string[1];
+
             if (jmlPic < 9)
             {
                 //if (!byteGambarUploaded.Contains(brgInDb.Sort5))
                 {
                     if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
                     {
-                        listImg[0] = brgInDb.LINK_GAMBAR_1;
-                        var img1 = await UploadImage(iden, listImg);
+                        var img1 = await UploadImage_V2(iden, brgInDb.LINK_GAMBAR_1);
                         HttpBody.image.image_id_list.Add(img1);
                         jmlPic++;
                         //byteGambarUploaded.Add(brgInDb.Sort5);
@@ -7310,8 +7317,7 @@ namespace MasterOnline.Controllers
                 {
                     if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
                     {
-                        listImg[0] = brgInDb.LINK_GAMBAR_2;
-                        var img2 = await UploadImage(iden, listImg);
+                        var img2 = await UploadImage_V2(iden, brgInDb.LINK_GAMBAR_2);
                         HttpBody.image.image_id_list.Add(img2);
                         jmlPic++;
                         //byteGambarUploaded.Add(brgInDb.Sort6);
@@ -7324,8 +7330,7 @@ namespace MasterOnline.Controllers
                 {
                     if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
                     {
-                        listImg[0] = brgInDb.LINK_GAMBAR_3;
-                        var img3 = await UploadImage(iden, listImg);
+                        var img3 = await UploadImage_V2(iden, brgInDb.LINK_GAMBAR_3);
                         HttpBody.image.image_id_list.Add(img3);
                         jmlPic++;
                         //byteGambarUploaded.Add(brgInDb.Sort7);
@@ -7338,8 +7343,7 @@ namespace MasterOnline.Controllers
                 {
                     if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_4))
                     {
-                        listImg[0] = brgInDb.LINK_GAMBAR_4;
-                        var img4 = await UploadImage(iden, listImg);
+                        var img4 = await UploadImage_V2(iden, brgInDb.LINK_GAMBAR_4);
                         HttpBody.image.image_id_list.Add(img4);
                         jmlPic++;
                         //byteGambarUploaded.Add(brgInDb.SIZE_GAMBAR_4);
@@ -7352,8 +7356,7 @@ namespace MasterOnline.Controllers
                 {
                     if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
                     {
-                        listImg[0] = brgInDb.LINK_GAMBAR_5;
-                        var img5 = await UploadImage(iden, listImg);
+                        var img5 = await UploadImage_V2(iden, brgInDb.LINK_GAMBAR_5);
                         HttpBody.image.image_id_list.Add(img5);
                         jmlPic++;
                         //byteGambarUploaded.Add(brgInDb.SIZE_GAMBAR_5);
@@ -11820,6 +11823,21 @@ namespace MasterOnline.Controllers
             public string error { get; set; }
             public string image_url { get; set; }
             public string shopee_image_url { get; set; }
+        }
+        public class ShopeeUploadImageResult_V2
+        {
+            public string request_id { get; set; }
+            public string error { get; set; }
+            public string message { get; set; }
+            public ResponseShopeeUploadImageResult_V2 response { get; set; }
+        }
+        public class ResponseShopeeUploadImageResult_V2
+        {
+            public DetailShopeeUploadImageResult_V2 image_info { get;set }
+        }
+        public class DetailShopeeUploadImageResult_V2
+        {
+            public string image_id { get; set }
         }
     }
 }
