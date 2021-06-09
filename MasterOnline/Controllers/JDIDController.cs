@@ -2327,7 +2327,19 @@ namespace MasterOnline.Controllers
                 sSQL_Value += Convert.ToDouble(detItem.packWide) + " , " + Convert.ToDouble(detItem.packHeight);
                 sSQL_Value += " , '" + cust + "' , '" + deskripsi.Replace('\'', '`') + "' , " + IdMarket + " , " + price + " , " + price + " , ";
                 sSQL_Value += statusBrg + " , '" + categoryCode[categoryCode.Length - 1] + "' , '" + categoryName[categoryName.Length - 1] + "' , '";
-                sSQL_Value += brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "' , '" + (typeBrg == 2 ? kdBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
+                //change by nurul 9/6/2021
+                //sSQL_Value += brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "' , '" + (typeBrg == 2 ? kdBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
+                var kd_brg_induk = "";
+                if (kdBrgInduk == Convert.ToString(item.spuId))
+                {
+                    kd_brg_induk = kdBrgInduk + ";0";
+                }
+                else
+                {
+                    kd_brg_induk = kdBrgInduk;
+                }
+                sSQL_Value += brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "' , '" + (typeBrg == 2 ? kd_brg_induk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
+                //end change by nurul 9/6/2021
                 int i;
                 if (!string.IsNullOrEmpty(detItem.saleAttributeIds) && detItem.saleAttributeIds != "null")
                 {
@@ -4203,7 +4215,19 @@ namespace MasterOnline.Controllers
                 sSQL_Value += Convert.ToDouble(detItem.packWide) + " , " + Convert.ToDouble(detItem.packHeight);
                 sSQL_Value += " , '" + cust + "' , '" + deskripsi.Replace('\'', '`') + "' , " + IdMarket + " , " + price + " , " + price + " , ";
                 sSQL_Value += statusBrg + " , '" + categoryCode[categoryCode.Length - 1] + "' , '" + categoryName[categoryName.Length - 1] + "' , '";
-                sSQL_Value += brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "' , '" + (typeBrg == 2 ? kdBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
+                //change by nurul 9/6/2021
+                //sSQL_Value += brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "' , '" + (typeBrg == 2 ? kdBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
+                var kd_brg_induk = "";
+                if (kdBrgInduk == Convert.ToString(item.spuId))
+                {
+                    kd_brg_induk = kdBrgInduk + ";0";
+                }
+                else
+                {
+                    kd_brg_induk = kdBrgInduk;
+                }
+                sSQL_Value += brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "' , '" + (typeBrg == 2 ? kd_brg_induk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
+                //end change by nurul 9/6/2021
                 int i;
                 if (!string.IsNullOrEmpty(detItem.saleAttributeIds) && detItem.saleAttributeIds != "null")
                 {
