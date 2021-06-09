@@ -4625,7 +4625,7 @@ namespace MasterOnline.Controllers
                 int retry = 0;
                 while (!responseApi && retry <= 2)
                 {
-                    data = new JDIDController().RefreshToken(data);
+                    data = RefreshToken(data);
                     var sysParams = new Dictionary<string, string>();
                     this.ParamJson_JDID = "{\"wareStockUpdateListStr\":[{\"skuId\":" + brgMp + ", \"realNum\": " + stok + "}]}";
                     sysParams.Add("360buy_param_json", this.ParamJson_JDID);
@@ -4731,6 +4731,98 @@ namespace MasterOnline.Controllers
             }
 
             return "";
+        }
+
+        public JDIDAPIData RefreshToken(JDIDAPIData data)
+        {
+            var ret = data;
+            DateTime dateNow = DateTime.UtcNow.AddHours(7);
+            bool TokenExpired = false;
+            if (!string.IsNullOrWhiteSpace(data.tgl_expired.ToString()))
+            {
+                if (dateNow >= data.tgl_expired)
+                {
+                    TokenExpired = true;
+                }
+            }
+            else
+            {
+                TokenExpired = true;
+            }
+            string urll = "";
+            if (TokenExpired)
+            {
+                urll = "https://oauth.jd.id/oauth2/refresh_token?app_key=" + data.appKey + "&app_secret=" + data.appSecret + "&grant_type=refresh_token&refresh_token=" + data.refreshToken;
+            }
+            if (urll != "")
+            {
+                string responseFromServer = "";
+                bool responseApi = false;
+                int retry = 0;
+                while (!responseApi && retry <= 3)
+                {
+                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                    myReq.Method = "GET";
+
+                    try
+                    {
+                        using (WebResponse response = myReq.GetResponse())
+                        {
+                            using (Stream stream = response.GetResponseStream())
+                            {
+                                StreamReader reader = new StreamReader(stream);
+                                responseFromServer = reader.ReadToEnd();
+                                responseApi = true; break;
+                            }
+                        }
+                    }
+                    catch (WebException e)
+                    {
+                        retry = retry + 1;
+                        string err = "";
+                        if (e.Status == WebExceptionStatus.ProtocolError)
+                        {
+                            WebResponse resp = e.Response;
+                            using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                            {
+                                err = sr.ReadToEnd();
+                                responseFromServer = err;
+                            }
+                        }
+                    }
+                }
+
+                if (responseFromServer != "")
+                {
+                    try
+                    {
+                        var result = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDGetTokenResult)) as JDIDGetTokenResult;
+                        if (!string.IsNullOrEmpty(result.access_token) && !string.IsNullOrEmpty(result.refresh_token))
+                        {
+                            var getTimeExec = DateTimeOffset.FromUnixTimeSeconds(result.time / 1000).UtcDateTime.AddHours(7);
+                            var timeExpired = getTimeExec.AddSeconds(result.expires_in).ToString("yyyy-MM-dd HH:mm:ss");
+                            DatabaseSQL EDB = new DatabaseSQL(data.DatabasePathErasoft);
+                            var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', TOKEN = '" + result.access_token + "', REFRESH_TOKEN = '" + result.refresh_token + "', tgl_expired ='" + timeExpired + "'  WHERE CUST = '" + data.no_cust + "'");
+                            if (resultquery != 0)
+                            {
+                                ret.accessToken = result.access_token;
+                                ret.tgl_expired = Convert.ToDateTime(timeExpired);
+                                ret.refreshToken = result.refresh_token;
+                            }
+                            else
+                            {
+                            }
+                        }
+                        else
+                        {
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+                }
+            }
+            return ret;
         }
         //add by nurul 4/5/2021, JDID versi 2
 
