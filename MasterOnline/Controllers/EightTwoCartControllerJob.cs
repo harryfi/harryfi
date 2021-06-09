@@ -21,6 +21,7 @@ using System.Security.Cryptography;
 using System.Net.Http;
 using Hangfire;
 using Hangfire.SqlServer;
+using RestSharp;
 
 namespace MasterOnline.Controllers
 {
@@ -1354,21 +1355,26 @@ namespace MasterOnline.Controllers
 
             string urll = string.Format("{0}/api/v1/getOrder?apiKey={1}&apiCredential={2}&date_add_from={3}&date_add_to={4}", iden.API_url, iden.API_key, iden.API_credential, dateFrom, dateTo);
 
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-            myReq.Method = "GET";
-            myReq.ContentType = "application/json";
+            //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            //myReq.Method = "GET";
+            //myReq.ContentType = "application/json";
             string responseServer = "";
+            var client = new RestClient(urll);
+            //client.Timeout = -1;
+            var request = new RestRequest(Method.GET);
 
             try
             {
-                using (WebResponse response = await myReq.GetResponseAsync())
-                {
-                    using (Stream stream = response.GetResponseStream())
-                    {
-                        StreamReader reader = new StreamReader(stream);
-                        responseServer = reader.ReadToEnd();
-                    }
-                }
+                //using (WebResponse response = await myReq.GetResponseAsync())
+                //{
+                //    using (Stream stream = response.GetResponseStream())
+                //    {
+                //        StreamReader reader = new StreamReader(stream);
+                //        responseServer = reader.ReadToEnd();
+                //    }
+                //}
+                IRestResponse response = client.Execute(request);
+                responseServer = response.Content;
             }
             catch (Exception ex)
             {
@@ -2123,21 +2129,26 @@ namespace MasterOnline.Controllers
 
             string urll = string.Format("{0}/api/v1/getOrder?apiKey={1}&apiCredential={2}&date_add_from={3}&date_add_to={4}", iden.API_url, iden.API_key, iden.API_credential, dateFrom, dateTo);
 
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-            myReq.Method = "GET";
-            myReq.ContentType = "application/json";
+            //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            //myReq.Method = "GET";
+            //myReq.ContentType = "application/json";
             string responseServer = "";
+            var client = new RestClient(urll);
+            //client.Timeout = -1;
+            var request = new RestRequest(Method.GET);
 
             try
             {
-                using (WebResponse response = await myReq.GetResponseAsync())
-                {
-                    using (Stream stream = response.GetResponseStream())
-                    {
-                        StreamReader reader = new StreamReader(stream);
-                        responseServer = reader.ReadToEnd();
-                    }
-                }
+                //using (WebResponse response = await myReq.GetResponseAsync())
+                //{
+                //    using (Stream stream = response.GetResponseStream())
+                //    {
+                //        StreamReader reader = new StreamReader(stream);
+                //        responseServer = reader.ReadToEnd();
+                //    }
+                //}
+                IRestResponse response = client.Execute(request);
+                responseServer = response.Content;
             }
             catch (Exception ex)
             {
@@ -2288,21 +2299,26 @@ namespace MasterOnline.Controllers
 
             string urll = string.Format("{0}/api/v1/getOrder?apiKey={1}&apiCredential={2}&date_add_from={3}&date_add_to={4}", iden.API_url, iden.API_key, iden.API_credential, dateFrom, dateTo);
 
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-            myReq.Method = "GET";
-            myReq.ContentType = "application/json";
+            //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            //myReq.Method = "GET";
+            //myReq.ContentType = "application/json";
             string responseServer = "";
 
+            var client = new RestClient(urll);
+            //client.Timeout = -1;
+            var request = new RestRequest(Method.GET);
             try
             {
-                using (WebResponse response = await myReq.GetResponseAsync())
-                {
-                    using (Stream stream = response.GetResponseStream())
-                    {
-                        StreamReader reader = new StreamReader(stream);
-                        responseServer = reader.ReadToEnd();
-                    }
-                }
+                //using (WebResponse response = await myReq.GetResponseAsync())
+                //{
+                //    using (Stream stream = response.GetResponseStream())
+                //    {
+                //        StreamReader reader = new StreamReader(stream);
+                //        responseServer = reader.ReadToEnd();
+                //    }
+                //}
+                IRestResponse response = client.Execute(request);
+                responseServer = response.Content;
             }
             catch (Exception ex)
             {
