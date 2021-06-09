@@ -11833,11 +11833,11 @@ namespace MasterOnline.Controllers
         }
         public class ResponseShopeeUploadImageResult_V2
         {
-            public DetailShopeeUploadImageResult_V2 image_info { get;set }
+            public DetailShopeeUploadImageResult_V2 image_info { get; set; }
         }
         public class DetailShopeeUploadImageResult_V2
         {
-            public string image_id { get; set }
+            public string image_id { get; set; }
         }
     }
 }
