@@ -60,7 +60,10 @@
                 <tr>
                     <td>@piutang.NO_BUKTI</td>
                     <td>@(piutang.TGL?.ToString("dd/MM/yyyy"))</td>
-                    <td>@piutang.NAMA (@piutang.KODE)</td>
+                    @*CHANGE BY NURUL 11/6/2021*@
+                    @*<td>@piutang.NAMA (@piutang.KODE)</td>*@
+                    <td>@piutang.NAMA (@piutang.PERSO)</td>
+                    @*END CHANGE BY NURUL 11/6/2021*@
                     <td>@(piutang.JTGL?.ToString("dd/MM/yyyy"))</td>
                     <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TOTAL)</td>
                     @if (Convert.ToString(piutang.POSTING) == "Y")
