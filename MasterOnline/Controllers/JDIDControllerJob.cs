@@ -494,9 +494,27 @@ namespace MasterOnline.Controllers
             {
                 TokenExpired = true;
             }
+
             string urll = "";
             if (TokenExpired)
             {
+                var cekInDB = ErasoftDbContext.ARF01.Where(m => m.CUST == data.no_cust).FirstOrDefault();
+                if (cekInDB != null)
+                {
+                    if (data.accessToken != cekInDB.TOKEN)
+                    {
+                        data.appKey = cekInDB.API_KEY;
+                        data.refreshToken = cekInDB.REFRESH_TOKEN;
+                        data.tgl_expired = cekInDB.TGL_EXPIRED.Value;
+                        data.accessToken = cekInDB.TOKEN;
+
+                        if (cekInDB.TGL_EXPIRED > DateTime.UtcNow.AddHours(7))
+                        {
+                            return data;
+                        }
+                    }
+                }
+
                 urll = "https://oauth.jd.id/oauth2/refresh_token?app_key=" + data.appKey + "&app_secret=" + data.appSecret + "&grant_type=refresh_token&refresh_token=" + data.refreshToken;
             }
             if (urll != "")
@@ -3156,7 +3174,8 @@ namespace MasterOnline.Controllers
             List<string> tempConnId = new List<string>() { };
             //end add by nurul 20/1/2021, bundling 
 
-            while (daysFrom > -13)
+            //while (daysFrom > -13)
+            while (daysFrom > -3)
             {
                 //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
                 //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;

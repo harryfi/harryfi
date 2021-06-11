@@ -4736,6 +4736,12 @@ namespace MasterOnline.Controllers
         public JDIDAPIData RefreshToken(JDIDAPIData data)
         {
             var ret = data;
+            SetupContext(data.DatabasePathErasoft, data.username);
+            var MoDbContext = new MoDbContext("");
+            var EDB = new DatabaseSQL(data.DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+            var ErasoftDbContext = new ErasoftContext(EraServerName, data.DatabasePathErasoft);
+
             DateTime dateNow = DateTime.UtcNow.AddHours(7);
             bool TokenExpired = false;
             if (!string.IsNullOrWhiteSpace(data.tgl_expired.ToString()))
@@ -4752,6 +4758,22 @@ namespace MasterOnline.Controllers
             string urll = "";
             if (TokenExpired)
             {
+                var cekInDB = ErasoftDbContext.ARF01.Where(m => m.CUST == data.no_cust).FirstOrDefault();
+                if (cekInDB != null)
+                {
+                    if (data.accessToken != cekInDB.TOKEN)
+                    {
+                        data.appKey = cekInDB.API_KEY;
+                        data.refreshToken = cekInDB.REFRESH_TOKEN;
+                        data.tgl_expired = cekInDB.TGL_EXPIRED.Value;
+                        data.accessToken = cekInDB.TOKEN;
+
+                        if (cekInDB.TGL_EXPIRED > DateTime.UtcNow.AddHours(7))
+                        {
+                            return data;
+                        }
+                    }
+                }
                 urll = "https://oauth.jd.id/oauth2/refresh_token?app_key=" + data.appKey + "&app_secret=" + data.appSecret + "&grant_type=refresh_token&refresh_token=" + data.refreshToken;
             }
             if (urll != "")
@@ -4801,7 +4823,7 @@ namespace MasterOnline.Controllers
                         {
                             var getTimeExec = DateTimeOffset.FromUnixTimeSeconds(result.time / 1000).UtcDateTime.AddHours(7);
                             var timeExpired = getTimeExec.AddSeconds(result.expires_in).ToString("yyyy-MM-dd HH:mm:ss");
-                            DatabaseSQL EDB = new DatabaseSQL(data.DatabasePathErasoft);
+                            //DatabaseSQL EDB = new DatabaseSQL(data.DatabasePathErasoft);
                             var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', TOKEN = '" + result.access_token + "', REFRESH_TOKEN = '" + result.refresh_token + "', tgl_expired ='" + timeExpired + "'  WHERE CUST = '" + data.no_cust + "'");
                             if (resultquery != 0)
                             {
