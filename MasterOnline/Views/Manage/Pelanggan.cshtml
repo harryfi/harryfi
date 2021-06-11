@@ -1896,6 +1896,9 @@
                                     lblDesc4.style.visibility = 'hidden';
                                 }
                                 else if (@shopee == value) {
+
+                                    getVersiShopee($('#Customers_KD_ANALISA').val());
+                                    $('#versi-blibli').show();
                                     lblDesc3.style.visibility = 'visible';
                                     lblDesc4.style.visibility = 'visible';
                                     lblDesc3.innerText = '1. Untuk dapat tersambung secara otomatis ke Shopee, Anda dapat melakukan save, dan akan dilanjutkan ke halaman shopee.';
@@ -3003,7 +3006,14 @@
                         lblDesc3.style.visibility = 'visible';
                             lblDesc3.innerText = '1. Untuk dapat tersambung secara otomatis ke Shopee, Anda dapat melakukan save, dan akan dilanjutkan ke halaman shopee.';
                             lblDesc4.innerText = '';
-                            lblPopUp.style.visibility = 'hidden';
+                        lblPopUp.style.visibility = 'hidden';
+
+                        $('#Customers_KD_ANALISA').change(function () {
+                            getVersiShopee($('#Customers_KD_ANALISA').val());
+                        });
+                        $('#Customers_KD_ANALISA').val(response.Customers.KD_ANALISA);
+                        getVersiShopee($('#Customers_KD_ANALISA').val());
+                        $('#versi-blibli').show();
                     }
                     //end add by calvin, button for generate lazada code
 
@@ -3757,5 +3767,53 @@
             versiJD[0].selectize.setValue($('#Customers_KD_ANALISA').val(), true);
         }
         //end add by nurul 28/4/2021
+
+        //add by Tri 11/6/2021
+        function getVersiShopee(response) {
+            var resp = false;
+            if (response == "2") {
+                resp = "2";
+            } else {
+                resp = "1";
+            }
+            $('#Customers_KD_ANALISA').val(resp);
+            if ($('#Customers_CUST').val() == "") {
+                $('#Customers_KD_ANALISA').val("2");
+            }
+
+            var versiJD = $('#Customers_KD_ANALISA').selectize({
+                create: true,
+                maxItems: 1,
+                multiple: false,
+                addOption: false,
+                sortField: 'text',
+                valueField: 'value',
+                labelField: 'text',
+                searchField: ['text'],
+                options: [
+                    { value: "1", text: "V1", selected: true },
+                    { value: "2", text: "V2", selected: true },
+                ],
+                selectedField: "selected",
+                //onInitialize: function () {
+                //this.trigger('change', resp);
+                //},
+                onChange: function (value) {
+                    if (value == "2") {
+                        $('#Customers_KD_ANALISA').val("2");
+                        versiJD[0].selectize.setValue(value, true);
+                        showHideJDForm(true);
+                    }
+                    else {
+                        $('#Customers_KD_ANALISA').val("1");
+                        versiJD[0].selectize.setValue(value, true);
+                        showHideJDForm(true);
+                    }
+                }
+            });
+            //versiBlibli[0].selectize.trigger('change', resp);
+            versiJD[0].selectize.setValue($('#Customers_KD_ANALISA').val(), true);
+        }
+        //end add by nurul 11/6/2021
     </script>
 }
