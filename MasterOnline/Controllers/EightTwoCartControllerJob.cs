@@ -1411,7 +1411,8 @@ namespace MasterOnline.Controllers
                                 if (resultStatusAwaiting.dataObject.Count() > 0)
                                     foreach (var itemOrder in resultStatusAwaiting.dataObject)
                                     {
-                                        if (itemOrder.name.ToString().ToLower().Contains("awaiting") && itemOrder.name.ToString().ToLower().Contains("payment") || itemOrder.name.ToString().ToLower().Contains("payment confirm"))
+                                        if ((itemOrder.name.ToString().ToLower().Contains("awaiting") && itemOrder.name.ToString().ToLower().Contains("payment"))
+                                            || (itemOrder.name.ToString().ToLower().Contains("payment confirm")) || (itemOrder.name.ToString().ToLower().Contains("Awaiting bank transfer")))
                                         {
                                             var orderFilter = listOrder.data.Where(p => p.current_state == itemOrder.id_order_state).ToList();
                                             if (orderFilter.Count() > 0)
