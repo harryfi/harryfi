@@ -196,7 +196,7 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-                
+
                 if (responseFromServer != null)
                 {
                     try
@@ -214,9 +214,9 @@ namespace MasterOnline.Controllers
                                 + dataAPI.merchant_code + "', TOKEN_EXPIRED = '" + dateExpired + "', API_KEY = '" + dataAPI.API_secret_key
                                  + "', TOKEN = '" + result.access_token + "', REFRESH_TOKEN = '" + result.refresh_token
                                 + "' WHERE CUST = '" + dataAPI.no_cust + "'");
-                            
+
                         }
-                       
+
                     }
                     catch (Exception ex)
                     {
@@ -297,12 +297,12 @@ namespace MasterOnline.Controllers
                 try
                 {
                     var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeUploadImageResult)) as ShopeeUploadImageResult;
-                    if(result.images != null)
-                    if (string.IsNullOrWhiteSpace(result.images[0].error))
-                    {
+                    if (result.images != null)
+                        if (string.IsNullOrWhiteSpace(result.images[0].error))
+                        {
                             var imageid = result.images[0].shopee_image_url.Split('/');
-                            ret = imageid[imageid.Length-1];
-                    }
+                            ret = imageid[imageid.Length - 1];
+                        }
                 }
                 catch (Exception ex2)
                 {
@@ -394,7 +394,7 @@ namespace MasterOnline.Controllers
             using (var webClient = new WebClient())
             {
                 byte[] imageBytes = webClient.DownloadData(imageUrl);
-                request.AddFile("image", imageBytes, "img123", null) ;
+                request.AddFile("image", imageBytes, "img123", null);
 
             }
             string stringRet = "";
@@ -2149,7 +2149,7 @@ namespace MasterOnline.Controllers
             var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds();
             var toDt = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             //end add 16 des 2020, fixed date
-            
+
             //change by nurul 19/1/2021, bundling 
             //await GetOrderByStatusWithDay(iden, stat, CUST, NAMA_CUST, 0, 0, 0, fromDt, toDt);
             var AdaKomponen = false;
@@ -2370,9 +2370,9 @@ namespace MasterOnline.Controllers
                 //try
                 //{
                 var listOrder = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderByStatusResult)) as ShopeeGetOrderByStatusResult;
-                if(listOrder.orders != null)
+                if (listOrder.orders != null)
                 {
-                    if(listOrder.orders.Length > 0)
+                    if (listOrder.orders.Length > 0)
                     {
                         if (stat == StatusOrder.READY_TO_SHIP || stat == StatusOrder.UNPAID)
                         {
@@ -2429,10 +2429,10 @@ namespace MasterOnline.Controllers
                                 //add by Tri 4 Mei 2020, update stok di jalankan per batch karena batch berikutnya akan memiliki connID yg berbeda
                                 new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
                                 //end add by Tri 4 Mei 2020, update stok di jalankan per batch karena batch berikutnya akan memiliki connID yg berbeda
-                                
+
                                 //end change by nurul 20/1/2021, bundling
                                 //await GetOrderByStatusWithDay(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, jmlhPesananDibayar, daysFrom, daysTo);
-                                
+
                                 ret1.page = page + 50;
                                 ret1.jmlhNewOrder = jmlhNewOrder;
                                 ret1.jmlhPesananDibayar = jmlhPesananDibayar;
@@ -2461,7 +2461,7 @@ namespace MasterOnline.Controllers
                                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                     contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhPesananDibayar) + " Pesanan terbayar dari Shopee.");
                                 }
-                                
+
                                 //add by nurul 20/1/2021, bundling 
                                 ret1.page = page;
                                 ret1.jmlhNewOrder = jmlhNewOrder;
@@ -2472,7 +2472,7 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-               
+
                 //}
                 //catch (Exception ex2)
                 //{
@@ -2538,7 +2538,7 @@ namespace MasterOnline.Controllers
             while (lanjut)
             {
                 var nextReturnGetOrder = await GetOrderByStatusCancelledAPI(iden, stat, CUST, NAMA_CUST, returnGetOrder.page, returnGetOrder.jmlhNewOrder, fromDt, toDt);
-                if(nextReturnGetOrder.ConnId != "")
+                if (nextReturnGetOrder.ConnId != "")
                 {
                     tempConnId.Add(nextReturnGetOrder.ConnId);
                     connIdProses += "'" + returnGetOrder.ConnId + "' , ";
@@ -2578,7 +2578,7 @@ namespace MasterOnline.Controllers
             string connID = Guid.NewGuid().ToString();
             SetupContext(iden);
             //add by nurul 19/1/2021, bundling 
-            var ret1  = new returnsGetOrder();
+            var ret1 = new returnsGetOrder();
             ret1.ConnId = connID;
             //end add by nurul 19/1/2021, bundling 
 
@@ -2657,14 +2657,14 @@ namespace MasterOnline.Controllers
                         {
                             ordersn = ordersn.Substring(0, ordersn.Length - 1);
                             //var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connID + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "'");
-                            var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connID 
-                                + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn 
+                            var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connID
+                                + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn
                                 + ") AND STATUS_TRANSAKSI  NOT IN ('11', '12') AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) <> 1");
 
                             //change by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
                             //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
                             //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
-                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN (" 
+                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ("
                                 + ordersn + ") AND STATUS_TRANSAKSI  NOT IN ('11', '12') AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) <> 1");
                             //end change by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
 
@@ -2771,7 +2771,7 @@ namespace MasterOnline.Controllers
                             }
                             #region handle cancel COD
                             string qrycod = "SELECT P.NO_REFERENSI, ISNULL(F.NO_REF, '') NO_REF FROM SIT01A (NOLOCK) F RIGHT JOIN SOT01A (NOLOCK) P ON P.NO_BUKTI = F.NO_SO AND F.JENIS_FORM = '2' ";
-                            qrycod += "WHERE P.NO_REFERENSI IN (" + ordersn + ") AND ISNULL(F.NO_FA_OUTLET, '-') LIKE '%-%' AND P.CUST = '" 
+                            qrycod += "WHERE P.NO_REFERENSI IN (" + ordersn + ") AND ISNULL(F.NO_FA_OUTLET, '-') LIKE '%-%' AND P.CUST = '"
                                 + CUST + "' AND ISNULL(P.TIPE_KIRIM,0) = 1 AND P.STATUS_TRANSAKSI NOT IN ('11', '12')";
                             var dsOrderCOD = EDB.GetDataSet("MOConnectionString", "COD", qrycod);
                             if (dsOrderCOD.Tables[0].Rows.Count > 0)
@@ -2871,7 +2871,7 @@ namespace MasterOnline.Controllers
                                             listPesananCOD_11 += "'" + ord.ordersn + "',";
                                         }
                                     }
-                                    if(listPesananCOD_11 != "")//pesanan cod batal tapi belum di kirim
+                                    if (listPesananCOD_11 != "")//pesanan cod batal tapi belum di kirim
                                     {
                                         listPesananCOD_11 = listPesananCOD_11.Substring(0, listPesananCOD_11.Length - 1);
                                         EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connID
@@ -2879,12 +2879,12 @@ namespace MasterOnline.Controllers
                                                 + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1 "
                                                 + "AND BRG NOT IN ( SELECT BRG FROM TEMP_ALL_MP_ORDER_ITEM (NOLOCK) WHERE CONN_ID = '" + connID + "')");
 
-                                       var rowAffected_2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ("
-                                                        + listPesananCOD_11 + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1");
-                                        if(rowAffected_2 > 0)
+                                        var rowAffected_2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ("
+                                                         + listPesananCOD_11 + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1");
+                                        if (rowAffected_2 > 0)
                                         {
-                                            var rowAffectedSI_2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" 
-                                                + listPesananCOD_11 + ") AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + CUST 
+                                            var rowAffectedSI_2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ("
+                                                + listPesananCOD_11 + ") AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + CUST
                                                 + "' AND ISNULL(NO_FA_OUTLET, '-') LIKE '%-%' ");
                                             rowAffected += rowAffected_2;
                                         }
@@ -2942,7 +2942,7 @@ namespace MasterOnline.Controllers
                                 {
                                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                     contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhNewOrder) + " Pesanan dari Shopee dibatalkan.");
-                                    
+
                                 }
                                 //add by nurul 20/1/2021, bundling 
                                 ret1.page = page;
@@ -2987,22 +2987,22 @@ namespace MasterOnline.Controllers
         {
             SetupContext(iden);
 
-            var dsOrder = EDB.GetDataSet("CString", "SOT01", "SELECT NO_REFERENSI FROM SOT01A WHERE CUST = '"+CUST + "' AND USER_NAME = 'Auto Shopee"
-                + "' AND TGL <= '"+DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss")+ "' AND TGL >= '" 
+            var dsOrder = EDB.GetDataSet("CString", "SOT01", "SELECT NO_REFERENSI FROM SOT01A WHERE CUST = '" + CUST + "' AND USER_NAME = 'Auto Shopee"
+                + "' AND TGL <= '" + DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' AND TGL >= '"
                 + DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "' AND STATUS_TRANSAKSI = '0' AND ISNULL(NO_REFERENSI, '') <> ''");
-            if(dsOrder.Tables[0].Rows.Count > 0)
+            if (dsOrder.Tables[0].Rows.Count > 0)
             {
                 var listOrder = new List<string>();
-                for(int i=0;i < dsOrder.Tables[0].Rows.Count; i++)
+                for (int i = 0; i < dsOrder.Tables[0].Rows.Count; i++)
                 {
                     listOrder.Add(dsOrder.Tables[0].Rows[i]["NO_REFERENSI"].ToString());
-                    if(listOrder.Count == 50)
+                    if (listOrder.Count == 50)
                     {
                         await GetOrderDetailsCekUnpaid(iden, listOrder.ToArray(), Guid.NewGuid().ToString(), CUST, NAMA_CUST);
                         listOrder = new List<string>();
                     }
                 }
-                if(listOrder.Count > 0)
+                if (listOrder.Count > 0)
                 {
                     await GetOrderDetailsCekUnpaid(iden, listOrder.ToArray(), Guid.NewGuid().ToString(), CUST, NAMA_CUST);
                 }
@@ -3073,31 +3073,31 @@ namespace MasterOnline.Controllers
                 var listOrdertoPaid = new List<string>();
                 var listOrderCanceled = new List<string>();
                 if (result.orders != null)
-                foreach (var order in result.orders)
-                {
-                    if(order.order_status.ToUpper() == "UNPAID")
+                    foreach (var order in result.orders)
                     {
-                        //masih unpaid, tidak perlu diubah
-                    }
-                    else if (order.order_status.ToUpper() == "CANCELLED")
-                    {
+                        if (order.order_status.ToUpper() == "UNPAID")
+                        {
+                            //masih unpaid, tidak perlu diubah
+                        }
+                        else if (order.order_status.ToUpper() == "CANCELLED")
+                        {
                             //sudah batal
-                                ordersn = ordersn + "'" + order.ordersn + "',";
+                            ordersn = ordersn + "'" + order.ordersn + "',";
                             listOrderCanceled.Add(order.ordersn);
-                    }
-                    else // bukan batal dan unpaid, dianggap sudah dibayar
-                    {
-                        listOrderPaid += "'"+order.ordersn+"',";
+                        }
+                        else // bukan batal dan unpaid, dianggap sudah dibayar
+                        {
+                            listOrderPaid += "'" + order.ordersn + "',";
                             listOrdertoPaid.Add(order.ordersn);
                         }
-                }
+                    }
 
                 if (!string.IsNullOrEmpty(listOrderPaid))
                 {
                     listOrderPaid = listOrderPaid.Substring(0, listOrderPaid.Length - 1);
-                    var execSQL = EDB.ExecuteSQL("", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE CUST = '" + CUST 
-                        + "' AND STATUS_TRANSAKSI = '0' AND NO_REFERENSI IN ("+ listOrderPaid + ")");
-                    if(execSQL > 0)
+                    var execSQL = EDB.ExecuteSQL("", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE CUST = '" + CUST
+                        + "' AND STATUS_TRANSAKSI = '0' AND NO_REFERENSI IN (" + listOrderPaid + ")");
+                    if (execSQL > 0)
                     {
                         #region update kurir
                         try
@@ -3170,7 +3170,7 @@ namespace MasterOnline.Controllers
 
                                                     }
                                                 }
-                                                
+
                                             }
                                         }
                                         catch (Exception ex)
@@ -3200,7 +3200,7 @@ namespace MasterOnline.Controllers
                                 }
                             }
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
 
                         }
@@ -3227,7 +3227,7 @@ namespace MasterOnline.Controllers
                         var ord = result.orders.Where(m => listOrderCanceled.Contains(m.ordersn)).ToList();
                         foreach (var order in ord)
                         {
-                                //if (currentOrder != null)
+                            //if (currentOrder != null)
                             {
                                 if (!string.IsNullOrEmpty(sSQL1))
                                 {
@@ -3263,12 +3263,12 @@ namespace MasterOnline.Controllers
                                                     "WHERE ISNULL(A.CONN_ID,'') = '" + connID + "' " +
                                                     "AND ISNULL(B.BRG,'') = '' AND A.BRG <> 'NOT_FOUND'";
                     var execInsertTempBundling = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLInsertTempBundling);
-                    
+
 
                     new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
 
                     jmlhNewOrder = jmlhNewOrder + rowAffected;
-                       
+
                     if (jmlhNewOrder > 0)
                     {
                         var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
@@ -3276,7 +3276,7 @@ namespace MasterOnline.Controllers
 
                     }
                 }
-                
+
             }
             return ret;
         }
@@ -3288,17 +3288,17 @@ namespace MasterOnline.Controllers
             SetupContext(iden);
 
             string sSQL = "SELECT DISTINCT NO_REFERENSI FROM SOT01A (NOLOCK) A INNER JOIN SIT01A (NOLOCK) B ON  A.NO_BUKTI = B.NO_SO ";
-            sSQL += "WHERE STATUS_TRANSAKSI = '03' AND A.TGL >= '"+DateTime.UtcNow.AddHours(7).AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss")+"' AND A.CUST = '"+CUST+"'";
+            sSQL += "WHERE STATUS_TRANSAKSI = '03' AND A.TGL >= '" + DateTime.UtcNow.AddHours(7).AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss") + "' AND A.CUST = '" + CUST + "'";
 
             var dsPesanan = EDB.GetDataSet("CString", "SOT01", sSQL);
 
-            if(dsPesanan.Tables[0].Rows.Count > 0)
+            if (dsPesanan.Tables[0].Rows.Count > 0)
             {
                 var listNoRef = new List<string>();
-                for(int i =0; i < dsPesanan.Tables[0].Rows.Count; i++)
+                for (int i = 0; i < dsPesanan.Tables[0].Rows.Count; i++)
                 {
                     listNoRef.Add(dsPesanan.Tables[0].Rows[i]["NO_REFERENSI"].ToString());
-                    if(listNoRef.Count == 50 || i == dsPesanan.Tables[0].Rows.Count - 1)
+                    if (listNoRef.Count == 50 || i == dsPesanan.Tables[0].Rows.Count - 1)
                     {
                         await GetOrderByStatusCompletedAPI(iden, listNoRef.ToArray(), CUST);
                         listNoRef = new List<string>();
@@ -3366,7 +3366,7 @@ namespace MasterOnline.Controllers
                 string ordList = "";
                 foreach (var order in result.orders)
                 {
-                    if(order.order_status == "COMPLETED")
+                    if (order.order_status == "COMPLETED")
                     {
                         ordList += "'" + order.ordersn + "',";
                     }
@@ -3374,8 +3374,8 @@ namespace MasterOnline.Controllers
                 if (!string.IsNullOrEmpty(ordList))
                 {
                     ordList = ordList.Substring(0, ordList.Length - 1);
-                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI IN (" + ordList + ") AND CUST = '"+cust+"' AND STATUS_TRANSAKSI = '03'");
-                    
+                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI IN (" + ordList + ") AND CUST = '" + cust + "' AND STATUS_TRANSAKSI = '03'");
+
                     if (rowAffected > 0)
                     {
                         var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
@@ -3390,9 +3390,9 @@ namespace MasterOnline.Controllers
                         }
                         //end add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
                     }
-                    
+
                 }
-               
+
             }
             return "";
         }
@@ -3402,7 +3402,7 @@ namespace MasterOnline.Controllers
             int todt = 0;
             SetupContext(iden);
 
-            while(fromdt >= -14)
+            while (fromdt >= -14)
             {
                 await GetOrderByStatusCompletedPer3Day(iden, stat, CUST, NAMA_CUST, page, jmlhNewOrder, fromdt, todt);
                 fromdt = fromdt - 2;
@@ -3484,9 +3484,9 @@ namespace MasterOnline.Controllers
                 //try
                 //{
                 var listOrder = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderByStatusResult)) as ShopeeGetOrderByStatusResult;
-                if(listOrder.orders != null)
+                if (listOrder.orders != null)
                 {
-                    if(listOrder.orders.Length > 0)
+                    if (listOrder.orders.Length > 0)
                     {
                         string[] ordersn_list = listOrder.orders.Where(p => p.order_status == stat.ToString()).Select(p => p.ordersn).ToArray();
                         string ordersn = "";
@@ -3522,10 +3522,10 @@ namespace MasterOnline.Controllers
                             }
                         }
 
-                        
+
                     }
                 }
-                
+
 
                 //}
                 //catch (Exception ex2)
@@ -3784,14 +3784,14 @@ namespace MasterOnline.Controllers
             if (responseFromServer != "")
             {
                 var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderDetailsResult)) as ShopeeGetOrderDetailsResult;
-                if(result.orders != null)
+                if (result.orders != null)
                 {
-                    if(result.orders.Length > 0)
+                    if (result.orders.Length > 0)
                     {
                         ret.AddRange(result.orders.ToList());
                     }
                 }
-                
+
             }
             return ret;
         }
@@ -4377,8 +4377,8 @@ namespace MasterOnline.Controllers
                             //end add by nurul 22/3/2021
                         };
                         //add 27 okt 2020, expired shipping date
-                        newOrder.ship_by_date = null ;
-                        if(order.ship_by_date > 0)
+                        newOrder.ship_by_date = null;
+                        if (order.ship_by_date > 0)
                         {
                             newOrder.ship_by_date = DateTimeOffset.FromUnixTimeSeconds(order.ship_by_date).UtcDateTime.AddHours(7);
                         }
@@ -4387,7 +4387,7 @@ namespace MasterOnline.Controllers
                         if (ShippingFeeData != null)
                         {
                             newOrder.estimated_shipping_fee = (ShippingFeeData.order_income.buyer_paid_shipping_fee + ShippingFeeData.order_income.shopee_shipping_rebate - ShippingFeeData.order_income.actual_shipping_fee).ToString();
-                            if(ShippingFeeData.order_income.buyer_paid_shipping_fee + ShippingFeeData.order_income.shopee_shipping_rebate - ShippingFeeData.order_income.actual_shipping_fee < 0)
+                            if (ShippingFeeData.order_income.buyer_paid_shipping_fee + ShippingFeeData.order_income.shopee_shipping_rebate - ShippingFeeData.order_income.actual_shipping_fee < 0)
                             {
                                 newOrder.estimated_shipping_fee = "0";
                             }
@@ -4456,9 +4456,9 @@ namespace MasterOnline.Controllers
                                     newOrderItem.variation_discounted_price = item.variation_original_price;
                                     var dDisc = listPromo[item.promotion_id];
                                     discount = (Convert.ToInt64(dDisc.original_price) - Convert.ToInt64(dDisc.discounted_price)) * 100 / Convert.ToInt64(dDisc.original_price);
-                                    foreach(var disc in dDisc.items)
+                                    foreach (var disc in dDisc.items)
                                     {
-                                        if(item.item_id == disc.item_id && item.variation_id == item.variation_id)
+                                        if (item.item_id == disc.item_id && item.variation_id == item.variation_id)
                                         {
                                             newOrderItem.variation_discounted_price = disc.original_price;
                                         }
@@ -4538,11 +4538,11 @@ namespace MasterOnline.Controllers
             //    REQUEST_ATTRIBUTE_1 = iden.merchant_code,
             //    REQUEST_STATUS = "Pending",
             //};
-            var dsOrder = EDB.GetDataSet("CString", "SOT01A", "SELECT NO_REFERENSI FROM SOT01A (NOLOCK) WHERE NO_REFERENSI IN ("+list_noref+") AND STATUS_TRANSAKSI = '0' AND CUST = '"+CUST+"'");
-            if(dsOrder.Tables[0].Rows.Count > 0)
+            var dsOrder = EDB.GetDataSet("CString", "SOT01A", "SELECT NO_REFERENSI FROM SOT01A (NOLOCK) WHERE NO_REFERENSI IN (" + list_noref + ") AND STATUS_TRANSAKSI = '0' AND CUST = '" + CUST + "'");
+            if (dsOrder.Tables[0].Rows.Count > 0)
             {
                 ordersn_list = new string[dsOrder.Tables[0].Rows.Count];
-                for(int i=0; i< dsOrder.Tables[0].Rows.Count; i++)
+                for (int i = 0; i < dsOrder.Tables[0].Rows.Count; i++)
                 {
                     ordersn_list[i] = dsOrder.Tables[0].Rows[i]["NO_REFERENSI"].ToString();
                 }
@@ -4575,18 +4575,18 @@ namespace MasterOnline.Controllers
             try
             {
                 myReq.ContentLength = myData.Length;
-            using (var dataStream = myReq.GetRequestStream())
-            {
-                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-            }
-            using (WebResponse response = await myReq.GetResponseAsync())
-            {
-                using (Stream stream = response.GetResponseStream())
+                using (var dataStream = myReq.GetRequestStream())
                 {
-                    StreamReader reader = new StreamReader(stream);
-                    responseFromServer = reader.ReadToEnd();
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
                 }
-            }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
                 //    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
             }
             catch (Exception ex)
@@ -4607,7 +4607,7 @@ namespace MasterOnline.Controllers
                     if (order.ship_by_date > 0)
                     {
                         var exp_date = DateTimeOffset.FromUnixTimeSeconds(order.ship_by_date).UtcDateTime.AddHours(7);
-                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET ORDER_EXPIRED_DATE = '"+exp_date.ToString("yyyy-MM-dd HH:mm:ss")+"' WHERE NO_REFERENSI = '" + order.ordersn + "' AND CUST = '" + CUST + "'");
+                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET ORDER_EXPIRED_DATE = '" + exp_date.ToString("yyyy-MM-dd HH:mm:ss") + "' WHERE NO_REFERENSI = '" + order.ordersn + "' AND CUST = '" + CUST + "'");
 
                     }
                 }
@@ -5878,7 +5878,7 @@ namespace MasterOnline.Controllers
             string ret = "";
             var sSQL = "SELECT A.NO_PESANAN AS NOBUK, A.NO_REFERENSI AS NOREF FROM SOT01H A (NOLOCK) INNER JOIN SOT01A B (NOLOCK) ON A.NO_PESANAN=B.NO_BUKTI AND A.NO_REFERENSI=B.NO_REFERENSI AND A.CUST=B.CUST WHERE ISNULL(B.SHIPMENT,'')='' AND A.CUST='" + log_CUST + "' AND STATUS_TRANSAKSI IN ('01','02','03','04')";
             var cekListPesananTanpaKurir = ErasoftDbContext.Database.SqlQuery<listUpdateOrder>(sSQL).ToList();
-            if(cekListPesananTanpaKurir.Count() > 0)
+            if (cekListPesananTanpaKurir.Count() > 0)
             {
                 int hitungPesanan = cekListPesananTanpaKurir.Count();
                 var listOrder = new List<listUpdateOrder>();
@@ -6068,7 +6068,8 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
-                }catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     throw new Exception("Update Kurir Gagal. " + ex.InnerException == null ? ex.Message + System.Environment.NewLine : ex.InnerException.Message);
                 }
@@ -6687,7 +6688,7 @@ namespace MasterOnline.Controllers
             else
             {
                 var listLog = detailBrg.AVALUE_39.Split(',');
-                foreach(var dataLog in listLog)
+                foreach (var dataLog in listLog)
                 {
                     logistics.Add(new ShopeeLogisticsClass()
                     {
@@ -6998,14 +6999,14 @@ namespace MasterOnline.Controllers
                                 throw new Exception(currentLog.REQUEST_EXCEPTION);
                             }
                         }
-                            var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
+                        var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
                         if (item != null)
                         {
                             item.BRG_MP = Convert.ToString(resServer.item_id) + ";0";
                             item.LINK_STATUS = "Buat Produk Berhasil";
                             item.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                             item.LINK_ERROR = "0;Buat Produk;;";
-                            string urlBrg = "https://shopee.co.id/product/"+iden.merchant_code+"/" + resServer.item_id;
+                            string urlBrg = "https://shopee.co.id/product/" + iden.merchant_code + "/" + resServer.item_id;
                             item.AVALUE_34 = urlBrg;
                             ErasoftDbContext.SaveChanges();
 
@@ -7392,15 +7393,15 @@ namespace MasterOnline.Controllers
 
                                 if (listAttrShopee.response != null)
                                 {
-                                    if(listAttrShopee.response.attribute_list != null)
+                                    if (listAttrShopee.response.attribute_list != null)
                                     {
                                         var lattribute_id = Convert.ToInt64(attribute_id);
                                         var dataAttr = listAttrShopee.response.attribute_list.Where(p => p.attribute_id == lattribute_id).FirstOrDefault();
-                                        if(dataAttr != null)
+                                        if (dataAttr != null)
                                         {
-                                            if(dataAttr.attribute_value_list != null)
+                                            if (dataAttr.attribute_value_list != null)
                                             {
-                                                if(dataAttr.attribute_value_list.Length == 0)
+                                                if (dataAttr.attribute_value_list.Length == 0)
                                                 {
                                                     attrValue.value_id = 0;
                                                     attrValue.original_value_name = value.Trim();
@@ -7472,25 +7473,25 @@ namespace MasterOnline.Controllers
             {
                 manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
 
-            string sSQL = "UPDATE S SET LINK_STATUS='Buat Produk Pending', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', ";
-            //jobid;request_action;request_result;request_exception
-            string Link_Error = "0;Buat Produk;;";
-            sSQL += "LINK_ERROR = '" + Link_Error + "' FROM STF02H S INNER JOIN ARF01 A ON S.IDMARKET = A.RECNUM AND A.CUST = '" + log_CUST + "' WHERE S.BRG = '" + kodeProduk + "' ";
-            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+                string sSQL = "UPDATE S SET LINK_STATUS='Buat Produk Pending', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', ";
+                //jobid;request_action;request_result;request_exception
+                string Link_Error = "0;Buat Produk;;";
+                sSQL += "LINK_ERROR = '" + Link_Error + "' FROM STF02H S INNER JOIN ARF01 A ON S.IDMARKET = A.RECNUM AND A.CUST = '" + log_CUST + "' WHERE S.BRG = '" + kodeProduk + "' ";
+                EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 
-            myReq.ContentLength = myData.Length;
-            using (var dataStream = myReq.GetRequestStream())
-            {
-                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-            }
-            using (WebResponse response = await myReq.GetResponseAsync())
-            {
-                using (Stream stream = response.GetResponseStream())
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
                 {
-                    StreamReader reader = new StreamReader(stream);
-                    responseFromServer = reader.ReadToEnd();
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
                 }
-            }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
             }
             catch (WebException e)
             {
@@ -7957,6 +7958,67 @@ namespace MasterOnline.Controllers
             if (responseFromServer != "")
             {
                 ret = JsonConvert.DeserializeObject(responseFromServer, typeof(GetVariationResult)) as GetVariationResult;
+
+            }
+
+            return ret;
+        }
+        public async Task<GetVariationResult_V2> CekVariationShopee_V2(ShopeeAPIData iden, long item_id)
+        {
+            var ret = new GetVariationResult_V2();
+            SetupContext(iden);
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            int MOPartnerID = MOPartnerIDV2;
+            string MOPartnerKey = MOPartnerKeyV2;
+            string urll = shopeeV2Url;
+            string path = "/api/v2/product/get_model_list";
+
+            var baseString = MOPartnerID + path + seconds + iden.token + iden.merchant_code;
+            var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
+
+            string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds + "&sign=" + sign
+                + "&access_token=" + iden.token + "&shop_id=" + iden.merchant_code + "&item_id=" + item_id;
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
+            myReq.Method = "GET";
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+                //if (currentLog != null)
+                //{
+                //    manageAPI_LOG_MARKETPLACE(api_status.RePending, ErasoftDbContext, iden, currentLog);
+                //}
+            }
+            catch (WebException e)
+            {
+                string err = "";
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                }
+            }
+
+
+            if (responseFromServer != "")
+            {
+                ret = JsonConvert.DeserializeObject(responseFromServer, typeof(GetVariationResult_V2)) as GetVariationResult_V2;
 
             }
 
@@ -8612,7 +8674,7 @@ namespace MasterOnline.Controllers
                     {
                         if (resServer.variation_id_list.Count() > 0)
                         {
-                                var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
+                            var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
                             foreach (var variasi in resServer.variation_id_list)
                             {
                                 string key_map_tier_index_recnum = "";
@@ -8730,21 +8792,21 @@ namespace MasterOnline.Controllers
                 sSQL += "FROM STF02 A INNER JOIN STF02H B ON A.BRG = B.BRG ";
                 sSQL += "WHERE PART = '" + brg + "' AND IDMARKET = " + marketplace.RecNum;
                 var dsBarang = EDB.GetDataSet("CString", "STF02", sSQL);
-                var dataBrg = await CekVariationShopee(iden, item_id);
-                if (dataBrg != null)
+                var dataBrg = await CekVariationShopee_V2(iden, item_id);
+                if (dataBrg.response != null)
                 {
-                    if (dataBrg.variations != null)
+                    if (dataBrg.response.model != null)
                     {
-                        if (dataBrg.variations.Length > 0)
+                        if (dataBrg.response.model.Length > 0)
                         {
                             var tempData = new List<STF02>();
                             var newData = ListVariant;
                             //var cekTier1 = dataBrg.variations.Where(p => p.tier_index[0] == 0).ToList();
-                            if (dataBrg.tier_variation.Length == 1)// shopee 1 tier
+                            if (dataBrg.response.tier_variation.Length == 1)// shopee 1 tier
                             {
-                                foreach (var tier1_s in dataBrg.variations.OrderBy(p => p.tier_index[0]))
+                                foreach (var tier1_s in dataBrg.response.model.OrderBy(p => p.tier_index[0]))
                                 {
-                                    var brgMPVar = dataBrg.item_id + ";" + tier1_s.variation_id;
+                                    var brgMPVar = item_id + ";" + tier1_s.model_id;
                                     var dStf02h = ListStf02hVariasi.Where(p => (p.BRG_MP ?? "") == brgMPVar).FirstOrDefault();
                                     if (dStf02h != null)
                                     {
@@ -8757,9 +8819,9 @@ namespace MasterOnline.Controllers
                             }
                             else
                             {
-                                foreach (var tier1_s in dataBrg.variations.OrderBy(p => p.tier_index[0]).ThenBy(p => p.tier_index[1]))
+                                foreach (var tier1_s in dataBrg.response.model.OrderBy(p => p.tier_index[0]).ThenBy(p => p.tier_index[1]))
                                 {
-                                    var brgMPVar = dataBrg.item_id + ";" + tier1_s.variation_id;
+                                    var brgMPVar = item_id + ";" + tier1_s.model_id;
                                     var dStf02h = ListStf02hVariasi.Where(p => (p.BRG_MP ?? "") == brgMPVar).FirstOrDefault();
                                     if (dStf02h != null)
                                     {
@@ -8832,10 +8894,10 @@ namespace MasterOnline.Controllers
                                     t1_options.option = nama_var1;
                                     t1_options.image = new ShopeeImage_V2();
                                     index_var_1++;
-                                    if (!string.IsNullOrEmpty(t1_options.image.image_id))
+                                    //if (!string.IsNullOrEmpty(t1_options.image.image_id))
                                     {
                                         if (!string.IsNullOrEmpty(item.LINK_GAMBAR_1))
-                                            t1_options.image.image_id = item.LINK_GAMBAR_1;
+                                            t1_options.image.image_id = await UploadImage_V2(iden, item.LINK_GAMBAR_1);
                                         //tier1_code.Add(item.Sort8);
                                     }
                                     tier1_v2.option_list.Add(t1_options);
@@ -8854,15 +8916,15 @@ namespace MasterOnline.Controllers
                                     t2_options = new ShopeeTierVariationOption_V2();
                                     mapIndexVariasi2.Add(nama_var2, index_var_2);
                                     //tier2_options.Add(nama_var2);
-                                    t2_options.option = nama_var1;
+                                    t2_options.option = nama_var2;
                                     t2_options.image = new ShopeeImage_V2();
                                     index_var_2++;
                                     if ((item.Sort8 == null ? "" : item.Sort8) == "")
                                     {
-                                        if (!string.IsNullOrEmpty(t2_options.image.image_id))
+                                        //if (string.IsNullOrEmpty(t2_options.image.image_id))
                                         {
                                             if (!string.IsNullOrEmpty(item.LINK_GAMBAR_1))
-                                                t2_options.image.image_id = item.LINK_GAMBAR_1;
+                                                t2_options.image.image_id = await UploadImage_V2(iden, item.LINK_GAMBAR_1);
                                             //tier1_code.Add(item.Sort8);
                                         }
                                     }
@@ -8944,7 +9006,7 @@ namespace MasterOnline.Controllers
             int MOPartnerID = MOPartnerIDV2;
             string MOPartnerKey = MOPartnerKeyV2;
             string urll = shopeeV2Url;
-            string path = "/api/v2/product/add_item";
+            string path = "/api/v2/product/init_tier_variation";
 
             var baseString = MOPartnerID + path + seconds + iden.token + iden.merchant_code;
             var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
@@ -8961,10 +9023,10 @@ namespace MasterOnline.Controllers
             try
             {
                 myReq.ContentLength = myData.Length;
-            using (var dataStream = myReq.GetRequestStream())
-            {
-                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-            }
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
                 using (WebResponse response = await myReq.GetResponseAsync())
                 {
                     using (Stream stream = response.GetResponseStream())
@@ -8976,8 +9038,8 @@ namespace MasterOnline.Controllers
                 if (currentLog != null)
                 {
                     manageAPI_LOG_MARKETPLACE(api_status.RePending, ErasoftDbContext, iden, currentLog);
-                    }
                 }
+            }
             catch (WebException e)
             {
                 string err = "";
@@ -8998,7 +9060,7 @@ namespace MasterOnline.Controllers
             if (responseFromServer != "")
             {
                 var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(InitTierVariationResult_V2)) as InitTierVariationResult_V2;
-                if (resServer.error != null)
+                if (!string.IsNullOrEmpty(resServer.error))
                 {
                     if (resServer.message.Contains("there is no tier_variation level change")) //add by calvin 14 november 2019, req by pak richard
                     {
@@ -9041,9 +9103,9 @@ namespace MasterOnline.Controllers
                                 string urlBrg = "https://shopee.co.id/product/" + iden.merchant_code + "/" + resServer.response.item_id;
                                 string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception
                                 //var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "'");
-                                var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.response.item_id) 
-                                    + ";" + Convert.ToString(variasi.model_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" 
-                                    + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "',AVALUE_34 = '" + urlBrg + "' WHERE RECNUM = '" 
+                                var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.response.item_id)
+                                    + ";" + Convert.ToString(variasi.model_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '"
+                                    + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "',AVALUE_34 = '" + urlBrg + "' WHERE RECNUM = '"
                                     + Convert.ToString(recnum_stf02h_var) + "'");
 
                                 //var barang = ErasoftDbContext.STF02H.Where(m => m.RecNum == recnum_stf02h_var).FirstOrDefault();
@@ -9057,7 +9119,7 @@ namespace MasterOnline.Controllers
 
 #if (DEBUG || Debug_AWS)
                                     StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
-                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToString(resServer.response.item_id) 
+                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToString(resServer.response.item_id)
                                         + ";" + Convert.ToString(variasi.model_id), 0, username, null)).Wait();
 #else
                                                         string EDBConnID = EDB.GetConnectionString("ConnId");
@@ -9152,119 +9214,119 @@ namespace MasterOnline.Controllers
                 //add by calvin 21 desember 2018, default nya semua logistic enabled
                 var ShopeeGetLogisticsResult = await GetLogistics(iden);
 
-            foreach (var log in ShopeeGetLogisticsResult.logistics.Where(p => p.enabled == true && p.fee_type.ToUpper() != "CUSTOM_PRICE" 
-            && p.fee_type.ToUpper() != "SIZE_SELECTION" && p.mask_channel_id == 0))
-            {
-                //logistics.Add(new ShopeeLogisticsClass()
-                //{
-                //    enabled = log.enabled,
-                //    is_free = false,
-                //    logistic_id = log.logistic_id,
-                //});
-                bool lolosValidLogistic = true;
-                var cLog = ShopeeGetLogisticsResult.logistics.Where(p => p.mask_channel_id == log.logistic_id && p.enabled == true).ToList();
-                if (cLog.ToList().Count > 0)
+                foreach (var log in ShopeeGetLogisticsResult.logistics.Where(p => p.enabled == true && p.fee_type.ToUpper() != "CUSTOM_PRICE"
+                && p.fee_type.ToUpper() != "SIZE_SELECTION" && p.mask_channel_id == 0))
                 {
-                    foreach (var cekLogistic in cLog)
+                    //logistics.Add(new ShopeeLogisticsClass()
+                    //{
+                    //    enabled = log.enabled,
+                    //    is_free = false,
+                    //    logistic_id = log.logistic_id,
+                    //});
+                    bool lolosValidLogistic = true;
+                    var cLog = ShopeeGetLogisticsResult.logistics.Where(p => p.mask_channel_id == log.logistic_id && p.enabled == true).ToList();
+                    if (cLog.ToList().Count > 0)
                     {
-                        if (cekLogistic.weight_limits != null)
+                        foreach (var cekLogistic in cLog)
                         {
-                            if (cekLogistic.weight_limits.item_max_weight > 0)
+                            if (cekLogistic.weight_limits != null)
                             {
-                                if (cekLogistic.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
+                                if (cekLogistic.weight_limits.item_max_weight > 0)
+                                {
+                                    if (cekLogistic.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
+                                    {
+                                        lolosValidLogistic = false;
+                                    }
+                                }
+                                if (cekLogistic.weight_limits.item_min_weight > (brgInDb.BERAT / 1000))
                                 {
                                     lolosValidLogistic = false;
                                 }
                             }
-                            if (cekLogistic.weight_limits.item_min_weight > (brgInDb.BERAT / 1000))
+
+                            if (cekLogistic.item_max_dimension != null)
+                            {
+                                if (cekLogistic.item_max_dimension.length > 0)
+                                {
+                                    if (cekLogistic.item_max_dimension.length < (Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG)))
+                                    {
+                                        lolosValidLogistic = false;
+                                    }
+                                }
+                                if (cekLogistic.item_max_dimension.height > 0)
+                                {
+                                    if (cekLogistic.item_max_dimension.height < (Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI)))
+                                    {
+                                        lolosValidLogistic = false;
+                                    }
+                                }
+                                if (cekLogistic.item_max_dimension.width > 0)
+                                {
+                                    if (cekLogistic.item_max_dimension.width < (Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR)))
+                                    {
+                                        lolosValidLogistic = false;
+                                    }
+                                }
+                            }
+                            if (lolosValidLogistic)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (log.weight_limits != null)
+                        {
+                            if (log.weight_limits.item_max_weight > 0)
+                            {
+                                if (log.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
+                                {
+                                    lolosValidLogistic = false;
+                                }
+                            }
+                            if (log.weight_limits.item_min_weight > (brgInDb.BERAT / 1000))
                             {
                                 lolosValidLogistic = false;
                             }
                         }
 
-                        if (cekLogistic.item_max_dimension != null)
+                        if (log.item_max_dimension != null)
                         {
-                            if (cekLogistic.item_max_dimension.length > 0)
+                            if (log.item_max_dimension.length > 0)
                             {
-                                if (cekLogistic.item_max_dimension.length < (Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG)))
+                                if (log.item_max_dimension.length < (Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG)))
                                 {
                                     lolosValidLogistic = false;
                                 }
                             }
-                            if (cekLogistic.item_max_dimension.height > 0)
+                            if (log.item_max_dimension.height > 0)
                             {
-                                if (cekLogistic.item_max_dimension.height < (Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI)))
+                                if (log.item_max_dimension.height < (Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI)))
                                 {
                                     lolosValidLogistic = false;
                                 }
                             }
-                            if (cekLogistic.item_max_dimension.width > 0)
+                            if (log.item_max_dimension.width > 0)
                             {
-                                if (cekLogistic.item_max_dimension.width < (Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR)))
+                                if (log.item_max_dimension.width < (Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR)))
                                 {
                                     lolosValidLogistic = false;
                                 }
                             }
-                        }
-                        if (lolosValidLogistic)
-                        {
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    if (log.weight_limits != null)
-                    {
-                        if (log.weight_limits.item_max_weight > 0)
-                        {
-                            if (log.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
-                            {
-                                lolosValidLogistic = false;
-                            }
-                        }
-                        if (log.weight_limits.item_min_weight > (brgInDb.BERAT / 1000))
-                        {
-                            lolosValidLogistic = false;
                         }
                     }
 
-                    if (log.item_max_dimension != null)
+                    if (lolosValidLogistic)
                     {
-                        if (log.item_max_dimension.length > 0)
+                        logistics.Add(new ShopeeLogisticsClass()
                         {
-                            if (log.item_max_dimension.length < (Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG)))
-                            {
-                                lolosValidLogistic = false;
-                            }
-                        }
-                        if (log.item_max_dimension.height > 0)
-                        {
-                            if (log.item_max_dimension.height < (Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI)))
-                            {
-                                lolosValidLogistic = false;
-                            }
-                        }
-                        if (log.item_max_dimension.width > 0)
-                        {
-                            if (log.item_max_dimension.width < (Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR)))
-                            {
-                                lolosValidLogistic = false;
-                            }
-                        }
+                            enabled = log.enabled,
+                            is_free = false,
+                            logistic_id = log.logistic_id,
+                        });
                     }
                 }
-
-                if (lolosValidLogistic)
-                {
-                    logistics.Add(new ShopeeLogisticsClass()
-                    {
-                        enabled = log.enabled,
-                        is_free = false,
-                        logistic_id = log.logistic_id,
-                    });
-                }
-            }
                 //end add by calvin 21 desember 2018, default nya semua logistic enabled
             }
             else
@@ -9540,7 +9602,7 @@ namespace MasterOnline.Controllers
             if (string.IsNullOrEmpty(detailBrg.AVALUE_39))
             {
                 //add by calvin 21 desember 2018, default nya semua logistic enabled
-                var ShopeeGetLogisticsResult = await GetLogistics(iden);
+                var ShopeeGetLogisticsResult = await GetLogistics_V2(iden);
 
                 foreach (var log in ShopeeGetLogisticsResult.logistics.Where(p => p.enabled == true && p.fee_type.ToUpper() != "CUSTOM_PRICE"
                 && p.fee_type.ToUpper() != "SIZE_SELECTION" && p.mask_channel_id == 0))
@@ -9749,25 +9811,25 @@ namespace MasterOnline.Controllers
                 var img1 = await UploadImage_V2(iden, brgInDb.LINK_GAMBAR_1);
                 HttpBody.image.image_id_list.Add(img1);
             }
-              
+
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
             {
                 var img2 = await UploadImage_V2(iden, brgInDb.LINK_GAMBAR_2);
                 HttpBody.image.image_id_list.Add(img2);
             }
-              
+
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
             {
                 var img3 = await UploadImage_V2(iden, brgInDb.LINK_GAMBAR_3);
                 HttpBody.image.image_id_list.Add(img3);
             }
-               
+
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_4))
             {
                 var img4 = await UploadImage_V2(iden, brgInDb.LINK_GAMBAR_4);
                 HttpBody.image.image_id_list.Add(img4);
             }
-                
+
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
             {
                 var img5 = await UploadImage_V2(iden, brgInDb.LINK_GAMBAR_5);
@@ -9924,7 +9986,7 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        if (resServer.message.Contains("weight") || resServer.message.Contains("package_height") 
+                        if (resServer.message.Contains("weight") || resServer.message.Contains("package_height")
                             || resServer.message.Contains("package_length") || resServer.message.Contains("package_width"))
                         {
                             currentLog.REQUEST_RESULT = "Update Product " + brg + " ke Shopee Gagal.";
@@ -10008,9 +10070,9 @@ namespace MasterOnline.Controllers
                     var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeUnlistProductResponse)) as ShopeeUnlistProductResponse;
                     if (resServer != null)
                     {
-                        if(resServer.failed != null)
+                        if (resServer.failed != null)
                         {
-                            if(resServer.failed.Length > 0)
+                            if (resServer.failed.Length > 0)
                             {
                                 string errMsg = "Error Unlist Product : ";
                                 foreach (var er in resServer.failed)
@@ -10019,7 +10081,7 @@ namespace MasterOnline.Controllers
                                 }
                                 throw new Exception(errMsg);
                             }
-                            
+
                         }
                     }
 
@@ -10315,7 +10377,7 @@ namespace MasterOnline.Controllers
                     if (log_ActionName.Contains("UPDATE_MASSAL"))
                     {
                         var dataLog = log_ActionName.Split('_');
-                        if(dataLog.Length >= 4)
+                        if (dataLog.Length >= 4)
                         {
                             var nobuk = dataLog[2];
                             var indexData = Convert.ToInt32(dataLog[3]);
@@ -10323,7 +10385,7 @@ namespace MasterOnline.Controllers
                             if (log_b != null)
                             {
                                 var currentProgress = log_b.KET.Split('/');
-                                if(currentProgress.Length == 2)
+                                if (currentProgress.Length == 2)
                                 {
                                     log_b.KET = (Convert.ToInt32(currentProgress[0]) + 1) + "/" + currentProgress[1];
                                     ErasoftDbContext.SaveChanges();
@@ -12548,7 +12610,68 @@ namespace MasterOnline.Controllers
             public long model_id { get; set; }
             public string model_sku { get; set; }
         }
+        #region get variation v2
 
+        public class GetVariationResult_V2
+        {
+            public string error { get; set; }
+            public string message { get; set; }
+            public string warning { get; set; }
+            public string request_id { get; set; }
+            public ResponseGetVariationResult response { get; set; }
+        }
+
+        public class ResponseGetVariationResult
+        {
+            public Tier_Variation_V2[] tier_variation { get; set; }
+            public Model_V2[] model { get; set; }
+        }
+
+        public class Tier_Variation_V2
+        {
+            public string name { get; set; }
+            public Option_List_V2[] option_list { get; set; }
+        }
+
+        public class Option_List_V2
+        {
+            public string option { get; set; }
+            public Image_V2 image { get; set; }
+        }
+
+        public class Image_V2
+        {
+            public string image_id { get; set; }
+            public string image_url { get; set; }
+        }
+
+        public class Model_V2
+        {
+            public long model_id { get; set; }
+            //public int promotion_id { get; set; }
+            public int[] tier_index { get; set; }
+            public Stock_Info_V2[] stock_info { get; set; }
+            public Price_Info_V2[] price_info { get; set; }
+            public string model_sku { get; set; }
+        }
+
+        public class Stock_Info_V2
+        {
+            public int stock_type { get; set; }
+            public int current_stock { get; set; }
+            public int normal_stock { get; set; }
+            public int reserved_stock { get; set; }
+        }
+
+        public class Price_Info_V2
+        {
+            public long current_price { get; set; }
+            public long original_price { get; set; }
+            //public int inflated_price_of_current_price { get; set; }
+            //public int inflated_price_of_original_price { get; set; }
+        }
+
+        #endregion
         public class GetVariationResult
         {
             public long item_id { get; set; }

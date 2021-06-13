@@ -5371,9 +5371,24 @@
                             $('#div_detail_' + data_ar_recnum + ' :input[data-valid-toggle-required="1"]').each(function () {
                                 var $this = $(this);
                                 var $value = $this.val();
-
-                                if ($value == '' || isEmptyOrSpaces($value)) {
-                                    IsValid = false;
+                                if (!Array.isArray($value)) {
+                                    if ($value == '' || isEmptyOrSpaces($value)) {
+                                        IsValid = false;
+                                    }
+                                }
+                                else {
+                                    if ($value.length > 0) {
+                                        //$value.forEach(function () {
+                                        //    var $value2 = $(this);
+                                        //    //var $value2 = $this2.val();
+                                        //    if ($value2 == '' || isEmptyOrSpaces($value2)) {
+                                        //        IsValid = false;
+                                        //    }
+                                        //});
+                                    }
+                                    else {
+                                        IsValid = false;
+                                    }
                                 }
                             });
 
