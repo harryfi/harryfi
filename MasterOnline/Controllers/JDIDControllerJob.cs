@@ -571,17 +571,31 @@ namespace MasterOnline.Controllers
                                 ret.accessToken = result.access_token;
                                 ret.tgl_expired = Convert.ToDateTime(timeExpired);
                                 ret.refreshToken = result.refresh_token;
+
+                                string sSQLInsert = "INSERT INTO API_LOG_MARKETPLACE(REQUEST_ID,REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_1,REQUEST_ATTRIBUTE_2,REQUEST_STATUS,REQUEST_EXCEPTION,CUST) ";
+                                sSQLInsert += "SELECT '" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") + "' AS REQUEST_ID,'REFRESH_TOKEN_JDID' AS REQUEST_ACTION,DATEADD(HOUR, +7, GETUTCDATE()) AS REQUEST_DATETIME,'" + data.accessToken + "' AS REQUEST_ATTRIBUTE_1,'" + data.refreshToken + "' AS REQUEST_ATTRIBUTE_2,'REFRESH_JDID SUCCESS' AS REQUEST_STATUS, 'SUCCESS' AS REQUEST_EXCEPTION, '" + data.no_cust + "' AS CUST";
+                                var resultInsert = EDB.ExecuteSQL("CString", CommandType.Text, sSQLInsert);
                             }
                             else
                             {
+                                string sSQLInsert = "INSERT INTO API_LOG_MARKETPLACE(REQUEST_ID,REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_1,REQUEST_ATTRIBUTE_2,REQUEST_STATUS,REQUEST_EXCEPTION,CUST) ";
+                                sSQLInsert += "SELECT '" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") + "' AS REQUEST_ID,'REFRESH_TOKEN_JDID' AS REQUEST_ACTION,DATEADD(HOUR, +7, GETUTCDATE()) AS REQUEST_DATETIME,'" + data.accessToken + "' AS REQUEST_ATTRIBUTE_1,'" + data.refreshToken + "' AS REQUEST_ATTRIBUTE_2,'REFRESH_JDID FAILED' AS REQUEST_STATUS, 'UPDATE TOKEN FAILED' AS REQUEST_EXCEPTION, '" + data.no_cust + "' AS CUST";
+                                var resultInsert = EDB.ExecuteSQL("CString", CommandType.Text, sSQLInsert);
                             }
                         }
                         else
                         {
+                            string sSQLInsert = "INSERT INTO API_LOG_MARKETPLACE(REQUEST_ID,REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_1,REQUEST_ATTRIBUTE_2,REQUEST_STATUS,REQUEST_EXCEPTION,CUST) ";
+                            sSQLInsert += "SELECT '" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") + "' AS REQUEST_ID,'REFRESH_TOKEN_JDID' AS REQUEST_ACTION,DATEADD(HOUR, +7, GETUTCDATE()) AS REQUEST_DATETIME,'" + data.accessToken + "' AS REQUEST_ATTRIBUTE_1,'" + data.refreshToken + "' AS REQUEST_ATTRIBUTE_2,'REFRESH_JDID FAILED' AS REQUEST_STATUS, 'ACCESS / REFRESH TOKEN NULL' AS REQUEST_EXCEPTION, '" + data.no_cust + "' AS CUST";
+                            var resultInsert = EDB.ExecuteSQL("CString", CommandType.Text, sSQLInsert);
                         }
                     }
                     catch (Exception ex)
                     {
+                        string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                        string sSQLInsert = "INSERT INTO API_LOG_MARKETPLACE(REQUEST_ID,REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_1,REQUEST_ATTRIBUTE_2,REQUEST_STATUS,REQUEST_EXCEPTION,CUST) ";
+                        sSQLInsert += "SELECT '" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") + "' AS REQUEST_ID,'REFRESH_TOKEN_JDID' AS REQUEST_ACTION,DATEADD(HOUR, +7, GETUTCDATE()) AS REQUEST_DATETIME,'" + data.accessToken + "' AS REQUEST_ATTRIBUTE_1,'" + data.refreshToken + "' AS REQUEST_ATTRIBUTE_2,'REFRESH_JDID FAILED' AS REQUEST_STATUS, '" + msg + "' AS REQUEST_EXCEPTION, '" + data.no_cust + "' AS CUST";
+                        var resultInsert = EDB.ExecuteSQL("CString", CommandType.Text, sSQLInsert);
                     }
                 }
             }
@@ -3167,7 +3181,7 @@ namespace MasterOnline.Controllers
 
             var daysFrom = -1;
             var daysTo = 1;
-            var daysNow = DateTime.UtcNow;
+            var daysNow = DateTime.UtcNow.AddHours(7);
             //add by nurul 20/1/2021, bundling 
             var AdaKomponen = false;
             var connIdProses = "";
@@ -3175,7 +3189,7 @@ namespace MasterOnline.Controllers
             //end add by nurul 20/1/2021, bundling 
 
             //while (daysFrom > -13)
-            while (daysFrom > -3)
+            while (daysFrom >= -3)
             {
                 //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
                 //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
@@ -3365,7 +3379,7 @@ namespace MasterOnline.Controllers
 
             var daysFrom = -1;
             var daysTo = 1;
-            var daysNow = DateTime.UtcNow;
+            var daysNow = DateTime.UtcNow.AddHours(7);
             //add by nurul 20/1/2021, bundling 
             var AdaKomponen = false;
             var connIdProses = "";
@@ -3373,7 +3387,7 @@ namespace MasterOnline.Controllers
             //end add by nurul 20/1/2021, bundling 
 
 
-            while (daysFrom > -13)
+            while (daysFrom >= -3)
             {
                 //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
                 //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
@@ -3559,16 +3573,16 @@ namespace MasterOnline.Controllers
             string ret = "";
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
-            var daysFrom = -1;
-            var daysTo = 1;
-            var daysNow = DateTime.UtcNow;
+            var daysFrom = -2;
+            var daysTo = 0;
+            var daysNow = DateTime.UtcNow.AddHours(7);
             //add by nurul 20/1/2021, bundling 
             var AdaKomponen = false;
             var connIdProses = "";
             List<string> tempConnId = new List<string>() { };
             //end add by nurul 20/1/2021, bundling 
 
-            while (daysFrom > -13)
+            while (daysFrom >= -10)
             {
                 //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
                 //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
@@ -3763,10 +3777,10 @@ namespace MasterOnline.Controllers
             string ret = "";
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
-            var daysFrom = -1;
-            var daysTo = 1;
-            var daysNow = DateTime.UtcNow;
-            while (daysFrom > -13)
+            var daysFrom = -2;
+            var daysTo = 0;
+            var daysNow = DateTime.UtcNow.AddHours(7);
+            while (daysFrom >= -10)
             {
                 //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
                 //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
