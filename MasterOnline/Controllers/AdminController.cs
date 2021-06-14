@@ -3425,6 +3425,9 @@ namespace MasterOnline.Controllers
                             ErasoftDbContext = new ErasoftContext(dbSourceEra, accountlist.DatabasePathErasoft);
 
 
+                            var checkToko = ErasoftDbContext.ARF01.ToList();
+                            var checkMP = MoDbContext.Marketplaces.ToList();
+
                             foreach (var listKodeBaru in splitlistBRGBaru)
                             {
                                 var checkBarangBaru = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == listKodeBaru.ToUpper()).ToList();
@@ -3529,9 +3532,27 @@ namespace MasterOnline.Controllers
                                                 {
                                                     foreach (var brgMpLama in checkBarangMPLama)
                                                     {
-                                                        if (!brgMpLama.DISPLAY && string.IsNullOrEmpty(brgMpLama.BRG_MP))
+                                                        //if (!brgMpLama.DISPLAY && string.IsNullOrEmpty(brgMpLama.BRG_MP))
+                                                        if (string.IsNullOrEmpty(brgMpLama.BRG_MP))
                                                         {
                                                             EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02H WHERE BRG ='" + brgMpLama.BRG + "' AND Recnum = " + brgMpLama.RecNum + "");
+                                                        }
+                                                        else if (checkBarangMPBaru.Count() > 0)
+                                                        {
+                                                            var dupe = checkBarangMPBaru.Where(m => m.IDMARKET == brgMpLama.IDMARKET).FirstOrDefault();
+                                                            if(dupe != null)
+                                                            {
+                                                                if (!string.IsNullOrEmpty(dupe.BRG_MP))
+                                                                {
+                                                                    var dataToko = checkToko.Where(m => m.RecNum == dupe.IDMARKET).FirstOrDefault();
+                                                                    int recm = Convert.ToInt32(dataToko.NAMA);
+                                                                    var dataMp = checkMP.Where(p => p.IdMarket == recm).FirstOrDefault();
+                                                                    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02H WHERE Recnum = " + brgMpLama.RecNum + "");
+                                                                    vkodebarangharussynculang += "kodebrg: " + listKodeBaru + " ,akun :" + dataMp.NamaMarket + "(" + dataToko.PERSO + ")  |  ";
+
+                                                                }
+                                                                EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02H WHERE Recnum = " + dupe.RecNum + "");
+                                                            }
                                                         }
                                                     }
 
@@ -3607,35 +3628,35 @@ namespace MasterOnline.Controllers
                                                     }
                                                 }
 
-                                                var checkDuplicateBrgMP = ErasoftDbContext.STF02H.Where(p => p.BRG.ToUpper() == listKodeBaru.ToUpper()).GroupBy(x => x.IDMARKET).Where(p => p.Count() > 1).ToList();
-                                                //foreach(var tes in checkDuplicateBrgMP)
-                                                if (checkDuplicateBrgMP.Count() > 0)
-                                                {
-                                                    var checkToko = ErasoftDbContext.ARF01.ToList();
-                                                    var checkMP = MoDbContext.Marketplaces.ToList();
-                                                    foreach (var checkDup in checkDuplicateBrgMP)
-                                                    {
-                                                        int idmarket = Convert.ToInt32(checkDup.Key);
-                                                        var listDuplicate = ErasoftDbContext.STF02H.Where(p => p.BRG.ToUpper() == listKodeBaru.ToUpper() && p.IDMARKET == idmarket).OrderByDescending(p => p.LINK_DATETIME).ToList();
-                                                        if (listDuplicate.Count() > 0)
-                                                        {
-                                                            //bool deleted = false;
-                                                            foreach (var itemDup in listDuplicate)
-                                                            {
-                                                                int recn = itemDup.IDMARKET;
-                                                                var dataToko = checkToko.Where(p => p.RecNum == recn).SingleOrDefault();
-                                                                int recm = Convert.ToInt32(dataToko.NAMA);
-                                                                var dataMp = checkMP.Where(p => p.IdMarket == recm).SingleOrDefault();
-                                                                vkodebarangharussynculang += "kodebrg: " + listKodeBaru + " (toko:" + dataToko.PERSO + " mp:" + dataMp.NamaMarket + ")  |  ";
-                                                                //    if (deleted)
-                                                                //    {
-                                                                //EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02H WHERE BRG ='" + itemDup.BRG + "' AND Recnum = " + itemDup.RecNum + ";");
-                                                                //    }
-                                                                //    deleted = true;
-                                                            }
-                                                        }
-                                                    }
-                                                }
+                                                //var checkDuplicateBrgMP = ErasoftDbContext.STF02H.Where(p => p.BRG.ToUpper() == listKodeBaru.ToUpper()).GroupBy(x => x.IDMARKET).Where(p => p.Count() > 1).ToList();
+                                                ////foreach(var tes in checkDuplicateBrgMP)
+                                                //if (checkDuplicateBrgMP.Count() > 0)
+                                                //{
+                                                //    //var checkToko = ErasoftDbContext.ARF01.ToList();
+                                                //    //var checkMP = MoDbContext.Marketplaces.ToList();
+                                                //    foreach (var checkDup in checkDuplicateBrgMP)
+                                                //    {
+                                                //        int idmarket = Convert.ToInt32(checkDup.Key);
+                                                //        var listDuplicate = ErasoftDbContext.STF02H.Where(p => p.BRG.ToUpper() == listKodeBaru.ToUpper() && p.IDMARKET == idmarket).OrderByDescending(p => p.LINK_DATETIME).ToList();
+                                                //        if (listDuplicate.Count() > 0)
+                                                //        {
+                                                //            //bool deleted = false;
+                                                //            foreach (var itemDup in listDuplicate)
+                                                //            {
+                                                //                int recn = itemDup.IDMARKET;
+                                                //                var dataToko = checkToko.Where(p => p.RecNum == recn).SingleOrDefault();
+                                                //                int recm = Convert.ToInt32(dataToko.NAMA);
+                                                //                var dataMp = checkMP.Where(p => p.IdMarket == recm).SingleOrDefault();
+                                                //                vkodebarangharussynculang += "kodebrg: " + listKodeBaru + " (toko:" + dataToko.PERSO + " mp:" + dataMp.NamaMarket + ")  |  ";
+                                                //                //    if (deleted)
+                                                //                //    {
+                                                //                //EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02H WHERE BRG ='" + itemDup.BRG + "' AND Recnum = " + itemDup.RecNum + ";");
+                                                //                //    }
+                                                //                //    deleted = true;
+                                                //            }
+                                                //        }
+                                                //    }
+                                                //}
 
                                                 resultMerge = true;
                                             }
