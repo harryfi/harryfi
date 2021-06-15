@@ -2765,7 +2765,10 @@ namespace MasterOnline.Controllers
             iden.token = token;
 
             string[] splitNoRef = noref.Split(';');
-            string urll = "https://fs.tokopedia.net/v1/order/" + Uri.EscapeDataString(splitNoRef[0]) + "/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/shipping-label?printed=0";
+            //change by nurul 25/5/2021
+            //string urll = "https://fs.tokopedia.net/v1/order/" + Uri.EscapeDataString(splitNoRef[0]) + "/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/shipping-label?printed=0";
+            string urll = "https://fs.tokopedia.net/v1/order/" + Uri.EscapeDataString(splitNoRef[0]) + "/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/shipping-label?printed=1";
+            //end change by nurul 25/5/2021
             long milis = CurrentTimeMillis();
 
 

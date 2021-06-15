@@ -49,6 +49,10 @@ namespace MasterOnline
 
         public DbSet<CATEGORY_JDID> CATEGORY_JDID { get; set; }
         public DbSet<CATEGORY_SHOPIFY> CategoryShopify { get; set; }
+        //add by nurul 28/5/2021
+        public DbSet<ATTRIBUTE_JDID> AttributeJDID { get; set; }
+        public DbSet<ATTRIBUTE_OPT_JDID> AttributeOptJDID { get; set; }
+        //end add by nurul 28/5/2021
 
         //add by fauzi for 82cart
         public DbSet<CATEGORY_82CART> Category82Cart { get; set; }

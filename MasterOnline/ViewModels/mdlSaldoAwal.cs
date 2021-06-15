@@ -21,6 +21,9 @@ namespace MasterOnline
         public DateTime? JTGL { get; set; }
         public string POSTING { get; set; }
         public double TOTAL { get; set; }
+        //ADD BY NURUL 11/6/2021
+        public string PERSO { get; set; }
+        //END ADD BY NURUL 11/6/2021
     }
 
     public class mdlMultiSKU

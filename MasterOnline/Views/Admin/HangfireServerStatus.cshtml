@@ -184,9 +184,9 @@
                         <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btn_category_blibli" class="btn btn-primary" onclick="popupCategoryBlibli()">
                             <span aria-hidden="true"> Get Category & Attribute Blibli</span>
                         </button>
-                        @*<button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btn_category_blibli" class="btn btn-primary" onclick="popupCategoryBlibli()">
-                            <span aria-hidden="true"> Get Category & Attribute Blibli2</span>
-                        </button>*@
+                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btn_category_blibli" class="btn btn-primary" onclick="popupCategoryJDID()">
+                            <span aria-hidden="true"> Get Category & Attribute JDID</span>
+                        </button>
                     </div>
                 </div>
                 <div class="btn-group pull-right" role="group">
@@ -344,6 +344,9 @@
                             </div>
                         </div>
                         <button type="button" id="btnCatAttrBlibli" class="btn btn-success" onclick="ProsesCatAttrBlibli();">Proses Get Category & Attribute Blibli</button>
+
+                        <button type="button" id="btnCatAttrJDID" class="btn btn-success" onclick="ProsesCatAttrJDID();">Proses Get Category & Attribute JDID</button>
+                        <button type="button" id="btnAttrJDID" class="btn btn-success" onclick="ProsesAttrJDID();">Proses Get Attribute JDID</button>
                     </div>
                 </div>
             </div>
@@ -360,7 +363,8 @@
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
     <script type="text/javascript">
 
-    $(document).ready(function () {
+        $(document).ready(function () {
+            var tempMpGetCatAttr = 0;
         $('#search_api_log_btn').click(function () {
             searchTableLog();
         });
@@ -655,8 +659,25 @@
                 keyboard: false
             });
             $('#loading_CatAttr').hide();
+            $('#btnCatAttrBlibli').show();
+            $('#btnCatAttrJDID').hide();
+            $('#btnAttrJDID').hide();
         }
     //end add by nurul 11/5/2021
+
+        //add by nurul 27/5/2021
+        function popupCategoryJDID() {
+            $('#konfGetCategoryNAttribute').modal({
+                show: true,
+                backdrop: 'static',
+                keyboard: false
+            });
+            $('#loading_CatAttr').hide();
+            $('#btnCatAttrBlibli').hide();
+            $('#btnCatAttrJDID').show();
+            $('#btnAttrJDID').show();
+        }
+    //end add by nurul 27/5/2021
 
     var refreshingPesanan = false;
     function onRefreshSemuaPesananMPComplete() {
@@ -990,7 +1011,8 @@
                 //data: JSON.stringify($postdata),
                 beforeSend: function () {
                     // $('#loading_spinner').show();
-                    $('#loading_CatAttr').show();
+                    //$('#loading_CatAttr').show();
+                    alert('Get Category & Attribute Blibli sedang berlangsung.');
                     $('#btnCatAttrBlibli').attr('disabled', 'disabled');
                 },
                 success: function (response) {
@@ -1003,7 +1025,7 @@
                     //$('#proses_akhir_tahun_label_perserver').html(response.arraydbname.length + ' accounts left, processing [' + response.arraydbname[0].onlineshopname + '] ');
                     //ProsesAkhirTahunAccountPerServer(response.arraydbname, response.arraydbname[0].db_source, response.arraydbname[0].db_name, response.arraydbname[0].onlineshopname);
                     alert(response);
-                    $('#loading_CatAttr').hide();
+                    //$('#loading_CatAttr').hide();
                     $('#btnCatAttrBlibli').removeAttr('disabled');
                 },
                 //complete: function () {
@@ -1018,5 +1040,61 @@
         //}
     }
     //end add by nurul 17/5/2021
+
+    //add by nurul 27/5/2021
+    function ProsesCatAttrJDID() {
+
+        var $link = '@Html.Raw(Url.Action("GetCategoryJDID", "Admin", new { email = "replaceEmail" }))';
+        $link = $link.replace("replaceEmail", "camellilac@gmail.com");
+        
+            $.ajax({
+                type: "GET",
+                url: $link,
+                contentType: 'application/json',
+                cache: false,
+                beforeSend: function () {
+                    // $('#loading_spinner').show();
+                    //$('#loading_CatAttr').show();
+                    alert('Get Category & Attribute JD.ID sedang berlangsung.');
+                    $('#btnCatAttrJDID').attr('disabled', 'disabled');
+                },
+                success: function (response) {
+                    alert(response);
+                    //$('#loading_CatAttr').hide();
+                    $('#btnCatAttrJDID').removeAttr('disabled');
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+    function ProsesAttrJDID() {
+
+        var $link = '@Html.Raw(Url.Action("GetAttributeJDID", "Admin", new { email = "replaceEmail" }))';
+        $link = $link.replace("replaceEmail", "camellilac@gmail.com");
+        
+            $.ajax({
+                type: "GET",
+                url: $link,
+                contentType: 'application/json',
+                cache: false,
+                beforeSend: function () {
+                    // $('#loading_spinner').show();
+                    //$('#loading_CatAttr').show();
+                    alert('Get Attribute JD.ID sedang berlangsung.');
+                    $('#btnAttrJDID').attr('disabled', 'disabled');
+                },
+                success: function (response) {
+                    alert(response);
+                    //$('#loading_CatAttr').hide();
+                    $('#btnAttrJDID').removeAttr('disabled');
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+    }
+    //end add by nurul 27/5/2021
     </script>
 }

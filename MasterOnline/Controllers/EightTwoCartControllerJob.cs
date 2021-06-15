@@ -21,6 +21,7 @@ using System.Security.Cryptography;
 using System.Net.Http;
 using Hangfire;
 using Hangfire.SqlServer;
+using RestSharp;
 
 namespace MasterOnline.Controllers
 {
@@ -1354,28 +1355,35 @@ namespace MasterOnline.Controllers
 
             string urll = string.Format("{0}/api/v1/getOrder?apiKey={1}&apiCredential={2}&date_add_from={3}&date_add_to={4}", iden.API_url, iden.API_key, iden.API_credential, dateFrom, dateTo);
 
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-            myReq.Method = "GET";
-            myReq.ContentType = "application/json";
+            //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            //myReq.Method = "GET";
+            //myReq.ContentType = "application/json";
             string responseServer = "";
+            var client = new RestClient(urll);
+            //client.Timeout = -1;
+            var request = new RestRequest(Method.GET);
 
-            //try
-            //{
-            using (WebResponse response = await myReq.GetResponseAsync())
+            try
             {
-                using (Stream stream = response.GetResponseStream())
-                {
-                    StreamReader reader = new StreamReader(stream);
-                    responseServer = reader.ReadToEnd();
-                }
+                //using (WebResponse response = await myReq.GetResponseAsync())
+                //{
+                //    using (Stream stream = response.GetResponseStream())
+                //    {
+                //        StreamReader reader = new StreamReader(stream);
+                //        responseServer = reader.ReadToEnd();
+                //    }
+                //}
+                IRestResponse response = client.Execute(request);
+                responseServer = response.Content;
             }
-            //}
-            //catch (Exception ex)
-            //{
+            catch (Exception ex)
+            {
+                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                throw new Exception(msg);
+            }
 
-            //}
-
-            if (responseServer != null)
+            //if (responseServer != null)
+            if (!string.IsNullOrEmpty(responseServer))
             {
                 //try
                 //{
@@ -1388,8 +1396,9 @@ namespace MasterOnline.Controllers
 
                         //string[] ordersn_list = listOrder.data.Select(p => p.id_order).ToArray();
                         //var dariTgl = DateTimeOffset.UtcNow.AddDays(-10).DateTime;
+                        var dariTgl = DateTime.UtcNow.AddHours(7).AddDays(-14);
                         //jmlhNewOrder = 0;
-                        var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
+                        var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && p.TGL.Value >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
 
                         #region UNPAID
                         if (stat == StatusOrder.UNPAID)
@@ -1402,7 +1411,8 @@ namespace MasterOnline.Controllers
                                 if (resultStatusAwaiting.dataObject.Count() > 0)
                                     foreach (var itemOrder in resultStatusAwaiting.dataObject)
                                     {
-                                        if (itemOrder.name.ToString().ToLower().Contains("awaiting") && itemOrder.name.ToString().ToLower().Contains("payment") || itemOrder.name.ToString().ToLower().Contains("payment confirm"))
+                                        if ((itemOrder.name.ToString().ToLower().Contains("awaiting") && itemOrder.name.ToString().ToLower().Contains("payment"))
+                                            || (itemOrder.name.ToString().ToLower().Contains("payment confirm")) || (itemOrder.name.ToString().ToLower().Contains("awaiting bank transfer")))
                                         {
                                             var orderFilter = listOrder.data.Where(p => p.current_state == itemOrder.id_order_state).ToList();
                                             if (orderFilter.Count() > 0)
@@ -2120,29 +2130,36 @@ namespace MasterOnline.Controllers
 
             string urll = string.Format("{0}/api/v1/getOrder?apiKey={1}&apiCredential={2}&date_add_from={3}&date_add_to={4}", iden.API_url, iden.API_key, iden.API_credential, dateFrom, dateTo);
 
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-            myReq.Method = "GET";
-            myReq.ContentType = "application/json";
+            //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            //myReq.Method = "GET";
+            //myReq.ContentType = "application/json";
             string responseServer = "";
+            var client = new RestClient(urll);
+            //client.Timeout = -1;
+            var request = new RestRequest(Method.GET);
 
-            //try
-            //{
-            using (WebResponse response = await myReq.GetResponseAsync())
+            try
             {
-                using (Stream stream = response.GetResponseStream())
-                {
-                    StreamReader reader = new StreamReader(stream);
-                    responseServer = reader.ReadToEnd();
-                }
+                //using (WebResponse response = await myReq.GetResponseAsync())
+                //{
+                //    using (Stream stream = response.GetResponseStream())
+                //    {
+                //        StreamReader reader = new StreamReader(stream);
+                //        responseServer = reader.ReadToEnd();
+                //    }
+                //}
+                IRestResponse response = client.Execute(request);
+                responseServer = response.Content;
             }
-            //}
-            //catch (Exception ex)
-            //{
+            catch (Exception ex)
+            {
+                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                throw new Exception(msg);
+            }
 
-            //}
 
-
-            if (responseServer != null)
+            //if (responseServer != null)
+            if (!string.IsNullOrEmpty(responseServer))
             {
                 //try
                 //{
@@ -2152,8 +2169,9 @@ namespace MasterOnline.Controllers
                     if (listOrder.data != null)
                     {
                         var statusCompleted = "5";
+                        var dariTgl = DateTime.UtcNow.AddHours(7).AddDays(-14);
                         var orderFilterCompleted = listOrder.data.Where(p => p.current_state == statusCompleted).ToList();
-                        var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
+                        var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && p.TGL.Value >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
                         string ordersn = "";
                         jmlhOrderCompeleted = 0;
                         if (orderFilterCompleted != null)
@@ -2179,7 +2197,7 @@ namespace MasterOnline.Controllers
                                 //add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
                                 if (!string.IsNullOrEmpty(ordersn))
                                 {
-                                    var dateTimeNow = Convert.ToDateTime(DateTime.Now.AddHours(7).ToString("yyyy-MM-dd"));
+                                    var dateTimeNow = Convert.ToDateTime(DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd"));
                                     string sSQLUpdateDatePesananSelesai = "UPDATE SIT01A SET TGL_KIRIM = '" + dateTimeNow + "' WHERE NO_REF IN (" + ordersn + ")";
                                     var resultUpdateDatePesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdateDatePesananSelesai);
                                 }
@@ -2282,21 +2300,35 @@ namespace MasterOnline.Controllers
 
             string urll = string.Format("{0}/api/v1/getOrder?apiKey={1}&apiCredential={2}&date_add_from={3}&date_add_to={4}", iden.API_url, iden.API_key, iden.API_credential, dateFrom, dateTo);
 
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-            myReq.Method = "GET";
-            myReq.ContentType = "application/json";
+            //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            //myReq.Method = "GET";
+            //myReq.ContentType = "application/json";
             string responseServer = "";
 
-            using (WebResponse response = await myReq.GetResponseAsync())
+            var client = new RestClient(urll);
+            //client.Timeout = -1;
+            var request = new RestRequest(Method.GET);
+            try
             {
-                using (Stream stream = response.GetResponseStream())
-                {
-                    StreamReader reader = new StreamReader(stream);
-                    responseServer = reader.ReadToEnd();
-                }
+                //using (WebResponse response = await myReq.GetResponseAsync())
+                //{
+                //    using (Stream stream = response.GetResponseStream())
+                //    {
+                //        StreamReader reader = new StreamReader(stream);
+                //        responseServer = reader.ReadToEnd();
+                //    }
+                //}
+                IRestResponse response = client.Execute(request);
+                responseServer = response.Content;
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                throw new Exception(msg);
             }
 
-            if (responseServer != null)
+            //if (responseServer != null)
+            if (!string.IsNullOrEmpty(responseServer))
             {
                 //try
                 //{
@@ -2307,7 +2339,8 @@ namespace MasterOnline.Controllers
                     {
                         var statusCancel = "6";
                         var orderFilterCancel = listOrder.data.Where(p => p.current_state == statusCancel).ToList();
-                        var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
+                        var dariTgl = DateTime.UtcNow.AddHours(7).AddDays(-14);
+                        var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && p.TGL.Value >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
                         string ordersn = "";
                         jmlhOrderCancel = 0;
                         if (orderFilterCancel != null)

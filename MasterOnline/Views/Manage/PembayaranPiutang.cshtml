@@ -2241,7 +2241,7 @@
 
         function simpandetail($id) {
             if (!validateForm()) return false;
-
+            $('#simpan-detail').attr('disabled', 'disabled');
             //if ($id == 'piu-0') {
             if ($id != '') {
                 if ($('#Piutang_TGL').val() != '') {
@@ -2250,7 +2250,7 @@
                     //$('#PiutangDetail_POT').val(convertToAngka($('tr[data-piutang-id="0"] .span-potongan-piutang').text()));
                     //$('#PiutangDetail_BAYAR').val(convertToAngka($('tr[data-piutang-id="0"] .span-bayar-piutang').text()));
                     if ($('#PiutangDetail_POT').val() == "") {
-                        $('#PiutangDetail_POT').val("0") ;
+                        $('#PiutangDetail_POT').val("0");
                         //$('#PiutangDetail_POT').val(convertToAngka($('#PiutangDetail_POT').val()));
                         $('#PiutangDetail_POT').val(convertToAngka(convertToRupiah($('#PiutangDetail_POT').val())));
                     } else {
@@ -2258,7 +2258,7 @@
                         $('#PiutangDetail_POT').val(convertToAngka(convertToRupiah($('#PiutangDetail_POT').val())));
                     }
                     if ($('#PiutangDetail_BAYAR').val() == "") {
-                        $('#PiutangDetail_BAYAR').val("0") ;
+                        $('#PiutangDetail_BAYAR').val("0");
                         //$('#PiutangDetail_BAYAR').val(convertToAngka($('#PiutangDetail_BAYAR').val()));
                         $('#PiutangDetail_BAYAR').val(convertToAngka(convertToRupiah($('#PiutangDetail_BAYAR').val())));
                     } else {
@@ -2271,6 +2271,7 @@
 
                     //if (parseInt($('#PiutangDetail_SISA').val()) < sum) {
                     if (parseFloat($('#PiutangDetail_SISA').val()) < sum) {
+                        $('#simpan-detail').removeAttr('disabled');
                         alert('Nilai Potongan + Nilai Bayar tidak boleh melebihi Nilai Sisa!');
                         return;
                     }
@@ -2301,6 +2302,7 @@
                                 $('#btn-autoload').click(function () {
                                     $('#file_upload_excel').removeAttr('disabled');
                                 });
+                                $('#simpan-detail').removeAttr('disabled');
                                 refreshInputan();
                                 getTanggal();
                                 getMarketplace();
@@ -2309,6 +2311,7 @@
                             } else {
                                 //console.log(response.Errors);
                                 //alert('Ada data yang tidak valid!');
+                                $('#simpan-detail').removeAttr('disabled');
                                 alert(response.Errors);
                             }
                         },
@@ -2317,8 +2320,11 @@
                         }
                     });
                 } else {
+                    $('#simpan-detail').removeAttr('disabled');
                     alert('Silakan isi semua field terlebih dahulu!');
                 }
+            } else {
+                $('#simpan-detail').removeAttr('disabled');
             }
         }
 

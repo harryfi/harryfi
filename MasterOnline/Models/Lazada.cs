@@ -397,7 +397,10 @@ namespace MasterOnline.Models
         public string return_status { get; set; }
         public string name { get; set; }
         public string shipment_provider { get; set; }
-        public string voucher_amount { get; set; }
+        //public string voucher_amount { get; set; }
+        public double? voucher_amount { get; set; }
+        public double? voucher_seller { get; set; }
+
         public string digital_delivery_info { get; set; }
         public string extra_attributes { get; set; }
         public string order_id { get; set; }

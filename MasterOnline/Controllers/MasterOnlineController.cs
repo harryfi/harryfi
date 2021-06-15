@@ -302,14 +302,28 @@ namespace MasterOnline.Controllers
                                     appSecret = customer.API_CLIENT_U,
                                     username = customer.USERNAME,
                                     email = customer.EMAIL,
-                                    DatabasePathErasoft = dbPathEra
+                                    DatabasePathErasoft = dbPathEra,
+                                    //add by nurul 6/6/2021
+                                    versi = customer.KD_ANALISA,
+                                    tgl_expired = customer.TGL_EXPIRED,
+                                    merchant_code = customer.Sort1_Cust,
+                                    refreshToken = customer.REFRESH_TOKEN
+                                    //add by nurul 6/6/2021
                                 };
                                 for (int i = 0; i < dsUpdate.Tables[0].Rows.Count; i++)
                                 {
-                                    clientJobServer.Enqueue<JDIDControllerJob>(x => x.JD_updatePrice(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), 
-                                        customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dataJD, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), 
+                                    if (customer.KD_ANALISA == "2")
+                                    {
+                                        clientJobServer.Enqueue<JDIDControllerJob>(x => x.JD_updatePriceV2(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(),
+                                        customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dataJD, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(),
                                         Convert.ToInt32(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString()), username));
-
+                                    }
+                                    else
+                                    {
+                                        clientJobServer.Enqueue<JDIDControllerJob>(x => x.JD_updatePrice(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(),
+                                            customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dataJD, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(),
+                                            Convert.ToInt32(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString()), username));
+                                    }
                                 }
 
                                 break;

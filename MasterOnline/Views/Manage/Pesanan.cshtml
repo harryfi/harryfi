@@ -2038,7 +2038,7 @@
                         <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
                             <div class="pull-right">
                                 <button type="button" id="btn_update_kurir_shopee_dibayar" class="btn btn-success" data-style="expand-right" onclick="updateKurirShopeeDibayar()">
-                                    <span> Ambil Kurir Shopee</span>
+                                    <span> Perbarui Kurir Shopee</span>
                                 </button>
                                 <button type="button" id="btn_ubahStatusmulti_pesanan_dibayar" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalUbahStatusMultiDibayar" onclick="passRecStatusMultiDibayar()">
                                     <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Ubah Status</span>
@@ -2317,10 +2317,10 @@
                                         Proses <span class="caret"></span>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <button type="button" style="width:100%" id="btn_batch_selesai_status" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#konfUbahStatusSelesaiBatch" onclick="passRecSelesaiStatus()">
-                                            <span class="glyphicon glyphicon-edit" aria-hidden="true"> Change Status</span>
+                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btn_batch_selesai_status" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#konfUbahStatusSelesaiBatch" onclick="passRecSelesaiStatus()">
+                                            <span class="glyphicon glyphicon-edit" aria-hidden="true"> Ubah Status</span>
                                         </button>
-                                        <button type="button" style="width:100%" id="btn_batch_undo_status" class="btn btn-warning" data-style="expand-right" data-toggle="modal" data-target="#konfUndoStatusSudahkirimBatch" onclick="passRecUndoStatus()">
+                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btn_batch_undo_status" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#konfUndoStatusSudahkirimBatch" onclick="passRecUndoStatus()">
                                             <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"> Undo Status</span>
                                         </button>
                                     </div>
@@ -2881,7 +2881,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
-                <button type="button" class="btn btn-success" onclick="ubahStatusPesanan();">Ya</button>
+                <button type="button" class="btn btn-success" onclick="ubahStatusPesanan('B');">Ya</button>
             </div>
         </div>
     </div>
@@ -2937,7 +2937,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
-                <button type="button" class="btn btn-success" onclick="ubahStatusPesanan();">Ya</button>
+                <button type="button" class="btn btn-success" onclick="ubahStatusPesanan('L');">Ya</button>
             </div>
         </div>
     </div>
@@ -2974,7 +2974,7 @@
             </div>
             <div class="modal-footer" id="footer_info_pesananSudahBayar" style="display:none">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
-                <button type="button" class="btn btn-success" onclick="ubahStatusPesanan();">Ya</button>
+                <button type="button" class="btn btn-success" onclick="ubahStatusPesanan('L');">Ya</button>
             </div>
         </div>
     </div>
@@ -3049,7 +3049,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
-                <button type="button" class="btn btn-success" onclick="ubahStatusPesanan();">Ya</button>
+                <button type="button" class="btn btn-success" onclick="ubahStatusPesanan('U');">Ya</button>
             </div>
         </div>
     </div>
@@ -3086,7 +3086,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
-                <button type="button" class="btn btn-success" onclick="ubahStatusPesanan();">Ya</button>
+                <button type="button" class="btn btn-success" onclick="ubahStatusPesanan('L');">Ya</button>
             </div>
         </div>
     </div>
@@ -3123,7 +3123,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
-                <button type="button" class="btn btn-success" onclick="ubahStatusPesanan();">Ya</button>
+                <button type="button" class="btn btn-success" onclick="ubahStatusPesanan('U');">Ya</button>
             </div>
         </div>
     </div>
@@ -3160,7 +3160,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
-                <button type="button" class="btn btn-success" onclick="ubahStatusPesanan();">Ya</button>
+                <button type="button" class="btn btn-success" onclick="ubahStatusPesanan('U');">Ya</button>
             </div>
         </div>
     </div>
@@ -3196,7 +3196,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
-                <button type="button" class="btn btn-success" onclick="ubahStatusPesanan();">Ya</button>
+                <button type="button" class="btn btn-success" onclick="ubahStatusPesanan('U');">Ya</button>
             </div>
         </div>
     </div>
@@ -3973,7 +3973,7 @@
                 <div class="right">
                     <button type="button" class="btn btn-danger " onclick="$('#konfUndoStatusSudahkirimBatch').modal('hide');" id="konfUndoStatusSudahkirimBatch_btn_tidak">Tidak</button>
                     <button type="button" class="btn btn-success" id="konfUndoStatusSudahkirimBatch_btn_ya" onclick="UndoStatusPesananBatch();">Ya</button>
-                    <button type="button" class="btn btn-danger " onclick="$('#konfUndoStatusSudahkirimBatch').modal('hide');" style="display:none;" id="konfUndoStatusSudahkirimBatch_btn_close">Close</button>
+                    <button type="button" class="btn btn-danger " onclick="$('#konfUndoStatusSudahkirimBatch').modal('hide');" style="display:none;" id="konfUndoStatusSudahkirimBatch_btn_close">Selesai</button>
                 </div>
             </div>
         </div>
@@ -4004,6 +4004,7 @@
                 <div class="right">
                     <button type="button" class="btn btn-danger " onclick="$('#konfUbahStatusSelesaiBatch').modal('hide');" id="konfUbahStatusSelesaiBatch_btn_tidak">Tidak</button>
                     <button type="button" class="btn btn-success" id="konfUbahStatusSelesaiBatch_btn_ya" onclick="ubahStatusPesananSelesaiBatch();">Ya</button>
+                    <button type="button" class="btn btn-danger " onclick="$('#konfUbahStatusSelesaiBatch').modal('hide');" id="konfUbahStatusSelesaiBatch_btn_selesai">Selesai</button>
                 </div>
             </div>
         </div>
@@ -11306,10 +11307,10 @@
                         $('#konfUndoStatusSudahkirimBatch_error').html(textareaValue);
 
                         if(response.successCount > 0){
-                            refreshTableSiapKirim();
-                            refreshTablePesanan();
+                            //refreshTableSiapKirim();
+                            //refreshTablePesanan();
                             refreshTableSudahKirim();
-                            refreshTableSudahDibayar();
+                            //refreshTableSudahDibayar();
 
                             $('#konfUndoStatusSudahkirimBatch_btn_tidak').hide();
                             $('#konfUndoStatusSudahkirimBatch_btn_ya').hide();
@@ -11329,6 +11330,19 @@
         }
         function passRecSelesaiStatus(){
             var rows_selected = [];
+
+            //add by nurul 25/5/2021
+            $('#konfUbahStatusSelesaiBatch_header').show();
+            $('#konfUbahStatusSelesaiBatch_btn_tidak').show();
+
+            $('#konfUbahStatusSelesaiBatch_btn_ya').show();
+            $('#konfUbahStatusSelesaiBatch_btn_selesai').hide();
+
+            $('#konfUbahStatusSelesaiBatch_error').html('');
+            $('#konfUbahStatusSelesaiBatch_error').hide();
+            $('#konfUbahStatusSelesaiBatch_partial_body').hide();
+            //end add by nurul 25/5/2021
+
             $('.checkbox_pesanan_faktur').each(function (i, item) {
                 if ($(item).is(":checked")) {
                     rows_selected.push($(item).attr("data-recnum"));
@@ -11351,6 +11365,7 @@
                 success: function (response) {
                     if (response.Errors == null) {
                         $('#konfUbahStatusSelesaiBatch_partial_body').html(response);
+                        $('#konfUbahStatusSelesaiBatch_partial_body').show();
                     } else {
                         $('#konfUbahStatusSelesaiBatch').modal('hide');
                         alert(response.Errors[0]);
@@ -11406,17 +11421,35 @@
                                 textareaValue += "</br>";
                                 textareaValue += "Pesanan gagal ubah status :</br>";
                                 textareaValue += errorValue;
+
+                                //add by nurul 25/5/2021
+                                $('#konfUbahStatusSelesaiBatch_btn_tidak').show();
+                                $('#konfUbahStatusSelesaiBatch_btn_ya').show();
+                                $('#konfUbahStatusSelesaiBatch_btn_selesai').hide();
+                                //end add by nurul 25/5/2021
+                            } else {
+                                //add by nurul 25/5/2021
+                                $('#konfUbahStatusSelesaiBatch_btn_tidak').hide();
+                                $('#konfUbahStatusSelesaiBatch_btn_ya').hide();
+                                $('#konfUbahStatusSelesaiBatch_btn_selesai').show();
+                                //end add by nurul 25/5/2021
                             }
                             $('#konfUbahStatusSelesaiBatch_error').show();
                             $('#konfUbahStatusSelesaiBatch_error').html(textareaValue);
 
                             if(response.successCount > 0){
-                                refreshTableSiapKirim();
-                                refreshTablePesanan();
+                                //refreshTableSiapKirim();
+                                //refreshTablePesanan();
                                 refreshTableSudahKirim();
-                                refreshTableSudahDibayar();
+                                //refreshTableSudahDibayar();
                             }
                         } else {
+                            //add by nurul 25/5/2021
+                            $('#konfUbahStatusSelesaiBatch_btn_tidak').hide();
+                            $('#konfUbahStatusSelesaiBatch_btn_ya').hide();
+                            $('#konfUbahStatusSelesaiBatch_btn_selesai').show();
+                            //end add by nurul 25/5/2021
+
                             $('#konfUbahStatusSelesaiBatch_error').show();
                             $('#konfUbahStatusSelesaiBatch_error').html('Gagal memproses status ke selesai. Mohon hubungi support.');
                         }
@@ -11616,7 +11649,7 @@
             });
         }
         //end add by nurul 14/3/2019
-        function ubahStatusPesanan() {
+        function ubahStatusPesanan($flag) {
             //if ($('#Pesanan_TRACKING_SHIPMENT').val() == '' && $statusPesanan == '03') {
             //    alert('Isi nomor resi terlebih dahulu!');
             //    return;
@@ -11661,17 +11694,29 @@
                 success: function(response) {
                     if (response.Errors == null) {
                         if ($statusPesanan == '01') {
-                            //refreshTableSiapKirim();
-                            refreshTablePesanan();
-                            //refreshTableCancel();
-                            //refreshTableSudahDibayar();
+                            if ($flag == 'L') {
+                                //refreshTableSiapKirim();
+                                refreshTablePesanan();
+                                //refreshTableCancel();
+                                //refreshTableSudahDibayar();
+                            } else if ($flag == 'U') {
+                                refreshTableSiapKirim();
+                            } else if ($flag == 'B') {
+                                refreshTableCancel();
+                            }
                         } else if ($statusPesanan == '02' || $statusPesanan == '11') {
-                            refreshTableSudahDibayar();
-                            //refreshTableSudahKirim();
+                            if ($flag == 'L' || $flag == 'B') {
+                                refreshTableSudahDibayar();
+                            } else if ($flag == 'U') {
+                                refreshTableSudahKirim();
+                            } 
                             $('#konfBatalPesanan').modal('hide');
                         } else if ($statusPesanan == '03' || $statusPesanan == '03-undo') {
-                            refreshTableSiapKirim();
-                            //refreshTableSelesai();
+                            if ($flag == 'L') {
+                                refreshTableSiapKirim();
+                            } else if ($flag == 'U') {
+                                refreshTableSelesai();
+                            }
                         } else if ($statusPesanan == '04') {
                             refreshTableSudahKirim();
                         }

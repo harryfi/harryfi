@@ -997,6 +997,9 @@ namespace MasterOnline.Controllers
 
                             connId_JobId = dbPathEra + "_lazada_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
                             new LazadaControllerJob().GetOrdersRTS(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);//pesanan sudah dibayar
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_updatepaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            new LazadaControllerJob().GetOrderCekUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);//update pesanan unpaid
 #else
                             string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
                             recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
@@ -1017,7 +1020,26 @@ namespace MasterOnline.Controllers
                             //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(30), recurJobOpt);
                             recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.HourInterval(6), recurJobOpt);
                             //end change by nurul 21/1/2020, interval ubah jadi 30
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_updatepaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrderCekUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(15), recurJobOpt);
+
 #endif
+                            //add by Tri 24 mei 2021, get order -3hari untuk akun baru go live
+                            if (!string.IsNullOrEmpty(sync_pesanan_stok))
+                            {
+                                if (sync_pesanan_stok == tblCustomer.CUST)
+                                {
+#if (AWS || DEV)
+                                    client.Enqueue<LazadaControllerJob>(x => x.GetOrders_GoLive_Pending(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username));
+                                    client.Enqueue<LazadaControllerJob>(x => x.GetOrders_GoLive_RTS(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username));
+#else
+                                    new LazadaControllerJob().GetOrders_GoLive_Pending(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
+                                    new LazadaControllerJob().GetOrders_GoLive_RTS(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
+#endif
+                                }
+                            }
+                            //end add by Tri 24 mei 2021, get order -3hari untuk akun baru go live
 
                         }
                         else
@@ -1632,26 +1654,26 @@ namespace MasterOnline.Controllers
                     //add by nurul 5/5/2021
                     #region refresh token JD.ID versi 2
 
-                    if (tblCustomer.KD_ANALISA == "2")
-                    {
-                        JDIDControllerJob.JDIDAPIDataJob iden = new JDIDControllerJob.JDIDAPIDataJob();
-                        iden.merchant_code = tblCustomer.Sort1_Cust;
-                        iden.DatabasePathErasoft = dbPathEra;
-                        iden.username = username;
-                        iden.no_cust = tblCustomer.CUST;
-                        iden.tgl_expired = tblCustomer.TGL_EXPIRED;
-                        iden.appKey = tblCustomer.API_KEY;
-                        iden.appSecret = tblCustomer.API_CLIENT_U;
-                        iden.accessToken = tblCustomer.TOKEN;
-                        iden.refreshToken = tblCustomer.REFRESH_TOKEN;
+//                    if (tblCustomer.KD_ANALISA == "2")
+//                    {
+//                        JDIDControllerJob.JDIDAPIDataJob iden = new JDIDControllerJob.JDIDAPIDataJob();
+//                        iden.merchant_code = tblCustomer.Sort1_Cust;
+//                        iden.DatabasePathErasoft = dbPathEra;
+//                        iden.username = username;
+//                        iden.no_cust = tblCustomer.CUST;
+//                        iden.tgl_expired = tblCustomer.TGL_EXPIRED;
+//                        iden.appKey = tblCustomer.API_KEY;
+//                        iden.appSecret = tblCustomer.API_CLIENT_U;
+//                        iden.accessToken = tblCustomer.TOKEN;
+//                        iden.refreshToken = tblCustomer.REFRESH_TOKEN;
 
-                        // proses cek dan get token
-#if (AWS || DEV)
-                    client.Enqueue<JDIDControllerJob>(x => x.GetTokenJDID(iden, false, false));
-#else
-                        Task.Run(() => new JDIDControllerJob().GetTokenJDID(iden, false, false)).Wait();
-#endif
-                    }
+//                        // proses cek dan get token
+//#if (AWS || DEV)
+//                    client.Enqueue<JDIDControllerJob>(x => x.GetTokenJDID(iden, false, false));
+//#else
+//                        Task.Run(() => new JDIDControllerJob().GetTokenJDID(iden, false, false)).Wait();
+//#endif
+//                    }
                     #endregion refresh token JD.ID versi 2
                     //end add by nurul 5/5/2021
 
@@ -1671,6 +1693,11 @@ namespace MasterOnline.Controllers
                         iden.DatabasePathErasoft = dbPathEra;
                         //add by nurul 4/5/2021, JDID versi 2
                         iden.versi = tblCustomer.KD_ANALISA;
+                        iden.tgl_expired = tblCustomer.TGL_EXPIRED;
+                        iden.merchant_code = tblCustomer.Sort1_Cust;
+                        iden.refreshToken = tblCustomer.REFRESH_TOKEN;
+
+                        iden = new JDIDControllerJob().RefreshToken(iden);
                         //end add by nurul 4/5/2021, JDID versi 2
 
                         connId_JobId = dbPathEra + "_JDID_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
@@ -1697,6 +1724,11 @@ namespace MasterOnline.Controllers
                         iden.DatabasePathErasoft = dbPathEra;
                         //add by nurul 4/5/2021, JDID versi 2
                         iden.versi = tblCustomer.KD_ANALISA;
+                        iden.tgl_expired = tblCustomer.TGL_EXPIRED;
+                        iden.merchant_code = tblCustomer.Sort1_Cust;
+                        iden.refreshToken = tblCustomer.REFRESH_TOKEN;
+
+                        iden = new JDIDControllerJob().RefreshToken(iden);
                         //end add by nurul 4/5/2021, JDID versi 2
 
                         await new JDIDControllerJob().JD_GetOrderByStatusPaid(iden, JDIDControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);

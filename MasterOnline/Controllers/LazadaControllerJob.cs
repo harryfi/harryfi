@@ -1649,7 +1649,10 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Konfirmasi Pengiriman Pesanan {obj} ke Lazada Gagal.")]
-        public LazadaToDeliver GetToPackedToDeliver(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string uname, List<string> orderItemId, string shippingProvider, string accessToken)
+        //change by nurul 8/6/2021
+        //public LazadaToDeliver GetToPackedToDeliver(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string uname, List<string> orderItemId, string shippingProvider, string accessToken)
+        public LazadaToDeliver GetToPackedToDeliver(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string uname, List<string> orderItemId, string shippingProvider, string accessToken, string orderId)
+        //end change by nurul 8/6/2021
         {
             SetupContext(dbPathEra, uname);
             var ret = new LazadaToDeliver();
@@ -1714,6 +1717,12 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
+            //add by nurul 8/6/2021
+            else if (ret.code.Equals("82")) //All order items must have status Pending.
+            {
+                GetKurirAndAwb(orderId, accessToken);
+            }
+            //end add by nurul 8/6/2021
             else
             {
                 var orderid = orderItemId[0];
@@ -1732,6 +1741,52 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
+
+        //add by nurul 8/6/2021
+        public LazadaGetOrderItem GetKurirAndAwb(string orderid, string accessToken)
+        {
+            var ret = new LazadaGetOrderItem();
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/order/items/get");
+            request.SetHttpMethod("GET");
+            request.AddApiParameter("order_id", orderid);
+            LazopResponse response = client.Execute(request, accessToken);
+            try
+            {
+                var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaGetOrderItem)) as LazadaGetOrderItem;
+                if (bindOrder != null)
+                {
+                    if (bindOrder.code.Equals("0"))
+                    {
+                        var order = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == orderid).FirstOrDefault();
+                        if (order != null)
+                        {
+                            var resi = "";
+                            var kurir = "";
+                            if (!string.IsNullOrEmpty(bindOrder.data[0].tracking_code))
+                            {
+                                resi = bindOrder.data[0].tracking_code;
+                            }
+                            if (!string.IsNullOrEmpty(bindOrder.data[0].shipment_provider))
+                            {
+                                kurir = bindOrder.data[0].shipment_provider;
+                            }
+                            //order.TRACKING_SHIPMENT = bindOrder.data[0].tracking_code;
+                            //order.SHIPMENT = bindOrder.data[0].shipment_provider;
+                            order.TRACKING_SHIPMENT = resi;
+                            order.SHIPMENT = kurir;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+            return ret;
+        }
+        //end add by nurul 8/6/2021
 
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
@@ -1993,8 +2048,11 @@ namespace MasterOnline.Controllers
             //end add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
 
             //add 16 des 2020, fixed date
-            var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-3); 
-            //var toDt = DateTime.UtcNow.AddHours(7).AddDays(1);
+            //change 24 mei 2021, ubah ambil -1 hari saja
+            //var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-3); 
+            var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-1);
+            //end change 24 mei 2021, ubah ambil -1 hari saja
+            //var toDt = DateTime.UtcNow.AddHours(7).AddDays(1)
             var toDt = DateTime.UtcNow.AddHours(7);
             //end add 16 des 2020, fixed date
 
@@ -2044,9 +2102,91 @@ namespace MasterOnline.Controllers
 
             // tunning untuk tidak duplicate
             var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
-            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrders%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%GetOrdersUnpaid%' and invocationdata not like '%GetOrdersRTS%' and invocationdata not like '%GetOrdersCancelled%' and invocationdata not like '%GetOrdersToUpdateMO%' ");
+            //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrders%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%GetOrdersUnpaid%' and invocationdata not like '%GetOrdersRTS%' and invocationdata not like '%GetOrdersCancelled%' and invocationdata not like '%GetOrdersToUpdateMO%' ");
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrders\"%' and statename like '%Enque%' ");
             // end tunning untuk tidak duplicate
-            
+
+            return ret;
+        }
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public BindingBase GetOrders_GoLive_Pending(string cust, string accessToken, string dbPathEra, string uname)
+        {
+            var ret = new BindingBase();
+            SetupContext(dbPathEra, uname);
+            int page = 0;
+            var more = true;
+            ////add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
+            //var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
+            //delQry += DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + cust + "'";
+
+            //var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
+            ////end add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
+
+            //add 16 des 2020, fixed date
+            var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-1);
+            //var toDt = DateTime.UtcNow.AddHours(7).AddDays(1)
+            var toDt = DateTime.UtcNow.AddHours(7);
+            //end add 16 des 2020, fixed date
+
+            //add by nurul 20/1/2021, bundling 
+            var AdaPesanan = false;
+            var connIdProses = "";
+            var AdaKomponen = false;
+            List<string> tempConnId = new List<string>() { };
+            //end add by nurul 20/1/2021, bundling 
+
+            var maxFromDt = fromDt.AddDays(-2);
+            while (fromDt >= maxFromDt)
+            {
+                while (more)
+                {
+                    var count = GetOrdersWithPage(cust, accessToken, dbPathEra, uname, page, "pending", fromDt, toDt);
+                    page++;
+                    //add by nurul 20/1/2021, bundling 
+                    if (count.AdaPesanan)
+                    {
+                        AdaPesanan = count.AdaPesanan;
+                    }
+                    if (count.ConnId != "")
+                    {
+                        tempConnId.Add(count.ConnId);
+                        connIdProses += "'" + count.ConnId + "' , ";
+                    }
+                    if (count.AdaKomponen)
+                    {
+                        AdaKomponen = count.AdaKomponen;
+                    }
+                    //end add by nurul 20/1/2021, bundling 
+                    if (count.recordCount < 100)
+                    {
+                        more = false;
+                    }
+                }
+                more = false;
+                fromDt = fromDt.AddDays(-1);
+                toDt = toDt.AddDays(-1);
+                page = 0;
+            }
+            //add by nurul 20/1/2021, bundling 
+            //List<string> listBrgKomponen = new List<string>();
+            //if (tempConnId.Count() > 0)
+            //{
+            //    listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+            //}
+            //if (listBrgKomponen.Count() > 0 && AdaPesanan)
+            if (!string.IsNullOrEmpty(connIdProses))
+            {
+                new StokControllerJob().getQtyBundling(dbPathEra, uname, connIdProses.Substring(0, connIdProses.Length - 3));
+            }
+            //end add by nurul 20/1/2021, bundling 
+
+            //// tunning untuk tidak duplicate
+            //var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
+            //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrders%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%GetOrdersUnpaid%' and invocationdata not like '%GetOrdersRTS%' and invocationdata not like '%GetOrdersCancelled%' and invocationdata not like '%GetOrdersToUpdateMO%' ");
+            //// end tunning untuk tidak duplicate
+
             return ret;
         }
 
@@ -2066,7 +2206,10 @@ namespace MasterOnline.Controllers
             //end add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
 
             //add 16 des 2020, fixed date
-            var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-3);
+            //change 24 mei 2021, ubah ambil -1 hari saja
+            //var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-3); 
+            var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-1);
+            //end change 24 mei 2021, ubah ambil -1 hari saja
             //var toDt = DateTime.UtcNow.AddHours(7).AddDays(1);
             var toDt = DateTime.UtcNow.AddHours(7);
             //end add 16 des 2020, fixed date
@@ -2103,6 +2246,38 @@ namespace MasterOnline.Controllers
                     more = false;
                 }
             }
+
+            //add by Tri 2 jun 2021, cek order dgn status packed
+            page = 0;
+            more = true;
+            while (more)
+            {
+                //var count = GetOrdersUnpaidWithPage(cust, accessToken, dbPathEra, uname, page, fromDt, toDt);
+                var count = GetOrdersWithPage(cust, accessToken, dbPathEra, uname, page, "packed", fromDt, toDt);
+                page++;
+                //add by nurul 20/1/2021, bundling 
+                if (count.AdaPesanan)
+                {
+                    AdaPesanan = count.AdaPesanan;
+                }
+                if (count.ConnId != "")
+                {
+                    tempConnId.Add(count.ConnId);
+                    connIdProses += "'" + count.ConnId + "' , ";
+                }
+                if (count.AdaKomponen)
+                {
+                    AdaKomponen = count.AdaKomponen;
+                }
+                //end add by nurul 20/1/2021, bundling 
+                if (count.recordCount < 100)
+                {
+                    more = false;
+                }
+            }
+
+            //end add by Tri 2 jun 2021, cek order dgn status packed
+
             //add by nurul 20/1/2021, bundling 
             //List<string> listBrgKomponen = new List<string>();
             //if (tempConnId.Count() > 0)
@@ -2125,6 +2300,334 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public BindingBase GetOrders_GoLive_RTS(string cust, string accessToken, string dbPathEra, string uname)
+        {
+            var ret = new BindingBase();
+            SetupContext(dbPathEra, uname);
+            int page = 0;
+            var more = true;
+            ////add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
+            //var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
+            //delQry += DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + cust + "'";
+
+            //var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
+            ////end add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
+
+            //add 16 des 2020, fixed date
+            //change 24 mei 2021, ubah ambil -1 hari saja
+            //var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-3); 
+            var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-1);
+            //end change 24 mei 2021, ubah ambil -1 hari saja
+            //var toDt = DateTime.UtcNow.AddHours(7).AddDays(1);
+            var toDt = DateTime.UtcNow.AddHours(7);
+            //end add 16 des 2020, fixed date
+
+            //add by nurul 20/1/2021, bundling 
+            var AdaKomponen = false;
+            var AdaPesanan = false;
+            var connIdProses = "";
+            List<string> tempConnId = new List<string>() { };
+            //end add by nurul 20/1/2021, bundling 
+
+            var maxFromDt = fromDt.AddDays(-2);
+            while (fromDt >= maxFromDt)
+            {
+                while (more)
+                {
+                    //var count = GetOrdersUnpaidWithPage(cust, accessToken, dbPathEra, uname, page, fromDt, toDt);
+                    var count = GetOrdersWithPage(cust, accessToken, dbPathEra, uname, page, "ready_to_ship", fromDt, toDt);
+                    page++;
+                    //add by nurul 20/1/2021, bundling 
+                    if (count.AdaPesanan)
+                    {
+                        AdaPesanan = count.AdaPesanan;
+                    }
+                    if (count.ConnId != "")
+                    {
+                        tempConnId.Add(count.ConnId);
+                        connIdProses += "'" + count.ConnId + "' , ";
+                    }
+                    if (count.AdaKomponen)
+                    {
+                        AdaKomponen = count.AdaKomponen;
+                    }
+                    //end add by nurul 20/1/2021, bundling 
+                    if (count.recordCount < 100)
+                    {
+                        more = false;
+                    }
+                }
+                more = false;
+                fromDt = fromDt.AddDays(-1);
+                toDt = toDt.AddDays(-1);
+                page = 0;
+            }
+
+            //add by Tri 2 jun 2021, cek order dgn status packed
+            page = 0;
+            more = true;
+            fromDt = fromDt.AddDays(3);
+            toDt = toDt.AddDays(3);
+            while (fromDt >= maxFromDt)
+            {
+                while (more)
+                {
+                    //var count = GetOrdersUnpaidWithPage(cust, accessToken, dbPathEra, uname, page, fromDt, toDt);
+                    var count = GetOrdersWithPage(cust, accessToken, dbPathEra, uname, page, "packed", fromDt, toDt);
+                    page++;
+                    //add by nurul 20/1/2021, bundling 
+                    if (count.AdaPesanan)
+                    {
+                        AdaPesanan = count.AdaPesanan;
+                    }
+                    if (count.ConnId != "")
+                    {
+                        tempConnId.Add(count.ConnId);
+                        connIdProses += "'" + count.ConnId + "' , ";
+                    }
+                    if (count.AdaKomponen)
+                    {
+                        AdaKomponen = count.AdaKomponen;
+                    }
+                    //end add by nurul 20/1/2021, bundling 
+                    if (count.recordCount < 100)
+                    {
+                        more = false;
+                    }
+                }
+                more = false;
+                fromDt = fromDt.AddDays(-1);
+                toDt = toDt.AddDays(-1);
+                page = 0;
+            }
+
+            //end add by Tri 2 jun 2021, cek order dgn status packed
+
+            //add by nurul 20/1/2021, bundling 
+            //List<string> listBrgKomponen = new List<string>();
+            //if (tempConnId.Count() > 0)
+            //{
+            //    listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+            //}
+            //if (listBrgKomponen.Count() > 0 && AdaPesanan)
+            if (!string.IsNullOrEmpty(connIdProses))
+            {
+                new StokControllerJob().getQtyBundling(dbPathEra, uname, connIdProses.Substring(0, connIdProses.Length - 3));
+            }
+            //end add by nurul 20/1/2021, bundling
+
+
+            //// tunning untuk tidak duplicate
+            //var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
+            //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersRTS%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            //// end tunning untuk tidak duplicate
+
+            return ret;
+        }
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public string GetOrderCekUnpaid(string CUST, string accessToken, string dbPathEra, string uname)
+        {
+            SetupContext(dbPathEra, uname);
+
+            var dsOrder = EDB.GetDataSet("CString", "SOT01", "SELECT NO_REFERENSI FROM SOT01A WHERE CUST = '" + CUST + "' AND USER_NAME = 'Auto Lazada"
+                + "' AND TGL <= '" + DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' AND TGL >= '"
+                + DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "' AND STATUS_TRANSAKSI = '0' AND ISNULL(NO_REFERENSI, '') <> ''");
+            if (dsOrder.Tables[0].Rows.Count > 0)
+            {
+                var listOrder = new List<string>();
+                for (int i = 0; i < dsOrder.Tables[0].Rows.Count; i++)
+                {
+                    listOrder.Add(dsOrder.Tables[0].Rows[i]["NO_REFERENSI"].ToString());
+                    if (listOrder.Count == 100)
+                    {
+                        GetOrderDetailsCekUnpaid( listOrder, accessToken, Guid.NewGuid().ToString(), dbPathEra, uname, CUST);
+                        listOrder = new List<string>();
+                    }
+                }
+                if (listOrder.Count > 0)
+                {
+                    GetOrderDetailsCekUnpaid(listOrder, accessToken, Guid.NewGuid().ToString(), dbPathEra, uname, CUST);
+                }
+            }
+            return "";
+        }
+
+        public BindingBase GetOrderDetailsCekUnpaid(List<string> orderIds, string accessToken, string connectionID, string dbPathEra, string uname, string cust)
+        {
+            var ret = new BindingBase();
+            ret.status = 0;
+
+            var MoDbContext = new MoDbContext("");
+            var EDB = new DatabaseSQL(dbPathEra);
+            string EraServerName = EDB.GetServerName("sConn");
+            var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
+            var username = uname;
+
+            List<string> listID = new List<string>();
+            string addOrderID = "[";
+            if (orderIds.Count > 100)
+            {
+                for (int i = 0; i < orderIds.Count; i++)
+                {
+                    addOrderID += orderIds[i];
+                    if ((i + 1) % 100 == 0)
+                    {
+                        addOrderID += "]";
+                        listID.Add(addOrderID);
+                        addOrderID = "[";
+                    }
+                    else
+                    {
+                        addOrderID += ",";
+                    }
+                }
+            }
+            else
+            {
+                foreach (var ids in orderIds)
+                {
+                    addOrderID += ids + ",";
+                }
+                //remark 10 Feb 2020
+                //addOrderID = addOrderID.Substring(0, addOrderID.Length - 1) + "]";
+                //listID.Add(addOrderID);
+                //end remark 10 Feb 2020
+            }
+            //add by Tri 10 Feb 2020, untuk data lebih dari 100 belum di add
+            addOrderID = addOrderID.Substring(0, addOrderID.Length - 1) + "]";
+            listID.Add(addOrderID);
+            //end add by Tri 10 Feb 2020, untuk data lebih dari 100 belum di add
+
+
+            string sSQL_Value = "";
+            foreach (var listOrderIds in listID)
+            {
+                ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+                LazopRequest request = new LazopRequest();
+                request.SetApiName("/orders/items/get");
+                request.SetHttpMethod("GET");
+                request.AddApiParameter("order_ids", listOrderIds);
+
+                LazopResponse response = client.Execute(request, accessToken);
+
+                var bindOrderItems = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaOrderItems)) as LazadaOrderItems;
+                if (bindOrderItems != null)
+                {
+                    if (bindOrderItems.code.Equals("0"))
+                    {
+                        if (bindOrderItems.data.Count > 0)
+                        {
+                            string listNoRef = "";
+                            foreach (Datum order in bindOrderItems.data)
+                            {
+                                var unpaid = false;
+                                var cancel = false;
+                                foreach(var orderItem in order.order_items)
+                                {
+                                    if(orderItem.status.ToLower() == "unpaid")
+                                    {
+                                        unpaid = true;
+                                    }
+                                    if (orderItem.status.ToLower() == "canceled")
+                                    {
+                                        cancel = true;
+                                    }
+                                }
+                                if(!unpaid && !cancel)
+                                {
+                                    var orderMO = ErasoftDbContext.SOT01A.Where(m => m.NO_REFERENSI == order.order_id && m.CUST == cust).FirstOrDefault();
+                                    if (orderMO != null)
+                                    {
+                                        listNoRef += "'" + orderMO.NO_BUKTI + "',";
+                                        if (string.IsNullOrEmpty(orderMO.PEMESAN))
+                                        {
+                                            var cekOrder = GetSinlgelOrder(accessToken, order.order_id);
+                                            if(cekOrder.code == "0")
+                                            {
+                                                if(cekOrder.data.address_billing != null)
+                                                {
+                                                    if (!string.IsNullOrEmpty(cekOrder.data.address_billing.phone))
+                                                    {
+                                                        InsertPembeli(cekOrder.data, connectionID, dbPathEra, username);
+                                                        var pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == cekOrder.data.address_billing.phone).FirstOrDefault();
+                                                        if (pembeliInDB != null)
+                                                        {
+                                                            var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + orderMO.NO_BUKTI + "'");
+                                                        }
+                                                        else
+                                                        {
+                                                            var adaPembeliGagalInsert = true;
+                                                        }
+                                                    }
+
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                }
+                            }
+                            if (!string.IsNullOrEmpty(listNoRef))
+                            {
+                                listNoRef = listNoRef.Substring(0, listNoRef.Length-1);
+                                var recordCount = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_BUKTI IN ("+listNoRef+ ") AND  STATUS_TRANSAKSI = '0'");
+
+                                if (recordCount > 0)
+                                {
+                                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                    contextNotif.Clients.Group(dbPathEra).moNewOrder("" + Convert.ToString(recordCount) + " Pesanan dari Lazada sudah dibayar.");
+
+                                }
+                            }
+                        }
+                        else
+                        {
+                            ret.message = "no item";
+                        }
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(bindOrderItems.message))
+                            ret.message += "\n" + bindOrderItems.message;
+                    }
+                }
+                else
+                {
+                    ret.message = "failed to call lazada api";
+                }
+            }
+
+
+
+            return ret;
+        }
+        public SingleOrderReturn GetSinlgelOrder(string accessToken, string noref)
+        {
+            var ret = new SingleOrderReturn();
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/order/get");
+            request.SetHttpMethod("GET");
+            request.AddApiParameter("order_id", noref);
+            try
+            {
+                LazopResponse response = client.Execute(request, accessToken);
+                var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(SingleOrderReturn)) as SingleOrderReturn;
+                if (bindOrder != null)
+                {
+                    ret = bindOrder;
+                }
+               
+            }
+            catch (Exception ex)
+            {
+            }
+            return ret;
+        }
         public BindingBase GetOrdersWithPage(string cust, string accessToken, string dbPathEra, string uname, int page, string statusLzd, DateTime fromDt, DateTime toDt)
         {
             var ret = new BindingBase();
@@ -2438,6 +2941,7 @@ namespace MasterOnline.Controllers
                                     switch (order.statuses[0].ToString())
                                     {
                                         case "processing":
+                                        case "packed":
                                         case "pending":
                                             statusEra = "01";
                                             break;
@@ -2475,15 +2979,17 @@ namespace MasterOnline.Controllers
                                             statusEra = "99";
                                             break;
                                     }
-                                    //jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
-                                    if (statusEra == "01")
-                                    {
-                                        var currentStatus = EDB.GetFieldValue("", "SOT01A", "NO_REFERENSI = '" + order.order_id + "'", "STATUS_TRANSAKSI").ToString();
-                                        if (!string.IsNullOrEmpty(currentStatus))
-                                            if (currentStatus == "02" || currentStatus == "03")
-                                                statusEra = currentStatus;
-                                    }
-                                    //end jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
+                                    //remark 2 jun 2021, tidak perlu cek status di mo lagi, karena function ini khusus insert
+                                    ////jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
+                                    //if (statusEra == "01")
+                                    //{
+                                    //    var currentStatus = EDB.GetFieldValue("", "SOT01A", "NO_REFERENSI = '" + order.order_id + "'", "STATUS_TRANSAKSI").ToString();
+                                    //    if (!string.IsNullOrEmpty(currentStatus))
+                                    //        if (currentStatus == "02" || currentStatus == "03")
+                                    //            statusEra = currentStatus;
+                                    //}
+                                    ////end jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
+                                    //remark 2 jun 2021, tidak perlu cek status di mo lagi, karena function ini khusus insert
                                     #endregion convert status
                                     var nama1 = order.customer_first_name.Replace("'", "`");
                                     if (nama1.Length > 30)
@@ -4162,13 +4668,13 @@ namespace MasterOnline.Controllers
                                                 break;
                                         }
                                         //jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
-                                        if (statusEra == "01")
-                                        {
-                                            var currentStatus = EDB.GetFieldValue("", "SOT01B", "ORDER_IEM_ID = '" + items.order_item_id + "'", "STATUS_BRG").ToString();
-                                            if (!string.IsNullOrEmpty(currentStatus))
-                                                if (currentStatus == "02" || currentStatus == "03")
-                                                    statusEra = currentStatus;
-                                        }
+                                        //if (statusEra == "01")
+                                        //{
+                                        //    var currentStatus = EDB.GetFieldValue("", "SOT01B", "ORDER_IEM_ID = '" + items.order_item_id + "'", "STATUS_BRG").ToString();
+                                        //    if (!string.IsNullOrEmpty(currentStatus))
+                                        //        if (currentStatus == "02" || currentStatus == "03")
+                                        //            statusEra = currentStatus;
+                                        //}
                                         //end jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
                                         #region cut max length dan ubah petik
                                         var order_item_id = string.IsNullOrEmpty(items.order_item_id) ? "" : items.order_item_id.Replace('\'', '`');
@@ -4245,7 +4751,10 @@ namespace MasterOnline.Controllers
                                         //sSQL_Value += "','" + items.purchase_order_number + "','" + items.package_id + "','" + items.extra_attributes.Replace('\'', '`') + "','" + items.shipping_provider_type + "','" + items.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + items.updated_at.ToString("yyyy-MM-dd HH:mm:ss");
                                         //sSQL_Value += "','" + items.return_status + "','" + items.product_main_image + "','" + items.variation.Replace('\'', '`') + "','" + items.product_detail_url + "','" + items.invoice_number + "','" + username + "','" + connectionID + "')";
                                         sSQL_Value += "('" + order_item_id + "','" + shop_id + "','" + order_id + "','" + items_name + "','" + sku + "','" + shop_sku + "','" + shipping_type;
-                                        sSQL_Value += "'," + items.item_price + "," + items.paid_price + ",'" + currency + "'," + items.tax_amount + "," + items.shipping_amount + "," + items.shipping_service_cost + "," + items.voucher_amount;
+                                        //change 27 mei 2021, set voucher seller sebagai nilai disc
+                                        //sSQL_Value += "'," + items.item_price + "," + items.paid_price + ",'" + currency + "'," + items.tax_amount + "," + items.shipping_amount + "," + items.shipping_service_cost + "," + items.voucher_amount;
+                                        sSQL_Value += "'," + items.item_price + "," + items.paid_price + ",'" + currency + "'," + items.tax_amount + "," + items.shipping_amount + "," + items.shipping_service_cost + "," + (items.voucher_seller ?? 0);
+                                        //end change 27 mei 2021, set voucher seller sebagai nilai disc
                                         sSQL_Value += ",'" + statusEra + "','" + shipment_provider + "'," + items.is_digital + ",'" + tracking_code + "','" + reason + "','" + reason_detail + "','" + purchase_order_id;
                                         sSQL_Value += "','" + purchase_order_number + "','" + package_id + "','" + extra_attributes + "','" + shipping_provider_type + "','" + items.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + items.updated_at.ToString("yyyy-MM-dd HH:mm:ss");
                                         sSQL_Value += "','" + return_status + "','" + product_main_image + "','" + variation + "','" + product_detail_url + "','" + items.invoice_number + "','" + username + "','" + connectionID + "')";
