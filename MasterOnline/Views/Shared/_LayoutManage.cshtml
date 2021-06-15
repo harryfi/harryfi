@@ -76,7 +76,7 @@
     {
         nama = sessionAccountUserName.ToString();
 
-        erasoftContext = sessionAccountUserID.ToString() == "admin_manage" ? new ErasoftContext() : new ErasoftContext(sessionAccountDataSourcePathDebug.ToString(), sessionAccountDatabasePathErasoft.ToString());
+        erasoftContext = sessionAccountUserID.ToString() == "admin_manage" ? new ErasoftContext() : new ErasoftContext(sessionAccountDataSourcePath.ToString(), sessionAccountDatabasePathErasoft.ToString());
 
         namaPerAccount = sessionAccountDatabasePathErasoft.ToString();//add by calvin 1 april 2019
 

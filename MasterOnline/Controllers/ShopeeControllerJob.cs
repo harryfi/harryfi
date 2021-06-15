@@ -9001,7 +9001,7 @@ namespace MasterOnline.Controllers
             HttpBody.tier_variation = tier_variation;
 
             string myData = JsonConvert.SerializeObject(HttpBody);
-            myData = myData.Replace(",\"images_url\":null", " ");//remove images_url from tier 2
+            myData = myData.Replace(",\"image\":{\"image_id\":null}", " ");//remove images_url from tier 2
 
             int MOPartnerID = MOPartnerIDV2;
             string MOPartnerKey = MOPartnerKeyV2;
@@ -9064,34 +9064,43 @@ namespace MasterOnline.Controllers
                 {
                     if (resServer.message.ToLower().Contains("tier") && resServer.message.ToLower().Contains("variation") && resServer.message.ToLower().Contains("not change")) //add by calvin 14 november 2019, req by pak richard
                     {
-                        for (int i = 0; i < dataBrg.response.tier_variation.Length;i++)
-                        {
-                            var adaDiShopee = HttpBody.tier_variation.Where(m => m.name == dataBrg.response.tier_variation[i].name).FirstOrDefault();
-                            if(adaDiShopee != null)
-                            {
-                                foreach(var optShopee in dataBrg.response.tier_variation[i].option_list)
-                                {
-                                    var adaOptShopee = adaDiShopee.option_list.Where(m => m.option == optShopee.option).FirstOrDefault();
-                                    if(adaOptShopee != null)
-                                    {
-                                        HttpBody.tier_variation[i].option_list.Remove(adaOptShopee);
-                                    }
-                                }
-                                if(HttpBody.tier_variation[i].option_list.Count == 0)
-                                {
-                                    HttpBody.tier_variation.Remove(HttpBody.tier_variation[i]);
-                                }
-                            }
-                        }
-
+                        //for (int i = 0; i < dataBrg.response.tier_variation.Length;i++)
+                        //{
+                        //    var adaDiShopee = HttpBody.tier_variation.Where(m => m.name == dataBrg.response.tier_variation[i].name).FirstOrDefault();
+                        //    if(adaDiShopee != null)
+                        //    {
+                        //        foreach(var optShopee in dataBrg.response.tier_variation[i].option_list)
+                        //        {
+                        //            var adaOptShopee = adaDiShopee.option_list.Where(m => m.option == optShopee.option).FirstOrDefault();
+                        //            if(adaOptShopee != null)
+                        //            {
+                        //                HttpBody.tier_variation[i].option_list.Remove(adaOptShopee);
+                        //            }
+                        //        }
+                        //        if(HttpBody.tier_variation[i].option_list.Count == 0)
+                        //        {
+                        //            HttpBody.tier_variation.Remove(HttpBody.tier_variation[i]);
+                        //        }
+                        //    }
+                        //}
+                        ////var newModel = HttpBody.model;
                         foreach (var dataModelShopee in dataBrg.response.model)
                         {
-                            var adaMdiShopee = HttpBody.model.Where(m => m.tier_index == dataModelShopee.tier_index).FirstOrDefault();
-                            if (adaMdiShopee != null)
+                            //var adaMdiShopee = HttpBody.model.Where(m => m.tier_index == dataModelShopee.tier_index).FirstOrDefault();
+                            //if (adaMdiShopee != null)
+                            //{
+                            //    HttpBody.model.Remove(adaMdiShopee);
+                            //}
+                            foreach (var dataModelMO in HttpBody.model)
                             {
-                                HttpBody.model.Remove(adaMdiShopee);
+                                if (Enumerable.SequenceEqual(dataModelMO.tier_index, dataModelShopee.tier_index))
+                                {
+                                    HttpBody.model.Remove(dataModelMO);
+                                    break;
+                                }
                             }
                         }
+                        //HttpBody.model = newModel;
                         //add by Tri 4 Des 2019, case user tambah varian tanpa ubah tier
 #if (DEBUG || Debug_AWS)
                         //await GetVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation, tier_variation, currentLog);
@@ -9196,8 +9205,9 @@ namespace MasterOnline.Controllers
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
-            var HttpRequest = dataBrg;
-            HttpRequest.model = null;
+            var HttpRequest = new ShopeeInitTierVariation_V2();
+            HttpRequest.tier_variation = dataBrg.tier_variation;
+            HttpRequest.item_id = dataBrg.item_id;
 
             string myData = JsonConvert.SerializeObject(HttpRequest);
 
@@ -9282,8 +9292,9 @@ namespace MasterOnline.Controllers
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
-            var HttpRequest = dataBrg;
-            HttpRequest.tier_variation = null;
+            var HttpRequest = new ShopeeAddModelVariation_V2();
+            HttpRequest.model_list = dataBrg.model;
+            HttpRequest.item_id = dataBrg.item_id;
 
             string myData = JsonConvert.SerializeObject(HttpRequest);
 
@@ -9366,10 +9377,10 @@ namespace MasterOnline.Controllers
                                 //var var_item = ErasoftDbContext.STF02H.Where(b => b.RecNum == recnum_stf02h_var).SingleOrDefault();
                                 //var_item.BRG_MP = Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id);
                                 //ErasoftDbContext.SaveChanges();
-                                string urlBrg = "https://shopee.co.id/product/" + iden.merchant_code + "/" + resServer.response.item_id;
+                                string urlBrg = "https://shopee.co.id/product/" + iden.merchant_code + "/" + item_id;
                                 string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception
                                 //var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "'");
-                                var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.response.item_id)
+                                var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(item_id)
                                     + ";" + Convert.ToString(variasi.model_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '"
                                     + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "',AVALUE_34 = '" + urlBrg + "' WHERE RECNUM = '"
                                     + Convert.ToString(recnum_stf02h_var) + "'");
@@ -12375,6 +12386,12 @@ namespace MasterOnline.Controllers
             public int shopid { get; set; }
             public int partner_id { get; set; }
             public long timestamp { get; set; }
+
+        }
+        public class ShopeeAddModelVariation_V2
+        {
+            public long item_id { get; set; }
+            public List<ShopeeVariation_V2> model_list { get; set; }
 
         }
         public class ShopeeInitTierVariation_V2
