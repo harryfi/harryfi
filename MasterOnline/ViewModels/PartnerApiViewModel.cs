@@ -14,4 +14,25 @@ namespace MasterOnline.ViewModels
         public List<ARF01> ListCustomer { get; set; } = new List<ARF01>();
         public ARF01 Customer { get; set; } = new ARF01();
     }
+
+    public class DatabaseListViewModel
+    {
+        public List<DatabaseList> ListDatabase { get; set; } = new List<DatabaseList>();
+    }
+
+    public class DatabaseList
+    {
+        public string trialEnd { get; set; }
+        public bool expired { get; set; }
+        public string bgColor { get; set; }
+        public string licenseEnd { get; set; }
+        public string alias { get; set; }
+        public string logo { get; set; }
+        public bool admin { get; set; }
+        public int id { get; set; }
+        public string accessibleUntil { get; set; }
+        public bool sample { get; set; }
+        public string logoUrl { get; set; }
+        public bool trial { get; set; }
+    }
 }
