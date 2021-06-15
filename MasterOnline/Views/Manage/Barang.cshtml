@@ -2535,12 +2535,18 @@
                     var SelectList = [];
                     $.each(data,
                         function (i, item) {
-                            for (var i = 0; i < 20; i++) {
-                                var ANAME = item["ANAME_" + (i + 1)];
-                                var ATYPE = item["ATYPE_" + (i + 1)];
+                            for (var i = 0; i < 35; i++) {
                                 var ACODE = item["ACODE_" + (i + 1)];
+                                var ATYPE = item["ATYPE_" + (i + 1)];
+                                var ANAME = item["ANAME_" + (i + 1)];
+                                var AOPTIONS = item["AOPTIONS_" + (i + 1)];
+
+                                //var ANAME = item["ANAME_" + (i + 1)];
+                                //var ATYPE = item["ATYPE_" + (i + 1)];
+                                //var ACODE = item["ACODE_" + (i + 1)];
                                 if (ANAME != null) {
-                                    if (ANAME != "" && ANAME != "Warna" && ANAME != "Ukuran") {
+                                    //if (ANAME != "" && ANAME != "Warna" && ANAME != "Ukuran") {
+                                    if (ANAME != "") {
                                         //if (ANAME != "__images__" && ANAME != "color_thumbnail" && ANAME != "special_price" && ANAME != "special_from_date" && ANAME != "special_to_date" && ANAME != "seller_promotion" && ANAME != "tax_class") {
                                         //if (ANAME != "quantity") {
 
@@ -2611,6 +2617,21 @@
                                             loop = 0;
                                         }
                                         //}
+
+                                        if (loop == 1) {
+                                            $('#attribute_JD_' + listMarketRecNum).append('<div class="row" style="padding-top:5px">' + fieldAVALUE + '</div>');
+                                            fieldAVALUE = "";
+                                            loop = 2;
+                                            for (var i = 0; i < (SelectList.length / 6); i++) {
+                                                getAttributeOptionJD(SelectList[(i * 6) + 0], SelectList[(i * 6) + 1], SelectList[(i * 6) + 2], SelectList[(i * 6) + 3], SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], categoryCode);
+                                            }
+                                        }
+                                        else if (loop == 0) {
+                                            loop = 2;
+                                            for (var i = 0; i < (SelectList.length / 6); i++) {
+                                                getAttributeOptionJD(SelectList[(i * 6) + 0], SelectList[(i * 6) + 1], SelectList[(i * 6) + 2], SelectList[(i * 6) + 3], SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], categoryCode);
+                                            }
+                                        }
                                     }
                                     else {
                                         if (loop == 1) {
