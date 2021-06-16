@@ -6975,6 +6975,7 @@
     <Content Include="Views\Home\testing.cshtml" />
     <Content Include="Views\Report\LapPembayaranPiutang.cshtml" />
     <Content Include="Views\Manage\JDIDAuth.cshtml" />
+    <Content Include="Views\Manage\TableDatabaseAccurate.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

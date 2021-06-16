@@ -1,0 +1,81 @@
+﻿
+@using System.Globalization
+@model MasterOnline.ViewModels.DatabaseListViewModel
+@{
+    ViewBag.Title = "Table Database Accurate";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+}
+@section styles
+{
+    <style>
+        .top_nav {
+            display: none !important;
+        }
+
+        .left_col {
+            display: none !important;
+        }
+
+        .right_col {
+            margin-left: 0 !important;
+        }
+
+        footer {
+            display: none !important;
+        }
+    </style>
+}
+<input id="txt_last_page" type="hidden" class="form-control" value="@ViewData["LastPage"]">
+<table class="table table-striped table-bordered table-hover">
+
+    <thead>
+        <tr role="row">
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 90px;">Id Database</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 115px;">Nama Database</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Pilih</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var datalist in Model.ListDatabase)
+        {
+            <tr>
+                <td>@datalist.id</td>
+                <td>@datalist.alias</td>
+                <td class="edit-hapus-col">
+                    <button class="btn btn-primary" onclick="pilihDbAcc('@datalist.id')">
+                        <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script type="text/javascript">
+    function pilihDbAcc(dbid) {
+        debugger;
+        var link = '@Url.Action("openDB", "Manage", new { id_db = "replaceId" })';
+        link = link.replace("replaceId", dbid);
+        $.ajax({
+            async: true,
+            type: "GET",
+            contentType: 'application/json',
+            url: link,
+            success: function (response) {
+                if (response.Errors == null) {
+                    $('#loading_spinner').hide();
+                    window.location.href = '@Url.Action("PartnerApi")';
+                    self.window.close();
+                } else {
+                    alert(response.Errors[0]);
+                    $('#loading_spinner').hide();
+                    location.href = '@Url.Action("PartnerApi")';
+                }
+            },
+            error: function (xhr, status, error) {
+                alert('Gagal link dengan partner. Silahkan hubungi support.');
+                console.log(error);
+            }
+        });
+    }
+</script>
