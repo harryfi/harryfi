@@ -1139,7 +1139,17 @@
                                                             <div class="col-md-9">
                                                                 <div class="resiyes">
                                                                     <p class="sub_title">
-                                                                        <span class="block_subtitle_label" style="width:80px">Kode Booking</span><img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.KdBooking, market = labelList.Marketplace })" alt="" />
+                                                                        <span class="block_subtitle_label" >Kode Booking</span>
+                                                                    </p>
+                                                                    <p>
+                                                                        @if (labelList.Kurir.ToUpper().Contains("ANTER"))
+                                                                        {
+                                                                            <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.KdBooking, market = labelList.Marketplace })" alt="" style="width: 500px;height: 75px;" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.KdBooking, market = labelList.Marketplace })" alt="" style="width: 470px;height: 75px;" />
+                                                                        }
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -1200,7 +1210,17 @@
                                                                 {
                                                                     <div class="resiyes">
                                                                         <p class="sub_title">
-                                                                            <span class="block_subtitle_label" style="width:80px">No Resi</span><img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi, market = labelList.Marketplace })" alt="" />
+                                                                            <span class="block_subtitle_label" >No Resi</span>
+                                                                        </p>
+                                                                        <p>
+                                                                            @if (labelList.Kurir.ToUpper().Contains("ANTER"))
+                                                                            {
+                                                                                <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi, market = labelList.Marketplace })" alt="" style="width: 500px;height: 75px;" />
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi, market = labelList.Marketplace })" alt="" style="width: 470px;height: 75px;" />
+                                                                            }
                                                                         </p>
                                                                     </div>
                                                                 }
@@ -1208,7 +1228,7 @@
                                                                 {
                                                                     <div class="resino">
                                                                         <p class="sub_title">
-                                                                            <span class="block_subtitle_label" style="width:80px">No Resi</span> @(labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi)
+                                                                            <span class="block_subtitle_label" >No Resi</span> @(labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi)
                                                                         </p>
                                                                     </div>
                                                                 }
@@ -1238,7 +1258,10 @@
 
                                                                 <div class="resiyes">
                                                                     <p class="sub_title">
-                                                                        <span class="block_subtitle_label" style="width:80px">Port Code</span><img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.isiPort == null || labelList.isiPort == "" ? "-" : labelList.isiPort, market = labelList.Marketplace })" alt="" />
+                                                                        <span class="block_subtitle_label" >Port Code</span>
+                                                                    </p>
+                                                                    <p>
+                                                                            <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.isiPort == null || labelList.isiPort == "" ? "-" : labelList.isiPort, market = labelList.Marketplace })" alt="" style="width: 500px;height: 75px;" />
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -1250,7 +1273,17 @@
                                                             <div class="col-md-11">
                                                                 <div class="resiyes">
                                                                     <p class="sub_title">
-                                                                        <span class="block_subtitle_label" style="width:80px">No Referensi</span><img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.isiRef == null || labelList.isiRef == "" ? "-" : labelList.isiRef, market = labelList.Marketplace })" alt="" />
+                                                                        <span class="block_subtitle_label" >No Referensi</span>
+                                                                    </p>
+                                                                    <p>
+                                                                        @if (labelList.Marketplace.ToUpper().Contains("TOKOPEDIA"))
+                                                                        {
+                                                                            <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.isiRef == null || labelList.isiRef == "" ? "-" : labelList.isiRef, market = labelList.Marketplace })" alt="" style="width: 550px;height: 75px;" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.isiRef == null || labelList.isiRef == "" ? "-" : labelList.isiRef, market = labelList.Marketplace })" alt="" style="width: 470px;height: 75px;" />
+                                                                        }
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -1592,7 +1625,17 @@
                                                             <div class="col-md-9">
                                                                 <div class="resiyes">
                                                                     <p class="sub_title">
-                                                                        <span class="block_subtitle_label" style="width:80px">Kode Booking</span><img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.KdBooking, market = labelList.Marketplace })" alt="" />
+                                                                        <span class="block_subtitle_label" >Kode Booking</span>
+                                                                    </p>
+                                                                    <p>
+                                                                        @if (labelList.Kurir.ToUpper().Contains("ANTER"))
+                                                                        {
+                                                                            <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.KdBooking, market = labelList.Marketplace })" alt="" style="width: 500px;height: 75px;" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.KdBooking, market = labelList.Marketplace })" alt="" style="width: 470px;height: 75px;" />
+                                                                        }
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -1653,7 +1696,17 @@
                                                                 {
                                                                     <div class="resiyes">
                                                                         <p class="sub_title">
-                                                                            <span class="block_subtitle_label" style="width:80px">No Resi</span><img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi, market = labelList.Marketplace })" alt="" />
+                                                                            <span class="block_subtitle_label" >No Resi</span>
+                                                                        </p>
+                                                                        <p>
+                                                                            @if (labelList.Kurir.ToUpper().Contains("ANTER"))
+                                                                            {
+                                                                                <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi, market = labelList.Marketplace })" alt="" style="width: 500px;height: 75px;" />
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi, market = labelList.Marketplace })" alt="" style="width: 470px;height: 75px;" />
+                                                                            }
                                                                         </p>
                                                                     </div>
                                                                 }
@@ -1661,7 +1714,7 @@
                                                                 {
                                                                     <div class="resino">
                                                                         <p class="sub_title">
-                                                                            <span class="block_subtitle_label" style="width:80px">No Resi</span> @(labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi)
+                                                                            <span class="block_subtitle_label" >No Resi</span> @(labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi)
                                                                         </p>
                                                                     </div>
                                                                 }
@@ -1691,7 +1744,10 @@
 
                                                                 <div class="resiyes">
                                                                     <p class="sub_title">
-                                                                        <span class="block_subtitle_label" style="width:80px">Port Code</span><img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.isiPort == null || labelList.isiPort == "" ? "-" : labelList.isiPort, market = labelList.Marketplace })" alt="" />
+                                                                        <span class="block_subtitle_label" >Port Code</span>
+                                                                    </p>
+                                                                    <p>
+                                                                            <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.isiPort == null || labelList.isiPort == "" ? "-" : labelList.isiPort, market = labelList.Marketplace })" alt="" style="width: 500px;height: 75px;" />
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -1703,7 +1759,17 @@
                                                             <div class="col-md-11">
                                                                 <div class="resiyes">
                                                                     <p class="sub_title">
-                                                                        <span class="block_subtitle_label" style="width:80px">No Referensi</span><img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.isiRef == null || labelList.isiRef == "" ? "-" : labelList.isiRef, market = labelList.Marketplace })" alt="" />
+                                                                        <span class="block_subtitle_label" >No Referensi</span>
+                                                                    </p>
+                                                                    <p>
+                                                                        @if (labelList.Marketplace.ToUpper().Contains("TOKOPEDIA"))
+                                                                        {
+                                                                            <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.isiRef == null || labelList.isiRef == "" ? "-" : labelList.isiRef, market = labelList.Marketplace })" alt="" style="width: 550px;height: 75px;" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.isiRef == null || labelList.isiRef == "" ? "-" : labelList.isiRef, market = labelList.Marketplace })" alt="" style="width: 500px;height: 75px;" />
+                                                                        }
                                                                     </p>
                                                                 </div>
                                                             </div>
