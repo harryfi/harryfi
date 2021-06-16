@@ -9067,10 +9067,14 @@ namespace MasterOnline.Controllers
                 {
                     if (resServer.message.ToLower().Contains("tier") && resServer.message.ToLower().Contains("variation") && resServer.message.ToLower().Contains("not change")) //add by calvin 14 november 2019, req by pak richard
                     {
+                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                        var client = new BackgroundJobClient(sqlStorage);
 #if (Debug_AWS || DEBUG)
                         await UpdateProduct_V2(dbPathEra, kodeProduk, log_CUST, "Barang", "Update Produk", iden, kodeProduk, log_CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>());
 #else
-                                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdateProduct_V2(dbPathEra, kodeProduk, log_CUST, "Barang", "Update Produk", iden, kodeProduk, log_CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()));
+                        client.Enqueue<ShopeeControllerJob>(x => x.UpdateProduct_V2(dbPathEra, kodeProduk, log_CUST, "Barang", "Update Produk", iden, kodeProduk, log_CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()));
 #endif
 
                         //for (int i = 0; i < dataBrg.response.tier_variation.Length;i++)
@@ -9115,10 +9119,10 @@ namespace MasterOnline.Controllers
                         //await GetVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation, tier_variation, currentLog);
                         await AddTierVariation_V2(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Add item tier", iden, item_id, HttpBody, currentLog, mapSTF02HRecnum_IndexVariasi);
 #else
-                    string EDBConnID = EDB.GetConnectionString("ConnId");
-                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    //string EDBConnID = EDB.GetConnectionString("ConnId");
+                    //var sqlStorage = new SqlServerStorage(EDBConnID);
 
-                    var client = new BackgroundJobClient(sqlStorage);
+                    //var client = new BackgroundJobClient(sqlStorage);
                     client.Enqueue<ShopeeControllerJob>(x => x.AddTierVariation_V2(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Add item tier", iden, item_id, HttpBody, currentLog, mapSTF02HRecnum_IndexVariasi));
 #endif
                         //end add by Tri 4 Des 2019, case user tambah varian tanpa ubah tier
@@ -9130,6 +9134,11 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
+
+                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                    var client = new BackgroundJobClient(sqlStorage);
                     if (resServer.response.model != null)
                     {
                         if (resServer.response.model.Count() > 0)
@@ -9168,11 +9177,11 @@ namespace MasterOnline.Controllers
                                     Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToString(resServer.response.item_id)
                                         + ";" + Convert.ToString(variasi.model_id), 0, username, null)).Wait();
 #else
-                                                        string EDBConnID = EDB.GetConnectionString("ConnId");
-                                                        var sqlStorage = new SqlServerStorage(EDBConnID);
+                                    //string EDBConnID = EDB.GetConnectionString("ConnId");
+                                    //var sqlStorage = new SqlServerStorage(EDBConnID);
 
-                                                        var Jobclient = new BackgroundJobClient(sqlStorage);
-                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToString(resServer.response.item_id)
+                                    //var Jobclient = new BackgroundJobClient(sqlStorage);
+                                    client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToString(resServer.response.item_id)
                                         + ";" + Convert.ToString(variasi.model_id), 0, username, null));
 #endif
                                 }
@@ -9200,7 +9209,7 @@ namespace MasterOnline.Controllers
 #if (Debug_AWS || DEBUG)
                     await UpdateProduct_V2(dbPathEra, kodeProduk, log_CUST, "Barang", "Update Produk", iden, kodeProduk, log_CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>());
 #else
-                                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdateProduct_V2(dbPathEra, kodeProduk, log_CUST, "Barang", "Update Produk", iden, kodeProduk, log_CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()));
+                    client.Enqueue<ShopeeControllerJob>(x => x.UpdateProduct_V2(dbPathEra, kodeProduk, log_CUST, "Barang", "Update Produk", iden, kodeProduk, log_CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()));
 #endif
                 }
             }
