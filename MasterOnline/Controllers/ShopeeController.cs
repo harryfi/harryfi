@@ -366,6 +366,190 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+        public async Task<BindingBase> GetItemsList_V2(ShopeeAPIData iden, int IdMarket, int page, int recordCount, int totalData)
+        {
+            iden = await RefreshTokenShopee_V2(iden, false);
+            //int MOPartnerID = 841371;
+            //string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            //string ret = "";
+            var ret = new BindingBase
+            {
+                status = 0,
+                recordCount = recordCount,
+                exception = 0,
+                totalData = totalData//add 18 Juli 2019, show total record
+            };
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = seconds.ToString() + "_" + page,
+                REQUEST_ACTION = "Get Item List V2",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_ATTRIBUTE_3 = page.ToString(),
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+
+            int MOPartnerID = MOPartnerIDV2;
+            string MOPartnerKey = MOPartnerKeyV2;
+            string urll = shopeeV2Url;
+            string path = "/api/v2/product/get_item_list";
+
+            var baseString = MOPartnerID + path + seconds + iden.token + iden.merchant_code;
+            var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
+
+            string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds + "&sign=" + sign
+                + "&access_token=" + iden.token + "&shop_id=" + iden.merchant_code
+                + "&offset=" + (page * 5) + "&page_size=" + 5 + "&item_status[]=NORMAL&item_status[]=UNLIST";
+
+            //ShopeeGetItemListData HttpBody = new ShopeeGetItemListData
+            //{
+            //    partner_id = MOPartnerID, //MasterOnline Partner ID
+            //    shopid = Convert.ToInt32(iden.merchant_code),
+            //    timestamp = seconds,
+            //    pagination_offset = page * 5,
+            //    pagination_entries_per_page = 5,
+
+            //};
+
+            //string myData = JsonConvert.SerializeObject(HttpBody);
+
+            //string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
+            myReq.Method = "GET";
+            //myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                //myReq.ContentLength = myData.Length;
+                //using (var dataStream = myReq.GetRequestStream())
+                //{
+                //    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                //}
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            }
+            catch (Exception ex)
+            {
+                ret.nextPage = 1;
+                ret.exception = 1;
+                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+
+            if (!string.IsNullOrEmpty(responseFromServer))
+            {
+                try
+                {
+                    var listBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetItemListResult_V2)) as ShopeeGetItemListResult_V2;
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                    ret.status = 1;
+                    if (string.IsNullOrEmpty(listBrg.error))
+                    {
+                        if (listBrg.response != null)
+                        {
+                            var listBrgMP = new List<string>();
+                            foreach (var lis in listBrg.response.item)
+                            {
+                                listBrgMP.Add(lis.item_id.ToString() + ";0");
+                                //if (lis.variations.Length > 0)
+                                //{
+                                //    foreach (var listVar in lis.variations)
+                                //    {
+                                //        listBrgMP.Add(lis.item_id.ToString() + ";" + listVar.variation_id);
+                                //    }
+                                //}
+                            }
+                            var stf02h_local = (from a in ErasoftDbContext.STF02H where a.IDMARKET == IdMarket && listBrgMP.Contains(a.BRG_MP) select new stf02h_local { BRG = a.BRG, BRG_MP = a.BRG_MP, IDMARKET = a.IDMARKET }).ToList();
+                            var tempBrg_local = (from a in ErasoftDbContext.TEMP_BRG_MP where a.IDMARKET == IdMarket && listBrgMP.Contains(a.BRG_MP) select new tempBrg_local { BRG_MP = a.BRG_MP, IDMARKET = a.IDMARKET }).ToList();
+                            //if (listBrg.items.Length == 10)
+                            if (listBrg.response.has_next_page)
+                                //ret.message = (page + 1).ToString();
+                                ret.nextPage = 1;
+                            if (listBrgMP.Count == (stf02h_local.Count + tempBrg_local.Count))
+                            {
+                                ret.totalData += listBrgMP.Count;
+                                return ret;
+                            }
+                            ret.totalData += listBrg.response.item.Count();//add 18 Juli 2019, show total record
+                            foreach (var item in listBrg.response.item)
+                            {
+                                if (item.status.ToUpper() != "BANNED" && item.status.ToUpper() != "DELETED")
+                                {
+                                    ////if (item.item_id == 1512392638 || item.item_id == 1790099887 || item.item_sku == "1660" || item.item_sku == "51")
+                                    ////{
+
+                                    ////}
+                                    //string kdBrg = string.IsNullOrEmpty(item.item_id) ? item.item_id.ToString() : item.item_sku;
+                                    //string brgMp = item.item_id.ToString() + ";0";
+                                    ////change 13 Feb 2019, tuning
+                                    ////var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMp.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
+                                    ////var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMp) && t.IDMARKET == IdMarket).FirstOrDefault();
+                                    ////var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.IDMARKET == IdMarket && (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                                    ////var brgInDB = ErasoftDbContext.STF02H.Where(t => t.IDMARKET == IdMarket && (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                                    //var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                                    //var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                                    ////end change 13 Feb 2019, tuning
+
+                                    //if ((tempbrginDB == null && brgInDB == null) || item.variations.Length > 0)
+                                    {
+                                        //var getDetailResult = await GetItemDetail(iden, item.item_id);
+                                        //var getDetailResult = await GetItemDetail(iden, item.item_id, new List<tempBrg_local>(), new List<stf02h_local>(), IdMarket);
+                                        var getDetailResult = await GetItemDetail(iden, item.item_id, tempBrg_local, stf02h_local, IdMarket);
+                                        ret.totalData += getDetailResult.totalData;//add 18 Juli 2019, show total record
+                                        if (getDetailResult.exception == 1)
+                                            ret.exception = 1;
+                                        if (getDetailResult.status == 1)
+                                        {
+                                            ret.recordCount += getDetailResult.recordCount;
+                                        }
+                                        else
+                                        {
+                                            currentLog.REQUEST_EXCEPTION = getDetailResult.message;
+                                            manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            ret.nextPage = 0;
+                        }
+                    }
+                    else
+                    {
+                        ret.nextPage = 0;
+                        ret.exception = 1;
+                        currentLog.REQUEST_EXCEPTION = listBrg.error + listBrg.message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                    }
+
+                }
+                catch (Exception ex2)
+                {
+                    ret.nextPage = 1;
+                    ret.exception = 1;
+                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                }
+            }
+            return ret;
+        }
 
         public class stf02h_local
         {
@@ -1386,6 +1570,174 @@ namespace MasterOnline.Controllers
             sSQL = sSQL.Replace("REPLACE_MEREK", brand.Replace('\'', '`'));
             var retRec = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
             ret.status = retRec;
+            return ret;
+        }
+
+        public async Task<BindingBase> GetItemDetail_V2(ShopeeAPIData iden, long item_id, List<tempBrg_local> tempBrg_local, List<stf02h_local> stf02h_local, int IdMarket)
+        {
+            var ret = new BindingBase
+            {
+                status = 0,
+                recordCount = 0,
+                exception = 0,
+                totalData = 0//add 18 Juli 2019, show total record
+            };
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/item/get";
+
+            ShopeeGetItemDetailData HttpBody = new ShopeeGetItemDetailData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                item_id = item_id
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ret.exception = 1;
+                ret.message = ex.Message;
+            }
+
+            if (responseFromServer != null)
+            {
+                try
+                {
+                    var detailBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetItemDetailResult)) as ShopeeGetItemDetailResult;
+                    if (detailBrg != null)
+                    {
+                        if (detailBrg.item != null)
+                        {
+                            //string IdMarket = ErasoftDbContext.ARF01.Where(c => c.Sort1_Cust.Equals(iden.merchant_code)).FirstOrDefault().RecNum.ToString();
+                            string cust = ErasoftDbContext.ARF01.Where(c => c.Sort1_Cust == iden.merchant_code).FirstOrDefault().CUST.ToString();
+                            string categoryCode = detailBrg.item.category_id.ToString();
+                            var categoryInDB = MoDbContext.CategoryShopee.Where(p => p.CATEGORY_CODE == categoryCode).FirstOrDefault();
+                            string categoryName = "";
+                            if (categoryInDB != null)
+                            {
+                                categoryName = categoryInDB.CATEGORY_NAME;
+                            }
+                            ret.status = 1;
+
+                            var sellerSku = "";
+                            //if (string.IsNullOrEmpty(sellerSku))
+                            //{
+                            //    var nm = barang_id.Split(';');
+                            //    if (nm.Length > 1)
+                            //    {
+                            //        sellerSku = nm[1];
+                            //    }
+                            //    else
+                            //    {
+                            //        sellerSku = barang_id;
+                            //    }
+                            //}
+                            if (detailBrg.item.has_variation)
+                            {
+                                ret.totalData += detailBrg.item.variations.Count();//add 18 Juli 2019, show total record
+                                //insert brg induk
+                                //string brgMpInduk = Convert.ToString(detailBrg.item.item_id) + ";";
+                                string brgMpInduk = Convert.ToString(detailBrg.item.item_id) + ";0";
+                                //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMpInduk.ToUpper()) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
+                                //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMpInduk) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
+                                var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMpInduk.ToUpper()).FirstOrDefault();
+                                var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMpInduk.ToUpper()).FirstOrDefault();
+                                //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.IDMARKET == IdMarket && (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMpInduk.ToUpper()).FirstOrDefault();
+                                //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.IDMARKET == IdMarket && (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMpInduk.ToUpper()).FirstOrDefault();
+                                if (tempbrginDB == null && brgInDB == null)
+                                {
+                                    //ret.recordCount++;
+                                    var ret1 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMpInduk, detailBrg.item.name, detailBrg.item.variations[0].status, detailBrg.item.original_price, string.IsNullOrEmpty(detailBrg.item.item_sku) ? brgMpInduk : detailBrg.item.item_sku, 1, "", iden, true);
+                                    ret.recordCount += ret1.status;
+                                }
+                                else if (brgInDB != null)
+                                {
+                                    brgMpInduk = brgInDB.BRG;
+                                }
+                                //string skuInduk = string.IsNullOrEmpty(detailBrg.item.item_sku) ? brgMpInduk : detailBrg.item.item_sku;
+                                //end insert brg induk
+                                var insert_1st_img = true;
+
+                                foreach (var item in detailBrg.item.variations)
+                                {
+                                    sellerSku = item.variation_sku;
+                                    //remark 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+                                    //if (string.IsNullOrEmpty(sellerSku))
+                                    //{
+                                    //    sellerSku = item.variation_id.ToString();
+                                    //}
+                                    //end remark 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+                                    string brgMp = Convert.ToString(detailBrg.item.item_id) + ";" + Convert.ToString(item.variation_id);
+                                    //tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMp.ToUpper()) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
+                                    //brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMp) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
+                                    tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                                    brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                                    //tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.IDMARKET == IdMarket && (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                                    //brgInDB = ErasoftDbContext.STF02H.Where(t => t.IDMARKET == IdMarket && (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                                    if (tempbrginDB == null && brgInDB == null)
+                                    {
+                                        //ret.recordCount++;
+                                        var ret2 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMp, detailBrg.item.name + " " + item.name, item.status, item.original_price, sellerSku, 2, brgMpInduk, iden, insert_1st_img);
+                                        //var ret2 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMp, detailBrg.item.name + " " + item.name, item.status, item.original_price, sellerSku, 2, skuInduk, iden, insert_1st_img);
+                                        ret.recordCount += ret2.status;
+                                        insert_1st_img = false;//varian ke-2 tidak perlu ambil gambar
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+                                //sellerSku = string.IsNullOrEmpty(detailBrg.item.item_sku) ? detailBrg.item.item_id.ToString() : detailBrg.item.item_sku;
+                                sellerSku = detailBrg.item.item_sku;
+                                //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+
+                                //ret.recordCount++;
+                                var ret0 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, Convert.ToString(detailBrg.item.item_id) + ";0", detailBrg.item.name, detailBrg.item.status, detailBrg.item.original_price, sellerSku, 0, "", iden, true);
+                                ret.recordCount += ret0.status;
+                            }
+                        }
+                        else
+                        {
+                            ret.message = responseFromServer;
+                        }
+
+                    }
+                }
+                catch (Exception ex2)
+                {
+                    ret.exception = 1;
+                    ret.message = ex2.Message;
+                }
+            }
             return ret;
         }
 
@@ -6468,7 +6820,29 @@ namespace MasterOnline.Controllers
             public long timestamp { get; set; }
             public long item_id { get; set; }
         }
-
+        #region get item list v2
+        public class ShopeeGetItemListResult_V2
+        {
+            public ResponseShopeeGetItemListResult_V2 response { get; set; }
+            public string request_id { get; set; }
+            public string error { get; set; }
+            public string message { get; set; }
+            public string warning { get; set; }
+        }
+        public class ResponseShopeeGetItemListResult_V2
+        {
+            public ShopeeGetItemListItem_V2[] item { get; set; }
+            public int total_count { get; set; }
+            public int next_offset { get; set; }
+            public bool has_next_page { get; set; }
+        }
+        public class ShopeeGetItemListItem_V2
+        {
+            public string status { get; set; }
+            public long update_time { get; set; }
+            public long item_id { get; set; }
+        }
+        #endregion
         public class ShopeeGetItemListResult
         {
             public ShopeeGetItemListItem[] items { get; set; }
