@@ -138,7 +138,8 @@
         }
 
         .sub_title {
-            font-size: 16px;
+            /*font-size: 16px;*/
+            font-size: 20px;
         }
 
         .block_subtitle {
@@ -258,20 +259,20 @@
                                                                             @*<tr style="width:650px !important;">*@
                                                                             <tr>
                                                                                 @*@if (labelList.linktoko != null && labelList.linktoko != "")
-                                                {
-                                                    <td style="text-align:left; width:325px !important; padding-left:10px !important;">
-                                                        <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.linktoko)</span></h1></div>
-                                                    </td>
-                                                }
-                                                else
-                                                {
-                                                    <td style="text-align:left; width:325px !important; padding-left:10px !important;">
-                                                        <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.NamaToko)</span></h1></div>
-                                                    </td>
-                                                }
-                                                <td style="text-align:right; width:325px !important">
-                                                    <h1 class="bold_title_invoice" style="margin-right:10px; padding-top:unset">INVOICE</h1>
-                                                </td>*@
+            {
+                <td style="text-align:left; width:325px !important; padding-left:10px !important;">
+                    <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.linktoko)</span></h1></div>
+                </td>
+            }
+            else
+            {
+                <td style="text-align:left; width:325px !important; padding-left:10px !important;">
+                    <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.NamaToko)</span></h1></div>
+                </td>
+            }
+            <td style="text-align:right; width:325px !important">
+                <h1 class="bold_title_invoice" style="margin-right:10px; padding-top:unset">INVOICE</h1>
+            </td>*@
                                                                                 <td>
                                                                                     <div class="col-md-9" style="width: 440px !important;">
                                                                                         @if (labelList.linktoko != null && labelList.linktoko != "")
@@ -283,7 +284,7 @@
                                                                                         else
                                                                                         {
                                                                                             <div style="text-align:left; ">
-                                                                                                <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.NamaToko)</span></h1></div>
+                                                                                                <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.NamaPerusahaan)</span></h1></div>
                                                                                             </div>
                                                                                         }
                                                                                     </div>
@@ -294,6 +295,13 @@
                                                                                     </div>
                                                                                 </td>
                                                                             </tr>
+                                                                            @*//add by nurul 16/6/2021*@
+                                                                            <tr style="width:650px !important;">
+                                                                                <td colspan="2">
+                                                                                    <div id="namaAkun_faktur" class="col-md-12 namaAkun_faktur"><span>@labelList.Marketplace (@labelList.NamaToko)</span></div>
+                                                                                </td>
+                                                                            </tr>
+                                                                            @*//end add by nurul 16/6/2021*@
                                                                             @if (Model?.urlalamat_faktur != null && Model?.urlalamat_faktur == "1")
                                                                             {
                                                                                 <tr style="width:650px !important;">
@@ -491,6 +499,8 @@
                                                                 <td style="width: 100px; "></td>
                                                                 <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "- {0:N}", labelList?.Faktur?.NILAI_DISC)</td>
                                                             </tr>
+                                                            @if (labelList?.Faktur?.NILAI_PPN > 0)
+                                                            {
                                                             <tr>
                                                                 <td style="width: 160px; "></td>
                                                                 <td style="width: 160px;"></td>
@@ -498,6 +508,7 @@
                                                                 <td style="width: 100px; "></td>
                                                                 <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "+ {0:N}", labelList?.Faktur?.NILAI_PPN)</td>
                                                             </tr>
+                                                            }
                                                             <tr>
                                                                 <td style="width: 160px; "></td>
                                                                 <td style="width: 160px;"></td>
@@ -542,20 +553,20 @@
                                                                                 @*<tr style="width:650px !important;">*@
                                                                                 <tr>
                                                                                     @*@if (labelList.linktoko != null && labelList.linktoko != "")
-                                                    {
-                                                        <td style="text-align:left; width:325px !important; padding-left:10px !important;">
-                                                            <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.linktoko)</span></h1></div>
-                                                        </td>
-                                                    }
-                                                    else
-                                                    {
-                                                        <td style="text-align:left; width:325px !important; padding-left:10px !important;">
-                                                            <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.NamaToko)</span></h1></div>
-                                                        </td>
-                                                    }
-                                                    <td style="text-align:right; width:325px !important">
-                                                        <h1 class="bold_title_invoice" style="margin-right:10px; padding-top:unset">INVOICE</h1>
-                                                    </td>*@
+            {
+                <td style="text-align:left; width:325px !important; padding-left:10px !important;">
+                    <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.linktoko)</span></h1></div>
+                </td>
+            }
+            else
+            {
+                <td style="text-align:left; width:325px !important; padding-left:10px !important;">
+                    <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.NamaToko)</span></h1></div>
+                </td>
+            }
+            <td style="text-align:right; width:325px !important">
+                <h1 class="bold_title_invoice" style="margin-right:10px; padding-top:unset">INVOICE</h1>
+            </td>*@
                                                                                     <td>
                                                                                         <div class="col-md-9" style="width: 440px !important;">
                                                                                             @if (labelList.linktoko != null && labelList.linktoko != "")
@@ -567,7 +578,7 @@
                                                                                             else
                                                                                             {
                                                                                                 <div style="text-align:left; ">
-                                                                                                    <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.NamaToko)</span></h1></div>
+                                                                                                    <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.NamaPerusahaan)</span></h1></div>
                                                                                                 </div>
                                                                                             }
                                                                                         </div>
@@ -578,6 +589,13 @@
                                                                                         </div>
                                                                                     </td>
                                                                                 </tr>
+                                                                                @*//add by nurul 16/6/2021*@
+                                                                                <tr style="width:650px !important;">
+                                                                                    <td colspan="2">
+                                                                                        <div id="namaAkun_faktur" class="col-md-12 namaAkun_faktur"><span>@labelList.Marketplace (@labelList.NamaToko)</span></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                @*//end add by nurul 16/6/2021*@
                                                                                 @if (Model?.urlalamat_faktur != null && Model?.urlalamat_faktur == "1")
                                                                                 {
                                                                                     <tr style="width:650px !important;">
@@ -775,13 +793,16 @@
                                                                     <td style="width: 100px; "></td>
                                                                     <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "- {0:N}", labelList?.Faktur?.NILAI_DISC)</td>
                                                                 </tr>
-                                                                <tr>
-                                                                    <td style="width: 160px; "></td>
-                                                                    <td style="width: 160px;"></td>
-                                                                    <td style="width: 100px; ">Nilai PPN (@(Model?.Faktur?.PPN)%)</td>
-                                                                    <td style="width: 100px; "></td>
-                                                                    <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "+ {0:N}", labelList?.Faktur?.NILAI_PPN)</td>
-                                                                </tr>
+                                                                @if (labelList?.Faktur?.NILAI_PPN > 0)
+                                                                {
+                                                                    <tr>
+                                                                        <td style="width: 160px; "></td>
+                                                                        <td style="width: 160px;"></td>
+                                                                        <td style="width: 100px; ">Nilai PPN (@(Model?.Faktur?.PPN)%)</td>
+                                                                        <td style="width: 100px; "></td>
+                                                                        <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "+ {0:N}", labelList?.Faktur?.NILAI_PPN)</td>
+                                                                    </tr>
+                                                                }
                                                                 <tr>
                                                                     <td style="width: 160px; "></td>
                                                                     <td style="width: 160px;"></td>
@@ -814,20 +835,20 @@
                                                                                 @*<tr style="width:650px !important;">*@
                                                                                 <tr>
                                                                                     @*@if (labelList.linktoko != null && labelList.linktoko != "")
-                                                    {
-                                                        <td style="text-align:left; width:325px !important; padding-left:10px !important;">
-                                                            <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.linktoko)</span></h1></div>
-                                                        </td>
-                                                    }
-                                                    else
-                                                    {
-                                                        <td style="text-align:left; width:325px !important; padding-left:10px !important;">
-                                                            <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.NamaToko)</span></h1></div>
-                                                        </td>
-                                                    }
-                                                    <td style="text-align:right; width:325px !important">
-                                                        <h1 class="bold_title_invoice" style="margin-right:10px; padding-top:unset">INVOICE</h1>
-                                                    </td>*@
+            {
+                <td style="text-align:left; width:325px !important; padding-left:10px !important;">
+                    <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.linktoko)</span></h1></div>
+                </td>
+            }
+            else
+            {
+                <td style="text-align:left; width:325px !important; padding-left:10px !important;">
+                    <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.NamaToko)</span></h1></div>
+                </td>
+            }
+            <td style="text-align:right; width:325px !important">
+                <h1 class="bold_title_invoice" style="margin-right:10px; padding-top:unset">INVOICE</h1>
+            </td>*@
                                                                                     <td>
                                                                                         <div class="col-md-9" style="width:440px !important;">
                                                                                             @if (labelList.linktoko != null && labelList.linktoko != "")
@@ -839,7 +860,7 @@
                                                                                             else
                                                                                             {
                                                                                                 <div style="text-align:left; ">
-                                                                                                    <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.NamaToko)</span></h1></div>
+                                                                                                    <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.NamaPerusahaan)</span></h1></div>
                                                                                                 </div>
                                                                                             }
                                                                                         </div>
@@ -850,6 +871,13 @@
                                                                                         </div>
                                                                                     </td>
                                                                                 </tr>
+                                                                                @*//add by nurul 16/6/2021*@
+                                                                                <tr style="width:650px !important;">
+                                                                                    <td colspan="2">
+                                                                                        <div id="namaAkun_faktur" class="col-md-12 namaAkun_faktur"><span>@labelList.Marketplace (@labelList.NamaToko)</span></div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                @*//end add by nurul 16/6/2021*@
                                                                                 @if (Model?.urlalamat_faktur != null && Model?.urlalamat_faktur == "1")
                                                                                 {
                                                                                     <tr style="width:650px !important;">
@@ -1047,13 +1075,16 @@
                                                                     <td style="width: 100px; "></td>
                                                                     <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "- {0:N}", labelList?.Faktur?.NILAI_DISC)</td>
                                                                 </tr>
-                                                                <tr>
-                                                                    <td style="width: 160px; "></td>
-                                                                    <td style="width: 160px;"></td>
-                                                                    <td style="width: 100px; ">Nilai PPN (@(Model?.Faktur?.PPN)%)</td>
-                                                                    <td style="width: 100px; "></td>
-                                                                    <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "+ {0:N}", labelList?.Faktur?.NILAI_PPN)</td>
-                                                                </tr>
+                                                                @if (labelList?.Faktur?.NILAI_PPN > 0)
+                                                                {
+                                                                    <tr>
+                                                                        <td style="width: 160px; "></td>
+                                                                        <td style="width: 160px;"></td>
+                                                                        <td style="width: 100px; ">Nilai PPN (@(Model?.Faktur?.PPN)%)</td>
+                                                                        <td style="width: 100px; "></td>
+                                                                        <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "+ {0:N}", labelList?.Faktur?.NILAI_PPN)</td>
+                                                                    </tr>
+                                                                }
                                                                 <tr>
                                                                     <td style="width: 160px; "></td>
                                                                     <td style="width: 160px;"></td>
@@ -1436,7 +1467,7 @@
 
                                                     @*add by nurul 28/1/2019*@
                                                     @*<br />*@
-                                                    <table class="table" style="width:620px  !important;">
+                                                    <table class="table" style="width:620px  !important; font-size:16px;">
                                                         @*<thead>*@
                                                         <tr>
                                                             <th style="width:20px">No</th>
@@ -1816,7 +1847,7 @@
                                                         @*===========================================================================*@
                                                     </table>
                                                     @*<br />*@
-                                                    <table class="table" style="width:620px  !important;">
+                                                    <table class="table" style="width:620px  !important; font-size:16px;">
                                                         <tr>
                                                             <th style="width:20px">No</th>
                                                             <th style="width:200px">Kode Barang</th>
