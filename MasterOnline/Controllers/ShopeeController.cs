@@ -201,7 +201,7 @@ namespace MasterOnline.Controllers
             {
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
-                urll = "https://partner.test-stable.shopeemobile.com/api/v1/items/get";
+                urll = shopeeV2Url + "/api/v1/items/get";
             }
             //string ret = "";
             var ret = new BindingBase
@@ -581,7 +581,7 @@ namespace MasterOnline.Controllers
             {
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
-                urll = "https://partner.test-stable.shopeemobile.com/api/v1/item/get";
+                urll = shopeeV2Url + "/api/v1/item/get";
             }
             //string ret = "";
             var ret = new BindingBase
@@ -3419,11 +3419,18 @@ namespace MasterOnline.Controllers
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            string urll = "https://partner.shopeemobile.com/api/v1/logistics/init_parameter/get";
+            if (!string.IsNullOrEmpty(iden.token))
+            {
+                MOPartnerID = MOPartnerIDV2;
+                MOPartnerKey = MOPartnerKeyV2;
+                urll = shopeeV2Url + "/api/v1/logistics/init_parameter/get";
+            }
             ShopeeGetParameterForInitLogisticResult ret = null;
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
-            string urll = "https://partner.shopeemobile.com/api/v1/logistics/init_parameter/get";
+            //string urll = "https://partner.shopeemobile.com/api/v1/logistics/init_parameter/get";
 
             ShopeeGetParameterForInitLogisticData HttpBody = new ShopeeGetParameterForInitLogisticData
             {
@@ -5251,6 +5258,13 @@ namespace MasterOnline.Controllers
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
+            string urll = "https://partner.shopeemobile.com/api/v1/items/update_price";
+            if (!string.IsNullOrEmpty(iden.token))
+            {
+                MOPartnerID = MOPartnerIDV2;
+                MOPartnerKey = MOPartnerKeyV2;
+                urll = shopeeV2Url + "/api/v1/items/update_price";
+            }
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -5265,7 +5279,7 @@ namespace MasterOnline.Controllers
                 REQUEST_STATUS = "Pending",
             };
 
-            string urll = "https://partner.shopeemobile.com/api/v1/items/update_price";
+            //string urll = "https://partner.shopeemobile.com/api/v1/items/update_price";
 
             string[] brg_mp_split = brg_mp.Split(';');
             ShopeeUpdatePriceData HttpBody = new ShopeeUpdatePriceData
@@ -5329,6 +5343,13 @@ namespace MasterOnline.Controllers
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
+            string urll = "https://partner.shopeemobile.com/api/v1/items/update_variation_price";
+            if (!string.IsNullOrEmpty(iden.token))
+            {
+                MOPartnerID = MOPartnerIDV2;
+                MOPartnerKey = MOPartnerKeyV2;
+                urll = shopeeV2Url + "/api/v1/items/update_variation_price";
+            }
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -5343,7 +5364,7 @@ namespace MasterOnline.Controllers
                 REQUEST_STATUS = "Pending",
             };
 
-            string urll = "https://partner.shopeemobile.com/api/v1/items/update_variation_price";
+            //string urll = "https://partner.shopeemobile.com/api/v1/items/update_variation_price";
 
             string[] brg_mp_split = brg_mp.Split(';');
             ShopeeUpdateVariantionPriceData HttpBody = new ShopeeUpdateVariantionPriceData
@@ -5410,6 +5431,13 @@ namespace MasterOnline.Controllers
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
+            string urll = "https://partner.shopeemobile.com/api/v1/item/img/update";
+            if (!string.IsNullOrEmpty(iden.token))
+            {
+                MOPartnerID = MOPartnerIDV2;
+                MOPartnerKey = MOPartnerKeyV2;
+                urll = shopeeV2Url + "/api/v1/item/img/update";
+            }
 
             var brgInDb = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper() == brg.ToUpper()).FirstOrDefault();
             if (brgInDb == null)
@@ -5431,7 +5459,7 @@ namespace MasterOnline.Controllers
                 REQUEST_STATUS = "Pending",
             };
 
-            string urll = "https://partner.shopeemobile.com/api/v1/item/img/update";
+            //string urll = "https://partner.shopeemobile.com/api/v1/item/img/update";
 
             List<string> imagess = new List<string>();
 
@@ -5511,6 +5539,13 @@ namespace MasterOnline.Controllers
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
+            string urll = "https://partner.shopeemobile.com/api/v1/discount/add";
+            if (!string.IsNullOrEmpty(iden.token))
+            {
+                MOPartnerID = MOPartnerIDV2;
+                MOPartnerKey = MOPartnerKeyV2;
+                urll = shopeeV2Url + "/api/v1/discount/add";
+            }
             double promoPrice;
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -5534,7 +5569,7 @@ namespace MasterOnline.Controllers
                 REQUEST_STATUS = "Pending",
             };
 
-            string urll = "https://partner.shopeemobile.com/api/v1/discount/add";
+            //string urll = "https://partner.shopeemobile.com/api/v1/discount/add";
 
             ShopeeAddDiscountData HttpBody = new ShopeeAddDiscountData
             {
@@ -5693,6 +5728,13 @@ namespace MasterOnline.Controllers
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
+            string urll = "https://partner.shopeemobile.com/api/v1/discount/items/add";
+            if (!string.IsNullOrEmpty(iden.token))
+            {
+                MOPartnerID = MOPartnerIDV2;
+                MOPartnerKey = MOPartnerKeyV2;
+                urll = shopeeV2Url + "/api/v1/discount/items/add";
+            }
             double promoPrice;
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -5710,7 +5752,7 @@ namespace MasterOnline.Controllers
                 REQUEST_STATUS = "Pending",
             };
 
-            string urll = "https://partner.shopeemobile.com/api/v1/discount/items/add";
+            //string urll = "https://partner.shopeemobile.com/api/v1/discount/items/add";
 
             ShopeeAddDiscountItemData HttpBody = new ShopeeAddDiscountItemData
             {
@@ -5858,6 +5900,13 @@ namespace MasterOnline.Controllers
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
+            string urll = "https://partner.shopeemobile.com/api/v1/discount/delete";
+            if (!string.IsNullOrEmpty(iden.token))
+            {
+                MOPartnerID = MOPartnerIDV2;
+                MOPartnerKey = MOPartnerKeyV2;
+                urll = shopeeV2Url + "/api/v1/discount/delete";
+            }
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -5875,7 +5924,7 @@ namespace MasterOnline.Controllers
                 REQUEST_STATUS = "Pending",
             };
 
-            string urll = "https://partner.shopeemobile.com/api/v1/discount/delete";
+            //string urll = "https://partner.shopeemobile.com/api/v1/discount/delete";
 
             ShopeeDeleteDiscountData HttpBody = new ShopeeDeleteDiscountData
             {
@@ -5967,6 +6016,13 @@ namespace MasterOnline.Controllers
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
+            string urll = "https://partner.shopeemobile.com/api/v1/discount/item/delete";
+            if (!string.IsNullOrEmpty(iden.token))
+            {
+                MOPartnerID = MOPartnerIDV2;
+                MOPartnerKey = MOPartnerKeyV2;
+                urll = shopeeV2Url + "/api/v1/discount/item/delete";
+            }
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -5984,7 +6040,7 @@ namespace MasterOnline.Controllers
                 REQUEST_STATUS = "Pending",
             };
 
-            string urll = "https://partner.shopeemobile.com/api/v1/discount/item/delete";
+            //string urll = "https://partner.shopeemobile.com/api/v1/discount/item/delete";
 
             ShopeeDeleteDiscountItemData HttpBody = new ShopeeDeleteDiscountItemData
             {
@@ -6093,11 +6149,18 @@ namespace MasterOnline.Controllers
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             var ret = new ShopeeGetAddressResult();
+            string urll = "https://partner.shopeemobile.com/api/v1/logistics/address/get";
+            if (!string.IsNullOrEmpty(iden.token))
+            {
+                MOPartnerID = MOPartnerIDV2;
+                MOPartnerKey = MOPartnerKeyV2;
+                urll = shopeeV2Url + "/api/v1/logistics/address/get";
+            }
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
-            string urll = "https://partner.shopeemobile.com/api/v1/logistics/address/get";
+            //string urll = "https://partner.shopeemobile.com/api/v1/logistics/address/get";
 
             ShopeeGetAddressData HttpBody = new ShopeeGetAddressData
             {
@@ -6210,11 +6273,18 @@ namespace MasterOnline.Controllers
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             var ret = new ShopeeGetTimeSlotResult();
+            string urll = "https://partner.shopeemobile.com/api/v1/logistics/timeslot/get";
+            if (!string.IsNullOrEmpty(iden.token))
+            {
+                MOPartnerID = MOPartnerIDV2;
+                MOPartnerKey = MOPartnerKeyV2;
+                urll = shopeeV2Url + "/api/v1/logistics/timeslot/get";
+            }
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
-            string urll = "https://partner.shopeemobile.com/api/v1/logistics/timeslot/get";
+            //string urll = "https://partner.shopeemobile.com/api/v1/logistics/timeslot/get";
 
             ShopeeGetTimeSlotData HttpBody = new ShopeeGetTimeSlotData
             {
@@ -6299,11 +6369,18 @@ namespace MasterOnline.Controllers
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
+            string urll = "https://partner.shopeemobile.com/api/v1/logistics/branch/get";
+            if (!string.IsNullOrEmpty(iden.token))
+            {
+                MOPartnerID = MOPartnerIDV2;
+                MOPartnerKey = MOPartnerKeyV2;
+                urll = shopeeV2Url + "/api/v1/logistics/branch/get";
+            }
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
-            string urll = "https://partner.shopeemobile.com/api/v1/logistics/branch/get";
+            //string urll = "https://partner.shopeemobile.com/api/v1/logistics/branch/get";
 
             ShopeeGetBranchData HttpBody = new ShopeeGetBranchData
             {

@@ -222,6 +222,12 @@ namespace MasterOnline.Controllers
         public string Version_JDID_V2 = "2.0";
         //end add 
 
+        //string shopeeV2Url = "https://partner.shopeemobile.com"; 
+        //int MOPartnerIDV2 = 841371;
+        //string MOPartnerKeyV2 = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        string shopeeV2Url = "https://partner.test-stable.shopeemobile.com";
+        int MOPartnerIDV2 = 1000723;
+        string MOPartnerKeyV2 = "d59a300f63f9d36b92f71b0ccb5b37e4e2b43e9c567df3f2e2808136dd4893dd";
 
         public StokControllerJob()
         {
@@ -1353,10 +1359,16 @@ namespace MasterOnline.Controllers
                     {
                         if (marketPlace.TIDAK_HIT_UANG_R == true)
                         {
-                            ShopeeAPIData data = new ShopeeAPIData()
+                            ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
                             {
                                 merchant_code = marketPlace.Sort1_Cust,
                             };
+                            if (marketPlace.KD_ANALISA == "2")
+                            {
+                                data.token = marketPlace.TOKEN;
+                                data.refresh_token = marketPlace.REFRESH_TOKEN;
+                                data.token_expired = marketPlace.TOKEN_EXPIRED;
+                            }
                             if (stf02h.BRG_MP != "")
                             {
                                 string[] brg_mp = stf02h.BRG_MP.Split(';');
@@ -1807,10 +1819,16 @@ namespace MasterOnline.Controllers
                     {
                         if (marketPlace.TIDAK_HIT_UANG_R == true)
                         {
-                            ShopeeAPIData data = new ShopeeAPIData()
+                            ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
                             {
                                 merchant_code = marketPlace.Sort1_Cust,
                             };
+                            if (marketPlace.KD_ANALISA == "2")
+                            {
+                                data.token = marketPlace.TOKEN;
+                                data.refresh_token = marketPlace.REFRESH_TOKEN;
+                                data.token_expired = marketPlace.TOKEN_EXPIRED;
+                            }
                             if (stf02h.BRG_MP != "")
                             {
                                 string[] brg_mp = stf02h.BRG_MP.Split(';');
@@ -3973,7 +3991,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
         [NotifyOnFailed("Update Stok {obj} ke Shopee gagal.")]
-        public async Task<string> Shopee_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string brg_mp, int qty, string uname, PerformContext context)
+        public async Task<string> Shopee_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeControllerJob.ShopeeAPIData iden, string brg_mp, int qty, string uname, PerformContext context)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -4007,6 +4025,13 @@ namespace MasterOnline.Controllers
             //};
 
             string urll = "https://partner.shopeemobile.com/api/v1/items/update_stock";
+            if (!string.IsNullOrEmpty(iden.token))
+            {
+                MOPartnerID = MOPartnerIDV2;
+                MOPartnerKey = MOPartnerKeyV2;
+                urll = shopeeV2Url + "/api/v1/items/update_stock";
+                iden = await new ShopeeControllerJob().RefreshTokenShopee_V2(iden, false);
+            }
             string[] brg_mp_split = brg_mp.Split(';');
             ShopeeUpdateStockData HttpBody = new ShopeeUpdateStockData
             {
@@ -4114,7 +4139,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
         [NotifyOnFailed("Update Stok {obj} ke Shopee gagal.")]
-        public async Task<string> Shopee_updateVariationStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string brg_mp, int qty, string uname, PerformContext context)
+        public async Task<string> Shopee_updateVariationStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeControllerJob.ShopeeAPIData iden, string brg_mp, int qty, string uname, PerformContext context)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -4147,6 +4172,13 @@ namespace MasterOnline.Controllers
             //};
 
             string urll = "https://partner.shopeemobile.com/api/v1/items/update_variation_stock";
+            if (!string.IsNullOrEmpty(iden.token))
+            {
+                MOPartnerID = MOPartnerIDV2;
+                MOPartnerKey = MOPartnerKeyV2;
+                urll = shopeeV2Url + "/api/v1/items/update_variation_stock";
+                iden = await new ShopeeControllerJob().RefreshTokenShopee_V2(iden, false);
+            }
             string[] brg_mp_split = brg_mp.Split(';');
             ShopeeUpdateVariationStockData HttpBody = new ShopeeUpdateVariationStockData
             {
@@ -4260,10 +4292,10 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 1)]
         [Queue("1_update_stok")]
-        public async Task<BindingBase> ShopeeUnlinkProduct(string DatabasePathErasoft, string stf02_brg, string log_CUST, string uname, ShopeeAPIData iden, Int64 item_id, Int64 variation_id, int MO_qty)
+        public async Task<BindingBase> ShopeeUnlinkProduct(string DatabasePathErasoft, string stf02_brg, string log_CUST, string uname, ShopeeControllerJob.ShopeeAPIData iden, Int64 item_id, Int64 variation_id, int MO_qty)
         {
-            //    int MOPartnerID = 841371;
-            //    string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             //string ret = "";
             SetupContext(DatabasePathErasoft, uname);
             var EDB = new DatabaseSQL(DatabasePathErasoft);
@@ -4281,10 +4313,17 @@ namespace MasterOnline.Controllers
             var dateNowLog = DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
 
             string urll = "https://partner.shopeemobile.com/api/v1/item/get";
+            if (!string.IsNullOrEmpty(iden.token))
+            {
+                MOPartnerID = MOPartnerIDV2;
+                MOPartnerKey = MOPartnerKeyV2;
+                urll = shopeeV2Url + "/api/v1/item/get";
+                iden = await new ShopeeControllerJob().RefreshTokenShopee_V2(iden, false);
+            }
 
             ShopeeControllerJob.ShopeeGetItemDetailData HttpBody = new ShopeeControllerJob.ShopeeGetItemDetailData
             {
-                partner_id = 841371,
+                partner_id = MOPartnerID,
                 shopid = Convert.ToInt32(iden.merchant_code),
                 timestamp = seconds,
                 item_id = item_id,
@@ -4292,7 +4331,7 @@ namespace MasterOnline.Controllers
 
             string myData = JsonConvert.SerializeObject(HttpBody);
 
-            string signature = CreateSign(string.Concat(urll, "|", myData), "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c");
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "POST";
@@ -4400,10 +4439,10 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 1)]
         [Queue("1_update_stok")]
-        public async Task<BindingBase> ShopeeCheckUpdateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string uname, ShopeeAPIData iden, Int64 item_id, Int64 variation_id, int MO_qty)
+        public async Task<BindingBase> ShopeeCheckUpdateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string uname, ShopeeControllerJob.ShopeeAPIData iden, Int64 item_id, Int64 variation_id, int MO_qty)
         {
-            //    int MOPartnerID = 841371;
-            //    string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             //string ret = "";
             SetupContext(DatabasePathErasoft, uname);
             var EDB = new DatabaseSQL(DatabasePathErasoft);
@@ -4418,10 +4457,17 @@ namespace MasterOnline.Controllers
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
             string urll = "https://partner.shopeemobile.com/api/v1/item/get";
+            if (!string.IsNullOrEmpty(iden.token))
+            {
+                MOPartnerID = MOPartnerIDV2;
+                MOPartnerKey = MOPartnerKeyV2;
+                urll = shopeeV2Url + "/api/v1/item/get";
+                iden = await new ShopeeControllerJob().RefreshTokenShopee_V2(iden, false);
+            }
 
             ShopeeControllerJob.ShopeeGetItemDetailData HttpBody = new ShopeeControllerJob.ShopeeGetItemDetailData
             {
-                partner_id = 841371,
+                partner_id = MOPartnerID,
                 shopid = Convert.ToInt32(iden.merchant_code),
                 timestamp = seconds,
                 item_id = item_id
@@ -4429,7 +4475,7 @@ namespace MasterOnline.Controllers
 
             string myData = JsonConvert.SerializeObject(HttpBody);
 
-            string signature = CreateSign(string.Concat(urll, "|", myData), "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c");
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "POST";
@@ -6033,18 +6079,20 @@ namespace MasterOnline.Controllers
         }
 
 
-        public class ShopeeAPIData
-        {
-            public string merchant_code { get; set; }
-            public string API_client_username { get; set; }
-            public string API_client_password { get; set; }
-            public string API_secret_key { get; set; }
-            public string mta_username_email_merchant { get; set; }
-            public string mta_password_password_merchant { get; set; }
-            public string token { get; set; }
-            public string DatabasePathErasoft { get; set; }
-            public string username { get; set; }
-        }
+        //public class ShopeeAPIData
+        //{
+        //    public string merchant_code { get; set; }
+        //    public string API_client_username { get; set; }
+        //    public string API_client_password { get; set; }
+        //    public string API_secret_key { get; set; }
+        //    public string mta_username_email_merchant { get; set; }
+        //    public string mta_password_password_merchant { get; set; }
+        //    public string token { get; set; }
+        //    public string DatabasePathErasoft { get; set; }
+        //    public string username { get; set; }
+        //    public string refresh_token { get; set; }//add for api v2
+        //    public DateTime? token_expired { get; set; }
+        //}
 
         public class ShopeeUpdateStockData
         {
