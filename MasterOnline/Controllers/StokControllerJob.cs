@@ -4736,6 +4736,12 @@ namespace MasterOnline.Controllers
         public JDIDAPIData RefreshToken(JDIDAPIData data)
         {
             var ret = data;
+            SetupContext(data.DatabasePathErasoft, data.username);
+            var MoDbContext = new MoDbContext("");
+            var EDB = new DatabaseSQL(data.DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+            var ErasoftDbContext = new ErasoftContext(EraServerName, data.DatabasePathErasoft);
+
             DateTime dateNow = DateTime.UtcNow.AddHours(7);
             bool TokenExpired = false;
             if (!string.IsNullOrWhiteSpace(data.tgl_expired.ToString()))
@@ -4752,6 +4758,22 @@ namespace MasterOnline.Controllers
             string urll = "";
             if (TokenExpired)
             {
+                var cekInDB = ErasoftDbContext.ARF01.Where(m => m.CUST == data.no_cust).FirstOrDefault();
+                if (cekInDB != null)
+                {
+                    if (data.accessToken != cekInDB.TOKEN)
+                    {
+                        data.appKey = cekInDB.API_KEY;
+                        data.refreshToken = cekInDB.REFRESH_TOKEN;
+                        data.tgl_expired = cekInDB.TGL_EXPIRED.Value;
+                        data.accessToken = cekInDB.TOKEN;
+
+                        if (cekInDB.TGL_EXPIRED > DateTime.UtcNow.AddHours(7))
+                        {
+                            return data;
+                        }
+                    }
+                }
                 urll = "https://oauth.jd.id/oauth2/refresh_token?app_key=" + data.appKey + "&app_secret=" + data.appSecret + "&grant_type=refresh_token&refresh_token=" + data.refreshToken;
             }
             if (urll != "")
@@ -4801,24 +4823,38 @@ namespace MasterOnline.Controllers
                         {
                             var getTimeExec = DateTimeOffset.FromUnixTimeSeconds(result.time / 1000).UtcDateTime.AddHours(7);
                             var timeExpired = getTimeExec.AddSeconds(result.expires_in).ToString("yyyy-MM-dd HH:mm:ss");
-                            DatabaseSQL EDB = new DatabaseSQL(data.DatabasePathErasoft);
+                            //DatabaseSQL EDB = new DatabaseSQL(data.DatabasePathErasoft);
                             var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', TOKEN = '" + result.access_token + "', REFRESH_TOKEN = '" + result.refresh_token + "', tgl_expired ='" + timeExpired + "'  WHERE CUST = '" + data.no_cust + "'");
                             if (resultquery != 0)
                             {
                                 ret.accessToken = result.access_token;
                                 ret.tgl_expired = Convert.ToDateTime(timeExpired);
                                 ret.refreshToken = result.refresh_token;
+
+                                string sSQLInsert = "INSERT INTO API_LOG_MARKETPLACE(REQUEST_ID,REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_1,REQUEST_ATTRIBUTE_2,REQUEST_STATUS,REQUEST_EXCEPTION,CUST) ";
+                                sSQLInsert += "SELECT '" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") + "' AS REQUEST_ID,'REFRESH_TOKEN_JDID' AS REQUEST_ACTION,DATEADD(HOUR, +7, GETUTCDATE()) AS REQUEST_DATETIME,'" + data.accessToken + "' AS REQUEST_ATTRIBUTE_1,'" + data.refreshToken + "' AS REQUEST_ATTRIBUTE_2,'REFRESH_JDID SUCCESS' AS REQUEST_STATUS, 'SUCCESS' AS REQUEST_EXCEPTION, '" + data.no_cust + "' AS CUST";
+                                var resultInsert = EDB.ExecuteSQL("CString", CommandType.Text, sSQLInsert);
                             }
                             else
                             {
+                                string sSQLInsert = "INSERT INTO API_LOG_MARKETPLACE(REQUEST_ID,REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_1,REQUEST_ATTRIBUTE_2,REQUEST_STATUS,REQUEST_EXCEPTION,CUST) ";
+                                sSQLInsert += "SELECT '" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") + "' AS REQUEST_ID,'REFRESH_TOKEN_JDID' AS REQUEST_ACTION,DATEADD(HOUR, +7, GETUTCDATE()) AS REQUEST_DATETIME,'" + data.accessToken + "' AS REQUEST_ATTRIBUTE_1,'" + data.refreshToken + "' AS REQUEST_ATTRIBUTE_2,'REFRESH_JDID FAILED' AS REQUEST_STATUS, 'UPDATE TOKEN FAILED' AS REQUEST_EXCEPTION, '" + data.no_cust + "' AS CUST";
+                                var resultInsert = EDB.ExecuteSQL("CString", CommandType.Text, sSQLInsert);
                             }
                         }
                         else
                         {
+                            string sSQLInsert = "INSERT INTO API_LOG_MARKETPLACE(REQUEST_ID,REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_1,REQUEST_ATTRIBUTE_2,REQUEST_STATUS,REQUEST_EXCEPTION,CUST) ";
+                            sSQLInsert += "SELECT '" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") + "' AS REQUEST_ID,'REFRESH_TOKEN_JDID' AS REQUEST_ACTION,DATEADD(HOUR, +7, GETUTCDATE()) AS REQUEST_DATETIME,'" + data.accessToken + "' AS REQUEST_ATTRIBUTE_1,'" + data.refreshToken + "' AS REQUEST_ATTRIBUTE_2,'REFRESH_JDID FAILED' AS REQUEST_STATUS, 'ACCESS / REFRESH TOKEN NULL' AS REQUEST_EXCEPTION, '" + data.no_cust + "' AS CUST";
+                            var resultInsert = EDB.ExecuteSQL("CString", CommandType.Text, sSQLInsert);
                         }
                     }
                     catch (Exception ex)
                     {
+                        string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                        string sSQLInsert = "INSERT INTO API_LOG_MARKETPLACE(REQUEST_ID,REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_1,REQUEST_ATTRIBUTE_2,REQUEST_STATUS,REQUEST_EXCEPTION,CUST) ";
+                        sSQLInsert += "SELECT '" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") + "' AS REQUEST_ID,'REFRESH_TOKEN_JDID' AS REQUEST_ACTION,DATEADD(HOUR, +7, GETUTCDATE()) AS REQUEST_DATETIME,'" + data.accessToken + "' AS REQUEST_ATTRIBUTE_1,'" + data.refreshToken + "' AS REQUEST_ATTRIBUTE_2,'REFRESH_JDID FAILED' AS REQUEST_STATUS, '" + msg + "' AS REQUEST_EXCEPTION, '" + data.no_cust + "' AS CUST";
+                        var resultInsert = EDB.ExecuteSQL("CString", CommandType.Text, sSQLInsert);
                     }
                 }
             }
