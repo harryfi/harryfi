@@ -7809,7 +7809,7 @@ namespace MasterOnline.Controllers
                 }
                 else //update image only
                 {
-                    await UpdateImage(iden, kodeProduk, item_id.ToString());//add 17 mar 2021, update gambar induk
+                    //await UpdateImage(iden, kodeProduk, item_id.ToString());//add 17 mar 2021, update gambar induk//move to ini tier
                     //#if (Debug_AWS || DEBUG)
                     if (tier_variation != null)
                         await UpdateImageTierVariationList(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation);
@@ -8650,6 +8650,8 @@ namespace MasterOnline.Controllers
                 {
                     if (resServer.msg.Contains("there is no tier_variation level change")) //add by calvin 14 november 2019, req by pak richard
                     {
+                        await UpdateImage(iden, kodeProduk, item_id.ToString());//add 16 jun 2021, update gambar induk
+
                         //do nothing
                         //add by Tri 4 Des 2019, case user tambah varian tanpa ubah tier
 #if (DEBUG || Debug_AWS)
@@ -8732,6 +8734,7 @@ namespace MasterOnline.Controllers
 #endif
 
                     }
+                    await UpdateImage(iden, kodeProduk, item_id.ToString());//add 16 jun 2021, update gambar induk
                 }
             }
 
@@ -9064,6 +9067,12 @@ namespace MasterOnline.Controllers
                 {
                     if (resServer.message.ToLower().Contains("tier") && resServer.message.ToLower().Contains("variation") && resServer.message.ToLower().Contains("not change")) //add by calvin 14 november 2019, req by pak richard
                     {
+#if (Debug_AWS || DEBUG)
+                        await UpdateProduct_V2(dbPathEra, kodeProduk, log_CUST, "Barang", "Update Produk", iden, kodeProduk, log_CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>());
+#else
+                                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdateProduct_V2(dbPathEra, kodeProduk, log_CUST, "Barang", "Update Produk", iden, kodeProduk, log_CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()));
+#endif
+
                         //for (int i = 0; i < dataBrg.response.tier_variation.Length;i++)
                         //{
                         //    var adaDiShopee = HttpBody.tier_variation.Where(m => m.name == dataBrg.response.tier_variation[i].name).FirstOrDefault();
@@ -9177,17 +9186,22 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-//#if (DEBUG || Debug_AWS)
-//                        //await GetVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation, tier_variation, currentLog);
-//#else
-//                    string EDBConnID = EDB.GetConnectionString("ConnId");
-//                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                        //#if (DEBUG || Debug_AWS)
+                        //                        //await GetVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation, tier_variation, currentLog);
+                        //#else
+                        //                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                        //                    var sqlStorage = new SqlServerStorage(EDBConnID);
 
-//                    var client = new BackgroundJobClient(sqlStorage);
-//                    client.Enqueue<ShopeeControllerJob>(x => x.GetVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation, tier_variation, currentLog));
-//#endif
+                        //                    var client = new BackgroundJobClient(sqlStorage);
+                        //                    client.Enqueue<ShopeeControllerJob>(x => x.GetVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation, tier_variation, currentLog));
+                        //#endif
 
                     }
+#if (Debug_AWS || DEBUG)
+                    await UpdateProduct_V2(dbPathEra, kodeProduk, log_CUST, "Barang", "Update Produk", iden, kodeProduk, log_CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>());
+#else
+                                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdateProduct_V2(dbPathEra, kodeProduk, log_CUST, "Barang", "Update Produk", iden, kodeProduk, log_CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()));
+#endif
                 }
             }
 
@@ -10685,6 +10699,13 @@ namespace MasterOnline.Controllers
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            string urll = "https://partner.shopeemobile.com/api/v1/item/img/update";
+            if (!string.IsNullOrEmpty(iden.token))
+            {
+                MOPartnerID = MOPartnerIDV2;
+                MOPartnerKey = MOPartnerKeyV2;
+                urll = "https://partner.test-stable.shopeemobile.com/api/v1/item/img/update";
+            }
             string ret = "";
             SetupContext(iden);
             var brgInDb = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper() == brg.ToUpper()).FirstOrDefault();
@@ -10708,7 +10729,7 @@ namespace MasterOnline.Controllers
                 REQUEST_STATUS = "Pending",
             };
 
-            string urll = "https://partner.shopeemobile.com/api/v1/item/img/update";
+            //string urll = "https://partner.shopeemobile.com/api/v1/item/img/update";
 
             List<string> imagess = new List<string>();
 

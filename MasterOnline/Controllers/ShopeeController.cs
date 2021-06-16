@@ -194,8 +194,15 @@ namespace MasterOnline.Controllers
 
         public async Task<BindingBase> GetItemsList(ShopeeAPIData iden, int IdMarket, int page, int recordCount, int totalData)
         {
-            //int MOPartnerID = 841371;
-            //string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            string urll = "https://partner.shopeemobile.com/api/v1/items/get";
+            if (!string.IsNullOrEmpty(iden.token))
+            {
+                MOPartnerID = MOPartnerIDV2;
+                MOPartnerKey = MOPartnerKeyV2;
+                urll = "https://partner.test-stable.shopeemobile.com/api/v1/items/get";
+            }
             //string ret = "";
             var ret = new BindingBase
             {
@@ -219,7 +226,7 @@ namespace MasterOnline.Controllers
             };
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
 
-            string urll = "https://partner.shopeemobile.com/api/v1/items/get";
+            //string urll = "https://partner.shopeemobile.com/api/v1/items/get";
 
             ShopeeGetItemListData HttpBody = new ShopeeGetItemListData
             {
@@ -567,8 +574,15 @@ namespace MasterOnline.Controllers
 
         public async Task<BindingBase> GetItemDetail(ShopeeAPIData iden, long item_id, List<tempBrg_local> tempBrg_local, List<stf02h_local> stf02h_local, int IdMarket)
         {
-            //    int MOPartnerID = 841371;
-            //    string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            string urll = "https://partner.shopeemobile.com/api/v1/item/get";
+            if (!string.IsNullOrEmpty(iden.token))
+            {
+                MOPartnerID = MOPartnerIDV2;
+                MOPartnerKey = MOPartnerKeyV2;
+                urll = "https://partner.test-stable.shopeemobile.com/api/v1/item/get";
+            }
             //string ret = "";
             var ret = new BindingBase
             {
@@ -581,7 +595,7 @@ namespace MasterOnline.Controllers
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
-            string urll = "https://partner.shopeemobile.com/api/v1/item/get";
+            //string urll = "https://partner.shopeemobile.com/api/v1/item/get";
 
             ShopeeGetItemDetailData HttpBody = new ShopeeGetItemDetailData
             {
@@ -1894,13 +1908,20 @@ namespace MasterOnline.Controllers
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            string urll = "https://partner.shopeemobile.com/api/v1/item/attributes/get";
+            if (!string.IsNullOrEmpty(iden.token))
+            {
+                MOPartnerID = MOPartnerIDV2;
+                MOPartnerKey = MOPartnerKeyV2;
+                 urll = "https://partner.test-stable.shopeemobile.com/api/v1/item/attributes/get";
+            }
             ATTRIBUTE_SHOPEE_AND_OPT ret = new ATTRIBUTE_SHOPEE_AND_OPT();
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
             //ganti
-            string urll = "https://partner.shopeemobile.com/api/v1/item/attributes/get";
+            //string urll = "https://partner.shopeemobile.com/api/v1/item/attributes/get";
 
             //ganti
             ShopeeGetAttributeData HttpBody = new ShopeeGetAttributeData
@@ -2740,7 +2761,7 @@ namespace MasterOnline.Controllers
                     }
                 }
 
-                if (responseFromServer != null)
+                if (responseFromServer != "")
                 {
                     //temp
                     //var simpanResponse = new BUKALAPAK_TOKEN()
