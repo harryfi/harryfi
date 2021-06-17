@@ -108,5 +108,10 @@ namespace MasterOnline
         [StringLength(20)]
         public string BRG_BUNDLING { get; set; }
         //end add by nurul 23/10/2020
+
+        //add by nurul 15/6/2021
+        [StringLength(50)]
+        public string BRG_GANTI { get; set; }
+        //end add by nurul 15/6/2021
     }
 }

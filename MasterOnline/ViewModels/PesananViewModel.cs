@@ -74,6 +74,12 @@ namespace MasterOnline.ViewModels
         //ADD BY NURUL 23/3/2021
         public bool prosesUpdateKurirShopee { get; set; }
         //END ADD BY NURUL 23/3/2021
+
+        //add by nurul 15/6/2021
+        public string noref { get; set; }
+        public string nm_brg { get; set; }
+        public PesananDetail_GantiBarang PesananDetail_GantiBarang { get; set; }
+        //end add by nurul 15/6/2021
     }
 
     //add by nurul 24/3/2020
@@ -102,4 +108,14 @@ namespace MasterOnline.ViewModels
         public string bundling { get; set; }
         public string komponen { get; set; }
     }
+
+    //add by nurul 15/6/2021
+    public class PesananDetail_GantiBarang
+    {
+        public string NO_BUKTI { get; set; }
+        public string CATATAN { get; set; }
+        public string BRG { get; set; }
+        public int? NO_URUT { get; set; }
+    }
+    //end add by nurul 15/6/2021
 }

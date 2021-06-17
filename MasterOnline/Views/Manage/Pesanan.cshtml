@@ -453,7 +453,7 @@
         }
     </style>
     <style>
-        /*//add by nurul 23/3/2021*/ 
+        /*//add by nurul 23/3/2021*/
         [data-tip-kurir] {
             position: relative;
             white-space: pre-line;
@@ -506,7 +506,7 @@
                 display: block;
                 white-space: pre-line;
             }
-        /*//add by nurul 23/3/2021*/ 
+        /*//add by nurul 23/3/2021*/
 
         #modal-print-option {
             margin: auto;
@@ -1815,34 +1815,34 @@
             <div id="myTabContent" class="tab-content">
                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="pesanan-tab">
                     @*<div class="row pesanan_table_section form-group">
-                @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12", @style = "padding-top:15px; width:315px;" })
-                @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-3 col-sm-3 col-xs-12", @style = "padding-top:20px; width:280px;" })
-                <div class="col-md-2 col-sm-2 col-xs-12">
-                    @Html.HiddenFor(m => m.DataUsaha.JTRAN_RETUR)
-                    <select style="margin-top: 13px;" class="form-control" id="DataUsaha_JtranRetur" name="DataUsaha.JtranRetur" required="required">
-                        <option value="default">Harap pilih</option>
-                        @if (Model?.DataUsaha != null)
-                        {
-                            if (Model.DataUsaha.JTRAN_RETUR == "1")
-                            {
-                                <option value="1" selected>Aktif</option>
-                                <option value="0">Tidak Aktif</option>
-                            }
-                            else
-                            {
-                                <option value="1">Aktif</option>
-                                <option value="0" selected>Tidak Aktif</option>
-                            }
-                        }
-                        else
-                        {
-                            <option value="1">Aktif</option>
-                            <option value="0" selected>Tidak Aktif</option>
-                        }
-                    </select>
-                </div>
-                 //remark by calvin 22 mei 2019 <input type="button" class="btn btn-primary" value="Simpan" id="simpan_btn" onclick="simpanUpdate();" />
-            </div>*@
+                            @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12", @style = "padding-top:15px; width:315px;" })
+                            @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-3 col-sm-3 col-xs-12", @style = "padding-top:20px; width:280px;" })
+                            <div class="col-md-2 col-sm-2 col-xs-12">
+                                @Html.HiddenFor(m => m.DataUsaha.JTRAN_RETUR)
+                                <select style="margin-top: 13px;" class="form-control" id="DataUsaha_JtranRetur" name="DataUsaha.JtranRetur" required="required">
+                                    <option value="default">Harap pilih</option>
+                                    @if (Model?.DataUsaha != null)
+                                    {
+                                        if (Model.DataUsaha.JTRAN_RETUR == "1")
+                                        {
+                                            <option value="1" selected>Aktif</option>
+                                            <option value="0">Tidak Aktif</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="1">Aktif</option>
+                                            <option value="0" selected>Tidak Aktif</option>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <option value="1">Aktif</option>
+                                        <option value="0" selected>Tidak Aktif</option>
+                                    }
+                                </select>
+                            </div>
+                             //remark by calvin 22 mei 2019 <input type="button" class="btn btn-primary" value="Simpan" id="simpan_btn" onclick="simpanUpdate();" />
+                        </div>*@
                     <div class="row pesanan_table_section" style="margin-top:13px;">
                         <div class="col-lg-4 col-sm-6 mrgbttmpesanan">
                             <div class="input-group">
@@ -1896,20 +1896,20 @@
                         </div>
                         <div class="col-lg-1 col-sm-12"></div>
                         @*<div class="col-lg-6 col-sm-6" style="margin-top:13px;">
-                    <div class="pull-right" id="tambah_baru_tombol_section">
-                        <button type="button" id="btn_refresh_pesanan" class="btn btn-default" data-style="expand-right">
-                            <span>Refresh</span>
-                        </button>
-                        <button id="excelPesanan" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Excel Pesanan <span class="caret"></span>
-                        </button>
-                        <div class="dropdown-menu" style="right: 130px">
-                            <button type="button" onclick="$('#downloadPesanan').modal('show');" id="btn_download_pesanan" class="btn btn-primary" data-style="expand-right" style="width:100%; background-color:white; border-color:Highlight; color:black !important">
-                                <span>Download Pesanan</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>*@
+                                <div class="pull-right" id="tambah_baru_tombol_section">
+                                    <button type="button" id="btn_refresh_pesanan" class="btn btn-default" data-style="expand-right">
+                                        <span>Refresh</span>
+                                    </button>
+                                    <button id="excelPesanan" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Excel Pesanan <span class="caret"></span>
+                                    </button>
+                                    <div class="dropdown-menu" style="right: 130px">
+                                        <button type="button" onclick="$('#downloadPesanan').modal('show');" id="btn_download_pesanan" class="btn btn-primary" data-style="expand-right" style="width:100%; background-color:white; border-color:Highlight; color:black !important">
+                                            <span>Download Pesanan</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>*@
                         <div class="col-lg-6 col-sm-6" style="margin-top:13px;">
                             @*<div class="col-lg-8 col-sm-6">*@
                             <div class="pull-right" id="tambah_baru_tombol_section">
@@ -1922,8 +1922,8 @@
                                 </button>
                                 <div class="dropdown-menu">
                                     @*<button type="button" onclick="$('#downloadPesanan').modal('show');" id="btn_download_pesanan" class="btn btn-primary" data-style="expand-right" style="width:100%; background-color:white; border-color:Highlight; color:black !important">
-                            <span>Download Pesanan</span>
-                            </button>*@
+                                        <span>Download Pesanan</span>
+                                        </button>*@
                                     <button type="button" style="width:100%;background-color:white; border-color:Highlight; color:black !important" id="btn_download_pesanan" class="btn btn-primary" data-style="expand-right" data-toggle="modal" onclick="$('#downloadPesanan').modal('show');">
                                         <span> Download Pesanan</span>
                                     </button>
@@ -1936,12 +1936,12 @@
                         </div>
                     </div>
                     @*<div class="row pesanan_table_section">
-                @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12"})
-            </div>*@
+                            @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12"})
+                        </div>*@
                     <div class="row pesanan_table_section" style="margin-top: 5px;">
                         @*<div id="loading_pesanan_tab" class="text-center">
-                    <img src="~/Content/Images/spinner.gif" width="100" />
-                </div>*@
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
                         <div class="col-sm-12" id="table-pesanan-partial">
                             @*@Html.Partial("TablePesananPartial")*@
                         </div>
@@ -2046,41 +2046,41 @@
                             </div>
                         </div>
                         @*<div class="col-lg-2 col-sm-3" style="margin-top:13px;">
-                            <div class="pull-right">
-                                @if (Model.prosesUpdateKurirShopee)
-                                {
-                                    <div id="data_tip_kurir" >
-                                        <button type="button" id="btn_update_kurir_shopee_dibayar" class="btn btn-success" data-style="expand-right" onclick="updateKurirShopeeDibayar()">
-                                            <span> Ambil Kurir Shopee</span>
-                                        </button>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div id="data_tip_kurir" data-tip-kurir="Proses ambil kurir pesanan shopee sedang berlangsung, silahkan refresh halaman ini." style="height:39px !important">
-                                        <button type="button" id="btn_update_kurir_shopee_dibayar" class="btn btn-success" data-style="expand-right" disabled="disabled">
-                                            <span> Ambil Kurir Shopee</span>
-                                        </button>
-                                    </div>
-                                }
-                            </div>
-                        </div>*@
+                                <div class="pull-right">
+                                    @if (Model.prosesUpdateKurirShopee)
+                                    {
+                                        <div id="data_tip_kurir" >
+                                            <button type="button" id="btn_update_kurir_shopee_dibayar" class="btn btn-success" data-style="expand-right" onclick="updateKurirShopeeDibayar()">
+                                                <span> Ambil Kurir Shopee</span>
+                                            </button>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div id="data_tip_kurir" data-tip-kurir="Proses ambil kurir pesanan shopee sedang berlangsung, silahkan refresh halaman ini." style="height:39px !important">
+                                            <button type="button" id="btn_update_kurir_shopee_dibayar" class="btn btn-success" data-style="expand-right" disabled="disabled">
+                                                <span> Ambil Kurir Shopee</span>
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+                            </div>*@
                         @*<div class="col-lg-2 col-sm-3" style="margin-top:13px;">
-                            <div class="pull-right">
-                                <button type="button" id="btn_ubahStatusmulti_pesanan_dibayar" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalUbahStatusMultiDibayar" onclick="passRecStatusMultiDibayar()">
-                                    <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Ubah Status</span>
-                                </button>
-                            </div>
-                            @*<button type="button" id="btn_refresh_pesanan_dibayar" class="btn btn-default" data-style="expand-right">
-            <span>Refresh</span>
-        </button>
-                        </div>*@
+                                                <div class="pull-right">
+                                                    <button type="button" id="btn_ubahStatusmulti_pesanan_dibayar" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalUbahStatusMultiDibayar" onclick="passRecStatusMultiDibayar()">
+                                                        <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Ubah Status</span>
+                                                    </button>
+                                                </div>
+                                                @*<button type="button" id="btn_refresh_pesanan_dibayar" class="btn btn-default" data-style="expand-right">
+                                <span>Refresh</span>
+                            </button>
+                                            </div>*@
                         @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
                         <div class="col-lg-1 col-sm-1">
                             <div class="input-group text" style="padding-top:13px">
                                 <select class="form-control" id="TakeRecordDibayar" name="TakeRecordDibayar" required="required">
                                     @*
-                            <option>--Pilih--</option>*@
+                                        <option>--Pilih--</option>*@
                                     <option value="10">10</option>
                                     <option value="20">20</option>
                                     <option value="50">50</option>
@@ -2095,8 +2095,8 @@
                     </div>
                     <div class="row pesanan_sudah_dibayar_section" style="margin-top: 5px;">
                         @*<div id="loading_sudah_dibayar_tab" class="text-center">
-                    <img src="~/Content/Images/spinner.gif" width="100" />
-                </div>*@
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
                         <div class="col-sm-12" id="table-pesanan-sudah-dibayar-partial">
                             @*@Html.Partial("TablePesananSudahDibayarPartial")*@
                         </div>
@@ -2192,16 +2192,16 @@
                                 </button>
                                 @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
-                            <span>Refresh</span>
-                        </button>*@
+                                        <span>Refresh</span>
+                                    </button>*@
 
                             </div>
                             @* remark 16/9/19, function pindah ke modal ubah status *@
                             @*<div class="pull-right">
-                        <button type="button" id="btn_ubahStatusmulti_pesanan_packinglist" class="btn btn-success" data-style="expand-right" onclick="packinglistpesanan()">
-                            <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px">Packing List</span>
-                        </button>
-                    </div>*@
+                                    <button type="button" id="btn_ubahStatusmulti_pesanan_packinglist" class="btn btn-success" data-style="expand-right" onclick="packinglistpesanan()">
+                                        <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px">Packing List</span>
+                                    </button>
+                                </div>*@
                             @* end remark 16/9/19, function pindah ke modal ubah status *@
                         </div>
                         @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
@@ -2209,7 +2209,7 @@
                             <div class="input-group text" style="padding-top:13px">
                                 <select class="form-control" id="TakeRecordPacking" name="TakeRecordPacking" required="required">
                                     @*
-                            <option>--Pilih--</option>*@
+                                        <option>--Pilih--</option>*@
                                     <option value="10">10</option>
                                     <option value="20">20</option>
                                     <option value="50">50</option>
@@ -2224,8 +2224,8 @@
                     </div>
                     <div class="row" style="margin-top: 5px;">
                         @*<div id="loading_siap_kirim_tab" class="text-center">
-                    <img src="~/Content/Images/spinner.gif" width="100" />
-                </div>*@
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
                         <div class="col-sm-12" id="table-pesanan-siap-kirim-partial">
                             @*@Html.Partial("TablePesananSiapKirimPartial")*@
                         </div>
@@ -2305,12 +2305,12 @@
                             <div class="pull-right">
                                 @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
-                            <span>Refresh</span>
-                        </button>*@
+                                        <span>Refresh</span>
+                                    </button>*@
                                 @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
                                 @*<button type="button" id="btn_generateFaktur" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalGenerateFaktur" onclick="passRecStatusMultiDibayar()">
-                            <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Buat Faktur</span>
-                        </button>*@
+                                        <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Buat Faktur</span>
+                                    </button>*@
                                 @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
                                 <div class="btn-group" role="group">
                                     <button id="pesanan_faktur_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -2331,7 +2331,7 @@
                             <div class="input-group text">
                                 <select class="form-control" id="TakeRecordInvoicing" name="TakeRecordInvoicing" required="required">
                                     @*
-                            <option>--Pilih--</option>*@
+                                        <option>--Pilih--</option>*@
                                     <option value="10">10</option>
                                     <option value="20">20</option>
                                     <option value="50">50</option>
@@ -2344,8 +2344,8 @@
                     </div>
                     <div class="row" style="margin-top: 5px;">
                         @*<div id="loading_sudah_kirim_tab" class="text-center">
-                    <img src="~/Content/Images/spinner.gif" width="100" />
-                </div>*@
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
                         <div class="col-sm-12" id="table-pesanan-sudah-kirim-partial">
                             @*@Html.Partial("TablePesananSudahKirimPartial")*@
                         </div>
@@ -2411,15 +2411,15 @@
                             <div class="pull-right">
                                 @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
-                            <span>Refresh</span>
-                        </button>*@
+                                        <span>Refresh</span>
+                                    </button>*@
                             </div>
                         </div>
                     </div>
                     <div class="row pesanan_selesai_section" style="margin-top: 5px;">
                         @*<div id="loading_selesai_tab" class="text-center">
-                    <img src="~/Content/Images/spinner.gif" width="100" />
-                </div>*@
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
                         <div class="col-sm-12" id="table-pesanan-selesai-partial">
                             @*@Html.Partial("TablePesananSelesaiPartial")*@
                         </div>
@@ -2511,15 +2511,15 @@
                             <div class="pull-right">
                                 @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
-                            <span>Refresh</span>
-                        </button>*@
+                                        <span>Refresh</span>
+                                    </button>*@
                             </div>
                         </div>
                     </div>
                     <div class="row" style="margin-top: 5px;">
                         @*<div id="loading_cancel_tab" class="text-center">
-                    <img src="~/Content/Images/spinner.gif" width="100" />
-                </div>*@
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
                         <div class="col-sm-12" id="table-pesanan-cancel-partial">
                             @*@Html.Partial("TablePesananCancelPartial")*@
                         </div>
@@ -2585,15 +2585,15 @@
                             <div class="pull-right">
                                 @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
-                            <span>Refresh</span>
-                        </button>*@
+                                        <span>Refresh</span>
+                                    </button>*@
                             </div>
                         </div>
                     </div>
                     <div class="row" style="margin-top: 5px;">
                         @*<div id="loading_cancel_tab" class="text-center">
-                    <img src="~/Content/Images/spinner.gif" width="100" />
-                </div>*@
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
                         <div class="col-sm-12" id="table-pesanan-cancel-cod-partial">
                             @*@Html.Partial("TablePesananCancelPartial")*@
                         </div>
@@ -2849,7 +2849,7 @@
                     <div class="col-md-6 col-sm-6 col-xs-12" id="divCbCancel">
                         @*<select id="cbCancelReason" placeholder="Harap pilih" required="required"></select>*@
                     </div>
-                        <input id="txtCancelReason" maxlength="100" class="form-control" type="text" style="display:none;width:220px;" />
+                    <input id="txtCancelReason" maxlength="100" class="form-control" type="text" style="display:none;width:220px;" />
                 </div>
                 <div id="cancel_tokped" class="row">
                     <div id="cancel_tokped_date" class="row" style="display:none">
@@ -3515,10 +3515,10 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="fixNotFoundLabel">Perbaikan data barang</h4>
                 @*<div id="loading_pesanan_NotFound">
-                <div id="loading_pesanan_NotFound_image">
-                    <img src="~/Content/Images/spinner.gif" />
-                </div>
-            </div>*@
+                        <div id="loading_pesanan_NotFound_image">
+                            <img src="~/Content/Images/spinner.gif" />
+                        </div>
+                    </div>*@
             </div>
             <div class="row" style="padding-left:15px; margin-top:-8px">
                 <div class="form-group" style="margin-top: 8px;">
@@ -4044,6 +4044,46 @@
         </div>
     </div>
 </div>
+@*//add by nurul 15/6/2021*@
+<div class="modal fade" id="modalGantiBarang" tabindex="-1" role="dialog" aria-labelledby="GantiBarangLabel">
+    <div class="modal-dialog" id="ganti-barang-modal" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="GantiBarangLabel">Ganti Barang Pesanan</h4>
+                @*<div id="loading_pesanan_NotFound">
+                        <div id="loading_pesanan_NotFound_image">
+                            <img src="~/Content/Images/spinner.gif" />
+                        </div>
+                    </div>*@
+            </div>
+            <div class="row" style="padding-left:15px; margin-top:-8px">
+                <div class="form-group" style="margin-top: 8px;">
+                    <label class="control-label col-md-3 col-sm-3" style="margin-top: 6px;">No. Pesanan</label>
+                    <div class="col-md-9 col-sm-9">
+                        @Html.TextBox("ganti_brg_no_bukti", "", new { @class = "form-control control-label", disabled = "disabled", Value = "", @style = "width:180px" })
+                    </div>
+                </div>
+            </div>
+            <div class="row form-group" style="padding-left:15px">
+                @Html.Hidden("textRec", "", new { Value = "" })
+                @Html.Hidden("textType", "", new { Value = "" })
+                @*@Html.Label("", "Barang Bundling", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                @Html.Hidden("cbx_NotFound_bundling", new { data_cbx = $"cbx-NotFound-Bundling", @class = "cls-cbxNotFoundBundling" })
+                <div class="col-md-9 col-sm-9 col-xs-12">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="cbxNotFoundBundling" class="cls-cbxNotFoundBundling" name="@($"cbx-NotFound-Pesanan-Bundling")" onclick="NotFoundBundling($('#cbxNotFoundBundling').is(':checked'));" />
+                        <span class="checkmark"></span>
+                    </label>
+                </div>*@
+            </div>
+            <div class="modal-body" id="modal-ganti-barang-body">
+                @*@Html.Partial("BarangFixNotFoundPartial")*@
+            </div>
+        </div>
+    </div>
+</div>
+@*//end add by nurul 15/6/2021*@
 @section scripts
 {
     <script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
@@ -4062,7 +4102,7 @@
     @*<script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>*@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
-<script type="text/javascript">
+    <script type="text/javascript">
         var selectBrg = $('#BRG').selectivity();
         var $statusAPI = window.text;
         var $modeEditPesanan = 0;
@@ -11709,7 +11749,7 @@
                                 refreshTableSudahDibayar();
                             } else if ($flag == 'U') {
                                 refreshTableSudahKirim();
-                            } 
+                            }
                             $('#konfBatalPesanan').modal('hide');
                         } else if ($statusPesanan == '03' || $statusPesanan == '03-undo') {
                             if ($flag == 'L') {
@@ -13122,7 +13162,221 @@
         });
     }
     //end add by nurul 22/3/2021
-</script>
+
+        //add by nurul 15/6/2021
+        function fixGantiBarangPesanan(rec, nobuk, type) {
+            this.$recGantiBarang = rec;
+            fillModalGantiBarang(rec);
+            $('#textRec').val(rec);
+            $('#textType').val(type);
+            $('#ganti_brg_no_bukti').val(nobuk);
+            //$('#cbxNotFoundBundling').attr('checked', false);
+            //$('#cbxNotFoundBundling').removeAttr('disabled');
+            //$('#cbx_NotFound_bundling').removeAttr('disabled');
+        }
+
+        function fillModalGantiBarang(rec) {
+            var link = '@Url.Action("FillModalGantiBarangPesanan", "Manage", new {recNum = "replaceRecNum"})';
+            link = link.replace("replaceRecNum", encodeURIComponent(rec));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                beforeSend: function () {
+                    $('#modal-ganti-barang-body').html("");
+                },
+                success: function(response) {
+                    $('#modal-ganti-barang-body').html(response);
+                },
+                error: function(xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        function saveGantiBarang(sot01b_nourut,stf02h_recnum,kode){
+            if (confirm("Ganti Kode Barang menjadi " + kode + " ?")) {
+                if ($('#textType').val() != "" && $('#textType').val() != null) {
+                    var link = '@Url.Action("saveGantiBarang", "Manage", new { nourut = "replaceNoUrut" })';
+                    link = link.replace("replaceNoUrut", encodeURIComponent(sot01b_nourut + ';' + stf02h_recnum + ';' + $('#textType').val()));
+
+                    $.ajax({
+                        type: "POST",
+                        url: link,
+                        contentType: 'application/json',
+                        cache: false,
+                        beforeSend: function () {
+                            $('#loading_spinner').show();
+                        },
+                        success: function (response) {
+                            if (response.Errors != null) {
+                                alert(response.Errors[0]);
+                            }
+                            else {
+                                alert('Data berhasil disimpan!');
+                                $('#modalGantiBarang').modal('hide');
+                                if ($('#textType').val() == "01") {
+                                    $modeEdit = 1;
+                                    $modeEditDibayar = 1;
+                                    $('#form-partial-sudah-dibayar').html(response);
+                                    $('#see_tgl_pesanan').removeAttr('style');
+                                    $('#TGL').parent().hide();
+                                    $('.pesanan_sudah_dibayar_section').hide();
+                                    $('.pesanan_editor_sudah_dibayar_section').show();
+                                    $('#myTab li a').each(function () {
+                                        $(this).removeAttr('data-toggle');
+
+                                        if ($(this).attr('id') === 'nunggu-tab') return;
+
+                                        $(this).addClass('disabled-tab');
+                                    });
+                                    $('.cm-bundling').attr('readonly', 'readonly').css('cursor', 'not-allowed');
+                                    if (flagBundling != "1") {
+                                        $('.cm-bundling').attr('readonly', 'readonly').css('background-color', '#eee').css('cursor', 'not-allowed');
+                                    }
+                                } else {
+                                    $('#modal-gudang-qty-body').html(response);
+
+                                    //$('#modal-gudang-qty-body div[data-jenis="gudang"]').each(function() {
+                                    $('#modal-gudang-qty-body select[data-jenis="gudang"]').each(function () {
+                                        var $this = $(this);
+                                        var $recNum = $this.attr('data-recnum');
+
+                                        //add by calvin 27 nov 2018, munculkan QOH di combobox gudang
+                                        var $brg_sot01b = $this.attr('data-brg');
+                                        var temp_listQOHPerGD = listQOHPerGD;
+
+                                        //add by nurul 11/3/2019 set default gudang dr sifsys
+                                        var defaultGd = setgd;
+                                        var kode = "";
+                                        var gudang = "";
+                                        var nama = "";
+                                        var link = false;
+                                        //end add by nurul 11/3/2019 set default gudang dr sifsys
+
+                                        temp_listQOHPerGD = $.grep(temp_listQOHPerGD, function (n, i) {
+                                            return n.BRG === $brg_sot01b;
+                                        });
+
+                                        $listGudang = [];
+                                        if (temp_listQOHPerGD[0] != undefined) {
+                                            $.each(temp_listQOHPerGD,
+                                                function (i, item) {
+                                                    $listGudang[i] = {
+                                                        id: item.GD,
+                                                        text: item.Nama_Gudang + " (Qty Stok : " + item.QOH + ")"
+                                                    };
+                                                    //add by nurul 11/3/2019 set default gudang dr sifsys
+                                                    if (defaultGd == item.GD) {
+                                                        link = true;
+                                                        kode = item.BRG;
+                                                        gudang = item.GD;
+                                                        nama = item.Nama_Gudang + " (Qty Stok : " + item.QOH + ")"
+                                                    }
+                                                    //end add by nurul 11/3/2019 set default gudang dr sifsys
+                                                });
+                                        }
+                                        //end add by calvin 27 nov 2018
+                                        
+                                        var gdSelect = $('#Gudang-Dropdown-' + $recNum).selectize({
+                                            valueField: 'id',
+                                            searchField: 'text',
+                                            options: $listGudang,
+                                            placeholder: 'Harap pilih'
+                                        }).selectize('value', $('#Gudang-' + $recNum).val()).change(function (value) {
+                                            //var $objSup = $.grep($listGudang, function (data) { return data.id == value });
+                                            //$('#Gudang-Dropdown-' + $recNum).val(value).trigger('change');
+                                            //var $val = $(this).selectivity('value');
+                                            var $val = $(this).val();
+                                            //add by calvin 27 nov 2018, munculkan QOH, dan QSO
+                                            var getQOH_listQOHPerGD = listQOHPerGD;
+                                            getQOH_listQOHPerGD = $.grep(getQOH_listQOHPerGD, function (n, i) {
+                                                return n.BRG === $brg_sot01b && n.GD === $val;
+                                            });
+
+                                            var getQSO_ListQOOPerBRG = ListQOOPerBRG;
+                                            getQSO_ListQOOPerBRG = $.grep(getQSO_ListQOOPerBRG, function (n, i) {
+                                                return n.BRG === $brg_sot01b && n.GD === $val;
+                                            });
+
+                                            $('#Gudang-' + $recNum).val($val);
+                                            if (getQOH_listQOHPerGD[0] != undefined) {
+                                                $.each(getQOH_listQOHPerGD,
+                                                    function (i, item) {
+                                                        $('#Gudang-stok-' + $recNum).html(item.QOH);
+                                                    });
+                                            } else {
+                                                $('#Gudang-stok-' + $recNum).html("");
+                                            }
+
+                                            if (getQSO_ListQOOPerBRG[0] != undefined) {
+                                                $.each(getQSO_ListQOOPerBRG,
+                                                    function (i, item) {
+                                                        $('#Gudang-pesanan-' + $recNum).html(item.QSO);
+                                                    });
+                                            } else {
+                                                $('#Gudang-pesanan-' + $recNum).html("0");
+                                            }
+
+                                            var stok = convertToAngka($('#Gudang-stok-' + $recNum).html().trim())
+                                            var pesanan = convertToAngka($('#Gudang-pesanan-' + $recNum).html().trim())
+                                            $('#Gudang-sisa-' + $recNum).html(stok - pesanan);
+                                            //end add by calvin 27 nov 2018
+                                        }).click(function () {
+                                            var $offsetTop = $this.offset().top;
+                                            $this.find('.selectivity-dropdown').css('top', $offsetTop + 10);
+                                        });
+
+                                        //add by nurul 13/3/2019
+                                        if ($('#Gudang-' + $recNum).val() != null && $('#Gudang-' + $recNum).val() != "") {
+                                            gdSelect[0].selectize.setValue($('#Gudang-' + $recNum).val(), true);
+                                            $('#Gudang-Dropdown-' + $recNum).change();
+                                        } else {
+                                            if (link == true && temp_listQOHPerGD.length > 0) {
+                                                //$('#modal-gudang-qty-body #Gudang-Dropdown-' + $recNum).selectivity('value', gudang);
+                                                //$this.find(".selectivity-input input[placeholder]").attr('placeholder', nama);
+                                                //$('#Gudang-Dropdown-' + $recNum).change();
+                                                gdSelect[0].selectize.setValue(gudang, true);
+                                                $this.find(".selectivity-input input[placeholder]").attr('placeholder', nama);
+                                                $('#Gudang-Dropdown-' + $recNum).change();
+                                            }
+                                        }
+                                        //end add by nurul 13/3/2019
+
+                                        $('#modal-gudang-qty-body #Qty-' + $recNum).change(function () {
+                                            var $valMax = $('#modal-gudang-qty-body #Max-Qty-' + $recNum).val();
+                                            if (Number($(this).val()) > Number($valMax)) {
+                                                $(this).val($valMax);
+                                                alert('Qty kirim tidak boleh melebihi qty pesanan!');
+                                            }
+                                        });
+                                    });
+
+                                    $('input[data-jenis="gudang_siap_kirim"]').each(function () {
+                                        $readyToShip = false;
+                                        if ($(this).val() != null) {
+                                            if ($(this).val().trim() != '') {
+                                                $readyToShip = true;
+                                            }
+                                        }
+                                    });
+
+                                    console.log($readyToShip);
+                                }
+                            }
+                            $('#loading_spinner').hide();
+                        },
+                        error: function (xhr) {
+                            console.log(xhr);
+                        }
+                    });
+                }
+
+            }
+        }
+        //end add by nurul 15/6/2021
+    </script>
     <script>
         //Disable Enter Key Submit Form
         function stopRKey(evt) {
