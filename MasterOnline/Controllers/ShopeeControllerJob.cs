@@ -6554,6 +6554,75 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+        public async Task<ShopeeGetLogisticsResult> GetShopeeLogistics_V2(ShopeeAPIData iden)
+        {
+            int MOPartnerID = MOPartnerIDV2;
+            string MOPartnerKey = MOPartnerKeyV2;
+            ShopeeGetLogisticsResult ret = null;
+            iden = await RefreshTokenShopee_V2(iden ,false);
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = shopeeV2Url;
+            string path = "/api/v2/logistics/get_channel_list";
+
+            var baseString = MOPartnerID + path + seconds + iden.token + iden.merchant_code;
+            var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
+
+            string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds + "&access_token=" + iden.token
+                + "&shop_id=" + iden.merchant_code + "&sign=" + sign;
+
+            //ShopeeGetLogisticsData HttpBody = new ShopeeGetLogisticsData
+            //{
+            //    partner_id = MOPartnerID,
+            //    shopid = Convert.ToInt32(iden.merchant_code),
+            //    timestamp = seconds,
+            //};
+
+            //string myData = JsonConvert.SerializeObject(HttpBody);
+
+            //string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            //myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                //myReq.ContentLength = myData.Length;
+                //using (var dataStream = myReq.GetRequestStream())
+                //{
+                //    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                //}
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            if (responseFromServer != null)
+            {
+                try
+                {
+                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetLogisticsResult)) as ShopeeGetLogisticsResult;
+                    ret = result;
+                }
+                catch (Exception ex2)
+                {
+                }
+            }
+            return ret;
+        }
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Update Status Cancel Pesanan {obj} ke Shopee Gagal.")]
@@ -12657,7 +12726,38 @@ namespace MasterOnline.Controllers
             public int shopid { get; set; }
             public long timestamp { get; set; }
         }
+        #region logistic v2
+        public class ShopeeGetLogisticsResult_V2 : ShopeeError
+        {
+            public ResponseShopeeGetLogisticsResult response { get; set; }
+        }
+        public class ResponseShopeeGetLogisticsResult
+        {
+            public ShopeeGetLogisticsLogistic_V2[] logistics { get; set; }
+        }
+        public class logistics_channel_list
+        {
+            public int logistics_channel_id { get; set; }
+            public string logistics_channel_name { get; set; }
+            public bool enabled { get; set; }
+            public ShopeeGetLogisticsResultWeight_Limits weight_limit { get; set; }
+            public ShopeeGetLogisticsResultItem_Max_Dimension item_max_dimension { get; set; }
+            public ShopeeGetLogisticsResultVolume_Limits volume_limit { get; set; }
+            public string fee_type { get; set; }
 
+        }
+
+        public class ShopeeGetLogisticsLogistic_V2
+        {
+            public logistics_channel_list logistics_channel_list { get; set; }
+            public int mask_channel_id { get; set; }
+        }
+        public class ShopeeGetLogisticsResultVolume_Limits
+        {
+            public float item_max_volume { get; set; }
+            public float item_min_volume { get; set; }
+        }
+        #endregion
         public class ShopeeGetLogisticsResult
         {
             public ShopeeGetLogisticsLogistic[] logistics { get; set; }
