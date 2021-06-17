@@ -5696,7 +5696,11 @@ namespace MasterOnline.Controllers
 
                     string sSQL = "SELECT ISNULL(A.NO_BUKTI,'') AS NO_FAKTUR, A.TGL AS TGL_FAKTUR, A.STATUS AS STATUS_FAKTUR, " +
                         "ISNULL(D.NO_BUKTI,'') AS NO_PESANAN, ISNULL(A.NO_REF, '') AS NO_REFERENSI, ISNULL(D.TGL, '') AS TGL_PESANAN, " +
-                        "C.NAMAMARKET + '(' + B.PERSO + ')' MARKETPLACE, ISNULL(A.CUST, '') AS KODE_PEMBELI, ISNULL(A.NAMAPEMESAN, '') AS PEMBELI, " +
+                        //change by nurul 17/6/2021
+                        //"C.NAMAMARKET + '(' + B.PERSO + ')' MARKETPLACE, ISNULL(A.CUST, '') AS KODE_PEMBELI, ISNULL(A.NAMAPEMESAN, '') AS PEMBELI, " +
+                        "C.NAMAMARKET + '(' + B.PERSO + ')' MARKETPLACE, ISNULL(A.PEMESAN, '') AS KODE_PEMBELI, ISNULL(A.NAMAPEMESAN, '') AS PEMBELI, " +
+                        "(select isnull(tlp,'') from arf01c x(nolock) where x.buyer_code=a.PEMESAN) as TLP, " +
+                        //end change by nurul 17/6/2021
                         "ISNULL(A.AL, '') AS ALAMAT_KIRIM, ISNULL(A.TERM, '') AS [TOP], ISNULL(A.NAMAPENGIRIM, '') AS KURIR, ISNULL(A.TGL_JT_TEMPO, '') AS TGL_JATUH_TEMPO, " +
                         //"ISNULL(D.KET, '') AS KETERANGAN, ISNULL(A.BRUTO, '') AS BRUTO, ISNULL(A.DISCOUNT,'') AS DISC, ISNULL(A.PPN, '') AS PPN, ISNULL(A.NILAI_PPN, '') AS NILAI_PPN, " +
                         //"ISNULL(D.ONGKOS_KIRIM, '') AS ONGKOS_KIRIM, ISNULL(A.NETTO, '') AS NETTO, ISNULL(D.STATUS_TRANSAKSI, '') AS STATUS_PESANAN, " +
@@ -5741,17 +5745,20 @@ namespace MasterOnline.Controllers
                             worksheet.Cells[5 + i, 7].Value = lsFaktur.Tables[0].Rows[i]["MARKETPLACE"];
                             worksheet.Cells[5 + i, 8].Value = lsFaktur.Tables[0].Rows[i]["KODE_PEMBELI"];
                             worksheet.Cells[5 + i, 9].Value = lsFaktur.Tables[0].Rows[i]["PEMBELI"];
-                            worksheet.Cells[5 + i, 10].Value = lsFaktur.Tables[0].Rows[i]["ALAMAT_KIRIM"];
-                            worksheet.Cells[5 + i, 11].Value = lsFaktur.Tables[0].Rows[i]["KURIR"];
-                            worksheet.Cells[5 + i, 12].Value = lsFaktur.Tables[0].Rows[i]["TOP"];
-                            worksheet.Cells[5 + i, 13].Value = Convert.ToDateTime(lsFaktur.Tables[0].Rows[i]["TGL_JATUH_TEMPO"]).ToString("yyyy-MM-dd HH:mm:ss");
-                            worksheet.Cells[5 + i, 14].Value = lsFaktur.Tables[0].Rows[i]["KETERANGAN"];
-                            worksheet.Cells[5 + i, 15].Value = lsFaktur.Tables[0].Rows[i]["BRUTO"];
-                            worksheet.Cells[5 + i, 16].Value = lsFaktur.Tables[0].Rows[i]["DISC"];
-                            worksheet.Cells[5 + i, 17].Value = lsFaktur.Tables[0].Rows[i]["PPN"];
-                            worksheet.Cells[5 + i, 18].Value = lsFaktur.Tables[0].Rows[i]["NILAI_PPN"];
-                            worksheet.Cells[5 + i, 19].Value = lsFaktur.Tables[0].Rows[i]["ONGKOS_KIRIM"];
-                            worksheet.Cells[5 + i, 20].Value = lsFaktur.Tables[0].Rows[i]["NETTO"];
+                            //ADD BY NURUL 17/6/2021
+                            worksheet.Cells[5 + i, 10].Value = lsFaktur.Tables[0].Rows[i]["TLP"];
+                            //END ADD BY NURUL 17/6/2021
+                            worksheet.Cells[5 + i, 11].Value = lsFaktur.Tables[0].Rows[i]["ALAMAT_KIRIM"];
+                            worksheet.Cells[5 + i, 12].Value = lsFaktur.Tables[0].Rows[i]["KURIR"];
+                            worksheet.Cells[5 + i, 13].Value = lsFaktur.Tables[0].Rows[i]["TOP"];
+                            worksheet.Cells[5 + i, 14].Value = Convert.ToDateTime(lsFaktur.Tables[0].Rows[i]["TGL_JATUH_TEMPO"]).ToString("yyyy-MM-dd HH:mm:ss");
+                            worksheet.Cells[5 + i, 15].Value = lsFaktur.Tables[0].Rows[i]["KETERANGAN"];
+                            worksheet.Cells[5 + i, 16].Value = lsFaktur.Tables[0].Rows[i]["BRUTO"];
+                            worksheet.Cells[5 + i, 17].Value = lsFaktur.Tables[0].Rows[i]["DISC"];
+                            worksheet.Cells[5 + i, 18].Value = lsFaktur.Tables[0].Rows[i]["PPN"];
+                            worksheet.Cells[5 + i, 19].Value = lsFaktur.Tables[0].Rows[i]["NILAI_PPN"];
+                            worksheet.Cells[5 + i, 20].Value = lsFaktur.Tables[0].Rows[i]["ONGKOS_KIRIM"];
+                            worksheet.Cells[5 + i, 21].Value = lsFaktur.Tables[0].Rows[i]["NETTO"];
                             var pesanan1 = "";
                             switch (lsFaktur.Tables[0].Rows[i]["STATUS_PESANAN"])
                             {
@@ -5762,19 +5769,19 @@ namespace MasterOnline.Controllers
                                 case "04": pesanan1 = "SELESAI"; break;
                                 case "11": pesanan1 = "BATAL"; break;
                             }
-                            worksheet.Cells[5 + i, 21].Value = pesanan1;
-                            worksheet.Cells[5 + i, 22].Value = lsFaktur.Tables[0].Rows[i]["KODE_BRG"];
-                            worksheet.Cells[5 + i, 23].Value = lsFaktur.Tables[0].Rows[i]["NAMA_BARANG"];
-                            worksheet.Cells[5 + i, 24].Value = lsFaktur.Tables[0].Rows[i]["QTY"];
-                            worksheet.Cells[5 + i, 25].Value = lsFaktur.Tables[0].Rows[i]["HARGA_SATUAN"];
-                            worksheet.Cells[5 + i, 26].Value = lsFaktur.Tables[0].Rows[i]["DISC1"];
-                            worksheet.Cells[5 + i, 27].Value = lsFaktur.Tables[0].Rows[i]["NDISC1"];
-                            worksheet.Cells[5 + i, 28].Value = lsFaktur.Tables[0].Rows[i]["DISC2"];
-                            worksheet.Cells[5 + i, 29].Value = lsFaktur.Tables[0].Rows[i]["NDISC2"];
-                            worksheet.Cells[5 + i, 30].Value = lsFaktur.Tables[0].Rows[i]["TOTAL"];
+                            worksheet.Cells[5 + i, 22].Value = pesanan1;
+                            worksheet.Cells[5 + i, 23].Value = lsFaktur.Tables[0].Rows[i]["KODE_BRG"];
+                            worksheet.Cells[5 + i, 24].Value = lsFaktur.Tables[0].Rows[i]["NAMA_BARANG"];
+                            worksheet.Cells[5 + i, 25].Value = lsFaktur.Tables[0].Rows[i]["QTY"];
+                            worksheet.Cells[5 + i, 26].Value = lsFaktur.Tables[0].Rows[i]["HARGA_SATUAN"];
+                            worksheet.Cells[5 + i, 27].Value = lsFaktur.Tables[0].Rows[i]["DISC1"];
+                            worksheet.Cells[5 + i, 28].Value = lsFaktur.Tables[0].Rows[i]["NDISC1"];
+                            worksheet.Cells[5 + i, 29].Value = lsFaktur.Tables[0].Rows[i]["DISC2"];
+                            worksheet.Cells[5 + i, 30].Value = lsFaktur.Tables[0].Rows[i]["NDISC2"];
+                            worksheet.Cells[5 + i, 31].Value = lsFaktur.Tables[0].Rows[i]["TOTAL"];
                         }
 
-                        ExcelRange rg0 = worksheet.Cells[4, 1, worksheet.Dimension.End.Row, 30];
+                        ExcelRange rg0 = worksheet.Cells[4, 1, worksheet.Dimension.End.Row, 31];
                         string tableName0 = "TableFaktur";
                         ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
 
@@ -5787,29 +5794,32 @@ namespace MasterOnline.Controllers
                         table0.Columns[6].Name = "MARKETPLACE";
                         table0.Columns[7].Name = "KODE PEMBELI";
                         table0.Columns[8].Name = "PEMBELI";
-                        table0.Columns[9].Name = "ALAMAT KIRIM";
-                        table0.Columns[10].Name = "KURIR";
-                        table0.Columns[11].Name = "TOP";
-                        table0.Columns[12].Name = "TGL JATUH TEMPO";
-                        table0.Columns[13].Name = "KETERANGAN";
-                        table0.Columns[14].Name = "BRUTO";
-                        table0.Columns[15].Name = "DISC";
-                        table0.Columns[16].Name = "PPN";
-                        table0.Columns[17].Name = "NILAI PPN";
-                        table0.Columns[18].Name = "ONGKOS KIRIM";
-                        table0.Columns[19].Name = "NETTO";
-                        table0.Columns[20].Name = "STATUS PESANAN";
-                        table0.Columns[21].Name = "KODE BRG";
-                        table0.Columns[22].Name = "NAMA BARANG";
-                        table0.Columns[23].Name = "QTY";
-                        table0.Columns[24].Name = "HARGA SATUAN";
-                        table0.Columns[25].Name = "DISC1";
-                        table0.Columns[26].Name = "NDISC1";
-                        table0.Columns[27].Name = "DISC2";
-                        table0.Columns[28].Name = "NDISC2";
-                        table0.Columns[29].Name = "TOTAL";
+                        //ADD BY NURUL 17/6/2021
+                        table0.Columns[9].Name = "TLP";
+                        //END ADD BY NURUL 17/6/2021
+                        table0.Columns[10].Name = "ALAMAT KIRIM";
+                        table0.Columns[11].Name = "KURIR";
+                        table0.Columns[12].Name = "TOP";
+                        table0.Columns[13].Name = "TGL JATUH TEMPO";
+                        table0.Columns[14].Name = "KETERANGAN";
+                        table0.Columns[15].Name = "BRUTO";
+                        table0.Columns[16].Name = "DISC";
+                        table0.Columns[17].Name = "PPN";
+                        table0.Columns[18].Name = "NILAI PPN";
+                        table0.Columns[19].Name = "ONGKOS KIRIM";
+                        table0.Columns[20].Name = "NETTO";
+                        table0.Columns[21].Name = "STATUS PESANAN";
+                        table0.Columns[22].Name = "KODE BRG";
+                        table0.Columns[23].Name = "NAMA BARANG";
+                        table0.Columns[24].Name = "QTY";
+                        table0.Columns[25].Name = "HARGA SATUAN";
+                        table0.Columns[26].Name = "DISC1";
+                        table0.Columns[27].Name = "NDISC1";
+                        table0.Columns[28].Name = "DISC2";
+                        table0.Columns[29].Name = "NDISC2";
+                        table0.Columns[30].Name = "TOTAL";
 
-                        using (var range = worksheet.Cells[4, 1, 4, 30])
+                        using (var range = worksheet.Cells[4, 1, 4, 31])
                         {
                             range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
                             range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
