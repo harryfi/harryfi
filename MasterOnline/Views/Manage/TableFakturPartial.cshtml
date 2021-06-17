@@ -153,7 +153,17 @@
                     @*@(buyerNama + " (" + perso + ")")*@
                     @*@buyerNama*@
                     @*@faktur.NAMAPEMESAN*@
-                    @faktur.PEMBELI
+                    @*//change by nurul 17/6/2021*@
+                    @*@pesanan.PEMBELI*@
+                    @if (!string.IsNullOrEmpty(faktur.TLP))
+                    {
+                        @(faktur.PEMBELI + " (" + faktur.TLP + ")")
+                    }
+                    else
+                    {
+                        @faktur.PEMBELI
+                    }
+                    @*//end change by nurul 17/6/2021*@
                 </td>
                 <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", faktur.TOTAL)</td>
                 @*change by nurul 16/6/2020*@

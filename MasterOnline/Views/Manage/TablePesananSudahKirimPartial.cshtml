@@ -77,6 +77,9 @@
                 @*end add by nurul 6/3/2019*@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 90px;">Status Kirim</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 90px;">Status Print</th>
+                @*//ADD by nurul 17/6/2021*@
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 100px;">No. Resi</th>
+                @*//END ADD by nurul 17/6/2021*@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 100px;">Kurir</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 90px;">Total</th>
                 @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 90px;">Packing List</th>*@
@@ -204,14 +207,24 @@
                     @*remark by nurul 24/9/2018 @(buyer.NAMA + " (" + buyer.PERSO + ")")*@
                     @*@(buyer == null ? "" : buyer.NAMA + " (" + pelanggan.PERSO + ")")*@
                     @*@(buyer == null ? "" : buyer.NAMA)*@
-                    @pesanan.PEMBELI
+                    @*//change by nurul 17/6/2021*@
+                    @*@pesanan.PEMBELI*@
+                    @if (!string.IsNullOrEmpty(pesanan.TLP))
+                    {
+                        @(pesanan.PEMBELI + " (" + pesanan.TLP + ")")
+                    }
+                    else
+                    {
+                        @pesanan.PEMBELI
+                    }
+                    @*//end change by nurul 17/6/2021*@
                 </td>
                 <td>@tipe_pesanan</td>
                 <td>
                     @if (!string.IsNullOrWhiteSpace(pesanan.PACKINGNO))
                     {
                         <div onclick="lihatPackingList('@(pesanan.PACKINGNO)')">
-                            <u>@pesanan.PACKINGNO</u> 
+                            <u>@pesanan.PACKINGNO</u>
                         </div>
                     }
                 </td>
@@ -220,6 +233,9 @@
                 @*add by nurul 6/3/2019*@
                 <td>@status_kirim</td>
                 <td>@status_print</td>
+                @*//add by nurul 17/6/2021*@
+                <td>@pesanan.RESI</td>
+                @*//end add by nurul 17/6/2021*@
                 <td>@pesanan.SHIPMENT</td>
                 <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.TOTAL)</td>
                 @*<td style="text-align:center">
