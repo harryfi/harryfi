@@ -4065,6 +4065,12 @@ namespace MasterOnline.Controllers
                                                                                                         APP = "-",
                                                                                                         REF = "-",
                                                                                                         NO_INVOICE_SUPP = refCheck,
+
+                                                                                                        //add by nurul 18/6/2021, default isi biar ga error saat posting
+                                                                                                        TUKAR = 1,
+                                                                                                        F_PAJAK = "",
+                                                                                                        DROPSHIPPER = false,
+                                                                                                        //end add by nurul 18/6/2021, default isi biar ga error saat posting
                                                                                                     };
                                                                                                     #endregion
 
