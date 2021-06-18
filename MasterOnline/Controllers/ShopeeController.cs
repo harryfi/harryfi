@@ -373,7 +373,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public async Task<BindingBase> GetItemsList_V2(ShopeeAPIData iden, int IdMarket, int page, int recordCount, int totalData)
+        public async Task<BindingBase> GetItemsList_V2(ShopeeAPIData iden, int IdMarket, int page, int recordCount, int totalData, bool display)
         {
             iden = await RefreshTokenShopee_V2(iden, false);
 
@@ -391,7 +391,7 @@ namespace MasterOnline.Controllers
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = seconds.ToString() + "_" + page,
-                REQUEST_ACTION = "Get Item List V2",
+                REQUEST_ACTION = "Get Item List V2 " + (display ? "Active" : "Not Active"),
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
                 REQUEST_ATTRIBUTE_3 = page.ToString(),
@@ -409,7 +409,7 @@ namespace MasterOnline.Controllers
 
             string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds + "&sign=" + sign
                 + "&access_token=" + iden.token + "&shop_id=" + iden.merchant_code
-                + "&offset=" + (page * 5) + "&page_size=" + 5 + "&item_status[]=NORMAL&item_status[]=UNLIST";
+                + "&offset=" + (page * 5) + "&page_size=" + 5 + "&item_status=" + (display ? "NORMAL" : "UNLIST");
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
             myReq.Method = "GET";
@@ -456,8 +456,20 @@ namespace MasterOnline.Controllers
                             var tempBrg_local = (from a in ErasoftDbContext.TEMP_BRG_MP where a.IDMARKET == IdMarket && listBrgMP.Contains(a.BRG_MP) select new tempBrg_local { BRG_MP = a.BRG_MP, IDMARKET = a.IDMARKET }).ToList();
                             //if (listBrg.items.Length == 10)
                             if (listBrg.response.has_next_page)
+                            {
                                 //ret.message = (page + 1).ToString();
                                 ret.nextPage = 1;
+                                if (!display)
+                                    ret.message = "MOVE_TO_INACTIVE_PRODUCTS";
+                            }
+                            else
+                            {
+                                if (display)
+                                {
+                                    ret.nextPage = 1;
+                                    ret.message = "MOVE_TO_INACTIVE_PRODUCTS";
+                                }
+                            }
                             if (listBrgMP.Count == (stf02h_local.Count + tempBrg_local.Count))
                             {
                                 ret.totalData += listBrgMP.Count;
@@ -466,27 +478,10 @@ namespace MasterOnline.Controllers
                             ret.totalData += listBrg.response.item.Count();//add 18 Juli 2019, show total record
                             foreach (var item in listBrg.response.item)
                             {
-                                if (item.status.ToUpper() != "BANNED" && item.status.ToUpper() != "DELETED")
+                                if (item.item_status.ToUpper() != "BANNED" && item.item_status.ToUpper() != "DELETED")
                                 {
-                                    ////if (item.item_id == 1512392638 || item.item_id == 1790099887 || item.item_sku == "1660" || item.item_sku == "51")
-                                    ////{
-
-                                    ////}
-                                    //string kdBrg = string.IsNullOrEmpty(item.item_id) ? item.item_id.ToString() : item.item_sku;
-                                    //string brgMp = item.item_id.ToString() + ";0";
-                                    ////change 13 Feb 2019, tuning
-                                    ////var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMp.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
-                                    ////var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMp) && t.IDMARKET == IdMarket).FirstOrDefault();
-                                    ////var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.IDMARKET == IdMarket && (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
-                                    ////var brgInDB = ErasoftDbContext.STF02H.Where(t => t.IDMARKET == IdMarket && (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
-                                    //var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
-                                    //var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
-                                    ////end change 13 Feb 2019, tuning
-
                                     //if ((tempbrginDB == null && brgInDB == null) || item.variations.Length > 0)
                                     {
-                                        //var getDetailResult = await GetItemDetail(iden, item.item_id);
-                                        //var getDetailResult = await GetItemDetail(iden, item.item_id, new List<tempBrg_local>(), new List<stf02h_local>(), IdMarket);
                                         var getDetailResult = await GetItemDetail_V2(iden, item.item_id, tempBrg_local, stf02h_local, IdMarket);
                                         ret.totalData += getDetailResult.totalData;//add 18 Juli 2019, show total record
                                         if (getDetailResult.exception == 1)
@@ -1582,7 +1577,7 @@ namespace MasterOnline.Controllers
 
 
             string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds + "&sign=" + sign
-                + "&access_token=" + iden.token + "&shop_id=" + iden.merchant_code + "&item_id=" + item_id;
+                + "&access_token=" + iden.token + "&shop_id=" + iden.merchant_code + "&item_id_list=" + item_id;
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
             myReq.Method = "GET";
@@ -1619,7 +1614,7 @@ namespace MasterOnline.Controllers
                             {
                                 string cust = ErasoftDbContext.ARF01.Where(c => c.Sort1_Cust == iden.merchant_code).FirstOrDefault().CUST.ToString();
                                 string categoryCode = itemRes.category_id.ToString();
-                                var categoryInDB = MoDbContext.CategoryShopee.Where(p => p.CATEGORY_CODE == categoryCode).FirstOrDefault();
+                                var categoryInDB = MoDbContext.CategoryShopeeV2.Where(p => p.CATEGORY_CODE == categoryCode).FirstOrDefault();
                                 string categoryName = "";
                                 if (categoryInDB != null)
                                 {
@@ -1771,7 +1766,7 @@ namespace MasterOnline.Controllers
         {
             // typeBrg : 0 = barang tanpa varian; 1 = barang induk; 2 = barang varian
             var ret = new BindingBase();
-            string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, SELLER_SKU, NAMA, NAMA2, NAMA3, BERAT, PANJANG, LEBAR, TINGGI, CUST, AVALUE_34, AVALUE_39, AVALUE_38, AUNIT_38, ";
+            string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, SELLER_SKU, NAMA, NAMA2, NAMA3, BERAT, PANJANG, LEBAR, TINGGI, CUST, AVALUE_34, AVALUE_39, AVALUE_38, ANAME_38, ";
             sSQL += "Deskripsi, IDMARKET, HJUAL, HJUAL_MP, DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3, IMAGE4, IMAGE5, KODE_BRG_INDUK, TYPE, AVALUE_45,";
             sSQL += "ACODE_1, ANAME_1, AVALUE_1, AUNIT_1, ACODE_2, ANAME_2, AVALUE_2, AUNIT_2, ACODE_3, ANAME_3, AVALUE_3, AUNIT_3, ACODE_4, ANAME_4, AVALUE_4, AUNIT_4, ACODE_5, ANAME_5, AVALUE_5, AUNIT_5, ACODE_6, ANAME_6, AVALUE_6, AUNIT_6, ACODE_7, ANAME_7, AVALUE_7, AUNIT_7, ACODE_8, ANAME_8, AVALUE_8, AUNIT_8, ACODE_9, ANAME_9, AVALUE_9, AUNIT_9, ACODE_10, ANAME_10, AVALUE_10, AUNIT_10, ";
             sSQL += "ACODE_11, ANAME_11, AVALUE_11, AUNIT_11, ACODE_12, ANAME_12, AVALUE_12, AUNIT_12, ACODE_13, ANAME_13, AVALUE_13, AUNIT_13, ACODE_14, ANAME_14, AVALUE_14, AUNIT_14, ACODE_15, ANAME_15, AVALUE_15, AUNIT_15, ACODE_16, ANAME_16, AVALUE_16, AUNIT_16, ACODE_17, ANAME_17, AVALUE_17, AUNIT_17, ACODE_18, ANAME_18, AVALUE_18, AUNIT_18, ACODE_19, ANAME_19, AVALUE_19, AUNIT_19, ACODE_20, ANAME_20, AVALUE_20, AUNIT_20, ";
@@ -1853,7 +1848,7 @@ namespace MasterOnline.Controllers
                 brandName = detailBrg.brand.original_brand_name;
             }
             sSQL += "('" + barang_id + "' , '" + sellerSku + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
-            sSQL += Convert.ToInt32(detailBrg.weight) + "," + detailBrg.dimension.package_length + "," + detailBrg.dimension.package_width + "," + detailBrg.dimension.package_height + ", '";
+            sSQL += Convert.ToDouble(detailBrg.weight) * 1000 + "," + detailBrg.dimension.package_length + "," + detailBrg.dimension.package_width + "," + detailBrg.dimension.package_height + ", '";
             sSQL += cust + "' , '" + urlBrg + "' , '" + listLogistic + "' , '" + brandId + "' , '" + brandName + "' , '" + "<p>" + detailBrg.description.Replace('\'', '`').Replace("\n", "</p><p>") + "</p>" + "' , " + IdMarket + " , " + barang_price + " , " + barang_price;
             sSQL += " , " + (barang_status.Contains("NORMAL") ? "1" : "0") + " , '" + categoryCode + "' , '" + categoryName + "' , '" + "REPLACE_MEREK" + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "'";
             sSQL += ", '" + (typeBrg == 2 ? kdBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
@@ -7092,7 +7087,7 @@ namespace MasterOnline.Controllers
         }
         public class ShopeeGetItemListItem_V2
         {
-            public string status { get; set; }
+            public string item_status { get; set; }
             public long update_time { get; set; }
             public long item_id { get; set; }
         }
