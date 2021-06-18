@@ -78,6 +78,7 @@ namespace MasterOnline.ViewModels
         //add by nurul 15/6/2021
         public string noref { get; set; }
         public string nm_brg { get; set; }
+        public string idmarket { get; set; }
         public PesananDetail_GantiBarang PesananDetail_GantiBarang { get; set; }
         //end add by nurul 15/6/2021
     }
@@ -116,6 +117,14 @@ namespace MasterOnline.ViewModels
         public string CATATAN { get; set; }
         public string BRG { get; set; }
         public int? NO_URUT { get; set; }
+    }
+
+    public class Barang_GantiBarang
+    {
+        public string BRG { get; set; }
+        public string NAMA { get; set; }
+        public string RECNUM { get; set; }
+        public double HARGA { get; set; }
     }
     //end add by nurul 15/6/2021
 }

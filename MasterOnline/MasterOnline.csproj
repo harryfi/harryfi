@@ -6976,6 +6976,7 @@
     <Content Include="Views\Report\LapPembayaranPiutang.cshtml" />
     <Content Include="Views\Manage\JDIDAuth.cshtml" />
     <Content Include="Views\Manage\BarangGantiPesananPartial.cshtml" />
+    <Content Include="Views\Manage\TableBarangGantiPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
