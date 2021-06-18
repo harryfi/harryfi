@@ -4757,7 +4757,7 @@ namespace MasterOnline.Controllers
                                         //end change 27 mei 2021, set voucher seller sebagai nilai disc
                                         sSQL_Value += ",'" + statusEra + "','" + shipment_provider + "'," + items.is_digital + ",'" + tracking_code + "','" + reason + "','" + reason_detail + "','" + purchase_order_id;
                                         sSQL_Value += "','" + purchase_order_number + "','" + package_id + "','" + extra_attributes + "','" + shipping_provider_type + "','" + items.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + items.updated_at.ToString("yyyy-MM-dd HH:mm:ss");
-                                        sSQL_Value += "','" + return_status + "','" + product_main_image + "','" + variation + "','" + product_detail_url + "','" + items.invoice_number + "','" + username + "','" + connectionID + "')";
+                                        sSQL_Value += "','" + return_status + "','" + product_main_image + "','" + variation + "','" + product_detail_url + "','" + invoice_number + "','" + username + "','" + connectionID + "')";
 
                                         //if (i < bindOrderItems.data.Count)
                                         sSQL_Value += ",";
