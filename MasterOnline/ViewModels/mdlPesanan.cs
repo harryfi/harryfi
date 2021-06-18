@@ -77,6 +77,10 @@ namespace MasterOnline
         public string catatanPembeli { get; set; }
         //end add by nurul 7/8/2020
 
+        //add by nurul 17/6/2021
+        public string TLP { get; set; }
+        //end add by nurul 17/6/2021
+
         //[Key]
         //[StringLength(15)]
         //public string NO_BUKTI { get; set; }
