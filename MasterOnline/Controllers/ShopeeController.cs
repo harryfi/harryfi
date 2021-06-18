@@ -376,9 +376,7 @@ namespace MasterOnline.Controllers
         public async Task<BindingBase> GetItemsList_V2(ShopeeAPIData iden, int IdMarket, int page, int recordCount, int totalData)
         {
             iden = await RefreshTokenShopee_V2(iden, false);
-            //int MOPartnerID = 841371;
-            //string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-            //string ret = "";
+
             var ret = new BindingBase
             {
                 status = 0,
@@ -413,20 +411,6 @@ namespace MasterOnline.Controllers
                 + "&access_token=" + iden.token + "&shop_id=" + iden.merchant_code
                 + "&offset=" + (page * 5) + "&page_size=" + 5 + "&item_status[]=NORMAL&item_status[]=UNLIST";
 
-            //ShopeeGetItemListData HttpBody = new ShopeeGetItemListData
-            //{
-            //    partner_id = MOPartnerID, //MasterOnline Partner ID
-            //    shopid = Convert.ToInt32(iden.merchant_code),
-            //    timestamp = seconds,
-            //    pagination_offset = page * 5,
-            //    pagination_entries_per_page = 5,
-
-            //};
-
-            //string myData = JsonConvert.SerializeObject(HttpBody);
-
-            //string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
             myReq.Method = "GET";
             //myReq.Headers.Add("Authorization", signature);
@@ -435,11 +419,6 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             try
             {
-                //myReq.ContentLength = myData.Length;
-                //using (var dataStream = myReq.GetRequestStream())
-                //{
-                //    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-                //}
                 using (WebResponse response = await myReq.GetResponseAsync())
                 {
                     using (Stream stream = response.GetResponseStream())
@@ -448,7 +427,6 @@ namespace MasterOnline.Controllers
                         responseFromServer = reader.ReadToEnd();
                     }
                 }
-                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
             }
             catch (Exception ex)
             {
@@ -473,13 +451,6 @@ namespace MasterOnline.Controllers
                             foreach (var lis in listBrg.response.item)
                             {
                                 listBrgMP.Add(lis.item_id.ToString() + ";0");
-                                //if (lis.variations.Length > 0)
-                                //{
-                                //    foreach (var listVar in lis.variations)
-                                //    {
-                                //        listBrgMP.Add(lis.item_id.ToString() + ";" + listVar.variation_id);
-                                //    }
-                                //}
                             }
                             var stf02h_local = (from a in ErasoftDbContext.STF02H where a.IDMARKET == IdMarket && listBrgMP.Contains(a.BRG_MP) select new stf02h_local { BRG = a.BRG, BRG_MP = a.BRG_MP, IDMARKET = a.IDMARKET }).ToList();
                             var tempBrg_local = (from a in ErasoftDbContext.TEMP_BRG_MP where a.IDMARKET == IdMarket && listBrgMP.Contains(a.BRG_MP) select new tempBrg_local { BRG_MP = a.BRG_MP, IDMARKET = a.IDMARKET }).ToList();
@@ -516,7 +487,7 @@ namespace MasterOnline.Controllers
                                     {
                                         //var getDetailResult = await GetItemDetail(iden, item.item_id);
                                         //var getDetailResult = await GetItemDetail(iden, item.item_id, new List<tempBrg_local>(), new List<stf02h_local>(), IdMarket);
-                                        var getDetailResult = await GetItemDetail(iden, item.item_id, tempBrg_local, stf02h_local, IdMarket);
+                                        var getDetailResult = await GetItemDetail_V2(iden, item.item_id, tempBrg_local, stf02h_local, IdMarket);
                                         ret.totalData += getDetailResult.totalData;//add 18 Juli 2019, show total record
                                         if (getDetailResult.exception == 1)
                                             ret.exception = 1;
@@ -1597,6 +1568,7 @@ namespace MasterOnline.Controllers
                 totalData = 0//add 18 Juli 2019, show total record
             };
 
+            iden = await RefreshTokenShopee_V2(iden, false);
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
@@ -1610,9 +1582,9 @@ namespace MasterOnline.Controllers
 
 
             string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds + "&sign=" + sign
-                + "&access_token=" + iden.token + "&shop_id=" + iden.merchant_code;
+                + "&access_token=" + iden.token + "&shop_id=" + iden.merchant_code + "&item_id=" + item_id;
 
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
             myReq.Method = "GET";
             myReq.Accept = "application/json";
             myReq.ContentType = "application/json";
@@ -1645,101 +1617,84 @@ namespace MasterOnline.Controllers
                         {
                             foreach(var itemRes in detailBrg.response.item_list)
                             {
-                                //if (detailBrg.response != null)
+                                string cust = ErasoftDbContext.ARF01.Where(c => c.Sort1_Cust == iden.merchant_code).FirstOrDefault().CUST.ToString();
+                                string categoryCode = itemRes.category_id.ToString();
+                                var categoryInDB = MoDbContext.CategoryShopee.Where(p => p.CATEGORY_CODE == categoryCode).FirstOrDefault();
+                                string categoryName = "";
+                                if (categoryInDB != null)
                                 {
-                                    //string IdMarket = ErasoftDbContext.ARF01.Where(c => c.Sort1_Cust.Equals(iden.merchant_code)).FirstOrDefault().RecNum.ToString();
-                                    string cust = ErasoftDbContext.ARF01.Where(c => c.Sort1_Cust == iden.merchant_code).FirstOrDefault().CUST.ToString();
-                                    string categoryCode = itemRes.category_id.ToString();
-                                    var categoryInDB = MoDbContext.CategoryShopee.Where(p => p.CATEGORY_CODE == categoryCode).FirstOrDefault();
-                                    string categoryName = "";
-                                    if (categoryInDB != null)
-                                    {
-                                        categoryName = categoryInDB.CATEGORY_NAME;
-                                    }
-                                    ret.status = 1;
+                                    categoryName = categoryInDB.CATEGORY_NAME;
+                                }
+                                ret.status = 1;
 
-                                    var sellerSku = "";
-                                    //if (string.IsNullOrEmpty(sellerSku))
-                                    //{
-                                    //    var nm = barang_id.Split(';');
-                                    //    if (nm.Length > 1)
-                                    //    {
-                                    //        sellerSku = nm[1];
-                                    //    }
-                                    //    else
-                                    //    {
-                                    //        sellerSku = barang_id;
-                                    //    }
-                                    //}
-                                    if (itemRes.has_model)
+                                var sellerSku = "";
+                                if (itemRes.has_model)
+                                {
+                                    var itemVariation = await CekVariationShopee_V2(iden, item_id);
+                                    float hargaBrg = 0;
+                                    if(itemVariation.response != null)
                                     {
-                                        ret.totalData += detailBrg.item.variations.Count();//add 18 Juli 2019, show total record
-                                                                                           //insert brg induk
-                                                                                           //string brgMpInduk = Convert.ToString(detailBrg.item.item_id) + ";";
-                                        string brgMpInduk = Convert.ToString(detailBrg.item.item_id) + ";0";
-                                        //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMpInduk.ToUpper()) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
-                                        //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMpInduk) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
-                                        var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMpInduk.ToUpper()).FirstOrDefault();
-                                        var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMpInduk.ToUpper()).FirstOrDefault();
-                                        //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.IDMARKET == IdMarket && (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMpInduk.ToUpper()).FirstOrDefault();
-                                        //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.IDMARKET == IdMarket && (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMpInduk.ToUpper()).FirstOrDefault();
+                                        ret.totalData += itemVariation.response.model.Length;
+                                        hargaBrg = itemVariation.response.model[0].price_info[0].original_price;
+                                    }
+                                    //ret.totalData += detailBrg.item.variations.Count();//add 18 Juli 2019, show total record
+                                    //insert brg induk
+                                    string brgMpInduk = Convert.ToString(itemRes.item_id) + ";0";
+                                    //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMpInduk.ToUpper()) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
+                                    //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMpInduk) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
+                                    var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMpInduk.ToUpper()).FirstOrDefault();
+                                    var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMpInduk.ToUpper()).FirstOrDefault();
+                                    //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.IDMARKET == IdMarket && (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMpInduk.ToUpper()).FirstOrDefault();
+                                    //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.IDMARKET == IdMarket && (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMpInduk.ToUpper()).FirstOrDefault();
+                                    if (tempbrginDB == null && brgInDB == null)
+                                    {
+                                        //ret.recordCount++;
+                                        var ret1 = await proses_Item_detail_V2(itemRes, categoryCode, categoryName, cust, IdMarket, brgMpInduk, itemRes.item_name, itemRes.item_status, hargaBrg, string.IsNullOrEmpty(itemRes.item_sku) ? brgMpInduk : itemRes.item_sku, 1, "", iden, true);
+                                        ret.recordCount += ret1.status;
+                                    }
+                                    else if (brgInDB != null)
+                                    {
+                                        brgMpInduk = brgInDB.BRG;
+                                    }
+                                    //string skuInduk = string.IsNullOrEmpty(detailBrg.item.item_sku) ? brgMpInduk : detailBrg.item.item_sku;
+                                    //end insert brg induk
+                                    var insert_1st_img = true;
+
+                                    foreach (var item in itemVariation.response.model)
+                                    {
+                                        sellerSku = item.model_sku;
+                                        string brgMp = Convert.ToString(item_id) + ";" + Convert.ToString(item.model_id);
+                                            
+                                        tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                                        brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                                            
                                         if (tempbrginDB == null && brgInDB == null)
                                         {
-                                            //ret.recordCount++;
-                                            var ret1 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMpInduk, detailBrg.item.name, detailBrg.item.variations[0].status, detailBrg.item.original_price, string.IsNullOrEmpty(detailBrg.item.item_sku) ? brgMpInduk : detailBrg.item.item_sku, 1, "", iden, true);
-                                            ret.recordCount += ret1.status;
-                                        }
-                                        else if (brgInDB != null)
-                                        {
-                                            brgMpInduk = brgInDB.BRG;
-                                        }
-                                        //string skuInduk = string.IsNullOrEmpty(detailBrg.item.item_sku) ? brgMpInduk : detailBrg.item.item_sku;
-                                        //end insert brg induk
-                                        var insert_1st_img = true;
-
-                                        foreach (var item in detailBrg.item.variations)
-                                        {
-                                            sellerSku = item.variation_sku;
-                                            //remark 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
-                                            //if (string.IsNullOrEmpty(sellerSku))
-                                            //{
-                                            //    sellerSku = item.variation_id.ToString();
-                                            //}
-                                            //end remark 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
-                                            string brgMp = Convert.ToString(detailBrg.item.item_id) + ";" + Convert.ToString(item.variation_id);
-                                            //tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMp.ToUpper()) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
-                                            //brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMp) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
-                                            tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
-                                            brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
-                                            //tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.IDMARKET == IdMarket && (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
-                                            //brgInDB = ErasoftDbContext.STF02H.Where(t => t.IDMARKET == IdMarket && (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
-                                            if (tempbrginDB == null && brgInDB == null)
+                                            var variationName = "";
+                                            for(int i =0; i < item.tier_index.Length; i++)
                                             {
-                                                //ret.recordCount++;
-                                                var ret2 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMp, detailBrg.item.name + " " + item.name, item.status, item.original_price, sellerSku, 2, brgMpInduk, iden, insert_1st_img);
-                                                //var ret2 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMp, detailBrg.item.name + " " + item.name, item.status, item.original_price, sellerSku, 2, skuInduk, iden, insert_1st_img);
-                                                ret.recordCount += ret2.status;
-                                                insert_1st_img = false;//varian ke-2 tidak perlu ambil gambar
+                                                var tier_var = itemVariation.response.tier_variation[i];
+                                                variationName += tier_var.option_list[item.tier_index[i]].option + " ";
                                             }
+                                            //ret.recordCount++;
+                                            var ret2 = await proses_Item_detail_V2(itemRes, categoryCode, categoryName, cust, IdMarket, brgMp, itemRes.item_name + " " + variationName, itemRes.item_status, item.price_info[0].original_price, sellerSku, 2, brgMpInduk, iden, insert_1st_img);
+                                            ret.recordCount += ret2.status;
+                                            insert_1st_img = false;//varian ke-2 tidak perlu ambil gambar
                                         }
-                                    }
-                                    else
-                                    {
-                                        //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
-                                        //sellerSku = string.IsNullOrEmpty(detailBrg.item.item_sku) ? detailBrg.item.item_id.ToString() : detailBrg.item.item_sku;
-                                        sellerSku = detailBrg.item.item_sku;
-                                        //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
-
-                                        //ret.recordCount++;
-                                        var ret0 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, Convert.ToString(detailBrg.item.item_id) + ";0", detailBrg.item.name, detailBrg.item.status, detailBrg.item.original_price, sellerSku, 0, "", iden, true);
-                                        ret.recordCount += ret0.status;
                                     }
                                 }
-                                //else
-                                //{
-                                //    ret.message = responseFromServer;
-                                //}
-
+                                else
+                                {
+                                    sellerSku = itemRes.item_sku;
+                                    float hargaBrg = 0;
+                                    if(itemRes.price_info != null)
+                                    {
+                                        hargaBrg = itemRes.price_info[0].original_price;
+                                    }
+                                    var ret0 = await proses_Item_detail_V2(itemRes, categoryCode, categoryName, cust, IdMarket, Convert.ToString(itemRes.item_id) + ";0", itemRes.item_name, itemRes.item_status, hargaBrg, sellerSku, 0, "", iden, true);
+                                    ret.recordCount += ret0.status;
+                                }
+                                
                             }
                         }
 
@@ -1751,6 +1706,208 @@ namespace MasterOnline.Controllers
                     ret.message = ex2.Message;
                 }
             }
+            return ret;
+        }
+
+
+        public async Task<ShopeeControllerJob.GetVariationResult_V2> CekVariationShopee_V2(ShopeeAPIData iden, long item_id)
+        {
+            var ret = new ShopeeControllerJob.GetVariationResult_V2();
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            int MOPartnerID = MOPartnerIDV2;
+            string MOPartnerKey = MOPartnerKeyV2;
+            string urll = shopeeV2Url;
+            string path = "/api/v2/product/get_model_list";
+
+            var baseString = MOPartnerID + path + seconds + iden.token + iden.merchant_code;
+            var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
+
+            string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds + "&sign=" + sign
+                + "&access_token=" + iden.token + "&shop_id=" + iden.merchant_code + "&item_id=" + item_id;
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
+            myReq.Method = "GET";
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                string err = "";
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                }
+            }
+
+
+            if (responseFromServer != "")
+            {
+                ret = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeControllerJob.GetVariationResult_V2)) as ShopeeControllerJob.GetVariationResult_V2;
+
+            }
+
+            return ret;
+        }
+
+        protected async Task<BindingBase> proses_Item_detail_V2(Item_List detailBrg, string categoryCode, string categoryName, string cust, int IdMarket, string barang_id, string barang_name, string barang_status, float barang_price, string sellerSku, int typeBrg, string kdBrgInduk, ShopeeAPIData iden, bool insert_1st_img)
+        {
+            // typeBrg : 0 = barang tanpa varian; 1 = barang induk; 2 = barang varian
+            var ret = new BindingBase();
+            string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, SELLER_SKU, NAMA, NAMA2, NAMA3, BERAT, PANJANG, LEBAR, TINGGI, CUST, AVALUE_34, AVALUE_39, AVALUE_38, AUNIT_38, ";
+            sSQL += "Deskripsi, IDMARKET, HJUAL, HJUAL_MP, DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3, IMAGE4, IMAGE5, KODE_BRG_INDUK, TYPE, AVALUE_45,";
+            sSQL += "ACODE_1, ANAME_1, AVALUE_1, AUNIT_1, ACODE_2, ANAME_2, AVALUE_2, AUNIT_2, ACODE_3, ANAME_3, AVALUE_3, AUNIT_3, ACODE_4, ANAME_4, AVALUE_4, AUNIT_4, ACODE_5, ANAME_5, AVALUE_5, AUNIT_5, ACODE_6, ANAME_6, AVALUE_6, AUNIT_6, ACODE_7, ANAME_7, AVALUE_7, AUNIT_7, ACODE_8, ANAME_8, AVALUE_8, AUNIT_8, ACODE_9, ANAME_9, AVALUE_9, AUNIT_9, ACODE_10, ANAME_10, AVALUE_10, AUNIT_10, ";
+            sSQL += "ACODE_11, ANAME_11, AVALUE_11, AUNIT_11, ACODE_12, ANAME_12, AVALUE_12, AUNIT_12, ACODE_13, ANAME_13, AVALUE_13, AUNIT_13, ACODE_14, ANAME_14, AVALUE_14, AUNIT_14, ACODE_15, ANAME_15, AVALUE_15, AUNIT_15, ACODE_16, ANAME_16, AVALUE_16, AUNIT_16, ACODE_17, ANAME_17, AVALUE_17, AUNIT_17, ACODE_18, ANAME_18, AVALUE_18, AUNIT_18, ACODE_19, ANAME_19, AVALUE_19, AUNIT_19, ACODE_20, ANAME_20, AVALUE_20, AUNIT_20, ";
+            sSQL += "ACODE_21, ANAME_21, AVALUE_21, AUNIT_21, ACODE_22, ANAME_22, AVALUE_22, AUNIT_22, ACODE_23, ANAME_23, AVALUE_23, AUNIT_23, ACODE_24, ANAME_24, AVALUE_24, AUNIT_24, ACODE_25, ANAME_25, AVALUE_25, AUNIT_25, ACODE_26, ANAME_26, AVALUE_26, AUNIT_26, ACODE_27, ANAME_27, AVALUE_27, AUNIT_27, ACODE_28, ANAME_28, AVALUE_28, AUNIT_28, ACODE_29, ANAME_29, AVALUE_29, AUNIT_29, ACODE_30, ANAME_30, AVALUE_30, AUNIT_30) VALUES ";
+
+            string namaBrg = barang_name.Replace('\'', '`');
+            string nama, nama2, nama3, urlImage, urlImage2, urlImage3, urlImage4, urlImage5;
+            urlImage = "";
+            urlImage2 = "";
+            urlImage3 = "";
+            urlImage4 = "";
+            urlImage5 = "";
+            sellerSku = sellerSku.ToString().Replace("\'", "\'\'");
+
+            var splitItemName = new StokControllerJob().SplitItemName(namaBrg);
+            nama = splitItemName[0];
+            nama2 = splitItemName[1];
+            nama3 = "";
+
+            string urlBrg = "https://shopee.co.id/product/" + iden.merchant_code + "/" + detailBrg.item_id;
+            if (detailBrg.image.image_url_list.Length > 0)
+            {
+                if (insert_1st_img)
+                {
+                    urlImage = detailBrg.image.image_url_list[0];
+                    //change 21/8/2019, barang varian ambil 1 gambar saja
+                    if (typeBrg != 2)
+                    //if (typeBrg == 0)
+                    {
+                        if (detailBrg.image.image_url_list.Length >= 2)
+                        {
+                            urlImage2 = detailBrg.image.image_url_list[1];
+                            if (detailBrg.image.image_url_list.Length >= 3)
+                            {
+                                urlImage3 = detailBrg.image.image_url_list[2];
+                                //add 16/9/19, 5 gambar
+                                if (detailBrg.image.image_url_list.Length >= 4)
+                                {
+                                    urlImage4 = detailBrg.image.image_url_list[3];
+                                    if (detailBrg.image.image_url_list.Length >= 5)
+                                    {
+                                        urlImage5 = detailBrg.image.image_url_list[4];
+                                    }
+                                }
+                                //end add 16/9/19, 5 gambar
+                            }
+                        }
+                    }
+                    //end change 21/8/2019, barang varian ambil 1 gambar saja
+                }
+            }
+
+            //add 21 mei 2021, logistic shopee
+            var listLogistic = "";
+            if (detailBrg.logistic_info != null)
+            {
+                if (detailBrg.logistic_info.Length > 0)
+                {
+                    foreach (var log in detailBrg.logistic_info)
+                    {
+                        if (log.enabled)
+                        {
+                            if (!string.IsNullOrEmpty(listLogistic))
+                            {
+                                listLogistic += ",";
+                            }
+                            listLogistic += log.logistic_id.ToString();
+                        }
+                    }
+                }
+            }
+            //end add 21 mei 2021, logistic shopee
+
+            var brandId = "";
+            var brandName = "NO BRAND";
+            if(detailBrg.brand != null)
+            {
+                brandId = detailBrg.brand.brand_id.ToString();
+                brandName = detailBrg.brand.original_brand_name;
+            }
+            sSQL += "('" + barang_id + "' , '" + sellerSku + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
+            sSQL += Convert.ToInt32(detailBrg.weight) + "," + detailBrg.dimension.package_length + "," + detailBrg.dimension.package_width + "," + detailBrg.dimension.package_height + ", '";
+            sSQL += cust + "' , '" + urlBrg + "' , '" + listLogistic + "' , '" + brandId + "' , '" + brandName + "' , '" + "<p>" + detailBrg.description.Replace('\'', '`').Replace("\n", "</p><p>") + "</p>" + "' , " + IdMarket + " , " + barang_price + " , " + barang_price;
+            sSQL += " , " + (barang_status.Contains("NORMAL") ? "1" : "0") + " , '" + categoryCode + "' , '" + categoryName + "' , '" + "REPLACE_MEREK" + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "'";
+            sSQL += ", '" + (typeBrg == 2 ? kdBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
+            sSQL += ",'" + (namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg) + "'"; 
+
+            #region set attribute
+            int indexAttr = 1;
+            if(detailBrg.attribute_list != null)
+            {
+                foreach(var attr in detailBrg.attribute_list)
+                {
+                    var attrVal = "";
+                    foreach (var attrOpt in attr.attribute_value_list)
+                    {
+                        if (attrOpt.value_id == 0)
+                        {
+                            if (string.IsNullOrEmpty(attrVal))
+                            {
+                                attrVal += ",";
+                            }
+                            attrVal += attrOpt.original_value_name.Replace("\'", "`");
+                        }
+                        else
+                        {
+                            if (string.IsNullOrEmpty(attrVal))
+                            {
+                                attrVal += ",";
+                            }
+                            attrVal += attrOpt.value_id;
+                        }
+                    }
+                    sSQL += ", '" + attr.attribute_id + "' , '" + attr.original_attribute_name.Replace("\'", "\'\'") + "' , '" + attrVal + "' , '" + attr.attribute_value_list[0].value_unit + "'";
+                    if(indexAttr == 30)
+                    {
+                        sSQL += ")";
+                        break;
+                    }
+                    indexAttr++;
+                }
+            }
+            while(indexAttr <= 30)
+            {
+                sSQL += ", '' , '' , '' , ''";
+                if (indexAttr == 30)
+                {
+                    sSQL += ")";
+                    break;
+                }
+                indexAttr++;
+            }
+            #endregion
+            sSQL = sSQL.Replace("REPLACE_MEREK", brandName.Replace('\'', '`'));
+            var retRec = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+            ret.status = retRec;
             return ret;
         }
 
