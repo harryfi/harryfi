@@ -398,6 +398,11 @@
         <div class="hscroll table-responsive">
             @*//add by nurul 20/10/2020*@
             <table id="table_tambah_bundling" class="table table-bordered" role="grid">
+                @{ 
+                    var countBundling = Model.ListPesananBundling.Count();
+                }
+                @if (countBundling > 0)
+                {
                 <thead>
                     <tr style="background-color:#c7f1f5 !important;">
                         <th width="200">Kode Brg Bundling</th>
@@ -447,7 +452,7 @@
                                 </button>
                             </td>*@
                         </tr>
-                    }
+                                }
                     @*<tr data-bundling-id="0">
                         @Html.HiddenFor(m => m.PesananBundling.RECNUM)
                         @Html.HiddenFor(m => m.PesananBundling.TGL_EDIT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
@@ -480,13 +485,26 @@
                         </td>
                     </tr>*@
                 </tbody>
+                }
             </table>
             @*//end add by nurul 20/10/2020*@
             <table id="table_tambah_pesanan_selesai" class="table table-bordered" role="grid">
+                @*//add by nurul 15/6/2021*@
+                @{
+                    var cekGantiBarang = Model.ListPesananDetail.Where(a => !string.IsNullOrEmpty(a.BRG_GANTI)).Select(a => a.BRG_GANTI).Distinct().ToList();
+                    var statusPesanan = Model.Pesanan.STATUS_TRANSAKSI;
+                }
+                @*//end add by nurul 15/6/2021*@
                 <thead>
                     <tr style="background-color:#c7f1f5 !important;">
                         <th width="100">Kode Brg</th>
                         <th width="150">Nama Brg</th>
+                        @*//add by nurul 15/6/2021*@
+                        @if (cekGantiBarang.Count() > 0 && statusPesanan == "01")
+                        {
+                            <th>Ganti Barang</th>
+                        }
+                        @*//end add by nurul 15/6/2021*@
                         @*//ADD BY NURUL 9/9/2020, KODE BRG MULTI SKU*@
                         <th width="100">Kode Brg Multi SKU</th>
                         @*//END ADD BY NURUL 9/9/2020, KODE BRG MULTI SKU*@
@@ -498,6 +516,10 @@
                         <th width="55">Disc2%</th>
                         <th>NDisc2</th>
                         <th width="100">Total</th>
+                        @if (statusPesanan == "01")
+                        {
+                        <th>Ganti Barang</th>
+                        }
                     </tr>
                 </thead>
                 <tbody>
@@ -507,69 +529,117 @@
                     }
                     @foreach (var pesanan in Model.ListPesananDetail.Where(pb => pb.NO_BUKTI == Model?.Pesanan?.NO_BUKTI).ToList())
                     {
-                        <tr data-barang-selesai-id="brg-@pesanan.NO_URUT">
-                            @{
-                                var barang = listBarang.SingleOrDefault(b => b.BRG.ToUpper() == pesanan.BRG.ToUpper());
-                                var stnBarang = barang == null ? "" : barang.STN2;
+                    <tr data-barang-selesai-id="brg-@pesanan.NO_URUT">
+                        @{
+                            var barang = listBarang.SingleOrDefault(b => b.BRG.ToUpper() == pesanan.BRG.ToUpper());
+                            var stnBarang = barang == null ? "" : barang.STN2;
 
-                                var catatan_split = pesanan.CATATAN.Split(new string[] { "_;_" }, StringSplitOptions.None);
-                                var namaDiCatatan = "";
-                                if (catatan_split.Count() > 2) //OrderNo_;_NamaBarang_;_IdBarang
-                                {
-                                    namaDiCatatan = catatan_split[1];
-                                }
-                                var namaBarang = barang == null ? namaDiCatatan : (barang.NAMA + " " + barang.NAMA2);
+                            var catatan_split = pesanan.CATATAN.Split(new string[] { "_;_" }, StringSplitOptions.None);
+                            var namaDiCatatan = "";
+                            if (catatan_split.Count() > 2) //OrderNo_;_NamaBarang_;_IdBarang
+                            {
+                                namaDiCatatan = catatan_split[1];
                             }
-                            <td>
-                                <table>
+                            var namaBarang = barang == null ? namaDiCatatan : (barang.NAMA + " " + barang.NAMA2);
+                        }
+                        <td>
+                            <table>
+                                <tr>
+                                    <td>@pesanan.BRG</td>
+                                </tr>
+                                @if (barang == null)
+                                {
                                     <tr>
-                                        <td>@pesanan.BRG</td>
+                                        <td>
+                                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#modalFixNotFound" onclick="fixDataBarangNotFound(@pesanan.NO_URUT, '@pesanan.NO_BUKTI');">
+                                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                            </button>
+                                        </td>
                                     </tr>
-                                    @if (barang == null)
-                                    {
-                                        <tr>
-                                            <td>
-                                                <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#modalFixNotFound" onclick="fixDataBarangNotFound(@pesanan.NO_URUT, '@pesanan.NO_BUKTI');">
-                                                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    }
-                                </table>
-                            </td>
-                            <td class="nama-barang">
-                                @namaBarang
-                            </td>
-                            @*//ADD BY NURUL 9/9/2020, KODE BRG MULTI SKU*@
-                            <td class="barang-multisku">
-                                @pesanan.BRG_MULTISKU
-                            </td>
-                            @*//end ADD BY NURUL 9/9/2020, KODE BRG MULTI SKU*@
-                            <td class="stn-barang">
-                                @stnBarang
-                            </td>
-                            <td class="harga-barang" style="text-align:right">
-                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.H_SATUAN)
-                            </td>
-                            <td class="qty-barang">
-                                @pesanan.QTY
-                            </td>
-                            <td class="disc1-barang">
-                                @pesanan.DISCOUNT
-                            </td>
-                            <td class="ndisc1-barang" style="text-align:right">
-                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NILAI_DISC_1)
-                            </td>
-                            <td class="disc2-barang">
-                                @pesanan.DISCOUNT_2
-                            </td>
-                            <td class="ndisc2-barang" style="text-align:right">
-                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NILAI_DISC_2)
-                            </td>
-                            <td class="netto-barang" style="text-align:right">
-                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.HARGA)
-                            </td>
-                        </tr>
+                                }
+                            </table>
+                        </td>
+                        <td class="nama-barang">
+                            @namaBarang
+                        </td>
+                        @*//add by nurul 15/6/2021*@
+                        @if (cekGantiBarang.Count() > 0 && statusPesanan == "01")
+                        {
+                            if (!string.IsNullOrEmpty(pesanan.BRG_GANTI))
+                            {
+                                <td class="ganti-barang" style="text-align:center">
+                                    <div>
+                                        @*<input type="checkbox" id="cbxGantiBarangIdx" class="cbxGantiBarangIdx" name="@($"cbx-Ganti-Barang-Idx")" checked disabled="disabled" />
+                                        <span class="checkmark cm-ganti-barang-idx" style="cursor:not-allowed;"></span>*@
+                                        <input data-tip="@pesanan.BRG_GANTI" type="checkbox" id="cbxGantiBarangIdx" class="dt-checkboxes center cbxGantiBarangIdx" style="align-self:flex-start; width:30px; height:28px;" checked disabled="disabled" />
+                                    </div>
+                                </td>
+                            }
+                            else
+                            {
+                                <td class="ganti-barang" style="text-align:center">
+                                    <div>
+                                        @*<input type="checkbox" id="cbxGantiBarangIdx" class="cbxGantiBarangIdx" name="@($"cbx-Ganti-Barang-Idx")" disabled="disabled" />
+                                        <span class="checkmark cm-ganti-barang-idx" style="cursor:not-allowed;"></span>*@
+                                        <input type="checkbox" id="cbxGantiBarangIdx" class="dt-checkboxes center cbxGantiBarangIdx" style="align-self:flex-start; width:30px; height:28px;" disabled="disabled" />
+                                    </div>
+                                </td>
+                            }
+                        }
+                        @*//end add by nurul 15/6/2021*@
+                        @*//ADD BY NURUL 9/9/2020, KODE BRG MULTI SKU*@
+                        <td class="barang-multisku">
+                            @pesanan.BRG_MULTISKU
+                        </td>
+                        @*//end ADD BY NURUL 9/9/2020, KODE BRG MULTI SKU*@
+                        <td class="stn-barang">
+                            @stnBarang
+                        </td>
+                        <td class="harga-barang" style="text-align:right">
+                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.H_SATUAN)
+                        </td>
+                        <td class="qty-barang">
+                            @pesanan.QTY
+                        </td>
+                        <td class="disc1-barang">
+                            @pesanan.DISCOUNT
+                        </td>
+                        <td class="ndisc1-barang" style="text-align:right">
+                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NILAI_DISC_1)
+                        </td>
+                        <td class="disc2-barang">
+                            @pesanan.DISCOUNT_2
+                        </td>
+                        <td class="ndisc2-barang" style="text-align:right">
+                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NILAI_DISC_2)
+                        </td>
+                        <td class="netto-barang" style="text-align:right">
+                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.HARGA)
+                        </td>
+                        @*//add by nurul 15/6/2021*@
+                        @if (statusPesanan == "01")
+                        {
+                            if (!string.IsNullOrEmpty(pesanan.BRG_BUNDLING) || barang == null)
+                            {
+                        <td class="ganti-barang-ceklis" style="text-align:center">
+                            @*<input type="checkbox" id="cbxGantiBarang" class="dt-checkboxes center cbxGantiBarang" style="align-self:flex-start; width:30px; height:28px;" data-toggle="modal" data-target="#modalGantiBarang" onclick="fixGantiBarangPesanan(@pesanan.NO_URUT, '@pesanan.NO_BUKTI');" disabled="disabled" />*@
+                            <button class="btn btn-primary" id="cbxGantiBarang" style="margin-bottom:1px" data-toggle="modal" data-target="#modalGantiBarang" onclick="fixGantiBarangPesanan(@pesanan.NO_URUT, '@pesanan.NO_BUKTI', '01');" disabled="disabled">
+                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                            }
+                            else
+                            {
+                        <td class="ganti-barang-ceklis" style="text-align:center">
+                            @*<input type="checkbox" id="cbxGantiBarang" class="dt-checkboxes center cbxGantiBarang" style="align-self:flex-start; width:30px; height:28px;" data-toggle="modal" data-target="#modalGantiBarang" onclick="fixGantiBarangPesanan(@pesanan.NO_URUT, '@pesanan.NO_BUKTI');" />*@
+                            <button class="btn btn-primary" id="cbxGantiBarang" style="margin-bottom:1px" data-toggle="modal" data-target="#modalGantiBarang" onclick="fixGantiBarangPesanan(@pesanan.NO_URUT, '@pesanan.NO_BUKTI', '01');" >
+                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                            }
+                        }
+                        @*//end add by nurul 15/6/2021*@
+                    </tr>
                         iPd = iPd + 1;
                     }
                 </tbody>
