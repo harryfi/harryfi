@@ -537,6 +537,37 @@ namespace MasterOnline.Models
 
         public string BARCODE { get; set; }
         public string RAK { get; set; }
+        public string AUNIT_1 { get; set; }
+        public string AUNIT_2 { get; set; }
+        public string AUNIT_3 { get; set; }
+        public string AUNIT_4 { get; set; }
+        public string AUNIT_5 { get; set; }
+        public string AUNIT_6 { get; set; }
+        public string AUNIT_7 { get; set; }
+        public string AUNIT_8 { get; set; }
+        public string AUNIT_9 { get; set; }
+        public string AUNIT_10 { get; set; }
+        public string AUNIT_11 { get; set; }
+        public string AUNIT_12 { get; set; }
+        public string AUNIT_13 { get; set; }
+        public string AUNIT_14 { get; set; }
+        public string AUNIT_15 { get; set; }
+        public string AUNIT_16 { get; set; }
+        public string AUNIT_17 { get; set; }
+        public string AUNIT_18 { get; set; }
+        public string AUNIT_19 { get; set; }
+        public string AUNIT_20 { get; set; }
+        public string AUNIT_21 { get; set; }
+        public string AUNIT_22 { get; set; }
+        public string AUNIT_23 { get; set; }
+        public string AUNIT_24 { get; set; }
+        public string AUNIT_25 { get; set; }
+        public string AUNIT_26 { get; set; }
+        public string AUNIT_27 { get; set; }
+        public string AUNIT_28 { get; set; }
+        public string AUNIT_29 { get; set; }
+        public string AUNIT_30 { get; set; }
+
     }
     
 }
