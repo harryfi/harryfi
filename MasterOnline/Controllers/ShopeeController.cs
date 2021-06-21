@@ -35,12 +35,12 @@ namespace MasterOnline.Controllers
         //string shpCallbackUrlV2 = "http://localhost:50109/shp/v2/code?user=";
         //string shpCallbackUrl = "https://masteronline.my.id/shp/code?user=";
 #endif
-        //string shopeeV2Url = "https://partner.shopeemobile.com"; 
-        //int MOPartnerIDV2 = 841371;
-        //string MOPartnerKeyV2 = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-        string shopeeV2Url = "https://partner.test-stable.shopeemobile.com";
-        int MOPartnerIDV2 = 1000723;
-        string MOPartnerKeyV2 = "d59a300f63f9d36b92f71b0ccb5b37e4e2b43e9c567df3f2e2808136dd4893dd";
+        string shopeeV2Url = "https://partner.shopeemobile.com";
+        int MOPartnerIDV2 = 2000894;
+        string MOPartnerKeyV2 = "7375892abcfe85bdfb391fe0dc5ba611330e5e080c49eef0b9b55f469918b0ee";
+        //string shopeeV2Url = "https://partner.test-stable.shopeemobile.com";
+        //int MOPartnerIDV2 = 1000723;
+        //string MOPartnerKeyV2 = "d59a300f63f9d36b92f71b0ccb5b37e4e2b43e9c567df3f2e2808136dd4893dd";
 
         protected int MOPartnerID = 841371;
         protected string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -2064,7 +2064,7 @@ namespace MasterOnline.Controllers
             {
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
-                urll = "https://partner.test-stable.shopeemobile.com/api/v1/item/attributes/get";
+                urll = shopeeV2Url + "/api/v1/item/attributes/get";
             }
             ATTRIBUTE_SHOPEE_AND_OPT ret = new ATTRIBUTE_SHOPEE_AND_OPT();
 
