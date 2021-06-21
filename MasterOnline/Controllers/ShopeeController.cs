@@ -430,7 +430,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                ret.nextPage = 1;
+                ret.nextPage = 0;
                 ret.exception = 1;
                 currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
@@ -1865,7 +1865,7 @@ namespace MasterOnline.Controllers
                     {
                         if (attrOpt.value_id == 0)
                         {
-                            if (string.IsNullOrEmpty(attrVal))
+                            if (!string.IsNullOrEmpty(attrVal))
                             {
                                 attrVal += ",";
                             }
@@ -1873,7 +1873,7 @@ namespace MasterOnline.Controllers
                         }
                         else
                         {
-                            if (string.IsNullOrEmpty(attrVal))
+                            if (!string.IsNullOrEmpty(attrVal))
                             {
                                 attrVal += ",";
                             }
@@ -2340,7 +2340,7 @@ namespace MasterOnline.Controllers
 
                             returnData["ACODE_" + a] = Convert.ToString(attribs.attribute_id);
                             returnData["ATYPE_" + a] = attribs.input_type + "|" + attribs.input_validation_type;
-                            returnData["ANAME_" + a] = attribs.display_attribute_name;
+                            returnData["ANAME_" + a] = attribs.original_attribute_name;
                             returnData["AOPTIONS_" + a] = attribs.attribute_value_list.Count() > 0 ? "1" : "0";
                             returnData["AMANDATORY_" + a] = attribs.is_mandatory ? "1" : "0";
                             returnData["AUNIT_" + a] = "0";
