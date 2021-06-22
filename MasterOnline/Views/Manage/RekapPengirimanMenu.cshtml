@@ -779,7 +779,12 @@
                 if (getDrTgl > getSdTgl) {
                     alert("Dari tanggal tidak boleh lebih dari S/d tanggal.");
                 } else {
-                    refreshTableDashboardSudahDO();
+                    //refreshTableDashboardSudahDO();
+                    if ($('#mode_tgl').text() == "Tgl Pesanan") {
+                        refreshTableDashboardSudahDO(2);
+                    } else {
+                        refreshTableDashboardSudahDO(1);
+                    }
                 }
             });
             $('#SdTanggalAfter').datepicker({
@@ -792,7 +797,12 @@
             }).change(function () {
                 $('#SdTanggalAfter').val($('#SdTanggalAfter').val());
                 $('#SdTanggalAfter').datepicker('hide');
-                refreshTableDashboardSudahDO();
+                //refreshTableDashboardSudahDO();
+                if ($('#mode_tgl').text() == "Tgl Pesanan") {
+                    refreshTableDashboardSudahDO(2);
+                } else {
+                    refreshTableDashboardSudahDO(1);
+                }
             });
 
             refreshTableDashboardBelumDO();
