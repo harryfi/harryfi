@@ -1516,7 +1516,7 @@
     @*<script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>*@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
-    <script type="text/javascript">
+<script type="text/javascript">
         var getLink = "";
         var $Sort1_Cust = "";
         var $API_CLIENT_U = "";
@@ -2018,7 +2018,7 @@
                                     $('#descAPIKey').show();
                                     $('#descAPIKey2').show();
                                 }
-                                
+
                                 //end unremark by nurul 25/3/2019
 
                                 //end add by Tri, remove/append api_key
@@ -2160,7 +2160,15 @@
                                             //change by nurul 7/1/2019
                                             //GetShopeeShopId(custCode);
                                             if (confirm("Authorization Shopee account?")) {
-                                                GetShopeeShopId(custCode);
+                                                GetShopeeShopId(custCode, "V1");
+                                            }
+                                            //end change
+                                        }
+                                        else if (response.marketplace == "SHOPEE_V2") {
+                                            //change by nurul 7/1/2019
+                                            //GetShopeeShopId(custCode);
+                                            if (confirm("Authorization Shopee account?")) {
+                                                GetShopeeShopId(custCode, "V2");
                                             }
                                             //end change
                                         }
@@ -3422,10 +3430,13 @@
         //end add by Tri, get link to generate lazada code
 
         //add by calvin 10 desember 2018
-        function GetShopeeShopId(kdCust) {
+        function GetShopeeShopId(kdCust, versiAPI) {
             //alert(kdCust);
             //var link = '@Url.Action("ShopeeUrl", "Shopee", new { cust = "replaceCust" })';
             var link = '@Url.Action("ShopeeUrl_V2", "Shopee", new { cust = "replaceCust" })';
+            if (versiAPI == "V1") {
+                link = '@Url.Action("ShopeeUrl", "Shopee", new { cust = "replaceCust" })';
+            }
             link = link.replace("replaceCust", encodeURIComponent(kdCust));
 
             $.ajax({
@@ -3433,7 +3444,7 @@
                 url: link,
                 success: function (response) {
 
-                    var shpAuthPopUp = window.open(response, "Shopee Authentication", "width=600, height=600, scrollbars=yes");
+                    var shpAuthPopUp = window.open(response, "Shopee Authentication " + versiAPI, "width=600, height=600, scrollbars=yes");
                     var timer = setInterval(function () {
                         if (shpAuthPopUp.closed) {
                             clearInterval(timer);
@@ -3815,5 +3826,5 @@
             versiJD[0].selectize.setValue($('#Customers_KD_ANALISA').val(), true);
         }
         //end add by nurul 11/6/2021
-    </script>
+</script>
 }
