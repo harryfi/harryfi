@@ -2140,7 +2140,7 @@ namespace MasterOnline.Controllers
         public async Task<string> GetOrderByStatus(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar)
         {
             SetupContext(iden);
-            
+
             if (!string.IsNullOrEmpty(iden.token))
             {
                 iden = await RefreshTokenShopee_V2(iden, false);
@@ -6559,7 +6559,7 @@ namespace MasterOnline.Controllers
             int MOPartnerID = MOPartnerIDV2;
             string MOPartnerKey = MOPartnerKeyV2;
             ShopeeGetLogisticsResult ret = null;
-            iden = await RefreshTokenShopee_V2(iden ,false);
+            iden = await RefreshTokenShopee_V2(iden, false);
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -9470,7 +9470,28 @@ namespace MasterOnline.Controllers
 #endif
                                 }
                             }
+                            #region update price and stok
 
+                            var listBrg = EDB.GetDataSet("MOConnectionString", "STF02", "SELECT A.BRG, BRG_MP, B.HJUAL FROM STF02 A INNER JOIN STF02H B ON A.BRG = B.BRG WHERE PART = '" + brg + "' AND IDMARKET = " + tblCustomer.RecNum + " AND ISNULL(BRG_MP, '') <> ''");
+                            if (listBrg.Tables[0].Rows.Count > 0)
+                            {
+                                StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+                                for (int i = 0; i < listBrg.Tables[0].Rows.Count; i++)
+                                {
+#if (Debug_AWS || DEBUG)
+                                await UpdatePrice_Job_V2(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, log_ActionCategory, log_ActionName, 
+                                    listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), iden, float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString()));
+                                if (tblCustomer.TIDAK_HIT_UANG_R)
+                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null)).Wait();
+#else
+                                    client.Enqueue<ShopeeControllerJob>(x => x.UpdatePrice_Job_V2(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, 
+                                        log_ActionCategory, log_ActionName, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), iden, float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString())));
+                                    if (tblCustomer.TIDAK_HIT_UANG_R)
+                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null));
+#endif
+                                }
+                            }
+                            #endregion
                             if (currentLog != null)
                             {
                                 manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
@@ -9578,12 +9599,12 @@ namespace MasterOnline.Controllers
                 var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(InitTierVariationResult_V2)) as InitTierVariationResult_V2;
                 if (!string.IsNullOrEmpty(resServer.error))
                 {
-                        throw new Exception(resServer.message);                    
+                    throw new Exception(resServer.message);
                 }
                 else
                 {
 #if (DEBUG || Debug_AWS)
-                        await AddModelVariation_V2(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Add item model", iden, item_id, dataBrg, currentLog, mapSTF02HRecnum_IndexVariasi);
+                    await AddModelVariation_V2(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Add item model", iden, item_id, dataBrg, currentLog, mapSTF02HRecnum_IndexVariasi);
 #else
                     string EDBConnID = EDB.GetConnectionString("ConnId");
                     var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -9599,7 +9620,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Variasi Product {obj} ke Shopee Gagal.")]
-        public async Task<string> AddModelVariation_V2(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, long item_id, ShopeeInitTierVariation_V2 dataBrg, API_LOG_MARKETPLACE currentLog,Dictionary<string, int> mapSTF02HRecnum_IndexVariasi)
+        public async Task<string> AddModelVariation_V2(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, long item_id, ShopeeInitTierVariation_V2 dataBrg, API_LOG_MARKETPLACE currentLog, Dictionary<string, int> mapSTF02HRecnum_IndexVariasi)
         {
             string ret = "";
             SetupContext(iden);
@@ -9725,6 +9746,28 @@ namespace MasterOnline.Controllers
                                 }
                             }
 
+                            #region update price and stok
+
+                            var listBrg = EDB.GetDataSet("MOConnectionString", "STF02", "SELECT A.BRG, BRG_MP, B.HJUAL FROM STF02 A INNER JOIN STF02H B ON A.BRG = B.BRG WHERE PART = '" + kodeProduk + "' AND IDMARKET = " + tblCustomer.RecNum + " AND ISNULL(BRG_MP, '') <> ''");
+                            if (listBrg.Tables[0].Rows.Count > 0)
+                            {
+                                StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+                                for (int i = 0; i < listBrg.Tables[0].Rows.Count; i++)
+                                {
+#if (Debug_AWS || DEBUG)
+                                    await UpdatePrice_Job_V2(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, log_ActionCategory, log_ActionName,
+                                        listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), iden, float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString()));
+                                    if (tblCustomer.TIDAK_HIT_UANG_R)
+                                        Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null)).Wait();
+#else
+                                    client.Enqueue<ShopeeControllerJob>(x => x.UpdatePrice_Job_V2(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, 
+                                        log_ActionCategory, log_ActionName, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), iden, float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString())));
+                                    if (tblCustomer.TIDAK_HIT_UANG_R)
+                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null));
+#endif
+                                }
+                            }
+                            #endregion
                             if (currentLog != null)
                             {
                                 manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
@@ -10795,6 +10838,127 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
+        [NotifyOnFailed("Update Harga Jual Produk {obj} ke Shopee gagal.")]
+        public async Task<string> UpdatePrice_Job_V2(string dbPathEra, string kdbrgMO, string log_CUST, string log_ActionCategory, string log_ActionName, string brg_mp, ShopeeAPIData iden, float price)
+        {
+            SetupContext(iden);
+            iden = await RefreshTokenShopee_V2(iden, false);
+
+            string ret = "";
+
+            long seconds = CurrentTimeSecond();
+
+            int MOPartnerID = MOPartnerIDV2;
+            string MOPartnerKey = MOPartnerKeyV2;
+            string urll = shopeeV2Url;
+            string path = "/api/v2/product/update_price";
+
+            var baseString = MOPartnerID + path + seconds + iden.token + iden.merchant_code;
+            var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
+
+            string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds + "&sign=" + sign
+                + "&access_token=" + iden.token + "&shop_id=" + iden.merchant_code;
+
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "Update Price V2", //ganti
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_STATUS = "Pending",
+            };
+
+            string[] brg_mp_split = brg_mp.Split(';');
+
+            string myData = "{ \"price_list\": [{ \"model_id\":" + brg_mp_split[1] + ", \"original_price\":" + price + " }], \"item_id\":" + brg_mp_split[0] + " }";
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            }
+            catch (Exception ex)
+            {
+                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                throw new Exception(currentLog.REQUEST_EXCEPTION);
+            }
+
+            if (responseFromServer != "")
+            {
+                try
+                {
+                    var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeUpdatePriceResponse)) as ShopeeUpdatePriceResponse;
+                    if (!string.IsNullOrEmpty(resServer.error))
+                    {
+                        currentLog.REQUEST_EXCEPTION = resServer.message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        throw new Exception(resServer.message);
+                    }
+                    if(resServer.response.failure_list != null)
+                    {
+                        if(resServer.response.failure_list.Length > 0)
+                        {
+                            currentLog.REQUEST_EXCEPTION = resServer.response.failure_list[0].failed_reason;
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                            throw new Exception(resServer.response.failure_list[0].failed_reason);
+                        }
+                    }
+                    //add 19 sept 2020, update harga massal
+                    if (log_ActionName.Contains("UPDATE_MASSAL"))
+                    {
+                        var dataLog = log_ActionName.Split('_');
+                        if (dataLog.Length >= 4)
+                        {
+                            var nobuk = dataLog[2];
+                            var indexData = Convert.ToInt32(dataLog[3]);
+                            var log_b = ErasoftDbContext.LOG_HARGAJUAL_B.Where(m => m.NO_BUKTI == nobuk && m.NO_FILE == indexData).FirstOrDefault();
+                            if (log_b != null)
+                            {
+                                var currentProgress = log_b.KET.Split('/');
+                                if (currentProgress.Length == 2)
+                                {
+                                    log_b.KET = (Convert.ToInt32(currentProgress[0]) + 1) + "/" + currentProgress[1];
+                                    ErasoftDbContext.SaveChanges();
+                                }
+                            }
+                        }
+                    }
+                    //end add 19 sept 2020, update harga massal
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                }
+                catch (Exception ex2)
+                {
+                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                    throw new Exception(currentLog.REQUEST_EXCEPTION);
+                }
+            }
+            return ret;
+        }
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("1_create_product")]
         [NotifyOnFailed("Create Variasi Product {obj} ke Shopee Berhasil. Update Harga Produk.")]
         public async Task<string> UpdateVariationPrice(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string brg_mp, float price)
         {
@@ -11021,7 +11185,7 @@ namespace MasterOnline.Controllers
             {
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
-                urll =  shopeeV2Url + "/api/v1/item/img/update";
+                urll = shopeeV2Url + "/api/v1/item/img/update";
                 iden = await RefreshTokenShopee_V2(iden, false);
             }
             string ret = "";
@@ -13266,7 +13430,36 @@ namespace MasterOnline.Controllers
             public string request_id { get; set; }
             public string error { get; set; }
         }
+        #region shopee update price response
 
+        public class ShopeeUpdatePriceResponse
+        {
+            public string error { get; set; }
+            public string message { get; set; }
+            public string warning { get; set; }
+            public string request_id { get; set; }
+            public ShopeeUpdatePrice response { get; set; }
+        }
+
+        public class ShopeeUpdatePrice
+        {
+            public ShopeeUpdatePriceFailure_List[] failure_list { get; set; }
+            public ShopeeUpdatePriceSuccess_List[] success_list { get; set; }
+        }
+
+        public class ShopeeUpdatePriceFailure_List
+        {
+            public long model_id { get; set; }
+            public string failed_reason { get; set; }
+        }
+
+        public class ShopeeUpdatePriceSuccess_List
+        {
+            public long model_id { get; set; }
+            public float original_price { get; set; }
+        }
+
+        #endregion
         public class ItemVariation
         {
             public string status { get; set; }

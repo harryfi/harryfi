@@ -2835,6 +2835,22 @@ namespace MasterOnline.Controllers
             {
                 if (dataAPI.token_expired < DateTime.UtcNow.AddHours(7).AddMinutes(30))
                 {
+                    var cekInDB = ErasoftDbContext.ARF01.Where(m => m.CUST == dataAPI.no_cust).FirstOrDefault();
+                    if (cekInDB != null)
+                    {
+                        if (dataAPI.token != cekInDB.TOKEN)
+                        {
+                            dataAPI.refresh_token = cekInDB.REFRESH_TOKEN;
+                            dataAPI.tgl_expired = cekInDB.TGL_EXPIRED.Value;
+                            dataAPI.token_expired = cekInDB.TOKEN_EXPIRED.Value;
+                            dataAPI.token = cekInDB.TOKEN;
+
+                            if (cekInDB.TOKEN_EXPIRED.Value.AddMinutes(-30) > DateTime.UtcNow.AddHours(7))
+                            {
+                                return dataAPI;
+                            }
+                        }
+                    }
                     TokenExpired = true;
                 }
             }
