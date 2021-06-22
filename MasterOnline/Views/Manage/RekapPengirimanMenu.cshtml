@@ -63,6 +63,10 @@
     <link type="text/css" href="~/Content/build/css/bootstrap-timepicker.css" />
     <link href="~/Content/selectize.css" rel="stylesheet" />
     <style>
+        .dropdown-menu > li > a {
+            font-size: 14px !important;
+        }
+
         .user-link {
             text-decoration: underline;
         }
@@ -201,10 +205,20 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4 col-xs-12">
+    <div class="col-md-5 col-xs-12">
         <div class="x_panel">
             <div class="x_title">
                 <h2>Sudah Serah Terima</h2>
+                <div class="dropdown pull-right" @*style="padding-top:1.8em;"*@>
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownTgl" data-toggle="dropdown">
+                        <span id="mode_tgl" style="color:black !important">Tgl Serah Terima</span>
+                        <span class="caret" style="color:black !important"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownTgl" style="color:black !important;">
+                        <li><a onclick="refreshTableDashboardSudahDO(1)">Tgl Serah Terima</a></li>
+                        <li><a onclick="refreshTableDashboardSudahDO(2)">Tgl Pesanan</a></li>
+                    </ul>
+                </div>
                 <div class="clearfix"></div>
             </div>
             <div class="x_content">
@@ -1284,10 +1298,17 @@
                 });
             }
         }
-        function refreshTableDashboardSudahDO() {
-            var $link = '@Html.Raw(Url.Action("refreshTableDashboardSudahDO", "Manage", new { drTgl = "replacedrTgl", sdTgl = "replacesdTgl" }))';
+        function refreshTableDashboardSudahDO(status) {
+            if (status === 2) {
+                $('#mode_tgl').text('Tgl Pesanan');
+            } else { //(status === 1) {
+                $('#mode_tgl').text('Tgl Serah Terima');
+            } 
+
+            var $link = '@Html.Raw(Url.Action("refreshTableDashboardSudahDO", "Manage", new { drTgl = "replacedrTgl", sdTgl = "replacesdTgl", tgl = "replaceTgl" }))';
             $link = $link.replace("replacedrTgl", encodeURIComponent($('#DrTanggalAfter').val()));
             $link = $link.replace("replacesdTgl", encodeURIComponent($('#SdTanggalAfter').val()));
+            $link = $link.replace("replaceTgl", encodeURIComponent(status));
 
             $.ajax({
                 type: "GET",
@@ -2394,7 +2415,36 @@
         }
 
 
+        //add by nurul 22/6/2021
+        @*function changeTglMode(status) {
+            if (status === 2) {
+                $('#mode_tgl').text('Tgl Pesanan');
+            } else //(status === 1) {
+                $('#mode_tgl').text('Tgl Serah Terima');
+            } 
+                                     
+            var $link = '@Html.Raw(Url.Action("refreshTableDashboardSudahDO", "Manage", new { drTgl = "replacedrTgl", sdTgl = "replacesdTgl", tgl = "replaceTgl" }))';
+            $link = $link.replace("replacedrTgl", encodeURIComponent($('#DrTanggalAfter').val()));
+            $link = $link.replace("replacesdTgl", encodeURIComponent($('#SdTanggalAfter').val()));
+            $link = $link.replace("replaceTgl", encodeURIComponent(status));
 
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-dashboard-sudah-do').hide();
+                },
+                success: function (response) {
+                    $('#table-dashboard-sudah-do').html(response);
+                    $('#table-dashboard-sudah-do').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+                
+        }*@
+        //end add by nurul 22/6/2021
     </script>
     <script>
         //Disable Enter Key Submit Form

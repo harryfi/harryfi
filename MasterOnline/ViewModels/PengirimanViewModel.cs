@@ -78,6 +78,7 @@ namespace MasterOnline.ViewModels
 
         public int? kirimId { get; set; }
         public string modeEditDO { get; set; }
+        public string typeDasboard { get; set; }
     }
     public class SerahTerima
     {
