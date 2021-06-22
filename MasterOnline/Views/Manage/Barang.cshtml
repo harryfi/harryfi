@@ -3813,7 +3813,7 @@
                             $(fieldCategoryCode).val(ListHargaJualPermarketView[0]['CATEGORY_CODE']);
 
                             var fieldCategoryCodeValue = $(fieldCategoryCode).val();
-                            FuncGetKategoriShopeeByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView);
+                            FuncGetKategoriShopeeByChildCode(fieldCategoryCodeValue, listMarketRecNum, fieldCategoryCode, ListHargaJualPermarketView);
                         }
 
                     }
@@ -3824,9 +3824,10 @@
                 }
             }
         }
-        function FuncGetKategoriShopeeByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
+        function FuncGetKategoriShopeeByChildCode(fieldCategoryCodeValue, listMarketRecNum, fieldCategoryCode, ListHargaJualPermarketView){
             var link = '@Url.Action("GetKategoriShopeeByChildCode", "Manage", new { code = "replaceCode" })';
             link = link.replace("replaceCode", encodeURIComponent(fieldCategoryCodeValue));
+            link += "&recnumArf01=" + encodeURIComponent(listMarketRecNum);
 
             $.ajax({
                 type: "GET",
@@ -3861,6 +3862,7 @@
         function FuncGetKategoriShopeeByCode(selectCategoryShopeeID,listMarket_i_Kode,listMarket_i_RecNum,nextselectID,categoryShopeeSelanjutnya,fieldCategoryCode,fieldCategoryName,listMarketRecNum){
             var link = '@Url.Action("GetKategoriShopeeByCode", "Manage", new { code = "replaceCode" })';
             link = link.replace("replaceCode", encodeURIComponent(listMarket_i_Kode));
+            link += "&recnumArf01=" + encodeURIComponent(listMarket_i_RecNum);
 
             //buat select pertama
             var nextselect = '<select id="'+ selectCategoryShopeeID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select>';
@@ -3916,9 +3918,10 @@
                 getAttributeShopee(values[0],listMarketRecNum,fieldCategoryCode,null);
             }
         }
-        function getKategoriSelanjutnyaShopee(categoryCode,listMarketRecNum,SelectID,next,fieldCategoryCode,fieldCategoryName){
-            var link = '@Url.Action("GetKategoriShopeeByParentCode", "Manage", new { code = "replaceCode" })';
+        function getKategoriSelanjutnyaShopee(categoryCode, listMarketRecNum, SelectID, next, fieldCategoryCode, fieldCategoryName, listMarket_i_RecNum){
+            var link = '@Url.Action("GetKategoriShopeeByParentCode", "Manage", new { code = "replaceCode"})';
             link = link.replace("replaceCode", encodeURIComponent(categoryCode));
+            link += "&recnumArf01=" + encodeURIComponent(listMarketRecNum);
 
             var nextselectID = "Category_Shopee_"+ next +"_" + listMarketRecNum;
             var categoryShopeeSelanjutnya =  '#category_shopee_selanjutnya_' + listMarketRecNum;
@@ -3981,6 +3984,7 @@
                     var loop = 0;
                     var fieldAVALUE = "";
                     var SelectList = [];
+                    var SelectUnitList = [];
                     $.each(data.attributes,
                         function (i, item) {
                             for (var i = 0; i < 30; i++) {
@@ -3988,11 +3992,12 @@
                                 var ATYPE = item["ATYPE_" + (i + 1)];
                                 var ANAME = item["ANAME_" + (i + 1)];
                                 var AOPTIONS = item["AOPTIONS_" + (i + 1)];
+                                var AUNITS = item["AUNIT_" + (i + 1)];
                                 var AMANDATORY = item["AMANDATORY_" + (i + 1)];
                                 if (ACODE != null) {
                                     if (ACODE != "") {
 
-                                        var label = '<label class="control-label">' + ANAME;
+                                        var label = '<label class="control-label" style="text-align: left;">' + ANAME;
                                         if (AMANDATORY == "1") {
                                             label += '*';
                                         }
@@ -4003,9 +4008,11 @@
                                         fieldAVALUE += '<div class="col-md-2">' + label + fieldACODE + fieldANAME + '</div>'
                                         //$('#attribute_shopee_' + listMarketRecNum).append('<div class="col-md-2" style="margin-top:10px;">' + label + fieldACODE + fieldANAME + '</div>');
 
-                                        var fieldAVALUE_ID = 'ListHargaJualPermarket_'+ listmarket_i +'__AVALUE_'+ (i + 1);
+                                        var fieldAVALUE_ID = 'ListHargaJualPermarket_' + listmarket_i + '__AVALUE_' + (i + 1);
+                                        var fieldAUNIT_ID = 'ListHargaJualPermarket_' + listmarket_i + '__AUNIT_' + (i + 1);
 
                                         var adaValue = "";
+                                        var adaValueUnit = "";
                                         if (ListHargaJualPermarketView != null) {
                                             if (ListHargaJualPermarketView.length > 0) {
                                                 //change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
@@ -4014,6 +4021,9 @@
                                                 if (keyName != undefined) {
                                                     keyName = keyName.replace('ANAME_','AVALUE_');
                                                     adaValue = ListHargaJualPermarketView[0][keyName];
+
+                                                    keyNameUnit = keyName.replace('AVALUE_', 'AUNIT_');
+                                                    adaValueUnit = ListHargaJualPermarketView[0][keyNameUnit];
                                                 }
                                                 //end change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
                                             }
@@ -4021,30 +4031,78 @@
 
                                         if (AOPTIONS == "1")
                                         {
-                                            //hidden
-                                            fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="'+ fieldAVALUE_ID + '" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE_'+ (i + 1) + '" value="'+ adaValue +'" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
+                                            if (AUNITS != "1") {
+                                                //hidden
+                                                fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
 
-                                            //select
-                                            var selectID = 'attribute_select_shopee_'+ listMarketRecNum +'_'+ (i + 1);
-                                            SelectList.push(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue, ATYPE);
-                                            //change by calvin 1 maret 2019
-                                            //fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
-                                            if (AMANDATORY == "1") {
-                                                fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                                //select
+                                                var selectID = 'attribute_select_shopee_' + listMarketRecNum + '_' + (i + 1);
+                                                SelectList.push(ACODE, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, ATYPE);
+                                                //change by calvin 1 maret 2019
+                                                //fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                                if (AMANDATORY == "1") {
+                                                    fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                                }
+                                                else {
+                                                    fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih"></select></div>';
+                                                }
+                                                //end change by calvin 1 maret 2019
                                             }
                                             else {
-                                                fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih"></select></div>';
+                                                //hidden
+                                                fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
+
+                                                //select
+                                                var selectID = 'attribute_select_shopee_' + listMarketRecNum + '_' + (i + 1);
+                                                SelectList.push(ACODE, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, ATYPE);
+                                                //change by calvin 1 maret 2019
+                                                //fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                                if (AMANDATORY == "1") {
+                                                    fieldAVALUE += '<div class="col-md-2"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                                }
+                                                else {
+                                                    fieldAVALUE += '<div class="col-md-2"><select id="' + selectID + '" placeholder="Harap pilih"></select></div>';
+                                                }
+                                                //end change by calvin 1 maret 2019
+                                                //add 3 jun 2021, attr unit for shopee v2
+                                                //hidden
+                                                fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAUNIT_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AUNIT_' + (i + 1) + '" value="' + adaValueUnit + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
+
+                                                var selectUnitID = 'attribute_unit_select_shopee_' + listMarketRecNum + '_' + (i + 1);
+                                                SelectUnitList.push(ACODE, listMarketRecNum, selectUnitID, fieldAUNIT_ID, adaValueUnit, ATYPE);
+
+                                                fieldAVALUE += '<div class="col-md-2"><select id="' + selectUnitID + '" placeholder="Harap pilih"></select></div>';
+                                                //end add 3 jun 2021, attr unit for shopee v2
                                             }
-                                            //end change by calvin 1 maret 2019
                                         }
                                         else
                                         {
-                                            //textbox
-                                            if (AMANDATORY == "1") {
-                                                fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-valid-toggle-required="1" required="required" data-val-required="This field is required." data-val="true" class="form-control" data-val-length-max="250" id="'+ fieldAVALUE_ID +'" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE_'+ (i + 1) + '" value="'+ adaValue +'" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                            if (AUNITS != "1") {
+                                                //textbox
+                                                if (AMANDATORY == "1") {
+                                                    fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-valid-toggle-required="1" required="required" data-val-required="This field is required." data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                                }
+                                                else {
+                                                    fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                                }
                                             }
-                                            else {
-                                                fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" class="form-control" data-val-length-max="250" id="'+ fieldAVALUE_ID +'" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE_'+ (i + 1) + '" value="'+ adaValue +'" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                            else {//textbox
+                                                if (AMANDATORY == "1") {
+                                                    fieldAVALUE += '<div class="col-md-2 form-group"><input type="text" data-valid-toggle-required="1" required="required" data-val-required="This field is required." data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                                }
+                                                else {
+                                                    fieldAVALUE += '<div class="col-md-2"><input type="text" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                                }
+                                                //add 3 jun 2021, attr unit for shopee v2
+                                                //hidden
+                                                fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAUNIT_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AUNIT_' + (i + 1) + '" value="' + adaValueUnit + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
+
+                                                var selectUnitID = 'attribute_unit_select_shopee_' + listMarketRecNum + '_' + (i + 1);
+                                                SelectUnitList.push(ACODE, listMarketRecNum, selectUnitID, fieldAUNIT_ID, adaValueUnit, ATYPE);
+
+                                                fieldAVALUE += '<div class="col-md-2"><select id="' + selectUnitID + '" placeholder="Harap pilih"></select></div>';
+                                                //end add 3 jun 2021, attr unit for shopee v2
+
                                             }
                                         }
 
@@ -4066,13 +4124,21 @@
                                             fieldAVALUE = "";
                                             loop = 2;
                                             for (var i = 0; i < (SelectList.length / 6); i++) {
-                                                getAttributeOptionShopee(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], data.attribute_opts);
+                                                getAttributeOptionShopee(SelectList[(i * 6) + 0], SelectList[(i * 6) + 1], SelectList[(i * 6) + 2], SelectList[(i * 6) + 3], SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], data.attribute_opts, data.attribute_opts_v2);
+                                            }
+
+                                            for (var j = 0; j < (SelectUnitList.length / 6); j++) {
+                                                getAttributeUnitShopee(SelectUnitList[(j * 6) + 0], SelectUnitList[(j * 6) + 1], SelectUnitList[(j * 6) + 2], SelectUnitList[(j * 6) + 3], SelectUnitList[(j * 6) + 4], SelectUnitList[(j * 6) + 5], data.attribute_unit);
                                             }
                                         }
                                         else if (loop == 0) {
                                             loop = 2;
                                             for (var i = 0; i < (SelectList.length / 6); i++) {
-                                                getAttributeOptionShopee(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], data.attribute_opts);
+                                                getAttributeOptionShopee(SelectList[(i * 6) + 0], SelectList[(i * 6) + 1], SelectList[(i * 6) + 2], SelectList[(i * 6) + 3], SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], data.attribute_opts, data.attribute_opts_v2);
+                                            }
+
+                                            for (var j = 0; j < (SelectUnitList.length / 6); j++) {
+                                                getAttributeUnitShopee(SelectUnitList[(j * 6) + 0], SelectUnitList[(j * 6) + 1], SelectUnitList[(j * 6) + 2], SelectUnitList[(j * 6) + 3], SelectUnitList[(j * 6) + 4], SelectUnitList[(j * 6) + 5], data.attribute_unit);
                                             }
                                         }
                                     }
@@ -4083,13 +4149,21 @@
                                         fieldAVALUE = "";
                                         loop = 2;
                                         for (var i = 0; i < (SelectList.length / 6); i++) {
-                                            getAttributeOptionShopee(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], data.attribute_opts);
+                                            getAttributeOptionShopee(SelectList[(i * 6) + 0], SelectList[(i * 6) + 1], SelectList[(i * 6) + 2], SelectList[(i * 6) + 3], SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], data.attribute_opts, data.attribute_opts_v2);
+                                        }
+
+                                        for (var j = 0; j < (SelectUnitList.length / 6); j++) {
+                                            getAttributeUnitShopee(SelectUnitList[(j * 6) + 0], SelectUnitList[(j * 6) + 1], SelectUnitList[(j * 6) + 2], SelectUnitList[(j * 6) + 3], SelectUnitList[(j * 6) + 4], SelectUnitList[(j * 6) + 5], data.attribute_unit);
                                         }
                                     }
                                     else if (loop == 0) {
                                         loop = 2;
                                         for (var i = 0; i < (SelectList.length / 6); i++) {
-                                            getAttributeOptionShopee(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], data.attribute_opts);
+                                            getAttributeOptionShopee(SelectList[(i * 6) + 0], SelectList[(i * 6) + 1], SelectList[(i * 6) + 2], SelectList[(i * 6) + 3], SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], data.attribute_opts, data.attribute_opts_v2);
+                                        }
+
+                                        for (var j = 0; j < (SelectUnitList.length / 6); j++) {
+                                            getAttributeUnitShopee(SelectUnitList[(j * 6) + 0], SelectUnitList[(j * 6) + 1], SelectUnitList[(j * 6) + 2], SelectUnitList[(j * 6) + 3], SelectUnitList[(j * 6) + 4], SelectUnitList[(j * 6) + 5], data.attribute_unit);
                                         }
                                     }
                                 }
@@ -4102,7 +4176,7 @@
             });
         }
 
-        function getAttributeOptionShopee(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue,ATYPE,optAttributes){
+        function getAttributeOptionShopee(ACODE, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, ATYPE, optAttributes, attribute_opts_v2){
             @*var link = '@Url.Action("GetAttributeOptShopee", "Manage", new { code = "replaceCode" })';
             link = link.replace("replaceCode", ACODE);
 
@@ -4113,16 +4187,25 @@
                 cache: false,
                 success: function (data) {*@
             var listAttributeOpt = [];
-            $.each(optAttributes.filter(p=>p.ACODE == ACODE),
-                function (i, item) {
-                    listAttributeOpt[i] = {
-                        id: item.OPTION_VALUE,
-                        text: item.OPTION_VALUE
-                    };
-                });
-
-            if (ATYPE == "DEFINING_ATTRIBUTE") {
-
+            if (attribute_opts_v2 == null) {
+                $.each(optAttributes.filter(p => p.ACODE == ACODE),
+                    function (i, item) {
+                        listAttributeOpt[i] = {
+                            id: item.OPTION_VALUE,
+                            text: item.OPTION_VALUE
+                        };
+                    });
+            } else {
+                $.each(attribute_opts_v2.filter(p => p.ACODE == ACODE),
+                    function (i, item) {
+                        listAttributeOpt[i] = {
+                            id: item.OPTION_VALUE,
+                            text: item.OPTION_NAME
+                        };
+                    });
+            }
+            //if (ATYPE == "DEFINING_ATTRIBUTE") {
+            if (ATYPE.includes("MULTIPLE_SELECT")) {
                 var AttributeOptSelectMultiple = $('#' + selectID).selectize({
                     maxItems : 7,
                     valueField: 'id',
@@ -4158,6 +4241,39 @@
             //        console.log(xhr);
             //    }
             //});
+        }
+        function getAttributeUnitShopee(ACODE, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, ATYPE, optAttributes) {
+           
+            var listAttributeOpt = [];
+            var defaultVal = "";
+            $.each(optAttributes.filter(p => p.ACODE == ACODE),
+                function (i, item) {
+                    listAttributeOpt[i] = {
+                        id: item.OPTION_VALUE,
+                        text: item.OPTION_VALUE
+                    };
+                    if (defaultVal == "") {
+                        defaultVal = item.OPTION_VALUE
+                    }
+                });
+                    
+
+            var AttributeOptSelect = $('#' + selectID).selectize({
+                valueField: 'id',
+                searchField: 'text',
+                options: listAttributeOpt,
+                onChange: function (value) {
+                    $('#' + fieldAVALUE_ID).val(value);
+                }
+            });
+
+            if (adaValue != "" && adaValue != null) {
+                AttributeOptSelect[0].selectize.setValue(adaValue, true);
+            }
+            else {
+                AttributeOptSelect[0].selectize.setValue(defaultVal, false);
+            }
+        
         }
         //END ADD BY CALVIN 18 DESEMBER 2018
 
@@ -5263,9 +5379,24 @@
                             $('#div_detail_' + data_ar_recnum + ' :input[data-valid-toggle-required="1"]').each(function () {
                                 var $this = $(this);
                                 var $value = $this.val();
-
-                                if ($value == '' || isEmptyOrSpaces($value)) {
-                                    IsValid = false;
+                                if (!Array.isArray($value)) {
+                                    if ($value == '' || isEmptyOrSpaces($value)) {
+                                        IsValid = false;
+                                    }
+                                }
+                                else {
+                                    if ($value.length > 0) {
+                                        //$value.forEach(function () {
+                                        //    var $value2 = $(this);
+                                        //    //var $value2 = $this2.val();
+                                        //    if ($value2 == '' || isEmptyOrSpaces($value2)) {
+                                        //        IsValid = false;
+                                        //    }
+                                        //});
+                                    }
+                                    else {
+                                        IsValid = false;
+                                    }
                                 }
                             });
 
@@ -5920,6 +6051,35 @@
             $('#ListHargaJualPermarket_' + PromptBrandBlibliTextBox + '__ANAME_38').val(name);
         }
         //END ADD BY CALVIN 20 SEPTEMBER 2019, PROMPT LAZADA BLIBLI
+
+        //ADD BY  TRI 20 MEI 2021, PROMPT SHOPEE
+        var PromptBrandShopeeTextBox = "";
+        function PromptBrandShopee(i, r) {
+            PromptBrandShopeeTextBox = i;
+            //debugger;
+            var getCategory = $('#ListHargaJualPermarket_' + i + '__CATEGORY_CODE');
+            if ($(getCategory).val() != "" && $(getCategory).val() != null && $(getCategory).val() != undefined) {
+                var ValueCategory = $(getCategory).val();
+                showPromptBrandShopeeTextBoxWindow(ValueCategory, r);
+            }
+            else {
+                alert('Silahkan pilih kategori shopee terlebih dahulu.');
+            }
+        }
+
+        function showPromptBrandShopeeTextBoxWindow(valueCategory, val) {
+            var $link = '@Html.Raw(Url.Action("PromptBrandShopee", "Manage", new { merchant_code = "replaceKodeMerchant", category = "replaceCategory" }))';
+
+            $link = $link.replace("replaceCategory", valueCategory);
+            $link = $link.replace("replaceKodeMerchant", val);
+            window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+        }
+        function afterPromptBrandShopee(val,name) {
+            $('#Brand' + PromptBrandShopeeTextBox + 'Shopee').val(name);
+            $('#ListHargaJualPermarket_' + PromptBrandShopeeTextBox + '__AVALUE_38').val(val);
+            $('#ListHargaJualPermarket_' + PromptBrandShopeeTextBox + '__ANAME_38').val(name);
+        }
+        //END ADD BY TRI 20 MEI 2021, PROMPT SHOPEE
 
         //add by fauzi for 82Cart
         var PromptCategory82CartTextBox = "";

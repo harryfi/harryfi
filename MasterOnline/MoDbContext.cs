@@ -67,6 +67,7 @@ namespace MasterOnline
         public DbSet<Addons> Addons { get; set; }
         public DbSet<Addons_Customer> Addons_Customer { get; set; }
 
+        public DbSet<CATEGORY_SHOPEE_V2> CategoryShopeeV2 { get; set; }
         public MoDbContext()
             : base("name=MoDbContext")
         {

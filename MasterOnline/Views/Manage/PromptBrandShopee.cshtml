@@ -1,0 +1,119 @@
+﻿@{
+    ViewBag.Title = "Prompt Brand Shopee";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+}
+<style>
+
+    .top_nav {
+        display: none !important;
+    }
+
+    .close-btn {
+        display: none;
+    }
+    #loading_prompt_1 {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        z-index: 100;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0,0,0,0);
+    }
+
+    #loading_prompt_image {
+        width: 20px;
+        height: 20px;
+        margin-top: -90px;
+        margin-left: -90px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        border-width: 30px;
+        border-radius: 50%;
+    }
+</style>
+<div>
+    <div class="row">
+        <div class="col-lg-4 col-sm-6">
+            <div class="input-group">
+                <input id="search_prompt" type="text" class="form-control" placeholder="Pencarian">
+                <input id="txt_cust" type="hidden" class="form-control" value="@ViewData["cust"]">
+                <input id="txt_category" type="hidden" class="form-control" value="@ViewData["category"]">
+                <span class="input-group-btn" style="display:none">
+                    <button type="button" id="search_prompt_btn" class="btn btn-primary">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div id="loading_prompt_1">
+        <div id="loading_prompt_image">
+            <img src="~/Content/Images/spinner.gif" />
+        </div>
+    </div>
+    <div class="row" style="margin-top: 5px;">
+        <div class="col-sm-12" id="divPartial">
+            @*@Html.Partial("TablePromptBrandBlibli")*@
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        refreshTablePrompt();
+    });
+
+    $('#search_prompt').keypress(function (e) {
+        var key = e.which;
+        if (key == 13)// the enter key code
+        {
+            refreshTablePrompt();
+            return false;
+        }
+    });
+    $('#search_prompt_btn').click(function () {
+        refreshTablePrompt();
+    });
+
+    function refreshTablePrompt() {
+        var $link = '@Html.Raw(Url.Action("RefreshBrandShopee", "Manage", new { category= "replaceCategory", cust = "replaceCust",page = "replaceLastPage", search = "replaceSearch" }))';
+
+        $link = $link.replace("replaceCategory", $('#txt_category').val());
+        $link = $link.replace("replaceCust", $('#txt_cust').val());
+        $link = $link.replace("replaceSearch", $('#search_prompt').val());
+        $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                //$('#divPartial').hide();
+                $('#loading_prompt_1').show();
+            },
+            success: function (response) {
+                $('#divPartial').html(response);
+                $('#loading_prompt_1').hide();
+                $('#loading_prompt').hide();
+                //$('#divPartial').show();
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+                $('#loading_prompt_1').hide();
+            }
+        });
+    }
+
+    function pilihPrompt(sender) {
+        let value = $(sender).attr('data-value');
+        let name = $(sender).attr('data-valuename');
+        self.window.close();
+        window.onunload = refreshTextBox;
+        function refreshTextBox() {
+            window.opener.afterPromptBrandShopee(value.toString(), name.toString());
+        }
+    }
+</script>

@@ -1516,7 +1516,7 @@
     @*<script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>*@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
-    <script type="text/javascript">
+<script type="text/javascript">
         var getLink = "";
         var $Sort1_Cust = "";
         var $API_CLIENT_U = "";
@@ -1896,6 +1896,9 @@
                                     lblDesc4.style.visibility = 'hidden';
                                 }
                                 else if (@shopee == value) {
+
+                                    getVersiShopee($('#Customers_KD_ANALISA').val());
+                                    $('#versi-blibli').show();
                                     lblDesc3.style.visibility = 'visible';
                                     lblDesc4.style.visibility = 'visible';
                                     lblDesc3.innerText = '1. Untuk dapat tersambung secara otomatis ke Shopee, Anda dapat melakukan save, dan akan dilanjutkan ke halaman shopee.';
@@ -2015,7 +2018,7 @@
                                     $('#descAPIKey').show();
                                     $('#descAPIKey2').show();
                                 }
-                                
+
                                 //end unremark by nurul 25/3/2019
 
                                 //end add by Tri, remove/append api_key
@@ -2157,7 +2160,15 @@
                                             //change by nurul 7/1/2019
                                             //GetShopeeShopId(custCode);
                                             if (confirm("Authorization Shopee account?")) {
-                                                GetShopeeShopId(custCode);
+                                                GetShopeeShopId(custCode, "V1");
+                                            }
+                                            //end change
+                                        }
+                                        else if (response.marketplace == "SHOPEE_V2") {
+                                            //change by nurul 7/1/2019
+                                            //GetShopeeShopId(custCode);
+                                            if (confirm("Authorization Shopee account?")) {
+                                                GetShopeeShopId(custCode, "V2");
                                             }
                                             //end change
                                         }
@@ -3003,7 +3014,14 @@
                         lblDesc3.style.visibility = 'visible';
                             lblDesc3.innerText = '1. Untuk dapat tersambung secara otomatis ke Shopee, Anda dapat melakukan save, dan akan dilanjutkan ke halaman shopee.';
                             lblDesc4.innerText = '';
-                            lblPopUp.style.visibility = 'hidden';
+                        lblPopUp.style.visibility = 'hidden';
+
+                        $('#Customers_KD_ANALISA').change(function () {
+                            getVersiShopee($('#Customers_KD_ANALISA').val());
+                        });
+                        $('#Customers_KD_ANALISA').val(response.Customers.KD_ANALISA);
+                        getVersiShopee($('#Customers_KD_ANALISA').val());
+                        $('#versi-blibli').show();
                     }
                     //end add by calvin, button for generate lazada code
 
@@ -3412,9 +3430,13 @@
         //end add by Tri, get link to generate lazada code
 
         //add by calvin 10 desember 2018
-        function GetShopeeShopId(kdCust) {
+        function GetShopeeShopId(kdCust, versiAPI) {
             //alert(kdCust);
-            var link = '@Url.Action("ShopeeUrl", "Shopee", new { cust = "replaceCust" })';
+            //var link = '@Url.Action("ShopeeUrl", "Shopee", new { cust = "replaceCust" })';
+            var link = '@Url.Action("ShopeeUrl_V2", "Shopee", new { cust = "replaceCust" })';
+            if (versiAPI == "V1") {
+                link = '@Url.Action("ShopeeUrl", "Shopee", new { cust = "replaceCust" })';
+            }
             link = link.replace("replaceCust", encodeURIComponent(kdCust));
 
             $.ajax({
@@ -3422,7 +3444,7 @@
                 url: link,
                 success: function (response) {
 
-                    var shpAuthPopUp = window.open(response, "Shopee Authentication", "width=600, height=600, scrollbars=yes");
+                    var shpAuthPopUp = window.open(response, "Shopee Authentication " + versiAPI, "width=600, height=600, scrollbars=yes");
                     var timer = setInterval(function () {
                         if (shpAuthPopUp.closed) {
                             clearInterval(timer);
@@ -3756,5 +3778,53 @@
             versiJD[0].selectize.setValue($('#Customers_KD_ANALISA').val(), true);
         }
         //end add by nurul 28/4/2021
-    </script>
+
+        //add by Tri 11/6/2021
+        function getVersiShopee(response) {
+            var resp = false;
+            if (response == "2") {
+                resp = "2";
+            } else {
+                resp = "1";
+            }
+            $('#Customers_KD_ANALISA').val(resp);
+            if ($('#Customers_CUST').val() == "") {
+                $('#Customers_KD_ANALISA').val("2");
+            }
+
+            var versiJD = $('#Customers_KD_ANALISA').selectize({
+                create: true,
+                maxItems: 1,
+                multiple: false,
+                addOption: false,
+                sortField: 'text',
+                valueField: 'value',
+                labelField: 'text',
+                searchField: ['text'],
+                options: [
+                    { value: "1", text: "V1", selected: true },
+                    { value: "2", text: "V2(BETA)", selected: true },
+                ],
+                selectedField: "selected",
+                //onInitialize: function () {
+                //this.trigger('change', resp);
+                //},
+                onChange: function (value) {
+                    if (value == "2") {
+                        $('#Customers_KD_ANALISA').val("2");
+                        versiJD[0].selectize.setValue(value, true);
+                        showHideJDForm(false);
+                    }
+                    else {
+                        $('#Customers_KD_ANALISA').val("1");
+                        versiJD[0].selectize.setValue(value, true);
+                        showHideJDForm(false);
+                    }
+                }
+            });
+            //versiBlibli[0].selectize.trigger('change', resp);
+            versiJD[0].selectize.setValue($('#Customers_KD_ANALISA').val(), true);
+        }
+        //end add by nurul 11/6/2021
+</script>
 }

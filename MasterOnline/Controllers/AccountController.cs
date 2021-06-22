@@ -1365,15 +1365,21 @@ namespace MasterOnline.Controllers
                     iden2.no_cust = tblCustomer.CUST;
                     iden2.tgl_expired = tblCustomer.TGL_EXPIRED;
 
+                    //remark, tidak perlu cek detail toko
                     // proses cek dan get token
-#if (AWS || DEV)
-                    client.Enqueue<ShopeeControllerJob>(x => x.GetTokenShopee(iden, false));
-#else
-                    Task.Run(() => new ShopeeControllerJob().GetTokenShopee(iden, false)).Wait();
-#endif
-
+                    //#if (AWS || DEV)
+                    //                    client.Enqueue<ShopeeControllerJob>(x => x.GetTokenShopee(iden, false));
+                    //#else
+                    //                    Task.Run(() => new ShopeeControllerJob().GetTokenShopee(iden, false)).Wait();
+                    //#endif
+                    //end remark, tidak perlu cek detail toko
+                    if (tblCustomer.KD_ANALISA == "2")
+                    {
+                        iden = await new ShopeeControllerJob().RefreshTokenShopee_V2(iden, false);
+                    }
                     // proses reminder expired token
                     if (!string.IsNullOrWhiteSpace(tblCustomer.TGL_EXPIRED.ToString()))
+                    //if (!string.IsNullOrWhiteSpace(tblCustomer.TGL_EXPIRED.ToString()) && (tblCustomer.KDHARGA ?? "") != "2")
                     {
                         var accFromMoDB = MoDbContext.Account.Single(a => a.DatabasePathErasoft == dbPathEra);
                         var connection_id_proses_checktoken = dbPathEra + "_proses_checktoken_expired_shopee_" + tblCustomer.CUST.ToString();

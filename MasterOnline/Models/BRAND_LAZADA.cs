@@ -37,4 +37,10 @@ namespace MasterOnline.Models
         public string attribute_name { get; set; }
     }
     //end add
+
+    public class BRAND_SHOPEE
+    {
+        public string brand_id { get; set; }
+        public string name { get; set; }
+    }
 }
