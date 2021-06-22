@@ -7538,6 +7538,10 @@ namespace MasterOnline.Controllers
             HttpBody.dimension.package_length = Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG);
             HttpBody.dimension.package_width = Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR);
             HttpBody.brand.brand_id = Convert.ToInt32(detailBrg.AVALUE_38);
+            if(HttpBody.brand.brand_id == 0)
+            {
+                HttpBody.brand.original_brand_name = detailBrg.ANAME_38;
+            }
             HttpBody.image.image_id_list = new List<string>();
             //add by calvin 10 mei 2019
             HttpBody.description = new StokControllerJob().RemoveSpecialCharacters(HttpBody.description);

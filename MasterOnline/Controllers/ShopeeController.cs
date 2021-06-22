@@ -2430,7 +2430,8 @@ namespace MasterOnline.Controllers
                             {
                                 CATEGORY_CODE = category,
                                 BRAND_ID = brand.brand_id.ToString(),
-                                NAME = brand.display_brand_name.Replace('\'', '`')
+                                //NAME = brand.display_brand_name.Replace('\'', '`')
+                                NAME = brand.original_brand_name.Replace('\'', '`')
                             };
                             if (ErasoftDbContext.TEMP_SHOPEE_BRAND.Where(m => m.CATEGORY_CODE == category && m.BRAND_ID == newData.BRAND_ID).ToList().Count == 0)
                             {
