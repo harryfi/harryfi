@@ -448,6 +448,16 @@ namespace MasterOnline.Controllers
                         if (listBrg.response != null)
                         {
                             var listBrgMP = new List<string>();
+                            if(listBrg.response.item == null)
+                            {
+                                ret.nextPage = 0;
+                                if (display)
+                                {
+                                    ret.nextPage = 1;
+                                    ret.message = "MOVE_TO_INACTIVE_PRODUCTS";
+                                }
+                                return ret;
+                            }
                             foreach (var lis in listBrg.response.item)
                             {
                                 listBrgMP.Add(lis.item_id.ToString() + ";0");
@@ -502,6 +512,11 @@ namespace MasterOnline.Controllers
                         else
                         {
                             ret.nextPage = 0;
+                            if (display)
+                            {
+                                ret.nextPage = 1;
+                                ret.message = "MOVE_TO_INACTIVE_PRODUCTS";
+                            }
                         }
                     }
                     else
