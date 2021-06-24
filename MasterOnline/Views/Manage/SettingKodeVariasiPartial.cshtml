@@ -4,6 +4,7 @@
 @{
     var MapKodeVarTemp = Model.MapKodeVariasiTemp.ToList();
     var MapNamaVarTemp = Model.MapNamaVariasiTemp.ToList();
+    var ListBarangVarian = Model.ListBarangVarian.ToList();
 }
 <script type="text/javascript">
     function AutoKodeVariasiPartial() {
@@ -52,6 +53,12 @@
         {
             <label style="color:red;">Barang induk ini sudah ada transaksi dan posting, tidak bisa dibuat menjadi barang varian.</label>
         }
+        <datalist id="brg_var">
+            @foreach(var kodeVarian in ListBarangVarian)
+            {
+                <option>@kodeVarian</option>
+            }
+        </datalist>
         <table id="table_setting_kode_variasi" class="table table-bordered" role="grid">
             <thead>
                 <tr>
@@ -68,7 +75,7 @@
                         </td>
                         <td>
                             <div class="form-group">
-                                @Html.TextBox("txtNamaUntukVariasi_" + Variasi.Key, "", new { @class = "form-control", required = "required", maxlength = "20", data_jenis = "kode_var", data_kode_barang = Variasi.Key, @data_val_length_max = 20 })
+                                @Html.TextBox("txtNamaUntukVariasi_" + Variasi.Key, "", new { @class = "form-control", required = "required", maxlength = "20", list = "brg_var", data_jenis = "kode_var", data_kode_barang = Variasi.Key, @data_val_length_max = 20 })
                             </div>
                         </td>
                     </tr>
@@ -100,5 +107,5 @@
 
         }
 
-        </div>
+    </div>
 </div>
