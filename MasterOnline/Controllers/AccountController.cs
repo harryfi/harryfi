@@ -1765,6 +1765,24 @@ namespace MasterOnline.Controllers
             }
             #endregion
 
+            #region Accurate
+#if AWS
+	        string idaddon = "7";
+#else
+            string idaddon = "1003";
+#endif
+            string emailUserAol = MoDbContext.Account.SingleOrDefault(a => a.DatabasePathErasoft == dbPathEra).Email;
+            var partnerApi = LocalErasoftDbContext.PARTNER_API.FirstOrDefault(p => p.PartnerId == 20007 && p.Status == true);
+            if (partnerApi != null)
+            {
+                var checkAolAddons = MoDbContext.Addons_Customer.SingleOrDefault(a => a.Account == emailUserAol && DateTime.UtcNow.AddHours(7) < a.TglSubscription && a.ID_ADDON == idaddon);
+                if (checkAolAddons == null)
+                {
+                    LocalErasoftDbContext.Database.ExecuteSqlCommand("UPDATE PARTNER_API SET STATUS = 0 WHERE PartnerId = 20007");
+                }
+            }
+            #endregion
+
             return "";
         }
 
