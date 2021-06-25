@@ -1126,9 +1126,9 @@
                                             //add by nurul 15/7/2020
                                         <div class="form-group" id="versi-blibli" hidden="hidden">
                                             @Html.LabelFor(m => m.Customers.KD_ANALISA, "Versi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="col-md-6 col-sm-6 col-xs-12" id="divCBVersi">
                                                 @Html.HiddenFor(m => m.Customers.KD_ANALISA)
-                                                <select style="display:none" single class="selectize-dropdown single" id="Customers_KD_ANALISA" placeholder="Harap pilih"></select>
+                                                @*<select style="display:none" single class="selectize-dropdown single" id="Customers_KD_ANALISA" placeholder="Harap pilih"></select>*@
                                             </div>
                                         </div>
                                             //add by nurul 15/7/2020
@@ -1602,7 +1602,7 @@
                     $('#versi-blibli').hide();
                     $('#MARKET')[0].selectize.enable();
                 });
-                $('#MARKET')[0].selectize.enable();
+                //$('#MARKET')[0].selectize.enable();
             });
 
         //add by fauzi 06/12/2019
@@ -1703,6 +1703,8 @@
                             Customers_KODEPROV.value = '31';
                             //Customers_Sort1_Cust.value = '';
                             $('#Customers_Sort1_Cust').val('');
+                            $('#txt-nama-akun').val('');
+                            //$('#Customers_EMAIL').val('');
                             //Customers_API_CLIENT_U.value = '';
                             //Customers_API_CLIENT_P.value = '';
                             //Customers_API_KEY.value = '';
@@ -2248,10 +2250,12 @@
             $('#labelAPP_SECRET').remove();
             $('#txtAPP_SECRET').remove();
             //ADD BY NURUL 28/4/2021
-            $('#labelSort1_Cust').remove();
-            $('#txtSort1_Cust').remove();
+            //$('#labelSort1_Cust').remove();
+            //$('#txtSort1_Cust').remove();
             //END ADD BY NURUL 28/4/2021
             if (show) {
+                $('#labelSort1_Cust').remove();
+                $('#txtSort1_Cust').remove();
                 if ($('#Customers_KD_ANALISA').val() == "2") {
                     var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">Shop ID *</label>';
                     var valuetxtSort1_Cust = "";
@@ -2979,6 +2983,8 @@
 
                             $('#JDAppSecret').append(labelAPP_SECRET + txtAPI_CLIENT_U);
                             $('#JDShopId').append(labelSort1_Cust + txtSort1_Cust);
+                            $('#JDAppSecret').show();
+                            $('#JDShopId').show();
                         } else {
                             var labelTOKEN = '<label id="labelTOKEN" class="control-label col-md-3 col-sm-3 col-xs-12" for="labelTOKEN">Access Token *</label>';
 
@@ -2999,6 +3005,8 @@
 
                             $('#JDAppSecret').append(labelAPP_SECRET + txtAPI_CLIENT_U);
                             $('#JDAccessToken').append(labelTOKEN + txtToken);
+                            $('#JDAppSecret').show();
+                            $('#JDAccessToken').show();
                         }
                         $('#lbl_Customers_API_KEY').html("APP Key *");
                         //add by fauzi 24 Agustus 2020
@@ -3673,28 +3681,76 @@
             } else {
                 resp = "1";
             }
+            $('#Customers_KD_ANALISA').val(resp);
+            if ($('#Customers_CUST').val() == "") {
+                $('#Customers_KD_ANALISA').val("2");
+            }
 
-            var versiBlibli = $('#Customers_KD_ANALISA').selectize({
-                create: true,
-                maxItems: 1,
-                multiple: false,
-                addOption: false,
-                sortField: 'text',
-                valueField: 'value',
-                labelField: 'text',
-                searchField: ['text'],
-                options: [
-                    { value: "1", text: "Token", selected: true },
-                    { value: "2", text: "Non Token", selected: true },
-                ],
-                selectedField: "selected",
-                //onInitialize: function () {
-                //this.trigger('change', resp);
-                //},
+            //change by Tri, 24 jun 2021
+            //var versiBlibli = $('#Customers_KD_ANALISA').selectize({
+            //    create: true,
+            //    maxItems: 1,
+            //    multiple: false,
+            //    addOption: false,
+            //    sortField: 'text',
+            //    valueField: 'value',
+            //    labelField: 'text',
+            //    searchField: ['text'],
+            //    options: [
+            //        { value: "1", text: "Token", selected: true },
+            //        { value: "2", text: "Non Token", selected: true },
+            //    ],
+            //    selectedField: "selected",
+            //    //onInitialize: function () {
+            //    //this.trigger('change', resp);
+            //    //},
+            //    onChange: function (value) {
+            //        if (value == "2") {
+            //            $('#Customers_KD_ANALISA').val("2");
+            //            versiBlibli[0].selectize.setValue(value, true);
+            //            showHideBlibliForm(true);
+            //            $('#BlibliSellerID').show();
+            //            $('#BlibliMerchantID').hide();
+            //            $('#BlibliClient').hide();
+            //            $('#BlibliClientPass').hide();
+            //            $('#password-akun').hide();
+
+
+            //        }
+            //        else  {
+            //            $('#Customers_KD_ANALISA').val("1");
+            //            versiBlibli[0].selectize.setValue(value, true);
+            //            showHideBlibliForm(true);
+            //            $('#BlibliSellerID').hide();
+
+            //            $('#password-akun').show();
+            //            $('#BlibliMerchantID').show();
+            //            $('#BlibliClient').show();
+            //            $('#BlibliClientPass').show();
+            //        }
+            //    }
+            //});
+            var listVersi = [];
+            $('#divVersiAPI').remove();
+            var sHTML = '<div id="divVersiAPI"><select id="cbVersiAPI" placeholder="Harap pilih" required="required"></select></div>';
+            $('#divCBVersi').append(sHTML);
+
+            listVersi[0] = {
+                id: "1",
+                text: "Token"
+            };
+            listVersi[1] = {
+                id: "2",
+                text: "Non Token"
+            };
+
+            var comboSelect = $('#cbVersiAPI').selectize({
+                valueField: 'id',
+                searchField: 'text',
+                options: listVersi,
                 onChange: function (value) {
+                    $('#Customers_KD_ANALISA').val(value);
                     if (value == "2") {
-                        $('#Customers_KD_ANALISA').val("2");
-                        versiBlibli[0].selectize.setValue(value, true);
                         showHideBlibliForm(true);
                         $('#BlibliSellerID').show();
                         $('#BlibliMerchantID').hide();
@@ -3705,11 +3761,8 @@
 
                     }
                     else  {
-                        $('#Customers_KD_ANALISA').val("1");
-                        versiBlibli[0].selectize.setValue(value, true);
                         showHideBlibliForm(true);
                         $('#BlibliSellerID').hide();
-
                         $('#password-akun').show();
                         $('#BlibliMerchantID').show();
                         $('#BlibliClient').show();
@@ -3717,8 +3770,9 @@
                     }
                 }
             });
+            //end change by Tri, 24 jun 2021
             //versiBlibli[0].selectize.trigger('change', resp);
-            versiBlibli[0].selectize.setValue($('#Customers_KD_ANALISA').val(), true);
+            comboSelect[0].selectize.setValue($('#Customers_KD_ANALISA').val(), true);
         }
         //end add by nurul 15/7/2020
 
@@ -3735,28 +3789,66 @@
             if ($('#Customers_CUST').val() == "") {
                 $('#Customers_KD_ANALISA').val("2");
             }
+            //change by Tri, 24 jun 2021
+            //var versiJD = $('#Customers_KD_ANALISA').selectize({
+            //    create: true,
+            //    maxItems: 1,
+            //    multiple: false,
+            //    addOption: false,
+            //    sortField: 'text',
+            //    valueField: 'value',
+            //    labelField: 'text',
+            //    searchField: ['text'],
+            //    options: [
+            //        { value: "1", text: "Lama", selected: true },
+            //        { value: "2", text: "Baru", selected: true },
+            //    ],
+            //    selectedField: "selected",
+            //    //onInitialize: function () {
+            //    //this.trigger('change', resp);
+            //    //},
+            //    onChange: function (value) {
+            //        if (value == "2") {
+            //            $('#Customers_KD_ANALISA').val("2");
+            //            versiJD[0].selectize.setValue(value, true);
+            //            showHideJDForm(true);
+            //            $('#JDAppSecret').show();
+            //            $('#JDShopId').show();
+            //            $('#JDAccessToken').hide();
+            //            $('#divAPIKey').show();
+            //        }
+            //        else {
+            //            $('#Customers_KD_ANALISA').val("1");
+            //            versiJD[0].selectize.setValue(value, true);
+            //            showHideJDForm(true);
+            //            $('#JDAppSecret').show();
+            //            $('#JDShopId').hide();
+            //            $('#JDAccessToken').show();
+            //            $('#divAPIKey').show();
+            //        }
+            //    }
+            //});
+            var listVersi = [];
+            $('#divVersiAPI').remove();
+            var sHTML = '<div id="divVersiAPI"><select id="cbVersiAPI" placeholder="Harap pilih" required="required"></select></div>';
+            $('#divCBVersi').append(sHTML);
 
-            var versiJD = $('#Customers_KD_ANALISA').selectize({
-                create: true,
-                maxItems: 1,
-                multiple: false,
-                addOption: false,
-                sortField: 'text',
-                valueField: 'value',
-                labelField: 'text',
-                searchField: ['text'],
-                options: [
-                    { value: "1", text: "Lama", selected: true },
-                    { value: "2", text: "Baru", selected: true },
-                ],
-                selectedField: "selected",
-                //onInitialize: function () {
-                //this.trigger('change', resp);
-                //},
+            listVersi[0] = {
+                id: "1",
+                text: "Lama"
+            };
+            listVersi[1] = {
+                id: "2",
+                text: "Baru"
+            };
+
+            var comboSelect = $('#cbVersiAPI').selectize({
+                valueField: 'id',
+                searchField: 'text',
+                options: listVersi,
                 onChange: function (value) {
+                    $('#Customers_KD_ANALISA').val(value);
                     if (value == "2") {
-                        $('#Customers_KD_ANALISA').val("2");
-                        versiJD[0].selectize.setValue(value, true);
                         showHideJDForm(true);
                         $('#JDAppSecret').show();
                         $('#JDShopId').show();
@@ -3764,8 +3856,6 @@
                         $('#divAPIKey').show();
                     }
                     else {
-                        $('#Customers_KD_ANALISA').val("1");
-                        versiJD[0].selectize.setValue(value, true);
                         showHideJDForm(true);
                         $('#JDAppSecret').show();
                         $('#JDShopId').hide();
@@ -3774,8 +3864,9 @@
                     }
                 }
             });
+            //end change by Tri, 24 jun 2021
             //versiBlibli[0].selectize.trigger('change', resp);
-            versiJD[0].selectize.setValue($('#Customers_KD_ANALISA').val(), true);
+            comboSelect[0].selectize.setValue($('#Customers_KD_ANALISA').val(), true);
         }
         //end add by nurul 28/4/2021
 
@@ -3788,43 +3879,35 @@
                 resp = "1";
             }
             $('#Customers_KD_ANALISA').val(resp);
+
             if ($('#Customers_CUST').val() == "") {
                 $('#Customers_KD_ANALISA').val("2");
             }
 
-            var versiJD = $('#Customers_KD_ANALISA').selectize({
-                create: true,
-                maxItems: 1,
-                multiple: false,
-                addOption: false,
-                sortField: 'text',
-                valueField: 'value',
-                labelField: 'text',
-                searchField: ['text'],
-                options: [
-                    { value: "1", text: "V1", selected: true },
-                    { value: "2", text: "V2(BETA)", selected: true },
-                ],
-                selectedField: "selected",
-                //onInitialize: function () {
-                //this.trigger('change', resp);
-                //},
+            var listVersi = [];
+            $('#divVersiAPI').remove();
+            var sHTML = '<div id="divVersiAPI"><select id="cbVersiAPI" placeholder="Harap pilih" required="required"></select></div>';
+            $('#divCBVersi').append(sHTML);
+
+            listVersi[0] = {
+                id: "1",
+                text: "V1"
+            };
+            listVersi[1] = {
+                id: "2",
+                text: "V2(BETA)"
+            };
+
+            var comboSelect = $('#cbVersiAPI').selectize({
+                valueField: 'id',
+                searchField: 'text',
+                options: listVersi,
                 onChange: function (value) {
-                    if (value == "2") {
-                        $('#Customers_KD_ANALISA').val("2");
-                        versiJD[0].selectize.setValue(value, true);
-                        showHideJDForm(false);
-                    }
-                    else {
-                        $('#Customers_KD_ANALISA').val("1");
-                        versiJD[0].selectize.setValue(value, true);
-                        showHideJDForm(false);
-                    }
+                    $('#Customers_KD_ANALISA').val(value);
                 }
             });
-            //versiBlibli[0].selectize.trigger('change', resp);
-            versiJD[0].selectize.setValue($('#Customers_KD_ANALISA').val(), true);
+            comboSelect[0].selectize.setValue($('#Customers_KD_ANALISA').val(), true);
         }
-        //end add by nurul 11/6/2021
+        //end add by Tri 11/6/2021
 </script>
 }
