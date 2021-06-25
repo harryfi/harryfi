@@ -921,6 +921,9 @@
             $('#hjualmarket-section input[data-jenis="hjual"]').off('focus').focus(function () {
                 $(this).val(convertToAngka($(this).val()));
             });
+            $('#hjualmarket-blibli input[data-jenis="hjual"]').off('focus').focus(function () {
+                $(this).val(convertToAngka($(this).val()));
+            });
 
             $("#Stf02_HJUAL").off('keydown').on('keydown',
                 function (e) {
@@ -5490,6 +5493,12 @@
                     var angkaJual = convertToAngka(inputJual);
                     $(this).val(angkaJual);
                 });
+            $.each($("#hjualmarket-blibli input.form-control"),
+                function () {
+                    var inputJual = $(this).val();
+                    var angkaJual = convertToAngka(inputJual);
+                    $(this).val(angkaJual);
+                });
 
             var $form = $(btnClicked).parents('form');
             var $formData = new FormData($('form')[0]);
@@ -5604,6 +5613,12 @@
                     var angkaJual = convertToAngka(inputJual);
                     $(this).val(angkaJual);
                 });
+            $.each($("#hjualmarket-blibli input.form-control"),
+                function () {
+                    var inputJual = $(this).val();
+                    var angkaJual = convertToAngka(inputJual);
+                    $(this).val(angkaJual);
+                });
 
             var $form = $(btnClicked).parents('form');
             var $formData = new FormData($('form')[0]);
@@ -5670,8 +5685,15 @@
         }
 
         function setErrorfield(item, index) {
-            var error = item.split("_errortext_");
-            addError($("#ListHargaJualPermarket_" + error[0] + "__HJUAL"), error[1]);
+            if (!item.includes('_errorbliblitext_')) {
+                var error = item.split("_errortext_");
+                addError($("#ListHargaJualPermarket_" + error[0] + "__HJUAL"), error[1]);
+            }
+            else {
+                var error = item.split("_errorbliblitext_");
+                addError($("#ListHargaJualPermarket_" + error[0] + "__HARGA_NORMAL"), error[1]);
+
+            }
         }
 
         function convertToRupiah(angka) {
