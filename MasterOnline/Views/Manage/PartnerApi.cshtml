@@ -239,10 +239,6 @@
             function () {
                 $page = 0;
                 Initialize();
-
-                //getStatusWebhook();
-                //getStatusPaid(); //true
-                //getSelectStatusPaid();
             });
 
         function Initialize() {
@@ -281,194 +277,6 @@
             //refreshTableApiLog();
 
             getPartner();
-            //getStatusWebhook();
-            //getSelectStatusPaid();
-
-            //$("#api_status").change(function () {
-            //    if ($("#api_status").val() == "True") {
-            //        $("#partner_api_Status").val('True');
-            //        $("#api_status option:selected").text('Aktif');
-            //    } else if ($("#api_status").val() == "False") {
-            //        $("#partner_api_Status").val('False');
-            //        $("#api_status option:selected").text('Tidak Aktif');
-            //    }
-            //});
-            //$("#inv_status").change(function () {
-            //    if ($("#inv_status").val() == "True") {
-            //        $("#partner_api_isPaid").val('True');
-            //        $("#api_status option:selected").text('Aktif');
-            //    } else if ($("#inv_status").val() == "False") {
-            //        $("#partner_api_isPaid").val('False');
-            //        $("#inv_status option:selected").text('Tidak Aktif');
-            //    }
-            //});
-            //$("#api_status").change();
-            //$('#api_status').val(tempType);
-        }
-
-        function getStatusPaid() { //resp
-            var selectPaid = $('#partner_api_isPaid_select').selectize({
-                maxItems: 1,
-                valueField: 'value',
-                searchField: ['text'],
-                options: [
-                    { value: "true", text: "Lunas", selected: true },
-                    { value: "false", text: "Belum Lunas", selected: true },
-                ],
-                onChange: function (value) {
-                    if (value == "true") {
-                        $('#partner_api_isPaid').val("true");
-                        selectPaid[0].selectize.setValue($('#partner_api_isPaid').val(), true);
-                    }
-                    else {
-                        $('#partner_api_isPaid').val("false");
-                        selectPaid[0].selectize.setValue($('#partner_api_isPaid').val(), false);
-                    }
-                }
-            });
-            selectPaid[0].selectize.trigger('change', resp);
-        }
-
-        function getSelectStatusPaid() {
-            var selectStatusPaid = $('#partner_api_isPaid').selectize({
-                create: true,
-                maxItems: 1,
-                multiple: false,
-                addOption: false,
-                sortField: 'text',
-                valueField: 'value',
-                labelField: 'text',
-                searchField: ['text'],
-                options: [
-                    { value: "true", text: "Lunas", selected: true },
-                    { value: "false", text: "Belum Lunas", selected: true },
-                ],
-                selectedField: "selected",
-                onChange: function (value) {
-                    if (value == "true") {
-                        $('#partner_api_isPaid').val("true");
-                        selectStatusPaid[0].selectize.setValue(value, true);
-                    }
-                    else {
-                        $('#partner_api_isPaid').val("false");
-                        selectStatusPaid[0].selectize.setValue(value, true);
-                    }
-                }
-            });
-            selectStatusPaid[0].selectize.setValue($('#partner_api_isPaid').val(), true);
-        }
-
-        //function getStatusWebhook2(respon) {
-        //    $('#api_status').change(function () {
-        //        $("#partner_api_Status").val($('#api_status').val(respon))
-        //    });
-
-        //    //$("#api_status").change(function () {
-        //    //    if ($("#api_status").val() == "true") {
-        //    //        $("#partner_api_Status").val('true');
-        //    //    } else if ($("#api_status").val() == "false") {
-        //    //        $("#partner_api_Status").val('false');
-        //    //    }
-        //    //    //else {
-        //    //    //    $("#partner_api_Status").val('0');
-        //    //    //}
-        //    //});
-        //    //$("#api_status").change();
-        //    ////$('#api_status').val(tempType);
-        //}
-
-
-        function getStatusWebhook(respon) {
-            var resp = false;
-            var resultStatus = false;
-            if (respon == true) {
-                resp = "true01";
-            } else if (respon == false) {
-                resp = "false02";
-            }
-
-            var selectStatus = $('#partner_api_Status').selectize({
-                create: true,
-                maxItems: 1,
-                multiple: false,
-                addOption: false,
-                sortField: 'text',
-                valueField: 'value',
-                labelField: 'text',
-                searchField: ['text'],
-                options: [
-                    { value: "true", text: "Aktif", selected: true },
-                    { value: "false", text: "Tidak Aktif", selected: true },
-                ],
-                selectedField: "selected",
-                onChange: function (value) {
-                    if (value == "true") {
-                        $('#partner_api_Status').val("true");
-                        selectStatus[0].selectize.setValue($('#partner_api_Status').val(), true);
-                    }
-                    else if (value == "false") {
-                        $('#partner_api_Status').val("false");
-                        selectStatus[0].selectize.setValue($('#partner_api_Status').val(), false);
-                    }
-                    else if (value == "true01") {
-                        $('#partner_api_Status').val("true");
-                        selectStatus[0].selectize.setValue($('#partner_api_Status').val(), true);
-                    }
-                    else if (value == "false02") {
-                        $('#partner_api_Status').val("false");
-                        selectStatus[0].selectize.setValue($('#partner_api_Status').val(), false);
-                    }
-                }
-            });
-            selectStatus[0].selectize.setValue($('#partner_api_Status').val(), true);
-            //if (respon != null) {
-            //    selectStatus[0].selectize.trigger('change', respon);
-            //}
-        }
-
-        function getAddons(respon) {
-            $.ajax({
-                type: "GET",
-                url: '@Url.Action("GetAddons", "Admin")',
-                contentType: 'application/json',
-                cache: false,
-                success: function (data) {
-                    var addonsList = [];
-                    $.each(data,
-                        function (i, item) {
-                            addonsList[i] = {
-                                id: item.RecNum,
-                                text: item.Fitur,
-                                cost: item.Harga,
-                            };
-                        });
-
-                    var addonsSelect = $('#Addons').selectize({
-                        valueField: 'id',
-                        searchField: 'text',
-                        options: addonsList,
-                        onChange: function (value) {
-                            var $objSup = $.grep(addonsList, function (data) { return data.id == value });
-                            if (value == null) {
-                                $('#Addons_Customer_ID_ADDON').val(null);
-                                $('#Addons_Customer_NamaAddons').val(null);
-                                addonsSelect[0].selectize.setValue($('#Addons_Customer_ID_ADDON').val(), true);
-                            } else {
-                                $('#Addons_Customer_ID_ADDON').val(value);
-                                addonsSelect[0].selectize.setValue($('#Addons_Customer_ID_ADDON').val(), true);
-                                if ($objSup[0] != null) {
-                                    $('#Addons_Customer_Harga').val($objSup[0].cost);
-                                    $('#Addons_Customer_NamaAddons').val($objSup[0].text);
-                                }
-                            }
-                        }
-                    });
-                    addonsSelect[0].selectize.setValue($('#Addons_Customer_ID_ADDON').val(), true);
-                },
-                error: function (xhr) {
-                    console.log(xhr);
-                }
-            });
         }
 
         function simpanPartnerApi() {
@@ -539,10 +347,6 @@
                         $('#inv_status').val($('#partner_api_isPaid').val());
                     }
                     refreshTableApiLog();
-                    //getStatusWebhook2(response.partner_api.Status);
-                    //getSelectStatusPaid(response.partner_api.isPaid);
-                    //getAddons($('#Addons_Customer.NamaAddons').val());
-                    //getEmail($('#response.Addons_Customer.Account').val());
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -602,19 +406,6 @@
             });
         }
 
-        function showWebhookInvoice() {
-            var labelWebhook = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="partner_api_Status" id="lbl_partner_api_Status">Webhook</label>';
-            var txtWebhook = '<div id="hd_partner_api_Status" class="col-md-6 col-sm-6 col-xs-12"><input class="form-control" id="partner_api_Status" name="partner.api_Status" type="hidden"><select class="form-control" id="api_status" placeholder="Harap Pilih" name="api_status" required="required"><option value="True">Aktif</option><option value="False">Tidak Aktif</option></select></div>';
-            $('#divWebhook').append(labelWebhook + txtWebhook);
-            $('#divWebhook').show();
-            //<div class="col-md-3 col-sm-3 col-xs-1"></div>
-            var labelInvoice = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="partner_api_isPaid" id="lbl_partner_api_isPaid">Status Invoice</label>';
-            var infoIntegration = '<label>Untuk mendapatkan panduan integrasi, silahkan klik petunjuk <a href="javascript:window.open(\'https://masteronline.co.id/Content/Static/mo-accurate-integration.html\', \'_blank\').focus();" style="color:blue"><u>Di Sini</u></a>';
-            var txtInvoice = '<div id="hd_partner_api_isPaid" class="col-md-6 col-sm-6 col-xs-12"><input class="form-control" id="partner_api_isPaid" name="partner.api_isPaid" type="hidden"><select class="form-control" id="inv_status" placeholder="Harap Pilih" name="inv_status" required="required"><option value="True">Lunas</option><option value="False">Belum Lunas</option></select>' + infoIntegration + '</div>';
-            $('#divInvoice').append(labelInvoice + txtInvoice);
-            $('#divInvoice').show();
-        }
-
         function removeWebhookInvoice() {
             $('#lbl_partner_api_Status').remove();
             $('#hd_partner_api_Status').remove();
@@ -622,7 +413,72 @@
             $('#hd_partner_api_isPaid').remove();
         }
 
+        function getWebhookCb() {
+            @* class="form-control" *@
+            $('#lbl_partner_api_Status').remove();
+            $('#hd_partner_api_Status').remove();
+            var labelWebhook = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="partner_api_Status" id="lbl_partner_api_Status">Webhook</label>';
+            var txtWebhook = '<div id="hd_partner_api_Status" class="col-md-6 col-sm-6 col-xs-12"><select id="api_status" placeholder="Harap Pilih" name="api_status" required="required"></div>';
+            $('#divWebhook').append(labelWebhook + txtWebhook);
+
+            var listStatus = [];
+
+            listStatus[0] = {
+                id: "True",
+                text: "Aktif"
+            };
+            listStatus[1] = {
+                id: "False",
+                text: "Tidak Aktif"
+            };
+
+            var comboSelect = $('#api_status').selectize({
+                valueField: 'id',
+                searchField: 'text',
+                options: listStatus,
+                onChange: function (value) {
+                    $('#partner_api_Status').val(value);
+                }
+            });
+            comboSelect[0].selectize.setValue($('#partner_api_Status').val(), true);
+        }
+
+        function getInvoiceCb() {
+
+            $('#lbl_partner_api_isPaid').remove();
+            $('#hd_partner_api_isPaid').remove();
+            var labelInvoice = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="partner_api_isPaid" id="lbl_partner_api_isPaid">Status Invoice</label>';
+            var infoIntegration = '<label>Untuk mendapatkan panduan integrasi, silahkan klik petunjuk <a href="javascript:window.open(\'https://masteronline.co.id/Content/Static/mo-accurate-integration.html\', \'_blank\').focus();" style="color:blue"><u>Di Sini</u></a>';
+            var txtInvoice = '<div id="hd_partner_api_isPaid" class="col-md-6 col-sm-6 col-xs-12"><select id="inv_status" placeholder="Harap Pilih" name="inv_status" required="required">' + infoIntegration + '</div>';
+            $('#divInvoice').append(labelInvoice + txtInvoice);
+
+            var listStatus = [];
+            //$('#divVersiAPI').remove();
+            //var sHTML = '<div id="divVersiAPI"><select id="cbVersiAPI" placeholder="Harap pilih" required="required"></select></div>';
+            //$('#divCBVersi').append(sHTML);
+
+            listStatus[0] = {
+                id: "True",
+                text: "Lunas"
+            };
+            listStatus[1] = {
+                id: "False",
+                text: "Belum Lunas"
+            };
+
+            var comboSelect = $('#inv_status').selectize({
+                valueField: 'id',
+                searchField: 'text',
+                options: listStatus,
+                onChange: function (value) {
+                    $('#partner_api_isPaid').val(value);
+                }
+            });
+            comboSelect[0].selectize.setValue($('#partner_api_isPaid').val(), true);
+        }
+
         function getPartner() {
+            removeWebhookInvoice();
             $.ajax({
                 type: "GET",
                 url: '@Url.Action("GetDataPartner", "Manage")',
@@ -650,7 +506,8 @@
                                 showWebhookInvoice();
                             } else {
                                 if (value == "20007") {
-                                    showWebhookInvoice();
+                                    getWebhookCb();
+                                    getInvoiceCb();
                                 }
                                 var url = '@Url.Action("CekPartner", "Manage")';
                                 url += "?partnerId=" + value;
@@ -664,8 +521,6 @@
                                             alert(response.Errors[0]);
                                             $('#partner_api_PartnerId').val(null);
                                             partnerSelect[0].selectize.setValue($('#partner_api_PartnerId').val(), true);
-
-                                            removeWebhookInvoice();
                                         }
                                         else {
                                             $('#partner_api_PartnerId').val(value);
