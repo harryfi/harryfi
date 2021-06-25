@@ -12,5 +12,7 @@ namespace MasterOnline.ViewModels
         public Dictionary<string, string> MapNamaVariasiTemp { get; set; } = new Dictionary<string, string>();
         public int parentTrans { get; set; }
         public int parentPosting { get; set; }
+        public List<string> ListBarangVarian { get; set; }
+        public Dictionary<string, string> MappingVariasi { get; set; } = new Dictionary<string, string>();
     }
 }
