@@ -2250,10 +2250,12 @@
             $('#labelAPP_SECRET').remove();
             $('#txtAPP_SECRET').remove();
             //ADD BY NURUL 28/4/2021
-            $('#labelSort1_Cust').remove();
-            $('#txtSort1_Cust').remove();
+            //$('#labelSort1_Cust').remove();
+            //$('#txtSort1_Cust').remove();
             //END ADD BY NURUL 28/4/2021
             if (show) {
+                $('#labelSort1_Cust').remove();
+                $('#txtSort1_Cust').remove();
                 if ($('#Customers_KD_ANALISA').val() == "2") {
                     var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">Shop ID *</label>';
                     var valuetxtSort1_Cust = "";
@@ -2981,6 +2983,8 @@
 
                             $('#JDAppSecret').append(labelAPP_SECRET + txtAPI_CLIENT_U);
                             $('#JDShopId').append(labelSort1_Cust + txtSort1_Cust);
+                            $('#JDAppSecret').show();
+                            $('#JDShopId').show();
                         } else {
                             var labelTOKEN = '<label id="labelTOKEN" class="control-label col-md-3 col-sm-3 col-xs-12" for="labelTOKEN">Access Token *</label>';
 
@@ -3001,6 +3005,8 @@
 
                             $('#JDAppSecret').append(labelAPP_SECRET + txtAPI_CLIENT_U);
                             $('#JDAccessToken').append(labelTOKEN + txtToken);
+                            $('#JDAppSecret').show();
+                            $('#JDAccessToken').show();
                         }
                         $('#lbl_Customers_API_KEY').html("APP Key *");
                         //add by fauzi 24 Agustus 2020
@@ -3674,6 +3680,10 @@
                 resp = "2";
             } else {
                 resp = "1";
+            }
+            $('#Customers_KD_ANALISA').val(resp);
+            if ($('#Customers_CUST').val() == "") {
+                $('#Customers_KD_ANALISA').val("2");
             }
 
             //change by Tri, 24 jun 2021
