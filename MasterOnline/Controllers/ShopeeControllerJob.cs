@@ -7662,50 +7662,59 @@ namespace MasterOnline.Controllers
                                 //value = value.Trim()
                                 attribute_value_list = new List<ShopeeAttributeValueClass_V2>()
                             };
-
-                            var attrValue = new ShopeeAttributeValueClass_V2();
-                            long n;
-                            bool isNumeric = long.TryParse(value.Trim(), out n);
-                            if (isNumeric)
+                            var listValue = value.Split(','); 
+                            var lattribute_id = Convert.ToInt64(attribute_id);
+                            var dataAttr = listAttrShopee.response.attribute_list.Where(p => p.attribute_id == lattribute_id).FirstOrDefault();
+                            if (listValue.Length > 0 && !dataAttr.input_type.Contains("MULTIPLE_SELECT"))
                             {
-                                attrValue.value_id = n;
-                                attrValue.value_unit = unit ?? "";
-
-                                if (listAttrShopee.response != null)
+                                listValue = new string[1];
+                                listValue[0] = value;
+                            }
+                            foreach (var singleAttr in listValue)
+                            {
+                                var attrValue = new ShopeeAttributeValueClass_V2();
+                                long n;
+                                bool isNumeric = long.TryParse(singleAttr.Trim(), out n);
+                                if (isNumeric)
                                 {
-                                    if (listAttrShopee.response.attribute_list != null)
+                                    attrValue.value_id = n;
+                                    attrValue.value_unit = unit ?? "";
+
+                                    if (listAttrShopee.response != null)
                                     {
-                                        var lattribute_id = Convert.ToInt64(attribute_id);
-                                        var dataAttr = listAttrShopee.response.attribute_list.Where(p => p.attribute_id == lattribute_id).FirstOrDefault();
-                                        if (dataAttr != null)
+                                        if (listAttrShopee.response.attribute_list != null)
                                         {
-                                            if (dataAttr.attribute_value_list != null)
+                                            //var lattribute_id = Convert.ToInt64(attribute_id);
+                                            //var dataAttr = listAttrShopee.response.attribute_list.Where(p => p.attribute_id == lattribute_id).FirstOrDefault();
+                                            if (dataAttr != null)
                                             {
-                                                if (dataAttr.attribute_value_list.Length == 0)
+                                                if (dataAttr.attribute_value_list != null)
+                                                {
+                                                    if (dataAttr.attribute_value_list.Length == 0)
+                                                    {
+                                                        attrValue.value_id = 0;
+                                                        attrValue.original_value_name = singleAttr.Trim();
+                                                        attrValue.value_unit = unit ?? "";
+                                                    }
+                                                }
+                                                else
                                                 {
                                                     attrValue.value_id = 0;
                                                     attrValue.original_value_name = value.Trim();
                                                     attrValue.value_unit = unit ?? "";
                                                 }
                                             }
-                                            else
-                                            {
-                                                attrValue.value_id = 0;
-                                                attrValue.original_value_name = value.Trim();
-                                                attrValue.value_unit = unit ?? "";
-                                            }
                                         }
                                     }
                                 }
+                                else
+                                {
+                                    attrValue.value_id = 0;
+                                    attrValue.original_value_name = value.Trim();
+                                    attrValue.value_unit = unit ?? "";
+                                }
+                                newAttr.attribute_value_list.Add(attrValue);
                             }
-                            else
-                            {
-                                attrValue.value_id = 0;
-                                attrValue.original_value_name = value.Trim();
-                                attrValue.value_unit = unit ?? "";
-                            }
-                            newAttr.attribute_value_list.Add(attrValue);
-
                             HttpBody.attribute_list.Add(newAttr);
                         }
 
@@ -10488,49 +10497,59 @@ namespace MasterOnline.Controllers
                                 //value = value.Trim()
                                 attribute_value_list = new List<ShopeeAttributeValueClass_V2>()
                             };
-
-                            var attrValue = new ShopeeAttributeValueClass_V2();
-                            long n;
-                            bool isNumeric = long.TryParse(value.Trim(), out n);
-                            if (isNumeric)
+                            var listValue = value.Split(',');
+                            var lattribute_id = Convert.ToInt64(attribute_id);
+                            var dataAttr = listAttrShopee.response.attribute_list.Where(p => p.attribute_id == lattribute_id).FirstOrDefault();
+                            if (listValue.Length > 0 && !dataAttr.input_type.Contains("MULTIPLE_SELECT"))
                             {
-                                attrValue.value_id = n;
-                                attrValue.value_unit = unit ?? "";
-
-                                if (listAttrShopee.response != null)
+                                listValue = new string[1];
+                                listValue[0] = value;
+                            }
+                            foreach (var singleAttr in listValue)
+                            {
+                                var attrValue = new ShopeeAttributeValueClass_V2();
+                                long n;
+                                bool isNumeric = long.TryParse(singleAttr.Trim(), out n);
+                                if (isNumeric)
                                 {
-                                    if (listAttrShopee.response.attribute_list != null)
+                                    attrValue.value_id = n;
+                                    attrValue.value_unit = unit ?? "";
+
+                                    if (listAttrShopee.response != null)
                                     {
-                                        var lattribute_id = Convert.ToInt64(attribute_id);
-                                        var dataAttr = listAttrShopee.response.attribute_list.Where(p => p.attribute_id == lattribute_id).FirstOrDefault();
-                                        if (dataAttr != null)
+                                        if (listAttrShopee.response.attribute_list != null)
                                         {
-                                            if (dataAttr.attribute_value_list != null)
+                                            //var lattribute_id = Convert.ToInt64(attribute_id);
+                                            //var dataAttr = listAttrShopee.response.attribute_list.Where(p => p.attribute_id == lattribute_id).FirstOrDefault();
+                                            if (dataAttr != null)
                                             {
-                                                if (dataAttr.attribute_value_list.Length == 0)
+                                                if (dataAttr.attribute_value_list != null)
+                                                {
+                                                    if (dataAttr.attribute_value_list.Length == 0)
+                                                    {
+                                                        attrValue.value_id = 0;
+                                                        attrValue.original_value_name = singleAttr.Trim();
+                                                        attrValue.value_unit = unit ?? "";
+                                                    }
+                                                }
+                                                else
                                                 {
                                                     attrValue.value_id = 0;
                                                     attrValue.original_value_name = value.Trim();
                                                     attrValue.value_unit = unit ?? "";
                                                 }
                                             }
-                                            else
-                                            {
-                                                attrValue.value_id = 0;
-                                                attrValue.original_value_name = value.Trim();
-                                                attrValue.value_unit = unit ?? "";
-                                            }
                                         }
                                     }
                                 }
+                                else
+                                {
+                                    attrValue.value_id = 0;
+                                    attrValue.original_value_name = value.Trim();
+                                    attrValue.value_unit = unit ?? "";
+                                }
+                                newAttr.attribute_value_list.Add(attrValue);
                             }
-                            else
-                            {
-                                attrValue.value_id = 0;
-                                attrValue.original_value_name = value.Trim();
-                                attrValue.value_unit = unit ?? "";
-                            }
-                            newAttr.attribute_value_list.Add(attrValue);
 
                             HttpBody.attribute_list.Add(newAttr);
                         }
