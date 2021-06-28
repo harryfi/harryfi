@@ -13,6 +13,7 @@ namespace MasterOnline.ViewModels
 
         public List<ARF01> ListCustomer { get; set; } = new List<ARF01>();
         public ARF01 Customer { get; set; } = new ARF01();
+        public string statusAddonsAol { get; set; }
     }
 
     public class DatabaseListViewModel
