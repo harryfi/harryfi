@@ -1850,10 +1850,18 @@
                 hjual: convertToAngka($(item).val())
             };
         });
+        var newHnormal = [];
+        $('#variant-section input[data-jenis="hnormal_var"]').each(function (i, item) {
+            newHnormal[i] = {
+                recnum: $(item).attr("data-hjual-recnum"),
+                hjual: convertToAngka($(item).val())
+            };
+        });
 
         var post_data = {
             brg: $('#Stf02_BRG').val(),
-            newhjual: newHjual
+            newhjual: newHjual,
+            newhnormal: newHnormal
         }
 
         $.ajax({
@@ -2205,12 +2213,12 @@
                                             <td style="text-align:right">
                                                 @if (bundling == "")
                                                 {
-                                                    @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", (VarStf02H.HARGA_NORMAL ?? barang.HJUAL)), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
+                                                    @Html.TextBox("txtHargaNormalVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", (VarStf02H.HARGA_NORMAL ?? barang.HJUAL)), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hnormal_var", data_hjual_recnum = VarStf02H.RecNum })
                                                 }
                                                 else
                                                 {
                                                     <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
-                                                        @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", (VarStf02H.HARGA_NORMAL ?? barang.HJUAL)), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum, @readonly = "readonly" })
+                                                        @Html.TextBox("txtHargaNormalVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", (VarStf02H.HARGA_NORMAL ?? barang.HJUAL)), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hnormal_var", data_hjual_recnum = VarStf02H.RecNum, @readonly = "readonly" })
                                                     </div>
                                                 }
                                             </td>
