@@ -7662,50 +7662,59 @@ namespace MasterOnline.Controllers
                                 //value = value.Trim()
                                 attribute_value_list = new List<ShopeeAttributeValueClass_V2>()
                             };
-
-                            var attrValue = new ShopeeAttributeValueClass_V2();
-                            long n;
-                            bool isNumeric = long.TryParse(value.Trim(), out n);
-                            if (isNumeric)
+                            var listValue = value.Split(','); 
+                            var lattribute_id = Convert.ToInt64(attribute_id);
+                            var dataAttr = listAttrShopee.response.attribute_list.Where(p => p.attribute_id == lattribute_id).FirstOrDefault();
+                            if (listValue.Length > 0 && !dataAttr.input_type.ToUpper().Contains("MULTIPLE_SELECT"))
                             {
-                                attrValue.value_id = n;
-                                attrValue.value_unit = unit ?? "";
-
-                                if (listAttrShopee.response != null)
+                                listValue = new string[1];
+                                listValue[0] = value;
+                            }
+                            foreach (var singleAttr in listValue)
+                            {
+                                var attrValue = new ShopeeAttributeValueClass_V2();
+                                long n;
+                                bool isNumeric = long.TryParse(singleAttr.Trim(), out n);
+                                if (isNumeric)
                                 {
-                                    if (listAttrShopee.response.attribute_list != null)
+                                    attrValue.value_id = n;
+                                    attrValue.value_unit = unit ?? "";
+
+                                    if (listAttrShopee.response != null)
                                     {
-                                        var lattribute_id = Convert.ToInt64(attribute_id);
-                                        var dataAttr = listAttrShopee.response.attribute_list.Where(p => p.attribute_id == lattribute_id).FirstOrDefault();
-                                        if (dataAttr != null)
+                                        if (listAttrShopee.response.attribute_list != null)
                                         {
-                                            if (dataAttr.attribute_value_list != null)
+                                            //var lattribute_id = Convert.ToInt64(attribute_id);
+                                            //var dataAttr = listAttrShopee.response.attribute_list.Where(p => p.attribute_id == lattribute_id).FirstOrDefault();
+                                            if (dataAttr != null)
                                             {
-                                                if (dataAttr.attribute_value_list.Length == 0)
+                                                if (dataAttr.attribute_value_list != null)
+                                                {
+                                                    if (dataAttr.attribute_value_list.Length == 0)
+                                                    {
+                                                        attrValue.value_id = 0;
+                                                        attrValue.original_value_name = singleAttr.Trim();
+                                                        attrValue.value_unit = unit ?? "";
+                                                    }
+                                                }
+                                                else
                                                 {
                                                     attrValue.value_id = 0;
                                                     attrValue.original_value_name = value.Trim();
                                                     attrValue.value_unit = unit ?? "";
                                                 }
                                             }
-                                            else
-                                            {
-                                                attrValue.value_id = 0;
-                                                attrValue.original_value_name = value.Trim();
-                                                attrValue.value_unit = unit ?? "";
-                                            }
                                         }
                                     }
                                 }
+                                else
+                                {
+                                    attrValue.value_id = 0;
+                                    attrValue.original_value_name = value.Trim();
+                                    attrValue.value_unit = unit ?? "";
+                                }
+                                newAttr.attribute_value_list.Add(attrValue);
                             }
-                            else
-                            {
-                                attrValue.value_id = 0;
-                                attrValue.original_value_name = value.Trim();
-                                attrValue.value_unit = unit ?? "";
-                            }
-                            newAttr.attribute_value_list.Add(attrValue);
-
                             HttpBody.attribute_list.Add(newAttr);
                         }
 
@@ -9453,26 +9462,26 @@ namespace MasterOnline.Controllers
 
                                 //var barang = ErasoftDbContext.STF02H.Where(m => m.RecNum == recnum_stf02h_var).FirstOrDefault();
                                 //await UpdateImage(iden, barang.BRG, Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id));
-                                if (tblCustomer.TIDAK_HIT_UANG_R)
-                                {
-                                    //StokControllerJob.ShopeeAPIData data = new StokControllerJob.ShopeeAPIData()
-                                    //{
-                                    //    merchant_code = iden.merchant_code,
-                                    //};
+//                                if (tblCustomer.TIDAK_HIT_UANG_R)
+//                                {
+//                                    //StokControllerJob.ShopeeAPIData data = new StokControllerJob.ShopeeAPIData()
+//                                    //{
+//                                    //    merchant_code = iden.merchant_code,
+//                                    //};
 
-#if (DEBUG || Debug_AWS)
-                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
-                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.response.item_id)
-                                        + ";" + Convert.ToString(variasi.model_id), 0, username, null)).Wait();
-#else
-                                    //string EDBConnID = EDB.GetConnectionString("ConnId");
-                                    //var sqlStorage = new SqlServerStorage(EDBConnID);
+//#if (DEBUG || Debug_AWS)
+//                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+//                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.response.item_id)
+//                                        + ";" + Convert.ToString(variasi.model_id), 0, username, null)).Wait();
+//#else
+//                                    //string EDBConnID = EDB.GetConnectionString("ConnId");
+//                                    //var sqlStorage = new SqlServerStorage(EDBConnID);
 
-                                    //var Jobclient = new BackgroundJobClient(sqlStorage);
-                                    client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.response.item_id)
-                                        + ";" + Convert.ToString(variasi.model_id), 0, username, null));
-#endif
-                                }
+//                                    //var Jobclient = new BackgroundJobClient(sqlStorage);
+//                                    client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.response.item_id)
+//                                        + ";" + Convert.ToString(variasi.model_id), 0, username, null));
+//#endif
+//                                }
                             }
                             #region update price and stok
 
@@ -9485,8 +9494,8 @@ namespace MasterOnline.Controllers
 #if (Debug_AWS || DEBUG)
                                 await UpdatePrice_Job_V2(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, log_ActionCategory, log_ActionName, 
                                     listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), iden, float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString()));
-                                if (tblCustomer.TIDAK_HIT_UANG_R)
-                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null)).Wait();
+                                    if (tblCustomer.TIDAK_HIT_UANG_R)
+                                        Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null)).Wait();
 #else
                                     client.Enqueue<ShopeeControllerJob>(x => x.UpdatePrice_Job_V2(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, 
                                         log_ActionCategory, log_ActionName, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), iden, float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString())));
@@ -9732,26 +9741,26 @@ namespace MasterOnline.Controllers
 
                                 //var barang = ErasoftDbContext.STF02H.Where(m => m.RecNum == recnum_stf02h_var).FirstOrDefault();
                                 //await UpdateImage(iden, barang.BRG, Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id));
-                                if (tblCustomer.TIDAK_HIT_UANG_R)
-                                {
-                                    //StokControllerJob.ShopeeAPIData data = new StokControllerJob.ShopeeAPIData()
-                                    //{
-                                    //    merchant_code = iden.merchant_code,
-                                    //};
+//                                if (tblCustomer.TIDAK_HIT_UANG_R)
+//                                {
+//                                    //StokControllerJob.ShopeeAPIData data = new StokControllerJob.ShopeeAPIData()
+//                                    //{
+//                                    //    merchant_code = iden.merchant_code,
+//                                    //};
 
-#if (DEBUG || Debug_AWS)
-                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
-                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.response.item_id)
-                                        + ";" + Convert.ToString(variasi.model_id), 0, username, null)).Wait();
-#else
-                                                        //string EDBConnID = EDB.GetConnectionString("ConnId");
-                                                        //var sqlStorage = new SqlServerStorage(EDBConnID);
+//#if (DEBUG || Debug_AWS)
+//                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+//                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.response.item_id)
+//                                        + ";" + Convert.ToString(variasi.model_id), 0, username, null)).Wait();
+//#else
+//                                                        //string EDBConnID = EDB.GetConnectionString("ConnId");
+//                                                        //var sqlStorage = new SqlServerStorage(EDBConnID);
 
-                                                        //var Jobclient = new BackgroundJobClient(sqlStorage);
-                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.response.item_id)
-                                        + ";" + Convert.ToString(variasi.model_id), 0, username, null));
-#endif
-                                }
+//                                                        //var Jobclient = new BackgroundJobClient(sqlStorage);
+//                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.response.item_id)
+//                                        + ";" + Convert.ToString(variasi.model_id), 0, username, null));
+//#endif
+//                                }
                             }
 
                             #region update price and stok
@@ -9765,13 +9774,13 @@ namespace MasterOnline.Controllers
 #if (Debug_AWS || DEBUG)
                                     await UpdatePrice_Job_V2(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, log_ActionCategory, log_ActionName,
                                         listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), iden, float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString()));
-                                    //if (tblCustomer.TIDAK_HIT_UANG_R)
-                                    //    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null)).Wait();
+                                    if (tblCustomer.TIDAK_HIT_UANG_R)
+                                        Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null)).Wait();
 #else
                                     Jobclient.Enqueue<ShopeeControllerJob>(x => x.UpdatePrice_Job_V2(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, 
                                         log_ActionCategory, log_ActionName, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), iden, float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString())));
-                                    //if (tblCustomer.TIDAK_HIT_UANG_R)
-                                    //    client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null));
+                                    if (tblCustomer.TIDAK_HIT_UANG_R)
+                                        Jobclient.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null));
 #endif
                                 }
                             }
@@ -10488,49 +10497,59 @@ namespace MasterOnline.Controllers
                                 //value = value.Trim()
                                 attribute_value_list = new List<ShopeeAttributeValueClass_V2>()
                             };
-
-                            var attrValue = new ShopeeAttributeValueClass_V2();
-                            long n;
-                            bool isNumeric = long.TryParse(value.Trim(), out n);
-                            if (isNumeric)
+                            var listValue = value.Split(',');
+                            var lattribute_id = Convert.ToInt64(attribute_id);
+                            var dataAttr = listAttrShopee.response.attribute_list.Where(p => p.attribute_id == lattribute_id).FirstOrDefault();
+                            if (listValue.Length > 0 && !dataAttr.input_type.Contains("MULTIPLE_SELECT"))
                             {
-                                attrValue.value_id = n;
-                                attrValue.value_unit = unit ?? "";
-
-                                if (listAttrShopee.response != null)
+                                listValue = new string[1];
+                                listValue[0] = value;
+                            }
+                            foreach (var singleAttr in listValue)
+                            {
+                                var attrValue = new ShopeeAttributeValueClass_V2();
+                                long n;
+                                bool isNumeric = long.TryParse(singleAttr.Trim(), out n);
+                                if (isNumeric)
                                 {
-                                    if (listAttrShopee.response.attribute_list != null)
+                                    attrValue.value_id = n;
+                                    attrValue.value_unit = unit ?? "";
+
+                                    if (listAttrShopee.response != null)
                                     {
-                                        var lattribute_id = Convert.ToInt64(attribute_id);
-                                        var dataAttr = listAttrShopee.response.attribute_list.Where(p => p.attribute_id == lattribute_id).FirstOrDefault();
-                                        if (dataAttr != null)
+                                        if (listAttrShopee.response.attribute_list != null)
                                         {
-                                            if (dataAttr.attribute_value_list != null)
+                                            //var lattribute_id = Convert.ToInt64(attribute_id);
+                                            //var dataAttr = listAttrShopee.response.attribute_list.Where(p => p.attribute_id == lattribute_id).FirstOrDefault();
+                                            if (dataAttr != null)
                                             {
-                                                if (dataAttr.attribute_value_list.Length == 0)
+                                                if (dataAttr.attribute_value_list != null)
+                                                {
+                                                    if (dataAttr.attribute_value_list.Length == 0)
+                                                    {
+                                                        attrValue.value_id = 0;
+                                                        attrValue.original_value_name = singleAttr.Trim();
+                                                        attrValue.value_unit = unit ?? "";
+                                                    }
+                                                }
+                                                else
                                                 {
                                                     attrValue.value_id = 0;
                                                     attrValue.original_value_name = value.Trim();
                                                     attrValue.value_unit = unit ?? "";
                                                 }
                                             }
-                                            else
-                                            {
-                                                attrValue.value_id = 0;
-                                                attrValue.original_value_name = value.Trim();
-                                                attrValue.value_unit = unit ?? "";
-                                            }
                                         }
                                     }
                                 }
+                                else
+                                {
+                                    attrValue.value_id = 0;
+                                    attrValue.original_value_name = value.Trim();
+                                    attrValue.value_unit = unit ?? "";
+                                }
+                                newAttr.attribute_value_list.Add(attrValue);
                             }
-                            else
-                            {
-                                attrValue.value_id = 0;
-                                attrValue.original_value_name = value.Trim();
-                                attrValue.value_unit = unit ?? "";
-                            }
-                            newAttr.attribute_value_list.Add(attrValue);
 
                             HttpBody.attribute_list.Add(newAttr);
                         }
@@ -10883,7 +10902,7 @@ namespace MasterOnline.Controllers
 
             string myData = "{ \"price_list\": [{ \"model_id\":" + brg_mp_split[1] + ", \"original_price\":" + price + " }], \"item_id\":" + brg_mp_split[0] + " }";
 
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
             myReq.Method = "POST";
             myReq.Accept = "application/json";
             myReq.ContentType = "application/json";

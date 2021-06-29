@@ -448,6 +448,7 @@ namespace MasterOnline.Controllers
                         if (listBrg.response != null)
                         {
                             var listBrgMP = new List<string>();
+                            var qryKdBrg = "";
                             if(listBrg.response.item == null)
                             {
                                 ret.nextPage = 0;
@@ -461,9 +462,16 @@ namespace MasterOnline.Controllers
                             foreach (var lis in listBrg.response.item)
                             {
                                 listBrgMP.Add(lis.item_id.ToString() + ";0");
+                                if(!string.IsNullOrEmpty(qryKdBrg))
+                                {
+                                    qryKdBrg += " or ";
+                                }
+                                qryKdBrg += " BRG_MP LIKE '"+ lis.item_id.ToString() + ";%' ";
                             }
-                            var stf02h_local = (from a in ErasoftDbContext.STF02H where a.IDMARKET == IdMarket && listBrgMP.Contains(a.BRG_MP) select new stf02h_local { BRG = a.BRG, BRG_MP = a.BRG_MP, IDMARKET = a.IDMARKET }).ToList();
-                            var tempBrg_local = (from a in ErasoftDbContext.TEMP_BRG_MP where a.IDMARKET == IdMarket && listBrgMP.Contains(a.BRG_MP) select new tempBrg_local { BRG_MP = a.BRG_MP, IDMARKET = a.IDMARKET }).ToList();
+                            //var stf02h_local = (from a in ErasoftDbContext.STF02H where a.IDMARKET == IdMarket && listBrgMP.Contains(a.BRG_MP) select new stf02h_local { BRG = a.BRG, BRG_MP = a.BRG_MP, IDMARKET = a.IDMARKET }).ToList();
+                            //var tempBrg_local = (from a in ErasoftDbContext.TEMP_BRG_MP where a.IDMARKET == IdMarket && listBrgMP.Contains(a.BRG_MP) select new tempBrg_local { BRG_MP = a.BRG_MP, IDMARKET = a.IDMARKET }).ToList();
+                            var stf02h_local = ErasoftDbContext.Database.SqlQuery<stf02h_local>("SELECT BRG, BRG_MP, IDMARKET FROM STF02H WHERE IDMARKET = "+ IdMarket + " AND ("+ qryKdBrg + ")").ToList();
+                            var tempBrg_local = ErasoftDbContext.Database.SqlQuery<tempBrg_local>("SELECT BRG_MP, IDMARKET FROM TEMP_BRG_MP WHERE IDMARKET = " + IdMarket + " AND ("+ qryKdBrg + ")").ToList();
                             //if (listBrg.items.Length == 10)
                             if (listBrg.response.has_next_page)
                             {
@@ -2408,7 +2416,7 @@ namespace MasterOnline.Controllers
             var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
 
             string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds + "&access_token=" + dataAPI.token
-                + "&shop_id=" + dataAPI.merchant_code + "&sign=" + sign + "&status=1&page_size=100&category_id=" + category + "&offset=" + (page * 100);
+                + "&shop_id=" + dataAPI.merchant_code + "&sign=" + sign + "&status=1&page_size=100&category_id=" + category + "&offset=" + (page);
 
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
@@ -2457,7 +2465,11 @@ namespace MasterOnline.Controllers
                         }
                         if (result.response.has_next_page)
                         {
-                            await GetBrand_V2(dataAPI, category, page + 1);
+                            await GetBrand_V2(dataAPI, category, result.response.next_offset);
+                        }
+                        else
+                        {
+
                         }
                     }
 
