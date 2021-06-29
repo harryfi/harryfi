@@ -2416,7 +2416,7 @@ namespace MasterOnline.Controllers
             var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
 
             string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds + "&access_token=" + dataAPI.token
-                + "&shop_id=" + dataAPI.merchant_code + "&sign=" + sign + "&status=1&page_size=100&category_id=" + category + "&offset=" + (page * 100);
+                + "&shop_id=" + dataAPI.merchant_code + "&sign=" + sign + "&status=1&page_size=100&category_id=" + category + "&offset=" + (page);
 
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
@@ -2465,7 +2465,11 @@ namespace MasterOnline.Controllers
                         }
                         if (result.response.has_next_page)
                         {
-                            await GetBrand_V2(dataAPI, category, page + 1);
+                            await GetBrand_V2(dataAPI, category, result.response.next_offset);
+                        }
+                        else
+                        {
+
                         }
                     }
 
