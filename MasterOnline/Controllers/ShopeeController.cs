@@ -466,7 +466,7 @@ namespace MasterOnline.Controllers
                                 {
                                     qryKdBrg += " or ";
                                 }
-                                qryKdBrg += " BRG_MP LIKE '%"+ lis.item_id.ToString() + ";%' ";
+                                qryKdBrg += " BRG_MP LIKE '"+ lis.item_id.ToString() + ";%' ";
                             }
                             //var stf02h_local = (from a in ErasoftDbContext.STF02H where a.IDMARKET == IdMarket && listBrgMP.Contains(a.BRG_MP) select new stf02h_local { BRG = a.BRG, BRG_MP = a.BRG_MP, IDMARKET = a.IDMARKET }).ToList();
                             //var tempBrg_local = (from a in ErasoftDbContext.TEMP_BRG_MP where a.IDMARKET == IdMarket && listBrgMP.Contains(a.BRG_MP) select new tempBrg_local { BRG_MP = a.BRG_MP, IDMARKET = a.IDMARKET }).ToList();

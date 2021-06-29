@@ -7665,7 +7665,7 @@ namespace MasterOnline.Controllers
                             var listValue = value.Split(','); 
                             var lattribute_id = Convert.ToInt64(attribute_id);
                             var dataAttr = listAttrShopee.response.attribute_list.Where(p => p.attribute_id == lattribute_id).FirstOrDefault();
-                            if (listValue.Length > 0 && !dataAttr.input_type.Contains("MULTIPLE_SELECT"))
+                            if (listValue.Length > 0 && !dataAttr.input_type.ToUpper().Contains("MULTIPLE_SELECT"))
                             {
                                 listValue = new string[1];
                                 listValue[0] = value;
