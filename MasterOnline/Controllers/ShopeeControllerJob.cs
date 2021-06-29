@@ -10902,7 +10902,7 @@ namespace MasterOnline.Controllers
 
             string myData = "{ \"price_list\": [{ \"model_id\":" + brg_mp_split[1] + ", \"original_price\":" + price + " }], \"item_id\":" + brg_mp_split[0] + " }";
 
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
             myReq.Method = "POST";
             myReq.Accept = "application/json";
             myReq.ContentType = "application/json";
