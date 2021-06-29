@@ -9462,26 +9462,26 @@ namespace MasterOnline.Controllers
 
                                 //var barang = ErasoftDbContext.STF02H.Where(m => m.RecNum == recnum_stf02h_var).FirstOrDefault();
                                 //await UpdateImage(iden, barang.BRG, Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id));
-                                if (tblCustomer.TIDAK_HIT_UANG_R)
-                                {
-                                    //StokControllerJob.ShopeeAPIData data = new StokControllerJob.ShopeeAPIData()
-                                    //{
-                                    //    merchant_code = iden.merchant_code,
-                                    //};
+//                                if (tblCustomer.TIDAK_HIT_UANG_R)
+//                                {
+//                                    //StokControllerJob.ShopeeAPIData data = new StokControllerJob.ShopeeAPIData()
+//                                    //{
+//                                    //    merchant_code = iden.merchant_code,
+//                                    //};
 
-#if (DEBUG || Debug_AWS)
-                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
-                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.response.item_id)
-                                        + ";" + Convert.ToString(variasi.model_id), 0, username, null)).Wait();
-#else
-                                    //string EDBConnID = EDB.GetConnectionString("ConnId");
-                                    //var sqlStorage = new SqlServerStorage(EDBConnID);
+//#if (DEBUG || Debug_AWS)
+//                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+//                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.response.item_id)
+//                                        + ";" + Convert.ToString(variasi.model_id), 0, username, null)).Wait();
+//#else
+//                                    //string EDBConnID = EDB.GetConnectionString("ConnId");
+//                                    //var sqlStorage = new SqlServerStorage(EDBConnID);
 
-                                    //var Jobclient = new BackgroundJobClient(sqlStorage);
-                                    client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.response.item_id)
-                                        + ";" + Convert.ToString(variasi.model_id), 0, username, null));
-#endif
-                                }
+//                                    //var Jobclient = new BackgroundJobClient(sqlStorage);
+//                                    client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.response.item_id)
+//                                        + ";" + Convert.ToString(variasi.model_id), 0, username, null));
+//#endif
+//                                }
                             }
                             #region update price and stok
 
@@ -9494,8 +9494,8 @@ namespace MasterOnline.Controllers
 #if (Debug_AWS || DEBUG)
                                 await UpdatePrice_Job_V2(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, log_ActionCategory, log_ActionName, 
                                     listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), iden, float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString()));
-                                if (tblCustomer.TIDAK_HIT_UANG_R)
-                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null)).Wait();
+                                    if (tblCustomer.TIDAK_HIT_UANG_R)
+                                        Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null)).Wait();
 #else
                                     client.Enqueue<ShopeeControllerJob>(x => x.UpdatePrice_Job_V2(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, 
                                         log_ActionCategory, log_ActionName, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), iden, float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString())));
@@ -9741,26 +9741,26 @@ namespace MasterOnline.Controllers
 
                                 //var barang = ErasoftDbContext.STF02H.Where(m => m.RecNum == recnum_stf02h_var).FirstOrDefault();
                                 //await UpdateImage(iden, barang.BRG, Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id));
-                                if (tblCustomer.TIDAK_HIT_UANG_R)
-                                {
-                                    //StokControllerJob.ShopeeAPIData data = new StokControllerJob.ShopeeAPIData()
-                                    //{
-                                    //    merchant_code = iden.merchant_code,
-                                    //};
+//                                if (tblCustomer.TIDAK_HIT_UANG_R)
+//                                {
+//                                    //StokControllerJob.ShopeeAPIData data = new StokControllerJob.ShopeeAPIData()
+//                                    //{
+//                                    //    merchant_code = iden.merchant_code,
+//                                    //};
 
-#if (DEBUG || Debug_AWS)
-                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
-                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.response.item_id)
-                                        + ";" + Convert.ToString(variasi.model_id), 0, username, null)).Wait();
-#else
-                                                        //string EDBConnID = EDB.GetConnectionString("ConnId");
-                                                        //var sqlStorage = new SqlServerStorage(EDBConnID);
+//#if (DEBUG || Debug_AWS)
+//                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+//                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.response.item_id)
+//                                        + ";" + Convert.ToString(variasi.model_id), 0, username, null)).Wait();
+//#else
+//                                                        //string EDBConnID = EDB.GetConnectionString("ConnId");
+//                                                        //var sqlStorage = new SqlServerStorage(EDBConnID);
 
-                                                        //var Jobclient = new BackgroundJobClient(sqlStorage);
-                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.response.item_id)
-                                        + ";" + Convert.ToString(variasi.model_id), 0, username, null));
-#endif
-                                }
+//                                                        //var Jobclient = new BackgroundJobClient(sqlStorage);
+//                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.response.item_id)
+//                                        + ";" + Convert.ToString(variasi.model_id), 0, username, null));
+//#endif
+//                                }
                             }
 
                             #region update price and stok
@@ -9774,13 +9774,13 @@ namespace MasterOnline.Controllers
 #if (Debug_AWS || DEBUG)
                                     await UpdatePrice_Job_V2(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, log_ActionCategory, log_ActionName,
                                         listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), iden, float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString()));
-                                    //if (tblCustomer.TIDAK_HIT_UANG_R)
-                                    //    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null)).Wait();
+                                    if (tblCustomer.TIDAK_HIT_UANG_R)
+                                        Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null)).Wait();
 #else
                                     Jobclient.Enqueue<ShopeeControllerJob>(x => x.UpdatePrice_Job_V2(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, 
                                         log_ActionCategory, log_ActionName, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), iden, float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString())));
-                                    //if (tblCustomer.TIDAK_HIT_UANG_R)
-                                    //    client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null));
+                                    if (tblCustomer.TIDAK_HIT_UANG_R)
+                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null));
 #endif
                                 }
                             }
