@@ -2164,7 +2164,7 @@ namespace MasterOnline.Controllers
                         more = false;
                     }
                 }
-                more = false;
+                more = true;
                 fromDt = fromDt.AddDays(-1);
                 toDt = toDt.AddDays(-1);
                 page = 0;
@@ -2359,7 +2359,7 @@ namespace MasterOnline.Controllers
                         more = false;
                     }
                 }
-                more = false;
+                more = true;
                 fromDt = fromDt.AddDays(-1);
                 toDt = toDt.AddDays(-1);
                 page = 0;
