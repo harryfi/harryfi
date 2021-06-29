@@ -1366,6 +1366,7 @@ namespace MasterOnline.Controllers
                             if (marketPlace.KD_ANALISA == "2")
                             {
                                 data.token = marketPlace.TOKEN;
+                                data.no_cust = marketPlace.CUST;
                                 data.refresh_token = marketPlace.REFRESH_TOKEN;
                                 data.token_expired = marketPlace.TOKEN_EXPIRED;
                             }
@@ -1826,6 +1827,7 @@ namespace MasterOnline.Controllers
                             if (marketPlace.KD_ANALISA == "2")
                             {
                                 data.token = marketPlace.TOKEN;
+                                data.no_cust = marketPlace.CUST;
                                 data.refresh_token = marketPlace.REFRESH_TOKEN;
                                 data.token_expired = marketPlace.TOKEN_EXPIRED;
                             }

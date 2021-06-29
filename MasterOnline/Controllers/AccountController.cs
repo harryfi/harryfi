@@ -1357,6 +1357,8 @@ namespace MasterOnline.Controllers
                     iden.username = username;
                     iden.no_cust = tblCustomer.CUST;
                     iden.tgl_expired = tblCustomer.TGL_EXPIRED;
+                    iden.token = tblCustomer.TOKEN;
+                    iden.refresh_token = tblCustomer.REFRESH_TOKEN;
 
                     ShopeeController.ShopeeAPIData iden2 = new ShopeeController.ShopeeAPIData();
                     iden2.merchant_code = tblCustomer.Sort1_Cust;
@@ -1364,6 +1366,8 @@ namespace MasterOnline.Controllers
                     iden2.username = username;
                     iden2.no_cust = tblCustomer.CUST;
                     iden2.tgl_expired = tblCustomer.TGL_EXPIRED;
+                    iden2.token = tblCustomer.TOKEN;
+                    iden2.refresh_token = tblCustomer.REFRESH_TOKEN;
 
                     //remark, tidak perlu cek detail toko
                     // proses cek dan get token
