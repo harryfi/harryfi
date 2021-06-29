@@ -274,8 +274,11 @@
                         $("<iframe id='LoadReportMO'>")// create a new iframe element
                             .hide()//invisible
                             .load(function () {
+                                //change by nurul 29/6/2021
+                                //setTimeout(function () { $("#LoadReportMO").remove(); }, 30000);
+                                setTimeout(function () { $("#LoadReportMO").remove(); }, 60000);
+                                //change by nurul 29/6/2021
                                 $('#loading_spinner').hide();
-                                setTimeout(function () { $("#LoadReportMO").remove(); }, 30000);
                             })
                             .attr("src", data)//load the page
                             .appendTo("body");
