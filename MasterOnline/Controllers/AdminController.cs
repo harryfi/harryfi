@@ -6232,12 +6232,12 @@ namespace MasterOnline.Controllers
                                 else if (marketplace.ToUpper() == "SHOPEE")
                                 {
                                     if (resultConvertInvocation.Method.ToUpper() == "GETORDERBYSTATUS" &&
-                                    resultDataJob.Tables[0].Rows[i]["arguments"].ToString().Contains("\\\"}\"" + "," + "\"6\"" + "," + "\"\\\""))
+                                    resultDataJob.Tables[0].Rows[i]["arguments"].ToString().Contains("}\"" + "," + "\"6\"" + "," + "\"\\\""))
                                     {
                                         statusOrder = " (Unpaid)";
                                     }
                                     else if (resultConvertInvocation.Method.ToUpper() == "GETORDERBYSTATUS" &&
-                                    resultDataJob.Tables[0].Rows[i]["arguments"].ToString().Contains("\\\"}\"" + "," + "\"3\"" + "," + "\"\\\""))
+                                    resultDataJob.Tables[0].Rows[i]["arguments"].ToString().Contains("}\"" + "," + "\"3\"" + "," + "\"\\\""))
                                     {
                                         statusOrder = " (Ready To Ship)";
                                     }
@@ -6246,8 +6246,9 @@ namespace MasterOnline.Controllers
 
                                     if (splitArguments.Length > 0)
                                     {
-                                        var no_custShopee = splitArguments[12].ToString();
+                                        //var no_custShopee = splitArguments[12].ToString();
                                         var usernameShopee = splitArguments[8].ToString().Split(':');
+                                        var no_custShopee = splitArguments[14].ToString();
                                         string[] merchantCode = splitArguments[0].ToString().Split(':');
                                         string queryCheckToko = "SELECT PERSO FROM ARF01 WHERE SORT1_CUST = '" + merchantCode[1] + "' AND CUST = '" + no_custShopee + "'; ";
                                         var resultDataToko = EDB.GetDataSet("SCon", "QUEUE_TOKO_SHOPEE", queryCheckToko);
