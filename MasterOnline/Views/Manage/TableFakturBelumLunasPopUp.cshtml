@@ -67,6 +67,9 @@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 115px;">Tgl. Faktur</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;">No. Referensi</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Tgl. Referensi</th>
+            @*//add by nurul 30/6/2021*@
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Pembeli</th>
+            @*//end add by nurul 30/6/2021*@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Nilai Faktur</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Pilih</th>
         </tr>
@@ -89,6 +92,9 @@
                 <td>@(faktur.tglSI?.ToString("dd/MM/yyyy"))</td>
                 <td>@noref</td>
                 <td>@(faktur.tglSO?.ToString("dd/MM/yyyy"))</td>
+                @*//add by nurul 30/6/2021*@
+                <td>@faktur.pembeli</td>
+                @*//end add by nurul 30/6/2021*@
                 <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", faktur.sisa)</td>
                 <td class="edit-hapus-col">
                     <button class="btn btn-primary" onclick="pilihPrompt('@tempPrompt')">

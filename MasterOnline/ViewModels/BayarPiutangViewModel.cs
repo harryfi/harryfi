@@ -116,6 +116,9 @@ namespace MasterOnline.ViewModels
         public DateTime? tglSO { get; set; }
         public double sisa { get; set; }
         public double ongkir { get; set; }
+        //add by nurul 30/6/2021
+        public string pembeli { get; set; }
+        //end add by nurul 30/6/2021
     }
 
     public class tempOngkirFaktur
