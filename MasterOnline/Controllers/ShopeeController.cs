@@ -1680,7 +1680,7 @@ namespace MasterOnline.Controllers
 
                                     foreach (var item in itemVariation.response.model)
                                     {
-                                        sellerSku = item.model_sku;
+                                        sellerSku = item.model_sku ?? "";
                                         string brgMp = Convert.ToString(item_id) + ";" + Convert.ToString(item.model_id);
                                             
                                         tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
@@ -1703,7 +1703,7 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
-                                    sellerSku = itemRes.item_sku;
+                                    sellerSku = itemRes.item_sku ?? "";
                                     float hargaBrg = 0;
                                     if(itemRes.price_info != null)
                                     {
