@@ -55,15 +55,24 @@ namespace MasterOnline.Controllers
             //if merchant code diisi. barulah GetOrderList
             string ret = "";
             SetupContext(dbPathEra, user_name);
+            
+            var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
 
             string sSQL = "UPDATE S SET HJUAL = T.HJUAL ";
+            if(customer != null)
+            {
+                if(customer.NAMA == "16")
+                {
+
+                }
+            }
             var sSQL2 = "FROM TEMP_UPDATE_HJUAL T INNER JOIN STF02H S ON T.BRG = S.BRG AND T.IDMARKET = S.IDMARKET ";
             sSQL2 += "WHERE INDEX_FILE = " + indexFile;
             string maxData = "0";
             var result = EDB.ExecuteSQL("CString", CommandType.Text, sSQL + sSQL2);
             if(result > 0)
             {
-                var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
+                //var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
                 if(customer != null)
                 {
                     var dsUpdate = EDB.GetDataSet("CString", "STF02H", "SELECT T.BRG, BRG_MP, T.HJUAL, DISPLAY " + sSQL2 + " AND ISNULL(BRG_MP, '') <> ''");

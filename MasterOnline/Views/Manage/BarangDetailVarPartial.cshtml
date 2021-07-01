@@ -571,6 +571,34 @@
                 }
             });
 
+        //add 1 july 2021, harga normal blibli
+        $('#variant-section input[data-jenis="hnormal_var"]').off('focus').focus(function () {
+            $(this).val(convertToAngka($(this).val()));
+        });
+
+        $('#variant-section input[data-jenis="hnormal_var"]').off('change').on('change', function () {
+            var input = $(this).val();
+            var rupiah = convertToRupiah(input);
+            $(this).val(rupiah);
+        });
+
+        $('#variant-section input[data-jenis="hnormal_var"]').off('keydown').on('keydown',
+            function (e) {
+                if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                    // Allow: Ctrl+A, Command+A
+                    (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                    // Allow: home, end, left, right, down, up
+                    (e.keyCode >= 35 && e.keyCode <= 40)) {
+                    // let it happen, don't do anything
+                    return;
+                }
+                // Ensure that it is a number and stop the keypress
+                if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                    e.preventDefault();
+                }
+            });
+        //end add 1 july 2021, harga normal blibli
+
         //foto per varian blibli
         $('.btn_hapus_foto_produk_var_blibli').each(function (i, item) {
             var data_barang_id = $(item).attr("data-barang-id");
