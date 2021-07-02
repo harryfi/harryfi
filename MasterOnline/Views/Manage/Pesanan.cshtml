@@ -7104,7 +7104,7 @@
             if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
                 e.preventDefault();
             }
-            if (e.keyCode === 190 || e.keyCode === 110) e.preventDefault();
+            if (e.keyCode === 190 || e.keyCode === 110 || e.keyCode === 188) e.preventDefault();
         }
         function modeEditTd() {
             //change by calvin 16 okt 2018
@@ -7142,7 +7142,7 @@
                         //$angka = $this.text();
                         $angka = convertToAngka($this.text());
                         //end change by calvin 12 nov 2018
-                    }
+                    } 
 
                     //var valueHiddenInput = 0;
                     //if ($($this.children()[0]).val() != undefined) {
@@ -7378,7 +7378,9 @@
                             }
                         },
                         focus: function() {
-                            if ($angka == 0) {
+                            if ($angka == 0 || $angka == '0,00') {
+                                this.value = '';
+                            } else if ($(this).val() == undefined || $(this).val() == "" || $angka == "NaN") {
                                 this.value = '';
                             } else {
                                 this.value = $angka;
@@ -7391,6 +7393,9 @@
                                 numOnlyOnKeyDown(e);
                                 if (keyCode === 190) e.preventDefault();
                                 if (keyCode === 13 || keyCode === 9) {
+                                    if ($(this).val() == "" || $(this).val() == undefined || $(this).val() == "NaN") {
+                                        $(this).val('0');
+                                    }
                                     //$('#table_tambah_pesanan > tbody > tr > td.disc1-barang').click();
                                     $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.disc1-barang').click();
                                     e.preventDefault();
@@ -7399,7 +7404,11 @@
                             } else if ($(this).hasClass('disc-input') && $(this).parent().hasClass('disc1-barang')) {
                                 numOnlyAllowDecimalOnKeyDown(e);
                                 if (keyCode === 13 || keyCode === 9) {
-                                    if ($(this).val() == 0) {
+                                    if ($(this).val() == "" || $(this).val() == undefined || $(this).val() == "NaN") {
+                                        $(this).val('0');
+                                        $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.ndisc1-barang').click().click();
+                                    }
+                                    else if ($(this).val() == 0) {
                                         //$('#table_tambah_pesanan > tbody > tr > td.ndisc1-barang').click().click();
                                         $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.ndisc1-barang').click().click();
                                     } else {
@@ -7412,7 +7421,11 @@
                             } else if ($(this).hasClass('disc-input') && $(this).parent().hasClass('disc2-barang')) {
                                 numOnlyAllowDecimalOnKeyDown(e);
                                 if (keyCode === 13 || keyCode === 9) {
-                                    if ($(this).val() == 0) {
+                                    if ($(this).val() == "" || $(this).val() == undefined || $(this).val() == "NaN") {
+                                        $(this).val('0');
+                                        $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.ndisc2-barang').click().click();
+                                    }
+                                    else if ($(this).val() == 0) {
                                         //$('#table_tambah_pesanan > tbody > tr > td.ndisc2-barang').click().click();
                                         $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.ndisc2-barang').click().click();
                                     } else {
@@ -7422,10 +7435,15 @@
                                     e.preventDefault();
                                 }
                             } else if ($(this).hasClass('ndisc-input') && $(this).parent().hasClass('ndisc1-barang')) {
-                                numOnlyOnKeyDown(e);
-                                if (keyCode === 190) e.preventDefault();
+                                numOnlyAllowDecimalOnKeyDown(e);
+                                //numOnlyOnKeyDown(e);
+                                //if (keyCode === 190) e.preventDefault();
                                 if (keyCode === 13 || keyCode === 9) {
-                                    if ($(this).val() == '0,00') {
+                                    if ($(this).val() == "" || $(this).val() == undefined || $(this).val() == "NaN") {
+                                        $(this).val('0,00');
+                                        $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.disc2-barang').click();
+                                    }
+                                    else if ($(this).val() == '0,00') {
                                         //$('#table_tambah_pesanan > tbody > tr > td.disc2-barang').click();
                                         $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.disc2-barang').click();
                                     } else {
@@ -7436,17 +7454,36 @@
                                     e.preventDefault();
                                 }
                             } else {
-                                numOnlyOnKeyDown(e);
-                                if (keyCode === 190) e.preventDefault();
+                                numOnlyAllowDecimalOnKeyDown(e);
+                                //numOnlyOnKeyDown(e);
+                                //if (keyCode === 190) e.preventDefault();
                                 if (keyCode === 13 || keyCode === 9) {
+                                    if ($(this).val() == "" || $(this).val() == undefined || $(this).val() == "NaN") {
+                                        $(this).val('0,00');
+                                    }
                                     $(this).blur();
                                 }
                             }
                         },
                         change: function() {
                             if ($(this).hasClass('disc-input')) {
-                                if ($(this).val() > 99) {
-                                    $(this).val(99);
+                                if ($(this).val() > 99.99) {
+                                    $(this).val(99.99);
+                                }
+                            }
+                            if ($(this).hasClass('disc-input') || $(this).hasClass('ndisc-input')) {
+                                var num = parseFloat($(this).val());
+                                var cleanNum = num.toFixed(2);
+                                $(this).val(cleanNum);
+                            }
+                            if ($(this).hasClass('disc-input') || $(this).hasClass('ndisc-input')) {
+                                if ($(this).val() == "" || $(this).val() == undefined || $(this).val() == "NaN") {
+                                    $(this).val('0,00');
+                                }
+                            }
+                            if ($(this).hasClass('qty-input')) {
+                                if ($(this).val() == "" || $(this).val() == undefined || $(this).val() == "NaN") {
+                                    $(this).val('0');
                                 }
                             }
                         }

@@ -2784,19 +2784,36 @@
                 $('#TGL').val($('#Invoice_TGL').val());
             }
 
+            $('#Invoice_NDISC1').focus(function () {
+                $(this).val(convertToAngka($(this).val()));
+            });
+
             $('#Invoice_NDISC1').blur(function () {
+                //var $tot = convertToAngka($('#Invoice_BRUTO').val());
+                //if ($(this).val() > $tot) {
+                //    alert('Diskon tidak boleh melebihi total brutto sebesar ' + convertToRupiah($tot) + '!');
+                //} else {
+                //    if ($(this).val() < 0 || $(this).val() === '') $(this).val(convertToRupiah(0));
+                //    $modeEditDetail = 1;
+                //    refreshNetto();
+                //}
                 var $tot = convertToAngka($('#Invoice_BRUTO').val());
                 if ($(this).val() > $tot) {
                     alert('Diskon tidak boleh melebihi total brutto sebesar ' + convertToRupiah($tot) + '!');
+                    $(this).val($tot);
                 } else {
                     if ($(this).val() < 0 || $(this).val() === '') $(this).val(convertToRupiah(0));
-                    $modeEditDetail = 1;
-                    refreshNetto();
                 }
+                if ($(this).val() === '') $(this).val(0);
+                $(this).val(convertToAngka($(this).val()));
+                $(this).val(convertToRupiah($(this).val()));
+                $modeEditDetail = 1;
+                refreshNetto();
             });
 
             $('#Invoice_NDISC1').change(function () {
                 if ($(this).val() <= convertToAngka($('#Invoice_BRUTO').val())) {
+                    $(this).val(convertToAngka($(this).val()));
                     $(this).val(convertToRupiah($(this).val()));
                     $modeEditDetail = 1;
                     refreshNetto();
@@ -2840,7 +2857,7 @@
             $("input.num-dec-only").on('keydown',
                 function (e) {
                     // Allow: backspace, delete, tab, escape, enter and .
-                    if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 188]) !== -1 ||
+                    if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
                         // Allow: Ctrl+A, Command+A
                         (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
                         // Allow: home, end, left, right, down, up
@@ -3126,40 +3143,71 @@
         }
 
         var $angka;
-        function numOnlyAllowDecimalOnKeyDown(e){
-            if ($.inArray(e.keyCode, [46, 8, 27, 188, 110]) !== -1 ||
-                // Allow: Ctrl+A, Command+A
-                    (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
-                // Allow: home, end, left, right, down, up
-                    (e.keyCode >= 35 && e.keyCode <= 40))
-            {
-                // let it happen, don't do anything
-                return;
-            }
-            // Ensure that it is a number and stop the keypress
-            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
-                e.preventDefault();
-            }
-        }
-    function numOnlyOnKeyDown(e) {
-        console.log('numonlyonkeydown' + e.keyCode);
-        if (e.keyCode === 190 || e.keyCode === 110 || e.keyCode === 188) { e.preventDefault(); return;}
+    //    function numOnlyAllowDecimalOnKeyDown(e){
+    //        if ($.inArray(e.keyCode, [46, 8, 27, 190, 110]) !== -1 ||
+    //            // Allow: Ctrl+A, Command+A
+    //                (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+    //            // Allow: home, end, left, right, down, up
+    //                (e.keyCode >= 35 && e.keyCode <= 40))
+    //        {
+    //            // let it happen, don't do anything
+    //            return;
+    //        }
+    //        // Ensure that it is a number and stop the keypress
+    //        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+    //            e.preventDefault();
+    //        }
+    //    }
+    //function numOnlyOnKeyDown(e) {
+    //    console.log('numonlyonkeydown' + e.keyCode);
+    //    if (e.keyCode === 190 || e.keyCode === 110 || e.keyCode === 188) { e.preventDefault(); return;}
 
-            if ($.inArray(e.keyCode, [46, 8, 27]) !== -1 ||
-                // Allow: Ctrl+A, Command+A
-                    (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
-                // Allow: home, end, left, right, down, up
-                    (e.keyCode >= 35 && e.keyCode <= 40))
-            {
-                // let it happen, don't do anything
-                return;
-            }
-            // Ensure that it is a number and stop the keypress
-            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
-                e.preventDefault();
-            }
-            //if (e.keyCode === 190 || e.keyCode === 110 || keyCode === 188) e.preventDefault();
+    //        if ($.inArray(e.keyCode, [46, 8, 27]) !== -1 ||
+    //            // Allow: Ctrl+A, Command+A
+    //                (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+    //            // Allow: home, end, left, right, down, up
+    //                (e.keyCode >= 35 && e.keyCode <= 40))
+    //        {
+    //            // let it happen, don't do anything
+    //            return;
+    //        }
+    //        // Ensure that it is a number and stop the keypress
+    //        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+    //            e.preventDefault();
+    //        }
+    //        //if (e.keyCode === 190 || e.keyCode === 110 || keyCode === 188) e.preventDefault();
+    //    }
+
+    function numOnlyAllowDecimalOnKeyDown(e) {
+        if ($.inArray(e.keyCode, [46, 8, 27, 190, 110]) !== -1 ||
+            // Allow: Ctrl+A, Command+A
+            (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+            // Allow: home, end, left, right, down, up
+            (e.keyCode >= 35 && e.keyCode <= 40)) {
+            // let it happen, don't do anything
+            return;
         }
+        // Ensure that it is a number and stop the keypress
+        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+            e.preventDefault();
+        }
+    }
+    function numOnlyOnKeyDown(e) {
+
+        if ($.inArray(e.keyCode, [46, 8, 27]) !== -1 ||
+            // Allow: Ctrl+A, Command+A
+            (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+            // Allow: home, end, left, right, down, up
+            (e.keyCode >= 35 && e.keyCode <= 40)) {
+            // let it happen, don't do anything
+            return;
+        }
+        // Ensure that it is a number and stop the keypress
+        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+            e.preventDefault();
+        }
+        if (e.keyCode === 190 || e.keyCode === 110 || e.keyCode === 188) e.preventDefault();
+    }
         function modeEditTd() {
             $('#table_tambah_invoice > tbody > tr[data-invoice-id="0"] > .qty-barang').addClass('editable');
             $('#table_tambah_invoice > tbody > tr[data-invoice-id="0"] > .disc1-barang').addClass('editable');
@@ -3180,7 +3228,8 @@
                 //}
                 if ($this.text() !== '') {
                     //$angka = convertToAngka($this.text());
-                    $angka = convertToAngkaForDec($this.text());
+                    //$angka = convertToAngkaForDec($this.text());
+                    $angka = convertToAngka($this.text());
                 }
 
                 if ($class == 'qty-barang editable') {
@@ -3352,6 +3401,8 @@
                     focus: function() {
                         if ($angka == 0 || $angka == '0,00') {
                             this.value = '';
+                        } else if ($(this).val() == undefined || $(this).val() == "" || $angka == "NaN") {
+                            this.value = '';
                         } else {
                             this.value = $angka;
                         }
@@ -3364,14 +3415,22 @@
                             if (keyCode === 190 || keyCode === 188) e.preventDefault();
 
                             if (keyCode === 13 || keyCode === 9) {
+                                if ($(this).val() == "" || $(this).val() == undefined || $(this).val() == "NaN") {
+                                    $(this).val('0');
+                                }
                                 $('#table_tambah_invoice > tbody > tr > td.disc1-barang').click();
                                 e.preventDefault();
                             }
                         } else if ($(this).hasClass('disc-input') && $(this).parent().hasClass('disc1-barang')) {
-                            numOnlyOnKeyDown(e);
-                            if (keyCode === 190 || keyCode === 188) e.preventDefault();
+                            //numOnlyOnKeyDown(e);
+                            numOnlyAllowDecimalOnKeyDown(e);
+                            //if (keyCode === 190 || keyCode === 188) e.preventDefault();
                             if (keyCode === 13 || keyCode === 9) {
-                                if ($(this).val() == 0) {
+                                if ($(this).val() == "" || $(this).val() == undefined || $(this).val() == "NaN") {
+                                    $(this).val('0');
+                                    $('#table_tambah_invoice > tbody > tr > td.ndisc1-barang').click().click();
+                                }
+                                else if ($(this).val() == 0) {
                                     $('#table_tambah_invoice > tbody > tr > td.ndisc1-barang').click().click();
                                 } else {
                                     $('#table_tambah_invoice > tbody > tr > td.disc2-barang').click();
@@ -3380,10 +3439,15 @@
                                 e.preventDefault();
                             }
                         } else if ($(this).hasClass('disc-input') && $(this).parent().hasClass('disc2-barang')) {
-                            numOnlyOnKeyDown(e);
-                            if (keyCode === 190 || keyCode === 188) e.preventDefault();
+                            //numOnlyOnKeyDown(e);
+                            numOnlyAllowDecimalOnKeyDown(e);
+                            //if (keyCode === 190 || keyCode === 188) e.preventDefault();
                             if (keyCode === 13 || keyCode === 9) {
-                                if ($(this).val() == 0) {
+                                if ($(this).val() == "" || $(this).val() == undefined || $(this).val() == "NaN") {
+                                    $(this).val('0');
+                                    $('#table_tambah_invoice > tbody > tr > td.ndisc2-barang').click().click();
+                                }
+                                else if ($(this).val() == 0) {
                                     $('#table_tambah_invoice > tbody > tr > td.ndisc2-barang').click().click();
                                 } else {
                                     $(this).blur();
@@ -3393,9 +3457,13 @@
                             }
                         } else if ($(this).hasClass('ndisc-input') && $(this).parent().hasClass('ndisc1-barang')) {
                             numOnlyAllowDecimalOnKeyDown(e);
-                            if (keyCode === 190) e.preventDefault();
+                            //if (keyCode === 190) e.preventDefault();
                             if (keyCode === 13 || keyCode === 9) {
-                                if ($(this).val() == '0,00') {
+                                if ($(this).val() == "" || $(this).val() == undefined || $(this).val() == "NaN") {
+                                    $(this).val('0');
+                                    $('#table_tambah_invoice > tbody > tr > td.disc2-barang').click();
+                                }
+                                else if ($(this).val() == '0,00') {
                                     $('#table_tambah_invoice > tbody > tr > td.disc2-barang').click();
                                 } else {
                                     $('#table_tambah_invoice > tbody > tr > td.ndisc2-barang').click();
@@ -3406,8 +3474,11 @@
                         } else {
                             //numOnlyOnKeyDown(e);
                             numOnlyAllowDecimalOnKeyDown(e);
-                            if (keyCode === 190) e.preventDefault();
+                            //if (keyCode === 190) e.preventDefault();
                             if (keyCode === 13 || keyCode === 9) {
+                                if ($(this).val() == "" || $(this).val() == undefined || $(this).val() == "NaN") {
+                                    $(this).val('0,00');
+                                }
                                 $(this).blur();
                             }
                         }
@@ -3422,8 +3493,23 @@
                         //end remark by nurul 27/2/2019
 
                         if ($(this).hasClass('disc-input')) {
-                            if ($(this).val() > 99) {
-                                $(this).val(99);
+                            if ($(this).val() > 99.99) {
+                                $(this).val(99.99);
+                            }
+                        }
+                        if ($(this).hasClass('disc-input') || $(this).hasClass('ndisc-input')) {
+                            var num = parseFloat($(this).val());
+                            var cleanNum = num.toFixed(2);
+                            $(this).val(cleanNum);
+                        }
+                        if ($(this).hasClass('disc-input') || $(this).hasClass('ndisc-input')) {
+                            if ($(this).val() == "" || $(this).val() == undefined || $(this).val() == "NaN") {
+                                $(this).val('0,00');
+                            }
+                        }
+                        if ($(this).hasClass('qty-input')) {
+                            if ($(this).val() == "" || $(this).val() == undefined || $(this).val() == "NaN") {
+                                $(this).val('0');
                             }
                         }
                     }
