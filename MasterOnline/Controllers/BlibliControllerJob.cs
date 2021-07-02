@@ -2932,6 +2932,8 @@ namespace MasterOnline.Controllers
                                         log_b.KET = (Convert.ToInt32(currentProgress[0]) + 1) + "/" + currentProgress[1];
                                         ErasoftDbContext.SaveChanges();
                                     }
+                                    currentLog.CUST_ATTRIBUTE_2 = (Convert.ToInt32(currentProgress[0]) + 1).ToString();
+                                    currentLog.CUST_ATTRIBUTE_3 = currentProgress[1];
                                 }
                             }
                         }
@@ -8364,6 +8366,13 @@ namespace MasterOnline.Controllers
                     attributesMap = attributeMap
                 };
 
+                //add by Tri, 1 july 2021
+                if ((stf02h.HARGA_NORMAL ?? 0) > 0)
+                {
+                    newVarItem.price = Convert.ToInt32(stf02h.HARGA_NORMAL);
+                }
+                //end add by Tri, 1 july 2021
+
                 //add by calvin 15 agustus 2019
                 var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(data.dataBarangInDb.BRG, "ALL");
                 if (qty_stock > 0)
@@ -8704,6 +8713,12 @@ namespace MasterOnline.Controllers
                         images = images_pervar.ToArray(),
                         attributesMap = attributeMap
                     };
+                    //add by Tri, 1 july 2021
+                    if((var_stf02h_item.HARGA_NORMAL ?? 0) > 0)
+                    {
+                        newVarItem.price = Convert.ToInt32(var_stf02h_item.HARGA_NORMAL);
+                    }
+                    //end add by Tri, 1 july 2021
 
                     //add by calvin 15 agustus 2019
                     var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(var_item.BRG, "ALL");
