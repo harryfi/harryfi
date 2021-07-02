@@ -10948,6 +10948,8 @@ namespace MasterOnline.Controllers
                                 {
                                     log_b.KET = (Convert.ToInt32(currentProgress[0]) + 1) + "/" + currentProgress[1];
                                     ErasoftDbContext.SaveChanges();
+                                    currentLog.CUST_ATTRIBUTE_2 = (Convert.ToInt32(currentProgress[0]) + 1).ToString();
+                                    currentLog.CUST_ATTRIBUTE_3 = currentProgress[1];
                                 }
                             }
                         }

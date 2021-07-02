@@ -63,7 +63,7 @@ namespace MasterOnline.Controllers
             {
                 if(customer.NAMA == "16")
                 {
-
+                    sSQL += ", HARGA_NORMAL = T.HARGA_NORMAL ";
                 }
             }
             var sSQL2 = "FROM TEMP_UPDATE_HJUAL T INNER JOIN STF02H S ON T.BRG = S.BRG AND T.IDMARKET = S.IDMARKET ";
@@ -75,7 +75,7 @@ namespace MasterOnline.Controllers
                 //var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
                 if(customer != null)
                 {
-                    var dsUpdate = EDB.GetDataSet("CString", "STF02H", "SELECT T.BRG, BRG_MP, T.HJUAL, DISPLAY " + sSQL2 + " AND ISNULL(BRG_MP, '') <> ''");
+                    var dsUpdate = EDB.GetDataSet("CString", "STF02H", "SELECT T.BRG, BRG_MP, T.HJUAL, DISPLAY, T.HARGA_NORMAL " + sSQL2 + " AND ISNULL(BRG_MP, '') <> ''");
                     if(dsUpdate.Tables[0].Rows.Count > 0)
                     {
                         //EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE LOG_HARGAJUAL_B SET KET = '0/"+ dsUpdate.Tables[0].Rows.Count + "', STATUS = 'COMPLETE' WHERE NO_BUKTI = '"+nobuk+"' AND NO_FILE = " + indexFile);
@@ -199,16 +199,17 @@ namespace MasterOnline.Controllers
                                         //var brg = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").SingleOrDefault(b => b.BRG == dsUpdate.Tables[0].Rows[i]["BRG"].ToString());
                                         if (brg != null)
                                         {
-                                            dataJob.Price = brg.HJUAL.ToString();
-                                            if (!string.IsNullOrEmpty(brg.PART))
-                                            {
-                                                brg = ErasoftDbContext.STF02.Where(m => m.BRG == brg.PART).FirstOrDefault();
-                                                if (brg != null)
-                                                {
-                                                    dataJob.Price = brg.HJUAL.ToString();
+                                            //dataJob.Price = brg.HJUAL.ToString();
+                                            //if (!string.IsNullOrEmpty(brg.PART))
+                                            //{
+                                            //    brg = ErasoftDbContext.STF02.Where(m => m.BRG == brg.PART).FirstOrDefault();
+                                            //    if (brg != null)
+                                            //    {
+                                            //        dataJob.Price = brg.HJUAL.ToString();
 
-                                                }
-                                            }
+                                            //    }
+                                            //}
+                                            dataJob.Price = dsUpdate.Tables[0].Rows[i]["HARGA_NORMAL"].ToString();
                                             dataJob.MarketPrice = dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString();
                                             var displayJob = Convert.ToBoolean(dsUpdate.Tables[0].Rows[i]["DISPLAY"].ToString());
                                             dataJob.display = displayJob ? "true" : "false";
