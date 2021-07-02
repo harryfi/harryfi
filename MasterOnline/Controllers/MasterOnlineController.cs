@@ -220,22 +220,35 @@ namespace MasterOnline.Controllers
                                     for (int i = 0; i < dsUpdate.Tables[0].Rows.Count; i++)
                                     {
                                         string[] brg_mp = dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString().Split(';');
-                                        if (brg_mp.Count() == 2)
+                                        if (customer.KD_ANALISA != "2")
                                         {
+                                            if (brg_mp.Count() == 2)
+                                            {
 
-                                            var ShopeeApiJob = new ShopeeControllerJob();
+                                                var ShopeeApiJob = new ShopeeControllerJob();
+                                                var hargaJualBaru = Convert.ToDouble(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString());
+
+                                                if (brg_mp[1] == "0")
+                                                {
+                                                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdatePrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), dataJob, (float)hargaJualBaru));
+                                                    //await new ShopeeControllerJob().UpdatePrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), dataJob, (float)hargaJualBaru);
+                                                }
+                                                else if (brg_mp[1] != "")
+                                                {
+                                                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdateVariationPrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), dataJob, (float)hargaJualBaru));
+                                                    //await new ShopeeControllerJob().UpdateVariationPrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), dataJob, (float)hargaJualBaru);
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dataJob.token = customer.TOKEN;
+                                            dataJob.refresh_token = customer.REFRESH_TOKEN;
+                                            dataJob.token_expired = customer.TOKEN_EXPIRED;
+                                            dataJob.no_cust = customer.CUST;
                                             var hargaJualBaru = Convert.ToDouble(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString());
+                                            clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdatePrice_Job_V2(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), dataJob, (float)hargaJualBaru));
 
-                                            if (brg_mp[1] == "0")
-                                            {
-                                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdatePrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), dataJob, (float)hargaJualBaru));
-                                                //await new ShopeeControllerJob().UpdatePrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), dataJob, (float)hargaJualBaru);
-                                            }
-                                            else if (brg_mp[1] != "")
-                                            {
-                                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdateVariationPrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), dataJob, (float)hargaJualBaru));
-                                                //await new ShopeeControllerJob().UpdateVariationPrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), dataJob, (float)hargaJualBaru);
-                                            }
                                         }
                                     }
                                 }
