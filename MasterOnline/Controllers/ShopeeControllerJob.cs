@@ -104,6 +104,9 @@ namespace MasterOnline.Controllers
             ShopeeAPIData ret = dataAPI;
             DateTime dateNow = DateTime.UtcNow.AddHours(7);
             bool TokenExpired = false;
+
+            SetupContext(dataAPI);
+
             if (!string.IsNullOrWhiteSpace(dataAPI.token_expired.ToString()))
             {
                 if (dataAPI.token_expired < DateTime.UtcNow.AddHours(7).AddMinutes(30))
