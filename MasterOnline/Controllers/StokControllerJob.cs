@@ -1363,6 +1363,7 @@ namespace MasterOnline.Controllers
                             {
                                 merchant_code = marketPlace.Sort1_Cust,
                             };
+                            data.DatabasePathErasoft = DatabasePathErasoft;
                             if (marketPlace.KD_ANALISA == "2")
                             {
                                 data.token = marketPlace.TOKEN;
@@ -1824,6 +1825,7 @@ namespace MasterOnline.Controllers
                             {
                                 merchant_code = marketPlace.Sort1_Cust,
                             };
+                            data.DatabasePathErasoft = DatabasePathErasoft;
                             if (marketPlace.KD_ANALISA == "2")
                             {
                                 data.token = marketPlace.TOKEN;
