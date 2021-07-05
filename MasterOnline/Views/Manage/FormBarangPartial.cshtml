@@ -897,17 +897,19 @@
                                                                 {
                                                                     @*//change by nurul 19/10/2020*@
                                                                     @*<div data-tip="[Harga Jual *] di bagian atas akan menjadi Harga Normal untuk Blibli">
-                                        @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.HJUAL ?? 0), @style = "text-align:right" })
-                                    </div>*@
+                    @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.HJUAL ?? 0), @style = "text-align:right" })
+                </div>*@
                                                                     if (Model.Bundling == "" || Model.Bundling == null)
                                                                     {
-                                                                        <div data-tip="[Harga Jual *] di bagian atas akan menjadi Harga Normal untuk Blibli">
+                                                                        @*<div data-tip="[Harga Jual *] di bagian atas akan menjadi Harga Normal untuk Blibli">*@
+                                                                        <div>
+
                                                                             @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.HJUAL ?? 0), @style = "text-align:right" })
                                                                         </div>
                                                                     }
                                                                     else
                                                                     {
-                                                                        <div data-tip="[Harga Jual *] di bagian atas akan menjadi Harga Normal untuk Blibli. Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
+                                                                        <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
                                                                             @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.HJUAL ?? 0), @style = "text-align:right", @readonly = "readonly" })
                                                                         </div>
                                                                     }
@@ -936,8 +938,8 @@
                                                                 {
                                                                     @*//change by nurul 19/10/2020*@
                                                                     @*<div data-tip="[Harga Jual *] di bagian atas akan menjadi Harga Normal untuk Blibli">
-                                        @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", 0), @style = "text-align:right" })
-                                    </div>*@
+                    @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", 0), @style = "text-align:right" })
+                </div>*@
                                                                     if (Model.Bundling == "" || Model.Bundling == null)
                                                                     {
                                                                         <div data-tip="[Harga Jual *] di bagian atas akan menjadi Harga Normal untuk Blibli">
