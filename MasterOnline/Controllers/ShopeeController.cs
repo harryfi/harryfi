@@ -1704,13 +1704,19 @@ namespace MasterOnline.Controllers
                                 else
                                 {
                                     sellerSku = itemRes.item_sku ?? "";
+                                    string brgMp = Convert.ToString(itemRes.item_id) + ";0";
                                     float hargaBrg = 0;
-                                    if(itemRes.price_info != null)
+                                    var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                                    var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                                    if (tempbrginDB == null && brgInDB == null)
                                     {
-                                        hargaBrg = itemRes.price_info[0].original_price;
+                                        if (itemRes.price_info != null)
+                                        {
+                                            hargaBrg = itemRes.price_info[0].original_price;
+                                        }
+                                        var ret0 = await proses_Item_detail_V2(itemRes, categoryCode, categoryName, cust, IdMarket, Convert.ToString(itemRes.item_id) + ";0", itemRes.item_name, itemRes.item_status, hargaBrg, sellerSku, 0, "", iden, true);
+                                        ret.recordCount += ret0.status;
                                     }
-                                    var ret0 = await proses_Item_detail_V2(itemRes, categoryCode, categoryName, cust, IdMarket, Convert.ToString(itemRes.item_id) + ";0", itemRes.item_name, itemRes.item_status, hargaBrg, sellerSku, 0, "", iden, true);
-                                    ret.recordCount += ret0.status;
                                 }
                                 
                             }
