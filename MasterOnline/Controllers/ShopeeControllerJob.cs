@@ -9414,12 +9414,10 @@ namespace MasterOnline.Controllers
                             }
                         }
                         //HttpBody.model = newModel;
-                        if (HttpBody.model.Count > 0)
-                        {
-                            //add by Tri 4 Des 2019, case user tambah varian tanpa ubah tier
+                        //add by Tri 4 Des 2019, case user tambah varian tanpa ubah tier
 #if (DEBUG || Debug_AWS)
-                            //await GetVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation, tier_variation, currentLog);
-                            await AddTierVariation_V2(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Add item tier", iden, item_id, HttpBody, currentLog, mapSTF02HRecnum_IndexVariasi);
+                        //await GetVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation, tier_variation, currentLog);
+                        await AddTierVariation_V2(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Add item tier", iden, item_id, HttpBody, currentLog, mapSTF02HRecnum_IndexVariasi);
 #else
                     //string EDBConnID = EDB.GetConnectionString("ConnId");
                     //var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -9427,35 +9425,7 @@ namespace MasterOnline.Controllers
                     //var client = new BackgroundJobClient(sqlStorage);
                     client.Enqueue<ShopeeControllerJob>(x => x.AddTierVariation_V2(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Add item tier", iden, item_id, HttpBody, currentLog, mapSTF02HRecnum_IndexVariasi));
 #endif
-                            //end add by Tri 4 Des 2019, case user tambah varian tanpa ubah tier
-                        }
-                        else
-                        {
-                            #region update price and stok
-                            var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
-
-                            var listBrg = EDB.GetDataSet("MOConnectionString", "STF02", "SELECT A.BRG, BRG_MP, B.HJUAL FROM STF02 A INNER JOIN STF02H B ON A.BRG = B.BRG WHERE PART = '" + brg + "' AND IDMARKET = " + tblCustomer.RecNum + " AND ISNULL(BRG_MP, '') <> ''");
-                            if (listBrg.Tables[0].Rows.Count > 0)
-                            {
-                                StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
-                                for (int i = 0; i < listBrg.Tables[0].Rows.Count; i++)
-                                {
-#if (Debug_AWS || DEBUG)
-                                    await UpdatePrice_Job_V2(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, log_ActionCategory, log_ActionName,
-                                        listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), iden, float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString()));
-                                    if (tblCustomer.TIDAK_HIT_UANG_R)
-                                        Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null)).Wait();
-#else
-                                    client.Enqueue<ShopeeControllerJob>(x => x.UpdatePrice_Job_V2(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, 
-                                        log_ActionCategory, log_ActionName, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), iden, float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString())));
-                                    if (tblCustomer.TIDAK_HIT_UANG_R)
-                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null));
-#endif
-                                }
-                            }
-                            #endregion
-
-                        }
+                        //end add by Tri 4 Des 2019, case user tambah varian tanpa ubah tier
                     }
                     else
                     {
@@ -9649,8 +9619,10 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
+                    if (dataBrg.model.Count > 0)
+                    {
 #if (DEBUG || Debug_AWS)
-                    await AddModelVariation_V2(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Add item model", iden, item_id, dataBrg, currentLog, mapSTF02HRecnum_IndexVariasi);
+                        await AddModelVariation_V2(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Add item model", iden, item_id, dataBrg, currentLog, mapSTF02HRecnum_IndexVariasi);
 #else
                     string EDBConnID = EDB.GetConnectionString("ConnId");
                     var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -9658,6 +9630,40 @@ namespace MasterOnline.Controllers
                     var client = new BackgroundJobClient(sqlStorage);
                     client.Enqueue<ShopeeControllerJob>(x => x.AddModelVariation_V2(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Add item model", iden, item_id, dataBrg, currentLog, mapSTF02HRecnum_IndexVariasi));
 #endif
+                    }
+                    else
+                    {
+                        #region update price and stok
+                        var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
+
+                        var listBrg = EDB.GetDataSet("MOConnectionString", "STF02", "SELECT A.BRG, BRG_MP, B.HJUAL FROM STF02 A INNER JOIN STF02H B ON A.BRG = B.BRG WHERE PART = '" + kodeProduk + "' AND IDMARKET = " + tblCustomer.RecNum + " AND ISNULL(BRG_MP, '') <> ''");
+                        if (listBrg.Tables[0].Rows.Count > 0)
+                        {
+                            StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+
+                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                            var Jobclient = new BackgroundJobClient(sqlStorage);
+
+                            for (int i = 0; i < listBrg.Tables[0].Rows.Count; i++)
+                            {
+#if (Debug_AWS || DEBUG)
+                                await UpdatePrice_Job_V2(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, log_ActionCategory, log_ActionName,
+                                    listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), iden, float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString()));
+                                if (tblCustomer.TIDAK_HIT_UANG_R)
+                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null)).Wait();
+#else
+                                    Jobclient.Enqueue<ShopeeControllerJob>(x => x.UpdatePrice_Job_V2(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, 
+                                        log_ActionCategory, log_ActionName, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), iden, float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString())));
+                                    if (tblCustomer.TIDAK_HIT_UANG_R)
+                                        Jobclient.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null));
+#endif
+                            }
+                        }
+                        #endregion
+
+                    }
                 }
             }
 
