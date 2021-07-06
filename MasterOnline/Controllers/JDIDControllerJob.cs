@@ -6593,11 +6593,11 @@ namespace MasterOnline.Controllers
                                                                 ////JD_addSKUMainPicture(data, Convert.ToString(dataSKU.skuId), brgInDb.LINK_GAMBAR_1);
                                                                 //JD_addSKUDetailPictureV2(data, Convert.ToString(dataSKU.skuId), itemDatas.LINK_GAMBAR_1, 1, true, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId));
                                                                 //JD_addSKUDetailPictureV2(data, Convert.ToString(dataSKU.skuId), itemDatas.LINK_GAMBAR_1, 1, false, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId));
-#if (DEBUG || Debug_AWS)
+//#if (DEBUG || Debug_AWS)
                                                                 await JD_addSKUDetailPictureV2(data, kodeProduk, itemDatas.LINK_GAMBAR_1, 1, true, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId));
-#else
-                                                                client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUDetailPictureV2(data, kodeProduk, itemDatas.LINK_GAMBAR_1, 1, true, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId)));
-#endif
+//#else
+//                                                                client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUDetailPictureV2(data, kodeProduk, itemDatas.LINK_GAMBAR_1, 1, true, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId)));
+//#endif
 
 
                                                                 if (lGambarUploaded.Count() > 1)
@@ -6621,11 +6621,11 @@ namespace MasterOnline.Controllers
                                                                                 break;
                                                                         }
                                                                         //JD_addSKUDetailPictureV2(data, Convert.ToString(dataSKU.skuId), urlImageJDID, i + 1, false, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId));
-#if (DEBUG || Debug_AWS)
+//#if (DEBUG || Debug_AWS)
                                                                         await JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId));
-#else
-                                                                        client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId)));
-#endif
+//#else
+//                                                                        client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId)));
+//#endif
                                                                     }
                                                                 }
                                                             }
@@ -6642,11 +6642,11 @@ namespace MasterOnline.Controllers
                                                     {
                                                         ////JD_addSKUMainPicture(data, retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.skuIdList[0].skuId.ToString(), brgInDb.LINK_GAMBAR_1);
                                                         //JD_addSKUDetailPictureV2(data, retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.skuIdList[0].skuId.ToString(), brgInDb.LINK_GAMBAR_1, 1, true, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId));
-#if (DEBUG || Debug_AWS)
+//#if (DEBUG || Debug_AWS)
                                                         await JD_addSKUDetailPictureV2(data, kodeProduk, brgInDb.LINK_GAMBAR_1, 1, true, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId));
-#else
-                                                        client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUDetailPictureV2(data, kodeProduk, brgInDb.LINK_GAMBAR_1, 1, true, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId)));
-#endif
+//#else
+//                                                        client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUDetailPictureV2(data, kodeProduk, brgInDb.LINK_GAMBAR_1, 1, true, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId)));
+//#endif
                                                         if (lGambarUploaded.Count() > 1)
                                                         {
                                                             for (int i = 1; i < lGambarUploaded.Count(); i++)
@@ -6668,11 +6668,11 @@ namespace MasterOnline.Controllers
                                                                         break;
                                                                 }
                                                                 //JD_addSKUDetailPictureV2(data, retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.skuIdList[0].skuId.ToString(), urlImageJDID, i + 1, false, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId));
-#if (DEBUG || Debug_AWS)
+//#if (DEBUG || Debug_AWS)
                                                                 await JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId));
-#else
-                                                                client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId)));
-#endif
+//#else
+//                                                                client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId)));
+//#endif
                                                             }
                                                         }
                                                     }
@@ -6691,11 +6691,11 @@ namespace MasterOnline.Controllers
                                             }
 
                                             //JD_doAuditProductV2(data, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId), kodeProduk);
-#if (DEBUG || Debug_AWS)
+//#if (DEBUG || Debug_AWS)
                                             await JD_doAuditProductV2(data, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId), kodeProduk);
-#else
-                                            client.Enqueue<JDIDControllerJob>(x => x.JD_doAuditProductV2(data, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId), kodeProduk));
-#endif
+//#else
+//                                            client.Enqueue<JDIDControllerJob>(x => x.JD_doAuditProductV2(data, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId), kodeProduk));
+//#endif
                                         }
                                     }
 
@@ -7178,11 +7178,11 @@ namespace MasterOnline.Controllers
                                                                 }
 
                                                                 //await JD_updateSKUV2(data, namafullVariant, dataVar.BRG, brgSTF02h.HJUAL.ToString(), brgSTF02h.HJUAL.ToString(), dataSKU.skuId.ToString(), spuID[0].ToString());
-#if (DEBUG || Debug_AWS)
+//#if (DEBUG || Debug_AWS)
                                                                 await JD_updateSKUV2(data, namafullVariant, dataVar.BRG, brgSTF02h.HJUAL.ToString(), brgSTF02h.HJUAL.ToString(), dataSKU.skuId.ToString(), spuID[0].ToString());
-#else
-                                                                client.Enqueue<JDIDControllerJob>(x => x.JD_updateSKUV2(data, namafullVariant, dataVar.BRG, brgSTF02h.HJUAL.ToString(), brgSTF02h.HJUAL.ToString(), dataSKU.skuId.ToString(), spuID[0].ToString()));
-#endif
+//#else
+//                                                                client.Enqueue<JDIDControllerJob>(x => x.JD_updateSKUV2(data, namafullVariant, dataVar.BRG, brgSTF02h.HJUAL.ToString(), brgSTF02h.HJUAL.ToString(), dataSKU.skuId.ToString(), spuID[0].ToString()));
+//#endif
 
 
                                                                 if (lGambarUploaded.Count() > 0)
@@ -7192,11 +7192,11 @@ namespace MasterOnline.Controllers
                                                                         ////await JD_addSKUMainPicture(data, Convert.ToString(dataSKU.skuId), dataVar.LINK_GAMBAR_1);
                                                                         //await JD_addSKUDetailPictureV2(data, kodeProduk, dataVar.LINK_GAMBAR_1, urutanGambar, true, spuID[0].ToString());
                                                                         //await JD_addSKUDetailPictureV2(data, kodeProduk, dataVar.LINK_GAMBAR_1, urutanGambar, false, spuID[0].ToString());
-#if (DEBUG || Debug_AWS)
+//#if (DEBUG || Debug_AWS)
                                                                         await JD_addSKUDetailPictureV2(data, kodeProduk, dataVar.LINK_GAMBAR_1, urutanGambar, true, spuID[0].ToString());
-#else
-                                                                client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUDetailPictureV2(data, kodeProduk, dataVar.LINK_GAMBAR_1, urutanGambar, true, spuID[0].ToString()));
-#endif
+//#else
+//                                                                client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUDetailPictureV2(data, kodeProduk, dataVar.LINK_GAMBAR_1, urutanGambar, true, spuID[0].ToString()));
+//#endif
                                                                     }
 
 
@@ -7221,11 +7221,11 @@ namespace MasterOnline.Controllers
                                                                                     break;
                                                                             }
                                                                             //await JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, spuID[0].ToString());
-#if (DEBUG || Debug_AWS)
+//#if (DEBUG || Debug_AWS)
                                                                             await JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, spuID[0].ToString());
-#else
-                                                                client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, spuID[0].ToString()));
-#endif
+//#else
+//                                                                client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, spuID[0].ToString()));
+//#endif
                                                                         }
                                                                     }
 
@@ -7303,11 +7303,11 @@ namespace MasterOnline.Controllers
                                                     dataSKUVar.stock.Add(0);
 
                                                     //await JD_addSKUVariantV2(data, dataSKUVar, dataSkuResult.model[0].spuId.ToString(), dataVar.BRG, dataVar.LINK_GAMBAR_1, marketplace.RecNum);
-#if (DEBUG || Debug_AWS)
+//#if (DEBUG || Debug_AWS)
                                                     await JD_addSKUVariantV2(data, dataSKUVar, dataSkuResult.model[0].spuId.ToString(), dataVar.BRG, dataVar.LINK_GAMBAR_1, marketplace.RecNum);
-#else
-                                                client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUVariantV2(data, dataSKUVar, dataSkuResult.model[0].spuId.ToString(), dataVar.BRG, dataVar.LINK_GAMBAR_1, marketplace.RecNum));
-#endif
+//#else
+//                                                client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUVariantV2(data, dataSKUVar, dataSkuResult.model[0].spuId.ToString(), dataVar.BRG, dataVar.LINK_GAMBAR_1, marketplace.RecNum));
+//#endif
 
                                                     listattributeIDAllVariantGroupCreate = "";
                                                 }
@@ -7340,11 +7340,11 @@ namespace MasterOnline.Controllers
                                                     //await JD_addSKUDetailPictureV2(data, kodeProduk, brgInDb.LINK_GAMBAR_1, urutanGambar, true, spuID[0].ToString());
                                                     if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
                                                     {
-#if (DEBUG || Debug_AWS)
+//#if (DEBUG || Debug_AWS)
                                                         await JD_addSKUDetailPictureV2(data, kodeProduk, brgInDb.LINK_GAMBAR_1, 1, true, spuID[0].ToString());
-#else
-                                                                client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUDetailPictureV2(data, kodeProduk, brgInDb.LINK_GAMBAR_1, 1, true, spuID[0].ToString()));
-#endif
+//#else
+//                                                                client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUDetailPictureV2(data, kodeProduk, brgInDb.LINK_GAMBAR_1, 1, true, spuID[0].ToString()));
+//#endif
                                                     }
 
                                                     if (lGambarUploaded.Count() > 1)
@@ -7368,11 +7368,11 @@ namespace MasterOnline.Controllers
                                                                     break;
                                                             }
                                                             //await JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, spuID[0].ToString());
-#if (DEBUG || Debug_AWS)
+//#if (DEBUG || Debug_AWS)
                                                             await JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, spuID[0].ToString());
-#else
-                                                                client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, spuID[0].ToString()));
-#endif
+//#else
+//                                                                client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, spuID[0].ToString()));
+//#endif
                                                         }
                                                     }
                                                 }
@@ -7382,11 +7382,11 @@ namespace MasterOnline.Controllers
                                     //}
 
                                     //JD_doAuditProductV2(data, Convert.ToString(dataSkuResult.model[0].spuId), kodeProduk);
-#if (DEBUG || Debug_AWS)
+//#if (DEBUG || Debug_AWS)
                                     await JD_doAuditProductV2(data, Convert.ToString(dataSkuResult.model[0].spuId), kodeProduk);
-#else
-                                    client.Enqueue<JDIDControllerJob>(x => x.JD_doAuditProductV2(data, Convert.ToString(dataSkuResult.model[0].spuId), kodeProduk));
-#endif
+//#else
+//                                    client.Enqueue<JDIDControllerJob>(x => x.JD_doAuditProductV2(data, Convert.ToString(dataSkuResult.model[0].spuId), kodeProduk));
+//#endif
                                 }
                             }
                         }
@@ -7819,11 +7819,11 @@ namespace MasterOnline.Controllers
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                             var client = new BackgroundJobClient(sqlStorage);
-#if (DEBUG || Debug_AWS)
+//#if (DEBUG || Debug_AWS)
                                             await JD_addSKUDetailPictureV2(data, kodeProduk, urlImage, 1, false, sSPUID);
-#else
-                                            client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUDetailPictureV2(data, kodeProduk, urlImage, 1, false, sSPUID));
-#endif
+//#else
+//                                            client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUDetailPictureV2(data, kodeProduk, urlImage, 1, false, sSPUID));
+//#endif
                                         }
                                     }
                                 }
