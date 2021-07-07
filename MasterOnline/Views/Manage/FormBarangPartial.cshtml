@@ -942,13 +942,13 @@
                 </div>*@
                                                                     if (Model.Bundling == "" || Model.Bundling == null)
                                                                     {
-                                                                        <div data-tip="[Harga Jual *] di bagian atas akan menjadi Harga Normal untuk Blibli">
+                                                                        <div>
                                                                             @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", 0), @style = "text-align:right" })
                                                                         </div>
                                                                     }
                                                                     else
                                                                     {
-                                                                        <div data-tip="[Harga Jual *] di bagian atas akan menjadi Harga Normal untuk Blibli. Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
+                                                                        <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
                                                                             @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", 0), @style = "text-align:right", @readonly = "readonly" })
                                                                         </div>
                                                                     }

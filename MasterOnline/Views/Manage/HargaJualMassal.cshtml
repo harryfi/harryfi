@@ -450,10 +450,51 @@
                         return false;
                     }
                     $('#FILE_' + index).val($('#file_upload_excel')[0].files[0].name);
-                    UploadFileExcel(index, 0, 0, 0, 0);
+                    //UploadFileExcel(index, 0, 0, 0, 0);
+                    CekHargaBlibli(index);
                 }
             }
             //UploadFileExcel(index, 0, 0, 0, 0);
+        }
+        function CekHargaBlibli(index) {
+
+            var formdata = new FormData();
+            formdata.append("FILE_EXCEL_" + index, $('#file_upload_excel')[0].files[0]);
+
+            var link = '@Html.Raw(Url.Action("CekHargaBlibli", "TransferExcel"))';
+
+            $.ajax({
+                type: "POST",
+                url: link,
+                data: formdata,
+                processData: false,  // tell jQuery not to process the data
+                contentType: false,  // tell jQuery not to set contentType
+                beforeSend: function () {
+                    $('#delFile_' + index).hide();
+                    $('#loading_' + index).show();
+                    disableUpload(1);
+                },
+                success: function (response) {
+                    if (response.status == 1) {
+                        UploadFileExcel(index, 0, 0, 0, 0);
+                    }
+                    else {
+                        $('#FILE_' + index).val('');
+                        $('#delFile_' + index).hide();
+                        $('#loading_' + index).hide();
+                        disableUpload(0);
+                        alert(response.message);
+                    }
+                },
+                error: function (xhr) {
+                    disableUpload(0);
+                    $('#delFile_' + index).show();
+                    $('#loading_' + index).hide();
+                    alert('Ada data yang tidak valid!');
+                    //$('#loading_spinner').hide();
+                    console.log(xhr);
+                }
+            });
         }
         function DownloadExcelHJual() {
             if ($('#txtCust').val() == '') {

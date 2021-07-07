@@ -7099,6 +7099,100 @@ namespace MasterOnline.Controllers
             return Json(ret, JsonRequestBehavior.AllowGet);
         }
 
+        public ActionResult CekHargaBlibli()
+        {
+            var ret = new BindingBase();
+            ret.status = 1;
+
+            if (Request.Files.Count > 0)
+            {
+                for (int file_index = 0; file_index < Request.Files.Count; file_index++)
+                {
+                    var file = Request.Files[file_index];
+                    if (file != null && file.ContentLength > 0)
+                    {
+                        byte[] data;
+                        using (Stream inputStream = file.InputStream)
+                        {
+                            MemoryStream memoryStream = inputStream as MemoryStream;
+                            if (memoryStream == null)
+                            {
+                                memoryStream = new MemoryStream();
+                                inputStream.CopyTo(memoryStream);
+                            }
+                            data = memoryStream.ToArray();
+                        }
+                        using (MemoryStream stream = new MemoryStream(data))
+                        {
+                            using (ExcelPackage excelPackage = new ExcelPackage(stream))
+                            {
+                                using (ErasoftContext eraDB = new ErasoftContext(DataSourcePath, dbPathEra))
+                                {
+                                    var worksheet = excelPackage.Workbook.Worksheets[1];
+                                    string cust = worksheet.Cells[1, 3].Value == null ? "" : worksheet.Cells[1, 3].Value.ToString();
+                                    if (!string.IsNullOrEmpty(cust))
+                                    {
+                                        var customer = eraDB.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
+                                        if (customer != null)
+                                        {
+                                            if(customer.NAMA == "16")
+                                            {
+                                                for (int i = 4 ; i <= worksheet.Dimension.End.Row; i++)
+                                                {
+                                                    var kd_brg = worksheet.Cells[i, 1].Value == null ? "" : worksheet.Cells[i, 1].Value.ToString();
+                                                    if (!string.IsNullOrEmpty(kd_brg))
+                                                    {
+                                                        if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 6].Value)) && !string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 8].Value)))
+                                                        {
+                                                            try
+                                                            {
+                                                                var hargaNormal = Convert.ToDouble(worksheet.Cells[i, 6].Value);
+                                                                var hargaPromo = Convert.ToDouble(worksheet.Cells[i, 8].Value);
+                                                                if(hargaNormal < hargaPromo)
+                                                                {
+                                                                    if(ret.status == 1)
+                                                                    {
+                                                                        ret.message = "Silahkan perbaiki nilai harga jual di excel. Error :\n";
+                                                                    }
+                                                                    ret.status = 0;
+                                                                    ret.message += kd_brg + " : Harga normal tidak boleh lebih kecil dari pada harga promosi.\n";
+                                                                }
+                                                            }
+                                                            catch(Exception ex)
+                                                            {
+                                                                if (ret.status == 1)
+                                                                {
+                                                                    ret.message = "Silahkan perbaiki nilai harga jual di excel. Error :\n";
+                                                                }
+                                                                ret.status = 0;
+                                                                ret.message += kd_brg + " : "+ex.Message+"\n";
+
+                                                            }
+                                                        }
+                                                    }
+
+                                                }
+
+                                            }
+                                        }
+
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+
+                var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(ret),
+                ContentType = "application/json"
+            };
+            return result;
+        }
         //add by nurul 9/4/2021, download excel bayar piutang
         public ActionResult ListPembayaranPiutangtoExcel(string nobuk, string recnum)
         {
