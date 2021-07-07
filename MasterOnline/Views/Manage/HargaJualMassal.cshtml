@@ -479,9 +479,10 @@
                         UploadFileExcel(index, 0, 0, 0, 0);
                     }
                     else {
-                        disableUpload(0);
-                        $('#delFile_' + index).show();
+                        $('#FILE_' + index).val('');
+                        $('#delFile_' + index).hide();
                         $('#loading_' + index).hide();
+                        disableUpload(0);
                         alert(response.message);
                     }
                 },
