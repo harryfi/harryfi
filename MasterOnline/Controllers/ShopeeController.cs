@@ -488,11 +488,11 @@ namespace MasterOnline.Controllers
                                     ret.message = "MOVE_TO_INACTIVE_PRODUCTS";
                                 }
                             }
-                            if (listBrgMP.Count == (stf02h_local.Count + tempBrg_local.Count))
-                            {
-                                ret.totalData += listBrgMP.Count;
-                                return ret;
-                            }
+                            //if (listBrgMP.Count == (stf02h_local.Count + tempBrg_local.Count))
+                            //{
+                            //    ret.totalData += listBrgMP.Count;
+                            //    return ret;
+                            //}
                             ret.totalData += listBrg.response.item.Count();//add 18 Juli 2019, show total record
                             foreach (var item in listBrg.response.item)
                             {
