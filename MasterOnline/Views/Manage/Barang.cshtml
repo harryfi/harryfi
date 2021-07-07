@@ -4080,21 +4080,26 @@
                                         }
                                         else
                                         {
+                                            var sNum = '';
+                                            if (ATYPE.includes('FLOAT_TYPE') || ATYPE.includes('INT_TYPE')) {
+                                                sNum = ' SHOPEE_ATTR_NUM ';
+                                            }
+                                            
                                             if (AUNITS != "1") {
                                                 //textbox
                                                 if (AMANDATORY == "1") {
-                                                    fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-valid-toggle-required="1" required="required" data-val-required="This field is required." data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                                    fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-valid-toggle-required="1" required="required" data-val-required="This field is required." data-val="true" class="form-control' + sNum + '" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
                                                 }
                                                 else {
-                                                    fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                                    fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" class="form-control' + sNum + '" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
                                                 }
                                             }
                                             else {//textbox
                                                 if (AMANDATORY == "1") {
-                                                    fieldAVALUE += '<div class="col-md-2 form-group"><input type="text" data-valid-toggle-required="1" required="required" data-val-required="This field is required." data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                                    fieldAVALUE += '<div class="col-md-2 form-group"><input type="text" data-valid-toggle-required="1" required="required" data-val-required="This field is required." data-val="true" class="form-control' + sNum + '" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
                                                 }
                                                 else {
-                                                    fieldAVALUE += '<div class="col-md-2"><input type="text" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                                    fieldAVALUE += '<div class="col-md-2"><input type="text" data-val="true" class="form-control' + sNum + '" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
                                                 }
                                                 //add 3 jun 2021, attr unit for shopee v2
                                                 //hidden
@@ -4171,6 +4176,22 @@
                                     }
                                 }
                             }
+
+                            $(".SHOPEE_ATTR_NUM").off('keydown').on('keydown',
+                                function (e) {
+                                    if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                                        // Allow: Ctrl+A, Command+A
+                                        (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                                        // Allow: home, end, left, right, down, up
+                                        (e.keyCode >= 35 && e.keyCode <= 40)) {
+                                        // let it happen, don't do anything
+                                        return;
+                                    }
+                                    // Ensure that it is a number and stop the keypress
+                                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                                        e.preventDefault();
+                                    }
+                                });
                         });
                 },
                 error: function (xhr) {
