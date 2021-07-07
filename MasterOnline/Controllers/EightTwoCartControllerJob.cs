@@ -389,7 +389,8 @@ namespace MasterOnline.Controllers
                 .Replace("$", "").Replace("%", "").Replace("^", "").Replace("*", "").Replace("=", "").ToLower());
             postData += "&width=" + Uri.EscapeDataString(brgInDb.LEBAR.ToString());
             postData += "&height=" + Uri.EscapeDataString(brgInDb.TINGGI.ToString());
-            postData += "&depth=" + Uri.EscapeDataString("0");
+            //postData += "&depth=" + Uri.EscapeDataString("0");
+            postData += "&depth=" + Uri.EscapeDataString(brgInDb.PANJANG.ToString());
             postData += "&weight=" + Uri.EscapeDataString(weight.ToString());
             postData += "&additional_shipping_cost=" + Uri.EscapeDataString("0");
             postData += "&minimal_quantity=" + Uri.EscapeDataString(brgInDb.MINI.ToString());
@@ -744,7 +745,8 @@ namespace MasterOnline.Controllers
 
             postData += "&width=" + Uri.EscapeDataString(brgInDb.LEBAR.ToString());
             postData += "&height=" + Uri.EscapeDataString(brgInDb.TINGGI.ToString());
-            postData += "&depth=" + Uri.EscapeDataString("0");
+            //postData += "&depth=" + Uri.EscapeDataString("0");
+            postData += "&depth=" + Uri.EscapeDataString(brgInDb.PANJANG.ToString());
             postData += "&weight=" + Uri.EscapeDataString(weight.ToString());
             postData += "&additional_shipping_cost=" + Uri.EscapeDataString("0");
             postData += "&minimal_quantity=" + Uri.EscapeDataString(brgInDb.MINI.ToString());
