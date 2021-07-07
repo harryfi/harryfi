@@ -480,6 +480,13 @@ namespace MasterOnline.Controllers
                                                     newrecord.LEBAR = Convert.ToDouble(item.width);
                                                 }
                                             }
+                                            if (item.depth != null)
+                                            {
+                                                if (Convert.ToDouble(item.depth) > 0)
+                                                {
+                                                    newrecord.PANJANG = Convert.ToDouble(item.depth);
+                                                }
+                                            }
                                             //if (item.menu != null)
                                             //{
                                             //    if (!string.IsNullOrEmpty(Convert.ToString(item.menu.id)))
@@ -743,6 +750,13 @@ namespace MasterOnline.Controllers
                 if (Convert.ToDouble(product_induk.width) > 0)
                 {
                     newrecord.LEBAR = Convert.ToDouble(product_induk.width);
+                }
+            }
+            if (product_induk.depth != null)
+            {
+                if (Convert.ToDouble(product_induk.depth) > 0)
+                {
+                    newrecord.PANJANG = Convert.ToDouble(product_induk.depth);
                 }
             }
             //if (item.menu != null)
