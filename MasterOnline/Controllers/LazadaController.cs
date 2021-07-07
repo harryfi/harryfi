@@ -110,7 +110,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-#if (Debug_AWS)
+#if (Debug_AWS || DEBUG)
                     dbSourceEra = sessionAccountDataSourcePathDebug.ToString();
 #else
                     dbSourceEra = sessionAccountDataSourcePath.ToString();
@@ -128,7 +128,7 @@ namespace MasterOnline.Controllers
                     var userAccID = Convert.ToInt64(sessionUserAccountID);
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == userAccID);
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
-#if (Debug_AWS)
+#if (Debug_AWS || DEBUG)
                     dbSourceEra = accFromUser.DataSourcePathDebug;
 #else
                     dbSourceEra = accFromUser.DataSourcePath;
@@ -4146,11 +4146,48 @@ namespace MasterOnline.Controllers
                     sSQL_Value += " ( '" + sellerSku + "' , '' , '";
                 }
                 string namaBrg = brg.attributes.name;
+                //moved to cek varian name
+                string categoryCode = brg.primary_category;
+                var brgAttribute = new Dictionary<string, string>();
+                var brgSku = new Dictionary<string, string>();
+                foreach (Newtonsoft.Json.Linq.JProperty property in brg.attributes)
+                {
+                    brgAttribute.Add(property.Name, property.Value.ToString());
+                }
+                foreach (Newtonsoft.Json.Linq.JProperty property in brg.skus[i])
+                {
+                    brgSku.Add(property.Name, property.Value.ToString());
+                }
+                //end moved to cek varian name
                 if (typeBrg == 2)
                 {
                     //tambah jenis varian
                     string namaVar = brg.skus[i]._compatible_variation_;
-                    namaBrg += " " + namaVar;
+                    if (string.IsNullOrEmpty(namaVar))
+                    {
+                        var attr = CekAttribute(categoryCode);
+                        if(attr.code == "0")
+                        {
+                            foreach(var attrib in attr.data)
+                            {
+                                if(attrib.is_sale_prop == 1)
+                                {
+                                    if(attrib.attribute_type == "sku")
+                                    {
+                                        string val = "";
+                                        namaVar += (brgSku.TryGetValue(attrib.name, out val) ? " " + val.Replace("\'", "`") : "");
+                                    }
+                                    else
+                                    {
+                                        string val = "";
+                                        namaVar += (brgAttribute.TryGetValue(attrib.name, out val) ? " " + val.Replace("\'", "`") : "");
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    namaBrg += "" + namaVar;
                 }
                 namaBrg = namaBrg.Replace('\'', '`');//add by Tri 8 Juli 2019, replace petik pada nama barang
 
@@ -4226,7 +4263,7 @@ namespace MasterOnline.Controllers
                 nama3 = "";
                 //end change by calvin 16 september 2019
 
-                string categoryCode = brg.primary_category;
+                //string categoryCode = brg.primary_category;
                 //if (namaBrg.Length > 30)
                 //{
                 //    sSQL += namaBrg.Substring(0, 30) + "' , '" + namaBrg.Substring(30) + "' , ";
@@ -4269,16 +4306,16 @@ namespace MasterOnline.Controllers
                     //end change 21/8/2019, barang varian ambil 1 gambar saja
                 }
 
-                var brgAttribute = new Dictionary<string, string>();
-                var brgSku = new Dictionary<string, string>();
-                foreach (Newtonsoft.Json.Linq.JProperty property in brg.attributes)
-                {
-                    brgAttribute.Add(property.Name, property.Value.ToString());
-                }
-                foreach (Newtonsoft.Json.Linq.JProperty property in brg.skus[i])
-                {
-                    brgSku.Add(property.Name, property.Value.ToString());
-                }
+                //var brgAttribute = new Dictionary<string, string>();
+                //var brgSku = new Dictionary<string, string>();
+                //foreach (Newtonsoft.Json.Linq.JProperty property in brg.attributes)
+                //{
+                //    brgAttribute.Add(property.Name, property.Value.ToString());
+                //}
+                //foreach (Newtonsoft.Json.Linq.JProperty property in brg.skus[i])
+                //{
+                //    brgSku.Add(property.Name, property.Value.ToString());
+                //}
 
                 //add by Tri 4 Nov 2019, handle category not in db
                 var categoryName = "";
@@ -5443,6 +5480,33 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        public AttributeBody CekAttribute(string code)
+        {
+            var ret = new AttributeBody();
+
+            var tbl = MoDbContext.CATEGORY_LAZADA.Where(c => c.CATEGORY_ID == code).FirstOrDefault();
+            if (tbl != null)
+            {
+                ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+                LazopRequest request = new LazopRequest();
+                request.SetApiName("/category/attributes/get");
+                request.SetHttpMethod("GET");
+                request.AddApiParameter("primary_category_id", code);
+                LazopResponse response = client.Execute(request);
+                //Console.WriteLine(response.IsError());
+                //Console.WriteLine(response.Body);
+                var bindAttr = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(AttributeBody)) as AttributeBody;
+                if (bindAttr != null)
+                {
+                    if (bindAttr.code == "0")
+                    {
+                        ret = bindAttr;
+                    }
+                }
+            }
+
+            return ret;
+        }
         public enum api_status
         {
             Pending = 1,
