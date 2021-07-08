@@ -4315,7 +4315,7 @@ namespace MasterOnline.Controllers
                     {
                         if (brg.images.Count > 0)
                             urlImage = brg.images[0];
-                        if (typeBrg == 0)
+                        //if (typeBrg == 0)//gambar induk ambil juga lebih dari 1
                         {
                             if (brg.images.Count >= 2)
                                 urlImage2 = brg.images[1];
