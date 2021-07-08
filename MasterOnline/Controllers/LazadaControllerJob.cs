@@ -2042,7 +2042,7 @@ namespace MasterOnline.Controllers
             var more = true;
             //add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
             var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
-            delQry += DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + cust + "'";
+            delQry += DateTime.UtcNow.AddHours(7).AddHours(-12).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + cust + "'";
             
             var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
             //end add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
@@ -2050,7 +2050,10 @@ namespace MasterOnline.Controllers
             //add 16 des 2020, fixed date
             //change 24 mei 2021, ubah ambil -1 hari saja
             //var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-3); 
-            var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-1);
+            //changed 8 jul 2021, ambil -12jam
+            //var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-1);
+            var fromDt = DateTime.UtcNow.AddHours(7).AddHours(-12);
+            //end changed 8 jul 2021, ambil -12jam
             //end change 24 mei 2021, ubah ambil -1 hari saja
             //var toDt = DateTime.UtcNow.AddHours(7).AddDays(1)
             var toDt = DateTime.UtcNow.AddHours(7);
@@ -2200,15 +2203,18 @@ namespace MasterOnline.Controllers
             var more = true;
             //add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
             var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
-            delQry += DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + cust + "'";
+            delQry += DateTime.UtcNow.AddHours(7).AddHours(-12).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + cust + "'";
 
             var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
             //end add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
 
             //add 16 des 2020, fixed date
             //change 24 mei 2021, ubah ambil -1 hari saja
+            //changed 8 jul 2021, ambil -12jam
             //var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-3); 
-            var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-1);
+            //var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-1);
+            var fromDt = DateTime.UtcNow.AddHours(7).AddHours(-12);
+            //end changed 8 jul 2021, ambil -12jam
             //end change 24 mei 2021, ubah ambil -1 hari saja
             //var toDt = DateTime.UtcNow.AddHours(7).AddDays(1);
             var toDt = DateTime.UtcNow.AddHours(7);
@@ -2434,7 +2440,10 @@ namespace MasterOnline.Controllers
             SetupContext(dbPathEra, uname);
 
             var dsOrder = EDB.GetDataSet("CString", "SOT01", "SELECT NO_REFERENSI FROM SOT01A WHERE CUST = '" + CUST + "' AND USER_NAME = 'Auto Lazada"
-                + "' AND TGL <= '" + DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' AND TGL >= '"
+                //changed 8 jul 2021, ambil -11jam
+                //+ "' AND TGL <= '" + DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' AND TGL >= '"
+                + "' AND TGL <= '" + DateTime.UtcNow.AddHours(7).AddHours(-11).ToString("yyyy-MM-dd HH:mm:ss") + "' AND TGL >= '"
+            //end changed 8 jul 2021, ambil -11jam
                 + DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "' AND STATUS_TRANSAKSI = '0' AND ISNULL(NO_REFERENSI, '') <> ''");
             if (dsOrder.Tables[0].Rows.Count > 0)
             {
@@ -3384,13 +3393,16 @@ namespace MasterOnline.Controllers
 
             //add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
             var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
-            delQry += DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + cust + "'";
+            delQry += DateTime.UtcNow.AddHours(7).AddHours(-12).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + cust + "'";
 
             var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
             //end add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
 
             //add 16 des 2020, fixed date
-            var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-1);
+            //changed 8 jul 2021, ambil -12jam
+            //var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-1);
+            var fromDt = DateTime.UtcNow.AddHours(7).AddHours(-12);
+            //end changed 8 jul 2021, ambil -12jam
             //var toDt = DateTime.UtcNow.AddHours(7).AddDays(1);
             var toDt = DateTime.UtcNow.AddHours(7);
             //end add 16 des 2020, fixed date
