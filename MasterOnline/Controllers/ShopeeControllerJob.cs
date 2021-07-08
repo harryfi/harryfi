@@ -2149,7 +2149,7 @@ namespace MasterOnline.Controllers
                 iden = await RefreshTokenShopee_V2(iden, false);
             }
             var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
-            delQry += DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + CUST + "'";
+            delQry += DateTime.UtcNow.AddHours(7).AddHours(-12).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + CUST + "'";
 
             var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
 
