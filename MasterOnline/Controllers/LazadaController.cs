@@ -4274,38 +4274,60 @@ namespace MasterOnline.Controllers
 
                 //}
                 sSQL_Value += nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
-
-                if (brg.skus[i].Images != null)
+                if (typeBrg == 2)
                 {
-                    if (brg.skus[i].Images.Count > 0)
-                        urlImage = brg.skus[i].Images[0];
-                    //add 19/9/19, varian ambil 2 barang
-                    //if(typeBrg == 2)
-                    //{
-                    //    if (brg.skus[i].Images[1] != null)
-                    //        urlImage2 = brg.skus[i].Images[1];
-                    //}
-                    //end add 19/9/19, varian ambil 2 barang
-                    //change 21/8/2019, barang varian ambil 1 gambar saja
-                    //if (typeBrg != 2)
-                    if (typeBrg == 0)// ubah jd gambar non varian yg ambil gambar > 1
+                    if (brg.skus[i].Images != null)
                     {
-                        //if (brg.skus[i].Images[1] != null)
-                        if (brg.skus[i].Images.Count >= 2)
-                            urlImage2 = brg.skus[i].Images[1];
-                        //if (brg.skus[i].Images[2] != null)
-                        if (brg.skus[i].Images.Count >= 3)
-                            urlImage3 = brg.skus[i].Images[2];
-                        //if (brg.skus[i].Images[3] != null)
-                        if (brg.skus[i].Images.Count >= 4)
-                            urlImage4 = brg.skus[i].Images[3];
-                        //if (brg.skus[i].Images[4] != null)
-                        if (brg.skus[i].Images.Count >= 5)
-                            urlImage5 = brg.skus[i].Images[4];
+                        if (brg.skus[i].Images.Count > 0)
+                            urlImage = brg.skus[i].Images[0];
+                        //add 19/9/19, varian ambil 2 barang
+                        //if(typeBrg == 2)
+                        //{
+                        //    if (brg.skus[i].Images[1] != null)
+                        //        urlImage2 = brg.skus[i].Images[1];
+                        //}
+                        //end add 19/9/19, varian ambil 2 barang
+                        //change 21/8/2019, barang varian ambil 1 gambar saja
+                        //if (typeBrg != 2)
+                        //change 8 july 2021
+                        //if (typeBrg == 0)// ubah jd gambar non varian yg ambil gambar > 1
+                        //{
+                        //    //if (brg.skus[i].Images[1] != null)
+                        //    if (brg.skus[i].Images.Count >= 2)
+                        //        urlImage2 = brg.skus[i].Images[1];
+                        //    //if (brg.skus[i].Images[2] != null)
+                        //    if (brg.skus[i].Images.Count >= 3)
+                        //        urlImage3 = brg.skus[i].Images[2];
+                        //    //if (brg.skus[i].Images[3] != null)
+                        //    if (brg.skus[i].Images.Count >= 4)
+                        //        urlImage4 = brg.skus[i].Images[3];
+                        //    //if (brg.skus[i].Images[4] != null)
+                        //    if (brg.skus[i].Images.Count >= 5)
+                        //        urlImage5 = brg.skus[i].Images[4];
+                        //}
+                        //end change 8 july 2021
+                        //end change 21/8/2019, barang varian ambil 1 gambar saja
                     }
-                    //end change 21/8/2019, barang varian ambil 1 gambar saja
                 }
-
+                else
+                {
+                    if(brg.images != null)
+                    {
+                        if (brg.images.Count > 0)
+                            urlImage = brg.images[0];
+                        //if (typeBrg == 0)//gambar induk ambil juga lebih dari 1
+                        {
+                            if (brg.images.Count >= 2)
+                                urlImage2 = brg.images[1];
+                            if (brg.images.Count >= 3)
+                                urlImage3 = brg.images[2];
+                            if (brg.images.Count >= 4)
+                                urlImage4 = brg.images[3];
+                            if (brg.images.Count >= 5)
+                                urlImage5 = brg.images[4];
+                        }
+                    }
+                }
                 //var brgAttribute = new Dictionary<string, string>();
                 //var brgSku = new Dictionary<string, string>();
                 //foreach (Newtonsoft.Json.Linq.JProperty property in brg.attributes)
