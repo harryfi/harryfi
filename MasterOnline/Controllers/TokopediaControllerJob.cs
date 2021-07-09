@@ -1929,6 +1929,8 @@ namespace MasterOnline.Controllers
                 }
                 catch (WebException e)
                 {
+                    EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE STF02H SET BRG_MP = '' WHERE BRG = '" + Convert.ToString(brg)
+                            + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
                     string err = "";
                     //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                     //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
