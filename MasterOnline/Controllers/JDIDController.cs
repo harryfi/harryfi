@@ -3009,6 +3009,10 @@ namespace MasterOnline.Controllers
         //add by nurul 29/4/2021, JDID versi 2
         public async Task<BindingBase> getListProductV2(JDIDAPIData data, int page, string cust, int recordCount, int totalData)
         {
+            MoDbContext = new MoDbContext("");
+            EDB = new DatabaseSQL(data.DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+            ErasoftDbContext = new ErasoftContext(EraServerName, data.DatabasePathErasoft);
             //int MOPartnerID = 841371;
             //string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             //string ret = "";
@@ -3084,12 +3088,24 @@ namespace MasterOnline.Controllers
                 //}
                 catch (Exception ex)
                 {
-                    retry = retry + 1;
-                    ret.nextPage = 1;
-                    ret.exception = 1;
-                    ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                    currentLog.REQUEST_EXCEPTION = ret.message;
-                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data, currentLog);
+                    if (ex.Message.Contains("The remote name could not be resolved: 'open-api.jd.id'"))
+                    {
+                        retry = retry + 1;
+                        ret.nextPage = 1;
+                        ret.exception = 1;
+                        ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                        currentLog.REQUEST_EXCEPTION = ret.message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data, currentLog);
+                    }
+                    else
+                    {
+                        retry = 4;
+                        ret.nextPage = 1;
+                        ret.exception = 1;
+                        ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                        currentLog.REQUEST_EXCEPTION = ret.message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data, currentLog);
+                    }
                 }
             }
 
@@ -3177,6 +3193,10 @@ namespace MasterOnline.Controllers
 
         public async Task<BindingBase> GetProductV2(JDIDAPIData data, SpuinfovolistGetListProductV2 itemFromList, int IdMarket, string cust)
         {
+            MoDbContext = new MoDbContext("");
+            EDB = new DatabaseSQL(data.DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+            ErasoftDbContext = new ErasoftContext(EraServerName, data.DatabasePathErasoft);
             var ret = new BindingBase
             {
                 status = 0,
@@ -3374,6 +3394,10 @@ namespace MasterOnline.Controllers
 
         public async Task<BindingBase> getProductDetailV2(JDIDAPIData data, ModelGetProductV2 item, string kdBrgInduk, bool createParent, string skuId, string cust, int IdMarket, SpuinfovolistGetListProductV2 itemFromList)
         {
+            MoDbContext = new MoDbContext("");
+            EDB = new DatabaseSQL(data.DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+            ErasoftDbContext = new ErasoftContext(EraServerName, data.DatabasePathErasoft);
             var ret = new BindingBase
             {
                 status = 0,
@@ -3521,6 +3545,10 @@ namespace MasterOnline.Controllers
 
         public async Task<BindingBase> getProductDetailLanjutanV2(JDIDAPIData data, ModelGetProductV2 item, ModelGetProductDetailV2 detItem, string kdBrgInduk, bool createParent, string skuId, string cust, int IdMarket, SpuinfovolistGetListProductV2 itemFromList)
         {
+            MoDbContext = new MoDbContext("");
+            EDB = new DatabaseSQL(data.DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+            ErasoftDbContext = new ErasoftContext(EraServerName, data.DatabasePathErasoft);
             var ret = new BindingBase
             {
                 status = 0,
@@ -3671,6 +3699,10 @@ namespace MasterOnline.Controllers
 
         public async Task<BindingBase> getProductDetailParentOnlyV2(JDIDAPIData data, ModelGetProductV2 item, string kdBrgInduk, bool createParent, string skuId, string cust, int IdMarket, SpuinfovolistGetListProductV2 itemFromList)
         {
+            MoDbContext = new MoDbContext("");
+            EDB = new DatabaseSQL(data.DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+            ErasoftDbContext = new ErasoftContext(EraServerName, data.DatabasePathErasoft);
             var ret = new BindingBase
             {
                 status = 0,
@@ -3789,6 +3821,10 @@ namespace MasterOnline.Controllers
 
         public async Task<BindingBase> getProductDetailParentOnlyLanjutanV2(JDIDAPIData data, ModelGetProductV2 item, ModelGetProductDetailV2 detItem, string kdBrgInduk, bool createParent, string skuId, string cust, int IdMarket, SpuinfovolistGetListProductV2 itemFromList)
         {
+            MoDbContext = new MoDbContext("");
+            EDB = new DatabaseSQL(data.DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+            ErasoftDbContext = new ErasoftContext(EraServerName, data.DatabasePathErasoft);
             var ret = new BindingBase
             {
                 status = 0,
