@@ -1635,7 +1635,7 @@
                                                                                 <div class="col-md-1 col-sm-1 col-xs-12">
                                                                                     @Html.Label("Etalase *", new { @class = "control-label" })
                                                                                 </div>
-                                                                                <div class="col-md-4 col-sm-4 col-xs-12 form-group">
+                                                                                <div class="col-md-3 col-sm-3 col-xs-12 form-group">
                                                                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].PICKUP_POINT, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.PICKUP_POINT })
                                                                                     <div class="input-group text">
                                                                                         <table>
@@ -1656,10 +1656,10 @@
                                                                                 </div>
                                                                             </div>
                                                                             <div class="row" style="padding-top:10px">
-                                                                                <div class="col-md-1 col-sm-1 col-xs-12">
+                                                                                <div class="col-md-2 col-sm-2 col-xs-12">
                                                                                     @Html.Label("Asuransi Pengiriman", new { @class = "control-label" })
                                                                                 </div>
-                                                                                <div class="col-md-4 col-sm-4 col-xs-12 form-group" style="padding-top:10px">
+                                                                                <div class="col-md-3 col-sm-3 col-xs-12 form-group" style="padding-top:10px">
                                                                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_35, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.AVALUE_35 })
                                                                                     @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_35 == "1")
                                                                                     {
@@ -1676,6 +1676,22 @@
                                                                                         <label for="rdoAsuransi2_@Convert.ToString(recnumArf01)">Opsional</label>
                                                                                     }
 
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="row" style="padding-top:10px">
+                                                                                <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                    @Html.Label("Minimum Pemesanan*", new { @class = "control-label" })
+                                                                                </div>
+                                                                                <div class="col-md-4 col-sm-4 col-xs-12 form-group">
+                                                                                    <div class="input-group text">
+                                                                                        <table>
+                                                                                            <tr>
+                                                                                                <td>
+                                                                                                    @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].MIN_ORDER, new { @class = "form-control", data_valid_toggle_required = "1", @type = "number", @min = "1", style = "width:70px;", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.MIN_ORDER ?? 1 })
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        </table>
+                                                                                    </div>
                                                                                 </div>
                                                                             </div>
                                                                         }

@@ -20,6 +20,7 @@ using System.Net.Http;
 using Hangfire;
 using Hangfire.SqlServer;
 using MasterOnline.Utils;
+using Microsoft.Ajax.Utilities;
 
 namespace MasterOnline.Controllers
 {
@@ -122,6 +123,16 @@ namespace MasterOnline.Controllers
             var token = SetupContext(iden);
             iden.token = token;
             long milis = CurrentTimeMillis();
+
+            var cekInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == kodeProduk && m.IDMARKET == iden.idmarket).FirstOrDefault();
+            if(cekInDB != null)
+            {
+                if (!cekInDB.BRG_MP.Contains("PENDING;"))//sudah berhasil link
+                {
+                    return ""; 
+                }
+            }
+
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
             //string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/create/status?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&upload_id=" + Uri.EscapeDataString(Convert.ToString(upload_id));
             string urll = "https://fs.tokopedia.net/v2/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/status/" + Uri.EscapeDataString(Convert.ToString(upload_id)) + "?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
@@ -309,6 +320,14 @@ namespace MasterOnline.Controllers
             var token = SetupContext(iden);
             iden.token = token;
 
+            var cekInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == kodeProduk && m.IDMARKET == iden.idmarket).FirstOrDefault();
+            if (cekInDB != null)
+            {
+                if (!cekInDB.BRG_MP.Contains("PEDITENDING;"))//sudah berhasil link
+                {
+                    return "";
+                }
+            }
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
             //string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/edit/status?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&upload_id=" + Uri.EscapeDataString(Convert.ToString(upload_id));
             string urll = "https://fs.tokopedia.net/v2/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/status/" + Uri.EscapeDataString(Convert.ToString(upload_id)) + "?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
@@ -531,7 +550,10 @@ namespace MasterOnline.Controllers
                 var brg_stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == brg && p.IDMARKET == iden.idmarket).SingleOrDefault();
                 //string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/edit?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
                 string urll = "https://fs.tokopedia.net/v2/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/edit?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
-
+                if((brg_stf02h.BRG_MP ?? "").Contains("PENDING") || (brg_stf02h.BRG_MP ?? "").Contains("WAITING_FOR_HANGFIRE"))
+                {
+                    throw new Exception("Produk masih dalam proses create/upload ke Tokopedia, belum bisa di edit.");
+                }
                 long milis = CurrentTimeMillis();
                 DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
@@ -580,6 +602,13 @@ namespace MasterOnline.Controllers
                     if (brg_stf02h.AVALUE_35 == "1")
                     {
                         newDataProduct.is_must_insurance = true;
+                    }
+                }
+                if(brg_stf02h.MIN_ORDER != null)
+                {
+                    if(brg_stf02h.MIN_ORDER.Value > 1)
+                    {
+                        newDataProduct.min_order = brg_stf02h.MIN_ORDER.Value;
                     }
                 }
                 //add by nurul 6/2/2020
@@ -1202,6 +1231,9 @@ namespace MasterOnline.Controllers
                     {
                         //change by calvin 9 juni 2019
                         //await EditProductGetStatus(iden, brg, result.data.upload_id, currentLog.REQUEST_ID, product_id);
+                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = 'PEDITENDING;" + Convert.ToString(result.data.upload_id) 
+                            + ";" + Convert.ToString(currentLog.REQUEST_ID) + ";" + Convert.ToString(product_id) + "' WHERE BRG = '" + Convert.ToString(brg) 
+                            + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
 #if (DEBUG || Debug_AWS)
                         await EditProductGetStatus(iden.DatabasePathErasoft, brg, log_CUST, "Barang", "Edit Produk Get Status", iden, brg, result.data.upload_id, currentLog.REQUEST_ID, product_id);
 #else
@@ -1373,6 +1405,13 @@ namespace MasterOnline.Controllers
                     if (brg_stf02h.AVALUE_35 == "1")
                     {
                         newDataProduct.is_must_insurance = true;
+                    }
+                }
+                if (brg_stf02h.MIN_ORDER != null)
+                {
+                    if (brg_stf02h.MIN_ORDER.Value > 1)
+                    {
+                        newDataProduct.min_order = brg_stf02h.MIN_ORDER.Value;
                     }
                 }
                 //add by nurul 6/2/2020
@@ -1907,6 +1946,8 @@ namespace MasterOnline.Controllers
                 }
                 catch (WebException e)
                 {
+                    EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE STF02H SET BRG_MP = '' WHERE BRG = '" + Convert.ToString(brg)
+                            + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
                     string err = "";
                     //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                     //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
@@ -1930,6 +1971,10 @@ namespace MasterOnline.Controllers
                         //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
                         //change by calvin 9 juni 2019
                         //await CreateProductGetStatus(iden, brg, result.data.upload_id, currentLog.REQUEST_ID);
+                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = 'PENDING;" + Convert.ToString(result.data.upload_id) + ";" 
+                            + Convert.ToString(currentLog.REQUEST_ID) + "',LINK_STATUS='Buat Produk Pending', LINK_DATETIME = '" 
+                            + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '0;Buat Produk;;' WHERE BRG = '" + Convert.ToString(brg) 
+                            + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
 #if (DEBUG || Debug_AWS)
                         await CreateProductGetStatus(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Link Produk (Tahap 1 / 2 )", iden, brg, result.data.upload_id, currentLog.REQUEST_ID);
 #else

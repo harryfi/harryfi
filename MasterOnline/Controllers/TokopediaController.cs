@@ -1910,6 +1910,10 @@ namespace MasterOnline.Controllers
                                                     }
                                                 }
                                             }
+                                        if(item.extraAttribute != null)
+                                        {
+                                            newrecord.MIN_ORDER = item.extraAttribute.minOrder;
+                                        }
                                         //end add 24 mar 2020, get order list v2
 
                                         #region old function
@@ -2293,6 +2297,10 @@ namespace MasterOnline.Controllers
                                                 }
                                             }
                                         }
+                                    if (item.extraAttribute != null)
+                                    {
+                                        newrecord.MIN_ORDER = item.extraAttribute.minOrder;
+                                    }
 
                                     listNewRecord.Add(newrecord);
                                     ret.recordCount = ret.recordCount + 1;
