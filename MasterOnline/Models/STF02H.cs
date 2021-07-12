@@ -595,5 +595,6 @@ namespace MasterOnline
         public string AUNIT_29 { get; set; }
         public string AUNIT_30 { get; set; }
         public double? HARGA_NORMAL { get; set; }
+        public int? MIN_ORDER { get; set; }
     }
 }

@@ -1678,6 +1678,22 @@
 
                                                                                 </div>
                                                                             </div>
+                                                                            <div class="row" style="padding-top:10px">
+                                                                                <div class="col-md-1 col-sm-1 col-xs-12">
+                                                                                    @Html.Label("Minimum Pemesanan *", new { @class = "control-label" })
+                                                                                </div>
+                                                                                <div class="col-md-4 col-sm-4 col-xs-12 form-group">
+                                                                                    <div class="input-group text">
+                                                                                        <table>
+                                                                                            <tr>
+                                                                                                <td>
+                                                                                                    @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].MIN_ORDER, new { @class = "form-control", @type = "number", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.MIN_ORDER ?? 1 })
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        </table>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
                                                                         }
                                                                     </div>
                                                                 </div>

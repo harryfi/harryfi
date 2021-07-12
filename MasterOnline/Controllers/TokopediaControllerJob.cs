@@ -550,7 +550,10 @@ namespace MasterOnline.Controllers
                 var brg_stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == brg && p.IDMARKET == iden.idmarket).SingleOrDefault();
                 //string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/edit?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
                 string urll = "https://fs.tokopedia.net/v2/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/edit?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
-
+                if((brg_stf02h.BRG_MP ?? "").Contains("PENDING") || (brg_stf02h.BRG_MP ?? "").Contains("WAITING_FOR_HANGFIRE"))
+                {
+                    throw new Exception("Produk masih dalam proses create/upload ke Tokopedia, belum bisa di edit.");
+                }
                 long milis = CurrentTimeMillis();
                 DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
@@ -599,6 +602,13 @@ namespace MasterOnline.Controllers
                     if (brg_stf02h.AVALUE_35 == "1")
                     {
                         newDataProduct.is_must_insurance = true;
+                    }
+                }
+                if(brg_stf02h.MIN_ORDER != null)
+                {
+                    if(brg_stf02h.MIN_ORDER.Value > 1)
+                    {
+                        newDataProduct.min_order = brg_stf02h.MIN_ORDER.Value;
                     }
                 }
                 //add by nurul 6/2/2020
@@ -1395,6 +1405,13 @@ namespace MasterOnline.Controllers
                     if (brg_stf02h.AVALUE_35 == "1")
                     {
                         newDataProduct.is_must_insurance = true;
+                    }
+                }
+                if (brg_stf02h.MIN_ORDER != null)
+                {
+                    if (brg_stf02h.MIN_ORDER.Value > 1)
+                    {
+                        newDataProduct.min_order = brg_stf02h.MIN_ORDER.Value;
                     }
                 }
                 //add by nurul 6/2/2020
