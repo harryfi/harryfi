@@ -2841,7 +2841,10 @@ namespace MasterOnline.Controllers
                                         {
                                             var insert1 = CreateTempQryV2(brg, data.cust, IdMarket, display, 1, "", 0);
                                             if (insert1.exception == 1)
+                                            {
                                                 ret.exception = 1;
+                                                currentLog.REQUEST_EXCEPTION = insert1.message.Replace("'", "\'\'");
+                                            }
                                             if (insert1.status == 1)
                                                 sSQL_Value += insert1.message;
                                         }
@@ -2869,7 +2872,10 @@ namespace MasterOnline.Controllers
                                             {
                                                 var insert2 = CreateTempQryV2(brg, data.cust, IdMarket, display, 2, kdBrgInduk, i);
                                                 if (insert2.exception == 1)
+                                                {
                                                     ret.exception = 1;
+                                                    currentLog.REQUEST_EXCEPTION = insert2.message.Replace("'", "\'\'");
+                                                }
                                                 if (insert2.status == 1)
                                                     sSQL_Value += insert2.message;
                                             }
@@ -2884,7 +2890,10 @@ namespace MasterOnline.Controllers
                                         {
                                             var insert2 = CreateTempQryV2(brg, data.cust, IdMarket, display, 0, "", 0);
                                             if (insert2.exception == 1)
+                                            {
                                                 ret.exception = 1;
+                                                currentLog.REQUEST_EXCEPTION = insert2.message.Replace("'", "\'\'");
+                                            }
                                             if (insert2.status == 1)
                                                 sSQL_Value += insert2.message;
                                         }
