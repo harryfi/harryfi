@@ -7365,20 +7365,50 @@ namespace MasterOnline.Controllers
                                                     //dataSKUVar.costPrice = Convert.ToInt64(brgSTF02h.HJUAL);
 
                                                     addSKUVariantJDID dataSKUVar = new addSKUVariantJDID();
-                                                    dataSKUVar.spuId = Convert.ToInt64(spuID[0]);
-                                                    dataSKUVar.packLong.Add(Convert.ToString(brgInDb.PANJANG));
-                                                    dataSKUVar.saleAttributeIds.Add(listattributeIDAllVariantGroupCreate);
-                                                    dataSKUVar.costPrice.Add(Convert.ToInt64(brgSTF02h.HJUAL));
-                                                    dataSKUVar.upc.Add("upc");
-                                                    dataSKUVar.weight.Add(Convert.ToString(weight));
-                                                    dataSKUVar.sellerSkuId.Add(dataVar.BRG);
-                                                    dataSKUVar.saleAttrValueAlias.Add(listattributeIDAllVariantGroupCreate);
-                                                    dataSKUVar.skuName.Add(namafullVariant);
-                                                    dataSKUVar.packWide.Add(Convert.ToString(brgInDb.LEBAR));
-                                                    dataSKUVar.piece.Add(Convert.ToInt32(detailBrg.ACODE_41));
-                                                    dataSKUVar.jdPrice.Add(Convert.ToInt64(brgSTF02h.HJUAL));
-                                                    dataSKUVar.packHeight.Add(Convert.ToString(brgInDb.TINGGI));
-                                                    dataSKUVar.stock.Add(0);
+                                                    dataSKUVar.spuId = Convert.ToInt32(spuID[0]);
+                                                    List<string> _packlong = new List<string>();
+                                                    _packlong.Add(Convert.ToString(brgInDb.PANJANG));
+                                                    dataSKUVar.packLong = _packlong;
+                                                    List<string> _saleAttributeIds = new List<string>();
+                                                    _saleAttributeIds.Add(listattributeIDAllVariantGroupCreate);
+                                                    dataSKUVar.saleAttributeIds = _saleAttributeIds;
+                                                    List<Int32> _costPrice = new List<Int32>();
+                                                    _costPrice.Add(Convert.ToInt32(brgSTF02h.HJUAL));
+                                                    dataSKUVar.costPrice = _costPrice.ToArray();
+                                                    //dataSKUVar.upc.Add("upc");
+                                                    List<string> _upc = new List<string>();
+                                                    _upc.Add("upc");
+                                                    dataSKUVar.upc = _upc;
+                                                    List<string> _weight = new List<string>();
+                                                    _weight.Add(Convert.ToString(weight));
+                                                    dataSKUVar.weight = _weight;
+                                                    List<string> _sellerSkuId = new List<string>();
+                                                    var ax = brgSTF02h.BRG.ToString();
+                                                    _sellerSkuId.Add(ax);
+                                                    dataSKUVar.sellerSkuId = _sellerSkuId;
+                                                    List<string> _saleAttrValueAlias = new List<string>();
+                                                    _saleAttrValueAlias.Add(listattributeIDAllVariantGroupCreate);
+                                                    dataSKUVar.saleAttrValueAlias = _saleAttrValueAlias;
+                                                    List<string> _skuName = new List<string>();
+                                                    _skuName.Add(Convert.ToString(namafullVariant));
+                                                    dataSKUVar.skuName = _skuName;
+                                                    List<string> _packWide = new List<string>();
+                                                    _packWide.Add(Convert.ToString(brgInDb.LEBAR));
+                                                    dataSKUVar.packWide = _packWide;
+                                                    List<int> _piece = new List<int>();
+                                                    _piece.Add(Convert.ToInt32(detailBrg.ACODE_41));
+                                                    dataSKUVar.piece = _piece.ToArray();
+                                                    List<Int32> _jdPrice = new List<Int32>();
+                                                    _jdPrice.Add(Convert.ToInt32(brgSTF02h.HJUAL));
+                                                    dataSKUVar.jdPrice = _jdPrice.ToArray();
+                                                    List<string> _packHeight = new List<string>();
+                                                    _packHeight.Add(Convert.ToString(brgInDb.TINGGI));
+                                                    dataSKUVar.packHeight = _packHeight;
+
+                                                    List<Int32> _stock = new List<Int32>();
+                                                    _stock.Add(0);
+                                                    dataSKUVar.stock = _stock.ToArray();
+                                                    //dataSKUVar.stock.Add(0);
 
                                                     //await JD_addSKUVariantV2(data, dataSKUVar, dataSkuResult.model[0].spuId.ToString(), dataVar.BRG, dataVar.LINK_GAMBAR_1, marketplace.RecNum);
 //#if (DEBUG || Debug_AWS)
@@ -7786,6 +7816,7 @@ namespace MasterOnline.Controllers
                 string responseFromServer = "";
                 bool responseApi = false;
                 int retry = 0;
+                
                 string myData = JsonConvert.SerializeObject(dataSKU);
                 while (!responseApi && retry <= 2)
                 {
@@ -9006,17 +9037,17 @@ namespace MasterOnline.Controllers
             public long spuId { get; set; }
             public List<string> packLong { get; set; }
             public List<string> saleAttributeIds { get; set; }
-            public List<long> costPrice { get; set; }
+            public Int32[] costPrice { get; set; }
             public List<string> upc { get; set; }
             public List<string> weight { get; set; }
             public List<string> sellerSkuId { get; set; }
             public List<string> saleAttrValueAlias { get; set; }
             public List<string> skuName { get; set; }
             public List<string> packWide { get; set; }
-            public List<int> piece { get; set; }
-            public List<long> jdPrice { get; set; }
+            public int[] piece { get; set; }
+            public Int32[] jdPrice { get; set; }
             public List<string> packHeight { get; set; }
-            public List<long> stock { get; set; }
+            public Int32[] stock { get; set; }
 
             //public string[] packLong { get; set; }
             //public string[] saleAttributeIds { get; set; }
