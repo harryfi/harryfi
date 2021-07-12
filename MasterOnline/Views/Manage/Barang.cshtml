@@ -2559,7 +2559,7 @@
                     $('#simpan_btn').attr("disabled", true);
                 },
                 success: function (data) {
-                    if (versiJD == "2" && !$('#cbxStf02Type').is(':checked')) {
+                    if (versiJD == "2") {
                         $('#loading_attribute_' + listMarketRecNum).hide();
                         $('#next_btn').attr("disabled", false);
                         $('#simpan_btn').attr("disabled", false);

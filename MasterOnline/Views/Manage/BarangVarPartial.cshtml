@@ -1363,13 +1363,15 @@
                                     var ANAME = item["ANAME_" + (a + 1)];
                                     //var AOPTIONS = item["AOPTIONS_" + (a + 1)];
                                     //if (ATYPE == "DEFINING_ATTRIBUTE") {
-                                        if (ACODE != null && ACODE != "") {
+                                    if (ACODE != null && ACODE != "") {
+                                        if (ANAME != "Coming Soon") {
                                             SelectList[counter] = {
                                                 id: ACODE,
                                                 text: ANAME
                                             };
                                             counter = counter + 1;
                                         }
+                                    }
                                     //}
                                 }
                             });
