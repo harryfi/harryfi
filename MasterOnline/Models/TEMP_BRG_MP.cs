@@ -567,6 +567,7 @@ namespace MasterOnline.Models
         public string AUNIT_28 { get; set; }
         public string AUNIT_29 { get; set; }
         public string AUNIT_30 { get; set; }
+        public int? MIN_ORDER { get; set; }
 
     }
     
