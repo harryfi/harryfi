@@ -1887,7 +1887,10 @@ namespace MasterOnline.Controllers
             int indexAttr = 1;
             if(detailBrg.attribute_list != null)
             {
-                foreach(var attr in detailBrg.attribute_list)
+
+                var listAttrShopee = await GetAttribute_V2(iden, categoryCode);
+
+                foreach (var attr in detailBrg.attribute_list)
                 {
                     var attrVal = "";
                     foreach (var attrOpt in attr.attribute_value_list)
@@ -1897,6 +1900,25 @@ namespace MasterOnline.Controllers
                             if (!string.IsNullOrEmpty(attrVal))
                             {
                                 attrVal += ",";
+                            }
+                            if (listAttrShopee.response != null)
+                            {
+                                if (listAttrShopee.response.attribute_list != null)
+                                {
+                                    var currAttr = listAttrShopee.response.attribute_list.Where(m => m.attribute_id == attr.attribute_id).FirstOrDefault();
+                                    if (currAttr != null)
+                                    {
+                                        if (currAttr.input_validation_type.ToUpper().Contains("DATE_TYPE"))
+                                        {
+                                            long n;
+                                            bool isNumeric = long.TryParse(attrOpt.original_value_name.Trim(), out n);
+                                            if (isNumeric)
+                                            {
+                                                attrOpt.original_value_name = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(n)).UtcDateTime.AddHours(7).ToString("dd/MM/yyyy");
+                                            }
+                                        }
+                                    }
+                                }
                             }
                             attrVal += attrOpt.original_value_name.Replace("\'", "`");
                         }
@@ -1932,6 +1954,66 @@ namespace MasterOnline.Controllers
             sSQL = sSQL.Replace("REPLACE_MEREK", brandName.Replace('\'', '`'));
             var retRec = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
             ret.status = retRec;
+            return ret;
+        }
+        public async Task<ShopeeController.ShopeeGetAttributeResult_V2> GetAttribute_V2(ShopeeAPIData dataAPI, string category)
+        {
+            dataAPI = await RefreshTokenShopee_V2(dataAPI, false);
+            int MOPartnerID = MOPartnerIDV2;
+            string MOPartnerKey = MOPartnerKeyV2;
+            var ret = new ShopeeController.ShopeeGetAttributeResult_V2();
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = shopeeV2Url;
+            string path = "/api/v2/product/get_attributes";
+
+            var baseString = MOPartnerID + path + seconds + dataAPI.token + dataAPI.merchant_code;
+            var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
+
+            string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds + "&access_token=" + dataAPI.token
+                + "&shop_id=" + dataAPI.merchant_code + "&sign=" + sign + "&language=id&category_id=" + category;
+
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
+            myReq.Method = "GET";
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            if (!string.IsNullOrEmpty(responseFromServer))
+            {
+                try
+                {
+                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeController.ShopeeGetAttributeResult_V2)) as ShopeeController.ShopeeGetAttributeResult_V2;
+
+                    if (result.response.attribute_list != null)
+                    {
+                        ret = result;
+                    }
+
+                }
+                catch (Exception ex2)
+                {
+
+                }
+            }
+
             return ret;
         }
 
@@ -7232,7 +7314,7 @@ namespace MasterOnline.Controllers
 
         public class Attribute_List
         {
-            public int attribute_id { get; set; }
+            public long attribute_id { get; set; }
             public string original_attribute_name { get; set; }
             public bool is_mandatory { get; set; }
             public Attribute_Value_List[] attribute_value_list { get; set; }
@@ -7240,7 +7322,7 @@ namespace MasterOnline.Controllers
 
         public class Attribute_Value_List
         {
-            public int value_id { get; set; }
+            public long value_id { get; set; }
             public string original_value_name { get; set; }
             public string value_unit { get; set; }
         }

@@ -7712,6 +7712,11 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
+                                    if (dataAttr.input_validation_type.ToUpper().Contains("DATE_TYPE"))
+                                    {
+                                        var dateValue = Convert.ToDateTime(value);
+                                        value = ((DateTimeOffset)dateValue).ToUnixTimeSeconds().ToString();
+                                    }
                                     attrValue.value_id = 0;
                                     attrValue.original_value_name = value.Trim();
                                     attrValue.value_unit = unit ?? "";
@@ -10583,6 +10588,11 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
+                                    if (dataAttr.input_validation_type.ToUpper().Contains("DATE_TYPE"))
+                                    {
+                                        var dateValue = Convert.ToDateTime(value);
+                                        value = ((DateTimeOffset)dateValue).ToUnixTimeSeconds().ToString();
+                                    }
                                     attrValue.value_id = 0;
                                     attrValue.original_value_name = value.Trim();
                                     attrValue.value_unit = unit ?? "";
