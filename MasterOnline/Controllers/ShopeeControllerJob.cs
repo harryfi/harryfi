@@ -7714,7 +7714,8 @@ namespace MasterOnline.Controllers
                                 {
                                     if (dataAttr.input_validation_type.ToUpper().Contains("DATE_TYPE"))
                                     {
-                                        var dateValue = Convert.ToDateTime(value);
+                                        var splitDate = value.Split('/');
+                                        var dateValue = new DateTime(Convert.ToInt32(splitDate[2]), Convert.ToInt32(splitDate[1]), Convert.ToInt32(splitDate[0]));
                                         value = ((DateTimeOffset)dateValue).ToUnixTimeSeconds().ToString();
                                     }
                                     attrValue.value_id = 0;
