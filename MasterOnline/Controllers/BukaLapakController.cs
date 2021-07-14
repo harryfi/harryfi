@@ -2841,7 +2841,10 @@ namespace MasterOnline.Controllers
                                         {
                                             var insert1 = CreateTempQryV2(brg, data.cust, IdMarket, display, 1, "", 0);
                                             if (insert1.exception == 1)
+                                            {
                                                 ret.exception = 1;
+                                                currentLog.REQUEST_EXCEPTION = insert1.message.Replace("'", "\'\'");
+                                            }
                                             if (insert1.status == 1)
                                                 sSQL_Value += insert1.message;
                                         }
@@ -2869,7 +2872,10 @@ namespace MasterOnline.Controllers
                                             {
                                                 var insert2 = CreateTempQryV2(brg, data.cust, IdMarket, display, 2, kdBrgInduk, i);
                                                 if (insert2.exception == 1)
+                                                {
                                                     ret.exception = 1;
+                                                    currentLog.REQUEST_EXCEPTION = insert2.message.Replace("'", "\'\'");
+                                                }
                                                 if (insert2.status == 1)
                                                     sSQL_Value += insert2.message;
                                             }
@@ -2884,7 +2890,10 @@ namespace MasterOnline.Controllers
                                         {
                                             var insert2 = CreateTempQryV2(brg, data.cust, IdMarket, display, 0, "", 0);
                                             if (insert2.exception == 1)
+                                            {
                                                 ret.exception = 1;
+                                                currentLog.REQUEST_EXCEPTION = insert2.message.Replace("'", "\'\'");
+                                            }
                                             if (insert2.status == 1)
                                                 sSQL_Value += insert2.message;
                                         }
@@ -3007,21 +3016,24 @@ namespace MasterOnline.Controllers
                     {
                         if (brg.images.large_urls != null)
                         {
-                            urlImage = brg.images.large_urls[0];
-                            if (type == 0)
+                            if (brg.images.large_urls.Length > 0)
                             {
-                                if (brg.images.large_urls.Length >= 2)
+                                urlImage = brg.images.large_urls[0];
+                                if (type == 0)
                                 {
-                                    urlImage2 = brg.images.large_urls[1];
-                                    if (brg.images.large_urls.Length >= 3)
+                                    if (brg.images.large_urls.Length >= 2)
                                     {
-                                        urlImage3 = brg.images.large_urls[2];
-                                        if (brg.images.large_urls.Length >= 4)
+                                        urlImage2 = brg.images.large_urls[1];
+                                        if (brg.images.large_urls.Length >= 3)
                                         {
-                                            urlImage4 = brg.images.large_urls[3];
-                                            if (brg.images.large_urls.Length >= 5)
+                                            urlImage3 = brg.images.large_urls[2];
+                                            if (brg.images.large_urls.Length >= 4)
                                             {
-                                                urlImage5 = brg.images.large_urls[4];
+                                                urlImage4 = brg.images.large_urls[3];
+                                                if (brg.images.large_urls.Length >= 5)
+                                                {
+                                                    urlImage5 = brg.images.large_urls[4];
+                                                }
                                             }
                                         }
                                     }
@@ -3030,21 +3042,24 @@ namespace MasterOnline.Controllers
                         }
                         else if (brg.images.small_urls != null)
                         {
-                            urlImage = brg.images.small_urls[0];
-                            if (type == 0)
+                            if (brg.images.small_urls.Length > 0)
                             {
-                                if (brg.images.small_urls.Length >= 2)
+                                urlImage = brg.images.small_urls[0];
+                                if (type == 0)
                                 {
-                                    urlImage2 = brg.images.small_urls[1];
-                                    if (brg.images.small_urls.Length >= 3)
+                                    if (brg.images.small_urls.Length >= 2)
                                     {
-                                        urlImage3 = brg.images.small_urls[2];
-                                        if (brg.images.small_urls.Length >= 4)
+                                        urlImage2 = brg.images.small_urls[1];
+                                        if (brg.images.small_urls.Length >= 3)
                                         {
-                                            urlImage4 = brg.images.small_urls[3];
-                                            if (brg.images.small_urls.Length >= 5)
+                                            urlImage3 = brg.images.small_urls[2];
+                                            if (brg.images.small_urls.Length >= 4)
                                             {
-                                                urlImage5 = brg.images.small_urls[4];
+                                                urlImage4 = brg.images.small_urls[3];
+                                                if (brg.images.small_urls.Length >= 5)
+                                                {
+                                                    urlImage5 = brg.images.small_urls[4];
+                                                }
                                             }
                                         }
                                     }
@@ -3173,6 +3188,7 @@ namespace MasterOnline.Controllers
                 {
                     var attrBL = new Dictionary<string, string>();
                     string value = "";
+                    var num = 1;
                     foreach (Newtonsoft.Json.Linq.JProperty property in brg.specs)
                     {
                         if (attrBL.ContainsKey(property.Name))
@@ -3181,7 +3197,8 @@ namespace MasterOnline.Controllers
                         }
                         else
                         {
-                            attrBL.Add(property.Name + "2", property.Value.ToString());
+                            attrBL.Add(property.Name + "_" + num, property.Value.ToString());
+                            num++;
                         }
                     }
 
