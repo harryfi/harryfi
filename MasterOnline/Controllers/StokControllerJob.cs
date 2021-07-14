@@ -1152,7 +1152,10 @@ namespace MasterOnline.Controllers
             //change by nurul 18/2/2021
             //var sSQL = "SELECT BRG FROM STF02 WHERE BRG IN (" + list_brg + ") OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")) OR BRG IN (SELECT BRG FROM STF02 WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")))";
             var sSQL = "SELECT DISTINCT BRG, 'ALL_ITEM_WITH_MUTATION' AS CONN_ID into #tempListBrgUpdateStock FROM STF08A (nolock); " + Environment.NewLine;
-            sSQL += "SELECT BRG FROM STF02 (nolock) WHERE BRG IN (select BRG from #tempListBrgUpdateStock) OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 (nolock) WHERE BRG IN (select BRG from #tempListBrgUpdateStock)) OR BRG IN (SELECT BRG FROM STF02 (nolock) WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 (nolock) WHERE BRG IN (select BRG from #tempListBrgUpdateStock))); " + Environment.NewLine;
+            //change by nurul 7/7/2021, tambah cek status barang aktif atau tidak
+            //sSQL += "SELECT BRG FROM STF02 (nolock) WHERE BRG IN (select BRG from #tempListBrgUpdateStock) OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 (nolock) WHERE BRG IN (select BRG from #tempListBrgUpdateStock)) OR BRG IN (SELECT BRG FROM STF02 (nolock) WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 (nolock) WHERE BRG IN (select BRG from #tempListBrgUpdateStock))); " + Environment.NewLine;
+            sSQL += "SELECT BRG FROM STF02 (nolock) WHERE ISNULL(qty_berat,'')<>'1' AND BRG IN (select BRG from #tempListBrgUpdateStock) OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 (nolock) WHERE BRG IN (select BRG from #tempListBrgUpdateStock)) OR BRG IN (SELECT BRG FROM STF02 (nolock) WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 (nolock) WHERE BRG IN (select BRG from #tempListBrgUpdateStock))); " + Environment.NewLine;
+            //end change by nurul 7/7/2021, tambah cek status barang aktif atau tidak
             sSQL += "drop table #tempListBrgUpdateStock ";
             //end change by nurul 18/2/2021
             var listBrg = ErasoftDbContext.Database.SqlQuery<string>(sSQL).ToList();
@@ -1625,7 +1628,7 @@ namespace MasterOnline.Controllers
             {
                 list_brg = "''";
             }
-            var sSQL = "SELECT BRG FROM STF02 WHERE BRG IN (" + list_brg + ") OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")) OR BRG IN (SELECT BRG FROM STF02 WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")))";
+            var sSQL = "SELECT BRG FROM STF02 WHERE isnull(qty_berat,'')<>'1' and (BRG IN (" + list_brg + ") OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")) OR BRG IN (SELECT BRG FROM STF02 WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + "))))";
             var listBrg = ErasoftDbContext.Database.SqlQuery<string>(sSQL).ToList();
             //end change by nurul 14/9/2020, handle barang multi sku
 

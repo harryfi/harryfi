@@ -1,0 +1,721 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@model BarangViewModel
+@{
+    ViewBag.Title = "Hapus Barang";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+
+    ErasoftContext erasoftContext = null;
+    var context = new MoDbContext("");
+
+    //var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+
+    //if (dataSession?.Account != null)
+    //{
+    //    erasoftContext = new ErasoftContext(dataSession.Account.DataSourcePath, dataSession.Account.DatabasePathErasoft);
+    //}
+    //else
+    //{
+    //    var accFromUser = context.Account.Single(a => a.AccountId == dataSession.User.AccountId);
+    //    erasoftContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
+    //}
+
+    var sessionAccount = HttpContext.Current.Session["SessionAccount"];
+    var sessionAccountUserID = HttpContext.Current.Session["SessionAccountUserID"];
+    var sessionAccountUserName = HttpContext.Current.Session["SessionAccountUserName"];
+    var sessionAccountEmail = HttpContext.Current.Session["SessionAccountEmail"];
+    var sessionAccountTglSub = HttpContext.Current.Session["SessionAccountTglSub"];
+    var sessionAccountKodeSub = HttpContext.Current.Session["SessionAccountKodeSub"];
+    var sessionAccountDataSourcePathDebug = HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+    var sessionAccountDataSourcePath = HttpContext.Current.Session["SessionAccountDataSourcePath"];
+    var sessionAccountDatabasePathErasoft = HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+    var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+    var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+    var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+    var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+    var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+    if (sessionAccount != null)
+    {
+        erasoftContext = new ErasoftContext(sessionAccountDataSourcePath.ToString(), sessionAccountDatabasePathErasoft.ToString());
+    }
+    else
+    {
+        var userAccID = Convert.ToInt64(sessionUserAccountID);
+        var accFromUser = context.Account.Single(a => a.AccountId == userAccID);
+        erasoftContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
+    }
+
+    //var tglCutOff = Model?.cutoffPengiriman;
+    //var modeEditDO = Model?.modeEditDO;
+    //var EditKirimId = Model?.kirimId;
+    //if (!string.IsNullOrEmpty(Model?.cutoffPengiriman?.ToString()))
+    //{
+    //    tglCutOff = Model?.cutoffPengiriman?.ToString();
+    //}
+}
+@section styles
+{
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+    <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link type="text/css" href="~/Content/build/css/bootstrap-timepicker.min.css" />
+    <link type="text/css" href="~/Content/build/css/bootstrap-timepicker.css" />
+    <link href="~/Content/selectize.css" rel="stylesheet" />
+    <style>
+        .dropdown-menu > li > a {
+            font-size: 14px !important;
+        }
+
+        .user-link {
+            text-decoration: underline;
+        }
+
+        #div-dashboard-scroll-list {
+            overflow-x: hidden;
+            overflow-y: auto;
+            height: 150px;
+        }
+
+        .input-group {
+            margin-bottom: 0;
+        }
+
+        .btn-success[disabled]:hover {
+            background: #6ad6bf;
+            border-color: #6ad6bf;
+        }
+
+        table#table_tambah_kirim thead tr {
+            background-color: #c7f1f5;
+        }
+
+        .qty-input {
+            width: 50px;
+        }
+
+        .harga-input {
+            width: 100px;
+        }
+
+        .disc-input {
+            width: 50px;
+        }
+
+        .ndisc-input {
+            width: 100px;
+        }
+
+        #GUDANG,
+        #GUDANG .selectivity-single-select-input {
+            width: 100px !important;
+        }
+
+        #kirim-section > div {
+            background-color: #fff;
+            padding: 20px;
+        }
+
+        #cetakfaktur_label {
+            color: orange;
+            font-weight: bold;
+        }
+
+        .disabled-tab {
+            cursor: not-allowed;
+            background-color: #999 !important;
+            color: #fff;
+        }
+
+            .disabled-tab:hover,
+            .disabled-tab:active,
+            .disabled-tab:visited {
+                color: #fff;
+            }
+    </style>
+}
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="" role="tabpanel" data-example-id="togglable-tabs">
+            <ul id="myTab" class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#tab_content1" id="hapus-tab" role="tab" data-toggle="tab" aria-expanded="true">Hapus Barang</a>
+                </li>
+                <li role="presentation" class="">
+                    <a href="#tab_content2" role="tab" id="history-tab" data-toggle="tab" aria-expanded="false">History Hapus Barang</a>
+                </li>
+            </ul>
+            <div id="myTabContent" class="tab-content">
+                <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="hapus-tab">
+                    <div class="row do_table_section" style="margin-top:13px;">
+                        <div class="col-lg-4 col-sm-6 mrgbttmpesanan">
+                            <div class="input-group">
+                                <input id="search_hapus" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_hapus_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        @*<label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <select class="form-control" id="filter_semua_field" required="required">
+                                <option>Harap Pilih</option>
+                                <option value="tanggal">Tgl. Pesanan</option>
+                                <option value="marketplace">Marketplace</option>
+                                <option value="tipe">Tipe Pesanan</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <div class="col-12" id="filter_semua_field_tanggal_div">
+                                <select class="form-control" id="filter_semua_field_tanggal" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="desc">Terbaru</option>
+                                    <option value="asc">Terlama</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_semua_field_marketplace_div" style="display:none">
+                                <select class="form-control" id="filter_semua_field_marketplace" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="7">Lazada</option>
+                                    <option value="8">Bukalapak</option>
+                                    <option value="9">Elevenia</option>
+                                    <option value="15">Tokopedia</option>
+                                    <option value="16">Blibli</option>
+                                    <option value="17">Shopee</option>
+                                    <option value="19">JD.ID</option>
+                                    <option value="20">82Cart</option>
+                                    <option value="21">Shopify</option>
+                                    <option value="18">Offline</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_semua_field_tipe_div" style="display:none">
+                                <select class="form-control" id="filter_semua_field_tipe" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="cod">COD</option>
+                                    <option value="preorder">Preorder</option>
+                                </select>
+                            </div>
+                        </div>*@
+                        <div class="col-lg-5 col-sm-7" style="margin-top:13px;"></div>
+                        <div class="col-lg-7 col-sm-7" style="margin-top:13px;">
+                            <div class="input-group pull-right">
+                                <button id="download-btn" class="btn btn-primary" onclick="openModalKonfirmDelete()">Delete Massal</button>
+                                <button type="button" id="btn_refresh_hapus" class="btn btn-default" data-style="expand-right">
+                                    <span>Refresh</span>
+                                </button>
+                                <select class="form-control pull-right" style="width:75px;" id="TakeRecordHapus" name="TakeRecordHapus" required="required">
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row do_table_section" style="margin-top: 5px;">
+                        <div class="col-sm-12" id="table-hapus-partial">
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="history-tab">
+                    <div class="row do_table_section" style="margin-top:13px;">
+                        <div class="col-lg-4 col-sm-6 mrgbttmpesanan">
+                            <div class="input-group">
+                                <input id="search_history" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_history_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        @*<label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <select class="form-control" id="filter_belum_field" required="required">
+                                <option>Harap Pilih</option>
+                                <option value="tanggal">Tgl. Pesanan</option>
+                                <option value="marketplace">Marketplace</option>
+                                <option value="tipe">Tipe Pesanan</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <div class="col-12" id="filter_belum_field_tanggal_div">
+                                <select class="form-control" id="filter_belum_field_tanggal" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="desc">Terbaru</option>
+                                    <option value="asc">Terlama</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_belum_field_marketplace_div" style="display:none">
+                                <select class="form-control" id="filter_belum_field_marketplace" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="7">Lazada</option>
+                                    <option value="8">Bukalapak</option>
+                                    <option value="9">Elevenia</option>
+                                    <option value="15">Tokopedia</option>
+                                    <option value="16">Blibli</option>
+                                    <option value="17">Shopee</option>
+                                    <option value="19">JD.ID</option>
+                                    <option value="20">82Cart</option>
+                                    <option value="21">Shopify</option>
+                                    <option value="18">Offline</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_belum_field_tipe_div" style="display:none">
+                                <select class="form-control" id="filter_belum_field_tipe" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="cod">COD</option>
+                                    <option value="preorder">Preorder</option>
+                                </select>
+                            </div>
+                        </div>*@
+                        <div class="col-lg-5 col-sm-7" style="margin-top:13px;"></div>
+                        <div class="col-lg-7 col-sm-7" style="margin-top:13px;">
+                            <div class="input-group pull-right">
+                                <button type="button" id="btn_refresh_history" class="btn btn-default" data-style="expand-right">
+                                    <span>Refresh</span>
+                                </button>
+                                <select class="form-control pull-right" style="width:75px;" id="TakeRecordHistory" name="TakeRecordHistory" required="required">
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row do_table_section" style="margin-top: 5px;">
+                        <div class="col-sm-12" id="table-history-partial">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="konfHapusBarang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus barang-barang berikut @*<span id="nm-brg-delete"></span>*@?</h4>
+                    <h4>Hapus data barang hanya akan menghapus data barang di Master Online dan otomatis melakukan transaksi keluar barang tersebut sampai stok 0 apabila masih ada stok.</h4>
+                </div>
+                @*@Html.Hidden("kd-brg-delete")*@
+                <div id="table-konfirm-delete"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="$('#konfHapusBarang').modal('hide');">Tidak</button>
+                <button type="button" class="btn btn-success" id="konf-delete-brg" onclick="beforeDeleteBarang();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="konfBatalProses" tabindex="-1" role="dialog" aria-labelledby="konfBatalProsesLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfBatalProsesLabel">Konfirmasi Batal Proses</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda akan membatalkan semua pesanan di dalam rekap serah terima ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="$('#konfBatalProses').modal('hide');">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="$('#konfBatalProses').modal('hide'); $('#modalScanSerahTerima').modal('hide');">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script src="~/Content/vendors/moment/min/moment.min.js" type="text/javascript"></script>
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
+    <script src='@Url.Content("~/Scripts/jquery.validate.js")' type='text/javascript'></script>
+    <script src='@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")' type='text/javascript'></script>
+    <script type="text/javascript" src="~/Content/build/js/bootstrap-timepicker.js"></script>
+    <script type="text/javascript" src="~/Content/build/js/bootstrap-timepicker.min.js"></script>
+    <script type="text/javascript">
+        var $flagPerubahan = 0;
+        var $modeEdit = 0; // 0 new, 1 edit
+        var $page = window.text;
+        @*var tglCutOff = @Html.Raw(Json.Encode(tglCutOff));
+        var modeEditDO = @Html.Raw(Json.Encode(modeEditDO));
+        var EditKirimId = @Html.Raw(Json.Encode(EditKirimId));*@
+
+        $(document).ready(function () {
+            
+            refreshTableHapusBarang();
+            
+            $('#hapus-tab').click(function () {
+                //$TabAktif = 1;
+                refreshTableHapusBarang();
+                
+            });
+            $('#history-tab').click(function () {
+                //$TabAktif = 2;
+                refreshTableHistoryHapusBarang();
+            });
+            
+            //if (modeEditDO == "1") {
+            //    $('#do-tab').click();
+            //    editSerahTerima(EditKirimId);
+            //} else if (modeEditDO == "2") {
+            //    $('#belum-tab').click();
+            //}
+            //else {
+            //    $('#semua-tab').click();
+            //}
+
+            $('#search_hapus').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableHapusBarang();
+                    return false;
+                }
+            });
+            $('#search_hapus_click').click(function () {
+                searchTableHapusBarang();
+            });
+
+            $('#search_history').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableHistoryHapusBarang();
+                    return false;
+                }
+            });
+            $('#search_history_click').click(function () {
+                searchTableHistoryHapusBarang();
+            });
+            
+            $('#btn_refresh_hapus').click(function () {
+                refreshTableHapusBarang();
+            });
+            $('#btn_refresh_history').click(function () {
+                refreshTableHistoryHapusBarang();
+            });
+
+            $('#TakeRecordHapus').change(function () {
+                refreshTableHapusBarang("1");
+            });
+            $('#TakeRecordHistory').change(function () {
+                refreshTableHistoryHapusBarang("1");
+            });
+            //$('#close-editor').off('click').on('click', function () {
+
+            //    if ($('#btn-simpan-perubahan-row').is(':visible')) {
+            //        $('#modalTutupEditor').modal('show');
+            //    } else {
+
+            //        $('.do_table_section').show();
+            //        $('.do_editor_section').hide();
+
+            //        $('#form-partial').html('');
+
+            //        $('#myTab li a').each(function (index) {
+            //            $(this).attr('data-toggle', 'tab');
+            //            $(this).removeClass('disabled-tab');
+            //        });
+            //        $('input, select, .btn-danger').each(function () {
+            //            $(this).removeAttr('disabled');
+            //        });
+
+            //        refreshTableDO();
+            //    }
+            //});
+        });
+
+        function saveCutoff() {
+            //if ($('#cutoffPengiriman').val() != null && $('#cutoffPengiriman').val() != "") {
+            $('#konfCutoff').modal('hide');
+            $('#save-cutoff-btn').attr('disabled', 'disabled');
+            var $link = '@Html.Raw(Url.Action("saveCutOff", "Manage"))';
+            //$link = $link.replace("replaceTgl", encodeURIComponent($('#cutoffPengiriman').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                success: function (response) {
+                    window.location.reload();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+            //}
+        }
+        
+
+        function refreshTableHapusBarang() {
+            var $link = '@Html.Raw(Url.Action("RefreshTableMenuHapusBarang", "Manage", new { take = "replaceLastTake", page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_hapus').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_1').val()));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordHapus').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-hapus-partial').hide();
+                    $('#loading_hapus_barang_tab').show();
+                },
+                success: function (response) {
+                    $('#table-hapus-partial').html(response);
+                    $('#table-hapus-partial').show();
+                    $('#loading_hapus_barang_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#loading_hapus_barang_tab').hide();
+                    console.log(error);
+                }
+            });
+        }
+        function searchTableHapusBarang(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableMenuHapusBarang", "Manage", new { take = "replaceLastTake", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_hapus').val()));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordHapus').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_hapus_click')[0].disabled = true;
+                    $('#loading_hapus_barang_tab').show();
+                },
+                success: function (response) {
+                    $('#search_hapus_click')[0].disabled = false;
+                    $('#table-hapus-partial').html(response);
+                    $('#loading_hapus_barang_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_hapus_click')[0].disabled = false;
+                    $('#loading_hapus_barang_tab').hide();
+                    console.log(error);
+                }
+            });
+        }
+        
+        function refreshTableHistoryHapusBarang() {
+            var $link = '@Html.Raw(Url.Action("RefreshTableHistoryHapusBarang", "Manage", new { take = "replaceLastTake", page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_history').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_2').val()));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordHistory').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-history-partial').hide();
+                    $('#loading_history_hapus_barang_tab').show();
+                },
+                success: function (response) {
+                    $('#table-history-partial').html(response);
+                    $('#table-history-partial').show();
+                    $('#loading_history_hapus_barang_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#loading_history_hapus_barang_tab').hide();
+                    console.log(error);
+                }
+            });
+        }
+        function searchTableHistoryHapusBarang(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableHistoryHapusBarang", "Manage", new { take = "replaceLastTake", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_history').val()));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordHistory').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_history_click')[0].disabled = true;
+                    $('#loading_history_hapus_barang_tab').show();
+                },
+                success: function (response) {
+                    $('#search_history_click')[0].disabled = false;
+                    $('#table-history-partial').html(response);
+                    $('#loading_history_hapus_barang_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_history_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+
+        function openModalKonfirmDelete() {
+            //$('#nm-brg-delete').val($kd + ' (' + $nm + ')');
+            //$('#kd-brg-delete').val($kd);
+            //$('#konfHapusBarang').modal('show');
+
+            var rows_selected_recnum = [];
+            $('.checkbox_delete').each(function (i, item) {
+                if ($(item).is(":checked")) {
+                    rows_selected_recnum.push($(item).attr("data-recnum"));
+                }
+            });
+            if (rows_selected_recnum.length < 1) {
+                alert('Mohon pilih barang yg mau dihapus.');
+                return false;
+            }
+            var link = '@Url.Action("RefreshKonfirmasiDeleteBarang", "Manage")';
+            $.ajax({
+                type: "POST",
+                url: link,
+                // The key needs to match your method's input parameter (case-sensitive).
+                
+                data: JSON.stringify(rows_selected_recnum),
+                contentType: "application/json; charset=UTF-8",
+                cache: false,
+                beforeSend: function () {
+                    //$('#loading_delete_detail_massal').show();
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    if (response.Errors == null) {
+                        $('#konfHapusBarang').modal('show');
+                        $('#table-konfirm-delete').html(response);
+                        //$('#loading_delete_detail_massal').hide();
+                        $('#loading_spinner').hide();
+                    } else {
+                        $('#konfHapusBarang').modal('hide');
+                        alert(response.Errors[0]);
+                        $('#loading_spinner').hide();
+                    }
+                },
+                error: function (errMsg) {
+                    //$('#loading_delete_detail_massal').hide();
+                    $('#konfHapusBarang').modal('hide');
+                    alert(errMsg);
+                    $('#loading_spinner').hide();
+
+                },
+            });
+        }
+
+        function openModalKonfirmDeleteSatuan($id) {
+            //$('#nm-brg-delete').val($kd + ' (' + $nm + ')');
+            //$('#kd-brg-delete').val($kd);
+            //$('#konfHapusBarang').modal('show');
+
+            var rows_selected_recnum = [];
+            if ($id != undefined && $id != null && $id != "") {
+                rows_selected_recnum.push($id);
+            }
+            if (rows_selected_recnum.length < 1) {
+                alert('Mohon pilih barang yg mau dihapus.');
+                return false;
+            }
+            var link = '@Url.Action("RefreshKonfirmasiDeleteBarang", "Manage")';
+            $.ajax({
+                type: "POST",
+                url: link,
+                // The key needs to match your method's input parameter (case-sensitive).
+                
+                data: JSON.stringify(rows_selected_recnum),
+                contentType: "application/json; charset=UTF-8",
+                cache: false,
+                beforeSend: function () {
+                    //$('#loading_delete_detail_massal').show();
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    if (response.Errors == null) {
+                        $('#konfHapusBarang').modal('show');
+                        $('#table-konfirm-delete').html(response);
+                        //$('#loading_delete_detail_massal').hide();
+                        $('#loading_spinner').hide();
+                    } else {
+                        $('#konfHapusBarang').modal('hide');
+                        alert(response.Errors[0]);
+                        $('#loading_spinner').hide();
+                    }
+                },
+                error: function (errMsg) {
+                    //$('#loading_delete_detail_massal').hide();
+                    $('#konfHapusBarang').modal('hide');
+                    alert(errMsg);
+                    $('#loading_spinner').hide();
+
+                },
+            });
+        }
+
+        function beforeDeleteBarang() {
+            var get_selected = [];
+            $('.get_recnum').each(function (i, item) {
+                get_selected.push($(item).attr("data-recnum"));
+            });
+            if (get_selected.length > 0) {
+                deleteBarangConfirm(get_selected);
+            } else {
+                alert("Mohon pilih barang yg mau dihapus.");
+                return false;
+            }
+        }
+
+        function deleteBarangConfirm($listRecnum) {
+            var link = '@Url.Action("HapusBarangMassal", "Manage")';
+            $.ajax({
+                type: "POST",
+                url: link,
+                // The key needs to match your method's input parameter (case-sensitive).
+                
+                data: JSON.stringify($listRecnum),
+                contentType: "application/json; charset=UTF-8",
+                cache: false,
+                beforeSend: function () {
+                    $('#konf-delete-brg').attr('disabled', 'disabled');
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    if (!response.error_delete_exist) {
+                        $('#konfHapusBarang').modal('hide');
+                        alert("Semua barang berhasil terhapus.");
+                        $('#konf-delete-brg').removeAttr('disabled');
+                        $('#loading_spinner').hide();
+                        refreshTableHapusBarang();
+                    } else {
+                        //$('#konfHapusBarang').modal('hide');
+                        alert(response.error_delete);
+                        $('#konf-delete-brg').removeAttr('disabled');
+                        $('#loading_spinner').hide();
+                    }
+                },
+                error: function (errMsg) {
+                    //$('#loading_delete_detail_massal').hide();
+                    $('#loading_spinner').hide();
+                    $('#konfHapusBarang').modal('hide');
+                    alert(errMsg);
+
+                },
+            });
+        }
+        
+    </script>
+    <script>
+        //Disable Enter Key Submit Form
+        function stopRKey(evt) {
+            var evt = (evt) ? evt : ((event) ? event : null);
+            var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+            if ((evt.keyCode === 13) && (node.type === "text")) { return false; }
+        }
+        document.onkeypress = stopRKey;
+    </script>
+}

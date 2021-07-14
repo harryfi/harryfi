@@ -862,6 +862,9 @@ namespace MasterOnline.Controllers
                 string sSQL2 = "";
                 sSQL2 += "FROM STF02 ";
                 sSQL2 += "WHERE TYPE = '3'";
+                //add by nurul 7/7/2021, tambah cek status barang aktif atau tidak
+                sSQL2 += "AND ISNULL(A.QTY_BERAT,'')<>'1' ";
+                //add by nurul 7/7/2021, tambah cek status barang aktif atau tidak
                 if (search != "")
                 {
                     //sSQL2 += "AND (BRG LIKE '%" + search + "%' OR (ISNULL(NAMA, '') + ' ' + ISNULL(NAMA2, '')) LIKE '%" + search + "%' ) ";
