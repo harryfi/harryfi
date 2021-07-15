@@ -5999,11 +5999,12 @@ namespace MasterOnline.Controllers
                     //string sSQL = "select brg, nama + ' ' + isnull(nama2, '') as nama from stf02 where type = 3 order by nama,nama2";
                     string sSQL = "select a.brg, nama + ' ' + isnull(nama2, '') as nama from stf02 a (nolock) " +
                                   "left join (select distinct unit from stf03 (nolock)) b on a.brg=b.unit " +
-                                  "where type = 3 and isnull(b.unit,'')='' order by nama,nama2 " +
+                                  "where type = 3 and isnull(b.unit,'')='' " +
                                     //add by nurul 7/7/2021, tambah cek status barang aktif atau tidak
-                                    "AND ISNULL(A.qty_berat,'')<>'1' ";
+                                    "AND ISNULL(A.qty_berat,'')<>'1' " +
                                     //add by nurul 7/7/2021, tambah cek status barang aktif atau tidak
-                    //end change by nurul 9/11/2020, bundling
+                                    "order by nama,nama2 ";
+                                    //end change by nurul 9/11/2020, bundling
 
                     var dsBarang = EDB.GetDataSet("CString", "STF02", sSQL);
 
