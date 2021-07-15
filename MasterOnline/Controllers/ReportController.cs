@@ -861,9 +861,9 @@ namespace MasterOnline.Controllers
                 sSQLCount += "SELECT COUNT(ID) AS JUMLAH ";
                 string sSQL2 = "";
                 sSQL2 += "FROM STF02 ";
-                sSQL2 += "WHERE TYPE = '3'";
+                sSQL2 += "WHERE TYPE = '3' ";
                 //add by nurul 7/7/2021, tambah cek status barang aktif atau tidak
-                sSQL2 += "AND ISNULL(A.QTY_BERAT,'')<>'1' ";
+                sSQL2 += "AND ISNULL(QTY_BERAT,'')<>'1' ";
                 //add by nurul 7/7/2021, tambah cek status barang aktif atau tidak
                 if (search != "")
                 {
