@@ -142,7 +142,7 @@
                     <a href="#tab_content1" id="hapus-tab" role="tab" data-toggle="tab" aria-expanded="true">Hapus Barang</a>
                 </li>
                 <li role="presentation" class="">
-                    <a href="#tab_content2" role="tab" id="history-tab" data-toggle="tab" aria-expanded="false">History Hapus Barang</a>
+                    <a href="#tab_content2" role="tab" id="history-tab" data-toggle="tab" aria-expanded="false">History</a>
                 </li>
             </ul>
             <div id="myTabContent" class="tab-content">
@@ -158,52 +158,9 @@
                                 </span>
                             </div>
                         </div>
-                    </div>
-                    <div>
-                        @*<label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
-                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
-                            <select class="form-control" id="filter_semua_field" required="required">
-                                <option>Harap Pilih</option>
-                                <option value="tanggal">Tgl. Pesanan</option>
-                                <option value="marketplace">Marketplace</option>
-                                <option value="tipe">Tipe Pesanan</option>
-                            </select>
-                        </div>
-                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
-                            <div class="col-12" id="filter_semua_field_tanggal_div">
-                                <select class="form-control" id="filter_semua_field_tanggal" required="required">
-                                    <option>Harap Pilih</option>
-                                    <option value="desc">Terbaru</option>
-                                    <option value="asc">Terlama</option>
-                                </select>
-                            </div>
-                            <div class="col-12" id="filter_semua_field_marketplace_div" style="display:none">
-                                <select class="form-control" id="filter_semua_field_marketplace" required="required">
-                                    <option>Harap Pilih</option>
-                                    <option value="7">Lazada</option>
-                                    <option value="8">Bukalapak</option>
-                                    <option value="9">Elevenia</option>
-                                    <option value="15">Tokopedia</option>
-                                    <option value="16">Blibli</option>
-                                    <option value="17">Shopee</option>
-                                    <option value="19">JD.ID</option>
-                                    <option value="20">82Cart</option>
-                                    <option value="21">Shopify</option>
-                                    <option value="18">Offline</option>
-                                </select>
-                            </div>
-                            <div class="col-12" id="filter_semua_field_tipe_div" style="display:none">
-                                <select class="form-control" id="filter_semua_field_tipe" required="required">
-                                    <option>Harap Pilih</option>
-                                    <option value="cod">COD</option>
-                                    <option value="preorder">Preorder</option>
-                                </select>
-                            </div>
-                        </div>*@
-                        <div class="col-lg-5 col-sm-7" style="margin-top:13px;"></div>
-                        <div class="col-lg-7 col-sm-7" style="margin-top:13px;">
+                        <div class="col-lg-8 col-sm-6" >
                             <div class="input-group pull-right">
-                                <button id="download-btn" class="btn btn-primary" onclick="openModalKonfirmDelete()">Delete Massal</button>
+                                <button id="download-btn" class="btn btn-danger" onclick="openModalKonfirmDelete()">Hapus</button>
                                 <button type="button" id="btn_refresh_hapus" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
@@ -232,50 +189,7 @@
                                 </span>
                             </div>
                         </div>
-                    </div>
-                    <div>
-                        @*<label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
-                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
-                            <select class="form-control" id="filter_belum_field" required="required">
-                                <option>Harap Pilih</option>
-                                <option value="tanggal">Tgl. Pesanan</option>
-                                <option value="marketplace">Marketplace</option>
-                                <option value="tipe">Tipe Pesanan</option>
-                            </select>
-                        </div>
-                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
-                            <div class="col-12" id="filter_belum_field_tanggal_div">
-                                <select class="form-control" id="filter_belum_field_tanggal" required="required">
-                                    <option>Harap Pilih</option>
-                                    <option value="desc">Terbaru</option>
-                                    <option value="asc">Terlama</option>
-                                </select>
-                            </div>
-                            <div class="col-12" id="filter_belum_field_marketplace_div" style="display:none">
-                                <select class="form-control" id="filter_belum_field_marketplace" required="required">
-                                    <option>Harap Pilih</option>
-                                    <option value="7">Lazada</option>
-                                    <option value="8">Bukalapak</option>
-                                    <option value="9">Elevenia</option>
-                                    <option value="15">Tokopedia</option>
-                                    <option value="16">Blibli</option>
-                                    <option value="17">Shopee</option>
-                                    <option value="19">JD.ID</option>
-                                    <option value="20">82Cart</option>
-                                    <option value="21">Shopify</option>
-                                    <option value="18">Offline</option>
-                                </select>
-                            </div>
-                            <div class="col-12" id="filter_belum_field_tipe_div" style="display:none">
-                                <select class="form-control" id="filter_belum_field_tipe" required="required">
-                                    <option>Harap Pilih</option>
-                                    <option value="cod">COD</option>
-                                    <option value="preorder">Preorder</option>
-                                </select>
-                            </div>
-                        </div>*@
-                        <div class="col-lg-5 col-sm-7" style="margin-top:13px;"></div>
-                        <div class="col-lg-7 col-sm-7" style="margin-top:13px;">
+                        <div class="col-lg-8 col-sm-6" >
                             <div class="input-group pull-right">
                                 <button type="button" id="btn_refresh_history" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
@@ -307,9 +221,10 @@
             <div class="modal-body">
                 <div class="row text-center">
                     <h4>Apakah Anda yakin ingin menghapus barang-barang berikut @*<span id="nm-brg-delete"></span>*@?</h4>
-                    <h4>Hapus data barang hanya akan menghapus data barang di Master Online dan otomatis melakukan transaksi keluar barang tersebut sampai stok 0 apabila masih ada stok.</h4>
+                    <h5>Hapus data barang hanya akan menghapus data barang di Master Online dan otomatis melakukan transaksi keluar barang tersebut sampai stok 0 apabila masih ada stok.</h5>
                 </div>
                 @*@Html.Hidden("kd-brg-delete")*@
+                <br />
                 <div id="table-konfirm-delete"></div>
             </div>
             <div class="modal-footer">

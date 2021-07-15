@@ -160,7 +160,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            @foreach (var form in Model.ListForms)
+                            @foreach (var form in Model.ListForms.OrderBy(m => m.ParentId).ThenBy(a => a.ScrId))
                             {
                                 if (form.HaveChild)
                                 {
@@ -190,7 +190,7 @@
                                         </td>
                                     </tr>
 
-                                    foreach (var formChild in Model.ListForms)
+                                    foreach (var formChild in Model.ListForms.OrderBy(m => m.ScrId).ThenBy(a => a.ScrId))
                                     {
                                         if (formChild.ParentId == form.ScrId)
                                         {

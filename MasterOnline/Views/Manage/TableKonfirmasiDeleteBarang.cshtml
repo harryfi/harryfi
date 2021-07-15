@@ -4,9 +4,8 @@
 <table class="table table-striped table-bordered" id="datatable_delete_barang_massal">
     <thead>
         <tr role="row">
-            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">Kode</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Nama</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 117px;">Harga Jual</th>
+            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">Kode Barang</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Nama Barang</th>
         </tr>
     </thead>
     <tbody>
@@ -15,7 +14,6 @@
             <tr>
                 <td class="get_recnum" data-recnum="@barang.ID" style="width:100px">@barang.BRG</td>
                 <td style="width:300px">@barang.NAMA @barang.NAMA2</td>
-                <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HJUAL)</td>
             </tr>
         }
     </tbody>

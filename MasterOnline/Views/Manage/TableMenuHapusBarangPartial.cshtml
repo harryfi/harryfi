@@ -68,7 +68,6 @@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 150px;">Nama</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 117px;">Kategori</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 85px;">Merk</th>
-                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 110px;">Harga Jual</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 80px;">Terakhir Edit</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 45px;">Hapus</th>
             </tr>
@@ -86,7 +85,6 @@
                     <td>@barang.NAMA @barang.NAMA2</td>
                     <td>@barang.KET_SORT1</td>
                     <td>@barang.KET_SORT2</td>
-                    <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HJUAL)</td>
                     <td>@(barang.Tgl_Input?.ToString("dd/MM/yyyy"))</td>
                     <td class="edit-hapus-col">
                         <button class="btn btn-danger hapus-detail" onclick="openModalKonfirmDeleteSatuan('@barang.ID')">
