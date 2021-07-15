@@ -3165,11 +3165,41 @@ namespace MasterOnline.Controllers
                         }
                     }
                     int indexAttr = 1;
+                    var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
+                    var listAttr = GetAttrForSinkro(customer.TOKEN, brg.category.id.ToString());
                     foreach (Newtonsoft.Json.Linq.JProperty property in brg.specs)
                     {
                         if (indexAttr <= 30)
                         {
-                            sqlAttr += ", '" + property.Name.Replace("\'", "`") + "','" + property.Name.Replace("\'", "`") + "','" + property.Value.ToString().Replace("\'", "`") + "'";
+                            string valAttr = property.Value.ToString().Replace("\'", "`");
+                            if (listAttr.data != null)
+                            {
+                                var curr = listAttr.data.Where(m => m.name == property.Name).FirstOrDefault();
+                                if (curr != null)
+                                {
+                                    if (curr.multiple)
+                                    {
+                                        string[] listVal = property.Value.ToObject<string[]>();
+                                        if (listVal.Length > 0)
+                                        {
+                                            valAttr = "";
+                                            foreach (var aVal in listVal)
+                                            {
+                                                if (!string.IsNullOrEmpty(valAttr))
+                                                {
+                                                    valAttr += ",";
+                                                }
+                                                valAttr += aVal.Replace("\'", "`");
+                                            }
+                                        }
+                                        else
+                                        {
+                                            valAttr = "";
+                                        }
+                                    }
+                                }
+                            }
+                            sqlAttr += ", '" + property.Name.Replace("\'", "`") + "','" + property.Name.Replace("\'", "`") + "','" + valAttr + "'";
                             indexAttr++;
                         }
                     }
@@ -3976,6 +4006,41 @@ namespace MasterOnline.Controllers
                     {
 
                     }
+
+                }
+            }
+            return retAttr;
+        }
+        public ResponseGetAttr GetAttrForSinkro(string token, string id)
+        {
+            Utils.HttpRequest req = new Utils.HttpRequest();
+            var retAttr = new ResponseGetAttr();
+
+            //var ret = req.CallBukaLapakAPI("", "categories/" + id + "/attributes.json", "", userId, token, typeof(BLAttribute)) as BLAttribute;
+            string urll = "https://api.bukalapak.com/_partners/categories/" + id + "/attributes";
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", "Bearer " + token);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+
+            using (WebResponse response = myReq.GetResponse())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            //if (ret.status.ToUpper() == "OK")
+            if (responseFromServer != "")
+            {
+                var resListAttr = JsonConvert.DeserializeObject(responseFromServer, typeof(ResponseGetAttr)) as ResponseGetAttr;
+                if (resListAttr != null)
+                {
+                    retAttr = resListAttr;
 
                 }
             }
