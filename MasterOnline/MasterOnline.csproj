@@ -6986,6 +6986,10 @@
     <Content Include="Views\Manage\TableDatabaseAccurate.cshtml" />
     <Content Include="Views\Manage\BarangGantiPesananPartial.cshtml" />
     <Content Include="Views\Manage\TableBarangGantiPartial.cshtml" />
+    <Content Include="Views\Manage\HapusBarangMenu.cshtml" />
+    <Content Include="Views\Manage\TableMenuHistoryHapusBarangPartial.cshtml" />
+    <Content Include="Views\Manage\TableMenuHapusBarangPartial.cshtml" />
+    <Content Include="Views\Manage\TableKonfirmasiDeleteBarang.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

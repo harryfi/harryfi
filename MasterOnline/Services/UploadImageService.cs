@@ -421,5 +421,58 @@ namespace MasterOnline.Services
 
             return saveLocation;
         }
+
+        //add by nurul 14/7/2021
+        public static void DeleteImageS3FromPath(String fileName)
+        {
+
+            //var fileName = values[1].Replace(" ", "_") + "_image.png";
+            //var path = albumid + "/" + fileName;
+            //var imgurImage = new ImgurImageResponse();
+            var name = fileName.Split(new string[] { "masteronlinebucket/" }, StringSplitOptions.None);
+            var path = "";
+            if(name.Count() > 1)
+            {
+                path = name.Last();
+            }
+            if (path != "")
+            {
+                try
+                {
+                    //path = path + "." + imageType;
+
+                    //byte[] photo = File.ReadAllBytes(imagePath);
+                    IAmazonS3 client;
+                    using (client = new AmazonS3Client(_awsAccessKey, _awsSecretKey, Amazon.RegionEndpoint.APSoutheast1))
+                    {
+                        var request = new DeleteObjectRequest()
+                        {
+                            BucketName = _bucketName,
+                            //CannedACL = S3CannedACL.PublicRead,//PERMISSION TO FILE PUBLIC ACCESIBLE
+                            Key = string.Format(path),
+                            //InputStream = new MemoryStream(photo)//SEND THE FILE STREAM
+                        };
+
+                        client.DeleteObject(request);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+            }
+
+            //imgurImage.data = new ImgurData();
+
+            //imgurImage.data.link = _amazonS3PublicUrl + "/" + _bucketName + "/" + path;
+            //imgurImage.data.link_s = _amazonS3PublicUrl + "/" + _bucketName + "/" + path;
+            //imgurImage.data.link_m = _amazonS3PublicUrl + "/" + _bucketName + "/" + path;
+            //imgurImage.data.link_l = _amazonS3PublicUrl + "/" + _bucketName + "/" + path;
+            //imgurImage.data.copyText = "";
+
+
+            //return imgurImage;
+        }
+        //end add by nurul 14/7/2021
     }
 }

@@ -656,7 +656,10 @@ namespace MasterOnline.Controllers
                     sSQL += "M.NAMAMARKET + '(' + replace(replace(A.PERSO, char(10), ''), char(13), '') + ')' AS AKUN,H.HJUAL, M.IDMARKET, ";
                     sSQL += "ISNULL((SELECT TOP 1 ISNULL(E.HBELI,0) AS HBELI FROM PBT01A F LEFT JOIN PBT01B E ON F.INV = E.INV WHERE E.BRG = S.BRG ORDER BY F.TGL DESC, E.NO DESC), 0) AS HPOKOK ";
                     sSQL += "FROM STF02 S INNER JOIN STF02H H ON S.BRG = H.BRG INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM ";
-                    sSQL += "INNER JOIN MO..MARKETPLACE M ON A.NAMA = M.IDMARKET WHERE TYPE = '3' ORDER BY NAMA,M.IDMARKET";
+                    //change by nurul 7/7/2021, tambah cek status barang aktif atau tidak
+                    //sSQL += "INNER JOIN MO..MARKETPLACE M ON A.NAMA = M.IDMARKET WHERE TYPE = '3' ORDER BY NAMA,M.IDMARKET";
+                    sSQL += "INNER JOIN MO..MARKETPLACE M ON A.NAMA = M.IDMARKET WHERE TYPE = '3' AND ISNULL(S.QTY_BERAT,'')<>'1' ORDER BY NAMA,M.IDMARKET ";
+                    //end change by nurul 7/7/2021, tambah cek status barang aktif atau tidak
                     var dsBarang = EDB.GetDataSet("CString", "STF02", sSQL);
 
                     if (dsBarang.Tables[0].Rows.Count > 0)
@@ -735,7 +738,7 @@ namespace MasterOnline.Controllers
                     ////end change by calvin 16 september 2019
                     string sSQL = "select a.brg, nama + ' ' + isnull(nama2, '') as nama from stf02 a (nolock) " +
                                   "left join (select distinct unit from stf03 (nolock)) b on a.brg=b.unit " +
-                                  "where type = '3' and isnull(b.unit,'')='' order by nama,nama2";
+                                  "where type = '3' and isnull(b.unit,'')='' and isnull(a.qty_berat,'')<>'1' order by nama,nama2";
                     //end change by nurul 9/11/2020, bundling
 
                     var dsBarang = EDB.GetDataSet("CString", "STF02", sSQL);
@@ -1005,7 +1008,7 @@ namespace MasterOnline.Controllers
                                             var listTemp = new List<string>();
                                             if (ret.countAll <= 0)
                                             {
-                                                listTemp = eraDB.STF02.Where(m => m.TYPE == "3").Select(p => p.BRG).ToList();
+                                                listTemp = eraDB.STF02.Where(m => m.TYPE == "3" && m.Qty_berat != "1").Select(p => p.BRG).ToList();
                                                 if (listTemp.Count() <= 0)
                                                 {
                                                     transaction.Rollback();
@@ -1542,7 +1545,7 @@ namespace MasterOnline.Controllers
 
                                 //change by nurul 17/9/2020, brg multi sku 
                                 //var dataMasterSTF02 = eraDB.STF02.Select(p => new { p.BRG, p.NAMA, p.NAMA2, p.NAMA3 }).ToList();
-                                var dataMasterSTF02 = eraDB.STF02.AsNoTracking().Select(p => new { p.BRG, p.NAMA, p.NAMA2, p.NAMA3, p.TYPE, p.KUBILASI, p.BRG_NON_OS }).ToList();
+                                var dataMasterSTF02 = eraDB.STF02.AsNoTracking().Where(a => a.Qty_berat != "1").Select(p => new { p.BRG, p.NAMA, p.NAMA2, p.NAMA3, p.TYPE, p.KUBILASI, p.BRG_NON_OS }).ToList();
                                 //end change by nurul 17/9/2020, brg multi sku 
                                 var dataMasterSTF02H = eraDB.STF02H.AsNoTracking().Select(p => new { p.BRG, p.BRG_MP, p.IDMARKET }).ToList();
                                 var dataMasterKurir = MoDbContext.Ekspedisi.AsNoTracking().ToList();
@@ -2917,7 +2920,7 @@ namespace MasterOnline.Controllers
 
                                 //change by nurul 17/9/2020, brg multi sku 
                                 //var dataMasterSTF02 = eraDB.STF02.Select(p => new { p.BRG, p.NAMA, p.NAMA2, p.NAMA3 }).ToList();
-                                var dataMasterSTF02 = eraDB.STF02.AsNoTracking().Select(p => new { p.BRG, p.NAMA, p.NAMA2, p.NAMA3, p.TYPE, p.KUBILASI, p.BRG_NON_OS }).ToList();
+                                var dataMasterSTF02 = eraDB.STF02.AsNoTracking().Where(a => a.Qty_berat != "1").Select(p => new { p.BRG, p.NAMA, p.NAMA2, p.NAMA3, p.TYPE, p.KUBILASI, p.BRG_NON_OS }).ToList();
                                 var dataMasterSupplier = eraDB.APF01.AsNoTracking().Select(p => new { p.SUPP, p.NAMA }).ToList();
                                 //end change by nurul 17/9/2020, brg multi sku 
                                 //var dataMasterSTF02H = eraDB.STF02H.AsNoTracking().Select(p => new { p.BRG, p.BRG_MP, p.IDMARKET }).ToList();
@@ -5996,8 +5999,12 @@ namespace MasterOnline.Controllers
                     //string sSQL = "select brg, nama + ' ' + isnull(nama2, '') as nama from stf02 where type = 3 order by nama,nama2";
                     string sSQL = "select a.brg, nama + ' ' + isnull(nama2, '') as nama from stf02 a (nolock) " +
                                   "left join (select distinct unit from stf03 (nolock)) b on a.brg=b.unit " +
-                                  "where type = 3 and isnull(b.unit,'')='' order by nama,nama2";
-                    //end change by nurul 9/11/2020, bundling
+                                  "where type = 3 and isnull(b.unit,'')='' " +
+                                    //add by nurul 7/7/2021, tambah cek status barang aktif atau tidak
+                                    "AND ISNULL(A.qty_berat,'')<>'1' " +
+                                    //add by nurul 7/7/2021, tambah cek status barang aktif atau tidak
+                                    "order by nama,nama2 ";
+                                    //end change by nurul 9/11/2020, bundling
 
                     var dsBarang = EDB.GetDataSet("CString", "STF02", sSQL);
 
@@ -6195,7 +6202,7 @@ namespace MasterOnline.Controllers
                                             //add by nurul 9/11/2020, bundling
                                             var listTempBundling = eraDB.STF03.Select(a => a.Unit).Distinct().ToList();
                                             //end add by nurul 9/11/2020, bundling
-                                            var listTemp = eraDB.STF02.Where(m => m.TYPE == "3").ToList();
+                                            var listTemp = eraDB.STF02.Where(m => m.TYPE == "3" && m.Qty_berat != "1").ToList();
                                             if (listTemp.Count > 0)
                                             {
                                                 if (ret.statusLoop == false)
@@ -6817,7 +6824,7 @@ namespace MasterOnline.Controllers
                     //sSQL += "LEFT JOIN STF02E E ON S.SORT1 = E.KODE AND E.LEVEL = 1 WHERE TYPE in ('3', '6') AND CUST = '" + cust + "' ORDER BY NAMA";
                     sSQL += "LEFT JOIN STF02E E ON S.SORT1 = E.KODE AND E.LEVEL = 1 ";
                     sSQL += "LEFT JOIN (SELECT DISTINCT UNIT FROM STF03) B ON S.BRG=B.UNIT ";
-                    sSQL += "WHERE TYPE in ('3', '6') AND CUST = '" + cust + "' AND ISNULL(B.UNIT,'')='' ";
+                    sSQL += "WHERE TYPE in ('3', '6') AND CUST = '" + cust + "' AND ISNULL(B.UNIT,'')='' and isnull(s.qty_berat,'')<>'1' ";
                     sSQL += "ORDER BY NAMA";
 
                     //CHANGE BY NURUL 16/10/2020, BRG BUNDLING TIDAK BOLEH UBAH HARGA JUAL DARI SINI

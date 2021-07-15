@@ -269,6 +269,10 @@ namespace MasterOnline
         [StringLength(50)]
         public string BRG_SAP { get; set; }
 
+        //ADD BY NURUL 7/7/2021
+        public DateTime? TGL_DELETE { get; set; }
+        //END ADD BY NURUL 7/7/2021
+
         [JsonIgnore]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<STF02B> STF02B { get; set; }
