@@ -3073,24 +3073,30 @@ namespace MasterOnline.Controllers
                         {
                             if (brg.variants[i].images.large_urls != null)
                             {
-                                if(brg.variants[i].images.large_urls.Length > 1)
+                                if (brg.variants[i].images.large_urls.Length > 0)
                                 {
-                                    urlImage = brg.variants[i].images.large_urls[1];
-                                }
-                                else
-                                {
-                                    urlImage = brg.variants[i].images.large_urls[0];
+                                    if (brg.variants[i].images.large_urls.Length > 1)
+                                    {
+                                        urlImage = brg.variants[i].images.large_urls[1];
+                                    }
+                                    else
+                                    {
+                                        urlImage = brg.variants[i].images.large_urls[0];
+                                    }
                                 }
                             }
                             else if (brg.variants[i].images.small_urls != null)
                             {
-                                if (brg.variants[i].images.small_urls.Length > 1)
+                                if (brg.variants[i].images.small_urls.Length > 0)
                                 {
-                                    urlImage = brg.variants[i].images.small_urls[1];
-                                }
-                                else
-                                {
-                                    urlImage = brg.variants[i].images.small_urls[0];
+                                    if (brg.variants[i].images.small_urls.Length > 1)
+                                    {
+                                        urlImage = brg.variants[i].images.small_urls[1];
+                                    }
+                                    else
+                                    {
+                                        urlImage = brg.variants[i].images.small_urls[0];
+                                    }
                                 }
                             }
                             //remark 21/8/2019, barang varian ambil 1 gambar saja
