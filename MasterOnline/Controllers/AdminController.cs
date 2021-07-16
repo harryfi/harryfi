@@ -717,7 +717,7 @@ namespace MasterOnline.Controllers
         {
             var account = MoDbContext.Account.ToList();
 
-            return Json(account, JsonRequestBehavior.AllowGet);
+            return new JsonResult { Data = account, MaxJsonLength = Int32.MaxValue, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
 
         //add by nurul 12/8/2019, kirim invoice lewat email 
