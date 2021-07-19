@@ -323,17 +323,17 @@ namespace MasterOnline.Controllers
             var token = SetupContext(iden);
             iden.token = token;
 
-            var cekInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == kodeProduk && m.IDMARKET == iden.idmarket).FirstOrDefault();
-            if (cekInDB != null)
-            {
-                if (!string.IsNullOrEmpty(cekInDB.BRG_MP))
-                {
-                    if (!cekInDB.BRG_MP.Contains("PEDITENDING;"))//sudah berhasil link
-                    {
-                        return "";
-                    }
-                }
-            }
+            //var cekInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == kodeProduk && m.IDMARKET == iden.idmarket).FirstOrDefault();
+            //if (cekInDB != null)
+            //{
+            //    if (!string.IsNullOrEmpty(cekInDB.BRG_MP))
+            //    {
+            //        if (!cekInDB.BRG_MP.Contains("PEDITENDING;"))//sudah berhasil link
+            //        {
+            //            return "";
+            //        }
+            //    }
+            //}
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
             //string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/edit/status?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&upload_id=" + Uri.EscapeDataString(Convert.ToString(upload_id));
             string urll = "https://fs.tokopedia.net/v2/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/status/" + Uri.EscapeDataString(Convert.ToString(upload_id)) + "?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
