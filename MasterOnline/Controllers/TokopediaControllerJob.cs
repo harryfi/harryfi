@@ -127,9 +127,12 @@ namespace MasterOnline.Controllers
             var cekInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == kodeProduk && m.IDMARKET == iden.idmarket).FirstOrDefault();
             if(cekInDB != null)
             {
-                if (!cekInDB.BRG_MP.Contains("PENDING;"))//sudah berhasil link
+                if (!string.IsNullOrEmpty(cekInDB.BRG_MP))
                 {
-                    return ""; 
+                    if (!cekInDB.BRG_MP.Contains("PENDING;"))//sudah berhasil link
+                    {
+                        return "";
+                    }
                 }
             }
 
@@ -323,9 +326,12 @@ namespace MasterOnline.Controllers
             var cekInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == kodeProduk && m.IDMARKET == iden.idmarket).FirstOrDefault();
             if (cekInDB != null)
             {
-                if (!cekInDB.BRG_MP.Contains("PEDITENDING;"))//sudah berhasil link
+                if (!string.IsNullOrEmpty(cekInDB.BRG_MP))
                 {
-                    return "";
+                    if (!cekInDB.BRG_MP.Contains("PEDITENDING;"))//sudah berhasil link
+                    {
+                        return "";
+                    }
                 }
             }
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
