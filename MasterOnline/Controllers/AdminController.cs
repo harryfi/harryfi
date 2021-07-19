@@ -4979,7 +4979,8 @@ namespace MasterOnline.Controllers
         {
             var account = MoDbContext.Account.ToList();
 
-            return Json(account, JsonRequestBehavior.AllowGet);
+            //return Json(account, JsonRequestBehavior.AllowGet);
+            return new JsonResult { Data = account, MaxJsonLength = Int32.MaxValue, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
 
         public async Task<ActionResult> SendInvoiceCS(string aktSubID, string btnKirim)
