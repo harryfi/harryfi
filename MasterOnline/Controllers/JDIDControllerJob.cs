@@ -4099,9 +4099,10 @@ namespace MasterOnline.Controllers
             public string noref { get; set; }
             public string nobuk { get; set; }
         }
-        [AutomaticRetry(Attempts = 2)]
-        [Queue("1_manage_pesanan")]
-        public async Task<string> getKurirJDID(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data, string listOrderIds, List<listOrderNobuk> ListOrderNobuk)
+        //[AutomaticRetry(Attempts = 2)]
+        //[Queue("1_manage_pesanan")]
+        //public async Task<string> getKurirJDID(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data, string listOrderIds, List<listOrderNobuk> ListOrderNobuk)
+        public string getKurirJDID(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data, string listOrderIds, List<listOrderNobuk> ListOrderNobuk)
         {
             string ret = "";
             SetupContext(data.DatabasePathErasoft, data.username);
@@ -4160,9 +4161,10 @@ namespace MasterOnline.Controllers
         }
         //end add by nurul 4/3/2021
         //add by nurul 4/5/2021, JDID versi 2
-        [AutomaticRetry(Attempts = 2)]
-        [Queue("1_manage_pesanan")]
-        public async Task<string> getKurirJDIDV2(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data, string listOrderIds, List<listOrderNobuk> ListOrderNobuk)
+        //[AutomaticRetry(Attempts = 2)]
+        //[Queue("1_manage_pesanan")]
+        //public async Task<string> getKurirJDIDV2(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data, string listOrderIds, List<listOrderNobuk> ListOrderNobuk)
+        public string getKurirJDIDV2(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data, string listOrderIds, List<listOrderNobuk> ListOrderNobuk)
         {
             string ret = "";
             SetupContext(data.DatabasePathErasoft, data.username);
