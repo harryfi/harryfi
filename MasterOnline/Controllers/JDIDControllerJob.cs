@@ -2824,7 +2824,7 @@ namespace MasterOnline.Controllers
 
         public string JD_printLabelJDID(JDIDAPIDataJob data, string noref)
         {
-
+            SetupContext(data.DatabasePathErasoft, data.username);
             string ret = "";
 
             try
@@ -2844,6 +2844,22 @@ namespace MasterOnline.Controllers
                             var str = "{\"data\":" + listPrintLabel.model + "}";
                             foreach (var dataDetail in listPrintLabel.model.data)
                             {
+                                try
+                                {
+                                    if (!string.IsNullOrEmpty(dataDetail.deliveryId))
+                                    {
+                                        var cekPesanan = ErasoftDbContext.SOT01A.Where(a => a.CUST == data.no_cust && a.NO_REFERENSI == noref).FirstOrDefault();
+                                        if (cekPesanan != null)
+                                        {
+                                            cekPesanan.TRACKING_SHIPMENT = dataDetail.deliveryId;
+                                            ErasoftDbContext.SaveChanges();
+                                        }
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+
+                                }
                                 ret = dataDetail.PDF.ToString();
                             }
                             //var listDetails = JsonConvert.DeserializeObject(str, typeof(ModelOrderJob)) as ModelOrderJob;
@@ -2871,7 +2887,7 @@ namespace MasterOnline.Controllers
 
         public string JD_printLabelJDIDV2(JDIDAPIDataJob data, string noref)
         {
-
+            SetupContext(data.DatabasePathErasoft, data.username);
             string ret = "";
             try
             {
@@ -2959,6 +2975,20 @@ namespace MasterOnline.Controllers
                             {
                                 if (!string.IsNullOrEmpty(respons.jingdong_seller_order_printorder_response.result.model.content))
                                 {
+                                    try
+                                    {
+                                        if (!string.IsNullOrEmpty(respons.jingdong_seller_order_printorder_response.result.model.expressNo)) {
+                                            var cekPesanan = ErasoftDbContext.SOT01A.Where(a => a.CUST == data.no_cust && a.NO_REFERENSI == noref).FirstOrDefault();
+                                            if (cekPesanan != null)
+                                            {
+                                                cekPesanan.TRACKING_SHIPMENT = respons.jingdong_seller_order_printorder_response.result.model.expressNo;
+                                                ErasoftDbContext.SaveChanges();
+                                            }
+                                        }
+                                    }catch(Exception ex)
+                                    {
+
+                                    }
                                     ret = respons.jingdong_seller_order_printorder_response.result.model.content.ToString();
                                 }
                             }
@@ -4069,9 +4099,10 @@ namespace MasterOnline.Controllers
             public string noref { get; set; }
             public string nobuk { get; set; }
         }
-        [AutomaticRetry(Attempts = 2)]
-        [Queue("1_manage_pesanan")]
-        public async Task<string> getKurirJDID(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data, string listOrderIds, List<listOrderNobuk> ListOrderNobuk)
+        //[AutomaticRetry(Attempts = 2)]
+        //[Queue("1_manage_pesanan")]
+        //public async Task<string> getKurirJDID(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data, string listOrderIds, List<listOrderNobuk> ListOrderNobuk)
+        public string getKurirJDID(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data, string listOrderIds, List<listOrderNobuk> ListOrderNobuk)
         {
             string ret = "";
             SetupContext(data.DatabasePathErasoft, data.username);
@@ -4130,9 +4161,10 @@ namespace MasterOnline.Controllers
         }
         //end add by nurul 4/3/2021
         //add by nurul 4/5/2021, JDID versi 2
-        [AutomaticRetry(Attempts = 2)]
-        [Queue("1_manage_pesanan")]
-        public async Task<string> getKurirJDIDV2(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data, string listOrderIds, List<listOrderNobuk> ListOrderNobuk)
+        //[AutomaticRetry(Attempts = 2)]
+        //[Queue("1_manage_pesanan")]
+        //public async Task<string> getKurirJDIDV2(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data, string listOrderIds, List<listOrderNobuk> ListOrderNobuk)
+        public string getKurirJDIDV2(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data, string listOrderIds, List<listOrderNobuk> ListOrderNobuk)
         {
             string ret = "";
             SetupContext(data.DatabasePathErasoft, data.username);
@@ -8164,6 +8196,8 @@ namespace MasterOnline.Controllers
         {
             public string PDF { get; set; }
             public int orderId { get; set; }
+            public string preDeliveryId { get; set; }
+            public string deliveryId { get; set; }
         }
 
 
