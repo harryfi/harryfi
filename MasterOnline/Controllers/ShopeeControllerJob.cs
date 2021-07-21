@@ -4503,7 +4503,7 @@ namespace MasterOnline.Controllers
                             }
                         }
                         //var listPromo = new Dictionary<long, double>();//add 6 juli 2020
-                        var listPromo = new Dictionary<long, Activity>();//add 6 juli 2020
+                        var listPromo = new Dictionary<long, List<Activity>>();//add 6 juli 2020
                         foreach (var item in order.items)
                         {
                             string item_name = !string.IsNullOrEmpty(item.item_name) ? item.item_name.Replace('\'', '`') : "";
@@ -4554,7 +4554,11 @@ namespace MasterOnline.Controllers
                                     if (!listPromo.ContainsKey(item.promotion_id))
                                     {
                                         var dataDisc = await GetEscrowDetail(iden, order.ordersn, item.item_id, item.variation_id, item.promotion_id);
-                                        if (dataDisc.activity_id > 0)
+                                        //if (dataDisc.activity_id > 0)
+                                        //{
+                                        //    listPromo.Add(item.promotion_id, dataDisc);
+                                        //}
+                                        if (dataDisc.Count > 0)
                                         {
                                             listPromo.Add(item.promotion_id, dataDisc);
                                         }
@@ -4565,14 +4569,30 @@ namespace MasterOnline.Controllers
                                     //}
                                     newOrderItem.variation_discounted_price = item.variation_original_price;
                                     var dDisc = listPromo[item.promotion_id];
-                                    discount = (Convert.ToInt64(dDisc.original_price) - Convert.ToInt64(dDisc.discounted_price)) * 100 / Convert.ToInt64(dDisc.original_price);
-                                    foreach (var disc in dDisc.items)
+                                    foreach(var listAct in dDisc) 
                                     {
-                                        if (item.item_id == disc.item_id && item.variation_id == item.variation_id)
+                                        if(listAct.activity_id == item.promotion_id)
                                         {
-                                            newOrderItem.variation_discounted_price = disc.original_price;
+                                            foreach (var disc in listAct.items)
+                                            {
+                                                if (item.item_id == disc.item_id && item.variation_id == disc.variation_id)
+                                                {
+                                                    discount = (Convert.ToInt64(listAct.original_price) - Convert.ToInt64(listAct.discounted_price)) 
+                                                        * 100 / Convert.ToInt64(listAct.original_price);
+                                                    newOrderItem.variation_discounted_price = disc.original_price;
+                                                }
+                                            }
                                         }
+                                        
                                     }
+                                    //discount = (Convert.ToInt64(dDisc.original_price) - Convert.ToInt64(dDisc.discounted_price)) * 100 / Convert.ToInt64(dDisc.original_price);
+                                    //foreach (var disc in dDisc.items)
+                                    //{
+                                    //    if (item.item_id == disc.item_id && item.variation_id == disc.variation_id)
+                                    //    {
+                                    //        newOrderItem.variation_discounted_price = disc.original_price;
+                                    //    }
+                                    //}
                                     newOrderItem.DISC = discount;
                                     newOrderItem.N_DISC = Convert.ToInt64(newOrderItem.variation_discounted_price) * newOrderItem.variation_quantity_purchased * discount / 100;
                                 }
@@ -4812,11 +4832,11 @@ namespace MasterOnline.Controllers
             return null;
         }
         //end add by Tri 14 Apr 2020, api untuk ambil shipping fee 
-        public async Task<Activity> GetEscrowDetail(ShopeeAPIData iden, string ordersn, long itemId, long variationId, long activityId)
+        public async Task<List<Activity>> GetEscrowDetail(ShopeeAPIData iden, string ordersn, long itemId, long variationId, long activityId)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-            var ret = new Activity();
+            var ret = new List<Activity>();
             string urll = "https://partner.shopeemobile.com/api/v1/orders/my_income";
             if (!string.IsNullOrEmpty(iden.token))
             {
@@ -4875,24 +4895,25 @@ namespace MasterOnline.Controllers
                     {
                         if (result.order.activity != null)
                         {
-                            foreach (var act in result.order.activity)
-                            {
-                                //foreach (var item in act.items)
-                                //{
-                                //if (item.item_id == itemId && item.variation_id == variationId)
-                                //{
-                                //    var hargapromo = Convert.ToInt64(act.discounted_price) / item.quantity_purchased;
-                                //    return hargapromo.ToString();
-                                //}
-                                //}
-                                if (act.activity_id == activityId)
-                                {
-                                    //double discount = (Convert.ToInt64(act.original_price) - Convert.ToInt64(act.discounted_price)) * 100 / Convert.ToInt64(act.original_price);
-                                    //return discount;
-                                    return act;
-                                }
+                            return result.order.activity.ToList();
+                            //foreach (var act in result.order.activity)
+                            //{
+                            //    //foreach (var item in act.items)
+                            //    //{
+                            //    //if (item.item_id == itemId && item.variation_id == variationId)
+                            //    //{
+                            //    //    var hargapromo = Convert.ToInt64(act.discounted_price) / item.quantity_purchased;
+                            //    //    return hargapromo.ToString();
+                            //    //}
+                            //    //}
+                            //    if (act.activity_id == activityId)
+                            //    {
+                            //        //double discount = (Convert.ToInt64(act.original_price) - Convert.ToInt64(act.discounted_price)) * 100 / Convert.ToInt64(act.original_price);
+                            //        //return discount;
+                            //        return act;
+                            //    }
 
-                            }
+                            //}
                         }
                     }
                 }
