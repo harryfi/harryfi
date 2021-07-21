@@ -4568,7 +4568,7 @@ namespace MasterOnline.Controllers
                                     discount = (Convert.ToInt64(dDisc.original_price) - Convert.ToInt64(dDisc.discounted_price)) * 100 / Convert.ToInt64(dDisc.original_price);
                                     foreach (var disc in dDisc.items)
                                     {
-                                        if (item.item_id == disc.item_id && item.variation_id == item.variation_id)
+                                        if (item.item_id == disc.item_id && item.variation_id == disc.variation_id)
                                         {
                                             newOrderItem.variation_discounted_price = disc.original_price;
                                         }
