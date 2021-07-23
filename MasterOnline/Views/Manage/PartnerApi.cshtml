@@ -10,8 +10,14 @@
     {
         editMode = (int)ViewData["Editing"];
     }
+
+    var sessionAccount = HttpContext.Current.Session["SessionAccount"];
+    var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+
     var context = new MoDbContext("");
-    var statusAddOnsAol = Model.statusAddonsAol;
+
+    var statusAddOnsAol = Model?.statusAddonsAol;
+    var timeText = Model?.timeSchedule1;
     //var dataSession = Session["SessionInfo"] as AccountUserViewModel;
 
     //var username = "";
@@ -95,10 +101,7 @@
                     <thead>
                         <tr role="row">
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 30px;">Nama Partner</th>
-                            @*<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 30px;">Client Id</th>
-                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Client Secret</th>*@
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Host</th>
-
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Edit</th>
                             @*<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Hapus</th>*@
                         </tr>
@@ -110,19 +113,12 @@
                             {
                                 <tr>
                                     <td>@partnerapi.Nama_Partner</td>
-                                    @*<td>@partnerapi.ClientId</td>
-                                    <td>@partnerapi.ClientSecret</td>*@
                                     <td>@partnerapi.Host</td>
                                     <td class="edit-hapus-col">
                                         <button class="btn btn-primary" onclick="editPartnerApi(@partnerapi.fs_id)">
                                             <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
                                         </button>
                                     </td>
-                                    @*<td class="edit-hapus-col">
-                                            <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusEkspedisi" onclick="pass(@partnerapi.fs_id)">
-                                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                                            </button>
-                                        </td>*@
                                 </tr>
                             }
                         }
@@ -180,9 +176,46 @@
                                                             <br>
                                                             @using (Html.BeginForm("SavePartnerApi", "Manage", FormMethod.Post, new { @autocomplete = "off", enctype = "multipart/form-data", id = "form-partnerapi" }))
                                                             {
-                                                                <div id="form-partner-api">
-                                                                    @*@Html.Partial("FormPartnerApiPartial")*@
+                                                                @*<div id="form-partner-api">  *@
+                                                                @*@Html.Partial("FormPartnerApiPartial")*@
+                                                                @Html.HiddenFor(m => m.partner_api.fs_id)
+                                                                <div class="form-group">
+                                                                    @Html.LabelFor(m => m.partner_api.Nama_Partner, "Nama Partner*", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                                        @Html.HiddenFor(m => m.partner_api.PartnerId)
+                                                                        @Html.HiddenFor(m => m.partner_api.Nama_Partner)
+                                                                        <select id="Partner" placeholder="Harap Pilih"></select>
+                                                                    </div>
                                                                 </div>
+
+                                                                <div class="form-group">
+                                                                    <div id="divWebhook"></div>
+                                                                    @Html.HiddenFor(m => m.partner_api.Status)
+                                                                </div>
+
+                                                                <div class="form-group">
+                                                                    <div id="divInvoice"></div>
+                                                                    @Html.HiddenFor(m => m.partner_api.isPaid)
+                                                                </div>
+
+                                                                <div id="divUsername"></div>
+                                                                <div id="divPassword"></div>
+                                                                <div id="divProgramId"></div>
+                                                                <div id="divWalletId"></div>
+
+                                                                @*<div class="form-group">*@
+                                                                @*<div id="divTADA"></div>*@
+                                                                @*</div>*@
+
+                                                                <div class="form-group">
+                                                                    <div id="divSchedule"></div>
+                                                                    @Html.HiddenFor(m => m.partner_api.Schedule1)
+                                                                </div>
+
+                                                                <hr />
+
+                                                                <button type="button" id="simpan_btn" class="btn btn-primary pull-right" onclick="simpanPartnerApi(this)">Simpan</button>
+                                                                @*</div>*@
                                                             }
                                                         </div>
                                                     </div>
@@ -234,12 +267,13 @@
     <script src="~/Content/selectize.js" type="text/javascript"></script>
     <script type="text/javascript">
         var statusAddOns = @Html.Raw(Json.Encode(statusAddOnsAol));
+        var timeSch = @Html.Raw(Json.Encode(timeText));
+
         $addonsId = 0;
-        $(document).on('ready',
-            function () {
-                $page = 0;
-                Initialize();
-            });
+        $(document).on('ready', function () {
+            $page = 0;
+            Initialize();
+        });
 
         function Initialize() {
             $('#search_pembeli').keypress(function (e) {
@@ -265,7 +299,10 @@
             $('#partner-api-close-editor').on('click', function () {
                 $('.partner_api_table_section').show();
                 $('.partner_api_editor_section').hide();
-                //$('#partner_api_Nama_Partner, #partner_api_ClientId, #partner_api_ClientSecret, #partner_api_OAuthCallbackCode').val('');
+                $('#partner_api_PartnerId, #partner_api_Nama_Partner, #partner_api_Status, #partner_api_Status, #partner_api_isPaid, #partner_api_Schedule1').val('');
+                removeLabelTextbox();
+                var ddlPartner = $('#Partner').selectize();
+                ddlPartner[0].selectize.setValue(null, true);
                 $('#form-partner-api').html('');
 
             });
@@ -280,7 +317,7 @@
         }
 
         function simpanPartnerApi() {
-            if (statusAddOns == "1") { 
+            //if (statusAddOns == "1") {
                 $("#partner_api_Status").val($("#api_status").val());
                 $("#partner_api_isPaid").val($("#inv_status").val());
                 $.ajax({
@@ -291,17 +328,36 @@
                         $('#loading_spinner').show();
                     },
                     success: function (response) {
+                        if (response.mo_error != null) {
+                            alert(response.mo_error);
+                            location.href = '@Url.Action("PartnerApi")';
+                        }
                         if (response.Errors == null) {
-                            @*alert('Data berhasil tersimpan');
-                            location.href = '@Url.Action("PartnerApi")';*@
-                            var accAuthPopUp = window.open(response, "Accurate Authentication", "width=1000, height=600, scrollbars=yes");
-                            var timer = setInterval(function () {
-	                            if (accAuthPopUp.closed) {
-		                            clearInterval(timer);
-		                            $('#loading_spinner').hide();
-		                            window.location.href = '@Url.Action("PartnerApi")';
-	                            }
-                            }, 1000);
+                            if (response.partner_id == 20007) {
+                                if (response.status == 1) {
+                                    var accAuthPopUp = window.open(response.mo_data, "Accurate Authentication", "width=1000, height=600, scrollbars=yes");
+                                    var timer = setInterval(function () {
+                                        if (accAuthPopUp.closed) {
+                                            clearInterval(timer);
+                                            $('#loading_spinner').hide();
+                                            window.location.href = '@Url.Action("PartnerApi")';
+                                        }
+                                    }, 1000);
+                                } else {
+                                    $('#loading_spinner').hide();
+                                    location.href = '@Url.Action("PartnerApi")';
+                                }
+                            } else if (response.partner_id == 30007) {
+                                $('#loading_spinner').hide();
+                                location.href = '@Url.Action("PartnerApi")';
+                            }
+
+                            @*var popupOauth = window.open(response, "Accurate Authentication", "width=1000, height=600, scrollbars=yes, resizable=no");
+                            //self.window.close();
+                            if (popupOauth.closed) {
+                                    $('#loading_spinner').hide();
+                                    window.location.href = '@Url.Action("PartnerApi")';
+                                }*@
                         }
                         else {
                             alert(response.Errors[0]);
@@ -315,12 +371,12 @@
                     }
                 });
                 return false;
-            } else if (statusAddOns == "2") {
-                alert("Masa subscription anda sudah berakhir, untuk ketentuan lebih lanjut silahkan hubungi tim support.");
-            }
-            else {
-                alert("Fitur ini termasuk fitur ADD ON, untuk ketentuan lebih lanjut silahkan hubungi tim support.");
-            }
+            //} else if (statusAddOns == "2") {
+            //    alert("Masa subscription anda sudah berakhir, untuk ketentuan lebih lanjut silahkan hubungi tim support.");
+            //}
+            //else {
+            //    alert("Fitur ini termasuk fitur ADD ON, untuk ketentuan lebih lanjut silahkan hubungi tim support.");
+            //}
         }
 
         function editPartnerApi(addonsId) {
@@ -334,22 +390,431 @@
                 contentType: 'application/json',
                 url: link,
                 success: function (response) {
-                    $('#form-partner-api').html(response);
+                    //$('#form-partner-api').html(response);
                     $('.partner_api_table_section').hide();
                     $('.partner_api_editor_section').show();
 
-                    //$('#partner_api_ClientId').val(response.partner_api.ClientId);
-                    //$('#partner_api_ClientSecret').val(response.partner_api.ClientSecret);
+                    debugger;
+                    console.log(response);
 
-                    getPartner();
-                    if (addonsId != 0) {
-                        $('#api_status').val($('#partner_api_Status').val());
-                        $('#inv_status').val($('#partner_api_isPaid').val());
+                    if (response.partner_api != null) {
+                        $('#partner_api_fs_id').val(response.partner_api.fs_id);
+                        $('#partner_api_PartnerId').val(response.partner_api.PartnerId);
+                        $('#partner_api_Nama_Partner').val(response.partner_api.Nama_Partner);
+                        getPartner();
+
+                        $('#partner_api_Status').val(response.partner_api.Status);
+                        getWebhookCb();
+
+                        if (response.partner_api.PartnerId == "20007") {
+                            $('#partner_api_isPaid').val(response.partner_api.isPaid);
+                            getInvoiceCb();
+                        }
+                        else if (response.partner_api.PartnerId == "30007") {
+                            getUsernameTb(response.partner_api.Username);
+                            getPasswordTb(response.partner_api.Password);
+                            getProgramIdTb(response.partner_api.ProgramId);
+                            getWalletIdTb(response.partner_api.WalletId);
+                            $('#partner_api_Schedule1').val(timeSch);
+                            getScheduleCb();
+                        }
                     }
                     refreshTableApiLog();
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
+                }
+            });
+        }
+
+        function removeLabelTextbox() {
+            $('#lbl_partner_api_Status').remove();
+            $('#hd_partner_api_Status').remove();
+            $('#lbl_partner_api_isPaid').remove();
+            $('#hd_partner_api_isPaid').remove();
+            $('#lbl_partner_api_Username').remove();
+            $('#tb_partner_api_Username').remove();
+            $('#lbl_partner_api_Password').remove();
+            $('#tb_partner_api_Password').remove();
+            $('#lbl_partner_api_ProgramId').remove();
+            $('#tb_partner_api_ProgramId').remove();
+            $('#lbl_partner_api_WalletId').remove();
+            $('#tb_partner_api_WalletId').remove();
+            $('#lbl_partner_api_Schedule1').remove();
+            $('#cb_partner_api_Schedule1').remove();
+        }
+
+        function getUsernameTb(resp) {
+            $('#fg_partner_api_Username, #lbl_partner_api_Username, #tb_partner_api_Username').remove();
+            //$('#lbl_partner_api_Username').remove();
+            //$('#tb_partner_api_Username').remove();
+            var valuetxtUsername = resp != null ? 'value="' + resp + '"' : "";
+            var opendiv = '<div class="form-group" id="fg_partner_api_Username">';
+            var closediv = '</div>';
+            var labelUsername = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="partner_api_Username" id="lbl_partner_api_Username">Username</label>';
+            var txtUsername = '<div id="tb_partner_api_Username" class="col-md-6 col-sm-6 col-xs-12"><input class="form-control" id="partner_api_Username" name="partner_api.Username" type="text" required="required" ' + valuetxtUsername + '></div>'; //value="' + valuetxtUsername + '"
+            $('#divUsername').append(opendiv + labelUsername + txtUsername + closediv);
+        }
+
+        function getPasswordTb(resp) {
+            $('#fg_partner_api_Password, #lbl_partner_api_Password, #tb_partner_api_Password').remove();
+            var valuetxtPassword = resp != null ? 'value="' + resp + '"' : "";
+            var opendiv = '<div class="form-group" id="fg_partner_api_Password">';
+            var closediv = '</div>';
+            var labelPassword = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="partner_api_Password" id="lbl_partner_api_Password">Password</label>';
+            var txtPassword = '<div id="tb_partner_api_Password" class="col-md-6 col-sm-6 col-xs-12"><input class="form-control" id="partner_api_Password" name="partner_api.Password" type="text" required="required" ' + valuetxtPassword + '></div>'; //value = "' + valuetxtPassword + '"
+            $('#divPassword').append(opendiv + labelPassword + txtPassword + closediv);
+        }
+
+        function getProgramIdTb(resp) {
+            $('#fg_partner_api_ProgramId, #lbl_partner_api_ProgramId, #tb_partner_api_ProgramId').remove();
+            var valuetxtProgramId = resp != null ? 'value="' + resp + '"' : "";
+            var opendiv = '<div class="form-group" id="fg_partner_api_ProgramId">';
+            var closediv = '</div>';
+            var labelProgramId = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="partner_api_ProgramId" id="lbl_partner_api_ProgramId">Program Id</label>';
+            var txtProgramId = '<div id="tb_partner_api_ProgramId" class="col-md-6 col-sm-6 col-xs-12"><input class="form-control" id="partner_api_ProgramId" name="partner_api.ProgramId" type="text" required="required" ' + valuetxtProgramId + '></div>'; //value="' + valuetxtProgramId + '"
+            $('#divProgramId').append(opendiv + labelProgramId + txtProgramId + closediv);
+        }
+
+        function getWalletIdTb(resp) {
+            $('#fg_partner_api_WalletId, #lbl_partner_api_WalletId, #tb_partner_api_WalletId').remove();
+            var valuetxtWalletId = resp != null ? 'value="' + resp + '"' : "";
+            var opendiv = '<div class="form-group" id="fg_partner_api_WalletId">';
+            var closediv = '</div>';
+            var labelWalletId = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="partner_api_WalletId" id="lbl_partner_api_WalletId">Wallet Id</label>';
+            var txtWalletId = '<div id="tb_partner_api_WalletId" class="col-md-6 col-sm-6 col-xs-12"><input class="form-control" id="partner_api_WalletId" name="partner_api.WalletId" type="text" required="required" ' + valuetxtWalletId + '></div>'; //value="' + valuetxtWalletId + '
+            $('#divWalletId').append(opendiv + labelWalletId + txtWalletId + closediv);
+        }
+
+        function getScheduleCb() {
+
+            $('#lbl_partner_api_Schedule1').remove();
+            $('#cb_partner_api_Schedule1').remove();
+
+            var labelSchedule = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="partner_api_Status" id="lbl_partner_api_Schedule1">Schedule</label>';
+            var txtSchedule = '<div id="cb_partner_api_Schedule1" class="col-md-6 col-sm-6 col-xs-12"><select id="api_schedule" placeholder="Harap Pilih" name="api_schedule" required="required"></div>';
+            $('#divSchedule').append(labelSchedule + txtSchedule);
+
+            var listTime = [];
+            for (let i = 0; i <= 23; i++) {
+                //let j = i + 1;
+                if (i <= 9) {
+                    listTime.push({ id: "0" + i, text: "0" + i + ":00:00" });
+                } else {
+                    listTime.push({ id: "" + i, text: i + ":00:00" });
+                }
+            }
+            var selectize1 = $('#api_schedule').selectize({
+                valueField: 'text',
+                searchField: 'text',
+                options: listTime,
+                onChange: function (value) {
+                    $('#partner_api_Schedule1').val(value);
+                }
+            });
+            selectize1[0].selectize.setValue($('#partner_api_Schedule1').val(), true);
+        }
+
+        function getTadaTb() {
+            debugger;
+            //$('#lbl_partner_api_Username').remove();
+            //$('#tb_partner_api_Username').remove();
+            $('#lbl_partner_api_Password').remove();
+            $('#tb_partner_api_Password').remove();
+            $('#lbl_partner_api_ProgramId').remove();
+            $('#tb_partner_api_ProgramId').remove();
+            $('#lbl_partner_api_WalletId').remove();
+            $('#tb_partner_api_WalletId').remove();
+            $('#lbl_partner_api_Schedule1').remove();
+            $('#cb_partner_api_Schedule1').remove();
+
+            //var valuetxtUsername = "";
+            //var valuetxtPassword = "";
+            //var valuetxtProgramId = "";
+            //var valuetxtWalletId = "";
+
+            //if ($('#partner_api_PartnerId').val() != null && $('#partner_api_PartnerId').val() == 30007) {
+            //    valuetxtUsername = $('#partner_api_Username').val();
+            //    valuetxtPassword = $('#partner_api_Password').val();
+            //    valuetxtProgramId = $('#partner_api_ProgramId').val();
+            //    valuetxtWalletId = $('#partner_api_WalletId').val();
+            //}
+
+            var opendiv = '<div class="form-group">';
+            var closediv = '</div>';
+            var labelUsername = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="partner_api_Username" id="lbl_partner_api_Username">Username</label>';
+            var txtUsername = '<div id="tb_partner_api_Username" class="col-md-6 col-sm-6 col-xs-12"><input class="form-control" id="partner_api_Username" name="partner_api.Username" type="text" required="required"></div>'; //value="' + valuetxtUsername + '"
+            var labelPassword = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="partner_api_Password" id="lbl_partner_api_Password">Password</label>';
+            var txtPassword = '<div id="tb_partner_api_Password" class="col-md-6 col-sm-6 col-xs-12"><input class="form-control" id="partner_api_Password" name="partner_api.Password" type="text" required="required"></div>'; //value = "' + valuetxtPassword + '"
+            var labelProgramId = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="partner_api_ProgramId" id="lbl_partner_api_ProgramId">Program Id</label>';
+            var txtProgramId = '<div id="tb_partner_api_ProgramId" class="col-md-6 col-sm-6 col-xs-12"><input class="form-control" id="partner_api_ProgramId" name="partner_api.ProgramId" type="text" required="required"></div>'; //value="' + valuetxtProgramId + '"
+            var labelWalletId = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="partner_api_WalletId" id="lbl_partner_api_WalletId">Wallet Id</label>';
+            var txtWalletId = '<div id="tb_partner_api_WalletId" class="col-md-6 col-sm-6 col-xs-12"><input class="form-control" id="partner_api_WalletId" name="partner_api.WalletId" type="text" required="required"></div>'; //value="' + valuetxtWalletId + '
+            var labelSchedule = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="partner_api_Status" id="lbl_partner_api_Schedule1">Schedule</label>';
+            var txtSchedule = '<div id="cb_partner_api_Schedule1" class="col-md-6 col-sm-6 col-xs-12"><select id="api_schedule" placeholder="Harap Pilih" name="api_schedule" required="required"></div>';
+
+
+            $('#divTADA').append(/*opendiv + labelUsername + txtUsername + closediv +*/ opendiv + labelPassword + txtPassword + closediv + opendiv + labelProgramId + txtProgramId + closediv +
+                opendiv + labelWalletId + txtWalletId + closediv + opendiv + labelSchedule + txtSchedule + closediv);
+
+            var listTime = [];
+            listTime[0] = {
+                id: "01",
+                text: "01:00:00"
+            };
+            listTime[1] = {
+                id: "02",
+                text: "02:00:00"
+            };
+            listTime[2] = {
+                id: "03",
+                text: "03:00:00"
+            };
+            listTime[3] = {
+                id: "04",
+                text: "04:00:00"
+            };
+            listTime[4] = {
+                id: "05",
+                text: "05:00:00"
+            };
+            listTime[5] = {
+                id: "06",
+                text: "06:00:00"
+            };
+            listTime[6] = {
+                id: "07",
+                text: "07:00:00"
+            };
+            listTime[7] = {
+                id: "08",
+                text: "08:00:00"
+            };
+            listTime[8] = {
+                id: "09",
+                text: "09:00:00"
+            };
+            listTime[9] = {
+                id: "10",
+                text: "10:00:00"
+            };
+            listTime[10] = {
+                id: "11",
+                text: "11:00:00"
+            };
+            listTime[11] = {
+                id: "12",
+                text: "12:00:00"
+            };
+            listTime[12] = {
+                id: "13",
+                text: "13:00:00"
+            };
+            listTime[13] = {
+                id: "14",
+                text: "14:00:00"
+            };
+            listTime[14] = {
+                id: "15",
+                text: "15:00:00"
+            };
+            listTime[15] = {
+                id: "16",
+                text: "16:00:00"
+            };
+            listTime[16] = {
+                id: "17",
+                text: "17:00:00"
+            };
+            listTime[17] = {
+                id: "18",
+                text: "18:00:00"
+            };
+            listTime[18] = {
+                id: "19",
+                text: "19:00:00"
+            };
+            listTime[19] = {
+                id: "20",
+                text: "20:00:00"
+            };
+            listTime[20] = {
+                id: "21",
+                text: "21:00:00"
+            };
+            listTime[21] = {
+                id: "22",
+                text: "22:00:00"
+            };
+            listTime[22] = {
+                id: "23",
+                text: "23:00:00"
+            };
+
+            var selectize1 = $('#api_schedule').selectize({
+                valueField: 'text',
+                searchField: 'text',
+                options: listTime,
+                onChange: function (value) {
+                    $('#partner_api_Schedule1').val(value);
+                }
+            });
+            selectize1[0].selectize.setValue($('#partner_api_Schedule1').val(), true);
+            //var valuetxtSort1_Cust = "";
+            //if ($('#Customers_Sort1_Cust').val() != null) {
+            //    valuetxtSort1_Cust = $('#Customers_Sort1_Cust').val();
+            //}
+        }
+
+        function getWebhookCb()/*resp*/ {
+
+            @* class="form-control"*@
+
+            //if (response == "" || response == null) {
+            //$('#partner_api_Status').val(resp);
+            //}
+
+            debugger;
+            $('#lbl_partner_api_Status').remove();
+            $('#hd_partner_api_Status').remove();
+            var labelWebhook = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="partner_api_Status" id="lbl_partner_api_Status">Webhook*</label>';
+            var txtWebhook = '<div id="hd_partner_api_Status" class="col-md-6 col-sm-6 col-xs-12"><select id="api_status" placeholder="Harap Pilih" name="api_status" required="required"></div>';
+            $('#divWebhook').append(labelWebhook + txtWebhook);
+
+            var listStatus = [];
+
+            listStatus[0] = {
+                id: "true",
+                text: "Aktif"
+            };
+            listStatus[1] = {
+                id: "false",
+                text: "Tidak Aktif"
+            };
+
+            var comboSelect = $('#api_status').selectize({
+                valueField: 'id',
+                searchField: 'text',
+                options: listStatus,
+                onChange: function (value) {
+                    $('#partner_api_Status').val(value);
+                }
+            });
+            comboSelect[0].selectize.setValue($('#partner_api_Status').val(), true);
+        }
+
+        function getInvoiceCb() {
+
+            $('#lbl_partner_api_isPaid').remove();
+            $('#hd_partner_api_isPaid').remove();
+            var labelInvoice = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="partner_api_isPaid" id="lbl_partner_api_isPaid">Status Invoice*</label>';
+            var infoIntegration = '<label>Untuk mendapatkan panduan integrasi, silahkan klik petunjuk <a href="javascript:window.open(\'https://masteronline.co.id/Content/Static/mo-accurate-integration.html\', \'_blank\').focus();" style="color:blue"><u>Di Sini</u></a>';
+            var txtInvoice = '<div id="hd_partner_api_isPaid" class="col-md-6 col-sm-6 col-xs-12"><select id="inv_status" placeholder="Harap Pilih" name="inv_status" required="required">' + infoIntegration + '</div>';
+            $('#divInvoice').append(labelInvoice + txtInvoice);
+
+            var listStatus = [];
+            //$('#divVersiAPI').remove();
+            //var sHTML = '<div id="divVersiAPI"><select id="cbVersiAPI" placeholder="Harap pilih" required="required"></select></div>';
+            //$('#divCBVersi').append(sHTML);
+
+            listStatus[0] = {
+                id: "true",
+                text: "Lunas"
+            };
+            listStatus[1] = {
+                id: "false",
+                text: "Belum Lunas"
+            };
+
+            var comboSelect = $('#inv_status').selectize({
+                valueField: 'id',
+                searchField: 'text',
+                options: listStatus,
+                onChange: function (value) {
+                    $('#partner_api_isPaid').val(value);
+                }
+            });
+            comboSelect[0].selectize.setValue($('#partner_api_isPaid').val(), true);
+        }
+
+        function getPartner() {
+            debugger;
+            //removeWebhookInvoice();
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetDataPartner", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var partnerList = [];
+                    $.each(data,
+                        function (i, item) {
+                            partnerList[i] = {
+                                id: item.PartnerId,
+                                text: item.Username,
+                            };
+                        });
+
+                    var partnerSelect = $('#Partner').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: partnerList,
+                        onChange: function (value) {
+                            var $objSup = $.grep(partnerList, function (data) { return data.id == value });
+                            if (value == null) {
+                                $('#partner_api_PartnerId').val(null);
+                                partnerSelect[0].selectize.setValue($('#partner_api_PartnerId').val(), true);
+                            } else {
+                                var url = '@Url.Action("CekPartner", "Manage")';
+                                url += "?partnerId=" + value;
+                                $.ajax({
+                                    type: "GET",
+                                    url: url,
+                                    contentType: 'application/json',
+                                    cache: false,
+                                    success: function (response) {
+                                        if (response.Errors[0] != "") {
+                                            alert(response.Errors[0]);
+                                            $('#partner_api_PartnerId').val(null);
+                                            partnerSelect[0].selectize.setValue($('#partner_api_PartnerId').val(), true);
+
+                                        }
+                                        else {
+                                            $('#partner_api_PartnerId').val(value);
+                                            partnerSelect[0].selectize.setValue($('#partner_api_PartnerId').val(), true);
+                                            removeLabelTextbox();
+                                            if ($objSup[0] != null) {
+                                                //$('#partner_api_PartnerId').val($objSup[0].id);
+                                                $('#partner_api_Nama_Partner').val($objSup[0].text);
+                                                if (value == "20007") {
+                                                    getWebhookCb();
+                                                    getInvoiceCb();
+                                                }
+                                                else if (value == "30007") {
+                                                    getWebhookCb();
+                                                    getUsernameTb(null);
+                                                    getPasswordTb(null);
+                                                    getProgramIdTb(null);
+                                                    getWalletIdTb(null);
+                                                    getScheduleCb();
+                                                    //getTadaTb();
+                                                }
+                                            }
+                                        }
+                                    },
+                                    error: function (xhr) {
+                                        console.log(xhr);
+                                    }
+                                });
+                            }
+                        }
+                    });
+                    if (partnerSelect[0] != undefined) {
+                        partnerSelect[0].selectize.setValue($('#partner_api_PartnerId').val(), true);
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
                 }
             });
         }
@@ -402,148 +867,6 @@
                 error: function (xhr, status, error) {
                     $('#search_api_log_btn')[0].disabled = false;
                     console.log(error);
-                }
-            });
-        }
-
-        function removeWebhookInvoice() {
-            $('#lbl_partner_api_Status').remove();
-            $('#hd_partner_api_Status').remove();
-            $('#lbl_partner_api_isPaid').remove();
-            $('#hd_partner_api_isPaid').remove();
-        }
-
-        function getWebhookCb() {
-            @* class="form-control" *@
-            $('#lbl_partner_api_Status').remove();
-            $('#hd_partner_api_Status').remove();
-            var labelWebhook = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="partner_api_Status" id="lbl_partner_api_Status">Webhook</label>';
-            var txtWebhook = '<div id="hd_partner_api_Status" class="col-md-6 col-sm-6 col-xs-12"><select id="api_status" placeholder="Harap Pilih" name="api_status" required="required"></div>';
-            $('#divWebhook').append(labelWebhook + txtWebhook);
-
-            var listStatus = [];
-
-            listStatus[0] = {
-                id: "True",
-                text: "Aktif"
-            };
-            listStatus[1] = {
-                id: "False",
-                text: "Tidak Aktif"
-            };
-
-            var comboSelect = $('#api_status').selectize({
-                valueField: 'id',
-                searchField: 'text',
-                options: listStatus,
-                onChange: function (value) {
-                    $('#partner_api_Status').val(value);
-                }
-            });
-            comboSelect[0].selectize.setValue($('#partner_api_Status').val(), true);
-        }
-
-        function getInvoiceCb() {
-
-            $('#lbl_partner_api_isPaid').remove();
-            $('#hd_partner_api_isPaid').remove();
-            var labelInvoice = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="partner_api_isPaid" id="lbl_partner_api_isPaid">Status Invoice</label>';
-            var infoIntegration = '<label>Untuk mendapatkan panduan integrasi, silahkan klik petunjuk <a href="javascript:window.open(\'https://masteronline.co.id/Content/Static/mo-accurate-integration.html\', \'_blank\').focus();" style="color:blue"><u>Di Sini</u></a>';
-            var txtInvoice = '<div id="hd_partner_api_isPaid" class="col-md-6 col-sm-6 col-xs-12"><select id="inv_status" placeholder="Harap Pilih" name="inv_status" required="required">' + infoIntegration + '</div>';
-            $('#divInvoice').append(labelInvoice + txtInvoice);
-
-            var listStatus = [];
-            //$('#divVersiAPI').remove();
-            //var sHTML = '<div id="divVersiAPI"><select id="cbVersiAPI" placeholder="Harap pilih" required="required"></select></div>';
-            //$('#divCBVersi').append(sHTML);
-
-            listStatus[0] = {
-                id: "True",
-                text: "Lunas"
-            };
-            listStatus[1] = {
-                id: "False",
-                text: "Belum Lunas"
-            };
-
-            var comboSelect = $('#inv_status').selectize({
-                valueField: 'id',
-                searchField: 'text',
-                options: listStatus,
-                onChange: function (value) {
-                    $('#partner_api_isPaid').val(value);
-                }
-            });
-            comboSelect[0].selectize.setValue($('#partner_api_isPaid').val(), true);
-        }
-
-        function getPartner() {
-            removeWebhookInvoice();
-            $.ajax({
-                type: "GET",
-                url: '@Url.Action("GetDataPartner", "Manage")',
-                contentType: 'application/json',
-                cache: false,
-                success: function (data) {
-                    var partnerList = [];
-                    $.each(data,
-                        function (i, item) {
-                            partnerList[i] = {
-                                id: item.PartnerId,
-                                text: item.Username,
-                            };
-                        });
-
-                    var partnerSelect = $('#Partner').selectize({
-                        valueField: 'id',
-                        searchField: 'text',
-                        options: partnerList,
-                        onChange: function (value) {
-                            var $objSup = $.grep(partnerList, function (data) { return data.id == value });
-                            if (value == null) {
-                                $('#partner_api_PartnerId').val(null);
-                                partnerSelect[0].selectize.setValue($('#partner_api_PartnerId').val(), true);
-                                showWebhookInvoice();
-                            } else {
-                                if (value == "20007") {
-                                    getWebhookCb();
-                                    getInvoiceCb();
-                                }
-                                var url = '@Url.Action("CekPartner", "Manage")';
-                                url += "?partnerId=" + value;
-                                $.ajax({
-                                    type: "GET",
-                                    url: url,
-                                    contentType: 'application/json',
-                                    cache: false,
-                                    success: function (response) {
-                                        if (response.Errors[0] != "") {
-                                            alert(response.Errors[0]);
-                                            $('#partner_api_PartnerId').val(null);
-                                            partnerSelect[0].selectize.setValue($('#partner_api_PartnerId').val(), true);
-                                        }
-                                        else {
-                                            $('#partner_api_PartnerId').val(value);
-                                            partnerSelect[0].selectize.setValue($('#partner_api_PartnerId').val(), true);
-                                            if ($objSup[0] != null) {
-                                                //$('#partner_api_PartnerId').val($objSup[0].id);
-                                                $('#partner_api_Nama_Partner').val($objSup[0].text);
-                                            }
-                                        }
-                                    },
-                                    error: function (xhr) {
-                                        console.log(xhr);
-                                    }
-                                });
-                            }
-                        }
-                    });
-                    if (partnerSelect[0] != undefined) {
-                        partnerSelect[0].selectize.setValue($('#partner_api_PartnerId').val(), true);
-                    }
-                },
-                error: function (xhr) {
-                    console.log(xhr);
                 }
             });
         }
@@ -695,4 +1018,3 @@
 
     </script>
 }
-
