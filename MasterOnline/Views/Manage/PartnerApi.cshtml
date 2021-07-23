@@ -335,7 +335,7 @@
                         if (response.Errors == null) {
                             if (response.partner_id == 20007) {
                                 if (response.status == 1) {
-                                    var accAuthPopUp = window.open(response, "Accurate Authentication", "width=1000, height=600, scrollbars=yes");
+                                    var accAuthPopUp = window.open(response.mo_data, "Accurate Authentication", "width=1000, height=600, scrollbars=yes");
                                     var timer = setInterval(function () {
                                         if (accAuthPopUp.closed) {
                                             clearInterval(timer);
