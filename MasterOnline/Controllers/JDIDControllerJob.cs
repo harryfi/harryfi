@@ -463,6 +463,7 @@ namespace MasterOnline.Controllers
                             }
                             else
                             {
+                                var resultqueryFailed = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0'  WHERE CUST = '" + dataAPI.no_cust + "'");
                                 currentLog.REQUEST_RESULT = "Update Status API Failed";
                                 currentLog.REQUEST_EXCEPTION = "Failed Update Table";
                                 manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, dataAPI, currentLog);
@@ -470,6 +471,7 @@ namespace MasterOnline.Controllers
                         }
                         else
                         {
+                            var resultqueryFailed = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0'  WHERE CUST = '" + dataAPI.no_cust + "'");
                             currentLog.REQUEST_RESULT = "Token tidak ditemukan.";
                             currentLog.REQUEST_EXCEPTION = "Failed Get Token";
                             manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, dataAPI, currentLog);
@@ -477,6 +479,7 @@ namespace MasterOnline.Controllers
                     }
                     catch (Exception ex)
                     {
+                        var resultqueryFailed = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0'  WHERE CUST = '" + dataAPI.no_cust + "'");
                         currentLog.REQUEST_EXCEPTION = ex.Message.ToString();
                         manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
                     }
@@ -509,7 +512,7 @@ namespace MasterOnline.Controllers
                 var cekInDB = ErasoftDbContext.ARF01.Where(m => m.CUST == data.no_cust).FirstOrDefault();
                 if (cekInDB != null)
                 {
-                    if (data.accessToken != cekInDB.TOKEN)
+                    if (data.accessToken != cekInDB.TOKEN && data.refreshToken != cekInDB.REFRESH_TOKEN)
                     {
                         data.appKey = cekInDB.API_KEY;
                         data.refreshToken = cekInDB.REFRESH_TOKEN;
@@ -549,16 +552,34 @@ namespace MasterOnline.Controllers
                     }
                     catch (WebException e)
                     {
-                        retry = retry + 1;
-                        string err = "";
-                        if (e.Status == WebExceptionStatus.ProtocolError)
+                        if (e.Message.Contains("The remote name could not be resolved: 'open-api.jd.id'"))
                         {
-                            WebResponse resp = e.Response;
-                            using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                            retry = retry + 1;
+                            string err = "";
+                            if (e.Status == WebExceptionStatus.ProtocolError)
                             {
-                                err = sr.ReadToEnd();
-                                responseFromServer = err;
+                                WebResponse resp = e.Response;
+                                using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                                {
+                                    err = sr.ReadToEnd();
+                                    responseFromServer = err;
+                                }
                             }
+                        }
+                        else
+                        {
+                            retry = 4;
+                            string err = "";
+                            if (e.Status == WebExceptionStatus.ProtocolError)
+                            {
+                                WebResponse resp = e.Response;
+                                using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                                {
+                                    err = sr.ReadToEnd();
+                                    responseFromServer = err;
+                                }
+                            }
+                            responseApi = true; break;
                         }
                     }
                 }
@@ -593,16 +614,34 @@ namespace MasterOnline.Controllers
                         }
                         else
                         {
-                            string sSQLInsert = "INSERT INTO API_LOG_MARKETPLACE(REQUEST_ID,REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_1,REQUEST_ATTRIBUTE_2,REQUEST_STATUS,REQUEST_EXCEPTION,CUST) ";
-                            sSQLInsert += "SELECT '" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") + "' AS REQUEST_ID,'REFRESH_TOKEN_JDID' AS REQUEST_ACTION,DATEADD(HOUR, +7, GETUTCDATE()) AS REQUEST_DATETIME,'" + data.accessToken + "' AS REQUEST_ATTRIBUTE_1,'" + data.refreshToken + "' AS REQUEST_ATTRIBUTE_2,'REFRESH_JDID FAILED' AS REQUEST_STATUS, 'ACCESS / REFRESH TOKEN NULL' AS REQUEST_EXCEPTION, '" + data.no_cust + "' AS CUST";
+                            var responseToExp = "";
+                            if(responseFromServer.Length > 255)
+                            {
+                                responseToExp = responseFromServer.Substring(0, 255);
+                            }
+                            else
+                            {
+                                responseToExp = responseFromServer;
+                            }
+                            string sSQLInsert = "INSERT INTO API_LOG_MARKETPLACE(REQUEST_ID,REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_1,REQUEST_ATTRIBUTE_2,REQUEST_STATUS,REQUEST_RESULT,REQUEST_EXCEPTION,CUST) ";
+                            sSQLInsert += "SELECT '" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") + "' AS REQUEST_ID,'REFRESH_TOKEN_JDID' AS REQUEST_ACTION,DATEADD(HOUR, +7, GETUTCDATE()) AS REQUEST_DATETIME,'" + data.accessToken + "' AS REQUEST_ATTRIBUTE_1,'" + data.refreshToken + "' AS REQUEST_ATTRIBUTE_2,'REFRESH_JDID FAILED' AS REQUEST_STATUS, 'ACCESS / REFRESH TOKEN NULL' AS REQUEST_RESULT, '" + responseToExp + "' AS REQUEST_EXCEPTION, '" + data.no_cust + "' AS CUST";
                             var resultInsert = EDB.ExecuteSQL("CString", CommandType.Text, sSQLInsert);
                         }
                     }
                     catch (Exception ex)
                     {
+                        var responseToExp = "";
+                        if (responseFromServer.Length > 255)
+                        {
+                            responseToExp = responseFromServer.Substring(0, 255);
+                        }
+                        else
+                        {
+                            responseToExp = responseFromServer;
+                        }
                         string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-                        string sSQLInsert = "INSERT INTO API_LOG_MARKETPLACE(REQUEST_ID,REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_1,REQUEST_ATTRIBUTE_2,REQUEST_STATUS,REQUEST_EXCEPTION,CUST) ";
-                        sSQLInsert += "SELECT '" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") + "' AS REQUEST_ID,'REFRESH_TOKEN_JDID' AS REQUEST_ACTION,DATEADD(HOUR, +7, GETUTCDATE()) AS REQUEST_DATETIME,'" + data.accessToken + "' AS REQUEST_ATTRIBUTE_1,'" + data.refreshToken + "' AS REQUEST_ATTRIBUTE_2,'REFRESH_JDID FAILED' AS REQUEST_STATUS, '" + msg + "' AS REQUEST_EXCEPTION, '" + data.no_cust + "' AS CUST";
+                        string sSQLInsert = "INSERT INTO API_LOG_MARKETPLACE(REQUEST_ID,REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_1,REQUEST_ATTRIBUTE_2,REQUEST_STATUS,REQUEST_RESULT,REQUEST_EXCEPTION,CUST) ";
+                        sSQLInsert += "SELECT '" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") + "' AS REQUEST_ID,'REFRESH_TOKEN_JDID' AS REQUEST_ACTION,DATEADD(HOUR, +7, GETUTCDATE()) AS REQUEST_DATETIME,'" + data.accessToken + "' AS REQUEST_ATTRIBUTE_1,'" + data.refreshToken + "' AS REQUEST_ATTRIBUTE_2,'REFRESH_JDID FAILED' AS REQUEST_STATUS, '" + msg + "' AS REQUEST_RESULT, '" + responseToExp + "' AS REQUEST_EXCEPTION, '" + data.no_cust + "' AS CUST";
                         var resultInsert = EDB.ExecuteSQL("CString", CommandType.Text, sSQLInsert);
                     }
                 }
@@ -6674,7 +6713,8 @@ namespace MasterOnline.Controllers
 
                                                         if (lGambarUploaded.Count() > 1)
                                                         {
-                                                            for (int i = 1; i < lGambarUploaded.Count(); i++)
+                                                            //for (int i = 1; i < lGambarUploaded.Count(); i++)
+                                                            for (int i = 1; i < 6; i++)
                                                             {
                                                                 var urlImageJDID = "";
                                                                 switch (i)
@@ -6692,12 +6732,10 @@ namespace MasterOnline.Controllers
                                                                         urlImageJDID = brgInDb.LINK_GAMBAR_5;
                                                                         break;
                                                                 }
-                                                                //JD_addSKUDetailPictureV2(data, Convert.ToString(dataSKU.skuId), urlImageJDID, i + 1, false, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId));
-                                                                //#if (DEBUG || Debug_AWS)
-                                                                await JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId));
-                                                                //#else
-                                                                //                                                                        client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId)));
-                                                                //#endif
+                                                                if (!string.IsNullOrEmpty(urlImageJDID))
+                                                                {
+                                                                    await JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId));
+                                                                }
                                                             }
                                                         }
                                                     }
@@ -6790,9 +6828,11 @@ namespace MasterOnline.Controllers
 //#else
 //                                                        client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUDetailPictureV2(data, kodeProduk, brgInDb.LINK_GAMBAR_1, 1, true, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId)));
 //#endif
+
                                                         if (lGambarUploaded.Count() > 1)
                                                         {
-                                                            for (int i = 1; i < lGambarUploaded.Count(); i++)
+                                                            //for (int i = 1; i < lGambarUploaded.Count(); i++)
+                                                            for (int i = 1; i < 6; i++)
                                                             {
                                                                 var urlImageJDID = "";
                                                                 switch (i)
@@ -6810,12 +6850,10 @@ namespace MasterOnline.Controllers
                                                                         urlImageJDID = brgInDb.LINK_GAMBAR_5;
                                                                         break;
                                                                 }
-                                                                //JD_addSKUDetailPictureV2(data, retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.skuIdList[0].skuId.ToString(), urlImageJDID, i + 1, false, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId));
-//#if (DEBUG || Debug_AWS)
-                                                                await JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId));
-//#else
-//                                                                client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId)));
-//#endif
+                                                                if (!string.IsNullOrEmpty(urlImageJDID))
+                                                                {
+                                                                    await JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, Convert.ToString(retData.jingdong_seller_product_api_write_addProduct_response.returnType.model.spuId));
+                                                                }
                                                             }
                                                         }
                                                     }
@@ -7342,10 +7380,11 @@ namespace MasterOnline.Controllers
 //#endif
                                                                     }
 
-
+                                                                    
                                                                     if (lGambarUploaded.Count() > 1)
                                                                     {
-                                                                        for (int i = 1; i < lGambarUploaded.Count(); i++)
+                                                                        //for (int i = 1; i < lGambarUploaded.Count(); i++)
+                                                                        for (int i = 1; i < 6; i++)
                                                                         {
                                                                             var urlImageJDID = "";
                                                                             switch (i)
@@ -7363,15 +7402,12 @@ namespace MasterOnline.Controllers
                                                                                     urlImageJDID = brgInDb.LINK_GAMBAR_5;
                                                                                     break;
                                                                             }
-                                                                            //await JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, spuID[0].ToString());
-//#if (DEBUG || Debug_AWS)
-                                                                            await JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, spuID[0].ToString());
-//#else
-//                                                                client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, spuID[0].ToString()));
-//#endif
+                                                                            if (!string.IsNullOrEmpty(urlImageJDID))
+                                                                            {
+                                                                                await JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, spuID[0].ToString());
+                                                                            }
                                                                         }
                                                                     }
-
 
                                                                 }
                                                             }
@@ -7519,10 +7555,12 @@ namespace MasterOnline.Controllers
 //                                                                client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUDetailPictureV2(data, kodeProduk, brgInDb.LINK_GAMBAR_1, 1, true, spuID[0].ToString()));
 //#endif
                                                     }
+                                                    
 
                                                     if (lGambarUploaded.Count() > 1)
                                                     {
-                                                        for (int i = 1; i < lGambarUploaded.Count(); i++)
+                                                        //for (int i = 1; i < lGambarUploaded.Count(); i++)
+                                                        for (int i = 1; i < 6; i++)
                                                         {
                                                             var urlImageJDID = "";
                                                             switch (i)
@@ -7540,12 +7578,10 @@ namespace MasterOnline.Controllers
                                                                     urlImageJDID = brgInDb.LINK_GAMBAR_5;
                                                                     break;
                                                             }
-                                                            //await JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, spuID[0].ToString());
-//#if (DEBUG || Debug_AWS)
-                                                            await JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, spuID[0].ToString());
-//#else
-//                                                                client.Enqueue<JDIDControllerJob>(x => x.JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, spuID[0].ToString()));
-//#endif
+                                                            if (!string.IsNullOrEmpty(urlImageJDID))
+                                                            {
+                                                                await JD_addSKUDetailPictureV2(data, kodeProduk, urlImageJDID, i + 1, false, spuID[0].ToString());
+                                                            }
                                                         }
                                                     }
                                                 }

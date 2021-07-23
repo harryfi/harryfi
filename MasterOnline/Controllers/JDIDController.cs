@@ -5530,7 +5530,7 @@ namespace MasterOnline.Controllers
                 var cekInDB = ErasoftDbContext.ARF01.Where(m => m.CUST == data.no_cust).FirstOrDefault();
                 if (cekInDB != null)
                 {
-                    if (data.accessToken != cekInDB.TOKEN)
+                    if (data.accessToken != cekInDB.TOKEN && data.refreshToken != cekInDB.REFRESH_TOKEN)
                     {
                         data.appKey = cekInDB.API_KEY;
                         data.refreshToken = cekInDB.REFRESH_TOKEN;
@@ -5569,16 +5569,34 @@ namespace MasterOnline.Controllers
                     }
                     catch (WebException e)
                     {
-                        retry = retry + 1;
-                        string err = "";
-                        if (e.Status == WebExceptionStatus.ProtocolError)
+                        if (e.Message.Contains("The remote name could not be resolved: 'open-api.jd.id'"))
                         {
-                            WebResponse resp = e.Response;
-                            using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                            retry = retry + 1;
+                            string err = "";
+                            if (e.Status == WebExceptionStatus.ProtocolError)
                             {
-                                err = sr.ReadToEnd();
-                                responseFromServer = err;
+                                WebResponse resp = e.Response;
+                                using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                                {
+                                    err = sr.ReadToEnd();
+                                    responseFromServer = err;
+                                }
                             }
+                        }
+                        else
+                        {
+                            retry = 4;
+                            string err = "";
+                            if (e.Status == WebExceptionStatus.ProtocolError)
+                            {
+                                WebResponse resp = e.Response;
+                                using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                                {
+                                    err = sr.ReadToEnd();
+                                    responseFromServer = err;
+                                }
+                            }
+                            responseApi = true; break;
                         }
                     }
                 }
@@ -5613,16 +5631,34 @@ namespace MasterOnline.Controllers
                         }
                         else
                         {
-                            string sSQLInsert = "INSERT INTO API_LOG_MARKETPLACE(REQUEST_ID,REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_1,REQUEST_ATTRIBUTE_2,REQUEST_STATUS,REQUEST_EXCEPTION,CUST) ";
-                            sSQLInsert += "SELECT '" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") + "' AS REQUEST_ID,'REFRESH_TOKEN_JDID' AS REQUEST_ACTION,DATEADD(HOUR, +7, GETUTCDATE()) AS REQUEST_DATETIME,'" + data.accessToken + "' AS REQUEST_ATTRIBUTE_1,'" + data.refreshToken + "' AS REQUEST_ATTRIBUTE_2,'REFRESH_JDID FAILED' AS REQUEST_STATUS, 'ACCESS / REFRESH TOKEN NULL' AS REQUEST_EXCEPTION, '" + data.no_cust + "' AS CUST";
+                            var responseToExp = "";
+                            if (responseFromServer.Length > 255)
+                            {
+                                responseToExp = responseFromServer.Substring(0, 255);
+                            }
+                            else
+                            {
+                                responseToExp = responseFromServer;
+                            }
+                            string sSQLInsert = "INSERT INTO API_LOG_MARKETPLACE(REQUEST_ID,REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_1,REQUEST_ATTRIBUTE_2,REQUEST_STATUS,REQUEST_RESULT,REQUEST_EXCEPTION,CUST) ";
+                            sSQLInsert += "SELECT '" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") + "' AS REQUEST_ID,'REFRESH_TOKEN_JDID' AS REQUEST_ACTION,DATEADD(HOUR, +7, GETUTCDATE()) AS REQUEST_DATETIME,'" + data.accessToken + "' AS REQUEST_ATTRIBUTE_1,'" + data.refreshToken + "' AS REQUEST_ATTRIBUTE_2,'REFRESH_JDID FAILED' AS REQUEST_STATUS, 'ACCESS / REFRESH TOKEN NULL' AS REQUEST_RESULT, '" + responseToExp + "' AS REQUEST_EXCEPTION, '" + data.no_cust + "' AS CUST";
                             var resultInsert = EDB.ExecuteSQL("CString", CommandType.Text, sSQLInsert);
                         }
                     }
                     catch (Exception ex)
                     {
+                        var responseToExp = "";
+                        if (responseFromServer.Length > 255)
+                        {
+                            responseToExp = responseFromServer.Substring(0, 255);
+                        }
+                        else
+                        {
+                            responseToExp = responseFromServer;
+                        }
                         string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-                        string sSQLInsert = "INSERT INTO API_LOG_MARKETPLACE(REQUEST_ID,REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_1,REQUEST_ATTRIBUTE_2,REQUEST_STATUS,REQUEST_EXCEPTION,CUST) ";
-                        sSQLInsert += "SELECT '" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") + "' AS REQUEST_ID,'REFRESH_TOKEN_JDID' AS REQUEST_ACTION,DATEADD(HOUR, +7, GETUTCDATE()) AS REQUEST_DATETIME,'" + data.accessToken + "' AS REQUEST_ATTRIBUTE_1,'" + data.refreshToken + "' AS REQUEST_ATTRIBUTE_2,'REFRESH_JDID FAILED' AS REQUEST_STATUS, '" + msg + "' AS REQUEST_EXCEPTION, '" + data.no_cust + "' AS CUST";
+                        string sSQLInsert = "INSERT INTO API_LOG_MARKETPLACE(REQUEST_ID,REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_1,REQUEST_ATTRIBUTE_2,REQUEST_STATUS,REQUEST_RESULT,REQUEST_EXCEPTION,CUST) ";
+                        sSQLInsert += "SELECT '" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") + "' AS REQUEST_ID,'REFRESH_TOKEN_JDID' AS REQUEST_ACTION,DATEADD(HOUR, +7, GETUTCDATE()) AS REQUEST_DATETIME,'" + data.accessToken + "' AS REQUEST_ATTRIBUTE_1,'" + data.refreshToken + "' AS REQUEST_ATTRIBUTE_2,'REFRESH_JDID FAILED' AS REQUEST_STATUS, '" + msg + "' AS REQUEST_RESULT, '" + responseToExp + "' AS REQUEST_EXCEPTION, '" + data.no_cust + "' AS CUST";
                         var resultInsert = EDB.ExecuteSQL("CString", CommandType.Text, sSQLInsert);
                     }
                 }
