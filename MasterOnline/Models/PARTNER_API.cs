@@ -16,6 +16,7 @@
         public string Nama_Partner { get; set; }
 
         [StringLength(100)]
+        //[Column(TypeName = "nvarchar(max)")]
         public string Access_Token { get; set; }
 
         [StringLength(100)]
@@ -52,5 +53,14 @@
         [StringLength(100)]
         public string OAuthCallbackCode { get; set; }
         public int? PartnerId { get; set; }
+        //[StringLength(50)]
+        //public string Username { get; set; }
+        //[StringLength(50)]
+        //public string Password { get; set; }
+        //public TimeSpan? Schedule1 { get; set; }
+        //[StringLength(50)]
+        //public string ProgramId { get; set; }
+        //[StringLength(50)]
+        //public string WalletId { get; set; }
     }
 }

@@ -209,7 +209,7 @@
 
                                                                 <div class="form-group">
                                                                     <div id="divSchedule"></div>
-                                                                    @Html.HiddenFor(m => m.partner_api.Schedule1)
+                                                                    @*@Html.HiddenFor(m => m.partner_api.Schedule1)*@
                                                                 </div>
 
                                                                 <hr />
@@ -367,6 +367,8 @@
                     },
                     error: function (xhr, status, error) {
                         alert('Gagal link dengan partner. Silahkan hubungi support.');
+                        $('#loading_spinner').hide();
+                        location.href = '@Url.Action("PartnerApi")';
                         console.log(error);
                     }
                 });
