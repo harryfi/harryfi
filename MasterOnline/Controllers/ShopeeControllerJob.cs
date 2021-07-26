@@ -2149,7 +2149,7 @@ namespace MasterOnline.Controllers
                 iden = await RefreshTokenShopee_V2(iden, false);
             }
             var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
-            delQry += DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + CUST + "'";
+            delQry += DateTime.UtcNow.AddHours(7).AddHours(-12).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + CUST + "'";
 
             var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
 
@@ -2158,7 +2158,10 @@ namespace MasterOnline.Controllers
             //add 16 des 2020, fixed date
             //var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-1).AddHours(-7).ToUnixTimeSeconds();
             //var toDt = (long)DateTimeOffset.UtcNow.AddHours(14).ToUnixTimeSeconds();
-            var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds();
+            //changed 8 jul 2021, ambil -12jam
+            //var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds();
+            var fromDt = (long)DateTimeOffset.UtcNow.AddHours(-12).ToUnixTimeSeconds();
+            //end changed 8 jul 2021, ambil -12jam
             var toDt = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             //end add 16 des 2020, fixed date
 
@@ -3028,8 +3031,11 @@ namespace MasterOnline.Controllers
             }
 
             var dsOrder = EDB.GetDataSet("CString", "SOT01", "SELECT NO_REFERENSI FROM SOT01A WHERE CUST = '" + CUST + "' AND USER_NAME = 'Auto Shopee"
-                + "' AND TGL <= '" + DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' AND TGL >= '"
-                + DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "' AND STATUS_TRANSAKSI = '0' AND ISNULL(NO_REFERENSI, '') <> ''");
+            //changed 8 jul 2021, ambil -11jam
+                //+ "' AND TGL <= '" + DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' AND TGL >= '"
+                + "' AND TGL <= '" + DateTime.UtcNow.AddHours(7).AddHours(-11).ToString("yyyy-MM-dd HH:mm:ss") + "' AND TGL >= '"
+            //end changed 8 jul 2021, ambil -11jam
+            + DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "' AND STATUS_TRANSAKSI = '0' AND ISNULL(NO_REFERENSI, '') <> ''");
             if (dsOrder.Tables[0].Rows.Count > 0)
             {
                 var listOrder = new List<string>();
