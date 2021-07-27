@@ -28,5 +28,12 @@ namespace MasterOnline
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int? RECNUM { get; set; }
+
+        //ADD BY NURUL 27/7/2021
+        [StringLength(70)]
+        public string NOREF { get; set; }
+        [StringLength(10)]
+        public string CUST { get; set; }
+        //END ADD BY NURUL 27/7/2021
     }
 }

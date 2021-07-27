@@ -31,5 +31,12 @@ namespace MasterOnline
 
         [StringLength(4)]
         public string GD { get; set; }
+
+        //ADD BY NURUL 27/7/2021
+        [StringLength(70)]
+        public string NOREF { get; set; }
+        [StringLength(10)]
+        public string CUST { get; set; }
+        //END ADD BY NURUL 27/7/2021
     }
 }
