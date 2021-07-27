@@ -3336,7 +3336,8 @@ namespace MasterOnline.Controllers
         }
 
         [AutomaticRetry(Attempts = 2)]
-        [Queue("3_general")]
+        //[Queue("3_general")]
+        [Queue("1_manage_pesanan")]
         public async Task<string> GetOrderByStatusCompleted(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
         {
             SetupContext(iden);

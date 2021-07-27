@@ -5099,7 +5099,8 @@ namespace MasterOnline.Controllers
 
         //add by Tri 4 Nov 2019, update pesanan yg sudah ada di MO
         [AutomaticRetry(Attempts = 2)]
-        [Queue("3_general")]
+        //[Queue("3_general")]
+        [Queue("1_manage_pesanan")]
         public BindingBase GetOrdersToUpdateMO(string cust, string accessToken, string dbPathEra, string uname)
         {
             var ret = new BindingBase();
@@ -5120,6 +5121,22 @@ namespace MasterOnline.Controllers
                     more = false;
                 }
             }
+            //add 27 july 2021, cek pesanan tanpa pemesan
+            string sSQL = "SELECT DISTINCT NO_REFERENSI FROM SOT01A (NOLOCK) ";
+            sSQL += "WHERE STATUS_TRANSAKSI not in ('0', '11','12') AND A.TGL >= '" + DateTime.UtcNow.AddHours(7).AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss") 
+                + "' AND A.CUST = '" + cust + "'";
+
+            var dsPesanan = EDB.GetDataSet("CString", "SOT01", sSQL);
+
+            if (dsPesanan.Tables[0].Rows.Count > 0)
+            {
+                for (int i = 0; i < dsPesanan.Tables[0].Rows.Count; i++)
+                {
+                    UpdatePemesanLazada(accessToken, dsPesanan.Tables[0].Rows[i]["NO_REFERENSI"].ToString(), dbPathEra);
+                }
+            }
+
+            //end add 27 july 2021, cek pesanan tanpa pemesan
 
             // tunning untuk tidak duplicate
             var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
@@ -5128,7 +5145,25 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-
+        public void UpdatePemesanLazada(string token, string no_referensi, string dbPathEra)
+        {
+            var ordDetail = GetSinlgelOrder(token, no_referensi);
+            if(ordDetail.code == "0")
+            {
+                if (ordDetail.data.address_billing != null)
+                {
+                    if (!string.IsNullOrEmpty(ordDetail.data.address_billing.phone))
+                    {
+                        InsertPembeli(ordDetail.data, Guid.NewGuid().ToString(), dbPathEra, username);
+                        var pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == ordDetail.data.address_billing.phone).FirstOrDefault();
+                        if (pembeliInDB != null)
+                        {
+                            var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + orderMO.NO_BUKTI + "'");
+                        }
+                    }
+                }
+            }
+        }
         //public BindingBase GetOrdersToUpdateMOWithPage(string cust, string accessToken, string dbPathEra, string uname, int page)
         //{
         //    var ret = new BindingBase();
@@ -5585,6 +5620,7 @@ namespace MasterOnline.Controllers
             request.AddApiParameter("offset", (page * 100).ToString());
             request.AddApiParameter("limit", "100");
             request.AddApiParameter("sort_by", "updated_at");
+            request.AddApiParameter("status", "delivered");//add 27 jul 2021
             LazopResponse response = client.Execute(request, accessToken);
             var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(NewLzdOrders)) as NewLzdOrders;
             if (bindOrder != null)
@@ -5609,22 +5645,25 @@ namespace MasterOnline.Controllers
                         var orderMO = OrderNoInDb.Where(p => p.NO_REFERENSI == order.order_id).FirstOrDefault();
                         if (orderMO != null)
                         {
-                            if (string.IsNullOrEmpty(orderMO.PEMESAN) && order.address_billing != null)
-                            {
-                                if (!string.IsNullOrEmpty(order.address_billing.phone))
-                                {
-                                    InsertPembeli(order, connectionID, dbPathEra, username);
-                                    var pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
-                                    if (pembeliInDB != null)
-                                    {
-                                        var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + orderMO.NO_BUKTI + "'");
-                                    }
-                                    else
-                                    {
-                                        var adaPembeliGagalInsert = true;
-                                    }
-                                }
-                            }
+                            //remark 27 jul 2021, pindah function sendiri
+                            //if (string.IsNullOrEmpty(orderMO.PEMESAN) && order.address_billing != null)
+                            //{
+                            //    if (!string.IsNullOrEmpty(order.address_billing.phone))
+                            //    {
+                            //        InsertPembeli(order, connectionID, dbPathEra, username);
+                            //        var pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
+                            //        if (pembeliInDB != null)
+                            //        {
+                            //            var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + orderMO.NO_BUKTI + "'");
+                            //        }
+                            //        else
+                            //        {
+                            //            var adaPembeliGagalInsert = true;
+                            //        }
+                            //    }
+                            //}
+                            //end remark
+
                             //change by Tri 12 mar 2020, shipped akan menggunakan status lain, bukan selesai/04
                             //if (order.statuses[0].ToString() == "delivered" || order.statuses[0].ToString() == "shipped")
                             if (order.statuses[0].ToString() == "delivered")
