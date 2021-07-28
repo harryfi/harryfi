@@ -3369,12 +3369,67 @@ namespace MasterOnline.Controllers
             var nama = order.address_billing.first_name.Replace('\'', '`');
             if (nama.Length > 30) { nama = nama.Substring(1, 30); }
 
-            insertPembeli += "('" + nama + "','" + order.address_billing.address1.Replace('\'', '`') + "','" + order.address_billing.phone + "','" + order.address_billing.customer_email + "',0,0,'0','01',";
+            #region data pembeli
+
+            string billing_first_name = string.IsNullOrEmpty(order.address_billing.first_name) ? "" : order.address_billing.first_name.Replace("'", "`");
+            if (billing_first_name.Length > 50)
+                billing_first_name = billing_first_name.Substring(0, 50);
+
+            string billing_last_name = string.IsNullOrEmpty(order.address_billing.last_name) ? "" : order.address_billing.last_name.Replace("'", "`");
+            if (billing_last_name.Length > 50)
+                billing_last_name = billing_last_name.Substring(0, 50);
+
+            string phone = (string.IsNullOrEmpty(order.address_billing.phone) ? "NO_PHONE" : order.address_billing.phone.Replace("'", "`"));
+            if (phone.Length > 50)
+                phone = phone.Substring(0, 50);
+
+            string phone2 = string.IsNullOrEmpty(order.address_billing.phone2) ? "" : order.address_billing.phone2.Replace("'", "`");
+            if (phone2.Length > 50)
+                phone2 = phone2.Substring(0, 50);
+
+            string billing_address2 = string.IsNullOrEmpty(order.address_billing.address2) ? "" : order.address_billing.address2.Replace("'", "`");
+            if (billing_address2.Length > 50)
+                billing_address2 = billing_address2.Substring(0, 50);
+
+            string billing_address3 = string.IsNullOrEmpty(order.address_billing.address3) ? "" : order.address_billing.address3.Replace("'", "`");
+            if (billing_address3.Length > 50)
+                billing_address3 = billing_address3.Substring(0, 50);
+
+            string billing_address4 = string.IsNullOrEmpty(order.address_billing.address4) ? "" : order.address_billing.address4.Replace("'", "`");
+            if (billing_address4.Length > 50)
+                billing_address4 = billing_address4.Substring(0, 50);
+
+            string billing_address5 = string.IsNullOrEmpty(order.address_billing.address5) ? "" : order.address_billing.address5.Replace("'", "`");
+            if (billing_address5.Length > 50)
+                billing_address5 = billing_address5.Substring(0, 50);
+
+            string customer_email = string.IsNullOrEmpty(order.address_billing.customer_email) ? "" : order.address_billing.customer_email.Replace("'", "`");
+            if (customer_email.Length > 50)
+                customer_email = customer_email.Substring(0, 50);
+
+            string city = string.IsNullOrEmpty(order.address_billing.city) ? "" : order.address_billing.city.Replace("'", "`");
+            if (city.Length > 50)
+                city = city.Substring(0, 50);
+
+            string post_code = string.IsNullOrEmpty(order.address_billing.post_code) ? "" : order.address_billing.post_code.Replace("'", "`");
+            if (post_code.Length > 50)
+                post_code = post_code.Substring(0, 50);
+
+            string country = string.IsNullOrEmpty(order.address_billing.country) ? "" : order.address_billing.country.Replace("'", "`");
+            if (country.Length > 50)
+                country = country.Substring(0, 50);
+
+            #endregion
+            //insertPembeli += "('" + nama + "','" + order.address_billing.address1.Replace('\'', '`') + "','" + order.address_billing.phone + "','" + order.address_billing.customer_email + "',0,0,'0','01',";
+            //insertPembeli += "1, 'IDR', '01', '" + order.address_billing.address1.Replace('\'', '`') + "', 0, 0, 0, 0, '1', 0, 0, ";
+            ////change by calvin 12 desember 2018, ada data dari lazada yang order.address_billing.post_code nya diisi "Bekasi Timur"
+            ////insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.address_billing.post_code + "', '" + order.address_billing.customer_email + "', '" + kabKot + "', '" + prov + "', '" + order.address_billing.address4 + "', '" + order.address_billing.address5 + "', '" + connIDARF01C + "')";
+            //insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.address_billing.post_code.Substring(0, order.address_billing.post_code.Length > 5 ? 5 : order.address_billing.post_code.Length).Replace('\'', '`') + "', '" + order.address_billing.customer_email + "', '" + kabKot + "', '" + prov + "', '" + order.address_billing.address4.Replace('\'', '`') + "', '" + order.address_billing.address5.Replace('\'', '`') + "', '" + connIDARF01C + "')";
+            ////end change by calvin 12 desember 2018
+            insertPembeli += "('" + nama + "','" + order.address_billing.address1.Replace('\'', '`') + "','" + phone + "','" + customer_email + "',0,0,'0','01',";
             insertPembeli += "1, 'IDR', '01', '" + order.address_billing.address1.Replace('\'', '`') + "', 0, 0, 0, 0, '1', 0, 0, ";
-            //change by calvin 12 desember 2018, ada data dari lazada yang order.address_billing.post_code nya diisi "Bekasi Timur"
-            //insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.address_billing.post_code + "', '" + order.address_billing.customer_email + "', '" + kabKot + "', '" + prov + "', '" + order.address_billing.address4 + "', '" + order.address_billing.address5 + "', '" + connIDARF01C + "')";
-            insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.address_billing.post_code.Substring(0, order.address_billing.post_code.Length > 5 ? 5 : order.address_billing.post_code.Length).Replace('\'', '`') + "', '" + order.address_billing.customer_email + "', '" + kabKot + "', '" + prov + "', '" + order.address_billing.address4.Replace('\'', '`') + "', '" + order.address_billing.address5.Replace('\'', '`') + "', '" + connIDARF01C + "')";
-            //end change by calvin 12 desember 2018
+            insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + post_code.Substring(0, post_code.Length > 5 ? 5 : post_code.Length) + "', '" + customer_email + "', '" + kabKot + "', '" + prov + "', '" + billing_address4 + "', '" + billing_address5 + "', '" + connIDARF01C + "')";
+            
             var aa = EDB.ExecuteSQL(username, CommandType.Text, insertPembeli);
             SqlCommand CommandSQL = new SqlCommand();
             CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
@@ -5099,7 +5154,8 @@ namespace MasterOnline.Controllers
 
         //add by Tri 4 Nov 2019, update pesanan yg sudah ada di MO
         [AutomaticRetry(Attempts = 2)]
-        [Queue("3_general")]
+        //[Queue("3_general")]
+        [Queue("1_manage_pesanan")]
         public BindingBase GetOrdersToUpdateMO(string cust, string accessToken, string dbPathEra, string uname)
         {
             var ret = new BindingBase();
@@ -5120,6 +5176,23 @@ namespace MasterOnline.Controllers
                     more = false;
                 }
             }
+            //add 27 july 2021, cek pesanan tanpa pemesan
+            string sSQL = "SELECT DISTINCT NO_REFERENSI FROM SOT01A (NOLOCK) ";
+            sSQL += "WHERE STATUS_TRANSAKSI not in ('0', '11','12') AND TGL >= '" + DateTime.UtcNow.AddHours(7).AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss") 
+                + "' AND TGL <= '" + DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss")
+                + "' AND CUST = '" + cust + "' and isnull(pemesan,'') = ''";
+
+            var dsPesanan = EDB.GetDataSet("CString", "SOT01", sSQL);
+
+            if (dsPesanan.Tables[0].Rows.Count > 0)
+            {
+                for (int i = 0; i < dsPesanan.Tables[0].Rows.Count; i++)
+                {
+                    UpdatePemesanLazada(accessToken, dsPesanan.Tables[0].Rows[i]["NO_REFERENSI"].ToString(), dbPathEra, cust);
+                }
+            }
+
+            //end add 27 july 2021, cek pesanan tanpa pemesan
 
             // tunning untuk tidak duplicate
             var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
@@ -5128,7 +5201,26 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-
+        public void UpdatePemesanLazada(string token, string no_referensi, string dbPathEra, string cust)
+        {
+            var ordDetail = GetSinlgelOrder(token, no_referensi);
+            if(ordDetail.code == "0")
+            {
+                if (ordDetail.data.address_billing != null)
+                {
+                    if (!string.IsNullOrEmpty(ordDetail.data.address_billing.phone))
+                    {
+                        InsertPembeli(ordDetail.data, Guid.NewGuid().ToString(), dbPathEra, username);
+                        var pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == ordDetail.data.address_billing.phone).FirstOrDefault();
+                        if (pembeliInDB != null)
+                        {
+                            var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" 
+                                + pembeliInDB.BUYER_CODE + "' WHERE NO_REFERENSI = '" + no_referensi + "' AND CUST = '" + cust + "'");
+                        }
+                    }
+                }
+            }
+        }
         //public BindingBase GetOrdersToUpdateMOWithPage(string cust, string accessToken, string dbPathEra, string uname, int page)
         //{
         //    var ret = new BindingBase();
@@ -5585,6 +5677,7 @@ namespace MasterOnline.Controllers
             request.AddApiParameter("offset", (page * 100).ToString());
             request.AddApiParameter("limit", "100");
             request.AddApiParameter("sort_by", "updated_at");
+            request.AddApiParameter("status", "delivered");//add 27 jul 2021
             LazopResponse response = client.Execute(request, accessToken);
             var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(NewLzdOrders)) as NewLzdOrders;
             if (bindOrder != null)
@@ -5609,22 +5702,25 @@ namespace MasterOnline.Controllers
                         var orderMO = OrderNoInDb.Where(p => p.NO_REFERENSI == order.order_id).FirstOrDefault();
                         if (orderMO != null)
                         {
-                            if (string.IsNullOrEmpty(orderMO.PEMESAN) && order.address_billing != null)
-                            {
-                                if (!string.IsNullOrEmpty(order.address_billing.phone))
-                                {
-                                    InsertPembeli(order, connectionID, dbPathEra, username);
-                                    var pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
-                                    if (pembeliInDB != null)
-                                    {
-                                        var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + orderMO.NO_BUKTI + "'");
-                                    }
-                                    else
-                                    {
-                                        var adaPembeliGagalInsert = true;
-                                    }
-                                }
-                            }
+                            //remark 27 jul 2021, pindah function sendiri
+                            //if (string.IsNullOrEmpty(orderMO.PEMESAN) && order.address_billing != null)
+                            //{
+                            //    if (!string.IsNullOrEmpty(order.address_billing.phone))
+                            //    {
+                            //        InsertPembeli(order, connectionID, dbPathEra, username);
+                            //        var pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
+                            //        if (pembeliInDB != null)
+                            //        {
+                            //            var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + orderMO.NO_BUKTI + "'");
+                            //        }
+                            //        else
+                            //        {
+                            //            var adaPembeliGagalInsert = true;
+                            //        }
+                            //    }
+                            //}
+                            //end remark
+
                             //change by Tri 12 mar 2020, shipped akan menggunakan status lain, bukan selesai/04
                             //if (order.statuses[0].ToString() == "delivered" || order.statuses[0].ToString() == "shipped")
                             if (order.statuses[0].ToString() == "delivered")
