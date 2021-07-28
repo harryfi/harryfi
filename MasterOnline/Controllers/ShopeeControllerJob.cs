@@ -221,8 +221,8 @@ namespace MasterOnline.Controllers
                             {
                                 dataAPI.token = result.access_token;
                                 dataAPI.refresh_token = result.refresh_token;
-                                dataAPI.tgl_expired = DateTime.UtcNow.AddHours(7).AddSeconds(result.expire_in);
-                                var dateExpired = DateTime.UtcNow.AddHours(7).AddSeconds(result.expire_in).ToString("yyyy-MM-dd HH:mm:ss");
+                                dataAPI.token_expired = DateTime.UtcNow.AddHours(7).AddSeconds(result.expire_in);
+                                var dateExpired = dataAPI.token_expired.Value.ToString("yyyy-MM-dd HH:mm:ss");
 
                                 DatabaseSQL EDB = new DatabaseSQL(dataAPI.DatabasePathErasoft);
                                 var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', KD_ANALISA = '2', Sort1_Cust = '"

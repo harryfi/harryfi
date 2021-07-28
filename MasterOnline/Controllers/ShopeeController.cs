@@ -3075,7 +3075,7 @@ namespace MasterOnline.Controllers
                             {
                                 dataAPI.token = result.access_token;
                                 dataAPI.refresh_token = result.refresh_token;
-                                dataAPI.tgl_expired = DateTime.UtcNow.AddHours(7).AddSeconds(result.expire_in);
+                                dataAPI.token_expired = DateTime.UtcNow.AddHours(7).AddSeconds(result.expire_in);
                                 //if (result.authed_shops.Length > 0)
                                 //{
                                 //    foreach (var item in result.authed_shops)
@@ -3083,7 +3083,7 @@ namespace MasterOnline.Controllers
                                 //        if (item.shopid.ToString() == dataAPI.merchant_code.ToString())
                                 //        {
                                 //var dateExpired = DateTimeOffset.FromUnixTimeSeconds(result.expire_in).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-                                var dateExpired = DateTime.UtcNow.AddHours(7).AddSeconds(result.expire_in).ToString("yyyy-MM-dd HH:mm:ss");
+                                var dateExpired = dataAPI.token_expired.Value.ToString("yyyy-MM-dd HH:mm:ss");
 
                                 DatabaseSQL EDB = new DatabaseSQL(dataAPI.DatabasePathErasoft);
                                 var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', KD_ANALISA = '2', Sort1_Cust = '"
