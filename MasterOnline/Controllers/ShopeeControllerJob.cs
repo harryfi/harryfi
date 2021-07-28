@@ -114,7 +114,8 @@ namespace MasterOnline.Controllers
                     var cekInDB = ErasoftDbContext.ARF01.Where(m => m.CUST == dataAPI.no_cust).FirstOrDefault();
                     if (cekInDB != null)
                     {
-                        if (dataAPI.token != cekInDB.TOKEN)
+                        //if (dataAPI.token != cekInDB.TOKEN)
+                        if (dataAPI.token_expired != cekInDB.TOKEN_EXPIRED)
                         {
                             dataAPI.refresh_token = cekInDB.REFRESH_TOKEN;
                             dataAPI.tgl_expired = cekInDB.TGL_EXPIRED.Value;
@@ -198,6 +199,15 @@ namespace MasterOnline.Controllers
                             err = sr.ReadToEnd();
                         }
                     }
+                    MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                    {
+                        REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+                        REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
+                        REQUEST_DATETIME = milisBack,
+                        REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code
+                    };
+                    currentLog.REQUEST_EXCEPTION = err;
+                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
                 }
 
                 if (responseFromServer != null)
@@ -232,6 +242,18 @@ namespace MasterOnline.Controllers
                                 currentLog.REQUEST_EXCEPTION = responseFromServer;
                                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
                             }
+                        }
+                        else
+                        {
+                            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                            {
+                                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+                                REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
+                                REQUEST_DATETIME = milisBack,
+                                REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code
+                            };
+                            currentLog.REQUEST_EXCEPTION = responseFromServer;
+                            manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
                         }
 
                     }
