@@ -1067,6 +1067,23 @@
                 }
             });
 
+            $(".cbBox02_e").change(function () {
+                if ($("#cbBox02_silver_e")[0].checked == true) {
+                    $("#cbBox02_silver_e").prop('checked', true);
+                    $(this).prop('checked', true);
+                    checkPlugin02(150000);
+                    //addonsArray.splice(addonsArray.indexOf("2"), 1);
+                    //addonsArray.push("2");  --remark by fauzi 28 Des 2020 karena tidak boleh masuk auto di paket lain
+                    addonsArray.push("7"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling, 7 accurate
+                } else if ($("#cbBox02_silver_e")[0].checked == false) {
+                    $("#cbBox02_silver_e").prop('checked', false);
+                    $(this).prop('checked', false);
+                    checkPlugin02(-150000);
+                    //addonsArray.splice(addonsArray.indexOf("2"), 1);
+                    addonsArray.splice(addonsArray.indexOf("7"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling, 7 accurate
+                }
+            });
+
             $(".cbBox03_a").change(function () {
                 if ($("#cbBox03_gold_a")[0].checked == true) {
                     $("#cbBox03_gold_a").prop('checked', true);
@@ -1132,6 +1149,23 @@
                     checkPlugin03(-300000);
                     //addonsArray.splice(addonsArray.indexOf("2"), 1);
                     addonsArray.splice(addonsArray.indexOf("6"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+                }
+            });
+
+            $(".cbBox03_e").change(function () {
+                if ($("#cbBox03_gold_e")[0].checked == true) {
+                    $("#cbBox03_gold_e").prop('checked', true);
+                    $(this).prop('checked', true);
+                    checkPlugin03(150000);
+                    //addonsArray.splice(addonsArray.indexOf("2"), 1);
+                    //addonsArray.push("2");  --remark by fauzi 28 Des 2020 karena tidak boleh masuk auto di paket lain
+                    addonsArray.push("7"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling, 7 accurate
+                } else if ($("#cbBox03_gold_e")[0].checked == false) {
+                    $("#cbBox03_gold_e").prop('checked', false);
+                    $(this).prop('checked', false);
+                    checkPlugin03(-150000);
+                    //addonsArray.splice(addonsArray.indexOf("2"), 1);
+                    addonsArray.splice(addonsArray.indexOf("7"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling, 7 accurate
                 }
             });
             //end add

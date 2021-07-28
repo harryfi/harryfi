@@ -835,7 +835,17 @@
                                     <th scope="row"><span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Jumlah Pesanan per Bulan</th>
                                     @foreach (var subs in Model?.ListSubs)
                                     {
-                                        <td style="text-align:center;">@(subs.JUMLAH_PESANAN >= 999 ? "Unlimited" : subs.JUMLAH_PESANAN.ToString())</td>
+                                        var jmlPesanan = (subs.JUMLAH_PESANAN >= 999 ? "Unlimited" : subs.JUMLAH_PESANAN.ToString());
+
+                                        @*<td style="text-align:center;">@(subs.JUMLAH_PESANAN >= 999 ? "Unlimited" : subs.JUMLAH_PESANAN.ToString())</td>*@
+                                        if (subs.KODE == "02")
+                                        {
+                                            <td style="text-align:center;"><s style="color: #891539;"><span style="color:black;">300</span></s><span style="color: #891539;"> @jmlPesanan</span></td>
+                                        }
+                                        else
+                                        {
+                                            <td style="text-align:center;">@jmlPesanan</td>
+                                        }
                                     }
                                     <td style="text-align:center;">Unlimited</td>
                                 </tr>
@@ -965,8 +975,8 @@
                                         <span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Accurate Online
                                     </th>
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-remove"></span></td>
-                                    <td style="text-align:center;"></td> @*<input class="cbBox02_e" id="cbBox02_silver_e" type="checkbox"><br />Rp 300.000,00<br />per bulan*@
-                                    <td style="text-align:center;"></td> @*<input class="cbBox03_e" id="cbBox03_gold_e" type="checkbox"><br />Rp 300.000,00<br />per bulan*@
+                                    <td style="text-align:center;"><input class="cbBox02_e" id="cbBox02_silver_e" type="checkbox"><br /><s style="color: #891539;"><span style="color:black;">Rp 300.000,00</span></s><br /><span style="color: #891539;">Rp 150.000,00</span><br />per bulan</td>
+                                    <td style="text-align:center;"><input class="cbBox03_e" id="cbBox03_gold_e" type="checkbox"><br /><s style="color: #891539;"><span style="color:black;">Rp 300.000,00</span></s><br /><span style="color: #891539;">Rp 150.000,00</span><br />per bulan</td>
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                 </tr>
                                 <tr>
@@ -1157,6 +1167,23 @@
             }
         });
 
+        $(".cbBox02_e").change(function () {
+            if ($("#cbBox02_silver_e")[0].checked == true) {
+                $("#cbBox02_silver_e").prop('checked', true);
+                $(this).prop('checked', true);
+                checkPlugin02(150000);
+                //addonsArray.splice(addonsArray.indexOf("2"), 1);
+                //addonsArray.push("2");  --remark by fauzi 28 Des 2020 karena tidak boleh masuk auto di paket lain
+                addonsArray.push("7"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling, 7 accurate
+            } else if ($("#cbBox02_silver_e")[0].checked == false) {
+                $("#cbBox02_silver_e").prop('checked', false);
+                $(this).prop('checked', false);
+                checkPlugin02(-150000);
+                //addonsArray.splice(addonsArray.indexOf("2"), 1);
+                addonsArray.splice(addonsArray.indexOf("7"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling, 7 accurate
+            }
+        });
+
         $(".cbBox03_a").change(function () {
             if ($("#cbBox03_gold_a")[0].checked == true) {
                 $("#cbBox03_gold_a").prop('checked', true);
@@ -1233,6 +1260,22 @@
             }
         });
 
+        $(".cbBox03_e").change(function () {
+            if ($("#cbBox03_gold_e")[0].checked == true) {
+                $("#cbBox03_gold_e").prop('checked', true);
+                $(this).prop('checked', true);
+                checkPlugin03(150000);
+                //addonsArray.splice(addonsArray.indexOf("2"), 1);
+                //addonsArray.push("2");  --remark by fauzi 28 Des 2020 karena tidak boleh masuk auto di paket lain
+                addonsArray.push("7"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling, 7 accurate
+            } else if ($("#cbBox03_gold_e")[0].checked == false) {
+                $("#cbBox03_gold_e").prop('checked', false);
+                $(this).prop('checked', false);
+                checkPlugin03(-150000);
+                //addonsArray.splice(addonsArray.indexOf("2"), 1);
+                addonsArray.splice(addonsArray.indexOf("7"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling, 7 accurate
+            }
+        });
     });
 
     function convertToRupiah(angka) {

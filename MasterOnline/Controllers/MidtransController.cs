@@ -260,7 +260,7 @@ namespace MasterOnline.Controllers
                                     int idAddon = Convert.ToInt32(dataAddon);
                                     var dataDBAddon = MoDbContext.Addons.Where(p => p.RecNum == idAddon).SingleOrDefault();
 
-                                    var dataAddonCheck = MoDbContext.Addons_Customer.Where(p => p.Account == emailAddon && p.ID_ADDON == dataAddon).SingleOrDefault();
+                                    var dataAddonCheck = MoDbContext.Addons_Customer.Where(p => p.Account == emailAddon && p.ID_ADDON == dataAddon).FirstOrDefault();
                                     if (dataAddonCheck != null)
                                     {
                                         dataAddonCheck.NamaAddons = dataDBAddon.Fitur.ToString();
