@@ -114,7 +114,8 @@ namespace MasterOnline.Controllers
                     var cekInDB = ErasoftDbContext.ARF01.Where(m => m.CUST == dataAPI.no_cust).FirstOrDefault();
                     if (cekInDB != null)
                     {
-                        if (dataAPI.token != cekInDB.TOKEN)
+                        //if (dataAPI.token != cekInDB.TOKEN)
+                        if (dataAPI.token_expired != cekInDB.TOKEN_EXPIRED)
                         {
                             dataAPI.refresh_token = cekInDB.REFRESH_TOKEN;
                             dataAPI.tgl_expired = cekInDB.TGL_EXPIRED.Value;
@@ -198,6 +199,15 @@ namespace MasterOnline.Controllers
                             err = sr.ReadToEnd();
                         }
                     }
+                    MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                    {
+                        REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+                        REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
+                        REQUEST_DATETIME = milisBack,
+                        REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code
+                    };
+                    currentLog.REQUEST_EXCEPTION = err;
+                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
                 }
 
                 if (responseFromServer != null)
@@ -207,17 +217,43 @@ namespace MasterOnline.Controllers
                         var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeController.ShopeeGetTokenShopResult_V2)) as ShopeeController.ShopeeGetTokenShopResult_V2;
                         if (string.IsNullOrWhiteSpace(result.error))
                         {
-                            dataAPI.token = result.access_token;
-                            dataAPI.refresh_token = result.refresh_token;
-                            dataAPI.tgl_expired = DateTime.UtcNow.AddHours(7).AddSeconds(result.expire_in);
-                            var dateExpired = DateTime.UtcNow.AddHours(7).AddSeconds(result.expire_in).ToString("yyyy-MM-dd HH:mm:ss");
+                            if (!string.IsNullOrEmpty(result.access_token))
+                            {
+                                dataAPI.token = result.access_token;
+                                dataAPI.refresh_token = result.refresh_token;
+                                dataAPI.token_expired = DateTime.UtcNow.AddHours(7).AddSeconds(result.expire_in);
+                                var dateExpired = dataAPI.token_expired.Value.ToString("yyyy-MM-dd HH:mm:ss");
 
-                            DatabaseSQL EDB = new DatabaseSQL(dataAPI.DatabasePathErasoft);
-                            var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', KD_ANALISA = '2', Sort1_Cust = '"
-                                + dataAPI.merchant_code + "', TOKEN_EXPIRED = '" + dateExpired + "', API_KEY = '" + dataAPI.API_secret_key
-                                 + "', TOKEN = '" + result.access_token + "', REFRESH_TOKEN = '" + result.refresh_token
-                                + "' WHERE CUST = '" + dataAPI.no_cust + "'");
-
+                                DatabaseSQL EDB = new DatabaseSQL(dataAPI.DatabasePathErasoft);
+                                var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', KD_ANALISA = '2', Sort1_Cust = '"
+                                    + dataAPI.merchant_code + "', TOKEN_EXPIRED = '" + dateExpired + "', API_KEY = '" + dataAPI.API_secret_key
+                                     + "', TOKEN = '" + result.access_token + "', REFRESH_TOKEN = '" + result.refresh_token
+                                    + "' WHERE CUST = '" + dataAPI.no_cust + "'");
+                            }
+                            else
+                            {
+                                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                {
+                                    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+                                    REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
+                                    REQUEST_DATETIME = milisBack,
+                                    REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code
+                                };
+                                currentLog.REQUEST_EXCEPTION = responseFromServer;
+                                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
+                            }
+                        }
+                        else
+                        {
+                            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                            {
+                                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+                                REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
+                                REQUEST_DATETIME = milisBack,
+                                REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code
+                            };
+                            currentLog.REQUEST_EXCEPTION = responseFromServer;
+                            manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
                         }
 
                     }
