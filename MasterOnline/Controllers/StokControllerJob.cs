@@ -4814,7 +4814,8 @@ namespace MasterOnline.Controllers
                 var cekInDB = ErasoftDbContext.ARF01.Where(m => m.CUST == data.no_cust).FirstOrDefault();
                 if (cekInDB != null)
                 {
-                    if (data.accessToken != cekInDB.TOKEN && data.refreshToken != cekInDB.REFRESH_TOKEN)
+                    if (data.tgl_expired != cekInDB.TGL_EXPIRED)
+                    //if (data.accessToken != cekInDB.TOKEN && data.refreshToken != cekInDB.REFRESH_TOKEN)
                     {
                         data.appKey = cekInDB.API_KEY;
                         data.refreshToken = cekInDB.REFRESH_TOKEN;
