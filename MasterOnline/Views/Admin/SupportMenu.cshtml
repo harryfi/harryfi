@@ -602,9 +602,9 @@
 
         function ProsesUnlinkMP(emailAccount, listTokoMP, listKodeBRG) {
             var link = '@Url.Action("ProsesUnlinkMP", "Admin", new { listTokoMP = "replaceEmail|replaceId|replaceKode" })';
-            link = link.replace("replaceEmail", emailAccount);
-            link = link.replace("replaceId", listTokoMP);
-            link = link.replace("replaceKode", listKodeBRG);
+            link = link.replace("replaceEmail", encodeURIComponent(emailAccount));
+            link = link.replace("replaceId", encodeURIComponent(listTokoMP));
+            link = link.replace("replaceKode", encodeURIComponent(listKodeBRG));
 
             $.ajax({
                 type: "GET",
@@ -637,9 +637,9 @@
 
         function ProsesEditKode(emailAccount, listKodeBRGLama, listKodeBRGBaru) {
             var link = '@Url.Action("ProsesEditKode", "Admin", new { listData = "replaceEmail|replaceKodeBaru|replaceKodeLama" })';
-            link = link.replace("replaceEmail", emailAccount);
-            link = link.replace("replaceKodeBaru", listKodeBRGBaru);
-            link = link.replace("replaceKodeLama", listKodeBRGLama);
+            link = link.replace("replaceEmail", encodeURIComponent(emailAccount));
+            link = link.replace("replaceKodeBaru", encodeURIComponent(listKodeBRGBaru));
+            link = link.replace("replaceKodeLama", encodeURIComponent(listKodeBRGLama));
 
             $.ajax({
                 type: "GET",
@@ -675,9 +675,9 @@
 
         function ProsesMergeKode(emailAccount, listKodeBRGLama, listKodeBRGBaru) {
             var link = '@Url.Action("ProsesMergeKode", "Admin", new { listData = "replaceEmail|replaceKodeBaru|replaceKodeLama" })';
-            link = link.replace("replaceEmail", emailAccount);
-            link = link.replace("replaceKodeBaru", listKodeBRGBaru);
-            link = link.replace("replaceKodeLama", listKodeBRGLama);
+            link = link.replace("replaceEmail", encodeURIComponent(emailAccount));
+            link = link.replace("replaceKodeBaru", encodeURIComponent(listKodeBRGBaru));
+            link = link.replace("replaceKodeLama", encodeURIComponent(listKodeBRGLama));
 
             $.ajax({
                 type: "GET",
@@ -713,8 +713,8 @@
 
         function ProsesDeleteKode(emailAccount, listKodeBRGDelete) {
             var link = '@Url.Action("ProsesDeleteKode", "Admin", new { listData = "replaceEmail|replaceKodeDelete" })';
-            link = link.replace("replaceEmail", emailAccount);
-            link = link.replace("replaceKodeDelete", listKodeBRGDelete);
+            link = link.replace("replaceEmail", encodeURIComponent(emailAccount));
+            link = link.replace("replaceKodeDelete", encodeURIComponent(listKodeBRGDelete));
 
             $.ajax({
                 type: "GET",
@@ -750,8 +750,8 @@
 
         function ProsesCekVariantKode(emailAccount, listKodeBRG) {
             var link = '@Url.Action("ProsesCekVariantKode", "Admin", new { listData = "replaceEmail|replaceKode" })';
-            link = link.replace("replaceEmail", emailAccount);
-            link = link.replace("replaceKode", listKodeBRG);
+            link = link.replace("replaceEmail", encodeURIComponent(emailAccount));
+            link = link.replace("replaceKode", encodeURIComponent(listKodeBRG));
 
             $.ajax({
                 type: "GET",
