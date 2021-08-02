@@ -5170,7 +5170,12 @@ namespace MasterOnline.Controllers
                             //string sSQL = "select 'Stok' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%StokControllerJob%' " + System.Environment.NewLine;
                             string sSQL = "select 'Stok' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%StokControllerJob%' and InvocationData not like '%updateBruto%'" + System.Environment.NewLine;
                             sSQL += "union all" + System.Environment.NewLine;
-                            sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%'" + System.Environment.NewLine;
+                            //change 2 aug 2021, pisahkan job get order complete shopee dan lzd
+                            //sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%'" + System.Environment.NewLine;
+                            sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%' and InvocationData not like '%GetOrdersToUpdateMO%' and InvocationData not like '%ShopeeControllerJob%GetOrderByStatusCompleted%'" + System.Environment.NewLine;
+                            sSQL += "union all" + System.Environment.NewLine;
+                            sSQL += "select 'Manage' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and (InvocationData like '%GetOrdersToUpdateMO%' or InvocationData like '%ShopeeControllerJob%GetOrderByStatusCompleted%')" + System.Environment.NewLine;
+                            //change 2 aug 2021, pisahkan job get order complete shopee dan lzd
                             sSQL += "union all" + System.Environment.NewLine;
                             //sSQL += "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%'" + System.Environment.NewLine;
                             sSQL += "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%' and InvocationData not like '%stok%'" + System.Environment.NewLine;
@@ -5186,6 +5191,9 @@ namespace MasterOnline.Controllers
                                             break;
                                         case "Order":
                                             data.PesananJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
+                                            break;
+                                        case "Manage":
+                                            data.ManageJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
                                             break;
                                         case "Product":
                                             data.CreateProductJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
@@ -6255,12 +6263,32 @@ namespace MasterOnline.Controllers
                                         var resultDataToko = EDB.GetDataSet("SCon", "QUEUE_TOKO_SHOPEE", queryCheckToko);
                                         if (resultDataToko.Tables[0].Rows.Count > 0)
                                         {
-                                            //if (resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() == usernameShopee[1])
-                                            //{
-                                                checkApprove = true;
+                                            ////if (resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() == usernameShopee[1])
+                                            ////{
+                                            //    checkApprove = true;
+                                            //namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() + " user:" + usernameShopee[1];
+                                            ////namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString();
+                                            ////}
                                             namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() + " user:" + usernameShopee[1];
-                                            //namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString();
-                                            //}
+                                            var sMETHOD = resultConvertInvocation.Method + statusOrder;
+                                            var sMARKETPLACE = marketplace + " (" + namaToko + ")";
+                                            if (listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).ToList().Count == 0)
+                                            {
+                                                checkApprove = true;
+                                            }
+                                            else
+                                            {
+                                                var createJobSuccess = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBSUCCESS"]).AddHours(7);
+                                                if (listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().LASTCREATEJOBSUCCESS < createJobSuccess)
+                                                {
+                                                    listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().LASTCREATEJOBPROCESS = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBPROCESS"]).AddHours(7);
+                                                    listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().LASTCREATEJOBSUCCESS = createJobSuccess;
+                                                    listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().SELISIH = resultSelisih;
+                                                    listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().ID = Convert.ToInt32(resultDataJob.Tables[0].Rows[i]["ID"].ToString());
+                                                    listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().CREATEDAT = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["CREATEDAT"]).AddHours(7);
+                                                    listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().STATENAME = resultDataJob.Tables[0].Rows[i]["STATENAME"].ToString();
+                                                }
+                                            }
                                         }
                                     }
                                 }
