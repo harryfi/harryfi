@@ -32,6 +32,7 @@ namespace MasterOnline
         public int StokJobEnqueued { get; set; }
         public int PesananJobEnqueued { get; set; }
         public int CreateProductJobEnqueued { get; set; }
+        public int ManageJobEnqueued { get; set; }
     }
 
     public class PesananHangfireJob

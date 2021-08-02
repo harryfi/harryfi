@@ -129,6 +129,7 @@
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 185px;">Subscription End Date</th>
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 90px;">Stok</th>
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 90px;">Pesanan</th>
+            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 90px;">Manage Pesanan</th>
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 90px;">Product</th>
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 120px;">Heartbeat</th>
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 120px;">IP Server DB</th>
@@ -157,6 +158,12 @@
                         onclick="GetPesananHangfireJobCustomer(this)">
                     <span>Check Order</span>
                 </button>
+            </td>
+            <td style="text-align:center">
+                @aktivitas.ManageJobEnqueued
+                <br />
+                <br />
+                <br />
             </td>
             <td style="text-align:center">
                 @aktivitas.CreateProductJobEnqueued
