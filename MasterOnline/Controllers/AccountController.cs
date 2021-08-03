@@ -863,14 +863,15 @@ namespace MasterOnline.Controllers
 
             //add by nurul 3/8/2021 update piutang bayar
 #if (Debug_AWS || AWS)
-            if (dbPathEra == "ERASOFT_1591640" || dbPathEra == "ERASOFT_60056")
+            //seven.etc.craft@gmail.com dan aniesuprijati@gmail.com
+            if (dbPathEra == "ERASOFT_1591640" || dbPathEra == "ERASOFT_60056") 
             {
                 var connId_JobId_UpdatePiutangBayar = dbPathEra + "_update_piutang_bayar";
                 recurJobM.RemoveIfExists(connId_JobId_UpdatePiutangBayar);
                 recurJobM.AddOrUpdate(connId_JobId_UpdatePiutangBayar, Hangfire.Common.Job.FromExpression<MasterOnlineController>(x => x.UpdateART01DSetelahUploadBayar_Hangfire(dbPathEra, DateTime.UtcNow.AddHours(7).Year.ToString(), "", "Pembayaran", "Update Art01d", username)), "0 17 * * *");
             }
 #else
-            if (dbPathEra == "ERASOFT_RAHMAMK" || dbPathEra == "ERASOFT_930355_QC")
+            if (dbPathEra == "ERASOFT_rahmamk" || dbPathEra == "ERASOFT_930355_QC")
             {
                 var connId_JobId_UpdatePiutangBayar = dbPathEra + "_update_piutang_bayar";
                 recurJobM.RemoveIfExists(connId_JobId_UpdatePiutangBayar);
