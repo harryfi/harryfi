@@ -4644,12 +4644,12 @@ namespace MasterOnline.Controllers
                                 }
                                 if (successInsert)
                                 {
-                                    MoDbContext = new MoDbContext("");
-                                    var ListCategory = MoDbContext.CATEGORY_JDID.Where(a => a.TYPE == "3").ToList();
-                                    foreach (var cat in ListCategory)
-                                    {
-                                        var listAttributeJDID = await getAttributeV2(data, cat.CATEGORY_CODE, cat.CATEGORY_NAME);
-                                    }
+                                    //MoDbContext = new MoDbContext("");
+                                    //var ListCategory = MoDbContext.CATEGORY_JDID.Where(a => a.TYPE == "3").ToList();
+                                    //foreach (var cat in ListCategory)
+                                    //{
+                                    //    var listAttributeJDID = await getAttributeV2(data, cat.CATEGORY_CODE, cat.CATEGORY_NAME);
+                                    //}
                                 }
                                 else
                                 {
@@ -4871,15 +4871,34 @@ namespace MasterOnline.Controllers
                 }
                 catch (WebException ex)
                 {
-                    retry = retry + 1;
-                    string err1 = "";
-                    if (ex.Status == WebExceptionStatus.ProtocolError)
+                    if (ex.Message.Contains("The remote name could not be resolved: 'open-api.jd.id'"))
                     {
-                        WebResponse resp1 = ex.Response;
-                        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                        retry = retry + 1;
+                        string err = "";
+                        if (ex.Status == WebExceptionStatus.ProtocolError)
                         {
-                            err1 = sr1.ReadToEnd();
+                            WebResponse resp = ex.Response;
+                            using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                            {
+                                err = sr.ReadToEnd();
+                                //responseFromServer = err;
+                            }
                         }
+                    }
+                    else
+                    {
+                        retry = 4;
+                        string err = "";
+                        if (ex.Status == WebExceptionStatus.ProtocolError)
+                        {
+                            WebResponse resp = ex.Response;
+                            using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                            {
+                                err = sr.ReadToEnd();
+                                //responseFromServer = err;
+                            }
+                        }
+                        responseApi = true; break;
                     }
                 }
             }
@@ -5145,15 +5164,34 @@ namespace MasterOnline.Controllers
                 }
                 catch (WebException ex)
                 {
-                    retry = retry + 1;
-                    string err1 = "";
-                    if (ex.Status == WebExceptionStatus.ProtocolError)
+                    if (ex.Message.Contains("The remote name could not be resolved: 'open-api.jd.id'"))
                     {
-                        WebResponse resp1 = ex.Response;
-                        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                        retry = retry + 1;
+                        string err = "";
+                        if (ex.Status == WebExceptionStatus.ProtocolError)
                         {
-                            err1 = sr1.ReadToEnd();
+                            WebResponse resp = ex.Response;
+                            using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                            {
+                                err = sr.ReadToEnd();
+                                //responseFromServer = err;
+                            }
                         }
+                    }
+                    else
+                    {
+                        retry = 4;
+                        string err = "";
+                        if (ex.Status == WebExceptionStatus.ProtocolError)
+                        {
+                            WebResponse resp = ex.Response;
+                            using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                            {
+                                err = sr.ReadToEnd();
+                                //responseFromServer = err;
+                            }
+                        }
+                        responseApi = true; break;
                     }
                 }
             }
@@ -5252,6 +5290,296 @@ namespace MasterOnline.Controllers
             return listOpt;
         }
 
+        //add by nurul 3/8/2021
+        public ATTRIBUTE_JDID getAttributeV2_Baru(JDIDAPIData data, string catId, string catName)
+        {
+            MoDbContext = new MoDbContext("");
+            var retAttr = new ATTRIBUTE_JDID();
+            var retAttrOPt = new List<ATTRIBUTE_OPT_JDID>();
+
+            string responseFromServer = "";
+            bool responseApi = false;
+            int retry = 0;
+            while (!responseApi && retry <= 3)
+            {
+                data = RefreshToken(data);
+                var sysParams = new Dictionary<string, string>();
+                this.ParamJson = "{\"catId\":\"" + catId + "\"}";
+                sysParams.Add("360buy_param_json", this.ParamJson);
+
+                sysParams.Add("access_token", data.accessToken);
+                sysParams.Add("app_key", data.appKey);
+                this.Method = "jingdong.category.api.read.getAttributesByCatId"; //query category information by category id， this API only for POP sellers
+                sysParams.Add("method", this.Method);
+                var gettimestamp = getCurrentTimeFormatted();
+                sysParams.Add("timestamp", gettimestamp);
+                sysParams.Add("v", this.Version2);
+                sysParams.Add("format", this.Format);
+                sysParams.Add("sign_method", this.SignMethod);
+
+                var signature = this.generateSign(sysParams, data.appSecret);
+
+                string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
+                urll += "&format=json&sign_method=md5";
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                try
+                {
+                    using (WebResponse response = myReq.GetResponse())
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                            responseApi = true; break;
+                        }
+                    }
+                }
+                catch (WebException ex)
+                {
+                    if (ex.Message.Contains("The remote name could not be resolved: 'open-api.jd.id'"))
+                    {
+                        retry = retry + 1;
+                        string err = "";
+                        if (ex.Status == WebExceptionStatus.ProtocolError)
+                        {
+                            WebResponse resp = ex.Response;
+                            using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                            {
+                                err = sr.ReadToEnd();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        retry = 4;
+                        string err = "";
+                        if (ex.Status == WebExceptionStatus.ProtocolError)
+                        {
+                            WebResponse resp = ex.Response;
+                            using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                            {
+                                err = sr.ReadToEnd();
+                            }
+                        }
+                        responseApi = true; break;
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(responseFromServer))
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDgetAttributeV2)) as JDIDgetAttributeV2;
+                if (result.jingdong_category_api_read_getAttributesByCatId_response.returnType != null)
+                {
+                    if (result.jingdong_category_api_read_getAttributesByCatId_response.returnType.success)
+                    {
+                        if (result.jingdong_category_api_read_getAttributesByCatId_response.returnType.model != null)
+                        {
+                            if (result.jingdong_category_api_read_getAttributesByCatId_response.returnType.model.Count() > 0)
+                            {
+                                ATTRIBUTE_JDID returnData = new ATTRIBUTE_JDID();
+                                int i = 0;
+                                string a = "";
+                                foreach (var attribs in result.jingdong_category_api_read_getAttributesByCatId_response.returnType.model)
+                                {
+                                    if (i < 35)
+                                    {
+                                        var tempRetAttrOPt = new List<ATTRIBUTE_OPT_JDID>();
+                                        a = Convert.ToString(i + 1);
+                                        returnData.CATEGORY_CODE = catId;
+                                        returnData.CATEGORY_NAME = catName;
+                                        
+                                        returnData["ACODE_" + a] = Convert.ToString(attribs.propertyId);
+                                        returnData["ATYPE_" + a] = Convert.ToString(attribs.type);
+                                        returnData["ANAME_" + a] = Convert.ToString(attribs.name);
+
+                                        if (!string.IsNullOrEmpty(Convert.ToString(attribs.propertyId)))
+                                        {
+                                            var attrId = Convert.ToString(attribs.propertyId);
+                                            var attrName = Convert.ToString(attribs.name);
+                                            var listOpt = getAttributeOptV2_Baru(data, catId, catName, attrId, attrName, 1, 2);
+                                            retAttrOPt.AddRange(listOpt);
+                                            tempRetAttrOPt.AddRange(listOpt);
+                                        }
+                                        if (tempRetAttrOPt.Count() > 0)
+                                        {
+                                            returnData["AOPTIONS_" + a] = "1";
+                                        }
+                                        else
+                                        {
+                                            returnData["AOPTIONS_" + a] = "0";
+                                        }
+                                    }
+                                    i = i + 1;
+
+                                }
+                                retAttr = returnData;
+                                //try
+                                //{
+                                //    var getAttributeOld = MoDbContext.AttributeJDID.Where(b => b.CATEGORY_CODE == catId).ToList();
+                                //    if (getAttributeOld.Count() > 0)
+                                //    {
+                                //        MoDbContext.AttributeJDID.RemoveRange(getAttributeOld);
+                                //        MoDbContext.SaveChanges();
+                                //    }
+                                //    MoDbContext.AttributeJDID.Add(retAttr);
+                                //    MoDbContext.SaveChanges();
+                                //    var getAttribute = MoDbContext.AttributeJDID.Where(b => b.CATEGORY_CODE == catId).ToList();
+                                //    var listAttributeOpt = new List<ATTRIBUTE_OPT_JDID>();
+                                //    foreach (var attr in getAttribute)
+                                //    {
+                                //        var getAttributeOpt = MoDbContext.AttributeOptJDID.Where(b => b.ATTRIBUTEVALUEID == attr.ACODE_1 || b.ATTRIBUTEVALUEID == attr.ACODE_2 || b.ATTRIBUTEVALUEID == attr.ACODE_3 || b.ATTRIBUTEVALUEID == attr.ACODE_4 || b.ATTRIBUTEVALUEID == attr.ACODE_5 || b.ATTRIBUTEVALUEID == attr.ACODE_6 || b.ATTRIBUTEVALUEID == attr.ACODE_7 || b.ATTRIBUTEVALUEID == attr.ACODE_8 || b.ATTRIBUTEVALUEID == attr.ACODE_9 || b.ATTRIBUTEVALUEID == attr.ACODE_10 ||
+                                //                                                                        b.ATTRIBUTEVALUEID == attr.ACODE_11 || b.ATTRIBUTEVALUEID == attr.ACODE_12 || b.ATTRIBUTEVALUEID == attr.ACODE_13 || b.ATTRIBUTEVALUEID == attr.ACODE_14 || b.ATTRIBUTEVALUEID == attr.ACODE_15 || b.ATTRIBUTEVALUEID == attr.ACODE_16 || b.ATTRIBUTEVALUEID == attr.ACODE_17 || b.ATTRIBUTEVALUEID == attr.ACODE_18 || b.ATTRIBUTEVALUEID == attr.ACODE_19 || b.ATTRIBUTEVALUEID == attr.ACODE_20 ||
+                                //                                                                        b.ATTRIBUTEVALUEID == attr.ACODE_21 || b.ATTRIBUTEVALUEID == attr.ACODE_22 || b.ATTRIBUTEVALUEID == attr.ACODE_23 || b.ATTRIBUTEVALUEID == attr.ACODE_24 || b.ATTRIBUTEVALUEID == attr.ACODE_25 || b.ATTRIBUTEVALUEID == attr.ACODE_26 || b.ATTRIBUTEVALUEID == attr.ACODE_27 || b.ATTRIBUTEVALUEID == attr.ACODE_28 || b.ATTRIBUTEVALUEID == attr.ACODE_29 || b.ATTRIBUTEVALUEID == attr.ACODE_30 ||
+                                //                                                                        b.ATTRIBUTEVALUEID == attr.ACODE_31 || b.ATTRIBUTEVALUEID == attr.ACODE_32 || b.ATTRIBUTEVALUEID == attr.ACODE_33 || b.ATTRIBUTEVALUEID == attr.ACODE_34 || b.ATTRIBUTEVALUEID == attr.ACODE_35).ToList();
+                                //        listAttributeOpt.AddRange(getAttributeOpt);
+                                //    };
+                                //    if (listAttributeOpt.Count() > 0)
+                                //    {
+                                //        MoDbContext.AttributeOptJDID.RemoveRange(listAttributeOpt);
+                                //        MoDbContext.SaveChanges();
+                                //    }
+                                //    MoDbContext.AttributeOptJDID.AddRange(retAttrOPt);
+                                //    MoDbContext.SaveChanges();
+                                //}
+                                //catch (Exception ex)
+                                //{
+
+                                //}
+                            }
+                        }
+                    }
+                }
+            }
+            return retAttr;
+        }
+
+        public List<ATTRIBUTE_OPT_JDID> getAttributeOptV2_Baru(JDIDAPIData data, string catId, string catName, string attrId, string attrName, int page, int type )
+        {
+            var mgrApiManager = new JDIDController();
+            var listOpt = new List<ATTRIBUTE_OPT_JDID>();
+
+            string responseFromServer = "";
+            bool responseApi = false;
+            int retry = 0;
+            while (!responseApi && retry <= 3)
+            {
+                data = RefreshToken(data);
+                var sysParams = new Dictionary<string, string>();
+                this.ParamJson = "{\"catId\":\"" + catId + "\", \"attrId\":\"" + attrId + "\", \"currentPage\":\"" + page + "\", \"pageSize\":\"20\",}";
+                sysParams.Add("360buy_param_json", this.ParamJson);
+
+                sysParams.Add("access_token", data.accessToken);
+                sysParams.Add("app_key", data.appKey);
+                this.Method = "jingdong.category.api.read.getAttrValuesByCatIdAndAttrId"; //query the attribute value information by attribute id and category id
+                sysParams.Add("method", this.Method);
+                var gettimestamp = getCurrentTimeFormatted();
+                sysParams.Add("timestamp", gettimestamp);
+                sysParams.Add("v", this.Version2);
+                sysParams.Add("format", this.Format);
+                sysParams.Add("sign_method", this.SignMethod);
+
+                var signature = this.generateSign(sysParams, data.appSecret);
+
+                string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
+                urll += "&format=json&sign_method=md5";
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                try
+                {
+                    using (WebResponse response = myReq.GetResponse())
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                            responseApi = true; break;
+                        }
+                    }
+                }
+                catch (WebException ex)
+                {
+                    if (ex.Message.Contains("The remote name could not be resolved: 'open-api.jd.id'"))
+                    {
+                        retry = retry + 1;
+                        string err = "";
+                        if (ex.Status == WebExceptionStatus.ProtocolError)
+                        {
+                            WebResponse resp = ex.Response;
+                            using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                            {
+                                err = sr.ReadToEnd();
+                                //responseFromServer = err;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        retry = 4;
+                        string err = "";
+                        if (ex.Status == WebExceptionStatus.ProtocolError)
+                        {
+                            WebResponse resp = ex.Response;
+                            using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                            {
+                                err = sr.ReadToEnd();
+                            }
+                        }
+                        responseApi = true; break;
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(responseFromServer))
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDgetAttributeOptV2)) as JDIDgetAttributeOptV2;
+                if (result.jingdong_category_api_read_getAttrValuesByCatIdAndAttrId_response.returnType != null)
+                {
+                    if (result.jingdong_category_api_read_getAttrValuesByCatIdAndAttrId_response.returnType.success)
+                    {
+                        if (result.jingdong_category_api_read_getAttrValuesByCatIdAndAttrId_response.returnType.model != null)
+                        {
+                            if (result.jingdong_category_api_read_getAttrValuesByCatIdAndAttrId_response.returnType.model.result.Count() > 0)
+                            {
+                                foreach (var opt in result.jingdong_category_api_read_getAttrValuesByCatIdAndAttrId_response.returnType.model.result)
+                                {
+                                    var newOpt = new ATTRIBUTE_OPT_JDID()
+                                    {
+                                        //ACODE = opt.attributeValueId.ToString(),
+                                        //OPTION_VALUE = opt.nameEn
+                                        ACODE = opt.attributeValueId.ToString(),
+                                        ANAME = attrName,
+                                        SORT = opt.sort.ToString(),
+                                        ATTRIBUTEVALUEID = opt.attributeId.ToString(),
+                                        OPTION_VALUE = opt.nameEn,
+                                        OPTION_NAMEEN = opt.name
+                                    };
+                                    listOpt.Add(newOpt);
+                                }
+                                //if(retOpt.model.data.Count == 20)
+                                //{
+                                if (type == 1)
+                                {
+                                    var cursiveOpt = getAttributeOptV2_Baru(data, catId, catName, attrId, attrName, page + 1, type);
+                                    if (cursiveOpt.Count > 0)
+                                    {
+                                        foreach (var opt2 in cursiveOpt)
+                                        {
+                                            listOpt.Add(opt2);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return listOpt;
+        }
+        //end add by nurul 3/8/2021
+
         public ATTRIBUTE_JDID getAttributeV2Lama(JDIDAPIData data, string catId)
         {
             var retAttr = new ATTRIBUTE_JDID();
@@ -5296,15 +5624,34 @@ namespace MasterOnline.Controllers
                 }
                 catch (WebException ex)
                 {
-                    retry = retry + 1;
-                    string err1 = "";
-                    if (ex.Status == WebExceptionStatus.ProtocolError)
+                    if (ex.Message.Contains("The remote name could not be resolved: 'open-api.jd.id'"))
                     {
-                        WebResponse resp1 = ex.Response;
-                        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                        retry = retry + 1;
+                        string err = "";
+                        if (ex.Status == WebExceptionStatus.ProtocolError)
                         {
-                            err1 = sr1.ReadToEnd();
+                            WebResponse resp = ex.Response;
+                            using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                            {
+                                err = sr.ReadToEnd();
+                                //responseFromServer = err;
+                            }
                         }
+                    }
+                    else
+                    {
+                        retry = 4;
+                        string err = "";
+                        if (ex.Status == WebExceptionStatus.ProtocolError)
+                        {
+                            WebResponse resp = ex.Response;
+                            using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                            {
+                                err = sr.ReadToEnd();
+                                //responseFromServer = err;
+                            }
+                        }
+                        responseApi = true; break;
                     }
                 }
             }
@@ -5451,15 +5798,34 @@ namespace MasterOnline.Controllers
                 }
                 catch (WebException ex)
                 {
-                    retry = retry + 1;
-                    string err1 = "";
-                    if (ex.Status == WebExceptionStatus.ProtocolError)
+                    if (ex.Message.Contains("The remote name could not be resolved: 'open-api.jd.id'"))
                     {
-                        WebResponse resp1 = ex.Response;
-                        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                        retry = retry + 1;
+                        string err = "";
+                        if (ex.Status == WebExceptionStatus.ProtocolError)
                         {
-                            err1 = sr1.ReadToEnd();
+                            WebResponse resp = ex.Response;
+                            using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                            {
+                                err = sr.ReadToEnd();
+                                //responseFromServer = err;
+                            }
                         }
+                    }
+                    else
+                    {
+                        retry = 4;
+                        string err = "";
+                        if (ex.Status == WebExceptionStatus.ProtocolError)
+                        {
+                            WebResponse resp = ex.Response;
+                            using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                            {
+                                err = sr.ReadToEnd();
+                                //responseFromServer = err;
+                            }
+                        }
+                        responseApi = true; break;
                     }
                 }
             }
