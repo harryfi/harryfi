@@ -194,6 +194,11 @@
                                                                 </div>
 
                                                                 <div class="form-group">
+                                                                    <div id="divSyncInv"></div>
+                                                                    @Html.HiddenFor(m => m.partner_api.isFaktur)
+                                                                </div>
+
+                                                                <div class="form-group">
                                                                     <div id="divInvoice"></div>
                                                                     @Html.HiddenFor(m => m.partner_api.isPaid)
                                                                 </div>
@@ -411,6 +416,8 @@
                         if (response.partner_api.PartnerId == "20007") {
                             $('#partner_api_isPaid').val(response.partner_api.isPaid);
                             getInvoiceCb();
+                            $('#partner_api_isFaktur').val(response.partner_api.isFaktur);
+                            getSyncInvCb();
                         }
                         else if (response.partner_api.PartnerId == "30007") {
                             getUsernameTb(response.partner_api.Username);
@@ -679,7 +686,7 @@
             debugger;
             $('#lbl_partner_api_Status').remove();
             $('#hd_partner_api_Status').remove();
-            var labelWebhook = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="partner_api_Status" id="lbl_partner_api_Status">Webhook*</label>';
+            var labelWebhook = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="partner_api_Status" id="lbl_partner_api_Status">Link Partner*</label>';
             var txtWebhook = '<div id="hd_partner_api_Status" class="col-md-6 col-sm-6 col-xs-12"><select id="api_status" placeholder="Harap Pilih" name="api_status" required="required"></div>';
             $('#divWebhook').append(labelWebhook + txtWebhook);
 
@@ -739,6 +746,43 @@
             comboSelect[0].selectize.setValue($('#partner_api_isPaid').val(), true);
         }
 
+        function getSyncInvCb()/*resp*/ {
+
+            @* class="form-control" *@
+
+            //if (response == "" || response == null) {
+            //$('#partner_api_Status').val(resp);
+            //}
+
+            debugger;
+            $('#lbl_partner_api_isFaktur').remove();
+            $('#hd_partner_api_isFaktur').remove();
+            var labelSyncInv = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="partner_api_isFaktur" id="lbl_partner_api_isFaktur">Sync Faktur*</label>';
+            var txtSyncInv = '<div id="hd_partner_api_isFaktur" class="col-md-6 col-sm-6 col-xs-12"><select id="sync_inv_status" placeholder="Harap Pilih" name="sync_inv_status" required="required"></div>';
+            $('#divSyncInv').append(labelSyncInv + txtSyncInv);
+
+            var listStatus = [];
+
+            listStatus[0] = {
+                id: "true",
+                text: "Aktif"
+            };
+            listStatus[1] = {
+                id: "false",
+                text: "Tidak Aktif"
+            };
+
+            var comboSelect = $('#sync_inv_status').selectize({
+                valueField: 'id',
+                searchField: 'text',
+                options: listStatus,
+                onChange: function (value) {
+                    $('#partner_api_isFaktur').val(value);
+                }
+            });
+            comboSelect[0].selectize.setValue($('#partner_api_isFaktur').val(), true);
+        }
+
         function getPartner() {
             debugger;
             //removeWebhookInvoice();
@@ -790,6 +834,7 @@
                                                 $('#partner_api_Nama_Partner').val($objSup[0].text);
                                                 if (value == "20007") {
                                                     getWebhookCb();
+                                                    getSyncInvCb();
                                                     getInvoiceCb();
                                                 }
                                                 else if (value == "30007") {

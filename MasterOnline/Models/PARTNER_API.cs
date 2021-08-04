@@ -62,5 +62,6 @@
         //public string ProgramId { get; set; }
         //[StringLength(50)]
         //public string WalletId { get; set; }
+        public bool? isFaktur { get; set; }
     }
 }
