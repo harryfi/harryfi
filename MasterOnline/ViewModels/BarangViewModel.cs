@@ -34,9 +34,18 @@ namespace MasterOnline.ViewModels
 
         //ADD BY NURUL 23/9/2019
         public double SELISIH { get; set; }
-        public string JENIS { get; set; }        
+        public string JENIS { get; set; }
         //END ADD BY NURUL 23/9/2019
 
+    }
+    public class BarangPendingContent
+    {
+        public string BRG { get; set; }
+        public string NAMABRG { get; set; }
+        public string AKUNMP { get; set; }
+        public double HJUAL { get; set; }
+        public DateTime TGL_INPUT { get; set; }
+        public string GAMBAR { get; set; }
     }
 
     public class BarangViewModel

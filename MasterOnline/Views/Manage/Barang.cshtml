@@ -202,17 +202,20 @@
                     <a href="#tab_content1" id="barang-tab" role="tab" data-toggle="tab" aria-expanded="true">Barang</a>
                 </li>
                 @* remark by nurul 29/8/2018 -- <li role="presentation" class="">
-                        <a href="#tab_content2" role="tab" id="kosong-tab" data-toggle="tab" aria-expanded="false">Barang Kosong</a>
-                    </li>
-                    <li role="presentation" class="">
-                        <a href="#tab_content4" role="tab" id="tidaklaku-tab" data-toggle="tab" aria-expanded="false">Barang Tidak Laku</a>
-                    </li>
-                    <li role="presentation" class="">
-                        <a href="#tab_content6" role="tab" id="minimumstok-tab" data-toggle="tab" aria-expanded="false">Barang di Bawah Minimum Stok</a>
-                    </li>
-                    <li role="presentation" class="">
-                        <a href="#tab_content7" role="tab" id="palinglaku-tab" data-toggle="tab" aria-expanded="false">Barang Paling Laku</a>
-                    </li>*@
+            <a href="#tab_content2" role="tab" id="kosong-tab" data-toggle="tab" aria-expanded="false">Barang Kosong</a>
+        </li>
+        <li role="presentation" class="">
+            <a href="#tab_content4" role="tab" id="tidaklaku-tab" data-toggle="tab" aria-expanded="false">Barang Tidak Laku</a>
+        </li>
+        <li role="presentation" class="">
+            <a href="#tab_content6" role="tab" id="minimumstok-tab" data-toggle="tab" aria-expanded="false">Barang di Bawah Minimum Stok</a>
+        </li>
+        <li role="presentation" class="">
+            <a href="#tab_content7" role="tab" id="palinglaku-tab" data-toggle="tab" aria-expanded="false">Barang Paling Laku</a>
+        </li>*@
+                <li role="presentation" class="">
+                    <a href="#tab_content8" role="tab" id="pending-tab" data-toggle="tab" aria-expanded="false">Barang Pending</a>
+                </li>
             </ul>
             <div id="myTabContent" class="tab-content" style="padding-top:10px">
                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="barang-tab">
@@ -230,22 +233,22 @@
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
-                                        <span>Refresh</span>
-                                    </button>*@
+                            <span>Refresh</span>
+                        </button>*@
                                 @*<button type="button" class=" btn btn-default" data-style="expand-right">
-                                        <span>Import Persediaan Barang</span>
-                                    </button>
-                                    <button type="button" class=" btn btn-default" data-style="expand-right">
-                                        <span>Import Harga</span>
-                                    </button>*@
+                            <span>Import Persediaan Barang</span>
+                        </button>
+                        <button type="button" class=" btn btn-default" data-style="expand-right">
+                            <span>Import Harga</span>
+                        </button>*@
                                 <button class="btn btn-primary btn_tambah_data" id="tambah_barang">Tambah Baru</button>
                             </div>
                         </div>
                     </div>
                     <div class="row" style="margin-top: 5px;">
                         @*<div id="loading_barang_tab" class="text-center">
-                                <img src="~/Content/Images/spinner.gif" width="100" />
-                            </div>*@
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>*@
                         <div class="col-sm-12 barang_table_section" id="table-barang-1-partial">
                             @*@Html.Partial("TableBarang1Partial")*@
                         </div>
@@ -295,8 +298,8 @@
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
-                                        <span>Refresh</span>
-                                    </button>*@
+                            <span>Refresh</span>
+                        </button>*@
                             </div>
                         </div>
                     </div>
@@ -324,8 +327,8 @@
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
-                                        <span>Refresh</span>
-                                    </button>*@
+                            <span>Refresh</span>
+                        </button>*@
                             </div>
                         </div>
                     </div>
@@ -353,8 +356,8 @@
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
-                                        <span>Refresh</span>
-                                    </button>*@
+                            <span>Refresh</span>
+                        </button>*@
                             </div>
                         </div>
                     </div>
@@ -382,8 +385,8 @@
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
-                                        <span>Refresh</span>
-                                    </button>*@
+                            <span>Refresh</span>
+                        </button>*@
                             </div>
                         </div>
                     </div>
@@ -392,6 +395,31 @@
                             <img src="~/Content/Images/spinner.gif" width="100" />
                         </div>
                         <div class="col-sm-12" id="table-barang-paling-laku-partial">
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content8" aria-labelledby="pending-tab">
+                    <div class="row">
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="input-group">
+                                <input id="search_pending" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 col-sm-6">
+                            <div class="pull-right">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top: 5px;">
+                        <div id="loading_pending_tab" class="text-center">
+                            <img src="~/Content/Images/spinner.gif" width="100" />
+                        </div>
+                        <div class="col-sm-12" id="table-barang-pending">
                         </div>
                     </div>
                 </div>
@@ -465,21 +493,21 @@
         });
         //end change by calvin 22 april 2019
 
-        $('#search_palinglaku').keyup(function () {
-            tablePalingLaku.search($(this).val()).draw();
-        });
+        //$('#search_palinglaku').keyup(function () {
+        //    tablePalingLaku.search($(this).val()).draw();
+        //});
 
-        $('#search_kosong').keyup(function () {
-            tableKosong.search($(this).val()).draw();
-        });
+        //$('#search_kosong').keyup(function () {
+        //    tableKosong.search($(this).val()).draw();
+        //});
 
-        $('#search_tidaklaku').keyup(function () {
-            tableTidakLaku.search($(this).val()).draw();
-        });
+        //$('#search_tidaklaku').keyup(function () {
+        //    tableTidakLaku.search($(this).val()).draw();
+        //});
 
-        $('#search_minimumstok').keyup(function () {
-            tableMinimumStok.search($(this).val()).draw();
-        });
+        //$('#search_minimumstok').keyup(function () {
+        //    tableMinimumStok.search($(this).val()).draw();
+        //});
 
         $(document).ready(function () {
             //add by nurul 12/2/2019
@@ -531,6 +559,12 @@
                 refreshTableMinimumStok();
             });
 
+            $('#search_pending').click(function () {
+                searchTableBarangPending();
+            });
+            $('#pending-tab').click(function () {
+                refreshTableBarangPending();
+            });
             //Initialize();//remark by calvin 23 april 2019
 
             $(function () {
@@ -643,6 +677,50 @@
                     });
                     $('#loading_kosong_tab').hide();
                     $('#datatable_kosong').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function refreshTableBarangPending() {
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangPending", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_pending').val()));
+            link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_tbkp').val()));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#table-barang-pending').hide();
+                    $('#loading_pending_tab').show();
+                },
+                success: function (response) {
+                    $('#table-barang-pending').html(response);
+                    $('#loading_pending_tab').hide();
+                    $('#table-barang-pending').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function searchTableBarangPending() {
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangPending", "Manage", new { search = "replaceSearch" }))';
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_pending').val()));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#table-barang-pending').hide();
+                    $('#loading_pending_tab').show();
+                },
+                success: function (response) {
+                    $('#table-barang-pending').html(response);
+                    $('#loading_pending_tab').hide();
+                    $('#table-barang-pending').show();
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
