@@ -361,5 +361,57 @@ namespace MasterOnline.Controllers
             return ret;
 
         }
+
+        //add by nurul 29/7/2021
+        [Queue("1_manage_pesanan")]
+        public async Task<ActionResult> UpdateART01DSetelahUploadBayar_Hangfire(string dbPathEra, string nobuk, string log_CUST, string log_ActionCategory, string log_ActionName, string user_name)
+        {
+            SetupContext(dbPathEra, user_name);
+
+            //string sSQLInsert = "INSERT INTO API_LOG_MARKETPLACE(REQUEST_ID,REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_1,REQUEST_ATTRIBUTE_2,REQUEST_STATUS) ";
+            //sSQLInsert += "SELECT '" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") + "' AS REQUEST_ID,'Update ART01D Bayar' AS REQUEST_ACTION,DATEADD(HOUR, +7, GETUTCDATE()) AS REQUEST_DATETIME,'" + id + "' AS REQUEST_ATTRIBUTE_1,'UpdateART01DSetelahUploadBayar_Hangfire' AS REQUEST_ATTRIBUTE_2,'UPDATE_ART01D_1' AS REQUEST_STATUS";
+            //var resultInsert = EDB.ExecuteSQL("CString", CommandType.Text, sSQLInsert);
+
+            try { 
+                var cekListFaktur = ErasoftDbContext.Database.SqlQuery<ART03B>("SELECT A.* FROM ART03B A(NOLOCK) INNER JOIN ART03A C(NOLOCK) ON A.BUKTI=C.BUKTI INNER JOIN ART01D B(NOLOCK) ON A.NFAKTUR=B.FAKTUR WHERE B.KREDIT=0  and (A.bayar + A.pot) >0 and year(c.tgl)=2021").ToList();
+                if (cekListFaktur != null)
+                {
+                    if (cekListFaktur.Count() > 0)
+                    {
+                        var id = DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss");
+                        string sSQLInsert4 = "INSERT INTO API_LOG_MARKETPLACE(REQUEST_ID,REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_1,REQUEST_ATTRIBUTE_2,REQUEST_STATUS) ";
+                        sSQLInsert4 += "SELECT '" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") + "' AS REQUEST_ID,'Update ART01D Bayar' AS REQUEST_ACTION,DATEADD(HOUR, +7, GETUTCDATE()) AS REQUEST_DATETIME,'" + id + "' AS REQUEST_ATTRIBUTE_1,'" + cekListFaktur.Count().ToString() + "' AS REQUEST_ATTRIBUTE_2,'UPDATE_ART01D_1' AS REQUEST_STATUS";
+                        var resultInsert4 = EDB.ExecuteSQL("CString", CommandType.Text, sSQLInsert4);
+
+                        for (int i = 0; i < cekListFaktur.Count(); i++)
+                        {
+                            try
+                            {
+                                var total = cekListFaktur[i].BAYAR + cekListFaktur[i].POT;
+                                //string sSQLUpdate = "UPDATE A SET KREDIT = '" + total + "' FROM ART01D A (NOLOCK) WHERE A.FAKTUR = '" + cekListFaktur[i].NFAKTUR + "' ";
+                                string sSQLUpdate = "UPDATE ART03B SET BAYAR=BAYAR WHERE NFAKTUR='" + cekListFaktur[i].NFAKTUR + "'";
+                                var resultUpdateArray = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdate);
+                                if (resultUpdateArray > 0)
+                                {
+                                    string sSQLInsert2 = "INSERT INTO API_LOG_MARKETPLACE(REQUEST_ID,REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_1,REQUEST_ATTRIBUTE_2,REQUEST_ATTRIBUTE_3,REQUEST_STATUS) ";
+                                    sSQLInsert2 += "SELECT '" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") + "' AS REQUEST_ID,'Update ART01D Bayar' AS REQUEST_ACTION,DATEADD(HOUR, +7, GETUTCDATE()) AS REQUEST_DATETIME,'" + id + "' AS REQUEST_ATTRIBUTE_1,'" + cekListFaktur[i].NFAKTUR + "' AS REQUEST_ATTRIBUTE_2,'" + cekListFaktur[i].BUKTI + "' AS REQUEST_ATTRIBUTE_3,'UPDATE ART01D SUKSES' AS REQUEST_STATUS";
+                                    var resultInsert2 = EDB.ExecuteSQL("CString", CommandType.Text, sSQLInsert2);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+
+            }
+            return new EmptyResult();
+        }
+        //end add by nurul 29/7/2021
     }
 }
