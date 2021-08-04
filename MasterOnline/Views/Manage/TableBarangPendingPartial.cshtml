@@ -66,26 +66,43 @@
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 50px;">Gambar</th>
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 90px;">Kode</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 150px;">Nama</th>
-                @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 117px;">Kategori</th>*@
-                @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 85px;">Merk</th>*@
-                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Harga Jual</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 117px;">Kategori</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 85px;">Merk</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 110px;">Akun MP</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Status Link</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 110px;">Terakhir Edit</th>
-
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 45px;">Coba Lagi</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var barang in Model.ToList())
             {
-                <tr>
-                    @*<td class="text-center"><img width="50" height="50" src="@Url.Content($"/Content/Uploaded/FotoProduk-{username}-{barang.KodeBrg}-foto-1.jpg")" /></td>*@
-                    <td class="text-center"><img width="50" height="50" src="@barang.GAMBAR" /></td>
-                    <td>@barang.BRG</td>
-                    <td>@barang.NAMABRG</td>
-                    <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HJUAL)</td>
-                    <td>@barang.AKUNMP</td>
-                    <td>@barang.TGL_INPUT.ToString("dd-MM-yyyy")</td>
-                </tr>
+            <tr>
+                @*<td class="text-center"><img width="50" height="50" src="@Url.Content($"/Content/Uploaded/FotoProduk-{username}-{barang.KodeBrg}-foto-1.jpg")" /></td>*@
+                <td class="text-center"><img width="50" height="50" src="@barang.GAMBAR" /></td>
+                <td>@barang.BRG</td>
+                <td>@barang.NAMABRG</td>
+                <td>@barang.KET_SORT1</td>
+                <td>@barang.KET_SORT2</td>
+                @*<td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HJUAL)</td>*@
+                <td>@barang.AKUNMP</td>
+                <td>Pending</td>
+                <td>@barang.TGL_INPUT.ToString("dd-MM-yyyy")</td>
+                <td class="edit-hapus-col">
+                    @*<button class="btn btn-primary" onclick="editBarang2('@barang.BRG.Replace("\\","\\\\").Replace("'","\\'")')">
+                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+            </button>*@
+                    <div id="btnRefresh_@barang.ID">
+                        <button class="btn" onclick="editBarang2('@barang.BRG.Replace("\\","\\\\").Replace("'","\\'")', '@barang.ID', '@barang.CUST')">
+                            <span class="glyphicon glyphicon-repeat" aria-hidden="true"></span>
+                        </button>
+                    </div>
+
+                    <div id="loading_@barang.ID" style="display:none;">
+                        <img src="~/Content/Images/spinner.gif" style="width:25px;height:25px;" />
+                    </div>
+                </td>
+            </tr>
             }
         </tbody>
     </table>
