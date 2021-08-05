@@ -198,7 +198,7 @@
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="" role="tabpanel" data-example-id="togglable-tabs">
             <ul id="myTab" class="nav nav-tabs" role="tablist">
-                <li role="presentation" id="tab-brg-utama" class="active">
+                <li role="presentation" class="active">
                     <a href="#tab_content1" id="barang-tab" role="tab" data-toggle="tab" aria-expanded="true">Barang <span>(@Model.JumlahBarang)</span></a>
                 </li>
                 @* remark by nurul 29/8/2018 -- <li role="presentation" class="">
@@ -213,7 +213,7 @@
         <li role="presentation" class="">
             <a href="#tab_content7" role="tab" id="palinglaku-tab" data-toggle="tab" aria-expanded="false">Barang Paling Laku</a>
         </li>*@
-                <li role="presentation" id="tab-brg-pending" class="">
+                <li role="presentation" class="">
                     <a href="#tab_content8" role="tab" id="pending-tab" data-toggle="tab" aria-expanded="false">Barang Pending <span>(@Model.JumlahBarangPending)</span></a>
                 </li>
             </ul>
@@ -571,7 +571,10 @@
             refreshTableBarang();
 
             $('#barang-tab').click(function () {
-                refreshTableBarang();
+                if (!$('#barang-tab').parent().hasClass("active"))
+                {
+                    refreshTableBarang();
+                }
                 //change by calvin 22 april 2019, paging
                 ////add by nurul 12/2/2019
                 //$page = 0;
