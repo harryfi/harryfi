@@ -6990,6 +6990,7 @@
     <Content Include="Views\Manage\TableMenuHistoryHapusBarangPartial.cshtml" />
     <Content Include="Views\Manage\TableMenuHapusBarangPartial.cshtml" />
     <Content Include="Views\Manage\TableKonfirmasiDeleteBarang.cshtml" />
+    <Content Include="Views\Manage\TableBarangPendingPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

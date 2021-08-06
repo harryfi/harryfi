@@ -34,9 +34,21 @@ namespace MasterOnline.ViewModels
 
         //ADD BY NURUL 23/9/2019
         public double SELISIH { get; set; }
-        public string JENIS { get; set; }        
+        public string JENIS { get; set; }
         //END ADD BY NURUL 23/9/2019
 
+    }
+    public class BarangPendingContent
+    {
+        public string BRG { get; set; }
+        public string NAMABRG { get; set; }
+        public string AKUNMP { get; set; }
+        public int ID { get; set; }
+        public DateTime TGL_INPUT { get; set; }
+        public string GAMBAR { get; set; }
+        public string KET_SORT1 { get; set; }
+        public string KET_SORT2 { get; set; }
+        public string CUST { get; set; }
     }
 
     public class BarangViewModel
@@ -61,6 +73,8 @@ namespace MasterOnline.ViewModels
         public int MARKET { get; set; }
         public string Bundling { get; set; }
         public string newParent { get; set; }
+        public int JumlahBarang { get; set; }
+        public int JumlahBarangPending { get; set; }
     }
     
 }
