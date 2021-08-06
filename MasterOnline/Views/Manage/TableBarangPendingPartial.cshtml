@@ -109,7 +109,7 @@
     @* add by calvin 24 mei 2019, paging *@
     @if (Model.PageCount > 1)
     {
-        <div id="tabelbarangminimumstokpartialpager" class="pager">
+        <div id="tabelbarangpendingpartialpager" class="pager">
             @Html.PagedListPager(Model, page => Url.Action("RefreshTableBarangPending", new
        {
            page,
@@ -129,7 +129,7 @@
 </div>
 <script type="text/javascript">
         $(function () {
-            $('#RefreshTableBarangPending').on('click', 'a', function () {
+            $('#tabelbarangpendingpartialpager').on('click', 'a', function () {
                 if (this.href != "") {
                     $.ajax({
                         url: this.href,
