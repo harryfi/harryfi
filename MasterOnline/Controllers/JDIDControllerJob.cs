@@ -3876,27 +3876,69 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        //[AutomaticRetry(Attempts = 2)]
+        //[Queue("3_general")]
+        //public async Task<string> JD_GetOrderByStatusComplete(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
+        //{
+        //    string ret = "";
+        //    SetupContext(iden.DatabasePathErasoft, iden.username);
+
+        //    var daysFrom = -2;
+        //    var daysTo = 0;
+        //    var daysNow = DateTime.UtcNow.AddHours(7);
+        //    while (daysFrom >= -10)
+        //    {
+        //        //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
+        //        //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
+        //        var dateFrom = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+        //        var dateTo = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+        //        await JD_GetOrderByStatusCompleteList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+        //        //daysFrom -= 3;
+        //        //daysTo -= 3;
+        //        daysFrom -= 2;
+        //        daysTo -= 2;
+        //    }
+
+        //    // tunning untuk tidak duplicate
+        //    var queryStatus = "";
+        //    if (stat == StatusOrder.COMPLETED)
+        //    {
+        //        queryStatus = "\"6\"" + "," + "\"\\\"" + CUST + "\\\"\"" + "," + "\"\\\"" + NAMA_CUST + "\\\"\"";  // "6","\"000011\"","\"Echoboomers\""
+        //    }
+        //    var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%JD_GetOrderByStatusComplete%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%JD_GetOrderByStatusCancel%' ");
+        //    // end tunning untuk tidak duplicate
+
+        //    return ret;
+        //}
+
+        //add by nurul 9/8/2021
         [AutomaticRetry(Attempts = 2)]
-        [Queue("3_general")]
+        [Queue("1_manage_pesanan")]
         public async Task<string> JD_GetOrderByStatusComplete(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
         {
-            string ret = "";
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
-            var daysFrom = -2;
-            var daysTo = 0;
-            var daysNow = DateTime.UtcNow.AddHours(7);
-            while (daysFrom >= -10)
+            string sSQL = "SELECT DISTINCT NO_REFERENSI FROM SOT01A (NOLOCK) A INNER JOIN SIT01A (NOLOCK) B ON  A.NO_BUKTI = B.NO_SO ";
+            sSQL += "WHERE STATUS_TRANSAKSI = '03' AND A.TGL >= '" + DateTime.UtcNow.AddHours(7).AddDays(-10).ToString("yyyy-MM-dd HH:mm:ss") + "' AND A.CUST = '" + CUST + "' AND ISNULL(A.NO_REFERENSI,'')<>''";
+
+            var dsPesanan = EDB.GetDataSet("CString", "SOT01", sSQL);
+
+            if (dsPesanan.Tables[0].Rows.Count > 0)
             {
-                //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
-                //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
-                var dateFrom = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
-                var dateTo = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
-                await JD_GetOrderByStatusCompleteList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
-                //daysFrom -= 3;
-                //daysTo -= 3;
-                daysFrom -= 2;
-                daysTo -= 2;
+                var string_listNoRef = "";
+                var listNoRef = new List<string>();
+                for (int i = 0; i < dsPesanan.Tables[0].Rows.Count; i++)
+                {
+                    string_listNoRef += dsPesanan.Tables[0].Rows[i]["NO_REFERENSI"].ToString() + ",";
+                    listNoRef.Add(dsPesanan.Tables[0].Rows[i]["NO_REFERENSI"].ToString());
+                    if (listNoRef.Count == 100 || i == dsPesanan.Tables[0].Rows.Count - 1)
+                    {
+                        string_listNoRef = string_listNoRef.Substring(0, string_listNoRef.Length - 1);
+                        await GetOrderByStatusCompletedAPI(iden, listNoRef.ToArray(), string_listNoRef, CUST);
+                        listNoRef = new List<string>();
+                        string_listNoRef = "";
+                    }
+                }
             }
 
             // tunning untuk tidak duplicate
@@ -3908,9 +3950,127 @@ namespace MasterOnline.Controllers
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%JD_GetOrderByStatusComplete%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%JD_GetOrderByStatusCancel%' ");
             // end tunning untuk tidak duplicate
 
-            return ret;
+            return "";
         }
 
+        public async Task<string> GetOrderByStatusCompletedAPI(JDIDAPIDataJob data, string[] ordersn_list, string ordersn_string, string cust)
+        {
+            string responseFromServer = "";
+            bool responseApi = false;
+            int retry = 0;
+            while (!responseApi && retry <= 3)
+            {
+                data = RefreshToken(data);
+                var sysParams = new Dictionary<string, string>();
+                this.ParamJson = "{\"orderId\":\"" + ordersn_string + "\" }";
+                sysParams.Add("360buy_param_json", this.ParamJson);
+
+                sysParams.Add("access_token", data.accessToken);
+                sysParams.Add("app_key", data.appKey);
+                this.Method = "jingdong.seller.order.batchGetOrderInfoList";
+                sysParams.Add("method", this.Method);
+                var gettimestamp = getCurrentTimeFormatted();
+                sysParams.Add("timestamp", gettimestamp);
+                sysParams.Add("v", this.Version2);
+                sysParams.Add("format", this.Format);
+                sysParams.Add("sign_method", this.SignMethod);
+
+                var signature = this.generateSign(sysParams, data.appSecret);
+
+                string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
+                urll += "&format=json&sign_method=md5";
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                responseFromServer = "";
+                try
+                {
+                    using (WebResponse response = await myReq.GetResponseAsync())
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                            responseApi = true; break;
+                        }
+                    }
+                }
+                //catch (WebException ex)
+                //{
+                //    string err1 = "";
+                //    if (ex.Status == WebExceptionStatus.ProtocolError)
+                //    {
+                //        WebResponse resp1 = ex.Response;
+                //        using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                //        {
+                //            err1 = sr1.ReadToEnd();
+                //        }
+                //    }
+                //    //throw new Exception(err1);
+                //}
+                catch (Exception ex)
+                {
+                    if (ex.Message.Contains("The remote name could not be resolved: 'open-api.jd.id'"))
+                    {
+                        retry = retry + 1;
+                        string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                        if (retry == 3)
+                        {
+
+                        }
+                    }
+                    else
+                    {
+                        retry = 3;
+                        string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                        responseApi = true; break;
+                    }
+                }
+            }
+
+
+            if (responseFromServer != "")
+            {
+                var listOrderId = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDGetOrderDetailV2Result)) as JDIDGetOrderDetailV2Result;
+                if (listOrderId.jingdong_seller_order_batchgetorderinfolist_response.result.success)
+                {
+                    var listDetails = listOrderId.jingdong_seller_order_batchgetorderinfolist_response.result.model;
+                    if (listDetails != null)
+                    {
+                        string ordList = "";
+                        foreach(var order in listDetails)
+                        {
+                            if (order.orderState == 6)
+                            {
+                                ordList += "'" + order.orderId + "',";
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(ordList))
+                        {
+                            ordList = ordList.Substring(0, ordList.Length - 1);
+                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI IN (" + ordList + ") AND CUST = '" + cust + "' AND STATUS_TRANSAKSI = '03'");
+
+                            if (rowAffected > 0)
+                            {
+                                var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                contextNotif.Clients.Group(data.DatabasePathErasoft).moNewOrder("" + Convert.ToString(rowAffected) + " Pesanan dari JD.ID sudah selesai.");
+
+                                //add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
+                                if (!string.IsNullOrEmpty(ordList))
+                                {
+                                    var dateTimeNow = DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                                    string sSQLUpdateDatePesananSelesai = "UPDATE SIT01A SET TGL_KIRIM = '" + dateTimeNow + "' WHERE NO_REF IN (" + ordList + ") AND CUST = '" + cust + "'";
+                                    var resultUpdateDatePesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdateDatePesananSelesai);
+                                }
+                                //end add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
+                            }
+                        }
+                    }
+                }
+
+            }
+            return "";
+        }
+        //end add by nurul 9/8/2021
 
         public async Task<string> JD_GetOrderByStatusCompleteList3Days(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, long daysFrom, long daysTo)
         {
