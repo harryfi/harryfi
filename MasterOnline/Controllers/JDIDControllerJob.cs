@@ -3934,7 +3934,14 @@ namespace MasterOnline.Controllers
                     if (listNoRef.Count == 100 || i == dsPesanan.Tables[0].Rows.Count - 1)
                     {
                         string_listNoRef = string_listNoRef.Substring(0, string_listNoRef.Length - 1);
-                        await GetOrderByStatusCompletedAPI(iden, listNoRef.ToArray(), string_listNoRef, CUST);
+                        if (iden.versi == "2")
+                        {
+                            await GetOrderByStatusCompletedAPIV2(iden, listNoRef.ToArray(), string_listNoRef, CUST);
+                        }
+                        else
+                        {
+                            GetOrderByStatusCompletedAPI(iden, listNoRef.ToArray(), string_listNoRef, CUST);
+                        }
                         listNoRef = new List<string>();
                         string_listNoRef = "";
                     }
@@ -3953,7 +3960,82 @@ namespace MasterOnline.Controllers
             return "";
         }
 
-        public async Task<string> GetOrderByStatusCompletedAPI(JDIDAPIDataJob data, string[] ordersn_list, string ordersn_string, string cust)
+        public string GetOrderByStatusCompletedAPI(JDIDAPIDataJob data, string[] ordersn_list, string ordersn_string, string cust)
+        {
+            string sMethod = "epi.popOrder.getOrderInfoListForBatch";
+            string sParamJson = "[" + ordersn_string + "]";
+
+            try
+            {
+                var response = Call(data.appKey, data.accessToken, data.appSecret, sMethod, sParamJson);
+                var retData = JsonConvert.DeserializeObject(response, typeof(JDID_RESJob)) as JDID_RESJob;
+                if (retData.openapi_code == 0)
+                {
+                    var listOrderId = JsonConvert.DeserializeObject(retData.openapi_data, typeof(Data_OrderDetailJob)) as Data_OrderDetailJob;
+                    if (listOrderId.success)
+                    {
+                        var str = "{\"data\":" + listOrderId.model + "}";
+                        var listDetails = JsonConvert.DeserializeObject(str, typeof(ModelOrderJob)) as ModelOrderJob;
+                        if (listDetails != null)
+                        {
+                            string ordList = "";
+                            foreach (var order in listDetails.data)
+                            {
+                                if (order.orderState.ToString() == "6")
+                                {
+                                    if (!string.IsNullOrEmpty(order.orderId.ToString()))
+                                    {
+                                        ordList += "'" + order.orderId + "',";
+                                    }
+                                }
+                            }
+                            if (!string.IsNullOrEmpty(ordList))
+                            {
+                                ordList = ordList.Substring(0, ordList.Length - 1);
+                                try
+                                {
+                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI IN (" + ordList + ") AND CUST = '" + cust + "' AND STATUS_TRANSAKSI = '03'");
+
+                                    if (rowAffected > 0)
+                                    {
+                                        var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                        contextNotif.Clients.Group(data.DatabasePathErasoft).moNewOrder("" + Convert.ToString(rowAffected) + " Pesanan dari JD.ID sudah selesai.");
+
+                                        //add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
+                                        if (!string.IsNullOrEmpty(ordList))
+                                        {
+                                            var dateTimeNow = DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                                            string sSQLUpdateDatePesananSelesai = "UPDATE SIT01A SET TGL_KIRIM = '" + dateTimeNow + "' WHERE NO_REF IN (" + ordList + ") AND CUST = '" + cust + "'";
+                                            try
+                                            {
+                                                var resultUpdateDatePesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdateDatePesananSelesai);
+                                            }
+                                            catch (Exception ex)
+                                            {
+
+                                            }
+                                        }
+                                        //end add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return "";
+        }
+
+        public async Task<string> GetOrderByStatusCompletedAPIV2(JDIDAPIDataJob data, string[] ordersn_list, string ordersn_string, string cust)
         {
             string responseFromServer = "";
             bool responseApi = false;
@@ -4030,43 +4112,66 @@ namespace MasterOnline.Controllers
 
             if (responseFromServer != "")
             {
-                var listOrderId = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDGetOrderDetailV2Result)) as JDIDGetOrderDetailV2Result;
-                if (listOrderId.jingdong_seller_order_batchgetorderinfolist_response.result.success)
+                try
                 {
-                    var listDetails = listOrderId.jingdong_seller_order_batchgetorderinfolist_response.result.model;
-                    if (listDetails != null)
+                    var listOrderId = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDGetOrderDetailV2Result)) as JDIDGetOrderDetailV2Result;
+                    if (listOrderId.jingdong_seller_order_batchgetorderinfolist_response.result.success)
                     {
-                        string ordList = "";
-                        foreach(var order in listDetails)
+                        var listDetails = listOrderId.jingdong_seller_order_batchgetorderinfolist_response.result.model;
+                        if (listDetails != null)
                         {
-                            if (order.orderState == 6)
+                            string ordList = "";
+                            foreach (var order in listDetails)
                             {
-                                ordList += "'" + order.orderId + "',";
-                            }
-                        }
-                        if (!string.IsNullOrEmpty(ordList))
-                        {
-                            ordList = ordList.Substring(0, ordList.Length - 1);
-                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI IN (" + ordList + ") AND CUST = '" + cust + "' AND STATUS_TRANSAKSI = '03'");
-
-                            if (rowAffected > 0)
-                            {
-                                var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                                contextNotif.Clients.Group(data.DatabasePathErasoft).moNewOrder("" + Convert.ToString(rowAffected) + " Pesanan dari JD.ID sudah selesai.");
-
-                                //add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
-                                if (!string.IsNullOrEmpty(ordList))
+                                if (order.orderState == 6)
                                 {
-                                    var dateTimeNow = DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-                                    string sSQLUpdateDatePesananSelesai = "UPDATE SIT01A SET TGL_KIRIM = '" + dateTimeNow + "' WHERE NO_REF IN (" + ordList + ") AND CUST = '" + cust + "'";
-                                    var resultUpdateDatePesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdateDatePesananSelesai);
+                                    if (!string.IsNullOrEmpty(order.orderId.ToString()))
+                                    {
+                                        ordList += "'" + order.orderId + "',";
+                                    }
                                 }
-                                //end add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
+                            }
+                            if (!string.IsNullOrEmpty(ordList))
+                            {
+                                ordList = ordList.Substring(0, ordList.Length - 1);
+                                try
+                                {
+                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI IN (" + ordList + ") AND CUST = '" + cust + "' AND STATUS_TRANSAKSI = '03'");
+
+                                    if (rowAffected > 0)
+                                    {
+                                        var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                        contextNotif.Clients.Group(data.DatabasePathErasoft).moNewOrder("" + Convert.ToString(rowAffected) + " Pesanan dari JD.ID sudah selesai.");
+
+                                        //add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
+                                        if (!string.IsNullOrEmpty(ordList))
+                                        {
+                                            var dateTimeNow = DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                                            string sSQLUpdateDatePesananSelesai = "UPDATE SIT01A SET TGL_KIRIM = '" + dateTimeNow + "' WHERE NO_REF IN (" + ordList + ") AND CUST = '" + cust + "'";
+                                            try
+                                            {
+                                                var resultUpdateDatePesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdateDatePesananSelesai);
+                                            }
+                                            catch (Exception ex)
+                                            {
+
+                                            }
+                                        }
+                                        //end add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+
+                                }
                             }
                         }
                     }
                 }
+                catch (Exception ex)
+                {
 
+                }
             }
             return "";
         }
@@ -4565,11 +4670,13 @@ namespace MasterOnline.Controllers
                                         idOrderCancel = idOrderCancel + "'" + order.orderId + "',";
                                         jmlhOrderCancel++;
                                         //tidak ubah status menjadi selesai jika belum diisi faktur
-                                        var dsSIT01A = EDB.GetDataSet("CString", "SIT01A", "SELECT NO_REFERENSI, O.NO_BUKTI, O.STATUS_TRANSAKSI FROM SIT01A I INNER JOIN SOT01A O ON I.NO_SO = O.NO_BUKTI WHERE NO_REFERENSI = '" + order.orderId + "'");
-                                        if (dsSIT01A.Tables[0].Rows.Count == 0)
-                                        {
-                                            doInsert = false;
-                                        }
+                                        //remark by nurul 12/8/2021
+                                        //var dsSIT01A = EDB.GetDataSet("CString", "SIT01A", "SELECT NO_REFERENSI, O.NO_BUKTI, O.STATUS_TRANSAKSI FROM SIT01A I INNER JOIN SOT01A O ON I.NO_SO = O.NO_BUKTI WHERE NO_REFERENSI = '" + order.orderId + "'");
+                                        //if (dsSIT01A.Tables[0].Rows.Count == 0)
+                                        //{
+                                        //    doInsert = false;
+                                        //}
+                                        //end remark by nurul 12/8/2021
                                     }
                                     else
                                     {
@@ -5194,11 +5301,13 @@ namespace MasterOnline.Controllers
                                         idOrderCancel = idOrderCancel + "'" + order.orderId + "',";
                                         jmlhOrderCancel++;
                                         //tidak ubah status menjadi selesai jika belum diisi faktur
-                                        var dsSIT01A = EDB.GetDataSet("CString", "SIT01A", "SELECT NO_REFERENSI, O.NO_BUKTI, O.STATUS_TRANSAKSI FROM SIT01A I INNER JOIN SOT01A O ON I.NO_SO = O.NO_BUKTI WHERE NO_REFERENSI = '" + order.orderId + "'");
-                                        if (dsSIT01A.Tables[0].Rows.Count == 0)
-                                        {
-                                            doInsert = false;
-                                        }
+                                        //remark by nurul 12/8/2021
+                                        //var dsSIT01A = EDB.GetDataSet("CString", "SIT01A", "SELECT NO_REFERENSI, O.NO_BUKTI, O.STATUS_TRANSAKSI FROM SIT01A I INNER JOIN SOT01A O ON I.NO_SO = O.NO_BUKTI WHERE NO_REFERENSI = '" + order.orderId + "'");
+                                        //if (dsSIT01A.Tables[0].Rows.Count == 0)
+                                        //{
+                                        //    doInsert = false;
+                                        //}
+                                        //end remark by nurul 12/8/2021
                                     }
                                     else
                                     {
