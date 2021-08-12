@@ -4670,11 +4670,13 @@ namespace MasterOnline.Controllers
                                         idOrderCancel = idOrderCancel + "'" + order.orderId + "',";
                                         jmlhOrderCancel++;
                                         //tidak ubah status menjadi selesai jika belum diisi faktur
-                                        var dsSIT01A = EDB.GetDataSet("CString", "SIT01A", "SELECT NO_REFERENSI, O.NO_BUKTI, O.STATUS_TRANSAKSI FROM SIT01A I INNER JOIN SOT01A O ON I.NO_SO = O.NO_BUKTI WHERE NO_REFERENSI = '" + order.orderId + "'");
-                                        if (dsSIT01A.Tables[0].Rows.Count == 0)
-                                        {
-                                            doInsert = false;
-                                        }
+                                        //remark by nurul 12/8/2021
+                                        //var dsSIT01A = EDB.GetDataSet("CString", "SIT01A", "SELECT NO_REFERENSI, O.NO_BUKTI, O.STATUS_TRANSAKSI FROM SIT01A I INNER JOIN SOT01A O ON I.NO_SO = O.NO_BUKTI WHERE NO_REFERENSI = '" + order.orderId + "'");
+                                        //if (dsSIT01A.Tables[0].Rows.Count == 0)
+                                        //{
+                                        //    doInsert = false;
+                                        //}
+                                        //end remark by nurul 12/8/2021
                                     }
                                     else
                                     {
@@ -5299,11 +5301,13 @@ namespace MasterOnline.Controllers
                                         idOrderCancel = idOrderCancel + "'" + order.orderId + "',";
                                         jmlhOrderCancel++;
                                         //tidak ubah status menjadi selesai jika belum diisi faktur
-                                        var dsSIT01A = EDB.GetDataSet("CString", "SIT01A", "SELECT NO_REFERENSI, O.NO_BUKTI, O.STATUS_TRANSAKSI FROM SIT01A I INNER JOIN SOT01A O ON I.NO_SO = O.NO_BUKTI WHERE NO_REFERENSI = '" + order.orderId + "'");
-                                        if (dsSIT01A.Tables[0].Rows.Count == 0)
-                                        {
-                                            doInsert = false;
-                                        }
+                                        //remark by nurul 12/8/2021
+                                        //var dsSIT01A = EDB.GetDataSet("CString", "SIT01A", "SELECT NO_REFERENSI, O.NO_BUKTI, O.STATUS_TRANSAKSI FROM SIT01A I INNER JOIN SOT01A O ON I.NO_SO = O.NO_BUKTI WHERE NO_REFERENSI = '" + order.orderId + "'");
+                                        //if (dsSIT01A.Tables[0].Rows.Count == 0)
+                                        //{
+                                        //    doInsert = false;
+                                        //}
+                                        //end remark by nurul 12/8/2021
                                     }
                                     else
                                     {
