@@ -1622,7 +1622,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<BindingBase> GetItemListSemua(TokopediaAPIData iden, int page, int recordCount, string CUST, string NAMA_CUST, int recnumArf01, int totalData)
+        public async Task<BindingBase> GetItemListSemua(TokopediaAPIData iden, int page, int recordCount, string CUST, string NAMA_CUST, int recnumArf01, int totalData, int retry)
         {
             var connId = Guid.NewGuid().ToString();
             BindingBase ret = new BindingBase();
@@ -1668,13 +1668,26 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            catch (Exception ex)
+            //catch (Exception ex)
+            //{
+            //    //ret.nextPage = 1;
+            //    ret.nextPage = 0;//stop get data brg jika exception di call API
+            //    ret.exception = 1;
+            //    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            //    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            //}
+            catch (WebException e)
             {
-                //ret.nextPage = 1;
-                ret.nextPage = 0;//stop get data brg jika exception di call API
-                ret.exception = 1;
-                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                if (e.Message.Contains("429") && retry < 4)
+                {
+                    await Task.Delay(retry * 1000);
+                    ret = await GetItemListSemua(iden, page, recordCount, CUST, NAMA_CUST, recnumArf01, totalData, retry + 1);
+                }
+                else
+                {
+                    ret.nextPage = 0;//stop get data brg jika exception di call API
+                    ret.exception = 1;
+                }
             }
             if (!string.IsNullOrWhiteSpace(responseFromServer))
             {
