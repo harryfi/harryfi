@@ -4138,8 +4138,8 @@ namespace MasterOnline.Controllers
                                 nobuk = dsOrder.Tables[0].Rows[0]["NO_BUKTI"].ToString();
                                 if (dsOrder.Tables[0].Rows[0]["TIPE_KIRIM"].ToString() != "1")
                                 {
-                                    rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, 
-                                        "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('" 
+                                    rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
+                                        "UPDATE SOT01A SET STATUS='2',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('"
                                         + order.order_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + cust + "'");
                                 }
                                 else//pesanan cod
@@ -4168,14 +4168,14 @@ namespace MasterOnline.Controllers
                                     if (cekSudahKirim)
                                     {
                                         rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
-                                            "UPDATE SOT01A SET STATUS_TRANSAKSI = '12' WHERE NO_REFERENSI IN ('"
+                                            "UPDATE SOT01A SET STATUS_TRANSAKSI = '12',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "' WHERE NO_REFERENSI IN ('"
                                             + order.order_id + "') AND STATUS_TRANSAKSI <> '12' AND CUST = '" + cust + "'");
 
                                     }
                                     else
                                     {
                                         rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
-                                            "UPDATE SOT01A SET STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('"
+                                            "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('"
                                             + order.order_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + cust + "'");
 
                                     }
@@ -4432,7 +4432,7 @@ namespace MasterOnline.Controllers
                 if (!string.IsNullOrEmpty(listOrderCancel))
                 {
                     listOrderCancel = listOrderCancel.Substring(0, listOrderCancel.Length - 1);
-                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + listOrderCancel + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + cust + "'");
+                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + listOrderCancel + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + cust + "'");
                     if (rowAffected > 0)
                     {
                         var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + listOrderCancel + ") AND STATUS <> '2' AND CUST = '" + cust + "' AND ST_POSTING = 'T'");
