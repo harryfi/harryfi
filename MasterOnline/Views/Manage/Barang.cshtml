@@ -5106,6 +5106,49 @@
                 }
             });
         }
+        function getKodeBrg(categoryCode) {
+            if (categoryCode == null || categoryCode == '') {
+                return false;
+            }
+            var link = '@Url.Action("GetKodeBarang", "Manage", new { kode = "replaceCode" })';
+            link = link.replace("replaceCode", encodeURIComponent(categoryCode));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listBarang = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listBarang[i] = {
+                                id: item.KODE,
+                                text: item.KET
+                            };
+                        });
+
+                    var kategoriSelect = $('#COPY_ATTR').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listBarang,
+                        onChange: function (value) {
+                            CopyDataAttrFromBrg(value);
+                        }
+                    });
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function CopyDataAttrFromBrg(brg) {
+            if (confirm('Semua data attribute marketplace barang ini akan diubah mengikuti data attribute marketplace dari kode barang : ' + brg + '.\nApakah Anda yakin?')) {
+                alert('confirm');
+            }
+        }
         //END ADD BY CALVIN 6 FEBRUARI 2019
         function getKategori() {
             $.ajax({
@@ -5132,12 +5175,14 @@
                             $('#Stf02_Sort1').val(value);
                             $('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
                             CekStrukturVariant();
+                            getKodeBrg(value);
                         }
                     });
                     if (kategoriSelect[0] != undefined) {
                         //change by calvin 15 februari 2019, saat pertama kali load form, dan mengisi nilai default, jangan trigger kategoriSelect.onchange
                         //kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val());
-                        kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val(),true);
+                        kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val(), true);
+                        getKodeBrg($('#Stf02_Sort1').val());
                         //end change by calvin 15 februari 2019
                     }
                 },
