@@ -4175,7 +4175,7 @@ namespace MasterOnline.Controllers
                                     else
                                     {
                                         rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
-                                            "UPDATE SOT01A SET STATUS_TRANSAKSI = '11',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('"
+                                            "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('"
                                             + order.order_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + cust + "'");
 
                                     }
