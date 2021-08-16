@@ -5741,13 +5741,15 @@ namespace MasterOnline.Controllers
                                 if (apiLogInDb != null)
                                 {
 #if (DEBUG || Debug_AWS)
-                                    await CreateProductGetProdukInReviewList(DatabasePathErasoft, apiLogInDb.REQUEST_ATTRIBUTE_1, apiLogInDb.CUST, "Barang", "Link Produk (Tahap 1 / 2)", data, requestId, ProductCode, gdnSku, currentLog.REQUEST_ID);
+                                    //await CreateProductGetProdukInReviewList(DatabasePathErasoft, apiLogInDb.REQUEST_ATTRIBUTE_1, apiLogInDb.CUST, "Barang", "Link Produk (Tahap 1 / 2)", data, requestId, ProductCode, gdnSku, currentLog.REQUEST_ID);
+                                    await GetProdukInReviewList(DatabasePathErasoft, apiLogInDb.REQUEST_ATTRIBUTE_1, apiLogInDb.CUST, "Barang", "Link Produk (Tahap 1 / 2)", data, requestId, ProductCode, gdnSku, currentLog.REQUEST_ID);
 
 #else
                                     string EDBConnID = EDB.GetConnectionString("ConnId");
                                     var sqlStorage = new SqlServerStorage(EDBConnID);
                                     var client = new BackgroundJobClient(sqlStorage);
-                                    client.Enqueue<BlibliControllerJob>(x => x.CreateProductGetProdukInReviewList(DatabasePathErasoft, apiLogInDb.REQUEST_ATTRIBUTE_1, apiLogInDb.CUST, "Barang", "Link Produk (Tahap 1 / 2)", data, requestId, ProductCode, gdnSku, currentLog.REQUEST_ID));
+                                    //client.Enqueue<BlibliControllerJob>(x => x.CreateProductGetProdukInReviewList(DatabasePathErasoft, apiLogInDb.REQUEST_ATTRIBUTE_1, apiLogInDb.CUST, "Barang", "Link Produk (Tahap 1 / 2)", data, requestId, ProductCode, gdnSku, currentLog.REQUEST_ID));
+                                    client.Enqueue<BlibliControllerJob>(x => x.GetProdukInReviewList(DatabasePathErasoft, apiLogInDb.REQUEST_ATTRIBUTE_1, apiLogInDb.CUST, "Barang", "Link Produk (Tahap 1 / 2)", data, requestId, ProductCode, gdnSku, currentLog.REQUEST_ID));
 #endif
                                 }
                             }
@@ -5757,6 +5759,131 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+        public async Task<string> GetProdukInReviewList(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, string requestID, string ProductCode, string gdnSku, string api_log_requestId)
+        {
+            long milis = CurrentTimeMillis();
+
+            var token = SetupContext(iden);
+            iden.token = token;
+
+            string productCodeBlibli = "";
+            try
+            {
+                var aProductCode = JsonConvert.DeserializeObject(ProductCode, typeof(BlibliGetQueueProductCode)) as BlibliGetQueueProductCode;
+                if (aProductCode != null)
+                {
+                    if (!string.IsNullOrEmpty(aProductCode.productCode))
+                    {
+                        productCodeBlibli = aProductCode.productCode;
+                    }
+                    else if (!string.IsNullOrEmpty(aProductCode.newProductCode))//need correction
+                    {
+                        productCodeBlibli = aProductCode.newProductCode;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (iden.versiToken == "2")
+            {
+                milis = CurrentTimeMillis();
+                DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+                iden.token = token;
+                string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+
+                var urll = "https://api.blibli.com/v2/proxy/seller/v1/product-submissions/filter?requestId=MasterOnline-" + Uri.EscapeDataString(milis.ToString()) + "&username=" + Uri.EscapeDataString(userMTA) + "&storeCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&channelId=MasterOnline";
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+
+                string usernameMO = iden.API_client_username;
+                string passMO = iden.API_client_password;
+
+                myReq.Method = "POST";
+                myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(usernameMO + ":" + passMO))));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("Api-Seller-Key", iden.API_secret_key.ToString());
+                myReq.Headers.Add("Signature-Time", milis.ToString());
+
+                string myData = "{ \"filter\" : { \"sellerSku\": \"" + kodeProduk + "\",";
+                //string myData = "{ \"filter\" : { ";
+                myData += "\"state\": \"ALL\"},";
+                myData += "\"paging\": {";
+                myData += "\"page\": 0, ";
+                myData += "\"size\": 100 } ";
+                myData += "}";
+                string responseFromServer = "";
+                //try
+                //{
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+                if (!string.IsNullOrEmpty(responseFromServer))
+                {
+                    var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
+                    var listBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(Blibli_ProductSubmissionList_Response)) as Blibli_ProductSubmissionList_Response;
+                    if (listBrg != null)
+                    {
+                        if (!string.IsNullOrEmpty(listBrg.errorCode))
+                        {
+                            throw new Exception(listBrg.errorCode + " : " + listBrg.errorMessage);
+                        }
+                        else
+                        {
+                            if (listBrg.content.Length > 0)//ada di need correction
+                            {
+                                foreach (var data in listBrg.content)
+                                {
+                                    if (data.product.code == kodeProduk)
+                                    {
+                                        if (data.product.state == "NEED_CORRECTION")
+                                        {
+                                            EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE STF02H SET BRG_MP = 'NEED_CORRECTION;" + listBrg.content[0].product.code + "' WHERE BRG = '" + kodeProduk + "' AND IDMARKET = " + tblCustomer.RecNum);
+                                            //ret.status = 1;
+                                            //ret.message = data.product.revisionNotes;
+                                            //return ret;
+                                        }
+                                        return "";
+                                    }
+                                }
+
+                                //if (listBrg.content.Length == 100)
+                                //{
+                                //    cekProductQC(kodeProduk, iden, idMarket, brg, page + 1);
+                                //}
+                            }
+                        }
+
+                    }
+                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE STF02H SET BRG_MP = '' WHERE BRG = '" + kodeProduk + "' AND IDMARKET = " + tblCustomer.RecNum);
+                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + kodeProduk + "'";
+                    EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+#if (DEBUG || Debug_AWS)
+                    await CreateProduct(dbPathEra, kodeProduk, tblCustomer.CUST, "Barang", "Buat Produk", iden, null, null);
+#else
+                    var sqlStorage = new SqlServerStorage(iden.DatabasePathErasoft);
+                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, kodeProduk, tblCustomer.CUST, "Barang", "Buat Produk", iden, null, null));
+#endif
+                }
+            }
+
+            return "";
+        }
+
         public async Task<string> GetCategoryPerUser(BlibliAPIData data)
         {
 
@@ -6198,7 +6325,7 @@ namespace MasterOnline.Controllers
                                         string sSQL = "INSERT INTO [ATTRIBUTE_BLIBLI] ([CATEGORY_CODE], [CATEGORY_NAME],";
                                         string sSQLValue = ") VALUES (@CATEGORY_CODE, @CATEGORY_NAME,";
                                         string a = "";
-                                        #region Generate Parameters dan CommandText
+#region Generate Parameters dan CommandText
                                         for (int i = 1; i <= 30; i++)
                                         {
                                             a = Convert.ToString(i);
@@ -6210,7 +6337,7 @@ namespace MasterOnline.Controllers
                                             oCommand.Parameters.Add(new SqlParameter("@AOPTIONS_" + a, SqlDbType.NVarChar, 1));
                                         }
                                         sSQL = sSQL.Substring(0, sSQL.Length - 1) + sSQLValue.Substring(0, sSQLValue.Length - 1) + ")";
-                                        #endregion
+#endregion
                                         oCommand.CommandText = sSQL;
                                         oCommand.Parameters[0].Value = categoryCode;
                                         oCommand.Parameters[1].Value = categoryName;
@@ -6956,7 +7083,7 @@ namespace MasterOnline.Controllers
                                         string sSQL = "INSERT INTO [ATTRIBUTE_BLIBLI] ([CATEGORY_CODE], [CATEGORY_NAME],";
                                         string sSQLValue = ") VALUES (@CATEGORY_CODE, @CATEGORY_NAME,";
                                         string a = "";
-                                        #region Generate Parameters dan CommandText
+#region Generate Parameters dan CommandText
                                         for (int i = 1; i <= 30; i++)
                                         {
                                             a = Convert.ToString(i);
@@ -6968,7 +7095,7 @@ namespace MasterOnline.Controllers
                                             oCommand.Parameters.Add(new SqlParameter("@AOPTIONS_" + a, SqlDbType.NVarChar, 1));
                                         }
                                         sSQL = sSQL.Substring(0, sSQL.Length - 1) + sSQLValue.Substring(0, sSQLValue.Length - 1) + ")";
-                                        #endregion
+#endregion
                                         oCommand.CommandText = sSQL;
                                         oCommand.Parameters[0].Value = categoryCode;
                                         oCommand.Parameters[1].Value = categoryName;
@@ -7970,7 +8097,7 @@ namespace MasterOnline.Controllers
             Dictionary<string, string> images = new Dictionary<string, string>();
             //List<string> uploadedImageID = new List<string>();
             List<Productitem> productItems = new List<Productitem>();
-            #region bukan barang variasi
+#region bukan barang variasi
             //change by nurul 14/9/2020, handle barang multi sku juga 
             //if (data.type == "3")
             if (data.type == "3" || data.type == "6")
@@ -8169,7 +8296,7 @@ namespace MasterOnline.Controllers
                     }
                     //}
                 }
-                #region 6/9/2019, 5 gambar
+#region 6/9/2019, 5 gambar
 
                 idGambar = stf02h.SIZE_GAMBAR_4;
                 urlGambar = stf02h.LINK_GAMBAR_4;
@@ -8298,7 +8425,7 @@ namespace MasterOnline.Controllers
                     }
                     //}
                 }
-                #endregion
+#endregion
                 Dictionary<string, string[]> DefiningAttributes = new Dictionary<string, string[]>();
                 Dictionary<string, string> attributeMap = new Dictionary<string, string>();
                 //for (int a = 0; a < dsVariasi.Tables[0].Rows.Count; a++)
@@ -8384,8 +8511,8 @@ namespace MasterOnline.Controllers
                 productItems.Add(newVarItem);
                 newData.productDefiningAttributes = DefiningAttributes;
             }
-            #endregion
-            #region Barang Variasi
+#endregion
+#region Barang Variasi
             else
             {
                 Dictionary<string, string> DefiningDariStf02H = new Dictionary<string, string>();
@@ -8576,7 +8703,7 @@ namespace MasterOnline.Controllers
                         }
                         //}
                     }
-                    #region 6/9/2019, barang varian 2 gambar
+#region 6/9/2019, barang varian 2 gambar
                     //image_id = var_stf02h_item.ACODE_49;
                     //if (string.IsNullOrWhiteSpace(image_id))
                     //{
@@ -8642,7 +8769,7 @@ namespace MasterOnline.Controllers
                     //        }
                     //    }
                     //}
-                    #endregion
+#endregion
                     Dictionary<string, string> attributeMap = new Dictionary<string, string>();
                     if (!string.IsNullOrWhiteSpace(var_item.Sort8))
                     {
@@ -8730,7 +8857,7 @@ namespace MasterOnline.Controllers
                     productItems.Add(newVarItem);
                 }
             }
-            #endregion
+#endregion
 
             newData.productItems = (productItems);
             newData.imageMap = images;
@@ -9663,7 +9790,7 @@ namespace MasterOnline.Controllers
             var sImages = new ReviseImageMap();
             //List<string> uploadedImageID = new List<string>();
             List<ReviseProductitem> productItems = new List<ReviseProductitem>();
-            #region bukan barang variasi
+#region bukan barang variasi
             if (data.type == "3")
             {
                 List<string> images_pervar = new List<string>();
@@ -9865,7 +9992,7 @@ namespace MasterOnline.Controllers
                     }
                     //}
                 }
-                #region 6/9/2019, 5 gambar
+#region 6/9/2019, 5 gambar
 
                 idGambar = stf02h.SIZE_GAMBAR_4;
                 urlGambar = stf02h.LINK_GAMBAR_4;
@@ -9998,7 +10125,7 @@ namespace MasterOnline.Controllers
                     }
                     //}
                 }
-                #endregion
+#endregion
                 Dictionary<string, string[]> DefiningAttributes = new Dictionary<string, string[]>();
                 Dictionary<string, string> attributeMap = new Dictionary<string, string>();
                 //for (int a = 0; a < dsVariasi.Tables[0].Rows.Count; a++)
@@ -10081,8 +10208,8 @@ namespace MasterOnline.Controllers
                 productItems.Add(newVarItem);
                 newData.definingAttributes = DefiningAttributes;
             }
-            #endregion
-            #region Barang Variasi
+#endregion
+#region Barang Variasi
             else
             {
                 Dictionary<string, string> DefiningDariStf02H = new Dictionary<string, string>();
@@ -10277,7 +10404,7 @@ namespace MasterOnline.Controllers
                         }
                         //}
                     }
-                    #region 6/9/2019, barang varian 2 gambar
+#region 6/9/2019, barang varian 2 gambar
                     //image_id = var_stf02h_item.ACODE_49;
                     //if (string.IsNullOrWhiteSpace(image_id))
                     //{
@@ -10343,7 +10470,7 @@ namespace MasterOnline.Controllers
                     //        }
                     //    }
                     //}
-                    #endregion
+#endregion
                     Dictionary<string, string> attributeMap = new Dictionary<string, string>();
                     if (!string.IsNullOrWhiteSpace(var_item.Sort8))
                     {
@@ -10430,7 +10557,7 @@ namespace MasterOnline.Controllers
                     productItems.Add(newVarItem);
                 }
             }
-            #endregion
+#endregion
 
             newData.productItems = (productItems);
             newData.imageMap = images.ToArray();
@@ -10592,6 +10719,7 @@ namespace MasterOnline.Controllers
             public string uniqueSellingPoint { get; set; }
             public string description { get; set; }
             public string revisionNotes { get; set; }
+            public string state { get; set; }
         }
 
         public class Brand
@@ -10879,7 +11007,7 @@ namespace MasterOnline.Controllers
                                 }
                             }
 
-                            #region update stok
+#region update stok
                             string ConnId = "[BLI_QC][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]";
                             string sSQLValues = "";
 
@@ -10903,7 +11031,7 @@ namespace MasterOnline.Controllers
 
                                 new StokControllerJob().updateStockMarketPlace(ConnId, dbPathEra, "BlibliActive");
                             }
-                            #endregion
+#endregion
                             if (listBrg.content.Count() == 100)
                             {
                                 await CekProductActiveWithPage(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, kodeInduk, merchantskus, cust, queue_feed_requestid, api_log_requestId, page + 1);
@@ -11686,7 +11814,7 @@ namespace MasterOnline.Controllers
                             oCommand.Parameters[1].Value = Convert.ToString(getLogMarketplace.REQUEST_ATTRIBUTE_1);
                             oCommand.ExecuteNonQuery();
 
-                            #region Create Log Error khusus create barang
+#region Create Log Error khusus create barang
                             string subjectDescription = Convert.ToString(getLogMarketplace.REQUEST_ATTRIBUTE_1).Replace("'", "`");
                             string CUST = Convert.ToString(getLogMarketplace.CUST); //mengambil Cust
                             string ActionCategory = Convert.ToString("Barang"); //mengambil Kategori
@@ -11727,7 +11855,7 @@ namespace MasterOnline.Controllers
                             string Link_Error = jobId + ";" + ActionName + ";Create Product " + subjectDescription + " ke Blibli Berhasil, tetapi Rejected by Blibli;" + exceptionMessage.Replace("'", "`");
                             sSQL += "LINK_ERROR = '" + Link_Error + "' FROM STF02H S INNER JOIN ARF01 A ON S.IDMARKET = A.RECNUM AND A.CUST = '" + CUST + "' WHERE S.BRG = '" + subjectDescription + "' ";
                             EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
-                            #endregion
+#endregion
                         }
                     }
                 }
