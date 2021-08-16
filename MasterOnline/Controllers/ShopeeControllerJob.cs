@@ -9756,6 +9756,7 @@ namespace MasterOnline.Controllers
             HttpRequest.item_id = dataBrg.item_id;
 
             string myData = JsonConvert.SerializeObject(HttpRequest);
+            myData = myData.Replace(",\"image\":{\"image_id\":null}", " ");
 
             int MOPartnerID = MOPartnerIDV2;
             string MOPartnerKey = MOPartnerKeyV2;
