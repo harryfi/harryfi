@@ -400,6 +400,20 @@ namespace MasterOnline.Controllers
             //end change 8 Apriil 2019, get attr from api
 
             xmlString += "</Attributes>";
+            //add 16 agustus 2021, perubahan image lzd
+            xmlString += "<Images>";
+            if (!string.IsNullOrEmpty(data.imageUrl))
+                xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
+            if (!string.IsNullOrEmpty(data.imageUrl2))
+                xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
+            if (!string.IsNullOrEmpty(data.imageUrl3))
+                xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
+            if (!string.IsNullOrEmpty(data.imageUrl4))
+                xmlString += "<Image><![CDATA[" + data.imageUrl4 + "]]></Image>";
+            if (!string.IsNullOrEmpty(data.imageUrl5))
+                xmlString += "<Image><![CDATA[" + data.imageUrl5 + "]]></Image>";
+            xmlString += "</Images>";
+            //end add 16 agustus 2021, perubahan image lzd
 
             var stf02 = ErasoftDbContext.STF02.Where(p => p.BRG == data.kdBrg).FirstOrDefault();
             //change by nurul 14/9/2020, handle barang multi sku juga 
@@ -782,37 +796,59 @@ namespace MasterOnline.Controllers
             node.InnerXml = escaped;
             return node.InnerText;
         }
+        public LazadaItemDetailResponse GetItemDetail(string sellerSku, string token, string type)
+        {
+            var ret = new LazadaItemDetailResponse();
+            //ret.status = 0;
 
-        public BindingBase UpdateProduct(BrgViewModel data)
+
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/product/item/get");
+            request.SetHttpMethod("GET");
+            if (type != "4")
+            {
+                request.AddApiParameter("seller_sku", sellerSku);
+            }
+            else
+            {
+                request.AddApiParameter("item_id", sellerSku);
+            }
+
+            //LazopResponse response = client.Execute(request, data.token);
+            try
+            {
+                LazopResponse response = client.Execute(request, token);
+                var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaItemDetailResponse)) as LazadaItemDetailResponse;
+                if (res.code.Equals("0"))
+                {
+                    ret = res;
+                }
+
+            }
+            catch (Exception ex)
+            {
+            }
+
+            return ret;
+        }
+
+        public BindingBase UpdateProduct(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string uname, BrgViewModel data)
         {
             var ret = new BindingBase();
             ret.status = 0;
-
+            SetupContext(dbPathEra, uname);
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Update Product",
-                REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
+                REQUEST_DATETIME = DateTime.Now,
                 REQUEST_ATTRIBUTE_1 = data.kdBrg,
                 REQUEST_STATUS = "Pending",
             };
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data.token, currentLog);
 
-            //change by calvin 16 mei 2019
-            //string sSQL = "SELECT * FROM (";
-            //for (int i = 1; i <= 50; i++)
-            //{
-            //    sSQL += "SELECT A.ACODE_" + i.ToString() + " AS CATEGORY_CODE,A.ANAME_" + i.ToString() + " AS CATEGORY_NAME,B.ATYPE" + i.ToString();
-            //    sSQL += " AS CATEGORY_TYPE,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_LAZADA B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kdBrg + "' " + System.Environment.NewLine;
-            //    if (i < 50)
-            //    {
-            //        sSQL += "UNION ALL " + System.Environment.NewLine;
-            //    }
-            //}
-
-            //DataSet dsSku = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE <> 'normal' AND ISNULL(VALUE, 'NULL') <> 'NULL' ");
-            //DataSet dsNormal = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE = 'normal' AND ISNULL(VALUE, 'NULL') <> 'NULL' ");
             var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == data.kdBrg && p.IDMARKET.ToString() == data.idMarket).FirstOrDefault();
             List<string> dsSku = new List<string>();
             List<string> dsNormal = new List<string>();
@@ -839,23 +875,39 @@ namespace MasterOnline.Controllers
             string primCategory = EDB.GetFieldValue("MOConnectionString", "STF02H", "BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'", "category_code").ToString();
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
             xmlString = "<Request><Product><PrimaryCategory>" + primCategory + "</PrimaryCategory>";
-            xmlString += "<Attributes><name>" + data.nama + (string.IsNullOrEmpty(data.nama2) ? "" : " " + data.nama2) + "</name>";
+            xmlString += "<Attributes><name>" + XmlEscape(data.nama + (string.IsNullOrEmpty(data.nama2) ? "" : " " + data.nama2)) + "</name>";
             //xmlString += "<short_description><![CDATA[" + data.deskripsi + "]]></short_description>";
-            xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+            //change 16 okt 2020
+            var stf02 = ErasoftDbContext.STF02.Where(p => p.BRG == data.kdBrg).FirstOrDefault();
+            var cekBrg = GetItemDetail(stf02h.BRG_MP, data.token, stf02.TYPE);
+            if (cekBrg != null)
+            {
+                if (!string.IsNullOrEmpty(cekBrg.code))
+                {
+                    if (cekBrg.code.Equals("0"))
+                    {
+                        if (!(cekBrg.data.attributes.description ?? "").Contains("img src="))
+                        {
+                            xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+                        }
+                    }
+                    else
+                    {
+                        xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
 
-            //xmlString += "<brand>No Brand</brand>";
+                    }
+                }
+                else
+                {
+                    xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+                }
+            }
+            else
+            {
+                xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+            }
             xmlString += "<brand><![CDATA[" + stf02h.ANAME_38 + "]]></brand>";
 
-            //xmlString += "<model>" + data.kdBrg + "</model>";
-            //xmlString += "<warranty_type>No Warranty</warranty_type>";
-
-            //change 16 Mei 2019, get attr from api
-            //for (int i = 0; i < dsNormal.Tables[0].Rows.Count; i++)
-            //{
-            //    xmlString += "<" + dsNormal.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
-            //    xmlString += dsNormal.Tables[0].Rows[i]["VALUE"].ToString();
-            //    xmlString += "</" + dsNormal.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
-            //}
             Dictionary<string, string> lzdAttrWithVal = new Dictionary<string, string>();
             Dictionary<string, string> lzdAttrSkuWithVal = new Dictionary<string, string>();
             for (int i = 1; i <= 50; i++)
@@ -880,36 +932,46 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            //for (int i = 0; i < lzdAttrWithVal.Count; i++)
-            //{
-            //    xmlString += "<" + dsNormal[i].ToString() + ">";
-            //    xmlString += lzdAttrWithVal[dsNormal[i].ToString()].ToString();
-            //    xmlString += "</" + dsNormal[i].ToString() + ">";                
-            //}
             foreach (var lzdAttr in lzdAttrWithVal)
             {
                 xmlString += "<" + lzdAttr.Key + ">";
-                xmlString += lzdAttr.Value.ToString();
+                if (lzdAttr.Value.ToString().Contains("<p>"))
+                {
+                    xmlString += "<![CDATA[" + lzdAttr.Value.ToString().Replace("\r\n", "").Replace("&nbsp;", " ").Replace("<em>", "<i>").Replace("</em>", "</i>").Replace(System.Environment.NewLine, "<br>") + "]]>";
+                }
+                else
+                {
+                    xmlString += XmlEscape(lzdAttr.Value.ToString());
+                }
                 xmlString += "</" + lzdAttr.Key + ">";
             }
-            //end change 16 Mei 2019, get attr from api
 
             xmlString += "</Attributes>";
 
-            var stf02 = ErasoftDbContext.STF02.Where(p => p.BRG == data.kdBrg).FirstOrDefault();
+            //add 16 agustus 2021, perubahan image lzd
+            xmlString += "<Images>";
+            if (!string.IsNullOrEmpty(data.imageUrl))
+                xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
+            if (!string.IsNullOrEmpty(data.imageUrl2))
+                xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
+            if (!string.IsNullOrEmpty(data.imageUrl3))
+                xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
+            if (!string.IsNullOrEmpty(data.imageUrl4))
+                xmlString += "<Image><![CDATA[" + data.imageUrl4 + "]]></Image>";
+            if (!string.IsNullOrEmpty(data.imageUrl5))
+                xmlString += "<Image><![CDATA[" + data.imageUrl5 + "]]></Image>";
+            xmlString += "</Images>";
+            //end add 16 agustus 2021, perubahan image lzd
+
+            //var stf02 = ErasoftDbContext.STF02.Where(p => p.BRG == data.kdBrg).FirstOrDefault();
             //change by nurul 14/9/2020, handle barang multi sku juga 
             //if (Convert.ToString(stf02.TYPE) == "3")
             if (Convert.ToString(stf02.TYPE) == "3" || Convert.ToString(stf02.TYPE) == "6")
             //change by nurul 14/9/2020, handle barang multi sku juga 
             {
-                //xmlString += "<Skus><Sku><SellerSku>" + data.kdBrg + "</SellerSku>";
                 xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(stf02h.BRG_MP) + "</SellerSku>";
-                //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
                 xmlString += "<Status>" + (data.activeProd ? "active" : "inactive") + "</Status>";
-                //xmlString += "<color_family>Not Specified</color_family>";
-                //xmlString += "<quantity>1</quantity>";
-                xmlString += "<price>" + data.harga + "</price>";
-                //xmlString += "<size>Int: One size</size>";
+                xmlString += "<price>" + stf02h.HJUAL + "</price>";
                 xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
                 xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
                 xmlString += "<Images>";
@@ -919,20 +981,18 @@ namespace MasterOnline.Controllers
                     xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
                 if (!string.IsNullOrEmpty(data.imageUrl3))
                     xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
+                //add 6/9/2019, 5 gambar
+                if (!string.IsNullOrEmpty(data.imageUrl4))
+                    xmlString += "<Image><![CDATA[" + data.imageUrl4 + "]]></Image>";
+                if (!string.IsNullOrEmpty(data.imageUrl5))
+                    xmlString += "<Image><![CDATA[" + data.imageUrl5 + "]]></Image>";
+                //end add 6/9/2019, 5 gambar
                 xmlString += "</Images>";
 
-
-                //change 16 Mei 2019, get attr from api
-                //for (int i = 0; i < dsSku.Tables[0].Rows.Count; i++)
-                //{
-                //    xmlString += "<" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
-                //    xmlString += dsSku.Tables[0].Rows[i]["VALUE"].ToString();
-                //    xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
-                //}
                 foreach (var lzdSkuAttr in lzdAttrSkuWithVal)
                 {
                     xmlString += "<" + lzdSkuAttr.Key + ">";
-                    xmlString += lzdSkuAttr.Value.ToString();
+                    xmlString += XmlEscape(lzdSkuAttr.Value.ToString());
                     xmlString += "</" + lzdSkuAttr.Key + ">";
                 }
                 //end change 16 Mei 2019, get attr from api
@@ -957,7 +1017,6 @@ namespace MasterOnline.Controllers
                         if (!KombinasiAttribute.ContainsKey(attributeUnique))
                         {
                             KombinasiAttribute.Add(attributeUnique, item.BRG);
-
 
                         }
                         //if (!string.IsNullOrWhiteSpace(item.Sort9))
@@ -1000,8 +1059,10 @@ namespace MasterOnline.Controllers
                     {
                         if (!string.IsNullOrEmpty(GetStf02h.BRG_MP))
                         {
-                            //xmlString += "<Sku><SellerSku>" + item.BRG + "</SellerSku>";
+                            //change 1/8/2019, gunakan brg_mp stf02h
+                            //xmlString += "<Sku><SellerSku>" + XmlEscape(item.BRG) + "</SellerSku>";
                             xmlString += "<Sku><SellerSku>" + XmlEscape(GetStf02h.BRG_MP) + "</SellerSku>";
+                            //end change 1/8/2019, gunakan brg_mp stf02h
                             //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
                             xmlString += "<Status>" + (data.activeProd ? "active" : "inactive") + "</Status>";
 
@@ -1010,7 +1071,7 @@ namespace MasterOnline.Controllers
                                 if (attribute.Value == item.BRG)
                                 {
                                     string[] getId = attribute.Key.Split(new string[] { "[;]" }, StringSplitOptions.None);
-                                    xmlString += "<" + getId[0] + ">" + getId[1] + "</" + getId[0] + ">";
+                                    xmlString += "<" + getId[0] + ">" + XmlEscape(getId[1]) + "</" + getId[0] + ">";
                                     attributesAdded.Add(getId[0]);
                                 }
                             }
@@ -1026,14 +1087,23 @@ namespace MasterOnline.Controllers
                             //        xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
                             //    }
                             //}
-                            for (int i = 0; i < lzdAttrSkuWithVal.Count; i++)
+
+                            //change by Tri 29 mei 2020, loop sesuai attribute sku
+                            //for (int i = 0; i < lzdAttrSkuWithVal.Count; i++)
+                            for (int i = 0; i < dsSku.Count; i++)
+                            //end change by Tri 29 mei 2020, loop sesuai attribute sku
                             {
-                                if (!attributesAdded.Contains(dsSku[i].ToString()))
-                                {
-                                    xmlString += "<" + dsSku[i].ToString() + ">";
-                                    xmlString += lzdAttrSkuWithVal[dsSku[i].ToString()].ToString();
-                                    xmlString += "</" + dsSku[i].ToString() + ">";
-                                }
+                                //add by Tri 29 mei 2020, cek dl ada value atau tidak
+                                string value = "";
+                                var cekAttr = (lzdAttrSkuWithVal.TryGetValue(dsSku[i].ToString(), out value) ? value : "");
+                                if (!string.IsNullOrEmpty(cekAttr))
+                                    //end add by Tri 29 mei 2020, cek dl ada value atau tidak
+                                    if (!attributesAdded.Contains(dsSku[i].ToString()))
+                                    {
+                                        xmlString += "<" + dsSku[i].ToString() + ">";
+                                        xmlString += XmlEscape(lzdAttrSkuWithVal[dsSku[i].ToString()].ToString());
+                                        xmlString += "</" + dsSku[i].ToString() + ">";
+                                    }
                             }
                             //end change 16 Mei 2019, get attr from api
 
@@ -1059,6 +1129,8 @@ namespace MasterOnline.Controllers
                                     xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
                                 }
                             }
+                            // 6/9/2019, 2 gambar untuk varian
+                            //remark by calvin 19 agustus 2019
                             if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
                             {
                                 var uploadImg = UploadImage(item.LINK_GAMBAR_2, data.token);
@@ -1067,14 +1139,16 @@ namespace MasterOnline.Controllers
                                     xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
                                 }
                             }
-                            if (!string.IsNullOrEmpty(item.LINK_GAMBAR_3))
-                            {
-                                var uploadImg = UploadImage(item.LINK_GAMBAR_3, data.token);
-                                if (uploadImg.status == 1)
-                                {
-                                    xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
-                                }
-                            }
+                            // 6/9/2019, 2 gambar untuk varian
+                            //if (!string.IsNullOrEmpty(item.LINK_GAMBAR_3))
+                            //{
+                            //    var uploadImg = UploadImage(item.LINK_GAMBAR_3, data.token);
+                            //    if (uploadImg.status == 1)
+                            //    {
+                            //        xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                            //    }
+                            //}
+                            //end remark by calvin 19 agustus 2019
                             //END CHANGE BY CALVIN 10 JUNI 2019
                             xmlString += "</Images>";
                             xmlString += "</Sku>";
@@ -1097,8 +1171,8 @@ namespace MasterOnline.Controllers
                 LazopResponse response = client.Execute(request, data.token);
 
                 //change by calvin 10 juni 2019
-                //var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaCreateBarangResponse)) as LazadaCreateBarangResponse;
-                var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaCommonRes)) as LazadaCommonRes;
+                var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaCreateBarangResponse)) as LazadaCreateBarangResponse;
+                //var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaCommonRes)) as LazadaCommonRes;
                 //end change by calvin 10 juni 2019
                 if (res.code.Equals("0"))
                 {
@@ -1122,47 +1196,72 @@ namespace MasterOnline.Controllers
                     //}
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data.key, currentLog);
                     //end change by calvin 10 juni 2019
+                    var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.TOKEN == data.token && m.NAMA == "7").FirstOrDefault();
+                    if (res.data != null)
+                        foreach (var item in res.data.sku_list)
+                        {
+                            if (tblCustomer.TIDAK_HIT_UANG_R)
+                            {
+                                var brgInDB = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == tblCustomer.RecNum && m.BRG_MP == item.seller_sku).FirstOrDefault();
+                                if (brgInDB != null)
+                                {
+
+#if (DEBUG || Debug_AWS)
+                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+                                    Task.Run(() => stokAPI.Lazada_updateStock(dbPathEra, brgInDB.BRG, tblCustomer.CUST, "Stock", "Update Stok", item.seller_sku, "", "", data.token, username, null)).Wait();
+#else
+                                                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                                                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                                                        var Jobclient = new BackgroundJobClient(sqlStorage);
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(dbPathEra, brgInDB.BRG, tblCustomer.CUST, "Stock", "Update Stok", item.seller_sku, "", "", data.token, username, null));
+#endif
+
+                                }
+                            }
+                        }
                 }
                 else
                 {
                     //change by calvin 10 juni 2019
-                    //if (res.detail != null)
-                    //{
-                    //    if (res.detail.Length == 1)
-                    //    {
-                    //        if (!string.IsNullOrEmpty(res.detail[0].field))
-                    //        {
-                    //            ret.message = res.detail[0].field + " : " + res.detail[0].message;
-                    //        }
-                    //        else
-                    //        {
-                    //            ret.message = res.detail[0].message;
+                    if (res.detail != null)
+                    {
+                        if (res.detail.Length == 1)
+                        {
+                            if (!string.IsNullOrEmpty(res.detail[0].field))
+                            {
+                                ret.message = res.detail[0].field + " : " + res.detail[0].message;
+                            }
+                            else
+                            {
+                                ret.message = res.detail[0].message;
 
-                    //        }
-                    //    }
-                    //    else if (res.detail.Length > 1)
-                    //    {
-                    //        ret.message = "";
-                    //        for (int i = 0; i < res.detail.Length; i++)
-                    //        {
-                    //            if (!string.IsNullOrEmpty(res.detail[i].field))
-                    //            {
-                    //                ret.message += res.detail[i].field + " : " + res.detail[i].message + "\n";
-                    //            }
-                    //            else
-                    //            {
-                    //                ret.message += res.detail[i].message + "\n";
+                            }
+                        }
+                        else if (res.detail.Length > 1)
+                        {
+                            ret.message = "";
+                            for (int i = 0; i < res.detail.Length; i++)
+                            {
+                                if (!string.IsNullOrEmpty(res.detail[i].field))
+                                {
+                                    ret.message += res.detail[i].field + " : " + res.detail[i].message + "\n";
+                                }
+                                else
+                                {
+                                    ret.message += res.detail[i].message + "\n";
 
-                    //            }
-                    //        }
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    ret.message = res.message;
-                    //}
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        ret.message = res.message;
+                    }
                     currentLog.REQUEST_EXCEPTION = ret.message;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.token, currentLog);
+                    throw new Exception(currentLog.REQUEST_EXCEPTION);
                     //end change by calvin 10 juni 2019
                 }
 
@@ -1171,6 +1270,7 @@ namespace MasterOnline.Controllers
             {
                 currentLog.REQUEST_EXCEPTION = ex.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data.token, currentLog);
+                throw new Exception(currentLog.REQUEST_EXCEPTION);
             }
             return ret;
         }
