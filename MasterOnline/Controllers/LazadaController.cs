@@ -891,6 +891,21 @@ namespace MasterOnline.Controllers
 
             xmlString += "</Attributes>";
 
+            //add 16 agustus 2021, perubahan image lzd
+            xmlString += "<Images>";
+            if (!string.IsNullOrEmpty(data.imageUrl))
+                xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
+            if (!string.IsNullOrEmpty(data.imageUrl2))
+                xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
+            if (!string.IsNullOrEmpty(data.imageUrl3))
+                xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
+            if (!string.IsNullOrEmpty(data.imageUrl4))
+                xmlString += "<Image><![CDATA[" + data.imageUrl4 + "]]></Image>";
+            if (!string.IsNullOrEmpty(data.imageUrl5))
+                xmlString += "<Image><![CDATA[" + data.imageUrl5 + "]]></Image>";
+            xmlString += "</Images>";
+            //end add 16 agustus 2021, perubahan image lzd
+
             //var stf02 = ErasoftDbContext.STF02.Where(p => p.BRG == data.kdBrg).FirstOrDefault();
             //change by nurul 14/9/2020, handle barang multi sku juga 
             //if (Convert.ToString(stf02.TYPE) == "3")
@@ -4314,17 +4329,32 @@ namespace MasterOnline.Controllers
                     if(brg.images != null)
                     {
                         if (brg.images.Count > 0)
-                            urlImage = brg.images[0];
-                        //if (typeBrg == 0)//gambar induk ambil juga lebih dari 1
                         {
-                            if (brg.images.Count >= 2)
-                                urlImage2 = brg.images[1];
-                            if (brg.images.Count >= 3)
-                                urlImage3 = brg.images[2];
-                            if (brg.images.Count >= 4)
-                                urlImage4 = brg.images[3];
-                            if (brg.images.Count >= 5)
-                                urlImage5 = brg.images[4];
+                            urlImage = brg.images[0];
+                            //if (typeBrg == 0)//gambar induk ambil juga lebih dari 1
+                            {
+                                if (brg.images.Count >= 2)
+                                    urlImage2 = brg.images[1];
+                                if (brg.images.Count >= 3)
+                                    urlImage3 = brg.images[2];
+                                if (brg.images.Count >= 4)
+                                    urlImage4 = brg.images[3];
+                                if (brg.images.Count >= 5)
+                                    urlImage5 = brg.images[4];
+                            }
+                        }
+                        else
+                        {
+                            if (brg.skus[i].Images.Count > 0)
+                                urlImage = brg.skus[i].Images[0];
+                            if (brg.skus[i].Images.Count >= 2)
+                                urlImage2 = brg.skus[i].Images[1];
+                            if (brg.skus[i].Images.Count >= 3)
+                                urlImage3 = brg.skus[i].Images[2];
+                            if (brg.skus[i].Images.Count >= 4)
+                                urlImage4 = brg.skus[i].Images[3];
+                            if (brg.skus[i].Images.Count >= 5)
+                                urlImage5 = brg.skus[i].Images[4];
                         }
                     }
                 }
