@@ -5709,6 +5709,11 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                             }
+                            var cekDateRequest = (new DateTime(1970, 1, 1)).AddMilliseconds(result.value.queueFeed.timeStamp);
+                            if (Convert.ToString(result.value.queueFeed.requestAction) == "IN_PROGRESS" && cekDateRequest < DateTime.UtcNow.AddHours(7).AddDays(-1))
+                            {
+                                queueHistoryKosong = true;
+                            }
                         }
                     }
                     if (queueHistoryKosong)
@@ -5728,7 +5733,7 @@ namespace MasterOnline.Controllers
                         //maka bisa langsung hit api get product in review, bila produknya belum ada di situ, 
                         //maka bisa hit api create product v2nya lagi, karena kemungkinan besar queuenya nyangkut dan belum diexcecute
                         var dateRequest = (new DateTime(1970, 1, 1)).AddMilliseconds(double.Parse(log_request_id));
-                        if (dateRequest <= DateTime.Now.AddDays(-1))
+                        if (dateRequest <= DateTime.UtcNow.AddHours(7).AddDays(-1))
                         {
                             //cek ke product in review
                             if (Convert.ToString(result.value.queueFeed.requestAction) == "createProductV2")
@@ -11809,8 +11814,11 @@ namespace MasterOnline.Controllers
                         if (getLogMarketplace != null)
                         {
                             oCommand.CommandType = CommandType.Text;
-                            oCommand.CommandText = "UPDATE H SET BRG_MP='PENDING' FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = 'PENDING'";
-                            oCommand.Parameters.Add(new SqlParameter("@MERCHANTSKU", SqlDbType.NVarChar, 20));
+                            //changed 18 aug 2021, jika sudah reject hilangkan saja status pending nya
+                            //oCommand.CommandText = "UPDATE H SET BRG_MP='PENDING' FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = 'PENDING'";
+                            oCommand.CommandText = "UPDATE H SET BRG_MP='' FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = 'PENDING'";
+                            //end changed 18 aug 2021, jika sudah reject hilangkan saja status pending nya
+                            //oCommand.Parameters.Add(new SqlParameter("@MERCHANTSKU", SqlDbType.NVarChar, 20));
                             oCommand.Parameters[1].Value = Convert.ToString(getLogMarketplace.REQUEST_ATTRIBUTE_1);
                             oCommand.ExecuteNonQuery();
 
@@ -11860,6 +11868,25 @@ namespace MasterOnline.Controllers
                     }
                 }
 
+            }
+            else
+            {
+                var dateRequest = (new DateTime(1970, 1, 1)).AddMilliseconds(double.Parse(api_log_requestId));
+                if (dateRequest <= DateTime.UtcNow.AddHours(7).AddDays(-1))
+                {
+                    var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
+                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE STF02H SET BRG_MP = '' WHERE BRG = '" + kodeProduk + "' AND IDMARKET = " + tblCustomer.RecNum);
+                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + kodeProduk + "'";
+                    EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+#if (DEBUG || Debug_AWS)
+                    await CreateProduct(dbPathEra, kodeProduk, tblCustomer.CUST, "Barang", "Buat Produk", iden, null, null);
+#else
+                    var sqlStorage = new SqlServerStorage(iden.DatabasePathErasoft);
+                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, kodeProduk, tblCustomer.CUST, "Barang", "Buat Produk", iden, null, null));
+#endif
+
+                }
             }
             return "";
         }
