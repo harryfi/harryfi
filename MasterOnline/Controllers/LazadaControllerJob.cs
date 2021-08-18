@@ -440,20 +440,22 @@ namespace MasterOnline.Controllers
                 //xmlString += "<size>Int: One size</size>";
                 xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
                 xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
-                xmlString += "<Images>";
-                if (!string.IsNullOrEmpty(data.imageUrl))
-                    xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
-                if (!string.IsNullOrEmpty(data.imageUrl2))
-                    xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
-                if (!string.IsNullOrEmpty(data.imageUrl3))
-                    xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
-                //add 6/9/2019, 5 gambar
-                if (!string.IsNullOrEmpty(data.imageUrl4))
-                    xmlString += "<Image><![CDATA[" + data.imageUrl4 + "]]></Image>";
-                if (!string.IsNullOrEmpty(data.imageUrl5))
-                    xmlString += "<Image><![CDATA[" + data.imageUrl5 + "]]></Image>";
-                //end add 6/9/2019, 5 gambar
-                xmlString += "</Images>";
+                //remark 18 aug 2021, image pindah keluar dari <sku>
+                //xmlString += "<Images>";
+                //if (!string.IsNullOrEmpty(data.imageUrl))
+                //    xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
+                //if (!string.IsNullOrEmpty(data.imageUrl2))
+                //    xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
+                //if (!string.IsNullOrEmpty(data.imageUrl3))
+                //    xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
+                ////add 6/9/2019, 5 gambar
+                //if (!string.IsNullOrEmpty(data.imageUrl4))
+                //    xmlString += "<Image><![CDATA[" + data.imageUrl4 + "]]></Image>";
+                //if (!string.IsNullOrEmpty(data.imageUrl5))
+                //    xmlString += "<Image><![CDATA[" + data.imageUrl5 + "]]></Image>";
+                ////end add 6/9/2019, 5 gambar
+                //xmlString += "</Images>";
+                //end remark 18 aug 2021, image pindah keluar dari <sku>
 
                 //change 8 Apriil 2019, get attr from api
                 //for (int i = 0; i < dsSku.Tables[0].Rows.Count; i++)
@@ -975,19 +977,21 @@ namespace MasterOnline.Controllers
                 xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
                 xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
                 xmlString += "<Images>";
-                if (!string.IsNullOrEmpty(data.imageUrl))
-                    xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
-                if (!string.IsNullOrEmpty(data.imageUrl2))
-                    xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
-                if (!string.IsNullOrEmpty(data.imageUrl3))
-                    xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
-                //add 6/9/2019, 5 gambar
-                if (!string.IsNullOrEmpty(data.imageUrl4))
-                    xmlString += "<Image><![CDATA[" + data.imageUrl4 + "]]></Image>";
-                if (!string.IsNullOrEmpty(data.imageUrl5))
-                    xmlString += "<Image><![CDATA[" + data.imageUrl5 + "]]></Image>";
-                //end add 6/9/2019, 5 gambar
-                xmlString += "</Images>";
+                //remark 18 aug 2021, image pindah keluar dari <sku>
+                //if (!string.IsNullOrEmpty(data.imageUrl))
+                //    xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
+                //if (!string.IsNullOrEmpty(data.imageUrl2))
+                //    xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
+                //if (!string.IsNullOrEmpty(data.imageUrl3))
+                //    xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
+                ////add 6/9/2019, 5 gambar
+                //if (!string.IsNullOrEmpty(data.imageUrl4))
+                //    xmlString += "<Image><![CDATA[" + data.imageUrl4 + "]]></Image>";
+                //if (!string.IsNullOrEmpty(data.imageUrl5))
+                //    xmlString += "<Image><![CDATA[" + data.imageUrl5 + "]]></Image>";
+                ////end add 6/9/2019, 5 gambar
+                //xmlString += "</Images>";
+                //end remark 18 aug 2021, image pindah keluar dari <sku>
 
                 foreach (var lzdSkuAttr in lzdAttrSkuWithVal)
                 {
