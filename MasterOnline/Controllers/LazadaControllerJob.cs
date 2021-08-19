@@ -835,6 +835,9 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        [AutomaticRetry(Attempts = 0)]
+        [Queue("1_create_product")]
+        [NotifyOnFailed("Edit Product {obj} ke Lazada Gagal.")]
         public BindingBase UpdateProduct(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string uname, BrgViewModel data)
         {
             var ret = new BindingBase();
@@ -976,7 +979,7 @@ namespace MasterOnline.Controllers
                 xmlString += "<price>" + stf02h.HJUAL + "</price>";
                 xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
                 xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
-                xmlString += "<Images>";
+                //xmlString += "<Images>";
                 //remark 18 aug 2021, image pindah keluar dari <sku>
                 //if (!string.IsNullOrEmpty(data.imageUrl))
                 //    xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
