@@ -3669,7 +3669,7 @@
                                         //end change by calvin 15 maret 2019
 
                                         var label = '<label class="control-label">'+ ANAME +'</label>';
-                                        if (AMANDATORY == "1") {
+                                        if (AMANDATORY == "1" || ACODE == "FA-2000060") {
                                             label = '<label class="control-label">' + ANAME + '*</label>';
                                         }
                                         var fieldACODE = '<input data-val="true" class="form-control" data-val-length-max="50" id="ListHargaJualPermarket_'+ listmarket_i +'__ACODE_'+ (i + 1) + '" name="ListHargaJualPermarket['+ listmarket_i +'].ACODE_'+ (i + 1) + '" type="hidden" value="'+ ACODE +'" maxlength="50">';
@@ -3704,7 +3704,7 @@
                                             var selectID = 'attribute_select_blibli_'+ listMarketRecNum +'_'+ (i + 1);
                                             SelectList.push(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue, ATYPE);
                                             //fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
-                                            if (AMANDATORY == "1") {
+                                            if (AMANDATORY == "1" || ACODE == "FA-2000060") {
                                                 fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
                                             } else {
                                                 fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih"></select></div>';
