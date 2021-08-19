@@ -1083,6 +1083,7 @@
     <Compile Include="Models\BUKALAPAK_TOKEN.cs" />
     <Compile Include="Models\CATEGORY_82CART.cs" />
     <Compile Include="Models\CATEGORY_SHOPIFY.cs" />
+    <Compile Include="Models\FAKTUR_API.cs" />
     <Compile Include="Models\LINKFTP.cs" />
     <Compile Include="Models\LOG_HARGAJUAL.cs" />
     <Compile Include="Models\SOT01H.cs" />
