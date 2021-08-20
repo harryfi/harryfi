@@ -4615,51 +4615,106 @@
                     });
             }
             //if (ATYPE == "DEFINING_ATTRIBUTE") {
-            if (ATYPE.includes("MULTIPLE_SELECT")) {
-                var AttributeOptSelectMultiple = $('#' + selectID).selectize({
-                    maxItems : 5,
-                    valueField: 'id',
-                    searchField: 'text',
-                    options: listAttributeOpt,
-                    persist: false,
-                    create: function (input) {
-                        return {
-                            id: input,
-                            text: input,
-                        };
-                    },
-                    onChange: function (value) {
-                        $('#' + fieldAVALUE_ID).val(value);
-                    }
-                });
+            if (ATYPE.includes("COMBO_BOX")) {
+                if (ATYPE.includes("MULTIPLE_SELECT")) {
+                    var AttributeOptSelectMultiple = $('#' + selectID).selectize({
+                        maxItems: 5,
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listAttributeOpt,
+                        persist: true,
+                        create: function (input) {
+                            return {
+                                id: input,
+                                text: input,
+                            };
+                        },
+                        onChange: function (value) {
+                            $('#' + fieldAVALUE_ID).val(value);
+                        }
+                    });
 
-                if (adaValue != "" && adaValue != null){
-                    var adaValues = adaValue.split(',');
-                    AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
+                    if (adaValue != "" && adaValue != null) {
+                        var adaValues = adaValue.split(',');
+                        for (const val of adaValues) {
+                            if (listAttributeOpt.filter(e => e.id === val).length == 0 && val != "null") {
+                                //console.log('nodata : ' + val);
+                                var customVal = {
+                                    id: val,
+                                    text: val
+                                };
+                                AttributeOptSelectMultiple[0].selectize.addOption(customVal);
+                            }
+                        };
+                        //for (const val of adaValues) {
+                        //    listAttributeOpt.id
+                        
+                        //};
+                        AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
+                    }
+                }
+                else {
+                    var AttributeOptSelect = $('#' + selectID).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listAttributeOpt,
+                        persist: true,
+                        create: function (input) {
+                            return {
+                                id: input,
+                                text: input,
+                            };
+                        },
+                        onChange: function (value) {
+                            $('#' + fieldAVALUE_ID).val(value);
+                        }
+                    });
+
+                    if (adaValue != "" && adaValue != null) {
+                        if (listAttributeOpt.filter(e => e.id === adaValue).length == 0 && adaValue != "null") {
+                            //console.log('nodata : ' + val);
+                            var customVal = {
+                                id: adaValue,
+                                text: adaValue
+                            };
+                            AttributeOptSelect[0].selectize.addOption(customVal);
+                        }
+                        AttributeOptSelect[0].selectize.setValue(adaValue, true);
+                    }
                 }
             }
             else {
-                var AttributeOptSelect = $('#' + selectID).selectize({
-                    valueField: 'id',
-                    searchField: 'text',
-                    options: listAttributeOpt,
-                    persist: false,
-                    create: function (input) {
-                        return {
-                            id: input,
-                            text: input,
-                        };
-                    },
-                    onChange: function (value) {
-                        $('#' + fieldAVALUE_ID).val(value);
-                    }
-                });
+                if (ATYPE.includes("MULTIPLE_SELECT")) {
+                    var AttributeOptSelectMultiple = $('#' + selectID).selectize({
+                        maxItems: 5,
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listAttributeOpt,
+                        onChange: function (value) {
+                            $('#' + fieldAVALUE_ID).val(value);
+                        }
+                    });
 
-                if (adaValue != "" && adaValue != null) {
-                    AttributeOptSelect[0].selectize.setValue(adaValue, true);
+                    if (adaValue != "" && adaValue != null) {
+                        var adaValues = adaValue.split(',');
+                        AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
+                    }
+                }
+                else {
+                    var AttributeOptSelect = $('#' + selectID).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listAttributeOpt,
+                        onChange: function (value) {
+                            $('#' + fieldAVALUE_ID).val(value);
+                        }
+                    });
+
+                    if (adaValue != "" && adaValue != null) {
+                        AttributeOptSelect[0].selectize.setValue(adaValue, true);
+                    }
                 }
             }
-
             //    },
             //    error: function (xhr) {
             //        console.log(xhr);
