@@ -1205,28 +1205,38 @@ namespace MasterOnline.Controllers
                     //end change by calvin 10 juni 2019
                     var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.TOKEN == data.token && m.NAMA == "7").FirstOrDefault();
                     if (res.data != null)
-                        foreach (var item in res.data.sku_list)
+                    {
+                        var listStf02 = ErasoftDbContext.STF02.Where(m => m.BRG == data.kdBrg).Select(m => m.BRG).ToList();
+                        if (stf02.TYPE == "4")
+                        {
+                            listStf02 = ErasoftDbContext.STF02.Where(m => m.PART == data.kdBrg).Select(m => m.BRG).ToList();
+                        }
+                        //foreach (var item in res.data.sku_list)
+                        foreach (var item in listStf02)
                         {
                             if (tblCustomer.TIDAK_HIT_UANG_R)
                             {
-                                var brgInDB = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == tblCustomer.RecNum && m.BRG_MP == item.seller_sku).FirstOrDefault();
+                                //var brgInDB = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == tblCustomer.RecNum && m.BRG_MP == item.seller_sku).FirstOrDefault();
+                                var brgInDB = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == tblCustomer.RecNum && m.BRG == item).FirstOrDefault();
                                 if (brgInDB != null)
                                 {
 
 #if (DEBUG || Debug_AWS)
                                     StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
-                                    Task.Run(() => stokAPI.Lazada_updateStock(dbPathEra, brgInDB.BRG, tblCustomer.CUST, "Stock", "Update Stok", item.seller_sku, "", "", data.token, username, null)).Wait();
+                                    //Task.Run(() => stokAPI.Lazada_updateStock(dbPathEra, brgInDB.BRG, tblCustomer.CUST, "Stock", "Update Stok", item.seller_sku, "", "", data.token, username, null)).Wait();
+                                    Task.Run(() => stokAPI.Lazada_updateStock(dbPathEra, item, tblCustomer.CUST, "Stock", "Update Stok", brgInDB.BRG_MP, "", "", data.token, username, null)).Wait();
 #else
                                                         string EDBConnID = EDB.GetConnectionString("ConnId");
                                                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                                         var Jobclient = new BackgroundJobClient(sqlStorage);
-                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(dbPathEra, brgInDB.BRG, tblCustomer.CUST, "Stock", "Update Stok", item.seller_sku, "", "", data.token, username, null));
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(dbPathEra, item, tblCustomer.CUST, "Stock", "Update Stok", brgInDB.BRG_MP, "", "", data.token, username, null));
 #endif
 
                                 }
                             }
                         }
+                    }
                 }
                 else
                 {
