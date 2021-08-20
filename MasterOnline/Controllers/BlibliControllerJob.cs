@@ -11881,7 +11881,8 @@ namespace MasterOnline.Controllers
 #if (DEBUG || Debug_AWS)
                     await CreateProduct(dbPathEra, kodeProduk, tblCustomer.CUST, "Barang", "Buat Produk", iden, null, null);
 #else
-                    var sqlStorage = new SqlServerStorage(iden.DatabasePathErasoft);
+                    var EDBConnID = EDB.GetConnectionString("ConnID");
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
                     var clientJobServer = new BackgroundJobClient(sqlStorage);
                     clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, kodeProduk, tblCustomer.CUST, "Barang", "Buat Produk", iden, null, null));
 #endif

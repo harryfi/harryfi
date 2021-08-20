@@ -3669,7 +3669,7 @@
                                         //end change by calvin 15 maret 2019
 
                                         var label = '<label class="control-label">'+ ANAME +'</label>';
-                                        if (AMANDATORY == "1") {
+                                        if (AMANDATORY == "1" || ACODE == "FA-2000060") {
                                             label = '<label class="control-label">' + ANAME + '*</label>';
                                         }
                                         var fieldACODE = '<input data-val="true" class="form-control" data-val-length-max="50" id="ListHargaJualPermarket_'+ listmarket_i +'__ACODE_'+ (i + 1) + '" name="ListHargaJualPermarket['+ listmarket_i +'].ACODE_'+ (i + 1) + '" type="hidden" value="'+ ACODE +'" maxlength="50">';
