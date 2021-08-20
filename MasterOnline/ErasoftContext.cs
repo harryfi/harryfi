@@ -530,10 +530,10 @@ namespace MasterOnline
             Database.SetInitializer<ErasoftContext>(null);
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<FAKTUR_API>().Property(e => e.Id);
-            modelBuilder.Entity<FAKTUR_API>().Property(e => e.No_Faktur).IsUnicode(false);
-            modelBuilder.Entity<FAKTUR_API>().Property(e => e.No_FakturRef).IsUnicode(false);
-            modelBuilder.Entity<FAKTUR_API>().Property(e => e.Tgl);
+            //modelBuilder.Entity<FAKTUR_API>().Property(e => e.Id);
+            //modelBuilder.Entity<FAKTUR_API>().Property(e => e.No_Faktur).IsUnicode(false);
+            //modelBuilder.Entity<FAKTUR_API>().Property(e => e.No_FakturRef).IsUnicode(false);
+            //modelBuilder.Entity<FAKTUR_API>().Property(e => e.Tgl);
             modelBuilder.Entity<PARTNER_API>().Property(e => e.fs_id);
             modelBuilder.Entity<PARTNER_API>().Property(e => e.Nama_Partner).IsUnicode(false);
             modelBuilder.Entity<PARTNER_API>().Property(e => e.Access_Token).IsUnicode(false);
