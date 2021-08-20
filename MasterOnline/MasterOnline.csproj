@@ -680,6 +680,7 @@
     <Compile Include="Controllers\JDIDControllerJob.cs" />
     <Compile Include="Controllers\ExcelControllerJob.cs" />
     <Compile Include="Controllers\MasterOnlineController.cs" />
+    <Compile Include="Controllers\ShopeeChatController.cs" />
     <Compile Include="Controllers\ShopifyController.cs" />
     <Compile Include="Controllers\ShopifyControllerJob.cs" />
     <Compile Include="Controllers\StokControllerJob.cs" />
@@ -6991,6 +6992,9 @@
     <Content Include="Views\Manage\TableMenuHapusBarangPartial.cshtml" />
     <Content Include="Views\Manage\TableKonfirmasiDeleteBarang.cshtml" />
     <Content Include="Views\Manage\TableBarangPendingPartial.cshtml" />
+    <Content Include="Views\Manage\ChatSetting.cshtml" />
+    <Content Include="Views\Manage\TableCustomerChatPartial.cshtml" />
+    <Content Include="ShopeeChat\ShopeeAuthChat.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
