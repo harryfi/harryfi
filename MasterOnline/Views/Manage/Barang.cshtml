@@ -4621,6 +4621,13 @@
                     valueField: 'id',
                     searchField: 'text',
                     options: listAttributeOpt,
+                    persist: false,
+                    create: function (input) {
+                        return {
+                            id: input,
+                            text: input,
+                        };
+                    },
                     onChange: function (value) {
                         $('#' + fieldAVALUE_ID).val(value);
                     }
@@ -4636,6 +4643,13 @@
                     valueField: 'id',
                     searchField: 'text',
                     options: listAttributeOpt,
+                    persist: false,
+                    create: function (input) {
+                        return {
+                            id: input,
+                            text: input,
+                        };
+                    },
                     onChange: function (value) {
                         $('#' + fieldAVALUE_ID).val(value);
                     }
