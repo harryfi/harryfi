@@ -7757,7 +7757,9 @@ namespace MasterOnline.Controllers
                                             {
                                                 if (dataAttr.attribute_value_list != null)
                                                 {
-                                                    if (dataAttr.attribute_value_list.Length == 0)
+                                                    var cekVal = dataAttr.attribute_value_list.Where(m => m.value_id == n).ToList();
+                                                    //if (dataAttr.attribute_value_list.Length == 0)
+                                                    if (cekVal.Count == 0)
                                                     {
                                                         attrValue.value_id = 0;
                                                         attrValue.original_value_name = singleAttr.Trim();
@@ -7776,14 +7778,18 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
+                                    var currentAttr = singleAttr;
                                     if (dataAttr.input_validation_type.ToUpper().Contains("DATE_TYPE"))
                                     {
-                                        var splitDate = value.Split('/');
+                                        //var splitDate = value.Split('/');
+                                        var splitDate = currentAttr.Split('/');
                                         var dateValue = new DateTime(Convert.ToInt32(splitDate[2]), Convert.ToInt32(splitDate[1]), Convert.ToInt32(splitDate[0]));
-                                        value = ((DateTimeOffset)dateValue).ToUnixTimeSeconds().ToString();
+                                        //value = ((DateTimeOffset)dateValue).ToUnixTimeSeconds().ToString();
+                                        currentAttr = ((DateTimeOffset)dateValue).ToUnixTimeSeconds().ToString();
                                     }
                                     attrValue.value_id = 0;
-                                    attrValue.original_value_name = value.Trim();
+                                    //attrValue.original_value_name = value.Trim();
+                                    attrValue.original_value_name = currentAttr.Trim();
                                     attrValue.value_unit = unit ?? "";
                                 }
                                 newAttr.attribute_value_list.Add(attrValue);
@@ -10636,7 +10642,9 @@ namespace MasterOnline.Controllers
                                             {
                                                 if (dataAttr.attribute_value_list != null)
                                                 {
-                                                    if (dataAttr.attribute_value_list.Length == 0)
+                                                    var cekVal = dataAttr.attribute_value_list.Where(m => m.value_id == n).ToList();
+                                                    //if (dataAttr.attribute_value_list.Length == 0)
+                                                    if (cekVal.Count == 0)
                                                     {
                                                         attrValue.value_id = 0;
                                                         attrValue.original_value_name = singleAttr.Trim();
@@ -10655,14 +10663,18 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
+                                    var currentAttr = singleAttr;
                                     if (dataAttr.input_validation_type.ToUpper().Contains("DATE_TYPE"))
                                     {
-                                        var splitDate = value.Split('/');
+                                        //var splitDate = value.Split('/');
+                                        var splitDate = currentAttr.Split('/');
                                         var dateValue = new DateTime(Convert.ToInt32(splitDate[2]), Convert.ToInt32(splitDate[1]), Convert.ToInt32(splitDate[0]));
-                                        value = ((DateTimeOffset)dateValue).ToUnixTimeSeconds().ToString();
+                                        //value = ((DateTimeOffset)dateValue).ToUnixTimeSeconds().ToString();
+                                        currentAttr = ((DateTimeOffset)dateValue).ToUnixTimeSeconds().ToString();
                                     }
                                     attrValue.value_id = 0;
-                                    attrValue.original_value_name = value.Trim();
+                                    //attrValue.original_value_name = value.Trim();
+                                    attrValue.original_value_name = currentAttr.Trim();
                                     attrValue.value_unit = unit ?? "";
                                 }
                                 newAttr.attribute_value_list.Add(attrValue);
