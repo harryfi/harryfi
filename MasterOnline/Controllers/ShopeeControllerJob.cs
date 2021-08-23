@@ -4339,13 +4339,19 @@ namespace MasterOnline.Controllers
                     //insertPembeli += "1, 'IDR', '01', '" + order.recipient_address.full_address + "', 0, 0, 0, 0, '1', 0, 0, ";
                     //insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient_address.zipcode + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
 
-                    string nama = order.recipient_address.name.Length > 30 ? order.recipient_address.name.Substring(0, 30) : order.recipient_address.name;
+                    //change by nurul 23/8/2021
+                    //string nama = order.recipient_address.name.Length > 30 ? order.recipient_address.name.Substring(0, 30) : order.recipient_address.name;
+                    string nama = order.recipient_address.name.Trim().Length > 30 ? order.recipient_address.name.Trim().Substring(0, 30) : order.recipient_address.name.Trim();
+                    //end change by nurul 23/8/2021
                     string tlp = !string.IsNullOrEmpty(order.recipient_address.phone) ? order.recipient_address.phone.Replace('\'', '`') : "";
                     if (tlp.Length > 30)
                     {
                         tlp = tlp.Substring(0, 30);
                     }
-                    string AL_KIRIM1 = !string.IsNullOrEmpty(order.recipient_address.full_address) ? order.recipient_address.full_address.Replace('\'', '`') : "";
+                    //change by nurul 23/8/2021
+                    //string AL_KIRIM1 = !string.IsNullOrEmpty(order.recipient_address.full_address) ? order.recipient_address.full_address.Replace('\'', '`') : "";
+                    string AL_KIRIM1 = !string.IsNullOrEmpty(order.recipient_address.full_address.Trim()) ? order.recipient_address.full_address.Trim().Replace('\'', '`') : "";
+                    //end change by nurul 23/8/2021
                     if (AL_KIRIM1.Length > 30)
                     {
                         AL_KIRIM1 = AL_KIRIM1.Substring(0, 30);
@@ -4358,7 +4364,10 @@ namespace MasterOnline.Controllers
 
                     insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
                         ((nama ?? "").Replace("'", "`")),
-                        ((order.recipient_address.full_address ?? "").Replace("'", "`")),
+                        //change by nurul 23/8/2021
+                        //((order.recipient_address.full_address ?? "").Replace("'", "`")),
+                        ((order.recipient_address.full_address.Trim() ?? "").Replace("'", "`")),
+                        //end change by nurul 23/8/2021
                         (tlp),
                         //(NAMA_CUST.Replace(',', '.')),
                         (NAMA_CUST.Length > 30 ? NAMA_CUST.Substring(0, 30) : NAMA_CUST),
