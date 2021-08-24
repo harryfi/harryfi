@@ -8466,8 +8466,8 @@
                         //refreshTablePesanan();
                         //refreshTableCancel();
                         refreshTableSudahDibayar();
-                        alert('Kode barang pada pesanan (' + response.Errors + ') belum terdaftar di Master Online, silahkan cek detail pesanan anda !');
-
+                        //alert('Kode barang pada pesanan (' + response.Errors + ') belum terdaftar di Master Online, silahkan cek detail pesanan anda !');
+                        alert(response.Errors);
                     }
                     $('#modal-status-multi-body').modal('hide');
                     $('#modalUbahStatusMultiDibayar').modal('hide');

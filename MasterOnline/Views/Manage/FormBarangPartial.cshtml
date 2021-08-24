@@ -1312,7 +1312,7 @@
                                                                                     </div>
                                                                                     <div class="row">
                                                                                         <div class="col-md-2 col-sm-2 col-xs-12">
-                                                                                            @Html.Label("Unique Selling Point *", new { @class = "control-label" })
+                                                                                            @Html.Label("Unique Selling Point", new { @class = "control-label" })
                                                                                         </div>
                                                                                         <div class="col-md-10 col-sm-10 col-xs-12 form-group">
                                                                                             @*<div class="input-group text">*@
@@ -1323,7 +1323,7 @@
                                                                                                 string ValueUniqueSellingPoint = HttpUtility.HtmlDecode(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_39);
                                                                                                 string nameUniqueSellingPoint = "ListHargaJualPermarket[" + i + "].AVALUE_39";
                                                                                             }
-                                                                                            <textarea cols="20" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required." class="form-control make_ckeditor" id="@idUniqueSellingPoint" name="@nameUniqueSellingPoint" rows="2" style="resize: none; width:100%;">@ValueUniqueSellingPoint</textarea>
+                                                                                            <textarea cols="20" data-val="true" class="form-control make_ckeditor" id="@idUniqueSellingPoint" name="@nameUniqueSellingPoint" rows="2" style="resize: none; width:100%;">@ValueUniqueSellingPoint</textarea>
                                                                                             @*</div>*@
                                                                                         </div>
                                                                                     </div>

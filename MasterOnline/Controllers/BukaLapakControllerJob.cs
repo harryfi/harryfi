@@ -1494,7 +1494,7 @@ namespace MasterOnline.Controllers
                                             if (dsOrder.Tables[0].Rows[0]["TIPE_KIRIM"].ToString() != "1")
                                             {
                                                 rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
-                                                    "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('"
+                                                    "UPDATE SOT01A SET STATUS='2',ORDER_CANCEL_DATE = '"+DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")+"',STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('"
                                                     + order.transaction_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
                                             }
                                             else//pesanan cod
@@ -1502,14 +1502,14 @@ namespace MasterOnline.Controllers
                                                 if (order.state_changed_at.delivered_at.HasValue)
                                                 {
                                                     rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
-                                                        "UPDATE SOT01A SET STATUS_TRANSAKSI = '12' WHERE NO_REFERENSI IN ('"
+                                                        "UPDATE SOT01A SET STATUS_TRANSAKSI = '12',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "' WHERE NO_REFERENSI IN ('"
                                                         + order.transaction_id + "') AND STATUS_TRANSAKSI <> '12' AND CUST = '" + CUST + "'");
                                                     cekSudahKirimCOD = true;
                                                 }
                                                 else
                                                 {
                                                     rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
-                                                        "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('"
+                                                        "UPDATE SOT01A SET STATUS='2',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('"
                                                         + order.transaction_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
                                                 }
 

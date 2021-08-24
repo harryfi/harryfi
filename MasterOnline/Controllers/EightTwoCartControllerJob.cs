@@ -381,7 +381,8 @@ namespace MasterOnline.Controllers
             postData += "&condition=" + Uri.EscapeDataString("new");
             postData += "&wholesale_price=" + Uri.EscapeDataString("0");
             postData += "&price=" + Uri.EscapeDataString(detailBrg.HJUAL.ToString());
-            postData += "&on_sale=" + Uri.EscapeDataString("1");
+            //postData += "&on_sale=" + Uri.EscapeDataString("1");
+            postData += "&on_sale=" + Uri.EscapeDataString("0");
             //postData += "&link_rewrite=" + Uri.EscapeDataString(brgInDb.NAMA.Replace(" ", "-").Replace("+", "plus").ToLower()); // remark karena karakter lain perlu ditambahkan seperti di bawah
             postData += "&link_rewrite=" + Uri.EscapeDataString(brgInDb.NAMA.Replace(" ", "-").Replace("+", "plus").Replace("`", "") // add by fauzi 23 April 2021
                 .Replace("&", "n").Replace("(", "").Replace(")", "").Replace("[", "").Replace("]", "").Replace("!", "").Replace(".", "").Replace("|", "").Replace(":", "").Replace(";", "")
@@ -393,7 +394,8 @@ namespace MasterOnline.Controllers
             postData += "&depth=" + Uri.EscapeDataString(brgInDb.PANJANG.ToString());
             postData += "&weight=" + Uri.EscapeDataString(weight.ToString());
             postData += "&additional_shipping_cost=" + Uri.EscapeDataString("0");
-            postData += "&minimal_quantity=" + Uri.EscapeDataString(brgInDb.MINI.ToString());
+            //postData += "&minimal_quantity=" + Uri.EscapeDataString(brgInDb.MINI.ToString());
+            postData += "&minimal_quantity=1";
             postData += "&out_of_stock=" + Uri.EscapeDataString("0");
             postData += "&id_category_default=" + Uri.EscapeDataString(categoryIDDefault.ToString());
             postData += "&category=" + Uri.EscapeDataString("[" + categoryID.ToString() + "]");
@@ -736,7 +738,8 @@ namespace MasterOnline.Controllers
             postData += "&condition=" + Uri.EscapeDataString("new");
             postData += "&wholesale_price=" + Uri.EscapeDataString("0");
             postData += "&price=" + Uri.EscapeDataString(detailBrg.HJUAL.ToString());
-            postData += "&on_sale=" + Uri.EscapeDataString("1");
+            //postData += "&on_sale=" + Uri.EscapeDataString("1");
+            postData += "&on_sale=" + Uri.EscapeDataString("0");
             //postData += "&link_rewrite=" + Uri.EscapeDataString(brgInDb.NAMA.Replace(" ", "-").Replace("+", "plus").ToLower());  // remark karena karakter lain perlu ditambahkan seperti di bawah
             postData += "&link_rewrite=" + Uri.EscapeDataString(brgInDb.NAMA.Replace(" ", "-").Replace("+", "plus").Replace("`", "") // add by fauzi 23 April 2021
                 .Replace("&", "n").Replace("(", "").Replace(")", "").Replace("[", "").Replace("]", "").Replace("!", "").Replace(".", "").Replace("|", "").Replace(":", "").Replace(";", "")
@@ -749,7 +752,8 @@ namespace MasterOnline.Controllers
             postData += "&depth=" + Uri.EscapeDataString(brgInDb.PANJANG.ToString());
             postData += "&weight=" + Uri.EscapeDataString(weight.ToString());
             postData += "&additional_shipping_cost=" + Uri.EscapeDataString("0");
-            postData += "&minimal_quantity=" + Uri.EscapeDataString(brgInDb.MINI.ToString());
+            //postData += "&minimal_quantity=" + Uri.EscapeDataString(brgInDb.MINI.ToString());
+            postData += "&minimal_quantity=" + Uri.EscapeDataString("1");
             postData += "&out_of_stock=" + Uri.EscapeDataString("0");
             postData += "&id_category_default=" + Uri.EscapeDataString(categoryIDDefault.ToString());
             postData += "&category=" + Uri.EscapeDataString("[" + categoryID.ToString() + "]");
@@ -2361,7 +2365,7 @@ namespace MasterOnline.Controllers
                             var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connID + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "'");
                             //change by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
                             //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
-                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
+                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
                             //change by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
                             if (rowAffected > 0)
                             {

@@ -5172,9 +5172,13 @@ namespace MasterOnline.Controllers
                             sSQL += "union all" + System.Environment.NewLine;
                             //change 2 aug 2021, pisahkan job get order complete shopee dan lzd
                             //sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%'" + System.Environment.NewLine;
-                            sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%' and InvocationData not like '%GetOrdersToUpdateMO%' and InvocationData not like '%ShopeeControllerJob%GetOrderByStatusCompleted%'" + System.Environment.NewLine;
+                            //change by nurul 9/8/2021, pisahkan job get order complete jdid
+                            //sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%' and InvocationData not like '%GetOrdersToUpdateMO%' and InvocationData not like '%ShopeeControllerJob%GetOrderByStatusCompleted%'" + System.Environment.NewLine;
+                            sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%' and InvocationData not like '%GetOrdersToUpdateMO%' and InvocationData not like '%ShopeeControllerJob%GetOrderByStatusCompleted%' and InvocationData not like '%JD_GetOrderByStatusComplete%'" + System.Environment.NewLine;
                             sSQL += "union all" + System.Environment.NewLine;
-                            sSQL += "select 'Manage' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and (InvocationData like '%GetOrdersToUpdateMO%' or InvocationData like '%ShopeeControllerJob%GetOrderByStatusCompleted%')" + System.Environment.NewLine;
+                            //sSQL += "select 'Manage' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and (InvocationData like '%GetOrdersToUpdateMO%' or InvocationData like '%ShopeeControllerJob%GetOrderByStatusCompleted%')" + System.Environment.NewLine;
+                            sSQL += "select 'Manage' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and (InvocationData like '%GetOrdersToUpdateMO%' or InvocationData like '%ShopeeControllerJob%GetOrderByStatusCompleted%' or InvocationData like '%JD_GetOrderByStatusComplete%')" + System.Environment.NewLine;
+                            //end change by nurul 9/8/2021, pisahkan job get order complete jdid
                             //change 2 aug 2021, pisahkan job get order complete shopee dan lzd
                             sSQL += "union all" + System.Environment.NewLine;
                             //sSQL += "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%'" + System.Environment.NewLine;

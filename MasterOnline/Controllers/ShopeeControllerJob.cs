@@ -2739,7 +2739,7 @@ namespace MasterOnline.Controllers
                             //change by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
                             //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
                             //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
-                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ("
+                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ("
                                 + ordersn + ") AND STATUS_TRANSAKSI  NOT IN ('11', '12') AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) <> 1");
                             //end change by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
 
@@ -2954,7 +2954,7 @@ namespace MasterOnline.Controllers
                                                 + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1 "
                                                 + "AND BRG NOT IN ( SELECT BRG FROM TEMP_ALL_MP_ORDER_ITEM (NOLOCK) WHERE CONN_ID = '" + connID + "')");
 
-                                        var rowAffected_2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ("
+                                        var rowAffected_2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ("
                                                          + listPesananCOD_11 + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1");
                                         if (rowAffected_2 > 0)
                                         {
@@ -2973,7 +2973,7 @@ namespace MasterOnline.Controllers
                                                 + ") AND STATUS_TRANSAKSI <> '12' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1 "
                                                 + "AND BRG NOT IN ( SELECT BRG FROM TEMP_ALL_MP_ORDER_ITEM (NOLOCK) WHERE CONN_ID = '" + connID + "')");
 
-                                        var rowAffected_3 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '12' WHERE NO_REFERENSI IN ("
+                                        var rowAffected_3 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '12',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "' WHERE NO_REFERENSI IN ("
                                                          + listPesananCOD_12 + ") AND STATUS_TRANSAKSI <> '12' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1");
                                         rowAffected += rowAffected_3;
                                     }
@@ -4339,13 +4339,19 @@ namespace MasterOnline.Controllers
                     //insertPembeli += "1, 'IDR', '01', '" + order.recipient_address.full_address + "', 0, 0, 0, 0, '1', 0, 0, ";
                     //insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient_address.zipcode + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
 
-                    string nama = order.recipient_address.name.Length > 30 ? order.recipient_address.name.Substring(0, 30) : order.recipient_address.name;
+                    //change by nurul 23/8/2021
+                    //string nama = order.recipient_address.name.Length > 30 ? order.recipient_address.name.Substring(0, 30) : order.recipient_address.name;
+                    string nama = order.recipient_address.name.Trim().Length > 30 ? order.recipient_address.name.Trim().Substring(0, 30) : order.recipient_address.name.Trim();
+                    //end change by nurul 23/8/2021
                     string tlp = !string.IsNullOrEmpty(order.recipient_address.phone) ? order.recipient_address.phone.Replace('\'', '`') : "";
                     if (tlp.Length > 30)
                     {
                         tlp = tlp.Substring(0, 30);
                     }
-                    string AL_KIRIM1 = !string.IsNullOrEmpty(order.recipient_address.full_address) ? order.recipient_address.full_address.Replace('\'', '`') : "";
+                    //change by nurul 23/8/2021
+                    //string AL_KIRIM1 = !string.IsNullOrEmpty(order.recipient_address.full_address) ? order.recipient_address.full_address.Replace('\'', '`') : "";
+                    string AL_KIRIM1 = !string.IsNullOrEmpty(order.recipient_address.full_address.Trim()) ? order.recipient_address.full_address.Trim().Replace('\'', '`') : "";
+                    //end change by nurul 23/8/2021
                     if (AL_KIRIM1.Length > 30)
                     {
                         AL_KIRIM1 = AL_KIRIM1.Substring(0, 30);
@@ -4358,7 +4364,10 @@ namespace MasterOnline.Controllers
 
                     insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
                         ((nama ?? "").Replace("'", "`")),
-                        ((order.recipient_address.full_address ?? "").Replace("'", "`")),
+                        //change by nurul 23/8/2021
+                        //((order.recipient_address.full_address ?? "").Replace("'", "`")),
+                        ((order.recipient_address.full_address.Trim() ?? "").Replace("'", "`")),
+                        //end change by nurul 23/8/2021
                         (tlp),
                         //(NAMA_CUST.Replace(',', '.')),
                         (NAMA_CUST.Length > 30 ? NAMA_CUST.Substring(0, 30) : NAMA_CUST),
@@ -7757,7 +7766,9 @@ namespace MasterOnline.Controllers
                                             {
                                                 if (dataAttr.attribute_value_list != null)
                                                 {
-                                                    if (dataAttr.attribute_value_list.Length == 0)
+                                                    var cekVal = dataAttr.attribute_value_list.Where(m => m.value_id == n).ToList();
+                                                    //if (dataAttr.attribute_value_list.Length == 0)
+                                                    if (cekVal.Count == 0)
                                                     {
                                                         attrValue.value_id = 0;
                                                         attrValue.original_value_name = singleAttr.Trim();
@@ -7776,14 +7787,18 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
+                                    var currentAttr = singleAttr;
                                     if (dataAttr.input_validation_type.ToUpper().Contains("DATE_TYPE"))
                                     {
-                                        var splitDate = value.Split('/');
+                                        //var splitDate = value.Split('/');
+                                        var splitDate = currentAttr.Split('/');
                                         var dateValue = new DateTime(Convert.ToInt32(splitDate[2]), Convert.ToInt32(splitDate[1]), Convert.ToInt32(splitDate[0]));
-                                        value = ((DateTimeOffset)dateValue).ToUnixTimeSeconds().ToString();
+                                        //value = ((DateTimeOffset)dateValue).ToUnixTimeSeconds().ToString();
+                                        currentAttr = ((DateTimeOffset)dateValue).ToUnixTimeSeconds().ToString();
                                     }
                                     attrValue.value_id = 0;
-                                    attrValue.original_value_name = value.Trim();
+                                    //attrValue.original_value_name = value.Trim();
+                                    attrValue.original_value_name = currentAttr.Trim();
                                     attrValue.value_unit = unit ?? "";
                                 }
                                 newAttr.attribute_value_list.Add(attrValue);
@@ -9625,6 +9640,7 @@ namespace MasterOnline.Controllers
             HttpRequest.item_id = dataBrg.item_id;
 
             string myData = JsonConvert.SerializeObject(HttpRequest);
+            myData = myData.Replace(",\"image\":{\"image_id\":null}", " ");
 
             int MOPartnerID = MOPartnerIDV2;
             string MOPartnerKey = MOPartnerKeyV2;
@@ -9756,6 +9772,7 @@ namespace MasterOnline.Controllers
             HttpRequest.item_id = dataBrg.item_id;
 
             string myData = JsonConvert.SerializeObject(HttpRequest);
+            myData = myData.Replace(",\"image\":{\"image_id\":null}", " ");
 
             int MOPartnerID = MOPartnerIDV2;
             string MOPartnerKey = MOPartnerKeyV2;
@@ -10634,7 +10651,9 @@ namespace MasterOnline.Controllers
                                             {
                                                 if (dataAttr.attribute_value_list != null)
                                                 {
-                                                    if (dataAttr.attribute_value_list.Length == 0)
+                                                    var cekVal = dataAttr.attribute_value_list.Where(m => m.value_id == n).ToList();
+                                                    //if (dataAttr.attribute_value_list.Length == 0)
+                                                    if (cekVal.Count == 0)
                                                     {
                                                         attrValue.value_id = 0;
                                                         attrValue.original_value_name = singleAttr.Trim();
@@ -10653,14 +10672,18 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
+                                    var currentAttr = singleAttr;
                                     if (dataAttr.input_validation_type.ToUpper().Contains("DATE_TYPE"))
                                     {
-                                        var splitDate = value.Split('/');
+                                        //var splitDate = value.Split('/');
+                                        var splitDate = currentAttr.Split('/');
                                         var dateValue = new DateTime(Convert.ToInt32(splitDate[2]), Convert.ToInt32(splitDate[1]), Convert.ToInt32(splitDate[0]));
-                                        value = ((DateTimeOffset)dateValue).ToUnixTimeSeconds().ToString();
+                                        //value = ((DateTimeOffset)dateValue).ToUnixTimeSeconds().ToString();
+                                        currentAttr = ((DateTimeOffset)dateValue).ToUnixTimeSeconds().ToString();
                                     }
                                     attrValue.value_id = 0;
-                                    attrValue.original_value_name = value.Trim();
+                                    //attrValue.original_value_name = value.Trim();
+                                    attrValue.original_value_name = currentAttr.Trim();
                                     attrValue.value_unit = unit ?? "";
                                 }
                                 newAttr.attribute_value_list.Add(attrValue);

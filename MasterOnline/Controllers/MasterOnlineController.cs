@@ -373,7 +373,7 @@ namespace MasterOnline.Controllers
             //var resultInsert = EDB.ExecuteSQL("CString", CommandType.Text, sSQLInsert);
 
             try { 
-                var cekListFaktur = ErasoftDbContext.Database.SqlQuery<ART03B>("SELECT A.* FROM ART03B A(NOLOCK) INNER JOIN ART03A C(NOLOCK) ON A.BUKTI=C.BUKTI INNER JOIN ART01D B(NOLOCK) ON A.NFAKTUR=B.FAKTUR WHERE B.KREDIT=0  and (A.bayar + A.pot) >0 and year(c.tgl)=2021").ToList();
+                var cekListFaktur = ErasoftDbContext.Database.SqlQuery<ART03B>("SELECT A.* FROM ART03B A(NOLOCK) INNER JOIN ART03A C(NOLOCK) ON A.BUKTI=C.BUKTI INNER JOIN ART01D B(NOLOCK) ON A.NFAKTUR=B.FAKTUR WHERE B.KREDIT=0  and (A.bayar + A.pot) >0 and year(c.tgl)>=2021").ToList();
                 if (cekListFaktur != null)
                 {
                     if (cekListFaktur.Count() > 0)
