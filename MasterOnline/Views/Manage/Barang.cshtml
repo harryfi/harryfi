@@ -4648,7 +4648,7 @@
                         };
                         //for (const val of adaValues) {
                         //    listAttributeOpt.id
-                        
+
                         //};
                         AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
                     }
@@ -5350,7 +5350,154 @@
 
         function CopyDataAttrFromBrg(brg) {
             if (confirm('Semua data attribute marketplace barang ini akan diubah mengikuti data attribute marketplace dari kode barang : ' + brg + '.\nApakah Anda yakin?')) {
-                alert('confirm');
+                //model_listhargajualpermarketview
+
+                var link = '@Url.Action("GetBrgSTF02H", "Manage", new { kode = "replaceCode", brg = "replaceBrg" })';
+                link = link.replace("replaceCode", encodeURIComponent(brg));
+                link = link.replace("replaceBrg", encodeURIComponent($('#Stf02_BRG').val()));
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (data) {
+                        model_listhargajualpermarketview = data;
+                        $('.reset-data-to-copy').html('');
+                        var i = 0;
+
+                        var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
+                        for (const lMarket of listMarket) {
+                            var fieldCategoryCode = '#ListHargaJualPermarket_' + i + '__CATEGORY_CODE';
+                            var fieldCategoryName = '#ListHargaJualPermarket_' + i + '__CATEGORY_NAME';
+                            $(fieldCategoryCode).val('');
+                            $(fieldCategoryName).val('');
+                            for (const valData of model_listhargajualpermarketview) {
+                                if (lMarket.RecNum == valData.IDMARKET) {
+                                    $(fieldCategoryCode).val(valData.CATEGORY_CODE);
+                                    $(fieldCategoryName).val(valData.CATEGORY_NAME);
+                                    if (lMarket.NAMA == "16")//blibli
+                                    {
+                                        $('#ListHargaJualPermarket_' + i + '__PICKUP_POINT').val(valData.PICKUP_POINT);
+                                        $('#PickupPoint' + i + 'Blibli').val(valData.PICKUP_POINT);
+                                        if (valData.AVALUE_39 != '' || valData.AVALUE_39 != null) {
+                                            $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val(data.AVALUE_39);
+                                            CKEDITOR.instances['ListHargaJualPermarket_' + i + '__AVALUE_39'].setData(data.AVALUE_39);
+                                        }
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val(valData.AVALUE_38);
+                                        $('#ListHargaJualPermarket_' + i + '__ANAME_38').val(valData.ANAME_38);
+                                        $('#Brand' + i + 'Blibli').val(valData.ANAME_38);
+                                    }
+                                    if (lMarket.NAMA == "9")//elevenia
+                                    {
+                                        $('#ListHargaJualPermarket_' + i + '__DeliveryTempElevenia').val(valData.DeliveryTempElevenia);
+                                        $('#DeliveryTempElevenia' + i + 'Box').val(valData.DeliveryTempElevenia);
+                                    }
+                                    if (lMarket.NAMA == "7")//Lazada
+                                    {
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val(valData.AVALUE_38);
+                                        $('#ListHargaJualPermarket_' + i + '__ANAME_38').val(valData.ANAME_38);
+                                        $('#Brand' + i + 'Lazada').val(valData.ANAME_38);
+                                    }
+                                    if (lMarket.NAMA == "17")//Shopee
+                                    {
+                                        if (valData.AVALUE_38 != '' || valData.AVALUE_38 != null) {
+                                            $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val(valData.AVALUE_38);
+                                            $('#ListHargaJualPermarket_' + i + '__ANAME_38').val(valData.ANAME_38);
+                                            $('#Brand' + i + 'Shopee').val(valData.ANAME_38);
+                                        }
+                                        if (valData.AVALUE_39 != '' || valData.AVALUE_39 != null) {
+                                            $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val(data.AVALUE_39);
+                                            var listLog = data.AVALUE_39.split(',');
+                                            $('#LOGISTIC_SHOPEE_' + lMarket.RecNum)[0].selectize.setValue(listLog, true);
+                                        }
+                                    }
+                                    if (lMarket.NAMA == "15")//Tokopedia
+                                    {
+                                        $('#ListHargaJualPermarket_' + i + '__PICKUP_POINT').val(valData.PICKUP_POINT);
+                                        $('#TOKPED_ETALASE' + i + 'Box').val(valData.PICKUP_POINT);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_35').val(valData.AVALUE_35);
+                                        if (valData.AVALUE_35 = '1') {
+                                            $('#rdoAsuransi1_' + lMarket.RecNum).prop('checked', true);
+                                            $('#rdoAsuransi2_' + lMarket.RecNum).prop('checked', false);
+                                        }
+                                        else {
+                                            $('#rdoAsuransi1_' + lMarket.RecNum).prop('checked', false);
+                                            $('#rdoAsuransi2_' + lMarket.RecNum).prop('checked', true);
+                                        }
+                                        $('#ListHargaJualPermarket_' + i + '__MIN_ORDER').val(valData.MIN_ORDER);
+                                    }
+                                    if (lMarket.NAMA == "19")//jdid
+                                    {
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val(valData.AVALUE_38);
+                                        $('#ListHargaJualPermarket_' + i + '__ANAME_38').val(valData.ANAME_38);
+                                        $('#Brand' + i + 'JDID').val(valData.ANAME_38);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_43').val(valData.AVALUE_43);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val(valData.AVALUE_39);
+                                        $('#ListHargaJualPermarket_' + i + '__ANAME_39').val(valData.ANAME_39);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_44').val(valData.AVALUE_44);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_40').val(valData.AVALUE_40);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_40').val(valData.AVALUE_40);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_47').val(valData.AVALUE_47);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_41').val(valData.AVALUE_41);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_41').val(valData.AVALUE_41);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_45').val(valData.AVALUE_45);
+                                        if (valData.AVALUE_45 = '1') {
+                                            $('#rdoCODJDID1_' + lMarket.RecNum).prop('checked', true);
+                                            $('#rdoCODJDID2_' + lMarket.RecNum).prop('checked', false);
+                                        }
+                                        else {
+                                            $('#rdoCODJDID1_' + lMarket.RecNum).prop('checked', false);
+                                            $('#rdoCODJDID2_' + lMarket.RecNum).prop('checked', true);
+                                        }
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_46').val(valData.AVALUE_46);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_48').val(valData.AVALUE_48);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_49').val(valData.AVALUE_49);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_45').val(valData.AVALUE_47);
+                                        if (valData.AVALUE_47 = '1') {
+                                            $('#rdoQualityJDID1_' + lMarket.RecNum).prop('checked', true);
+                                            $('#rdoQualityJDID2_' + lMarket.RecNum).prop('checked', false);
+                                        }
+                                        else {
+                                            $('#rdoQualityJDID1_' + lMarket.RecNum).prop('checked', false);
+                                            $('#rdoQualityJDID2_' + lMarket.RecNum).prop('checked', true);
+                                        }
+                                        $('#ListHargaJualPermarket_' + i + '__ANAME_47').val(valData.ANAME_47);
+                                    }
+                                    if (lMarket.NAMA == "20")//82cart
+                                    {
+                                        $('#ListHargaJualPermarket_' + i + '__ACODE_1').val(valData.ACODE_1);
+                                        $('#ListHargaJualPermarket_' + i + '__ANAME_1').val(valData.ANAME_1);
+                                        $('#ListHargaJualPermarket_' + i + '__ACODE_2').val(valData.ACODE_2);
+                                        $('#ListHargaJualPermarket_' + i + '__ANAME_2').val(valData.ANAME_2);
+                                        $('#ListHargaJualPermarket_' + i + '__ACODE_3').val(valData.ACODE_3);
+                                        $('#ListHargaJualPermarket_' + i + '__ANAME_3').val(valData.ANAME_3);
+                                        $('#ListHargaJualPermarket_' + i + '__ACODE_4').val(valData.ACODE_4);
+                                        $('#ListHargaJualPermarket_' + i + '__ANAME_4').val(valData.ANAME_4);
+                                        $('#ListHargaJualPermarket_' + i + '__ACODE_5').val(valData.ACODE_5);
+                                        $('#ListHargaJualPermarket_' + i + '__ANAME_5').val(valData.ANAME_5);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val(valData.AVALUE_38);
+                                        $('#ListHargaJualPermarket_' + i + '__ANAME_38').val(valData.ANAME_38);
+                                        $('#Brand' + i + '82Cart').val(valData.ANAME_38);
+                                    }
+                                }
+                            }
+                            i = i + 1;
+                        };
+
+                        getKategoriPertamaLazada(-1);
+                        getKategoriPertamaBlibli(-1);
+                        getKategoriPertamaElevenia(-1);
+                        getKategoriPertamaShopee(-1);
+                        getKategoriPertamaTokped(-1);
+                        //getKategoriPertamaBukalapak(-1); //remark 9 feb 2021, tutup sementara
+                        getKategoriPertamaJD(-1, false);
+                        getKategoriPertama82Cart(-1);
+                        getAttributeGroupPertama82Cart(-1);
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
             }
         }
         //END ADD BY CALVIN 6 FEBRUARI 2019
