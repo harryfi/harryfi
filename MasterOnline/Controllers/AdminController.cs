@@ -5166,48 +5166,72 @@ namespace MasterOnline.Controllers
                                 StokJobEnqueued = 0,
                                 LAST_HEARTBEAT = lastHeartbeat
                             };
-
-                            //string sSQL = "select 'Stok' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%StokControllerJob%' " + System.Environment.NewLine;
+                            #region function lama
+                            ////string sSQL = "select 'Stok' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%StokControllerJob%' " + System.Environment.NewLine;
+                            //string sSQL = "select 'Stok' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%StokControllerJob%' and InvocationData not like '%updateBruto%'" + System.Environment.NewLine;
+                            //sSQL += "union all" + System.Environment.NewLine;
+                            ////change 2 aug 2021, pisahkan job get order complete shopee dan lzd
+                            ////sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%'" + System.Environment.NewLine;
+                            ////change by nurul 9/8/2021, pisahkan job get order complete jdid
+                            ////sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%' and InvocationData not like '%GetOrdersToUpdateMO%' and InvocationData not like '%ShopeeControllerJob%GetOrderByStatusCompleted%'" + System.Environment.NewLine;
+                            //sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%' and InvocationData not like '%GetOrdersToUpdateMO%' and InvocationData not like '%ShopeeControllerJob%GetOrderByStatusCompleted%' and InvocationData not like '%JD_GetOrderByStatusComplete%'" + System.Environment.NewLine;
+                            //sSQL += "union all" + System.Environment.NewLine;
+                            ////sSQL += "select 'Manage' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and (InvocationData like '%GetOrdersToUpdateMO%' or InvocationData like '%ShopeeControllerJob%GetOrderByStatusCompleted%')" + System.Environment.NewLine;
+                            //sSQL += "select 'Manage' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and (InvocationData like '%GetOrdersToUpdateMO%' or InvocationData like '%ShopeeControllerJob%GetOrderByStatusCompleted%' or InvocationData like '%JD_GetOrderByStatusComplete%')" + System.Environment.NewLine;
+                            ////end change by nurul 9/8/2021, pisahkan job get order complete jdid
+                            ////change 2 aug 2021, pisahkan job get order complete shopee dan lzd
+                            //sSQL += "union all" + System.Environment.NewLine;
+                            ////sSQL += "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%'" + System.Environment.NewLine;
+                            //sSQL += "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%' and InvocationData not like '%stok%'" + System.Environment.NewLine;
+                            //var dsCekQueue = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
+                            //if (dsCekQueue.Tables[0].Rows.Count > 0)
+                            //{
+                            //    for (int i = 0; i < dsCekQueue.Tables[0].Rows.Count; i++)
+                            //    {
+                            //        switch (Convert.ToString(dsCekQueue.Tables[0].Rows[i]["tipe"]))
+                            //        {
+                            //            case "Stok":
+                            //                data.StokJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
+                            //                break;
+                            //            case "Order":
+                            //                data.PesananJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
+                            //                break;
+                            //            case "Manage":
+                            //                data.ManageJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
+                            //                break;
+                            //            case "Product":
+                            //                data.CreateProductJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
+                            //                break;
+                            //            default:
+                            //                break;
+                            //        }
+                            //    }
+                            //}
+                            #endregion
                             string sSQL = "select 'Stok' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%StokControllerJob%' and InvocationData not like '%updateBruto%'" + System.Environment.NewLine;
-                            sSQL += "union all" + System.Environment.NewLine;
-                            //change 2 aug 2021, pisahkan job get order complete shopee dan lzd
-                            //sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%'" + System.Environment.NewLine;
-                            //change by nurul 9/8/2021, pisahkan job get order complete jdid
-                            //sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%' and InvocationData not like '%GetOrdersToUpdateMO%' and InvocationData not like '%ShopeeControllerJob%GetOrderByStatusCompleted%'" + System.Environment.NewLine;
-                            sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%' and InvocationData not like '%GetOrdersToUpdateMO%' and InvocationData not like '%ShopeeControllerJob%GetOrderByStatusCompleted%' and InvocationData not like '%JD_GetOrderByStatusComplete%'" + System.Environment.NewLine;
-                            sSQL += "union all" + System.Environment.NewLine;
-                            //sSQL += "select 'Manage' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and (InvocationData like '%GetOrdersToUpdateMO%' or InvocationData like '%ShopeeControllerJob%GetOrderByStatusCompleted%')" + System.Environment.NewLine;
-                            sSQL += "select 'Manage' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and (InvocationData like '%GetOrdersToUpdateMO%' or InvocationData like '%ShopeeControllerJob%GetOrderByStatusCompleted%' or InvocationData like '%JD_GetOrderByStatusComplete%')" + System.Environment.NewLine;
-                            //end change by nurul 9/8/2021, pisahkan job get order complete jdid
-                            //change 2 aug 2021, pisahkan job get order complete shopee dan lzd
-                            sSQL += "union all" + System.Environment.NewLine;
-                            //sSQL += "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%'" + System.Environment.NewLine;
-                            sSQL += "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%' and InvocationData not like '%stok%'" + System.Environment.NewLine;
-                            var dsCekQueue = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
-                            if (dsCekQueue.Tables[0].Rows.Count > 0)
+                            var dsCekQueue = EDB.GetDataSet("sCon", "QUEUE_COUNT_1", sSQL);
+                            if (dsCekQueue.Tables["QUEUE_COUNT_1"].Rows.Count > 0)
                             {
-                                for (int i = 0; i < dsCekQueue.Tables[0].Rows.Count; i++)
-                                {
-                                    switch (Convert.ToString(dsCekQueue.Tables[0].Rows[i]["tipe"]))
-                                    {
-                                        case "Stok":
-                                            data.StokJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
-                                            break;
-                                        case "Order":
-                                            data.PesananJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
-                                            break;
-                                        case "Manage":
-                                            data.ManageJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
-                                            break;
-                                        case "Product":
-                                            data.CreateProductJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                }
+                                data.StokJobEnqueued = Convert.ToInt32(dsCekQueue.Tables["QUEUE_COUNT_1"].Rows[0]["jumlah"]);
                             }
-
+                            sSQL = "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%' and InvocationData not like '%GetOrdersToUpdateMO%' and InvocationData not like '%ShopeeControllerJob%GetOrderByStatusCompleted%' and InvocationData not like '%JD_GetOrderByStatusComplete%'" + System.Environment.NewLine;
+                            dsCekQueue = EDB.GetDataSet("sCon", "QUEUE_COUNT_2", sSQL);
+                            if (dsCekQueue.Tables["QUEUE_COUNT_2"].Rows.Count > 0)
+                            {
+                                data.PesananJobEnqueued = Convert.ToInt32(dsCekQueue.Tables["QUEUE_COUNT_2"].Rows[0]["jumlah"]);
+                            }
+                            sSQL = "select 'Manage' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and (InvocationData like '%GetOrdersToUpdateMO%' or InvocationData like '%ShopeeControllerJob%GetOrderByStatusCompleted%' or InvocationData like '%JD_GetOrderByStatusComplete%')" + System.Environment.NewLine;
+                            dsCekQueue = EDB.GetDataSet("sCon", "QUEUE_COUNT_3", sSQL);
+                            if (dsCekQueue.Tables["QUEUE_COUNT_3"].Rows.Count > 0)
+                            {
+                                data.ManageJobEnqueued = Convert.ToInt32(dsCekQueue.Tables["QUEUE_COUNT_3"].Rows[0]["jumlah"]);
+                            }
+                            sSQL = "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%' and InvocationData not like '%stok%'" + System.Environment.NewLine;
+                            dsCekQueue = EDB.GetDataSet("sCon", "QUEUE_COUNT_4", sSQL);
+                            if (dsCekQueue.Tables["QUEUE_COUNT_4"].Rows.Count > 0)
+                            {
+                                data.CreateProductJobEnqueued = Convert.ToInt32(dsCekQueue.Tables["QUEUE_COUNT_4"].Rows[0]["jumlah"]);
+                            }
                             pageContent.Add(data);
                         }
                         catch (Exception ex)
