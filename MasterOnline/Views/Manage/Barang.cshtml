@@ -5352,9 +5352,9 @@
             if (confirm('Semua data attribute marketplace barang ini akan diubah mengikuti data attribute marketplace dari kode barang : ' + brg + '.\nApakah Anda yakin?')) {
                 //model_listhargajualpermarketview
 
-                var link = '@Url.Action("GetBrgSTF02H", "Manage", new { kode = "replaceCode", brg = "replaceBrg" })';
+                var link = '@Url.Action("GetBrgSTF02H", "Manage", new { kode = "replaceCode" })';
                 link = link.replace("replaceCode", encodeURIComponent(brg));
-                link = link.replace("replaceBrg", encodeURIComponent($('#Stf02_BRG').val()));
+                link += '&brg=' +$('#Stf02_BRG').val();
                 $.ajax({
                     type: "GET",
                     url: link,
@@ -5380,8 +5380,8 @@
                                         $('#ListHargaJualPermarket_' + i + '__PICKUP_POINT').val(valData.PICKUP_POINT);
                                         $('#PickupPoint' + i + 'Blibli').val(valData.PICKUP_POINT);
                                         if (valData.AVALUE_39 != '' || valData.AVALUE_39 != null) {
-                                            $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val(data.AVALUE_39);
-                                            CKEDITOR.instances['ListHargaJualPermarket_' + i + '__AVALUE_39'].setData(data.AVALUE_39);
+                                            $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val(valData.AVALUE_39);
+                                            CKEDITOR.instances['ListHargaJualPermarket_' + i + '__AVALUE_39'].setData(valData.AVALUE_39);
                                         }
                                         $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val(valData.AVALUE_38);
                                         $('#ListHargaJualPermarket_' + i + '__ANAME_38').val(valData.ANAME_38);
@@ -5405,9 +5405,9 @@
                                             $('#ListHargaJualPermarket_' + i + '__ANAME_38').val(valData.ANAME_38);
                                             $('#Brand' + i + 'Shopee').val(valData.ANAME_38);
                                         }
-                                        if (valData.AVALUE_39 != '' || valData.AVALUE_39 != null) {
-                                            $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val(data.AVALUE_39);
-                                            var listLog = data.AVALUE_39.split(',');
+                                        if (valData.AVALUE_39 != '' || valData.AVALUE_39 != null || valData.AVALUE_39 != undefined) {
+                                            $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val(valData.AVALUE_39);
+                                            var listLog = valData.AVALUE_39.split(',');
                                             $('#LOGISTIC_SHOPEE_' + lMarket.RecNum)[0].selectize.setValue(listLog, true);
                                         }
                                     }
