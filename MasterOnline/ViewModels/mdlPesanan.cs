@@ -81,6 +81,11 @@ namespace MasterOnline
         public string TLP { get; set; }
         //end add by nurul 17/6/2021
 
+        //ADD BY NURUL 25/8/2021
+        public string TLP_TEMP { get; set; }
+        public string PEMBELI_TEMP { get; set; }
+        //END ADD BY NURUL 25/8/2021
+
         //[Key]
         //[StringLength(15)]
         //public string NO_BUKTI { get; set; }

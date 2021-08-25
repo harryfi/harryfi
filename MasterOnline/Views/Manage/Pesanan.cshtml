@@ -8455,7 +8455,7 @@
                 contentType: 'application/json; charset=UTF-8',
                 cache: false,
                 success: function(response) {
-                    if (response.Errors == null) {
+                    if (response.Errors == null || response.Errors.length == 0) {
                         //refreshTableSiapKirim();
                         //refreshTablePesanan();
                         //refreshTableCancel();
