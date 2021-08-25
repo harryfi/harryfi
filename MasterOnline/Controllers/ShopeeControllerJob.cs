@@ -6368,6 +6368,10 @@ namespace MasterOnline.Controllers
             public string forder_id { get; set; }
             public string package_number { get; set; }
         }
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Update Kurir & Pembeli Pesanan {obj} Shopee Gagal.")]
         public async Task<string> GetOrderLogistics(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string ordersn, string orderNo, string NAMA_CUST)
         {
             SetupContext(iden);
@@ -6700,7 +6704,7 @@ namespace MasterOnline.Controllers
                     }
                 }catch(Exception ex)
                 {
-                    throw new Exception("Update Kurir & Pembeli Gagal. " + ex.InnerException == null ? ex.Message + System.Environment.NewLine : ex.InnerException.Message);
+                    throw new Exception("Update Kurir & Pembeli Gagal. " + ex.InnerException == null ? ex.Message + System.Environment.NewLine : ex.InnerException.Message + "." + responseFromServer);
                 }
 
                 //                foreach (var order in result.orders)
