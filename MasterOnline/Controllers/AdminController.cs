@@ -5270,6 +5270,60 @@ namespace MasterOnline.Controllers
         }
 
         [SessionAdminCheck]
+        public ActionResult RenewWebhook()
+        {
+            var getAkunBaim = MoDbContext.Account.FirstOrDefault(a => a.Email == "baimsky@gmail.com");
+            ErasoftDbContextNew = new ErasoftContext(getAkunBaim.DatabasePathErasoft);
+            var partnerDb = ErasoftDbContextNew.PARTNER_API.FirstOrDefault(p => p.PartnerId == 20007);
+            string access_token = partnerDb.Access_Token;
+
+            string url = "https://account.accurate.id/api/webhook-renew.do";
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(url);
+
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", "Bearer " + access_token);
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+            myReq.ContentLength = 0;
+
+            string responseFromServer = "";
+
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+                return Json(responseFromServer, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (WebException e)
+            {
+                string err = "";
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                        string error = Newtonsoft.Json.JsonConvert.SerializeObject(err);
+
+                        return Json(error, JsonRequestBehavior.AllowGet);
+                    }
+                }
+                else
+                {
+                    return Json(e.Message, JsonRequestBehavior.AllowGet);
+                }
+            }
+        }
+
+        [SessionAdminCheck]
         public ActionResult DeactivateRecentActiveUsers()
         {
             var lastYear = DateTime.UtcNow.AddYears(-1);
