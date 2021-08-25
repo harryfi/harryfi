@@ -5605,6 +5605,10 @@ namespace MasterOnline.Controllers
                         var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
                         if (pesananInDb != null)
                         {
+                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                            var client = new BackgroundJobClient(sqlStorage);
 #if (DEBUG || Debug_AWS)
                             Task.Run(() => new ShopeeControllerJob().GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST)).Wait();
 #else
@@ -5814,6 +5818,10 @@ namespace MasterOnline.Controllers
                                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                 contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Proses Dropoff/JOB Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
                             }
+
+                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                            var client = new BackgroundJobClient(sqlStorage);
 #if (DEBUG || Debug_AWS)
                             Task.Run(() => new ShopeeControllerJob().GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST)).Wait();
 #else
@@ -5874,6 +5882,10 @@ namespace MasterOnline.Controllers
                         pesananInDb.status_kirim = "1";
                         ErasoftDbContext.SaveChanges();
                     }
+
+                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    var client = new BackgroundJobClient(sqlStorage);
 #if (DEBUG || Debug_AWS)
                     Task.Run(() => new ShopeeControllerJob().GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST)).Wait();
 #else
@@ -6136,6 +6148,9 @@ namespace MasterOnline.Controllers
                             contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Request Pickup Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
 
+                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                            var client = new BackgroundJobClient(sqlStorage);
 #if (DEBUG || Debug_AWS)
                             Task.Run(() => new ShopeeControllerJob().GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST)).Wait();
 #else
@@ -6153,6 +6168,9 @@ namespace MasterOnline.Controllers
                         ErasoftDbContext.SaveChanges();
                     }
 
+                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    var client = new BackgroundJobClient(sqlStorage);
 #if (DEBUG || Debug_AWS)
                     Task.Run(() => new ShopeeControllerJob().GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST)).Wait();
 #else
