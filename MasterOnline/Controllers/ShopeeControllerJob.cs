@@ -4336,7 +4336,7 @@ namespace MasterOnline.Controllers
                 foreach (var order in result.orders)
                 {
                     //add by nurul 25/8/2021, handle pembeli d samarkan ***
-                    if (!order.recipient_address.name.Contains("*"))
+                    if (!order.recipient_address.name.Contains('*'))
                     //end add by nurul 25/8/2021, handle pembeli d samarkan ***
                     {
                         //insertPembeli += "('" + order.recipient_address.name + "','" + order.recipient_address.full_address + "','" + order.recipient_address.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
@@ -6564,7 +6564,7 @@ namespace MasterOnline.Controllers
                             if (pesananInDb != null)
                             {
                                 var tempBuyerFaktur = new PEMBELI_FAKTUR_SHOPEE() { };
-                                if (temp_nama != "" && !pesananInDb.NAMAPEMESAN.Contains('*'))
+                                if (temp_nama != "" && pesananInDb.NAMAPEMESAN.Contains('*'))
                                 {
 
                                     //insertPembeli += "('" + order.recipient_address.name + "','" + order.recipient_address.full_address + "','" + order.recipient_address.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
@@ -6640,7 +6640,7 @@ namespace MasterOnline.Controllers
                                 {
                                     pesananInDb.TRACKING_SHIPMENT = resi;
                                 }
-                                if (temp_nama != "" && !pesananInDb.NAMAPEMESAN.Contains('*'))
+                                if (temp_nama != "" && pesananInDb.NAMAPEMESAN.Contains('*'))
                                 {
                                     string Recipient_Address_town = !string.IsNullOrEmpty(order.recipient_address.town) ? order.recipient_address.town.Trim().Replace('\'', '`') : "";
                                     if (Recipient_Address_town.Length > 300)
@@ -6704,7 +6704,7 @@ namespace MasterOnline.Controllers
                                         tempBuyerFaktur.ALAMAT = !string.IsNullOrEmpty(order.recipient_address.full_address) ? order.recipient_address.full_address.Trim().Replace('\'', '`') : "";
                                         try
                                         {
-                                            var faktur = EDB.GetDataSet("sConn", "SO", "SELECT TOP 1 distinct NO_BUKTI FROM SIT01A (NOLOCK) WHERE NO_SO='" + pesananInDb.NO_BUKTI + "' AND NO_REF='" + pesananInDb.NO_REFERENSI + "' AND CUST='" + pesananInDb.CUST + "'");
+                                            var faktur = EDB.GetDataSet("sConn", "SO", "SELECT TOP 1 NO_BUKTI FROM SIT01A (NOLOCK) WHERE NO_SO='" + pesananInDb.NO_BUKTI + "' AND NO_REF='" + pesananInDb.NO_REFERENSI + "' AND CUST='" + pesananInDb.CUST + "'");
                                             if (faktur.Tables[0].Rows.Count > 0)
                                             {
                                                 for (int i = 0; i < faktur.Tables[0].Rows.Count; i++)
