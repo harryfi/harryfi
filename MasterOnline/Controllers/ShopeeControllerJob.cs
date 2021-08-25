@@ -5602,6 +5602,15 @@ namespace MasterOnline.Controllers
                         {
                             manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                         }
+                        var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
+                        if (pesananInDb != null)
+                        {
+#if (DEBUG || Debug_AWS)
+                            Task.Run(() => new ShopeeControllerJob().GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST)).Wait();
+#else
+                        client.Enqueue<ShopeeControllerJob>(x => x.GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST));
+#endif
+                        }
                         throw new Exception("Tracking Number Null");
                         //myData = JsonConvert.SerializeObject(HttpBody);
 
@@ -5754,6 +5763,11 @@ namespace MasterOnline.Controllers
                                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                 contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Proses Dropoff/JOB Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
                             }
+#if (DEBUG || Debug_AWS)
+                            Task.Run(() => new ShopeeControllerJob().GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST)).Wait();
+#else
+                        client.Enqueue<ShopeeControllerJob>(x => x.GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST));
+#endif
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                         }
 
@@ -5800,6 +5814,11 @@ namespace MasterOnline.Controllers
                                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                 contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Proses Dropoff/JOB Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
                             }
+#if (DEBUG || Debug_AWS)
+                            Task.Run(() => new ShopeeControllerJob().GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST)).Wait();
+#else
+                        client.Enqueue<ShopeeControllerJob>(x => x.GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST));
+#endif
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                         }
                         //List<string> list_ordersn = new List<string>();
@@ -5855,6 +5874,11 @@ namespace MasterOnline.Controllers
                         pesananInDb.status_kirim = "1";
                         ErasoftDbContext.SaveChanges();
                     }
+#if (DEBUG || Debug_AWS)
+                    Task.Run(() => new ShopeeControllerJob().GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST)).Wait();
+#else
+                        client.Enqueue<ShopeeControllerJob>(x => x.GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST));
+#endif
                     throw new Exception(result.msg);
 
                     //currentLog.REQUEST_EXCEPTION = result.msg;
@@ -6080,6 +6104,12 @@ namespace MasterOnline.Controllers
                             //contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(namaPemesan) + " ke Shopee.");
                             contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Request Pickup Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+
+#if (DEBUG || Debug_AWS)
+                            Task.Run(() => new ShopeeControllerJob().GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST)).Wait();
+#else
+                        client.Enqueue<ShopeeControllerJob>(x => x.GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST));
+#endif
                         }
                     }
                     else
@@ -6105,6 +6135,12 @@ namespace MasterOnline.Controllers
                             //contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Request Pickup Pesanan " + Convert.ToString(namaPemesan) + " ke Shopee.");
                             contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Request Pickup Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+
+#if (DEBUG || Debug_AWS)
+                            Task.Run(() => new ShopeeControllerJob().GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST)).Wait();
+#else
+                        client.Enqueue<ShopeeControllerJob>(x => x.GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST));
+#endif
                         }
                     }
                 }
@@ -6116,9 +6152,17 @@ namespace MasterOnline.Controllers
                         pesananInDb.status_kirim = "1";
                         ErasoftDbContext.SaveChanges();
                     }
+
+#if (DEBUG || Debug_AWS)
+                    Task.Run(() => new ShopeeControllerJob().GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST)).Wait();
+#else
+                        client.Enqueue<ShopeeControllerJob>(x => x.GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST));
+#endif
+
                     throw new Exception(result.msg);
                     //currentLog.REQUEST_EXCEPTION = result.msg;
                     //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                    
                 }
                 //}
                 //catch (Exception ex2)
