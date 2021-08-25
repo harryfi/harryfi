@@ -125,6 +125,27 @@
                     }
                 }
                 //end add by Tri 17 feb 2021
+
+                //add by nurul 25/8/2021
+                var pembeli = "";
+                var tlp = "";
+                if (pesanan.PEMBELI.Contains("*") && !string.IsNullOrEmpty(pesanan.PEMBELI_TEMP))
+                {
+                    pembeli = pesanan.PEMBELI_TEMP;
+                }
+                else
+                {
+                    pembeli = pesanan.PEMBELI;
+                }
+                if (pesanan.TLP.Contains("*") && !string.IsNullOrEmpty(pesanan.TLP_TEMP))
+                {
+                    pembeli = pesanan.TLP_TEMP;
+                }
+                else
+                {
+                    pembeli = pesanan.TLP;
+                }
+                //end by nurul 25/8/2021
             <tr>
                 <td>@pesanan.NOSO</td>
                 <td>@pesanan.REFERENSI</td>
@@ -146,14 +167,25 @@
                     @*@(buyer == null ? "" : buyer.NAMA)*@
                     @*//change by nurul 17/6/2021*@
                     @*@pesanan.PEMBELI*@
-                    @if (!string.IsNullOrEmpty(pesanan.TLP))
+
+                    @*//change by nurul 25/8/2021*@
+                    @*@if (!string.IsNullOrEmpty(pesanan.TLP))
+        {
+            @(pesanan.PEMBELI + " (" + pesanan.TLP + ")")
+        }
+        else
+        {
+            @pesanan.PEMBELI
+        }*@
+                    @if (!string.IsNullOrEmpty(tlp))
                     {
-                        @(pesanan.PEMBELI + " (" + pesanan.TLP + ")")
+                        @(pembeli + " (" + tlp + ")")
                     }
                     else
                     {
-                        @pesanan.PEMBELI
+                        @pembeli
                     }
+                    @*//end change by nurul 25/8/2021*@
                     @*//end change by nurul 17/6/2021*@
                 </td>
                 <td>@tipe_pesanan</td>

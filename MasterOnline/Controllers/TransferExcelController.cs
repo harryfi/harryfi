@@ -4927,10 +4927,16 @@ namespace MasterOnline.Controllers
                         //end change by nurul 31/3/2021, ubah discount header ambil dr NILAI_DISC
                         "A.STATUS_TRANSAKSI AS STATUS_PESANAN, B.BRG AS KODE_BRG, ISNULL(C.NAMA,'') + ' ' + ISNULL(C.NAMA2, '') AS NAMA_BARANG, QTY, " +
                         "H_SATUAN AS HARGA_SATUAN, B.DISCOUNT AS DISC1, B.NILAI_DISC_1 AS NDISC1, B.DISCOUNT_2 AS DISC2, B.NILAI_DISC_2 AS NDISC2, HARGA AS TOTAL " +
+                        //ADD BY NURUL 25/8/2021
+                        ",ISNULL(Z.NAMA,'') AS TEMP_PEMBELI, ISNULL(Z.TLP,'') AS TEMP_TLP, ISNULL(Z.ALAMAT,'') AS TEMP_ALAMAT_KIRIM, ISNULL(Z.PEMBELI,'') AS TEMP_KODE_PEMBELI " +
+                        //END ADD BY NURUL 25/8/2021
                         "FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI " +
                         "LEFT JOIN STF02 C(NOLOCK) ON B.BRG = C.BRG " +
                         "INNER JOIN ARF01 D(NOLOCK) ON A.CUST = D.CUST " +
                         "INNER JOIN MO..MARKETPLACE E(NOLOCK) ON D.NAMA = E.IDMARKET " +
+                        //ADD BY NURUL 25/8/2021
+                        "LEFT JOIN PEMBELI_FAKTUR_SHOPEE Z(NOLOCK) ON Z.PESANAN=A.NO_BUKTI " +
+                        //END ADD BY NURUL 25/8/2021
                         "WHERE A.TGL BETWEEN '" + dt1 + "' AND '" + dt2 + "'";
 
                     if (orid != "ALL")
@@ -4957,12 +4963,60 @@ namespace MasterOnline.Controllers
                             worksheet.Cells[5 + i, 4].Value = lsPesanan.Tables[0].Rows[i]["CUST"];
                             //END ADD BY NURUL 22/6/2021
                             worksheet.Cells[5 + i, 5].Value = lsPesanan.Tables[0].Rows[i]["MARKETPLACE"];
-                            worksheet.Cells[5 + i, 6].Value = lsPesanan.Tables[0].Rows[i]["KODE_PEMBELI"];
-                            worksheet.Cells[5 + i, 7].Value = lsPesanan.Tables[0].Rows[i]["PEMBELI"];
+
+                            //add by nurul 25/8/2021
+                            var kode_pembeli = "";
+                            var pembeli = "";
+                            var tlp = "";
+                            var alamat = "";
+                            if (Convert.ToString(lsPesanan.Tables[0].Rows[i]["KODE_PEMBELI"]).Contains("*") && Convert.ToString(lsPesanan.Tables[0].Rows[i]["TEMP_KODE_PEMBELI"]) != "")
+                            {
+                                kode_pembeli = Convert.ToString(lsPesanan.Tables[0].Rows[i]["TEMP_KODE_PEMBELI"]);
+                            }
+                            else
+                            {
+                                kode_pembeli = Convert.ToString(lsPesanan.Tables[0].Rows[i]["KODE_PEMBELI"]);
+                            }
+                            if (Convert.ToString(lsPesanan.Tables[0].Rows[i]["PEMBELI"]).Contains("*") && Convert.ToString(lsPesanan.Tables[0].Rows[i]["TEMP_PEMBELI"]) != "")
+                            {
+                                pembeli = Convert.ToString(lsPesanan.Tables[0].Rows[i]["TEMP_PEMBELI"]);
+                            }
+                            else
+                            {
+                                pembeli = Convert.ToString(lsPesanan.Tables[0].Rows[i]["PEMBELI"]);
+                            }
+                            if (Convert.ToString(lsPesanan.Tables[0].Rows[i]["TLP"]).Contains("*") && Convert.ToString(lsPesanan.Tables[0].Rows[i]["TEMP_TLP"]) != "")
+                            {
+                                tlp = Convert.ToString(lsPesanan.Tables[0].Rows[i]["TEMP_TLP"]);
+                            }
+                            else
+                            {
+                                tlp = Convert.ToString(lsPesanan.Tables[0].Rows[i]["TLP"]);
+                            }
+                            if (Convert.ToString(lsPesanan.Tables[0].Rows[i]["ALAMAT_KIRIM"]).Contains("*") && Convert.ToString(lsPesanan.Tables[0].Rows[i]["TEMP_ALAMAT_KIRIM"]) != "")
+                            {
+                                alamat = Convert.ToString(lsPesanan.Tables[0].Rows[i]["TEMP_ALAMAT_KIRIM"]);
+                            }
+                            else
+                            {
+                                alamat = Convert.ToString(lsPesanan.Tables[0].Rows[i]["ALAMAT_KIRIM"]);
+                            }
+
+                            //worksheet.Cells[5 + i, 6].Value = lsPesanan.Tables[0].Rows[i]["KODE_PEMBELI"];
+                            //worksheet.Cells[5 + i, 7].Value = lsPesanan.Tables[0].Rows[i]["PEMBELI"];
+                            ////ADD BY NURUL 17/6/2021
+                            //worksheet.Cells[5 + i, 8].Value = lsPesanan.Tables[0].Rows[i]["TLP"];
+                            ////END ADD BY NURUL 17/6/2021
+                            //worksheet.Cells[5 + i, 9].Value = lsPesanan.Tables[0].Rows[i]["ALAMAT_KIRIM"];
+                            worksheet.Cells[5 + i, 6].Value = kode_pembeli;
+                            worksheet.Cells[5 + i, 7].Value = pembeli;
                             //ADD BY NURUL 17/6/2021
-                            worksheet.Cells[5 + i, 8].Value = lsPesanan.Tables[0].Rows[i]["TLP"];
+                            worksheet.Cells[5 + i, 8].Value = tlp;
                             //END ADD BY NURUL 17/6/2021
-                            worksheet.Cells[5 + i, 9].Value = lsPesanan.Tables[0].Rows[i]["ALAMAT_KIRIM"];
+                            worksheet.Cells[5 + i, 9].Value = alamat;
+                            //add by nurul 25/8/2021
+
+                            
                             //ADD BY NURUL 17/6/2021
                             worksheet.Cells[5 + i, 10].Value = lsPesanan.Tables[0].Rows[i]["RESI"];
                             //END ADD BY NURUL 17/6/2021
@@ -5730,6 +5784,9 @@ namespace MasterOnline.Controllers
                         "ISNULL(G.BRG, '') AS KODE_BRG, ISNULL(H.NAMA,'') + ' ' + ISNULL(H.NAMA2, '') AS NAMA_BARANG, ISNULL(QTY, '') AS QTY, " +
                         "ISNULL(H_SATUAN, '') AS HARGA_SATUAN, ISNULL(G.DISCOUNT, '') AS DISC1, ISNULL(G.NILAI_DISC_1, '') AS NDISC1, " +
                         "ISNULL(G.DISCOUNT_2, '') AS DISC2, ISNULL(G.NILAI_DISC_2, '') AS NDISC2, ISNULL(HARGA, '') AS TOTAL " +
+                        //ADD BY NURUL 25/8/2021
+                        ",ISNULL(Z.NAMA,'') AS TEMP_PEMBELI, ISNULL(Z.TLP,'') AS TEMP_TLP, ISNULL(Z.ALAMAT,'') AS TEMP_ALAMAT_KIRIM, ISNULL(Z.PEMBELI,'') AS TEMP_KODE_PEMBELI " +
+                        //END ADD BY NURUL 25/8/2021
                         "FROM SIT01A A LEFT JOIN ARF01 B ON A.CUST = B.CUST " +
                         "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket " +
                         "LEFT JOIN SOT01A D ON A.NO_SO = D.NO_BUKTI " +
@@ -5737,6 +5794,9 @@ namespace MasterOnline.Controllers
                         "LEFT JOIN STF02 H ON G.BRG = H.BRG " +
                         "LEFT JOIN (SELECT DISTINCT NO_BUKTI FROM SIT01A A INNER JOIN ART03B B ON A.NO_BUKTI = B.NFAKTUR)E ON A.NO_BUKTI = E.NO_BUKTI " +
                         "LEFT JOIN (select ret.jenis_form,ret.no_bukti as bukti_ret,ret.no_ref as no_si,fkt.no_bukti as bukti_faktur from sit01a ret inner join sit01a fkt on fkt.no_bukti=ret.no_ref where ret.jenis_form='3') F ON A.NO_BUKTI=F.BUKTI_FAKTUR " +
+                        //ADD BY NURUL 25/8/2021
+                        "LEFT JOIN PEMBELI_FAKTUR_SHOPEE Z(NOLOCK) ON Z.FAKTUR=A.NO_BUKTI " +
+                        //END ADD BY NURUL 25/8/2021
                         "WHERE A.TGL BETWEEN '" + dt1 + "' AND '" + dt2 + "' " +
                         "AND A.JENIS_FORM = '2' " +
                         "ORDER BY A.TGL DESC, A.NO_BUKTI DESC";
@@ -5767,12 +5827,58 @@ namespace MasterOnline.Controllers
                             worksheet.Cells[5 + i, 7].Value = lsFaktur.Tables[0].Rows[i]["CUST"];
                             //END ADD BY NURUL 22/6/2021
                             worksheet.Cells[5 + i, 8].Value = lsFaktur.Tables[0].Rows[i]["MARKETPLACE"];
-                            worksheet.Cells[5 + i, 9].Value = lsFaktur.Tables[0].Rows[i]["KODE_PEMBELI"];
-                            worksheet.Cells[5 + i, 10].Value = lsFaktur.Tables[0].Rows[i]["PEMBELI"];
+                            //add by nurul 25/8/2021
+                            var kode_pembeli = "";
+                            var pembeli = "";
+                            var tlp = "";
+                            var alamat = "";
+                            if(Convert.ToString(lsFaktur.Tables[0].Rows[i]["KODE_PEMBELI"]).Contains("*") && Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_KODE_PEMBELI"]) != "")
+                            {
+                                kode_pembeli = Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_KODE_PEMBELI"]);
+                            }
+                            else
+                            {
+                                kode_pembeli = Convert.ToString(lsFaktur.Tables[0].Rows[i]["KODE_PEMBELI"]);
+                            }
+                            if (Convert.ToString(lsFaktur.Tables[0].Rows[i]["PEMBELI"]).Contains("*") && Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_PEMBELI"]) != "")
+                            {
+                                pembeli = Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_PEMBELI"]);
+                            }
+                            else
+                            {
+                                pembeli = Convert.ToString(lsFaktur.Tables[0].Rows[i]["PEMBELI"]);
+                            }
+                            if (Convert.ToString(lsFaktur.Tables[0].Rows[i]["TLP"]).Contains("*") && Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_TLP"]) != "")
+                            {
+                                tlp = Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_TLP"]);
+                            }
+                            else
+                            {
+                                tlp = Convert.ToString(lsFaktur.Tables[0].Rows[i]["TLP"]);
+                            }
+                            if (Convert.ToString(lsFaktur.Tables[0].Rows[i]["ALAMAT_KIRIM"]).Contains("*") && Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_ALAMAT_KIRIM"]) != "")
+                            {
+                                alamat = Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_ALAMAT_KIRIM"]);
+                            }
+                            else
+                            {
+                                alamat = Convert.ToString(lsFaktur.Tables[0].Rows[i]["ALAMAT_KIRIM"]);
+                            }
+
+                            //worksheet.Cells[5 + i, 9].Value = lsFaktur.Tables[0].Rows[i]["KODE_PEMBELI"];
+                            //worksheet.Cells[5 + i, 10].Value = lsFaktur.Tables[0].Rows[i]["PEMBELI"];
+                            ////ADD BY NURUL 17/6/2021
+                            //worksheet.Cells[5 + i, 11].Value = lsFaktur.Tables[0].Rows[i]["TLP"];
+                            ////END ADD BY NURUL 17/6/2021
+                            //worksheet.Cells[5 + i, 12].Value = lsFaktur.Tables[0].Rows[i]["ALAMAT_KIRIM"];
+                            worksheet.Cells[5 + i, 9].Value = kode_pembeli;
+                            worksheet.Cells[5 + i, 10].Value = pembeli;
                             //ADD BY NURUL 17/6/2021
-                            worksheet.Cells[5 + i, 11].Value = lsFaktur.Tables[0].Rows[i]["TLP"];
+                            worksheet.Cells[5 + i, 11].Value = tlp;
                             //END ADD BY NURUL 17/6/2021
-                            worksheet.Cells[5 + i, 12].Value = lsFaktur.Tables[0].Rows[i]["ALAMAT_KIRIM"];
+                            worksheet.Cells[5 + i, 12].Value = alamat;
+                            //add by nurul 25/8/2021
+
                             worksheet.Cells[5 + i, 13].Value = lsFaktur.Tables[0].Rows[i]["KURIR"];
                             worksheet.Cells[5 + i, 14].Value = lsFaktur.Tables[0].Rows[i]["TOP"];
                             worksheet.Cells[5 + i, 15].Value = Convert.ToDateTime(lsFaktur.Tables[0].Rows[i]["TGL_JATUH_TEMPO"]).ToString("yyyy-MM-dd HH:mm:ss");
