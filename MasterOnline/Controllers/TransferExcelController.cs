@@ -6561,9 +6561,15 @@ namespace MasterOnline.Controllers
                             //    //end add by nurul 18/9/2020, Barang Multi SKU
                             //    "WHERE A.NO_BUKTI = '" + noPackingList + "' GROUP BY A.NO_PESANAN,A.BRG,B.NAMA,B.NAMA2,QTY, PEMBELI, MARKETPLACE,D.NO_REFERENSI ,E.BRG_MULTISKU,E.NAMA_BRG_MULTISKU ORDER BY A.NO_PESANAN, NAMA_BARANG ";
 
-                            string sSQL = "SELECT A.NO_BUKTI AS NO_PESANAN, B.BRG,C.NAMA + ' ' + (ISNULL(C.NAMA2, '')) NAMA_BARANG,B.QTY,A.NAMAPEMESAN AS PEMBELI,F.NAMAMARKET + ' (' + E.PERSO +')' AS MARKETPLACE, ISNULL(A.NO_REFERENSI,'')NO_REFERENSI, ISNULL(B.BRG_MULTISKU,'')BRG_MULTISKU, ISNULL(D.NAMA + ' ' + (ISNULL(D.NAMA2, '')),'') NAMA_BRG_MULTISKU " +
+                            //change by nurul 26/8/2021
+                            //string sSQL = "SELECT A.NO_BUKTI AS NO_PESANAN, B.BRG,C.NAMA + ' ' + (ISNULL(C.NAMA2, '')) NAMA_BARANG,B.QTY,A.NAMAPEMESAN AS PEMBELI,F.NAMAMARKET + ' (' + E.PERSO +')' AS MARKETPLACE, ISNULL(A.NO_REFERENSI,'')NO_REFERENSI, ISNULL(B.BRG_MULTISKU,'')BRG_MULTISKU, ISNULL(D.NAMA + ' ' + (ISNULL(D.NAMA2, '')),'') NAMA_BRG_MULTISKU " +
+                            string sSQL = "SELECT A.NO_BUKTI AS NO_PESANAN, B.BRG,C.NAMA + ' ' + (ISNULL(C.NAMA2, '')) NAMA_BARANG,B.QTY, CASE WHEN ISNULL(A.NAMAPEMESAN,'') LIKE '%*%' AND ISNULL(Z.NAMA,'')<>'' THEN ISNULL(Z.NAMA,'') ELSE ISNULL(A.NAMAPEMESAN,'') END as PEMBELI,F.NAMAMARKET + ' (' + E.PERSO +')' AS MARKETPLACE, ISNULL(A.NO_REFERENSI,'')NO_REFERENSI, ISNULL(B.BRG_MULTISKU,'')BRG_MULTISKU, ISNULL(D.NAMA + ' ' + (ISNULL(D.NAMA2, '')),'') NAMA_BRG_MULTISKU " +
+                            //end change by nurul 26/8/2021
                             "FROM SOT01A A(nolock) INNER JOIN SOT01B B(nolock) ON A.NO_BUKTI=B.NO_BUKTI LEFT JOIN STF02 C(nolock) ON B.BRG=C.BRG LEFT JOIN STF02 D ON D.BRG=B.BRG_MULTISKU  " +
                             "LEFT JOIN ARF01 E(nolock) ON A.CUST=E.CUST LEFT JOIN MO..MARKETPLACE F(nolock) ON E.NAMA=F.IDMARKET " +
+                            //add by nurul 26/8/2021
+                            "LEFT JOIN PEMBELI_FAKTUR_SHOPEE Z(NOLOCK) ON A.NO_BUKTI=Z.PESANAN " +
+                            //end add by nurul 26/8/2021
                             "WHERE A.NO_BUKTI IN (SELECT NO_PESANAN FROM SOT03C WHERE NO_BUKTI='" + noPackingList + "')  and isnull(A.status_kirim,'') <> '5' ";
                             //end change by nurul 27/9/2020
                             var lsPacking = EDB.GetDataSet("CString", "SO", sSQL);

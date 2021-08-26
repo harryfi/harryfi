@@ -105,7 +105,11 @@
 
                 //add by nurul 25/8/2021
                 var pembeli = "";
-                if (faktur.PEMBELI.Contains("*") && !string.IsNullOrEmpty(faktur.PEMBELI_TEMP))
+                if (string.IsNullOrEmpty(faktur.PEMBELI))
+                {
+                    pembeli = "";
+                }
+                else if (faktur.PEMBELI.Contains("*") && !string.IsNullOrEmpty(faktur.PEMBELI_TEMP))
                 {
                     pembeli = faktur.PEMBELI_TEMP;
                 }

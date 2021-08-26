@@ -148,7 +148,11 @@
                 //add by nurul 25/8/2021
                 var pembeli = "";
                 var tlp = "";
-                if (pesanan.PEMBELI.Contains("*") && !string.IsNullOrEmpty(pesanan.PEMBELI_TEMP))
+                if (string.IsNullOrEmpty(pesanan.PEMBELI))
+                {
+                    pembeli = "";
+                }
+                else if (pesanan.PEMBELI.Contains("*") && !string.IsNullOrEmpty(pesanan.PEMBELI_TEMP))
                 {
                     pembeli = pesanan.PEMBELI_TEMP;
                 }
@@ -156,7 +160,11 @@
                 {
                     pembeli = pesanan.PEMBELI;
                 }
-                if (pesanan.TLP.Contains("*") && !string.IsNullOrEmpty(pesanan.TLP_TEMP))
+                if (string.IsNullOrEmpty(pesanan.TLP))
+                {
+                    tlp = "";
+                }
+                else if (pesanan.TLP.Contains("*") && !string.IsNullOrEmpty(pesanan.TLP_TEMP))
                 {
                     tlp = pesanan.TLP_TEMP;
                 }
