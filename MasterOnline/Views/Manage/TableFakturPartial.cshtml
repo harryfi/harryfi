@@ -127,7 +127,11 @@
                 //add by nurul 25/8/2021
                 var pembeli = "";
                 var tlp = "";
-                if(faktur.PEMBELI.Contains("*") && !string.IsNullOrEmpty(faktur.PEMBELI_TEMP))
+                if (string.IsNullOrEmpty(faktur.PEMBELI))
+                {
+                    pembeli = "";
+                }
+                else if (faktur.PEMBELI.Contains("*") && !string.IsNullOrEmpty(faktur.PEMBELI_TEMP))
                 {
                     pembeli = faktur.PEMBELI_TEMP;
                 }
@@ -135,7 +139,11 @@
                 {
                     pembeli = faktur.PEMBELI;
                 }
-                if (faktur.TLP.Contains("*") && !string.IsNullOrEmpty(faktur.TLP_TEMP))
+                if (string.IsNullOrEmpty(faktur.TLP))
+                {
+                    tlp = "";
+                }
+                else if (faktur.TLP.Contains("*") && !string.IsNullOrEmpty(faktur.TLP_TEMP))
                 {
                     tlp = faktur.TLP_TEMP;
                 }

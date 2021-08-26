@@ -5724,11 +5724,11 @@ namespace MasterOnline.Controllers
                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
                         var client = new BackgroundJobClient(sqlStorage);
-#if (DEBUG || Debug_AWS)
-                        GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0);
-#else
-                            client.Enqueue<ShopeeControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0));
-#endif
+//#if (DEBUG || Debug_AWS)
+//                        GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0);
+//#else
+//                            client.Enqueue<ShopeeControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0));
+//#endif
 
                         var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
                         if (pesananInDb != null)
@@ -6092,11 +6092,11 @@ namespace MasterOnline.Controllers
                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
                         var client = new BackgroundJobClient(sqlStorage);
-#if (DEBUG || Debug_AWS)
-                        GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0);
-#else
-                            client.Enqueue<ShopeeControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0));
-#endif
+//#if (DEBUG || Debug_AWS)
+//                        GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0);
+//#else
+//                            client.Enqueue<ShopeeControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0));
+//#endif
 
                         var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
                         if (pesananInDb != null)
@@ -6734,8 +6734,16 @@ namespace MasterOnline.Controllers
                                 {
                                     try
                                     {
-                                        var sSQL = "UPDATE SIT01A SET NAMAPENGIRIM='" + Kurir + "' where NO_REF='" + noref + "' and NO_SO='" + nobuk + "' and CUST='" + log_CUST + "'";
-                                        ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                                        if (!string.IsNullOrEmpty(tempBuyerFaktur.NAMA) && !string.IsNullOrEmpty(tempBuyerFaktur.PEMBELI) && !string.IsNullOrEmpty(tempBuyerFaktur.ALAMAT))
+                                        {
+                                            var sSQL = "UPDATE SIT01A SET NAMAPENGIRIM='" + Kurir + "',PEMESAN='" + tempBuyerFaktur.PEMBELI + "',NAMAPEMESAN='" + tempBuyerFaktur.NAMA + "',AL='" + tempBuyerFaktur.ALAMAT + "' where NO_REF='" + noref + "' and NO_SO='" + nobuk + "' and CUST='" + log_CUST + "'";
+                                            ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                                        }
+                                        else
+                                        {
+                                            var sSQL = "UPDATE SIT01A SET NAMAPENGIRIM='" + Kurir + "' where NO_REF='" + noref + "' and NO_SO='" + nobuk + "' and CUST='" + log_CUST + "'";
+                                            ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                                        }
                                     }
                                     catch
                                     {
