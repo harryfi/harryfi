@@ -6698,27 +6698,32 @@ namespace MasterOnline.Controllers
                                         pesananInDb.KOTA = Recipient_Address_city;
                                         pesananInDb.KODE_POS = Recipient_Address_zipcode;
 
-                                        tempBuyerFaktur.PEMBELI = getBuyer.BUYER_CODE;
-                                        tempBuyerFaktur.NAMA = !string.IsNullOrEmpty(order.recipient_address.name) ? order.recipient_address.name.Trim().Replace('\'', '`') : "";
-                                        tempBuyerFaktur.TLP = !string.IsNullOrEmpty(order.recipient_address.phone) ? order.recipient_address.phone.Trim().Replace('\'', '`') : "";
-                                        tempBuyerFaktur.ALAMAT = !string.IsNullOrEmpty(order.recipient_address.full_address) ? order.recipient_address.full_address.Trim().Replace('\'', '`') : "";
-                                        try
+                                        var cekPEMBELI_FAKTUR_SHOPEE = ErasoftDbContext.PEMBELI_FAKTUR_SHOPEE.Where(a => a.PESANAN == pesananInDb.NO_BUKTI).FirstOrDefault();
+                                        if (cekPEMBELI_FAKTUR_SHOPEE == null)
                                         {
-                                            var faktur = EDB.GetDataSet("sConn", "SO", "SELECT TOP 1 NO_BUKTI FROM SIT01A (NOLOCK) WHERE NO_SO='" + pesananInDb.NO_BUKTI + "' AND NO_REF='" + pesananInDb.NO_REFERENSI + "' AND CUST='" + pesananInDb.CUST + "'");
-                                            if (faktur.Tables[0].Rows.Count > 0)
+                                            tempBuyerFaktur.PEMBELI = getBuyer.BUYER_CODE;
+                                            tempBuyerFaktur.NAMA = !string.IsNullOrEmpty(order.recipient_address.name) ? order.recipient_address.name.Trim().Replace('\'', '`') : "";
+                                            tempBuyerFaktur.TLP = !string.IsNullOrEmpty(order.recipient_address.phone) ? order.recipient_address.phone.Trim().Replace('\'', '`') : "";
+                                            tempBuyerFaktur.ALAMAT = !string.IsNullOrEmpty(order.recipient_address.full_address) ? order.recipient_address.full_address.Trim().Replace('\'', '`') : "";
+                                            try
                                             {
-                                                for (int i = 0; i < faktur.Tables[0].Rows.Count; i++)
+                                                var faktur = EDB.GetDataSet("sConn", "SO", "SELECT TOP 1 NO_BUKTI FROM SIT01A (NOLOCK) WHERE NO_SO='" + pesananInDb.NO_BUKTI + "' AND NO_REF='" + pesananInDb.NO_REFERENSI + "' AND CUST='" + pesananInDb.CUST + "'");
+                                                if (faktur.Tables[0].Rows.Count > 0)
                                                 {
-                                                    tempBuyerFaktur.FAKTUR = Convert.ToString(faktur.Tables[0].Rows[i]["NO_BUKTI"]);
+                                                    for (int i = 0; i < faktur.Tables[0].Rows.Count; i++)
+                                                    {
+                                                        tempBuyerFaktur.FAKTUR = Convert.ToString(faktur.Tables[0].Rows[i]["NO_BUKTI"]);
+                                                    }
+
                                                 }
-
                                             }
-                                        }catch(Exception ex) { };
-                                        tempBuyerFaktur.PESANAN = pesananInDb.NO_BUKTI;
-                                        tempBuyerFaktur.KURIR = Kurir;
-                                        tempBuyerFaktur.RESI = resi;
+                                            catch (Exception ex) { };
+                                            tempBuyerFaktur.PESANAN = pesananInDb.NO_BUKTI;
+                                            tempBuyerFaktur.KURIR = Kurir;
+                                            tempBuyerFaktur.RESI = resi;
 
-                                        ErasoftDbContext.PEMBELI_FAKTUR_SHOPEE.Add(tempBuyerFaktur);
+                                            ErasoftDbContext.PEMBELI_FAKTUR_SHOPEE.Add(tempBuyerFaktur);
+                                        }
                                     }
                                 }
 
