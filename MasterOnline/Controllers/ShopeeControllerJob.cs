@@ -6717,12 +6717,13 @@ namespace MasterOnline.Controllers
                                         tempBuyerFaktur.PESANAN = pesananInDb.NO_BUKTI;
                                         tempBuyerFaktur.KURIR = Kurir;
                                         tempBuyerFaktur.RESI = resi;
+
+                                        ErasoftDbContext.PEMBELI_FAKTUR_SHOPEE.Add(tempBuyerFaktur);
                                     }
                                 }
 
                                 try
                                 {
-                                    ErasoftDbContext.PEMBELI_FAKTUR_SHOPEE.Add(tempBuyerFaktur);
                                     ErasoftDbContext.SaveChanges();
                                     updateKurirSuccess.Add(temp);
                                 }
