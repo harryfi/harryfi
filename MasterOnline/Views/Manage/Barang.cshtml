@@ -5379,7 +5379,7 @@
                                     {
                                         $('#ListHargaJualPermarket_' + i + '__PICKUP_POINT').val(valData.PICKUP_POINT);
                                         $('#PickupPoint' + i + 'Blibli').val(valData.PICKUP_POINT);
-                                        if (valData.AVALUE_39 != '' || valData.AVALUE_39 != null) {
+                                        if (valData.AVALUE_39 != '' && valData.AVALUE_39 != null) {
                                             $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val(valData.AVALUE_39);
                                             CKEDITOR.instances['ListHargaJualPermarket_' + i + '__AVALUE_39'].setData(valData.AVALUE_39);
                                         }
@@ -5400,12 +5400,12 @@
                                     }
                                     if (lMarket.NAMA == "17")//Shopee
                                     {
-                                        if (valData.AVALUE_38 != '' || valData.AVALUE_38 != null) {
+                                        if (valData.AVALUE_38 != '' && valData.AVALUE_38 != null) {
                                             $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val(valData.AVALUE_38);
                                             $('#ListHargaJualPermarket_' + i + '__ANAME_38').val(valData.ANAME_38);
                                             $('#Brand' + i + 'Shopee').val(valData.ANAME_38);
                                         }
-                                        if (valData.AVALUE_39 != '' || valData.AVALUE_39 != null || valData.AVALUE_39 != undefined) {
+                                        if (valData.AVALUE_39 != '' && valData.AVALUE_39 != null && valData.AVALUE_39 != undefined) {
                                             $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val(valData.AVALUE_39);
                                             var listLog = valData.AVALUE_39.split(',');
                                             $('#LOGISTIC_SHOPEE_' + lMarket.RecNum)[0].selectize.setValue(listLog, true);
@@ -5432,13 +5432,13 @@
                                         $('#ListHargaJualPermarket_' + i + '__ANAME_38').val(valData.ANAME_38);
                                         $('#Brand' + i + 'JDID').val(valData.ANAME_38);
                                         $('#ListHargaJualPermarket_' + i + '__AVALUE_43').val(valData.AVALUE_43);
+                                        $('#ListHargaJualPermarket_' + i + '__ACODE_39').val(valData.ACODE_39);
                                         $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val(valData.AVALUE_39);
-                                        $('#ListHargaJualPermarket_' + i + '__ANAME_39').val(valData.ANAME_39);
                                         $('#ListHargaJualPermarket_' + i + '__AVALUE_44').val(valData.AVALUE_44);
+                                        $('#ListHargaJualPermarket_' + i + '__ACODE_40').val(valData.ACODE_40);
                                         $('#ListHargaJualPermarket_' + i + '__AVALUE_40').val(valData.AVALUE_40);
-                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_40').val(valData.AVALUE_40);
-                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_47').val(valData.AVALUE_47);
-                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_41').val(valData.AVALUE_41);
+                                        $('#ListHargaJualPermarket_' + i + '__ACODE_47').val(valData.ACODE_47);
+                                        $('#ListHargaJualPermarket_' + i + '__ACODE_41').val(valData.ACODE_41);
                                         $('#ListHargaJualPermarket_' + i + '__AVALUE_41').val(valData.AVALUE_41);
                                         $('#ListHargaJualPermarket_' + i + '__AVALUE_45').val(valData.AVALUE_45);
                                         if (valData.AVALUE_45 = '1') {
@@ -5452,7 +5452,7 @@
                                         $('#ListHargaJualPermarket_' + i + '__AVALUE_46').val(valData.AVALUE_46);
                                         $('#ListHargaJualPermarket_' + i + '__AVALUE_48').val(valData.AVALUE_48);
                                         $('#ListHargaJualPermarket_' + i + '__AVALUE_49').val(valData.AVALUE_49);
-                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_45').val(valData.AVALUE_47);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_47').val(valData.AVALUE_47);
                                         if (valData.AVALUE_47 = '1') {
                                             $('#rdoQualityJDID1_' + lMarket.RecNum).prop('checked', true);
                                             $('#rdoQualityJDID2_' + lMarket.RecNum).prop('checked', false);
@@ -5461,7 +5461,7 @@
                                             $('#rdoQualityJDID1_' + lMarket.RecNum).prop('checked', false);
                                             $('#rdoQualityJDID2_' + lMarket.RecNum).prop('checked', true);
                                         }
-                                        $('#ListHargaJualPermarket_' + i + '__ANAME_47').val(valData.ANAME_47);
+                                        $('#ListHargaJualPermarket_' + i + '__ANAME_47').val(valData.ACODE_47);
                                     }
                                     if (lMarket.NAMA == "20")//82cart
                                     {
