@@ -2462,61 +2462,86 @@ namespace MasterOnline.Controllers
 
             if (responseFromServer != null)
             {
-                ActOrderResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ActOrderResult)) as ActOrderResult;
-                //if (result.status == "200 Ok")
-                //{
-                //    var pesananInDb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo && a.NO_REFERENSI == noref).FirstOrDefault();
-                //    if (pesananInDb != null)
-                //    {
-                //        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                //        //#if (DEBUG || Debug_AWS)
-                //        //                        await JOBCOD(iden, pesananInDb.NO_BUKTI, pesananInDb.NO_REFERENSI);
-                //        //#else
-                //        //                        string EDBConnID = EDB.GetConnectionString("ConnId");
-                //        //                        var sqlStorage = new SqlServerStorage(EDBConnID);
-
-                //        //                        var Jobclient = new BackgroundJobClient(sqlStorage);
-                //        //                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.JOBCOD(iden, pesananInDb.NO_BUKTI, pesananInDb.NO_REFERENSI));
-                //        //#endif
-                //    }
-                //}
-                //else if (result.error_message[0].Contains("order already ack-ed") || result.error_message[0].Contains("400") || result.error_message[0].Contains("450") || result.error_message[0].Contains("500") || result.error_message[0].Contains("600"))
-                //{
-                //    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                //}
-                //else
-                //{
-                //    var err_msg = "";
-                //    if (result.error_message.Count() > 0)
-                //    {
-                //        foreach (var err in result.error_message)
-                //        {
-                //            err_msg += " " + err + ".";
-                //        }
-                //    }
-                //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                //    //throw new Exception("Update Status Accept Pesanan " + splitNoRef[1] + " ke Tokopedia Gagal. " + result.error_message[0] + ".");
-                //    throw new Exception("Update Status Accept Pesanan " + splitNoRef[1] + " ke Tokopedia Gagal. " + err_msg );
-                //}
-
-                if (isSuccess)
+                try
                 {
-                    var pesananInDb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo && a.NO_REFERENSI == noref).FirstOrDefault();
-                    if (pesananInDb != null)
+                    //var sukses = false;
+                    ActOrderResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ActOrderResult)) as ActOrderResult;
+                    //if (result.status == "200 Ok")
+                    //{
+                    //    var pesananInDb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo && a.NO_REFERENSI == noref).FirstOrDefault();
+                    //    if (pesananInDb != null)
+                    //    {
+                    //        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                    //        //#if (DEBUG || Debug_AWS)
+                    //        //                        await JOBCOD(iden, pesananInDb.NO_BUKTI, pesananInDb.NO_REFERENSI);
+                    //        //#else
+                    //        //                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                    //        //                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                    //        //                        var Jobclient = new BackgroundJobClient(sqlStorage);
+                    //        //                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.JOBCOD(iden, pesananInDb.NO_BUKTI, pesananInDb.NO_REFERENSI));
+                    //        //#endif
+                    //    }
+                    //}
+                    //else if (result.error_message[0].Contains("order already ack-ed") || result.error_message[0].Contains("400") || result.error_message[0].Contains("450") || result.error_message[0].Contains("500") || result.error_message[0].Contains("600"))
+                    //{
+                    //    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                    //}
+                    //else
+                    //{
+                    //    var err_msg = "";
+                    //    if (result.error_message.Count() > 0)
+                    //    {
+                    //        foreach (var err in result.error_message)
+                    //        {
+                    //            err_msg += " " + err + ".";
+                    //        }
+                    //    }
+                    //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                    //    //throw new Exception("Update Status Accept Pesanan " + splitNoRef[1] + " ke Tokopedia Gagal. " + result.error_message[0] + ".");
+                    //    throw new Exception("Update Status Accept Pesanan " + splitNoRef[1] + " ke Tokopedia Gagal. " + err_msg );
+                    //}
+
+                    if (isSuccess)
                     {
+                        //var pesananInDb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo && a.NO_REFERENSI == noref).FirstOrDefault();
+                        //if (pesananInDb != null)
+                        //{
                         manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                        //sukses = true;
+                        //}
                     }
-                }
-                else if (httpReason == "Bad Request")
-                {
-                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                }
-                else
-                {
-                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                    throw new Exception("Update Status Accept Pesanan " + splitNoRef[1] + " ke Tokopedia Gagal. " + result.header.messages + ". " + result.header.reason);
-                }
+                    else if (httpReason == "Bad Request")
+                    {
+                        //if (responseFromServer.Contains("Order Status not eligible to accept") || result.header.reason == "Order Status not eligible to accept")
 
+                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                        //sukses = true;
+                    }
+                    else
+                    {
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        //sukses = false;
+                        throw new Exception("Update Status Accept Pesanan " + splitNoRef[1] + " ke Tokopedia Gagal. " + result.header.messages + ". " + result.header.reason);
+                    }
+
+//                    if (sukses && type == 2)
+//                    {
+//#if (DEBUG || Debug_AWS)
+//                        JOBCOD1(iden, ordNo, noref);
+//#else
+//                        string EDBConnID = EDB.GetConnectionString("ConnId");
+//                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+//                        var Jobclient = new BackgroundJobClient(sqlStorage);
+//                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.JOBCOD1(iden, ordNo, noref));
+//#endif
+//                    }
+                }
+                catch(Exception ex)
+                {
+
+                }
                 //TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
                 //if (string.IsNullOrEmpty(result.errorCode.Value))
                 //{
