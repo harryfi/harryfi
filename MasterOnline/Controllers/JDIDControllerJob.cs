@@ -3304,7 +3304,7 @@ namespace MasterOnline.Controllers
 
                 //change by nurul 20/1/2021, bundling 
                 //await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
-                var returnGetOrder = await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+                var returnGetOrder = await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 0, 0, 0, dateFrom, dateTo);
                 //change by nurul 20/1/2021, bundling 
 
                 //daysFrom -= 3;
@@ -3363,15 +3363,51 @@ namespace MasterOnline.Controllers
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
             var listOrderId = new List<long>();
+            var loop = true;
+
             //add by nurul 4/5/2021, JDID versi 2
             if (iden.versi == "2")
             {
-                listOrderId.AddRange(GetOrderListV2(iden, "1", 0, daysFrom, daysTo));
+                //listOrderId.AddRange(GetOrderListV2(iden, "1", 0, daysFrom, daysTo));
+                while (loop)
+                {
+                    var retData = GetOrderListV2(iden, "1", page, daysFrom, daysTo);
+                    if (retData.Count > 0)
+                    {
+                        if (retData.Count < 20)
+                        {
+                            loop = false;
+                        }
+                        listOrderId.AddRange(retData);
+                    }
+                    else
+                    {
+                        loop = false;
+                    }
+                    page++;
+                }
             }
             else
             //end add by nurul 4/5/2021, JDID versi 2
             {
-                listOrderId.AddRange(GetOrderList(iden, "1", 0, daysFrom, daysTo));
+                //listOrderId.AddRange(GetOrderList(iden, "1", 0, daysFrom, daysTo));
+                while (loop)
+                {
+                    var retData = GetOrderList(iden, "1", page, daysFrom, daysTo);
+                    if (retData.Count > 0)
+                    {
+                        if (retData.Count < 20)
+                        {
+                            loop = false;
+                        }
+                        listOrderId.AddRange(retData);
+                    }
+                    else
+                    {
+                        loop = false;
+                    }
+                    page++;
+                }
             }
 
             string connectionID = Guid.NewGuid().ToString();
@@ -3502,7 +3538,7 @@ namespace MasterOnline.Controllers
 
                 //change by nurul 20/1/2021, bundling 
                 //await JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
-                var returnGetOrder = await JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+                var returnGetOrder = await JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 0, 0, 0, dateFrom, dateTo);
                 //change by nurul 20/1/2021, bundling
                 //daysFrom -= 3;
                 //daysTo -= 3;
@@ -3560,15 +3596,50 @@ namespace MasterOnline.Controllers
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
             var listOrderId = new List<long>();
+            var loop = true;
             //add by nurul 4/5/2021, JDID versi 2
             if (iden.versi == "2")
             {
-                listOrderId.AddRange(GetOrderListV2(iden, "7", 0, daysFrom, daysTo));
+                //listOrderId.AddRange(GetOrderListV2(iden, "7", 0, daysFrom, daysTo));
+                while (loop)
+                {
+                    var retData = GetOrderListV2(iden, "7", page, daysFrom, daysTo);
+                    if (retData.Count > 0)
+                    {
+                        if (retData.Count < 20)
+                        {
+                            loop = false;
+                        }
+                        listOrderId.AddRange(retData);
+                    }
+                    else
+                    {
+                        loop = false;
+                    }
+                    page++;
+                }
             }
             else
             //end add by nurul 4/5/2021, JDID versi 2
             {
-                listOrderId.AddRange(GetOrderList(iden, "7", 0, daysFrom, daysTo));
+                //listOrderId.AddRange(GetOrderList(iden, "7", 0, daysFrom, daysTo));
+                while (loop)
+                {
+                    var retData = GetOrderList(iden, "7", page, daysFrom, daysTo);
+                    if (retData.Count > 0)
+                    {
+                        if (retData.Count < 20)
+                        {
+                            loop = false;
+                        }
+                        listOrderId.AddRange(retData);
+                    }
+                    else
+                    {
+                        loop = false;
+                    }
+                    page++;
+                }
             }
 
             string connectionID = Guid.NewGuid().ToString();
@@ -3697,7 +3768,7 @@ namespace MasterOnline.Controllers
 
                 //change by nurul 20/1/2021, bundling 
                 //await JD_GetOrderByStatusCancelList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
-                var returnGetOrder = await JD_GetOrderByStatusCancelList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+                var returnGetOrder = await JD_GetOrderByStatusCancelList3Days(iden, stat, CUST, NAMA_CUST, 0, 0, 0, dateFrom, dateTo);
                 //change by nurul 20/1/2021, bundling 
 
                 //daysFrom -= 3;
@@ -3756,15 +3827,50 @@ namespace MasterOnline.Controllers
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
             var listOrderId = new List<long>();
+            var loop = true;
             //add by nurul 4/5/2021, JDID versi 2
             if (iden.versi == "2")
             {
-                listOrderId.AddRange(GetOrderListV2(iden, "5", 0, daysFrom, daysTo));
+                //listOrderId.AddRange(GetOrderListV2(iden, "5", 0, daysFrom, daysTo));
+                while (loop)
+                {
+                    var retData = GetOrderListV2(iden, "5", page, daysFrom, daysTo);
+                    if (retData.Count > 0)
+                    {
+                        if (retData.Count < 20)
+                        {
+                            loop = false;
+                        }
+                        listOrderId.AddRange(retData);
+                    }
+                    else
+                    {
+                        loop = false;
+                    }
+                    page++;
+                }
             }
             else
             //end add by nurul 4/5/2021, JDID versi 2
             {
-                listOrderId.AddRange(GetOrderList(iden, "5", 0, daysFrom, daysTo));
+                //listOrderId.AddRange(GetOrderList(iden, "5", 0, daysFrom, daysTo));
+                while (loop)
+                {
+                    var retData = GetOrderList(iden, "5", page, daysFrom, daysTo);
+                    if (retData.Count > 0)
+                    {
+                        if (retData.Count < 20)
+                        {
+                            loop = false;
+                        }
+                        listOrderId.AddRange(retData);
+                    }
+                    else
+                    {
+                        loop = false;
+                    }
+                    page++;
+                }
             }
 
             string connectionID = Guid.NewGuid().ToString();
@@ -4383,11 +4489,11 @@ namespace MasterOnline.Controllers
                     if (listOrderId.success)
                     {
                         ret = listOrderId.model;
-                        if (listOrderId.model.Count == 20)
-                        {
-                            var nextOrders = GetOrderList(data, status, page + 1, addDays, addDays2);
-                            ret.AddRange(nextOrders);
-                        }
+                        //if (listOrderId.model.Count == 20)
+                        //{
+                        //    var nextOrders = GetOrderList(data, status, page + 1, addDays, addDays2);
+                        //    ret.AddRange(nextOrders);
+                        //}
                     }
                 }
             }
@@ -5152,11 +5258,11 @@ namespace MasterOnline.Controllers
                             if (listOrderId.jingdong_seller_order_getOrderIdListByCondition_response.result.model != null)
                             {
                                 ret = listOrderId.jingdong_seller_order_getOrderIdListByCondition_response.result.model;
-                                if (listOrderId.jingdong_seller_order_getOrderIdListByCondition_response.result.model.Count() == 20)
-                                {
-                                    var nextOrders = GetOrderListV2(data, status, page + 1, addDays, addDays2);
-                                    ret.AddRange(nextOrders);
-                                }
+                                //if (listOrderId.jingdong_seller_order_getOrderIdListByCondition_response.result.model.Count() == 20)
+                                //{
+                                    //var nextOrders = GetOrderListV2(data, status, page + 1, addDays, addDays2);
+                                    //ret.AddRange(nextOrders);
+                                //}
                             }
                         }
                     }
