@@ -5383,6 +5383,10 @@
                                             $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val(valData.AVALUE_39);
                                             CKEDITOR.instances['ListHargaJualPermarket_' + i + '__AVALUE_39'].setData(valData.AVALUE_39);
                                         }
+                                        else {
+                                            $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val('');
+                                            CKEDITOR.instances['ListHargaJualPermarket_' + i + '__AVALUE_39'].setData('');
+                                        }
                                         $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val(valData.AVALUE_38);
                                         $('#ListHargaJualPermarket_' + i + '__ANAME_38').val(valData.ANAME_38);
                                         $('#Brand' + i + 'Blibli').val(valData.ANAME_38);
@@ -5405,10 +5409,19 @@
                                             $('#ListHargaJualPermarket_' + i + '__ANAME_38').val(valData.ANAME_38);
                                             $('#Brand' + i + 'Shopee').val(valData.ANAME_38);
                                         }
+                                        else {
+                                            $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val('');
+                                            $('#ListHargaJualPermarket_' + i + '__ANAME_38').val('');
+                                            $('#Brand' + i + 'Shopee').val('');
+                                        }
                                         if (valData.AVALUE_39 != '' && valData.AVALUE_39 != null && valData.AVALUE_39 != undefined) {
                                             $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val(valData.AVALUE_39);
                                             var listLog = valData.AVALUE_39.split(',');
                                             $('#LOGISTIC_SHOPEE_' + lMarket.RecNum)[0].selectize.setValue(listLog, true);
+                                        }
+                                        else {
+                                            $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val('');
+                                            $('#LOGISTIC_SHOPEE_' + lMarket.RecNum)[0].selectize.setValue('', true);
                                         }
                                     }
                                     if (lMarket.NAMA == "15")//Tokopedia
