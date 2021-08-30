@@ -2866,11 +2866,36 @@ namespace MasterOnline.Controllers
                                         for (int i = 0; i < brg.variants.Length; i++)
                                         {
                                             brgmp = brg.variants[i].product_id + ";" + brg.variants[i].id;
+                                            var stat = brg.variants[i].state ?? "";
+                                            if (stat != "deleted")
+                                            {
+                                                var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
+                                                var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
+                                                if (tempbrginDB == null && brgInDB == null)
+                                                {
+                                                    var insert2 = CreateTempQryV2(brg, data.cust, IdMarket, display, 2, kdBrgInduk, i);
+                                                    if (insert2.exception == 1)
+                                                    {
+                                                        ret.exception = 1;
+                                                        currentLog.REQUEST_EXCEPTION = insert2.message.Replace("'", "\'\'");
+                                                    }
+                                                    if (insert2.status == 1)
+                                                        sSQL_Value += insert2.message;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        brgmp = brg.id + ";" + brg.sku_id;
+                                        var stat = brg.state ?? "";
+                                        if (stat != "deleted")
+                                        {
                                             var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
                                             var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
                                             if (tempbrginDB == null && brgInDB == null)
                                             {
-                                                var insert2 = CreateTempQryV2(brg, data.cust, IdMarket, display, 2, kdBrgInduk, i);
+                                                var insert2 = CreateTempQryV2(brg, data.cust, IdMarket, display, 0, "", 0);
                                                 if (insert2.exception == 1)
                                                 {
                                                     ret.exception = 1;
@@ -2879,23 +2904,6 @@ namespace MasterOnline.Controllers
                                                 if (insert2.status == 1)
                                                     sSQL_Value += insert2.message;
                                             }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        brgmp = brg.id + ";" + brg.sku_id;
-                                        var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
-                                        var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
-                                        if (tempbrginDB == null && brgInDB == null)
-                                        {
-                                            var insert2 = CreateTempQryV2(brg, data.cust, IdMarket, display, 0, "", 0);
-                                            if (insert2.exception == 1)
-                                            {
-                                                ret.exception = 1;
-                                                currentLog.REQUEST_EXCEPTION = insert2.message.Replace("'", "\'\'");
-                                            }
-                                            if (insert2.status == 1)
-                                                sSQL_Value += insert2.message;
                                         }
                                     }
                                 }
