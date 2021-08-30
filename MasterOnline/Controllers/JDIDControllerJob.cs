@@ -3285,8 +3285,8 @@ namespace MasterOnline.Controllers
             string ret = "";
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
-            var daysFrom = -1;
-            var daysTo = 0;
+            //var daysFrom = -1;
+            //var daysTo = 0;
             var daysNow = DateTime.UtcNow.AddHours(7);
             //add by nurul 20/1/2021, bundling 
             var AdaKomponen = false;
@@ -3295,12 +3295,12 @@ namespace MasterOnline.Controllers
             //end add by nurul 20/1/2021, bundling 
 
             //while (daysFrom > -13)
-            while (daysFrom >= -3)
+            //while (daysFrom >= -3)
             {
                 //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
                 //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
-                var dateFrom = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
-                var dateTo = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                var dateFrom = (long)daysNow.AddHours(-12).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                var dateTo = (long)daysNow.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
 
                 //change by nurul 20/1/2021, bundling 
                 //await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
@@ -3309,8 +3309,8 @@ namespace MasterOnline.Controllers
 
                 //daysFrom -= 3;
                 //daysTo -= 3;
-                daysFrom -= 1;
-                daysTo -= 1;
+                //daysFrom -= 1;
+                //daysTo -= 1;
 
                 //add by nurul 20/1/2021, bundling 
                 //if (returnGetOrder != "")
@@ -3351,6 +3351,48 @@ namespace MasterOnline.Controllers
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%JD_GetOrderByStatusPaid%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%JD_GetOrderByStatusComplete%' and invocationdata not like '%JD_GetOrderByStatusCancel%' ");
             // end tunning untuk tidak duplicate
 
+            return ret;
+        }
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public async Task<string> JD_GOLIVE_GetOrderByStatusPaid(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
+        {
+            string ret = "";
+            SetupContext(iden.DatabasePathErasoft, iden.username);
+
+            var daysFrom = -1;
+            var daysTo = 0;
+            var daysNow = DateTime.UtcNow.AddHours(7);
+            //add by nurul 20/1/2021, bundling 
+            var AdaKomponen = false;
+            var connIdProses = "";
+            List<string> tempConnId = new List<string>() { };
+            //end add by nurul 20/1/2021, bundling 
+
+            //while (daysFrom > -13)
+            while (daysFrom >= -3)
+            {
+                var dateFrom = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                var dateTo = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+
+                var returnGetOrder = await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 0, 0, 0, dateFrom, dateTo);
+                
+                daysFrom -= 1;
+                daysTo -= 1;
+
+                if (!string.IsNullOrEmpty(returnGetOrder))
+                {
+                    connIdProses += "'" + returnGetOrder + "' , ";
+                }
+                //end add by nurul 20/1/2021, bundling 
+            }
+           
+            if (!string.IsNullOrEmpty(connIdProses))
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username, connIdProses.Substring(0, connIdProses.Length - 3));
+            }
+            
             return ret;
         }
 
@@ -3527,8 +3569,8 @@ namespace MasterOnline.Controllers
             string ret = "";
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
-            var daysFrom = -1;
-            var daysTo = 0;
+            //var daysFrom = -1;
+            //var daysTo = 0;
             var daysNow = DateTime.UtcNow.AddHours(7);
             //add by nurul 20/1/2021, bundling 
             var AdaKomponen = false;
@@ -3537,12 +3579,12 @@ namespace MasterOnline.Controllers
             //end add by nurul 20/1/2021, bundling 
 
 
-            while (daysFrom >= -3)
+            //while (daysFrom >= -3)
             {
                 //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
                 //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
-                var dateFrom = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
-                var dateTo = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                var dateFrom = (long)daysNow.AddHours(-12).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                var dateTo = (long)daysNow.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
 
                 //change by nurul 20/1/2021, bundling 
                 //await JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
@@ -3550,8 +3592,8 @@ namespace MasterOnline.Controllers
                 //change by nurul 20/1/2021, bundling
                 //daysFrom -= 3;
                 //daysTo -= 3;
-                daysFrom -= 1;
-                daysTo -= 1;
+                //daysFrom -= 1;
+                //daysTo -= 1;
 
                 //add by nurul 20/1/2021, bundling 
                 //if (returnGetOrder != "")
@@ -3595,6 +3637,44 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public async Task<string> JD_GOLIVE_GetOrderByStatusRTS(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
+        {
+            string ret = "";
+            SetupContext(iden.DatabasePathErasoft, iden.username);
+
+            var daysFrom = -1;
+            var daysTo = 0;
+            var daysNow = DateTime.UtcNow.AddHours(7);
+            //add by nurul 20/1/2021, bundling 
+            var AdaKomponen = false;
+            var connIdProses = "";
+            List<string> tempConnId = new List<string>() { };
+            //end add by nurul 20/1/2021, bundling 
+
+
+            while (daysFrom >= -3)
+            {
+                var dateFrom = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                var dateTo = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+
+                var returnGetOrder = await JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 0, 0, 0, dateFrom, dateTo);
+                daysFrom -= 1;
+                daysTo -= 1;
+
+                if (!string.IsNullOrEmpty(returnGetOrder))
+                {
+                    connIdProses += "'" + returnGetOrder + "' , ";
+                }
+            }
+            if (!string.IsNullOrEmpty(connIdProses))
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username, connIdProses.Substring(0, connIdProses.Length - 3));
+            }
+            
+            return ret;
+        }
         public async Task<string> JD_GetOrderByStatusRTSList3Days(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, long daysFrom, long daysTo)
         {
             //1:Waiting for delivery, 2:Shipped, 3:Waiting_Cancel, 4:Waiting_Refuse, 5:Canceled, 6:Completed, 7:Ready to Ship
