@@ -5349,7 +5349,9 @@
         }
 
         function CopyDataAttrFromBrg(brg) {
-            if (confirm('Semua data attribute marketplace barang ini akan diubah mengikuti data attribute marketplace dari kode barang : ' + brg + '.\nApakah Anda yakin?')) {
+            var textCB = $('#COPY_ATTR').text().split('(');
+            var namabrg = textCB[1].substring(0, textCB[1].length -1);
+            if (confirm('Semua setting detail per marketplace barang ini akan diubah mengikuti setting detail per marketplace dari :\nkode barang : ' + brg + '\nnamabarang : ' + namabrg + '\nApakah Anda yakin?')) {
                 //model_listhargajualpermarketview
 
                 var link = '@Url.Action("GetBrgSTF02H", "Manage", new { kode = "replaceCode" })';
@@ -5385,7 +5387,7 @@
                                         }
                                         else {
                                             $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val('');
-                                            CKEDITOR.instances['ListHargaJualPermarket_' + i + '__AVALUE_39'].setData('');
+                                            //CKEDITOR.instances['ListHargaJualPermarket_' + i + '__AVALUE_39'].setData('');
                                         }
                                         $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val(valData.AVALUE_38);
                                         $('#ListHargaJualPermarket_' + i + '__ANAME_38').val(valData.ANAME_38);
