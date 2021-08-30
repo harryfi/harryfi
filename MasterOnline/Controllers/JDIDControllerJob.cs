@@ -3286,7 +3286,7 @@ namespace MasterOnline.Controllers
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
             var daysFrom = -1;
-            var daysTo = 1;
+            var daysTo = 0;
             var daysNow = DateTime.UtcNow.AddHours(7);
             //add by nurul 20/1/2021, bundling 
             var AdaKomponen = false;
@@ -3309,8 +3309,8 @@ namespace MasterOnline.Controllers
 
                 //daysFrom -= 3;
                 //daysTo -= 3;
-                daysFrom -= 2;
-                daysTo -= 2;
+                daysFrom -= 1;
+                daysTo -= 1;
 
                 //add by nurul 20/1/2021, bundling 
                 //if (returnGetOrder != "")
@@ -3385,6 +3385,10 @@ namespace MasterOnline.Controllers
                         loop = false;
                     }
                     page++;
+                    if (page > 100)
+                    {
+                        loop = false;
+                    }
                 }
             }
             else
@@ -3407,6 +3411,10 @@ namespace MasterOnline.Controllers
                         loop = false;
                     }
                     page++;
+                    if (page > 100)
+                    {
+                        loop = false;
+                    }
                 }
             }
 
@@ -3520,7 +3528,7 @@ namespace MasterOnline.Controllers
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
             var daysFrom = -1;
-            var daysTo = 1;
+            var daysTo = 0;
             var daysNow = DateTime.UtcNow.AddHours(7);
             //add by nurul 20/1/2021, bundling 
             var AdaKomponen = false;
@@ -3542,8 +3550,8 @@ namespace MasterOnline.Controllers
                 //change by nurul 20/1/2021, bundling
                 //daysFrom -= 3;
                 //daysTo -= 3;
-                daysFrom -= 2;
-                daysTo -= 2;
+                daysFrom -= 1;
+                daysTo -= 1;
 
                 //add by nurul 20/1/2021, bundling 
                 //if (returnGetOrder != "")
@@ -3617,6 +3625,10 @@ namespace MasterOnline.Controllers
                         loop = false;
                     }
                     page++;
+                    if (page > 100)
+                    {
+                        loop = false;
+                    }
                 }
             }
             else
@@ -3639,6 +3651,10 @@ namespace MasterOnline.Controllers
                         loop = false;
                     }
                     page++;
+                    if (page > 100)
+                    {
+                        loop = false;
+                    }
                 }
             }
 
@@ -3750,7 +3766,7 @@ namespace MasterOnline.Controllers
             string ret = "";
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
-            var daysFrom = -2;
+            var daysFrom = -1;
             var daysTo = 0;
             var daysNow = DateTime.UtcNow.AddHours(7);
             //add by nurul 20/1/2021, bundling 
@@ -3773,8 +3789,8 @@ namespace MasterOnline.Controllers
 
                 //daysFrom -= 3;
                 //daysTo -= 3;
-                daysFrom -= 2;
-                daysTo -= 2;
+                daysFrom -= 1;
+                daysTo -= 1;
 
                 //add by nurul 20/1/2021, bundling 
                 //if (returnGetOrder != "")
@@ -3848,6 +3864,10 @@ namespace MasterOnline.Controllers
                         loop = false;
                     }
                     page++;
+                    if(page > 100)
+                    {
+                        loop = false;
+                    }
                 }
             }
             else
@@ -3870,6 +3890,10 @@ namespace MasterOnline.Controllers
                         loop = false;
                     }
                     page++;
+                    if (page > 100)
+                    {
+                        loop = false;
+                    }
                 }
             }
 
@@ -4475,8 +4499,8 @@ namespace MasterOnline.Controllers
             string sMethod = "epi.popOrder.getOrderIdListByCondition";
             //string sParamJson = "{\"orderStatus\":" + status + ", \"startRow\": " + page * 20 + ", \"bookTimeBegin\": "
             //    + DateTimeOffset.Now.AddDays(addDays).AddHours(7).ToUnixTimeSeconds() + "000 }";
-            string sParamJson = "{\"orderStatus\":" + status + ", \"startRow\": " + page * 20 + ", \"createdTimeBegin\": "
-                + addDays + ", \"createdTimeEnd\": " + addDays2 + " }";
+            string sParamJson = "{\"orderStatus\":" + status + ", \"startRow\": " + page * 20 + ", \"bookTimeBegin\": "
+                + addDays + ", \"bookTimeEnd\": " + addDays2 + " }";
             //string sParamJson = "{\"orderStatus\":" + status + ", \"startRow\": " + page * 20 + "}";
 
             try
@@ -5181,8 +5205,8 @@ namespace MasterOnline.Controllers
                 var dayFrom1 = dayFrom.ToString("yyyy-MM-dd HH:mm:ss");
                 var dayTo1 = dayTo.ToString("yyyy-MM-dd HH:mm:ss");
 
-                this.ParamJson = "{\"orderStatus\":\"" + status + "\", \"startRow\": \"" + page * 20 + "\", \"createdTimeBegin\": \""
-                    + dayFrom1 + "\", \"createdTimeEnd\": \"" + dayTo1 + "\" }";
+                this.ParamJson = "{\"orderStatus\":\"" + status + "\", \"startRow\": \"" + page * 20 + "\", \"bookTimeBegin\": \""
+                    + dayFrom1 + "\", \"bookTimeEnd\": \"" + dayTo1 + "\" }";
                 sysParams.Add("360buy_param_json", this.ParamJson);
 
                 sysParams.Add("access_token", data.accessToken);
