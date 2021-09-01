@@ -1073,19 +1073,19 @@
                                                         @*<select id="KATEGORI_DIS" class="cbKategori" placeholder="Harap pilih" disabled></select>*@
                                                         <input id="txtNamaKategori" class="form-control" value="@(Model?.Stf02 != null ? Model?.Stf02.KET_SORT1 : "")" disabled />
                                                     </div>
-                                                    <div class="col-md-2 col-sm-2"></div>
-                                                    <div class="col-md-2 col-sm-2 col-xs-12">
-                                                        <button id="btnClearAll" type="button" onclick="ClearAllCategory();">Clear All</button>
-                                                    </div>
                                                 </div>
                                                 <br />
                                                 <div class="row">
                                                     <div class="col-md-2 col-sm-2 col-xs-12">
                                                         <label>Copy dari Barang :</label>
                                                     </div>
-                                                    <div class="col-md-4 col-sm-4 col-xs-12 form-group">
+                                                    <div class="col-md-6 col-sm-6 col-xs-12 form-group">
                                                         @*<select id="COPY_ATTR" placeholder="Harap pilih"></select>*@
                                                         <div id="COPY_ATTR" class="selectivity-input"></div>
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-2"></div>
+                                                    <div class="col-md-2 col-sm-2 col-xs-12">
+                                                        <button id="btnClearAll" type="button" onclick="ClearAllCategory();">Clear All</button>
                                                     </div>
                                                 </div>
                                             </div>

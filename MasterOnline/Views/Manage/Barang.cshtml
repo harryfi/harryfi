@@ -5335,7 +5335,8 @@
                         function (i, item) {
                             listBarang[i] = {
                                 id: item.KODE,
-                                text: item.KET
+                                text: item.KODE + ' (' + item.NAMABRG.replace("'", "`").replace('"', '') + ')',
+                                namabrg: item.NAMABRG
                             };
                         });
 
@@ -5346,8 +5347,9 @@
                         placeholder: 'Harap pilih',
                         items: listBarang,
                     }).change( function () {
-                            var val = $(this).selectivity('value');
-                            CopyDataAttrFromBrg(val);
+                        var val = $(this).selectivity('value');
+                        var $objSup = $.grep(listBarang, function (data) { return data.id == val });
+                        CopyDataAttrFromBrg(val, $objSup[0].namabrg);
                         });
                     if ($('#COPY_ATTR').selectivity('value') != null) {
                         $('#COPY_ATTR').trigger('change');
@@ -5359,10 +5361,10 @@
             });
         }
 
-        function CopyDataAttrFromBrg(brg) {
+        function CopyDataAttrFromBrg(brg, namabrg) {
             var textCB = $('#COPY_ATTR').text().split('(');
-            var namabrg = textCB[1].substring(0, textCB[1].length -1);
-            if (confirm('Semua setting detail per marketplace barang ini akan diubah mengikuti setting detail per marketplace dari :\nkode barang : ' + brg + '\nnamabarang : ' + namabrg + '\nApakah Anda yakin?')) {
+            //var namabrg = textCB[1].substring(0, textCB[1].length -1);
+            if (confirm('Semua setting detail per marketplace barang ini akan diubah mengikuti setting detail per marketplace dari :\nKode Barang : ' + brg + '\nNama Barang : ' + namabrg + '\n\nApakah Anda yakin?')) {
                 //model_listhargajualpermarketview
 
                 var link = '@Url.Action("GetBrgSTF02H", "Manage", new { kode = "replaceCode" })';
@@ -5444,7 +5446,7 @@
                                         $('#ListHargaJualPermarket_' + i + '__PICKUP_POINT').val(valData.PICKUP_POINT);
                                         $('#TOKPED_ETALASE' + i + 'Box').val(valData.PICKUP_POINT);
                                         $('#ListHargaJualPermarket_' + i + '__AVALUE_35').val(valData.AVALUE_35);
-                                        if (valData.AVALUE_35 = '1') {
+                                        if (valData.AVALUE_35 == '1') {
                                             $('#rdoAsuransi1_' + lMarket.RecNum).prop('checked', true);
                                             $('#rdoAsuransi2_' + lMarket.RecNum).prop('checked', false);
                                         }
@@ -5469,7 +5471,7 @@
                                         $('#ListHargaJualPermarket_' + i + '__ACODE_41').val(valData.ACODE_41);
                                         $('#ListHargaJualPermarket_' + i + '__AVALUE_41').val(valData.AVALUE_41);
                                         $('#ListHargaJualPermarket_' + i + '__AVALUE_45').val(valData.AVALUE_45);
-                                        if (valData.AVALUE_45 = '1') {
+                                        if (valData.AVALUE_45 == '1') {
                                             $('#rdoCODJDID1_' + lMarket.RecNum).prop('checked', true);
                                             $('#rdoCODJDID2_' + lMarket.RecNum).prop('checked', false);
                                         }
@@ -5481,7 +5483,7 @@
                                         $('#ListHargaJualPermarket_' + i + '__AVALUE_48').val(valData.AVALUE_48);
                                         $('#ListHargaJualPermarket_' + i + '__AVALUE_49').val(valData.AVALUE_49);
                                         $('#ListHargaJualPermarket_' + i + '__AVALUE_47').val(valData.AVALUE_47);
-                                        if (valData.AVALUE_47 = '1') {
+                                        if (valData.AVALUE_47 == '1') {
                                             $('#rdoQualityJDID1_' + lMarket.RecNum).prop('checked', true);
                                             $('#rdoQualityJDID2_' + lMarket.RecNum).prop('checked', false);
                                         }
