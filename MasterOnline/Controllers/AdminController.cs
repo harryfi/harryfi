@@ -6154,6 +6154,9 @@ namespace MasterOnline.Controllers
                 sSQLSelectGroupMethod += "SELECT statename, invocationdata, arguments " +
                     "FROM hangfire.[job] " +
                     "WHERE invocationdata LIKE '%getorder%' and statename LIKE '%succ%' " +
+                    //add by nurul 2/9/2021
+                    "and invocationdata not like '%GetOrderLogistics%' " +
+                    //end add by nurul 2/9/2021
                     "GROUP BY statename, invocationdata, arguments " +
                     "ORDER BY invocationdata ASC ";
                 //sSQLSelectGroupMethod += "SELECT statename, invocationdata " +
