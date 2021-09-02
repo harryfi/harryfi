@@ -210,7 +210,7 @@ namespace MasterOnline.Controllers
                     manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
                 }
 
-                if (responseFromServer != null)
+                if (responseFromServer != "")
                 {
                     try
                     {
