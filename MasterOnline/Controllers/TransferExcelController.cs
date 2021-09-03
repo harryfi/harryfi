@@ -1766,6 +1766,7 @@ namespace MasterOnline.Controllers
 
                                 if (checkTemp.Count() > 0)
                                 {
+                                    List<string> brg = new List<string>();
                                     for (int j = Convert.ToInt32(prog[1]); j < checkTemp.Count(); j++)
                                     {
                                         try
@@ -1818,6 +1819,7 @@ namespace MasterOnline.Controllers
                                                 Satuan = "2",
                                             };
                                             stt01b.Kobar = checkTemp[j].BRG;
+                                            brg.Add(checkTemp[j].BRG);
                                             //stt01b.Ke_Gd = gd;
                                             stt01b.Ke_Gd = ret.gudang;
                                             if (!string.IsNullOrEmpty(Convert.ToString(checkTemp[j].HARGA_SATUAN)))
@@ -1870,7 +1872,8 @@ namespace MasterOnline.Controllers
                                                     {
                                                         transaction.Commit();
                                                         // update stock all barang;
-                                                        var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
+                                                        //var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
+                                                        new ManageController().updateStockMarketPlace(brg, "[UPL_ST_A][" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + "]");
                                                         ret.statusSuccess = true;
                                                         eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
                                                         return Json(ret, JsonRequestBehavior.AllowGet);
@@ -1889,7 +1892,8 @@ namespace MasterOnline.Controllers
                                                 {
                                                     transaction.Commit();
                                                     // update stock all barang;
-                                                    var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
+                                                    //var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
+                                                    new ManageController().updateStockMarketPlace(brg, "[UPL_ST_A][" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + "]");
                                                     ret.statusSuccess = true;
                                                     eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
                                                     return Json(ret, JsonRequestBehavior.AllowGet);
@@ -1907,7 +1911,8 @@ namespace MasterOnline.Controllers
                                                 {
                                                     transaction.Commit();
                                                     // update stock all barang;
-                                                    var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
+                                                    //var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
+                                                    new ManageController().updateStockMarketPlace(brg, "[UPL_ST_A][" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + "]");
                                                     ret.statusSuccess = true;
                                                     eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
                                                     return Json(ret, JsonRequestBehavior.AllowGet);
