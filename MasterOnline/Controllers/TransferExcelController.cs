@@ -870,7 +870,7 @@ namespace MasterOnline.Controllers
         }
 
         #region Upload Excel Saldo Awal Stock
-        public async Task<ActionResult> UploadXcelSaldoAwal(string nobuk, int countAll, string percentDanprogress, string statusLoopSuccess)
+        public async Task<ActionResult> UploadXcelSaldoAwal(string nobuk, string _gudang, int countAll, string percentDanprogress, string statusLoopSuccess)
         {
             //var file = Request.Files[0];
             //List<string> excelData = new List<string>();
@@ -889,6 +889,11 @@ namespace MasterOnline.Controllers
             if (countAll > 0)
             {
                 ret.countAll = countAll;
+            }
+
+            if (!string.IsNullOrEmpty(_gudang))
+            {
+                ret.gudang = _gudang;
             }
 
             try
@@ -934,274 +939,732 @@ namespace MasterOnline.Controllers
                 for (int file_index = 0; file_index < Request.Files.Count; file_index++)
                 {
                     //    byte[] data;
+                    //change by nurul 2/9/2021
+                    //if (ret.statusLoop == false)
+                    //{
+                    //    ret.lastRow.Add(0);
+                    //}
+
+                    //if (ret.statusLoop == true)
+                    //{
+                    //    var file = Request.Files[file_index];
+                    //    if (file != null && file.ContentLength > 0)
+                    //    {
+                    //        string[] cekFormat = file.FileName.Split('.');
+                    //        if (cekFormat.Last().ToLower().ToString() == "xlsx")
+                    //        {
+                    //            using (Stream inputStream = file.InputStream)
+                    //            {
+                    //                MemoryStream memoryStream = inputStream as MemoryStream;
+                    //                if (memoryStream == null)
+                    //                {
+                    //                    memoryStream = new MemoryStream();
+                    //                    inputStream.CopyTo(memoryStream);
+                    //                }
+                    //                ret.byteData = memoryStream.ToArray();
+                    //            }
+                    //        }
+                    //        else if (cekFormat.Last().ToLower().ToString() == "xls")
+                    //        {
+                    //            using (Stream inputStream = file.InputStream)
+                    //            {
+                    //                Workbook workbook = new Workbook();
+                    //                workbook.LoadFromStream(inputStream);
+                    //                MemoryStream memoryStream = new MemoryStream();
+                    //                workbook.SaveToStream(memoryStream, FileFormat.Version2013);
+                    //                ret.byteData = memoryStream.ToArray();
+                    //            }
+                    //        }
+                    //        else
+                    //        {
+                    //            ret.Errors.Add("Format file tidak mendukung. Mohon untuk tidak mengubah format file excel hasil download program.");
+                    //            ret.statusSuccess = false;
+                    //            return Json(ret, JsonRequestBehavior.AllowGet);
+                    //        }
+                    //    }
+                    //}
+
+                    //using (MemoryStream stream = new MemoryStream(ret.byteData))
+                    //{
+                    //    //using (ExcelPackage excelPackage = new ExcelPackage(stream))
+                    //    using (ExcelPackage excelPackage = new ExcelPackage(stream))
+
+                    //    //FileInfo existingFile = new FileInfo("C:\\Users\\Agashi\\source\\repos\\MODev\\MasterOnline\\Content\\Uploaded\\Setiawan_qty_hargamodal.xlsx");
+                    //    //using (ExcelPackage excelPackage = new ExcelPackage(existingFile))
+                    //    {
+                    //        using (ErasoftContext eraDB = new ErasoftContext(DataSourcePath, dbPathEra))
+                    //        {
+                    //            using (System.Data.Entity.DbContextTransaction transaction = eraDB.Database.BeginTransaction())
+                    //            {
+                    //                eraDB.Database.CommandTimeout = 0;
+                    //                //loop all worksheets
+                    //                var worksheet = excelPackage.Workbook.Worksheets[1];
+                    //                string gd = worksheet.Cells[2, 1].Value == null ? "" : worksheet.Cells[2, 1].Value.ToString();
+                    //                if (!string.IsNullOrEmpty(gd))
+                    //                {
+                    //                    var gudang = eraDB.STF18.Where(m => m.Kode_Gudang == gd).Select(m => m.Nama_Gudang).FirstOrDefault();
+                    //                    if (gudang != null)
+                    //                    {
+                    //                        if (ret.statusLoop == false)
+                    //                        {
+                    //                            ret.namaGudang.Add(gudang);
+                    //                        }
+
+                    //                        var listTemp = new List<string>();
+                    //                        if (ret.countAll <= 0)
+                    //                        {
+                    //                            listTemp = eraDB.STF02.Where(m => m.TYPE == "3" && m.Qty_berat != "1").Select(p => p.BRG).ToList();
+                    //                            if (listTemp.Count() <= 0)
+                    //                            {
+                    //                                transaction.Rollback();
+                    //                                ret.Errors.Add("Data Barang tidak ditemukan");
+                    //                                ret.statusSuccess = false;
+                    //                                return Json(ret, JsonRequestBehavior.AllowGet);
+                    //                            }
+                    //                        }
+
+                    //                        //add by nurul 9/11/2020,bundling 
+                    //                        var listTempBundling = eraDB.STF03.Select(a => a.Unit).Distinct().ToList();
+                    //                        //end add by nurul 9/11/2020, bundling
+
+                    //                        #region create induk
+                    //                        if (ret.statusLoop == false)
+                    //                        {
+                    //                            //eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
+
+                    //                            var stt01a = new STT01A
+                    //                            {
+                    //                                Satuan = "",
+                    //                                Ket = "",
+                    //                                ST_Posting = "",
+                    //                                MK = "M",
+                    //                                JTran = "M",
+                    //                                Ref = "",
+                    //                                WORK_CENTER = "",
+                    //                                KLINE = "",
+                    //                                KODE_ANGKUTAN = "",
+                    //                                JENIS_MOBIL = "",
+                    //                                NO_POLISI = "",
+                    //                                NAMA_SOPIR = "",
+                    //                                No_PP = "",
+                    //                                CATATAN_1 = "",
+                    //                                CATATAN_2 = "",
+                    //                                CATATAN_3 = "",
+                    //                                CATATAN_4 = "",
+                    //                                CATATAN_5 = "",
+                    //                                CATATAN_6 = "",
+                    //                                CATATAN_7 = "",
+                    //                                CATATAN_8 = "",
+                    //                                CATATAN_9 = "",
+                    //                                CATATAN_10 = "",
+                    //                                NOBUK_POQC = "",
+                    //                                Supp = "",
+                    //                                NAMA_SUPP = "",
+                    //                                NO_PL = "",
+                    //                                NO_FAKTUR = "",
+                    //                                STATUS_LOADING = "0",
+                    //                                Tgl = DateTime.Now,
+                    //                                UserName = "UPLOAD_EXCEL_SA",
+                    //                                TglInput = DateTime.Now,
+                    //                                VALUTA = "IDR",
+                    //                                TUKAR = 1,
+                    //                                JRef = "6",
+                    //                                KOLI = 0,
+                    //                                VOLUME = 0,
+                    //                                BERAT = 0,
+                    //                                NILAI_ANGKUTAN = 0,
+                    //                                JLH_KARYAWAN = 0,
+                    //                                Kurs = 1,
+                    //                                ST_Cetak = "1",
+                    //                                Jenis_Form = 1,
+                    //                                Retur_Penuh = false,
+                    //                                Terima_Penuh = false,
+                    //                                TERIMA_PENUH_PO_QC = false,
+                    //                                JAM = 1
+                    //                            };
+
+
+                    //                            var lastBukti = new ManageController().GenerateAutoNumber(ErasoftDbContext, "ST", "STT01A", "Nobuk");
+                    //                            //var lastBukti = ManageController().GenerateAutoNumber(ErasoftDbContext, "ST", "STT01A", "Nobuk");
+                    //                            var noStok = "ST" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                    //                            //end change by nurul 23/12/2019, perbaikan no bukti
+
+
+                    //                            stt01a.Nobuk = noStok;
+                    //                            ret.nobuk = noStok;
+
+                    //                            object[] sParams1 = {
+                    //                                new SqlParameter("@NOBUK", noStok)
+                    //                            };
+
+                    //                            try
+                    //                            {
+                    //                                eraDB.STT01A.Add(stt01a);
+                    //                                eraDB.SaveChanges();
+                    //                            }
+                    //                            catch (Exception ex)
+                    //                            {
+                    //                                var tempSI = eraDB.STT01A.Where(a => a.Nobuk == stt01a.Nobuk).Single();
+                    //                                if (tempSI != null)
+                    //                                {
+                    //                                    if (tempSI.Nobuk == noStok)
+                    //                                    {
+                    //                                        var lastBuktiNew = Convert.ToInt32(lastBukti);
+                    //                                        lastBuktiNew++;
+                    //                                        noStok = "ST" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                    //                                        stt01a.Nobuk = noStok;
+                    //                                        ret.nobuk = noStok;
+                    //                                        eraDB.STT01A.Add(stt01a);
+                    //                                        eraDB.SaveChanges();
+                    //                                    }
+                    //                                }
+                    //                                else
+                    //                                {
+                    //                                    var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    //                                    ret.Errors.Add(errMsg);
+                    //                                    transaction.Rollback();
+                    //                                    eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01A WHERE NOBUK = @NOBUK ", sParams1);
+                    //                                    eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01B WHERE NOBUK = @NOBUK ", sParams1);
+                    //                                    //return Json(ret, JsonRequestBehavior.AllowGet);
+                    //                                }
+                    //                            }
+                    //                            //end change by nurul 23/12/2019, perbaikan no bukti
+
+                    //                        }
+                    //                        #endregion
+
+                    //                        //ret.countAll = worksheet.Dimension.End.Row;
+
+                    //                        object[] sParams = {
+                    //                                new SqlParameter("@NOBUK", ret.nobuk)
+                    //                            };
+
+                    //                        if (Convert.ToInt32(prog[1]) == 0)
+                    //                        {
+                    //                            prog[1] = "0";
+                    //                        }
+                    //                        var prosesinsertAwal = false;
+                    //                        var checkTemp = eraDB.TEMP_SALDOAWAL.ToList();
+                    //                        if (checkTemp.Count() <= 0)
+                    //                        {
+                    //                            for (int i = 5; i <= worksheet.Dimension.End.Row; i++)
+                    //                            {
+                    //                                if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 1].Value)))
+                    //                                {
+                    //                                    var current_brg = listTemp.Where(m => m == Convert.ToString(worksheet.Cells[i, 1].Value)).SingleOrDefault();
+                    //                                    if (current_brg != null)
+                    //                                    {
+                    //                                        if (!listTempBundling.Contains(Convert.ToString(worksheet.Cells[i, 1].Value))){
+                    //                                            if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 3].Value)))
+                    //                                            {
+                    //                                                var qtyTemp = worksheet.Cells[i, 3].Value.ToString().Replace("\r", "").Replace("\n", "").Replace(" ", "");
+                    //                                                double dqty = Convert.ToDouble(qtyTemp);
+
+                    //                                                if (dqty >= 0)
+                    //                                                    //if (Convert.ToInt32(worksheet.Cells[i, 3].Value) >= 0)
+                    //                                                {
+                    //                                                    TEMP_SALDOAWAL newrecord = new TEMP_SALDOAWAL()
+                    //                                                    {
+                    //                                                        BRG = Convert.ToString(worksheet.Cells[i, 1].Value),
+                    //                                                        //QTY = Convert.ToInt32(worksheet.Cells[i, 3].Value)
+                    //                                                        QTY = dqty
+                    //                                                    };
+                    //                                                    if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 4].Value)))
+                    //                                                    {
+                    //                                                        var modalTemp = worksheet.Cells[i, 4].Value.ToString().Replace("\r", "").Replace("\n", "").Replace(" ", "").Replace("&nbsp;", "").Replace("\r\n", "");
+                    //                                                        var te = modalTemp.Replace("\r", "").Replace("\n", "").Replace("\r\r", "").Replace("&nbsp;", "").Replace("\r\n", "");
+                    //                                                        double dmodal = Convert.ToDouble(modalTemp);
+                    //                                                        if (dmodal >= 0)
+                    //                                                        {
+                    //                                                            newrecord.HARGA_SATUAN = dmodal;
+                    //                                                        }
+                    //                                                        else
+                    //                                                        {
+                    //                                                            transaction.Rollback();
+                    //                                                            eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01A WHERE NOBUK = @NOBUK ", sParams);
+                    //                                                            eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01B WHERE NOBUK = @NOBUK ", sParams);
+                    //                                                            ret.Errors.Add("Ada kesalahan dalam Harga Modal, Harga Modal harus angka tidak boleh karakter huruf atau lainnya. Mohon untuk mencoba lagi proses Upload Excel Saldo Awal.");
+                    //                                                            ret.statusSuccess = false;
+                    //                                                            ret.lastRow[file_index] = i;
+                    //                                                            i = worksheet.Dimension.End.Row;
+                    //                                                            return Json(ret, JsonRequestBehavior.AllowGet);
+                    //                                                        }
+                    //                                                    }
+
+                    //                                                    eraDB.TEMP_SALDOAWAL.Add(newrecord);
+                    //                                                    eraDB.SaveChanges();
+                    //                                                    ret.countAll = ret.countAll + 1;
+                    //                                                    prosesinsertAwal = true;
+                    //                                                }
+                    //                                                else
+                    //                                                {
+                    //                                                    transaction.Rollback();
+                    //                                                    eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01A WHERE NOBUK = @NOBUK ", sParams);
+                    //                                                    eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01B WHERE NOBUK = @NOBUK ", sParams);
+                    //                                                    ret.Errors.Add("Ada kesalahan dalam Quantity, Quantity harus angka tidak boleh karakter huruf atau lainnya. Mohon untuk mencoba lagi proses Upload Excel Saldo Awal.");
+                    //                                                    ret.statusSuccess = false;
+                    //                                                    ret.lastRow[file_index] = i;
+                    //                                                    i = worksheet.Dimension.End.Row;
+                    //                                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                    //                                                }
+                    //                                            }
+                    //                                        }
+                    //                                        else
+                    //                                        {
+                    //                                            transaction.Rollback();
+                    //                                            eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01A WHERE NOBUK = @NOBUK ", sParams);
+                    //                                            eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01B WHERE NOBUK = @NOBUK ", sParams);
+                    //                                            ret.Errors.Add("Kode Barang (" + Convert.ToString(worksheet.Cells[i, 1].Value) + ") merupakan barang bundling. Mohon untuk mencoba lagi proses Upload Excel Saldo Awal.");
+                    //                                            ret.statusSuccess = false;
+                    //                                            ret.lastRow[file_index] = i;
+                    //                                            i = worksheet.Dimension.End.Row;
+                    //                                            return Json(ret, JsonRequestBehavior.AllowGet);
+                    //                                        }
+                    //                                    }
+                    //                                    else
+                    //                                    {
+                    //                                        transaction.Rollback();
+                    //                                        eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01A WHERE NOBUK = @NOBUK ", sParams);
+                    //                                        eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01B WHERE NOBUK = @NOBUK ", sParams);
+                    //                                        ret.Errors.Add("Kode Barang (" + Convert.ToString(worksheet.Cells[i, 1].Value) + ") tidak ditemukan. Mohon untuk mencoba lagi proses Upload Excel Saldo Awal.");
+                    //                                        ret.statusSuccess = false;
+                    //                                        ret.lastRow[file_index] = i;
+                    //                                        i = worksheet.Dimension.End.Row;
+                    //                                        return Json(ret, JsonRequestBehavior.AllowGet);
+                    //                                    }
+                    //                                }
+                    //                            }
+                    //                        }
+
+
+                    //                        if (prosesinsertAwal == true)
+                    //                        {
+                    //                            ret.progress = -1;
+                    //                            ret.statusLoop = true;
+                    //                            ret.statusSuccess = false;
+                    //                            transaction.Commit();
+                    //                            return Json(ret, JsonRequestBehavior.AllowGet);
+                    //                        }
+                    //                        else
+                    //                        {
+                    //                            if (ret.countAll == 0)
+                    //                            {
+                    //                                transaction.Rollback();
+                    //                                eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
+                    //                                ret.Errors.Add("Mohon untuk mengisi kolom Quantity dan Harga Modal (jika diperlukan) untuk proses Upload Excel Saldo Awal.");
+                    //                                ret.statusSuccess = false;
+                    //                                return Json(ret, JsonRequestBehavior.AllowGet);
+                    //                            }
+                    //                        }
+
+                    //                        if (checkTemp.Count() > 0)
+                    //                        {
+                    //                            for (int j = Convert.ToInt32(prog[1]); j <= checkTemp.Count() - 1; j++)
+                    //                            {
+                    //                                try
+                    //                                {
+                    //                                    ret.statusLoop = true;
+                    //                                    ret.progress = j;
+                    //                                    if (ret.progress == 0)
+                    //                                    {
+                    //                                        ret.percent = (j * 100) / (ret.countAll);
+                    //                                    }
+                    //                                    else
+                    //                                    {
+                    //                                        ret.percent = (j * 100) / (ret.countAll - 1);
+                    //                                    }
+                    //                                    var bagiProses = (ret.countAll - 1) * (Convert.ToDecimal(30) / Convert.ToDecimal(100));
+                    //                                    bagiProses = Decimal.Round(bagiProses);
+
+                    //                                    var stt01b = new STT01B
+                    //                                    {
+                    //                                        Dr_Gd = "",
+                    //                                        WO = "",
+                    //                                        Rak = "",
+                    //                                        JTran = "M",
+                    //                                        KLINK = "",
+                    //                                        NO_WO = "",
+                    //                                        KET = "",
+                    //                                        BRG_ORIGINAL = "",
+                    //                                        QTY3 = 0,
+                    //                                        BUKTI_DS = "",
+                    //                                        BUKTI_REFF = "",
+                    //                                        UserName = "UPLOAD_EXCEL_SA",
+                    //                                        Jenis_Form = 1,
+                    //                                        Qty_Retur = 0,
+                    //                                        Qty_Berat = 0,
+                    //                                        TOTAL_LOT = 0,
+                    //                                        TOTAL_QTY = 0,
+                    //                                        QTY_TERIMA_PO_QC = 1,
+                    //                                        TRANS_NO_URUT = 0,
+                    //                                        STN_N = 0,
+                    //                                        BIAYA_PER_QTY = 0,
+                    //                                        QTY_CLAIM = 0,
+                    //                                        NO_URUT_PO = 0,
+                    //                                        NO_URUT_SJ = 0,
+                    //                                        TglInput = DateTime.Now,
+                    //                                        //Nobuk = stt01a.Nobuk,
+                    //                                        Nobuk = ret.nobuk,
+                    //                                        Satuan = "2",
+                    //                                    };
+                    //                                    stt01b.Kobar = checkTemp[j].BRG;
+                    //                                    stt01b.Ke_Gd = gd;
+                    //                                    if (!string.IsNullOrEmpty(Convert.ToString(checkTemp[j].HARGA_SATUAN)))
+                    //                                    {
+                    //                                        stt01b.Harsat = checkTemp[j].HARGA_SATUAN;
+                    //                                    }
+                    //                                    else
+                    //                                    {
+                    //                                        stt01b.Harsat = 0;
+                    //                                    }
+                    //                                    stt01b.Qty = Convert.ToInt32(checkTemp[j].QTY);
+                    //                                    stt01b.Harga = stt01b.Harsat * stt01b.Qty;
+                    //                                    eraDB.STT01B.Add(stt01b);
+                    //                                    eraDB.SaveChanges();
+
+                    //                                    //if (ret.percent == 10 || ret.percent == 20 ||
+                    //                                    //ret.percent == 30 || ret.percent == 40 ||
+                    //                                    //ret.percent == 50 || ret.percent == 60 ||
+                    //                                    //ret.percent == 70 || ret.percent == 80 ||
+                    //                                    //ret.percent == 90 || ret.percent == 100 || ret.percent >= 100)
+                    //                                    //{
+
+
+
+                    //                                    if (ret.percent >= 100 || ret.progress == ret.countAll - 1)
+                    //                                    {
+                    //                                        transaction.Commit();
+                    //                                        // update stock all barang;
+                    //                                        var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
+                    //                                        ret.statusSuccess = true;
+                    //                                        eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
+                    //                                        return Json(ret, JsonRequestBehavior.AllowGet);
+                    //                                    }
+
+                    //                                    if (ret.countAll > 25)
+                    //                                    {
+                    //                                        if (ret.progress == (bagiProses * 1) || ret.progress == (bagiProses * 2) ||
+                    //                                                                                                   ret.progress == (bagiProses * 3))
+                    //                                        {
+                    //                                            ret.statusSuccess = false;
+                    //                                            transaction.Commit();
+                    //                                            return Json(ret, JsonRequestBehavior.AllowGet);
+                    //                                        }
+                    //                                    }
+                    //                                    else
+                    //                                    {
+                    //                                        ret.statusSuccess = false;
+                    //                                        transaction.Commit();
+                    //                                        return Json(ret, JsonRequestBehavior.AllowGet);
+                    //                                    }
+
+                    //                                }
+                    //                                catch (Exception ex)
+                    //                                {
+                    //                                    transaction.Rollback();
+                    //                                    ret.Errors.Add(ex.Message.ToString());
+                    //                                    ret.statusSuccess = false;
+                    //                                    eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01A WHERE NOBUK = @NOBUK ", sParams);
+                    //                                    eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01B WHERE NOBUK = @NOBUK ", sParams);
+                    //                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                    //                                }
+                    //                            }
+                    //                        }
+                    //                    }
+                    //                    else
+                    //                    {
+                    //                        transaction.Rollback();
+                    //                        ret.Errors.Add("Kode gudang tidak ditemukan");
+                    //                    }
+                    //                }
+                    //                else
+                    //                {
+                    //                    transaction.Rollback();
+                    //                    ret.Errors.Add("Kode gudang tidak ditemukan");
+                    //                }
+                    //            }
+                    //        }
+                    //    }
+                    //}
+
+                    //if (ret.statusLoop == true)
+                    //{
+                    //    var file = Request.Files[file_index];
+                    //    if (file != null && file.ContentLength > 0)
+                    //    {
+                    //        string[] cekFormat = file.FileName.Split('.');
+                    //        if (cekFormat.Last().ToLower().ToString() == "xlsx")
+                    //        {
+                    //            using (Stream inputStream = file.InputStream)
+                    //            {
+                    //                MemoryStream memoryStream = inputStream as MemoryStream;
+                    //                if (memoryStream == null)
+                    //                {
+                    //                    memoryStream = new MemoryStream();
+                    //                    inputStream.CopyTo(memoryStream);
+                    //                }
+                    //                ret.byteData = memoryStream.ToArray();
+                    //            }
+                    //        }
+                    //        else if (cekFormat.Last().ToLower().ToString() == "xls")
+                    //        {
+                    //            using (Stream inputStream = file.InputStream)
+                    //            {
+                    //                Workbook workbook = new Workbook();
+                    //                workbook.LoadFromStream(inputStream);
+                    //                MemoryStream memoryStream = new MemoryStream();
+                    //                workbook.SaveToStream(memoryStream, FileFormat.Version2013);
+                    //                ret.byteData = memoryStream.ToArray();
+                    //            }
+                    //        }
+                    //        else
+                    //        {
+                    //            ret.Errors.Add("Format file tidak mendukung. Mohon untuk tidak mengubah format file excel hasil download program.");
+                    //            ret.statusSuccess = false;
+                    //            return Json(ret, JsonRequestBehavior.AllowGet);
+                    //        }
+                    //    }
+                    //}
+
                     if (ret.statusLoop == false)
                     {
-                        ret.lastRow.Add(0);
-                    }
-
-                    if (ret.statusLoop == true)
-                    {
-                        var file = Request.Files[file_index];
-                        if (file != null && file.ContentLength > 0)
+                        using (MemoryStream stream = new MemoryStream(ret.byteData))
                         {
-                            string[] cekFormat = file.FileName.Split('.');
-                            if (cekFormat.Last().ToLower().ToString() == "xlsx")
+                            //using (ExcelPackage excelPackage = new ExcelPackage(stream))
+                            using (ExcelPackage excelPackage = new ExcelPackage(stream))
+
+                            //FileInfo existingFile = new FileInfo("C:\\Users\\Agashi\\source\\repos\\MODev\\MasterOnline\\Content\\Uploaded\\Setiawan_qty_hargamodal.xlsx");
+                            //using (ExcelPackage excelPackage = new ExcelPackage(existingFile))
                             {
-                                using (Stream inputStream = file.InputStream)
+                                using (ErasoftContext eraDB = new ErasoftContext(DataSourcePath, dbPathEra))
                                 {
-                                    MemoryStream memoryStream = inputStream as MemoryStream;
-                                    if (memoryStream == null)
+                                    using (System.Data.Entity.DbContextTransaction transaction = eraDB.Database.BeginTransaction())
                                     {
-                                        memoryStream = new MemoryStream();
-                                        inputStream.CopyTo(memoryStream);
-                                    }
-                                    ret.byteData = memoryStream.ToArray();
-                                }
-                            }
-                            else if (cekFormat.Last().ToLower().ToString() == "xls")
-                            {
-                                using (Stream inputStream = file.InputStream)
-                                {
-                                    Workbook workbook = new Workbook();
-                                    workbook.LoadFromStream(inputStream);
-                                    MemoryStream memoryStream = new MemoryStream();
-                                    workbook.SaveToStream(memoryStream, FileFormat.Version2013);
-                                    ret.byteData = memoryStream.ToArray();
-                                }
-                            }
-                            else
-                            {
-                                ret.Errors.Add("Format file tidak mendukung. Mohon untuk tidak mengubah format file excel hasil download program.");
-                                ret.statusSuccess = false;
-                                return Json(ret, JsonRequestBehavior.AllowGet);
-                            }
-                        }
-                    }
-
-
-                    using (MemoryStream stream = new MemoryStream(ret.byteData))
-                    {
-                        //using (ExcelPackage excelPackage = new ExcelPackage(stream))
-                        using (ExcelPackage excelPackage = new ExcelPackage(stream))
-
-                        //FileInfo existingFile = new FileInfo("C:\\Users\\Agashi\\source\\repos\\MODev\\MasterOnline\\Content\\Uploaded\\Setiawan_qty_hargamodal.xlsx");
-                        //using (ExcelPackage excelPackage = new ExcelPackage(existingFile))
-                        {
-                            using (ErasoftContext eraDB = new ErasoftContext(DataSourcePath, dbPathEra))
-                            {
-                                using (System.Data.Entity.DbContextTransaction transaction = eraDB.Database.BeginTransaction())
-                                {
-                                    eraDB.Database.CommandTimeout = 0;
-                                    //loop all worksheets
-                                    var worksheet = excelPackage.Workbook.Worksheets[1];
-                                    string gd = worksheet.Cells[2, 1].Value == null ? "" : worksheet.Cells[2, 1].Value.ToString();
-                                    if (!string.IsNullOrEmpty(gd))
-                                    {
-                                        var gudang = eraDB.STF18.Where(m => m.Kode_Gudang == gd).Select(m => m.Nama_Gudang).FirstOrDefault();
-                                        if (gudang != null)
+                                        eraDB.Database.CommandTimeout = 0;
+                                        //loop all worksheets
+                                        var worksheet = excelPackage.Workbook.Worksheets[1];
+                                        string gd = worksheet.Cells[2, 1].Value == null ? "" : worksheet.Cells[2, 1].Value.ToString();
+                                        if (!string.IsNullOrEmpty(gd))
                                         {
-                                            if (ret.statusLoop == false)
+                                            var gudang = eraDB.STF18.Where(m => m.Kode_Gudang == gd).Select(m => m.Nama_Gudang).FirstOrDefault();
+                                            if (gudang != null)
                                             {
-                                                ret.namaGudang.Add(gudang);
-                                            }
-
-                                            var listTemp = new List<string>();
-                                            if (ret.countAll <= 0)
-                                            {
-                                                listTemp = eraDB.STF02.Where(m => m.TYPE == "3" && m.Qty_berat != "1").Select(p => p.BRG).ToList();
-                                                if (listTemp.Count() <= 0)
+                                                if (ret.statusLoop == false)
                                                 {
-                                                    transaction.Rollback();
-                                                    ret.Errors.Add("Data Barang tidak ditemukan");
-                                                    ret.statusSuccess = false;
-                                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                                                    ret.namaGudang.Add(gudang);
+                                                    ret.gudang = gd;
                                                 }
-                                            }
 
-                                            //add by nurul 9/11/2020,bundling 
-                                            var listTempBundling = eraDB.STF03.Select(a => a.Unit).Distinct().ToList();
-                                            //end add by nurul 9/11/2020, bundling
-
-                                            #region create induk
-                                            if (ret.statusLoop == false)
-                                            {
-                                                //eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
-
-                                                var stt01a = new STT01A
+                                                var listTemp = new List<string>();
+                                                if (ret.countAll <= 0)
                                                 {
-                                                    Satuan = "",
-                                                    Ket = "",
-                                                    ST_Posting = "",
-                                                    MK = "M",
-                                                    JTran = "M",
-                                                    Ref = "",
-                                                    WORK_CENTER = "",
-                                                    KLINE = "",
-                                                    KODE_ANGKUTAN = "",
-                                                    JENIS_MOBIL = "",
-                                                    NO_POLISI = "",
-                                                    NAMA_SOPIR = "",
-                                                    No_PP = "",
-                                                    CATATAN_1 = "",
-                                                    CATATAN_2 = "",
-                                                    CATATAN_3 = "",
-                                                    CATATAN_4 = "",
-                                                    CATATAN_5 = "",
-                                                    CATATAN_6 = "",
-                                                    CATATAN_7 = "",
-                                                    CATATAN_8 = "",
-                                                    CATATAN_9 = "",
-                                                    CATATAN_10 = "",
-                                                    NOBUK_POQC = "",
-                                                    Supp = "",
-                                                    NAMA_SUPP = "",
-                                                    NO_PL = "",
-                                                    NO_FAKTUR = "",
-                                                    STATUS_LOADING = "0",
-                                                    Tgl = DateTime.Now,
-                                                    UserName = "UPLOAD_EXCEL_SA",
-                                                    TglInput = DateTime.Now,
-                                                    VALUTA = "IDR",
-                                                    TUKAR = 1,
-                                                    JRef = "6",
-                                                    KOLI = 0,
-                                                    VOLUME = 0,
-                                                    BERAT = 0,
-                                                    NILAI_ANGKUTAN = 0,
-                                                    JLH_KARYAWAN = 0,
-                                                    Kurs = 1,
-                                                    ST_Cetak = "1",
-                                                    Jenis_Form = 1,
-                                                    Retur_Penuh = false,
-                                                    Terima_Penuh = false,
-                                                    TERIMA_PENUH_PO_QC = false,
-                                                    JAM = 1
-                                                };
+                                                    listTemp = eraDB.STF02.Where(m => m.TYPE == "3" && m.Qty_berat != "1").Select(p => p.BRG).ToList();
+                                                    if (listTemp.Count() <= 0)
+                                                    {
+                                                        transaction.Rollback();
+                                                        ret.Errors.Add("Data Barang tidak ditemukan");
+                                                        ret.statusSuccess = false;
+                                                        return Json(ret, JsonRequestBehavior.AllowGet);
+                                                    }
+                                                }
+
+                                                //add by nurul 9/11/2020,bundling 
+                                                var listTempBundling = eraDB.STF03.Select(a => a.Unit).Distinct().ToList();
+                                                //end add by nurul 9/11/2020, bundling
+
+                                                #region create induk
+                                                if (ret.statusLoop == false)
+                                                {
+                                                    //eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
+
+                                                    var stt01a = new STT01A
+                                                    {
+                                                        Satuan = "",
+                                                        Ket = "",
+                                                        ST_Posting = "",
+                                                        MK = "M",
+                                                        JTran = "M",
+                                                        Ref = "",
+                                                        WORK_CENTER = "",
+                                                        KLINE = "",
+                                                        KODE_ANGKUTAN = "",
+                                                        JENIS_MOBIL = "",
+                                                        NO_POLISI = "",
+                                                        NAMA_SOPIR = "",
+                                                        No_PP = "",
+                                                        CATATAN_1 = "",
+                                                        CATATAN_2 = "",
+                                                        CATATAN_3 = "",
+                                                        CATATAN_4 = "",
+                                                        CATATAN_5 = "",
+                                                        CATATAN_6 = "",
+                                                        CATATAN_7 = "",
+                                                        CATATAN_8 = "",
+                                                        CATATAN_9 = "",
+                                                        CATATAN_10 = "",
+                                                        NOBUK_POQC = "",
+                                                        Supp = "",
+                                                        NAMA_SUPP = "",
+                                                        NO_PL = "",
+                                                        NO_FAKTUR = "",
+                                                        STATUS_LOADING = "0",
+                                                        Tgl = DateTime.Now,
+                                                        UserName = "UPLOAD_EXCEL_SA",
+                                                        TglInput = DateTime.Now,
+                                                        VALUTA = "IDR",
+                                                        TUKAR = 1,
+                                                        JRef = "6",
+                                                        KOLI = 0,
+                                                        VOLUME = 0,
+                                                        BERAT = 0,
+                                                        NILAI_ANGKUTAN = 0,
+                                                        JLH_KARYAWAN = 0,
+                                                        Kurs = 1,
+                                                        ST_Cetak = "1",
+                                                        Jenis_Form = 1,
+                                                        Retur_Penuh = false,
+                                                        Terima_Penuh = false,
+                                                        TERIMA_PENUH_PO_QC = false,
+                                                        JAM = 1
+                                                    };
 
 
-                                                var lastBukti = new ManageController().GenerateAutoNumber(ErasoftDbContext, "ST", "STT01A", "Nobuk");
-                                                //var lastBukti = ManageController().GenerateAutoNumber(ErasoftDbContext, "ST", "STT01A", "Nobuk");
-                                                var noStok = "ST" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
-                                                //end change by nurul 23/12/2019, perbaikan no bukti
+                                                    var lastBukti = new ManageController().GenerateAutoNumber(ErasoftDbContext, "ST", "STT01A", "Nobuk");
+                                                    //var lastBukti = ManageController().GenerateAutoNumber(ErasoftDbContext, "ST", "STT01A", "Nobuk");
+                                                    var noStok = "ST" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                                                    //end change by nurul 23/12/2019, perbaikan no bukti
 
 
-                                                stt01a.Nobuk = noStok;
-                                                ret.nobuk = noStok;
+                                                    stt01a.Nobuk = noStok;
+                                                    ret.nobuk = noStok;
 
-                                                object[] sParams1 = {
+                                                    object[] sParams1 = {
                                                     new SqlParameter("@NOBUK", noStok)
                                                 };
 
-                                                try
-                                                {
-                                                    eraDB.STT01A.Add(stt01a);
-                                                    eraDB.SaveChanges();
-                                                }
-                                                catch (Exception ex)
-                                                {
-                                                    var tempSI = eraDB.STT01A.Where(a => a.Nobuk == stt01a.Nobuk).Single();
-                                                    if (tempSI != null)
+                                                    try
                                                     {
-                                                        if (tempSI.Nobuk == noStok)
+                                                        eraDB.STT01A.Add(stt01a);
+                                                        eraDB.SaveChanges();
+                                                    }
+                                                    catch (Exception ex)
+                                                    {
+                                                        var tempSI = eraDB.STT01A.Where(a => a.Nobuk == stt01a.Nobuk).Single();
+                                                        if (tempSI != null)
                                                         {
-                                                            var lastBuktiNew = Convert.ToInt32(lastBukti);
-                                                            lastBuktiNew++;
-                                                            noStok = "ST" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
-                                                            stt01a.Nobuk = noStok;
-                                                            ret.nobuk = noStok;
-                                                            eraDB.STT01A.Add(stt01a);
-                                                            eraDB.SaveChanges();
+                                                            if (tempSI.Nobuk == noStok)
+                                                            {
+                                                                var lastBuktiNew = Convert.ToInt32(lastBukti);
+                                                                lastBuktiNew++;
+                                                                noStok = "ST" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                                                                stt01a.Nobuk = noStok;
+                                                                ret.nobuk = noStok;
+                                                                eraDB.STT01A.Add(stt01a);
+                                                                eraDB.SaveChanges();
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                                                            ret.Errors.Add(errMsg);
+                                                            transaction.Rollback();
+                                                            eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01A WHERE NOBUK = @NOBUK ", sParams1);
+                                                            eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01B WHERE NOBUK = @NOBUK ", sParams1);
+                                                            //return Json(ret, JsonRequestBehavior.AllowGet);
                                                         }
                                                     }
-                                                    else
-                                                    {
-                                                        var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                                                        ret.Errors.Add(errMsg);
-                                                        transaction.Rollback();
-                                                        eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01A WHERE NOBUK = @NOBUK ", sParams1);
-                                                        eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01B WHERE NOBUK = @NOBUK ", sParams1);
-                                                        //return Json(ret, JsonRequestBehavior.AllowGet);
-                                                    }
+                                                    //end change by nurul 23/12/2019, perbaikan no bukti
+
                                                 }
-                                                //end change by nurul 23/12/2019, perbaikan no bukti
+                                                #endregion
 
-                                            }
-                                            #endregion
+                                                //ret.countAll = worksheet.Dimension.End.Row;
 
-                                            //ret.countAll = worksheet.Dimension.End.Row;
-
-                                            object[] sParams = {
+                                                object[] sParams = {
                                                     new SqlParameter("@NOBUK", ret.nobuk)
                                                 };
 
-                                            if (Convert.ToInt32(prog[1]) == 0)
-                                            {
-                                                prog[1] = "0";
-                                            }
-                                            var prosesinsertAwal = false;
-                                            var checkTemp = eraDB.TEMP_SALDOAWAL.ToList();
-                                            if (checkTemp.Count() <= 0)
-                                            {
-                                                for (int i = 5; i <= worksheet.Dimension.End.Row; i++)
+                                                if (Convert.ToInt32(prog[1]) == 0)
                                                 {
-                                                    if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 1].Value)))
+                                                    prog[1] = "0";
+                                                }
+                                                var prosesinsertAwal = false;
+                                                var checkTemp = eraDB.TEMP_SALDOAWAL.ToList();
+                                                if (checkTemp.Count() <= 0)
+                                                {
+                                                    for (int i = 5; i <= worksheet.Dimension.End.Row; i++)
                                                     {
-                                                        var current_brg = listTemp.Where(m => m == Convert.ToString(worksheet.Cells[i, 1].Value)).SingleOrDefault();
-                                                        if (current_brg != null)
+                                                        if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 1].Value)))
                                                         {
-                                                            if (!listTempBundling.Contains(Convert.ToString(worksheet.Cells[i, 1].Value))){
-                                                                if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 3].Value)))
+                                                            var current_brg = listTemp.Where(m => m == Convert.ToString(worksheet.Cells[i, 1].Value)).SingleOrDefault();
+                                                            if (current_brg != null)
+                                                            {
+                                                                if (!listTempBundling.Contains(Convert.ToString(worksheet.Cells[i, 1].Value)))
                                                                 {
-                                                                    var qtyTemp = worksheet.Cells[i, 3].Value.ToString().Replace("\r", "").Replace("\n", "").Replace(" ", "");
-                                                                    double dqty = Convert.ToDouble(qtyTemp);
+                                                                    if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 3].Value)))
+                                                                    {
+                                                                        var qtyTemp = worksheet.Cells[i, 3].Value.ToString().Replace("\r", "").Replace("\n", "").Replace(" ", "");
+                                                                        double dqty = Convert.ToDouble(qtyTemp);
 
-                                                                    if (dqty >= 0)
+                                                                        if (dqty >= 0)
                                                                         //if (Convert.ToInt32(worksheet.Cells[i, 3].Value) >= 0)
-                                                                    {
-                                                                        TEMP_SALDOAWAL newrecord = new TEMP_SALDOAWAL()
                                                                         {
-                                                                            BRG = Convert.ToString(worksheet.Cells[i, 1].Value),
-                                                                            //QTY = Convert.ToInt32(worksheet.Cells[i, 3].Value)
-                                                                            QTY = dqty
-                                                                        };
-                                                                        if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 4].Value)))
-                                                                        {
-                                                                            var modalTemp = worksheet.Cells[i, 4].Value.ToString().Replace("\r", "").Replace("\n", "").Replace(" ", "").Replace("&nbsp;", "").Replace("\r\n", "");
-                                                                            var te = modalTemp.Replace("\r", "").Replace("\n", "").Replace("\r\r", "").Replace("&nbsp;", "").Replace("\r\n", "");
-                                                                            double dmodal = Convert.ToDouble(modalTemp);
-                                                                            if (dmodal >= 0)
+                                                                            TEMP_SALDOAWAL newrecord = new TEMP_SALDOAWAL()
                                                                             {
-                                                                                newrecord.HARGA_SATUAN = dmodal;
-                                                                            }
-                                                                            else
+                                                                                BRG = Convert.ToString(worksheet.Cells[i, 1].Value),
+                                                                                //QTY = Convert.ToInt32(worksheet.Cells[i, 3].Value)
+                                                                                QTY = dqty
+                                                                            };
+                                                                            if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 4].Value)))
                                                                             {
-                                                                                transaction.Rollback();
-                                                                                eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01A WHERE NOBUK = @NOBUK ", sParams);
-                                                                                eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01B WHERE NOBUK = @NOBUK ", sParams);
-                                                                                ret.Errors.Add("Ada kesalahan dalam Harga Modal, Harga Modal harus angka tidak boleh karakter huruf atau lainnya. Mohon untuk mencoba lagi proses Upload Excel Saldo Awal.");
-                                                                                ret.statusSuccess = false;
-                                                                                ret.lastRow[file_index] = i;
-                                                                                i = worksheet.Dimension.End.Row;
-                                                                                return Json(ret, JsonRequestBehavior.AllowGet);
+                                                                                var modalTemp = worksheet.Cells[i, 4].Value.ToString().Replace("\r", "").Replace("\n", "").Replace(" ", "").Replace("&nbsp;", "").Replace("\r\n", "");
+                                                                                var te = modalTemp.Replace("\r", "").Replace("\n", "").Replace("\r\r", "").Replace("&nbsp;", "").Replace("\r\n", "");
+                                                                                double dmodal = Convert.ToDouble(modalTemp);
+                                                                                if (dmodal >= 0)
+                                                                                {
+                                                                                    newrecord.HARGA_SATUAN = dmodal;
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    transaction.Rollback();
+                                                                                    eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01A WHERE NOBUK = @NOBUK ", sParams);
+                                                                                    eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01B WHERE NOBUK = @NOBUK ", sParams);
+                                                                                    ret.Errors.Add("Ada kesalahan dalam Harga Modal, Harga Modal harus angka tidak boleh karakter huruf atau lainnya. Mohon untuk mencoba lagi proses Upload Excel Saldo Awal.");
+                                                                                    ret.statusSuccess = false;
+                                                                                    ret.lastRow[file_index] = i;
+                                                                                    i = worksheet.Dimension.End.Row;
+                                                                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                                                                                }
                                                                             }
-                                                                        }
 
-                                                                        eraDB.TEMP_SALDOAWAL.Add(newrecord);
-                                                                        eraDB.SaveChanges();
-                                                                        ret.countAll = ret.countAll + 1;
-                                                                        prosesinsertAwal = true;
+                                                                            eraDB.TEMP_SALDOAWAL.Add(newrecord);
+                                                                            eraDB.SaveChanges();
+                                                                            ret.countAll = ret.countAll + 1;
+                                                                            prosesinsertAwal = true;
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            transaction.Rollback();
+                                                                            eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01A WHERE NOBUK = @NOBUK ", sParams);
+                                                                            eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01B WHERE NOBUK = @NOBUK ", sParams);
+                                                                            ret.Errors.Add("Ada kesalahan dalam Quantity, Quantity harus angka tidak boleh karakter huruf atau lainnya. Mohon untuk mencoba lagi proses Upload Excel Saldo Awal.");
+                                                                            ret.statusSuccess = false;
+                                                                            ret.lastRow[file_index] = i;
+                                                                            i = worksheet.Dimension.End.Row;
+                                                                            return Json(ret, JsonRequestBehavior.AllowGet);
+                                                                        }
                                                                     }
-                                                                    else
-                                                                    {
-                                                                        transaction.Rollback();
-                                                                        eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01A WHERE NOBUK = @NOBUK ", sParams);
-                                                                        eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01B WHERE NOBUK = @NOBUK ", sParams);
-                                                                        ret.Errors.Add("Ada kesalahan dalam Quantity, Quantity harus angka tidak boleh karakter huruf atau lainnya. Mohon untuk mencoba lagi proses Upload Excel Saldo Awal.");
-                                                                        ret.statusSuccess = false;
-                                                                        ret.lastRow[file_index] = i;
-                                                                        i = worksheet.Dimension.End.Row;
-                                                                        return Json(ret, JsonRequestBehavior.AllowGet);
-                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    transaction.Rollback();
+                                                                    eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01A WHERE NOBUK = @NOBUK ", sParams);
+                                                                    eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01B WHERE NOBUK = @NOBUK ", sParams);
+                                                                    ret.Errors.Add("Kode Barang (" + Convert.ToString(worksheet.Cells[i, 1].Value) + ") merupakan barang bundling. Mohon untuk mencoba lagi proses Upload Excel Saldo Awal.");
+                                                                    ret.statusSuccess = false;
+                                                                    ret.lastRow[file_index] = i;
+                                                                    i = worksheet.Dimension.End.Row;
+                                                                    return Json(ret, JsonRequestBehavior.AllowGet);
                                                                 }
                                                             }
                                                             else
@@ -1209,161 +1672,41 @@ namespace MasterOnline.Controllers
                                                                 transaction.Rollback();
                                                                 eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01A WHERE NOBUK = @NOBUK ", sParams);
                                                                 eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01B WHERE NOBUK = @NOBUK ", sParams);
-                                                                ret.Errors.Add("Kode Barang (" + Convert.ToString(worksheet.Cells[i, 1].Value) + ") merupakan barang bundling. Mohon untuk mencoba lagi proses Upload Excel Saldo Awal.");
+                                                                ret.Errors.Add("Kode Barang (" + Convert.ToString(worksheet.Cells[i, 1].Value) + ") tidak ditemukan. Mohon untuk mencoba lagi proses Upload Excel Saldo Awal.");
                                                                 ret.statusSuccess = false;
                                                                 ret.lastRow[file_index] = i;
                                                                 i = worksheet.Dimension.End.Row;
                                                                 return Json(ret, JsonRequestBehavior.AllowGet);
                                                             }
                                                         }
-                                                        else
-                                                        {
-                                                            transaction.Rollback();
-                                                            eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01A WHERE NOBUK = @NOBUK ", sParams);
-                                                            eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01B WHERE NOBUK = @NOBUK ", sParams);
-                                                            ret.Errors.Add("Kode Barang (" + Convert.ToString(worksheet.Cells[i, 1].Value) + ") tidak ditemukan. Mohon untuk mencoba lagi proses Upload Excel Saldo Awal.");
-                                                            ret.statusSuccess = false;
-                                                            ret.lastRow[file_index] = i;
-                                                            i = worksheet.Dimension.End.Row;
-                                                            return Json(ret, JsonRequestBehavior.AllowGet);
-                                                        }
                                                     }
                                                 }
-                                            }
 
-
-                                            if (prosesinsertAwal == true)
-                                            {
-                                                ret.progress = -1;
-                                                ret.statusLoop = true;
-                                                ret.statusSuccess = false;
-                                                transaction.Commit();
-                                                return Json(ret, JsonRequestBehavior.AllowGet);
-                                            }
-                                            else
-                                            {
-                                                if (ret.countAll == 0)
+                                                if (prosesinsertAwal == true)
                                                 {
-                                                    transaction.Rollback();
-                                                    eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
-                                                    ret.Errors.Add("Mohon untuk mengisi kolom Quantity dan Harga Modal (jika diperlukan) untuk proses Upload Excel Saldo Awal.");
+                                                    ret.progress = 0;
+                                                    ret.statusLoop = true;
                                                     ret.statusSuccess = false;
+                                                    transaction.Commit();
                                                     return Json(ret, JsonRequestBehavior.AllowGet);
                                                 }
-                                            }
-
-                                            if (checkTemp.Count() > 0)
-                                            {
-                                                for (int j = Convert.ToInt32(prog[1]); j <= checkTemp.Count() - 1; j++)
+                                                else
                                                 {
-                                                    try
-                                                    {
-                                                        ret.statusLoop = true;
-                                                        ret.progress = j;
-                                                        if (ret.progress == 0)
-                                                        {
-                                                            ret.percent = (j * 100) / (ret.countAll);
-                                                        }
-                                                        else
-                                                        {
-                                                            ret.percent = (j * 100) / (ret.countAll - 1);
-                                                        }
-                                                        var bagiProses = (ret.countAll - 1) * (Convert.ToDecimal(30) / Convert.ToDecimal(100));
-                                                        bagiProses = Decimal.Round(bagiProses);
-
-                                                        var stt01b = new STT01B
-                                                        {
-                                                            Dr_Gd = "",
-                                                            WO = "",
-                                                            Rak = "",
-                                                            JTran = "M",
-                                                            KLINK = "",
-                                                            NO_WO = "",
-                                                            KET = "",
-                                                            BRG_ORIGINAL = "",
-                                                            QTY3 = 0,
-                                                            BUKTI_DS = "",
-                                                            BUKTI_REFF = "",
-                                                            UserName = "UPLOAD_EXCEL_SA",
-                                                            Jenis_Form = 1,
-                                                            Qty_Retur = 0,
-                                                            Qty_Berat = 0,
-                                                            TOTAL_LOT = 0,
-                                                            TOTAL_QTY = 0,
-                                                            QTY_TERIMA_PO_QC = 1,
-                                                            TRANS_NO_URUT = 0,
-                                                            STN_N = 0,
-                                                            BIAYA_PER_QTY = 0,
-                                                            QTY_CLAIM = 0,
-                                                            NO_URUT_PO = 0,
-                                                            NO_URUT_SJ = 0,
-                                                            TglInput = DateTime.Now,
-                                                            //Nobuk = stt01a.Nobuk,
-                                                            Nobuk = ret.nobuk,
-                                                            Satuan = "2",
-                                                        };
-                                                        stt01b.Kobar = checkTemp[j].BRG;
-                                                        stt01b.Ke_Gd = gd;
-                                                        if (!string.IsNullOrEmpty(Convert.ToString(checkTemp[j].HARGA_SATUAN)))
-                                                        {
-                                                            stt01b.Harsat = checkTemp[j].HARGA_SATUAN;
-                                                        }
-                                                        else
-                                                        {
-                                                            stt01b.Harsat = 0;
-                                                        }
-                                                        stt01b.Qty = Convert.ToInt32(checkTemp[j].QTY);
-                                                        stt01b.Harga = stt01b.Harsat * stt01b.Qty;
-                                                        eraDB.STT01B.Add(stt01b);
-                                                        eraDB.SaveChanges();
-
-                                                        //if (ret.percent == 10 || ret.percent == 20 ||
-                                                        //ret.percent == 30 || ret.percent == 40 ||
-                                                        //ret.percent == 50 || ret.percent == 60 ||
-                                                        //ret.percent == 70 || ret.percent == 80 ||
-                                                        //ret.percent == 90 || ret.percent == 100 || ret.percent >= 100)
-                                                        //{
-
-
-
-                                                        if (ret.percent >= 100 || ret.progress == ret.countAll - 1)
-                                                        {
-                                                            transaction.Commit();
-                                                            // update stock all barang;
-                                                            var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
-                                                            ret.statusSuccess = true;
-                                                            eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
-                                                            return Json(ret, JsonRequestBehavior.AllowGet);
-                                                        }
-
-                                                        if (ret.countAll > 25)
-                                                        {
-                                                            if (ret.progress == (bagiProses * 1) || ret.progress == (bagiProses * 2) ||
-                                                                                                                       ret.progress == (bagiProses * 3))
-                                                            {
-                                                                ret.statusSuccess = false;
-                                                                transaction.Commit();
-                                                                return Json(ret, JsonRequestBehavior.AllowGet);
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-                                                            ret.statusSuccess = false;
-                                                            transaction.Commit();
-                                                            return Json(ret, JsonRequestBehavior.AllowGet);
-                                                        }
-
-                                                    }
-                                                    catch (Exception ex)
+                                                    if (ret.countAll == 0)
                                                     {
                                                         transaction.Rollback();
-                                                        ret.Errors.Add(ex.Message.ToString());
+                                                        eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
+                                                        ret.Errors.Add("Mohon untuk mengisi kolom Quantity dan Harga Modal (jika diperlukan) untuk proses Upload Excel Saldo Awal.");
                                                         ret.statusSuccess = false;
-                                                        eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01A WHERE NOBUK = @NOBUK ", sParams);
-                                                        eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01B WHERE NOBUK = @NOBUK ", sParams);
                                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                                     }
                                                 }
+                                                //insert stt01b
+                                            }
+                                            else
+                                            {
+                                                transaction.Rollback();
+                                                ret.Errors.Add("Kode gudang tidak ditemukan");
                                             }
                                         }
                                         else
@@ -1372,15 +1715,230 @@ namespace MasterOnline.Controllers
                                             ret.Errors.Add("Kode gudang tidak ditemukan");
                                         }
                                     }
-                                    else
-                                    {
-                                        transaction.Rollback();
-                                        ret.Errors.Add("Kode gudang tidak ditemukan");
-                                    }
                                 }
                             }
                         }
                     }
+
+                    if (ret.statusLoop == true)
+                    {
+                        using (ErasoftContext eraDB = new ErasoftContext(DataSourcePath, dbPathEra))
+                        {
+                            using (System.Data.Entity.DbContextTransaction transaction = eraDB.Database.BeginTransaction())
+                            {
+                                eraDB.Database.CommandTimeout = 0;
+                                //loop all worksheets
+                                var countProses = 0;
+                                var tempPercent = Convert.ToInt32(prog[0]);
+
+                                prog[1] = Convert.ToString(Convert.ToInt32(prog[1]) - 1);
+                                
+                                object[] sParams = {
+                                                    new SqlParameter("@NOBUK", ret.nobuk)
+                                                };
+
+                                if (Convert.ToInt32(prog[1]) == 0)
+                                {
+                                    prog[1] = "0";
+                                }
+                                var prosesinsertAwal = false;
+                                var checkTemp = eraDB.TEMP_SALDOAWAL.ToList();
+
+                                if (prosesinsertAwal == true)
+                                {
+                                    ret.progress = 0;
+                                    ret.statusLoop = true;
+                                    ret.statusSuccess = false;
+                                    transaction.Commit();
+                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                                }
+                                else
+                                {
+                                    if (ret.countAll == 0)
+                                    {
+                                        transaction.Rollback();
+                                        eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
+                                        ret.Errors.Add("Mohon untuk mengisi kolom Quantity dan Harga Modal (jika diperlukan) untuk proses Upload Excel Saldo Awal.");
+                                        ret.statusSuccess = false;
+                                        return Json(ret, JsonRequestBehavior.AllowGet);
+                                    }
+                                }
+
+                                if (checkTemp.Count() > 0)
+                                {
+                                    for (int j = Convert.ToInt32(prog[1]); j <= checkTemp.Count(); j++)
+                                    {
+                                        try
+                                        {
+                                            countProses++;
+                                            ret.statusLoop = true;
+                                            //ret.progress = j;
+                                            //if (ret.progress == 0)
+                                            //{
+                                            //    ret.percent = (j * 100) / (ret.countAll);
+                                            //}
+                                            //else
+                                            //{
+                                            //    ret.percent = (j * 100) / (ret.countAll - 1);
+                                            //}
+                                            ret.progress = j + 1;
+                                            ret.percent = ((j + 1) * 100) / ret.countAll;
+                                            //var bagiProses = (ret.countAll - 1) * (Convert.ToDecimal(30) / Convert.ToDecimal(100));
+                                            //bagiProses = Decimal.Round(bagiProses);
+
+                                            var stt01b = new STT01B
+                                            {
+                                                Dr_Gd = "",
+                                                WO = "",
+                                                Rak = "",
+                                                JTran = "M",
+                                                KLINK = "",
+                                                NO_WO = "",
+                                                KET = "",
+                                                BRG_ORIGINAL = "",
+                                                QTY3 = 0,
+                                                BUKTI_DS = "",
+                                                BUKTI_REFF = "",
+                                                UserName = "UPLOAD_EXCEL_SA",
+                                                Jenis_Form = 1,
+                                                Qty_Retur = 0,
+                                                Qty_Berat = 0,
+                                                TOTAL_LOT = 0,
+                                                TOTAL_QTY = 0,
+                                                QTY_TERIMA_PO_QC = 1,
+                                                TRANS_NO_URUT = 0,
+                                                STN_N = 0,
+                                                BIAYA_PER_QTY = 0,
+                                                QTY_CLAIM = 0,
+                                                NO_URUT_PO = 0,
+                                                NO_URUT_SJ = 0,
+                                                TglInput = DateTime.Now,
+                                                //Nobuk = stt01a.Nobuk,
+                                                Nobuk = ret.nobuk,
+                                                Satuan = "2",
+                                            };
+                                            stt01b.Kobar = checkTemp[j].BRG;
+                                            //stt01b.Ke_Gd = gd;
+                                            stt01b.Ke_Gd = ret.gudang;
+                                            if (!string.IsNullOrEmpty(Convert.ToString(checkTemp[j].HARGA_SATUAN)))
+                                            {
+                                                stt01b.Harsat = checkTemp[j].HARGA_SATUAN;
+                                            }
+                                            else
+                                            {
+                                                stt01b.Harsat = 0;
+                                            }
+                                            stt01b.Qty = Convert.ToInt32(checkTemp[j].QTY);
+                                            stt01b.Harga = stt01b.Harsat * stt01b.Qty;
+                                            eraDB.STT01B.Add(stt01b);
+                                            eraDB.SaveChanges();
+                                            
+
+                                            //if (ret.percent >= 100 || ret.progress == ret.countAll - 1)
+                                            //{
+                                            //    transaction.Commit();
+                                            //    // update stock all barang;
+                                            //    var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
+                                            //    ret.statusSuccess = true;
+                                            //    eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
+                                            //    return Json(ret, JsonRequestBehavior.AllowGet);
+                                            //}
+
+                                            //if (ret.countAll > 25)
+                                            //{
+                                            //    if (ret.progress == (bagiProses * 1) || ret.progress == (bagiProses * 2) ||
+                                            //                                                               ret.progress == (bagiProses * 3))
+                                            //    {
+                                            //        ret.statusSuccess = false;
+                                            //        transaction.Commit();
+                                            //        return Json(ret, JsonRequestBehavior.AllowGet);
+                                            //    }
+                                            //}
+                                            //else
+                                            //{
+                                            //    ret.statusSuccess = false;
+                                            //    transaction.Commit();
+                                            //    return Json(ret, JsonRequestBehavior.AllowGet);
+                                            //}
+
+
+                                            if(ret.countAll > 2000)
+                                            {
+                                                if(countProses == 500 || ret.progress == ret.countAll - 1 || ret.percent >= 100)
+                                                {
+                                                    if(ret.percent >= 100 || ret.progress == ret.countAll - 1)
+                                                    {
+                                                        transaction.Commit();
+                                                        // update stock all barang;
+                                                        var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
+                                                        ret.statusSuccess = true;
+                                                        eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
+                                                        return Json(ret, JsonRequestBehavior.AllowGet);
+                                                    }
+                                                    if(tempPercent != ret.percent)
+                                                    {
+                                                        ret.statusSuccess = false;
+                                                        transaction.Commit();
+                                                        return Json(ret, JsonRequestBehavior.AllowGet);
+                                                    }
+                                                }
+                                            }
+                                            else if(ret.percent == 25 || ret.percent == 50 || ret.percent == 75 || ret.percent == 100)
+                                            {
+                                                if (ret.percent >= 100 || ret.progress == ret.countAll - 1)
+                                                {
+                                                    transaction.Commit();
+                                                    // update stock all barang;
+                                                    var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
+                                                    ret.statusSuccess = true;
+                                                    eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
+                                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                                                }
+                                                if (tempPercent != ret.percent)
+                                                {
+                                                    ret.statusSuccess = false;
+                                                    transaction.Commit();
+                                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                                                }
+                                            }
+                                            else if (countProses == 500)
+                                            {
+                                                if (ret.percent >= 100 || ret.progress == ret.countAll - 1)
+                                                {
+                                                    transaction.Commit();
+                                                    // update stock all barang;
+                                                    var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
+                                                    ret.statusSuccess = true;
+                                                    eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
+                                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                                                }
+                                                if (tempPercent != ret.percent)
+                                                {
+                                                    ret.statusSuccess = false;
+                                                    transaction.Commit();
+                                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                                                }
+                                            }
+
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            transaction.Rollback();
+                                            ret.Errors.Add(ex.Message.ToString());
+                                            ret.statusSuccess = false;
+                                            eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01A WHERE NOBUK = @NOBUK ", sParams);
+                                            eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01B WHERE NOBUK = @NOBUK ", sParams);
+                                            return Json(ret, JsonRequestBehavior.AllowGet);
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+                            
+                    }
+                    
+                    //end change by nurul 2/9/2021
                 }
             }
             catch (Exception ex)
@@ -7488,6 +8046,10 @@ namespace MasterOnline.Controllers
 
         public int jmlNH { get; set; }
         public int jmlNL { get; set; }
+        
+        //add by nurul 2/9/2021
+        public string gudang { get; set; }
+        //end add by nurul 2/9/2021
     }
 
     public class BindDownloadExcel
