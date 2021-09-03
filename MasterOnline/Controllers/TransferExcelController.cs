@@ -919,7 +919,7 @@ namespace MasterOnline.Controllers
                         //        dataByte = memory.ToArray();
                         //    }
                         //}
-                        ret.Errors.Add("Mohon maaf format file .xls saat ini belum mendukung untuk proses Upload Excel Saldo Awal. silahkan untuk mengganti format menjadi .xlsx");
+                        ret.Errors.Add("Mohon maaf format file .xls saat ini belum mendukung untuk proses Upload Excel Saldo Awal. silahkan untuk mengganti format menjadi .xlsx" + System.Environment.NewLine);
                         ret.statusSuccess = false;
                         return Json(ret, JsonRequestBehavior.AllowGet);
                     }
@@ -1462,7 +1462,7 @@ namespace MasterOnline.Controllers
                                                     if (listTemp.Count() <= 0)
                                                     {
                                                         transaction.Rollback();
-                                                        ret.Errors.Add("Data Barang tidak ditemukan");
+                                                        ret.Errors.Add("Data Barang tidak ditemukan" + System.Environment.NewLine);
                                                         ret.statusSuccess = false;
                                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                                     }
@@ -1565,7 +1565,7 @@ namespace MasterOnline.Controllers
                                                         }
                                                         else
                                                         {
-                                                            var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                                                            var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + System.Environment.NewLine;
                                                             ret.Errors.Add(errMsg);
                                                             transaction.Rollback();
                                                             eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01A WHERE NOBUK = @NOBUK ", sParams1);
@@ -1629,7 +1629,7 @@ namespace MasterOnline.Controllers
                                                                                     transaction.Rollback();
                                                                                     eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01A WHERE NOBUK = @NOBUK ", sParams);
                                                                                     eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01B WHERE NOBUK = @NOBUK ", sParams);
-                                                                                    ret.Errors.Add("Ada kesalahan dalam Harga Modal, Harga Modal harus angka tidak boleh karakter huruf atau lainnya. Mohon untuk mencoba lagi proses Upload Excel Saldo Awal.");
+                                                                                    ret.Errors.Add("Ada kesalahan dalam Harga Modal, Harga Modal harus angka tidak boleh karakter huruf atau lainnya. Mohon untuk mencoba lagi proses Upload Excel Saldo Awal." + System.Environment.NewLine);
                                                                                     ret.statusSuccess = false;
                                                                                     ret.lastRow[file_index] = i;
                                                                                     i = worksheet.Dimension.End.Row;
@@ -1647,7 +1647,7 @@ namespace MasterOnline.Controllers
                                                                             transaction.Rollback();
                                                                             eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01A WHERE NOBUK = @NOBUK ", sParams);
                                                                             eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01B WHERE NOBUK = @NOBUK ", sParams);
-                                                                            ret.Errors.Add("Ada kesalahan dalam Quantity, Quantity harus angka tidak boleh karakter huruf atau lainnya. Mohon untuk mencoba lagi proses Upload Excel Saldo Awal.");
+                                                                            ret.Errors.Add("Ada kesalahan dalam Quantity, Quantity harus angka tidak boleh karakter huruf atau lainnya. Mohon untuk mencoba lagi proses Upload Excel Saldo Awal." + System.Environment.NewLine);
                                                                             ret.statusSuccess = false;
                                                                             ret.lastRow[file_index] = i;
                                                                             i = worksheet.Dimension.End.Row;
@@ -1660,7 +1660,7 @@ namespace MasterOnline.Controllers
                                                                     transaction.Rollback();
                                                                     eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01A WHERE NOBUK = @NOBUK ", sParams);
                                                                     eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01B WHERE NOBUK = @NOBUK ", sParams);
-                                                                    ret.Errors.Add("Kode Barang (" + Convert.ToString(worksheet.Cells[i, 1].Value) + ") merupakan barang bundling. Mohon untuk mencoba lagi proses Upload Excel Saldo Awal.");
+                                                                    ret.Errors.Add("Kode Barang (" + Convert.ToString(worksheet.Cells[i, 1].Value) + ") merupakan barang bundling. Mohon untuk mencoba lagi proses Upload Excel Saldo Awal." + System.Environment.NewLine);
                                                                     ret.statusSuccess = false;
                                                                     ret.lastRow[file_index] = i;
                                                                     i = worksheet.Dimension.End.Row;
@@ -1672,7 +1672,7 @@ namespace MasterOnline.Controllers
                                                                 transaction.Rollback();
                                                                 eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01A WHERE NOBUK = @NOBUK ", sParams);
                                                                 eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01B WHERE NOBUK = @NOBUK ", sParams);
-                                                                ret.Errors.Add("Kode Barang (" + Convert.ToString(worksheet.Cells[i, 1].Value) + ") tidak ditemukan. Mohon untuk mencoba lagi proses Upload Excel Saldo Awal.");
+                                                                ret.Errors.Add("Kode Barang (" + Convert.ToString(worksheet.Cells[i, 1].Value) + ") tidak ditemukan. Mohon untuk mencoba lagi proses Upload Excel Saldo Awal." + System.Environment.NewLine);
                                                                 ret.statusSuccess = false;
                                                                 ret.lastRow[file_index] = i;
                                                                 i = worksheet.Dimension.End.Row;
@@ -1696,7 +1696,7 @@ namespace MasterOnline.Controllers
                                                     {
                                                         transaction.Rollback();
                                                         eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
-                                                        ret.Errors.Add("Mohon untuk mengisi kolom Quantity dan Harga Modal (jika diperlukan) untuk proses Upload Excel Saldo Awal.");
+                                                        ret.Errors.Add("Mohon untuk mengisi kolom Quantity dan Harga Modal (jika diperlukan) untuk proses Upload Excel Saldo Awal." + System.Environment.NewLine);
                                                         ret.statusSuccess = false;
                                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                                     }
@@ -1706,13 +1706,13 @@ namespace MasterOnline.Controllers
                                             else
                                             {
                                                 transaction.Rollback();
-                                                ret.Errors.Add("Kode gudang tidak ditemukan");
+                                                ret.Errors.Add("Kode gudang tidak ditemukan" + System.Environment.NewLine);
                                             }
                                         }
                                         else
                                         {
                                             transaction.Rollback();
-                                            ret.Errors.Add("Kode gudang tidak ditemukan");
+                                            ret.Errors.Add("Kode gudang tidak ditemukan" + System.Environment.NewLine);
                                         }
                                     }
                                 }
@@ -1758,7 +1758,7 @@ namespace MasterOnline.Controllers
                                     {
                                         transaction.Rollback();
                                         eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
-                                        ret.Errors.Add("Mohon untuk mengisi kolom Quantity dan Harga Modal (jika diperlukan) untuk proses Upload Excel Saldo Awal.");
+                                        ret.Errors.Add("Mohon untuk mengisi kolom Quantity dan Harga Modal (jika diperlukan) untuk proses Upload Excel Saldo Awal." + System.Environment.NewLine);
                                         ret.statusSuccess = false;
                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                     }
@@ -1924,7 +1924,7 @@ namespace MasterOnline.Controllers
                                         catch (Exception ex)
                                         {
                                             transaction.Rollback();
-                                            ret.Errors.Add(ex.Message.ToString());
+                                            ret.Errors.Add(ex.Message.ToString() + System.Environment.NewLine);
                                             ret.statusSuccess = false;
                                             eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01A WHERE NOBUK = @NOBUK ", sParams);
                                             eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01B WHERE NOBUK = @NOBUK ", sParams);
@@ -1943,7 +1943,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+                ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message + System.Environment.NewLine);
             }
 
             return Json(ret, JsonRequestBehavior.AllowGet);
