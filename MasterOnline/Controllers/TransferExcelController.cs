@@ -1766,7 +1766,7 @@ namespace MasterOnline.Controllers
 
                                 if (checkTemp.Count() > 0)
                                 {
-                                    for (int j = Convert.ToInt32(prog[1]); j <= checkTemp.Count(); j++)
+                                    for (int j = Convert.ToInt32(prog[1]); j < checkTemp.Count(); j++)
                                     {
                                         try
                                         {
@@ -1864,9 +1864,9 @@ namespace MasterOnline.Controllers
 
                                             if(ret.countAll > 2000)
                                             {
-                                                if(countProses == 500 || ret.progress == ret.countAll - 1 || ret.percent >= 100)
+                                                if(countProses == 500 || ret.progress == ret.countAll || ret.percent >= 100)
                                                 {
-                                                    if(ret.percent >= 100 || ret.progress == ret.countAll - 1)
+                                                    if(ret.percent >= 100 || ret.progress == ret.countAll)
                                                     {
                                                         transaction.Commit();
                                                         // update stock all barang;
@@ -1885,7 +1885,7 @@ namespace MasterOnline.Controllers
                                             }
                                             else if(ret.percent == 25 || ret.percent == 50 || ret.percent == 75 || ret.percent == 100)
                                             {
-                                                if (ret.percent >= 100 || ret.progress == ret.countAll - 1)
+                                                if (ret.percent >= 100 || ret.progress == ret.countAll)
                                                 {
                                                     transaction.Commit();
                                                     // update stock all barang;
@@ -1903,7 +1903,7 @@ namespace MasterOnline.Controllers
                                             }
                                             else if (countProses == 500)
                                             {
-                                                if (ret.percent >= 100 || ret.progress == ret.countAll - 1)
+                                                if (ret.percent >= 100 || ret.progress == ret.countAll)
                                                 {
                                                     transaction.Commit();
                                                     // update stock all barang;
