@@ -1873,15 +1873,16 @@ namespace MasterOnline.Controllers
                                                         transaction.Commit();
                                                         // update stock all barang;
                                                         //var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
-                                                        new ManageController().updateStockMarketPlace(brg, "[UPL_ST_A][" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + "]");
                                                         ret.statusSuccess = true;
                                                         eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
+                                                        new ManageController().updateStockMarketPlace(brg, "[UPL_ST_A][" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + "]");
                                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                                     }
                                                     if(tempPercent != ret.percent)
                                                     {
                                                         ret.statusSuccess = false;
                                                         transaction.Commit();
+                                                        new ManageController().updateStockMarketPlace(brg, "[UPL_ST_A][" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + "]");
                                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                                     }
                                                 }
@@ -1893,15 +1894,16 @@ namespace MasterOnline.Controllers
                                                     transaction.Commit();
                                                     // update stock all barang;
                                                     //var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
-                                                    new ManageController().updateStockMarketPlace(brg, "[UPL_ST_A][" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + "]");
                                                     ret.statusSuccess = true;
                                                     eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
+                                                    new ManageController().updateStockMarketPlace(brg, "[UPL_ST_A][" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + "]");
                                                     return Json(ret, JsonRequestBehavior.AllowGet);
                                                 }
                                                 if (tempPercent != ret.percent)
                                                 {
                                                     ret.statusSuccess = false;
                                                     transaction.Commit();
+                                                    new ManageController().updateStockMarketPlace(brg, "[UPL_ST_A][" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + "]");
                                                     return Json(ret, JsonRequestBehavior.AllowGet);
                                                 }
                                             }
@@ -1912,15 +1914,16 @@ namespace MasterOnline.Controllers
                                                     transaction.Commit();
                                                     // update stock all barang;
                                                     //var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
-                                                    new ManageController().updateStockMarketPlace(brg, "[UPL_ST_A][" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + "]");
                                                     ret.statusSuccess = true;
                                                     eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
+                                                    new ManageController().updateStockMarketPlace(brg, "[UPL_ST_A][" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + "]");
                                                     return Json(ret, JsonRequestBehavior.AllowGet);
                                                 }
                                                 if (tempPercent != ret.percent)
                                                 {
                                                     ret.statusSuccess = false;
                                                     transaction.Commit();
+                                                    new ManageController().updateStockMarketPlace(brg, "[UPL_ST_A][" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + "]");
                                                     return Json(ret, JsonRequestBehavior.AllowGet);
                                                 }
                                             }
