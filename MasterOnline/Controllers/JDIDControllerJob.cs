@@ -5287,8 +5287,8 @@ namespace MasterOnline.Controllers
                 var sysParams = new Dictionary<string, string>();
                 var dayFrom = DateTimeOffset.FromUnixTimeMilliseconds(addDays).UtcDateTime;
                 var dayTo = DateTimeOffset.FromUnixTimeMilliseconds(addDays2).UtcDateTime;
-                var dayFrom1 = dayFrom.ToString("yyyy-MM-dd HH:mm:ss");
-                var dayTo1 = dayTo.ToString("yyyy-MM-dd HH:mm:ss");
+                var dayFrom1 = dayFrom.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                var dayTo1 = dayTo.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
 
                 this.ParamJson = "{\"orderStatus\":\"" + status + "\", \"startRow\": \"" + page * 20 + "\", \"bookTimeBegin\": \""
                     + dayFrom1 + "\", \"bookTimeEnd\": \"" + dayTo1 + "\" }";
