@@ -6860,7 +6860,7 @@ namespace MasterOnline.Controllers
                                             Recipient_Address_fullAddress = Recipient_Address_fullAddress.Substring(0, 300);
                                         }
 
-                                        var getBuyer = ErasoftDbContext.Database.SqlQuery<ARF01C>("select top 1 * from arf01c (nolock) where tlp ='" + Recipient_Address_phone + "' and email=''").FirstOrDefault();
+                                        var getBuyer = ErasoftDbContext.Database.SqlQuery<ARF01C>("select top 1 * from arf01c (nolock) where tlp ='" + Recipient_Address_phone + "'").FirstOrDefault();
                                         if (getBuyer != null)
                                         {
                                             if (!string.IsNullOrEmpty(getBuyer.BUYER_CODE))
@@ -7253,7 +7253,7 @@ namespace MasterOnline.Controllers
                                         Recipient_Address_fullAddress = Recipient_Address_fullAddress.Substring(0, 300);
                                     }
 
-                                    var getBuyer = ErasoftDbContext.Database.SqlQuery<ARF01C>("select top 1 * from arf01c (nolock) where tlp ='" + Recipient_Address_phone + "' and email=''").FirstOrDefault();
+                                    var getBuyer = ErasoftDbContext.Database.SqlQuery<ARF01C>("select top 1 * from arf01c (nolock) where tlp ='" + Recipient_Address_phone + "'").FirstOrDefault();
                                     if (getBuyer != null)
                                     {
                                         if (!string.IsNullOrEmpty(getBuyer.BUYER_CODE))
