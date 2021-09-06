@@ -3287,7 +3287,8 @@ namespace MasterOnline.Controllers
 
             //var daysFrom = -1;
             //var daysTo = 0;
-            var daysNow = DateTime.UtcNow.AddHours(7);
+            //var daysNow = DateTime.UtcNow.AddHours(7);
+            var daysNow = DateTime.UtcNow;
             //add by nurul 20/1/2021, bundling 
             var AdaKomponen = false;
             var connIdProses = "";
@@ -3299,7 +3300,7 @@ namespace MasterOnline.Controllers
             {
                 //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
                 //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
-                var dateFrom = (long)daysNow.AddHours(-12).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                var dateFrom = (long)daysNow.AddDays(-1).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
                 var dateTo = (long)daysNow.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
 
                 //change by nurul 20/1/2021, bundling 
@@ -3363,7 +3364,8 @@ namespace MasterOnline.Controllers
 
             var daysFrom = -1;
             var daysTo = 0;
-            var daysNow = DateTime.UtcNow.AddHours(7);
+            //var daysNow = DateTime.UtcNow.AddHours(7);
+            var daysNow = DateTime.UtcNow;
             //add by nurul 20/1/2021, bundling 
             var AdaKomponen = false;
             var connIdProses = "";
@@ -3571,7 +3573,8 @@ namespace MasterOnline.Controllers
 
             //var daysFrom = -1;
             //var daysTo = 0;
-            var daysNow = DateTime.UtcNow.AddHours(7);
+            //var daysNow = DateTime.UtcNow.AddHours(7);
+            var daysNow = DateTime.UtcNow;
             //add by nurul 20/1/2021, bundling 
             var AdaKomponen = false;
             var connIdProses = "";
@@ -3583,7 +3586,7 @@ namespace MasterOnline.Controllers
             {
                 //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
                 //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
-                var dateFrom = (long)daysNow.AddHours(-12).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                var dateFrom = (long)daysNow.AddDays(-1).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
                 var dateTo = (long)daysNow.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
 
                 //change by nurul 20/1/2021, bundling 
@@ -3646,7 +3649,8 @@ namespace MasterOnline.Controllers
 
             var daysFrom = -1;
             var daysTo = 0;
-            var daysNow = DateTime.UtcNow.AddHours(7);
+            //var daysNow = DateTime.UtcNow.AddHours(7);
+            var daysNow = DateTime.UtcNow;
             //add by nurul 20/1/2021, bundling 
             var AdaKomponen = false;
             var connIdProses = "";
@@ -3848,7 +3852,8 @@ namespace MasterOnline.Controllers
 
             var daysFrom = -1;
             var daysTo = 0;
-            var daysNow = DateTime.UtcNow.AddHours(7);
+            //var daysNow = DateTime.UtcNow.AddHours(7);
+            var daysNow = DateTime.UtcNow;
             //add by nurul 20/1/2021, bundling 
             var AdaKomponen = false;
             var connIdProses = "";
@@ -5282,8 +5287,8 @@ namespace MasterOnline.Controllers
                 var sysParams = new Dictionary<string, string>();
                 var dayFrom = DateTimeOffset.FromUnixTimeMilliseconds(addDays).UtcDateTime;
                 var dayTo = DateTimeOffset.FromUnixTimeMilliseconds(addDays2).UtcDateTime;
-                var dayFrom1 = dayFrom.ToString("yyyy-MM-dd HH:mm:ss");
-                var dayTo1 = dayTo.ToString("yyyy-MM-dd HH:mm:ss");
+                var dayFrom1 = dayFrom.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                var dayTo1 = dayTo.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
 
                 this.ParamJson = "{\"orderStatus\":\"" + status + "\", \"startRow\": \"" + page * 20 + "\", \"bookTimeBegin\": \""
                     + dayFrom1 + "\", \"bookTimeEnd\": \"" + dayTo1 + "\" }";
