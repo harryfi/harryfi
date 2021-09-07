@@ -6736,7 +6736,7 @@ namespace MasterOnline.Controllers
                                 if (pesananInDb != null)
                                 {
                                     var tempBuyerFaktur = new PEMBELI_FAKTUR_SHOPEE() { };
-                                    if (temp_nama != "" && pesananInDb.NAMAPEMESAN.Contains('*'))
+                                    if (temp_nama != "" && (pesananInDb.NAMAPEMESAN.Contains('*') || string.IsNullOrEmpty(pesananInDb.NAMAPEMESAN)))
                                     {
 
                                         //insertPembeli += "('" + order.recipient_address.name + "','" + order.recipient_address.full_address + "','" + order.recipient_address.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
@@ -6812,7 +6812,7 @@ namespace MasterOnline.Controllers
                                     {
                                         pesananInDb.TRACKING_SHIPMENT = resi;
                                     }
-                                    if (temp_nama != "" && pesananInDb.NAMAPEMESAN.Contains('*'))
+                                    if (temp_nama != "" && (pesananInDb.NAMAPEMESAN.Contains('*') || string.IsNullOrEmpty(pesananInDb.NAMAPEMESAN)))
                                     {
                                         string Recipient_Address_town = !string.IsNullOrEmpty(order.recipient_address.town) ? order.recipient_address.town.Trim().Replace('\'', '`') : "";
                                         if (Recipient_Address_town.Length > 300)
@@ -7129,7 +7129,7 @@ namespace MasterOnline.Controllers
                             if (pesananInDb != null)
                             {
                                 var tempBuyerFaktur = new PEMBELI_FAKTUR_SHOPEE() { };
-                                if (temp_nama != "" && pesananInDb.NAMAPEMESAN.Contains('*'))
+                                if (temp_nama != "" && (pesananInDb.NAMAPEMESAN.Contains('*') || string.IsNullOrEmpty(pesananInDb.NAMAPEMESAN)))
                                 {
 
                                     //insertPembeli += "('" + order.recipient_address.name + "','" + order.recipient_address.full_address + "','" + order.recipient_address.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
@@ -7205,7 +7205,7 @@ namespace MasterOnline.Controllers
                                 {
                                     pesananInDb.TRACKING_SHIPMENT = resi;
                                 }
-                                if (temp_nama != "" && pesananInDb.NAMAPEMESAN.Contains('*'))
+                                if (temp_nama != "" && (pesananInDb.NAMAPEMESAN.Contains('*') || string.IsNullOrEmpty(pesananInDb.NAMAPEMESAN)))
                                 {
                                     string Recipient_Address_town = !string.IsNullOrEmpty(order.recipient_address.town) ? order.recipient_address.town.Trim().Replace('\'', '`') : "";
                                     if (Recipient_Address_town.Length > 300)
