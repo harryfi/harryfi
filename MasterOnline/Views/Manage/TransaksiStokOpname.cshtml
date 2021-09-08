@@ -1218,16 +1218,17 @@
         }
         
         function uploadExcelSOP() {
-            if ($('#file_upload_excel')[0].files.length < 1) {
-                $('#file_upload_excel').click();
-                $('#progressBarUpload').hide();
-            }
-            else {
-                $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
-                $('#pBar_uploadFile').html('0% Complete');
-                $('#progressBarUpload').show();
-                uploadFileExcelStokOpname(null, 0, "0;5", "false;false");
-            }
+            alert("Proses ini sedang dalam pengembangan, untuk sementara waktu akan dibantu oleh tim support kami.");
+            //if ($('#file_upload_excel')[0].files.length < 1) {
+            //    $('#file_upload_excel').click();
+            //    $('#progressBarUpload').hide();
+            //}
+            //else {
+            //    $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+            //    $('#pBar_uploadFile').html('0% Complete');
+            //    $('#progressBarUpload').show();
+            //    uploadFileExcelStokOpname(null, 0, "0;5", "false;false");
+            //}
         }
 
         function uploadFileExcelStokOpname(vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess) {
