@@ -4332,7 +4332,7 @@ namespace MasterOnline.Controllers
                 insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
                 var kabKot = "3174";
                 var prov = "31";
-
+                string sqlVal = "";
                 foreach (var order in result.orders)
                 {
                     //add by nurul 25/8/2021, handle pembeli d samarkan ***
@@ -4366,7 +4366,7 @@ namespace MasterOnline.Controllers
                             KODEPOS = KODEPOS.Substring(0, 7);
                         }
 
-                        insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
+                        sqlVal += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
                             ((nama ?? "").Replace("'", "`")),
                             //change by nurul 23/8/2021
                             //((order.recipient_address.full_address ?? "").Replace("'", "`")),
@@ -4385,9 +4385,20 @@ namespace MasterOnline.Controllers
                             );
                     }
                 }
-                insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
-                EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
+                if (!string.IsNullOrEmpty(sqlVal))
+                {
+                    insertPembeli += sqlVal.Substring(0, sqlVal.Length - 1);
+                    EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
 
+                    using (SqlCommand CommandSQL = new SqlCommand())
+                    {
+                        //call sp to insert buyer data
+                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
+
+                        EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
+                    };
+                }
                 foreach (var order in result.orders)
                 {
                     try
@@ -4662,14 +4673,14 @@ namespace MasterOnline.Controllers
                         ErasoftDbContext.TEMP_SHOPEE_ORDERS_ITEM.AddRange(batchinsertItem);
                         ErasoftDbContext.SaveChanges();
 
-                        using (SqlCommand CommandSQL = new SqlCommand())
-                        {
-                            //call sp to insert buyer data
-                            CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                            CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
+                        //using (SqlCommand CommandSQL = new SqlCommand())
+                        //{
+                        //    //call sp to insert buyer data
+                        //    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                        //    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
 
-                            EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
-                        };
+                        //    EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
+                        //};
                         //add 3 Des 2020
                         EDB.ExecuteSQL("Con", CommandType.Text, "DELETE FROM TEMP_SHOPEE_ORDERS_ITEM WHERE ordersn <> '" + ordersn + "'");
                         //end add 3 Des 2020
