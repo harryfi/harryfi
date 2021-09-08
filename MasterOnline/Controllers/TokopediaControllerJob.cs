@@ -578,7 +578,7 @@ namespace MasterOnline.Controllers
                 };
                 EditProduct_Product newDataProduct = new EditProduct_Product()
                 {
-                    id = Convert.ToInt32(product_id),
+                    id = Convert.ToInt64(product_id),
                     name = Convert.ToString(brg_stf02.NAMA + " " + brg_stf02.NAMA2).Trim(),
                     category_id = Convert.ToInt32(brg_stf02h.CATEGORY_CODE),
                     //category_id = null,
@@ -622,7 +622,7 @@ namespace MasterOnline.Controllers
                 //end add by nurul 6/2/2020
                 var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
 
-                var dataTokped = await getItemDetailVarian(iden, Convert.ToInt32(product_id), 1);
+                var dataTokped = await getItemDetailVarian(iden, Convert.ToInt64(product_id), 1);
                 if (dataTokped != null)
                 {
                     if (dataTokped.data != null)
@@ -1002,7 +1002,7 @@ namespace MasterOnline.Controllers
                         }
                         if (!string.IsNullOrEmpty(price_var.BRG_MP))
                         {
-                            var dataTokpedVarian = await getItemDetailVarian(iden, Convert.ToInt32(price_var.BRG_MP), 1);
+                            var dataTokpedVarian = await getItemDetailVarian(iden, Convert.ToInt64(price_var.BRG_MP), 1);
                             if (customer.TIDAK_HIT_UANG_R)
                             {
                                 var qty_stock_var = new StokControllerJob(iden.DatabasePathErasoft, username).GetQOHSTF08A(item_var.BRG, "ALL");
@@ -4908,7 +4908,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> UpdateStock(TokopediaAPIData iden, int product_id, int stok)
+        public async Task<string> UpdateStock(TokopediaAPIData iden, long product_id, int stok)
         {
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -4956,7 +4956,7 @@ namespace MasterOnline.Controllers
         //change by nurul 12/2/2020, price (int)
         //public async Task<string> UpdatePrice(TokopediaAPIData iden, int product_id, float price)
         //end change by nurul 12/2/2020
-        public async Task<string> UpdatePrice(TokopediaAPIData iden, int product_id, int price)
+        public async Task<string> UpdatePrice(TokopediaAPIData iden, long product_id, int price)
         {
             var token = SetupContext(iden);
             iden.token = token;
@@ -5007,7 +5007,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Update Harga Jual Produk {obj} ke Tokopedia gagal.")]
-        public async Task<string> UpdatePrice_Job(string dbPathEra, string kdbrgMO, string log_CUST, string log_ActionCategory, string log_ActionName, int product_id, TokopediaAPIData iden, int price)
+        public async Task<string> UpdatePrice_Job(string dbPathEra, string kdbrgMO, string log_CUST, string log_ActionCategory, string log_ActionName, long product_id, TokopediaAPIData iden, int price)
         {
             //add 19 sept 2020, update harga massal
             if (log_ActionName.Contains("UPDATE_MASSAL"))
@@ -5337,16 +5337,16 @@ namespace MasterOnline.Controllers
 
                                                         StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
 #if (DEBUG || Debug_AWS)
-                                                        Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt32(item.basic.productID), 0, username, null)).Wait();
+                                                        Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null)).Wait();
 #else
                                             string EDBConnID = EDB.GetConnectionString("ConnId");
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                             var Jobclient = new BackgroundJobClient(sqlStorage);
-                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt32(item.basic.productID), 0, username, null));
+                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null));
 #endif
-                                                    }
                                                 }
+                                            }
                                             //end add by Tri 10 Jan 2019, update stok setelah create product sukses
                                         }
                                     }
@@ -5386,23 +5386,23 @@ namespace MasterOnline.Controllers
                                                     data.idmarket = iden.idmarket;
                                                     StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
 #if (DEBUG || Debug_AWS)
-                                                    Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt32(item.basic.productID), 0, username, null)).Wait();
+                                                    Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null)).Wait();
 #else
                                             string EDBConnID = EDB.GetConnectionString("ConnId");
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                             var Jobclient = new BackgroundJobClient(sqlStorage);
-                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt32(item.basic.productID), 0, username, null));
+                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null));
 #endif
-                                                    //}
-                                                    //catch (Exception ex)
-                                                    //{
+                                                //}
+                                                //catch (Exception ex)
+                                                //{
 
-                                                    //}
+                                                //}
 
 
-                                                }
                                             }
+                                        }
                                         //end add by Tri 21 Jan 2019, update stok setelah create product sukses
                                     }
                                 }
@@ -6838,7 +6838,7 @@ namespace MasterOnline.Controllers
 
         public class Products
         {
-            public int id { get; set; }
+            public long id { get; set; }
             public string name { get; set; }
             public int quantity { get; set; }
             public string notes { get; set; }
@@ -6852,7 +6852,7 @@ namespace MasterOnline.Controllers
 
         public class Products_Fulfilled
         {
-            public int product_id { get; set; }
+            public long product_id { get; set; }
             public int quantity_deliver { get; set; }
             public int quantity_reject { get; set; }
         }
@@ -6941,7 +6941,7 @@ namespace MasterOnline.Controllers
 
         public class ActiveProductListResultProduct
         {
-            public int id { get; set; }
+            public long id { get; set; }
             public string name { get; set; }
             public int[] childs { get; set; }
             public string url { get; set; }
@@ -7074,7 +7074,7 @@ namespace MasterOnline.Controllers
 
         public class ItemListResultData
         {
-            public int product_id { get; set; }
+            public long product_id { get; set; }
             public string name { get; set; }
             public int shop_id { get; set; }
             public string shop_name { get; set; }
@@ -7087,14 +7087,14 @@ namespace MasterOnline.Controllers
         public class UpdateStockData
         {
             public string sku { get; set; }
-            public int product_id { get; set; }
+            public long product_id { get; set; }
             public int new_stock { get; set; }
 
         }
         public class UpdatePriceData
         {
             public string sku { get; set; }
-            public int product_id { get; set; }
+            public long product_id { get; set; }
             //change by nurul 12/2/2020
             //public float new_price { get; set; }
             public int new_price { get; set; }
@@ -7249,7 +7249,7 @@ namespace MasterOnline.Controllers
 
         public class EditProduct_Product
         {
-            public int id { get; set; }
+            public long id { get; set; }
             public string name { get; set; }
             public int? category_id { get; set; }
             public int price { get; set; }
@@ -7662,7 +7662,7 @@ namespace MasterOnline.Controllers
         public class Order_Detail
         {
             public int order_detail_id { get; set; }
-            public int product_id { get; set; }
+            public long product_id { get; set; }
             public string product_name { get; set; }
             public string product_desc_pdp { get; set; }
             public string product_desc_atc { get; set; }

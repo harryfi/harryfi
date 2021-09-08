@@ -160,7 +160,7 @@ namespace MasterOnline.Controllers
                                     else
                                     {
                                         clientJobServer.Enqueue<TokopediaControllerJob>(x => x.UpdatePrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, 
-                                            Convert.ToInt32(dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString()), iden, Convert.ToInt32(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString())));
+                                            Convert.ToInt64(dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString()), iden, Convert.ToInt32(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString())));
                                     }
                                 }
                                     
