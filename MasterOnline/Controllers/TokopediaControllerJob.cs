@@ -7003,7 +7003,7 @@ namespace MasterOnline.Controllers
         public class ActiveProductVariantResultData
         {
             public long parent_id { get; set; }
-            public int default_child { get; set; }
+            public long default_child { get; set; }
             public string sizechart { get; set; }
             public ActiveProductVariantResultDataVariant[] variant { get; set; }
             public ActiveProductVariantResultDataChild[] children { get; set; }
