@@ -3648,7 +3648,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Update Resi Pesanan {obj} ke Shopee Gagal.")]
-        public async Task<string> GetOrderDetailsForTrackNo(ShopeeAPIData iden, string[] ordersn_list, int retry)
+        public async Task<string> GetTrackNoShopee(ShopeeAPIData iden, string[] ordersn_list, int retry)
         {
             SetupContext(iden);
             int MOPartnerID = 841371;
@@ -3736,9 +3736,10 @@ namespace MasterOnline.Controllers
 
                             var client = new BackgroundJobClient(sqlStorage);
 #if (DEBUG || Debug_AWS)
-                            GetOrderDetailsForTrackNo(iden, ordersn_list.ToArray(), cekRetry);
+                            GetTrackNoShopee(iden, ordersn_list.ToArray(), cekRetry);
 #else
-                            client.Enqueue<ShopeeControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, ordersn_list.ToArray(), cekRetry));
+                            //client.Enqueue<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, ordersn_list.ToArray(), cekRetry));
+                            client.Schedule<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, ordersn_list.ToArray(), cekRetry), TimeSpan.FromMinutes(1));
 #endif
                         }
                         else
@@ -5611,11 +5612,35 @@ namespace MasterOnline.Controllers
                         //DIGANTI PAKE THROW UNTUK RETRY NYA 
                         if (set_job == "1")
                         {
-                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                            //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                         }
                         var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
                         if (pesananInDb != null)
                         {
+                            //add by nurul 9/9/2021
+                            if (set_job == "1")
+                            {
+                                pesananInDb.NO_PO_CUST = dTrackNo;
+                            }
+                            else
+                            {
+                                pesananInDb.TRACKING_SHIPMENT = dTrackNo;
+                            }
+                            pesananInDb.status_kirim = "2";
+                            if (string.IsNullOrWhiteSpace(pesananInDb.NO_PO_CUST) && set_job == "1")
+                            {
+                                pesananInDb.status_kirim = "1";
+                            }
+
+                            ErasoftDbContext.SaveChanges();
+                            if (set_job != "1")
+                            {
+                                var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Proses Dropoff/JOB Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
+                            }
+                            //end add by nurul 9/9/2021
+
                             string EDBConnID = EDB.GetConnectionString("ConnId");
                             var sqlStorage = new SqlServerStorage(EDBConnID);
 
@@ -5625,23 +5650,33 @@ namespace MasterOnline.Controllers
                             //#else
                             //                        client.Enqueue<ShopeeControllerJob>(x => x.GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST));
                             //#endif
-                            var listorder = new listUpdateOrder()
-                            {
-                                Nobuk = pesananInDb.NO_BUKTI,
-                                Noref = ordersn
-                            };
-                            List<listUpdateOrder> listorders = new List<listUpdateOrder>();
-                            listorders.Add(listorder);
-                            var listordersn = new List<string>();
-                            listordersn.Add(ordersn);
+                            //                            var listorder = new listUpdateOrder()
+                            //                            {
+                            //                                Nobuk = pesananInDb.NO_BUKTI,
+                            //                                Noref = ordersn
+                            //                            };
+                            //                            List<listUpdateOrder> listorders = new List<listUpdateOrder>();
+                            //                            listorders.Add(listorder);
+                            //                            var listordersn = new List<string>();
+                            //                            listordersn.Add(ordersn);
 
+                            //#if (DEBUG || Debug_AWS)
+                            //                            Task.Run(() => updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST)).Wait();
+                            //#else
+                            //                                client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST));
+                            //#endif
+                            List<string> list_ordersn = new List<string>();
+                            list_ordersn.Add(ordersn);
 #if (DEBUG || Debug_AWS)
-                            Task.Run(() => updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST)).Wait();
+                            GetTrackNoShopee(iden, list_ordersn.ToArray(), 0);
 #else
-                                client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST));
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, list_ordersn.ToArray(), 0));
 #endif
                         }
-                        throw new Exception("Tracking Number Null");
+                        //remark by nurul 9/9/2021
+                        //throw new Exception("Tracking Number Null");
+
+
                         //myData = JsonConvert.SerializeObject(HttpBody);
 
                         //signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
@@ -5750,11 +5785,11 @@ namespace MasterOnline.Controllers
                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
                         var client = new BackgroundJobClient(sqlStorage);
-//#if (DEBUG || Debug_AWS)
-//                        GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0);
-//#else
-//                            client.Enqueue<ShopeeControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0));
-//#endif
+#if (DEBUG || Debug_AWS)
+                        GetTrackNoShopee(iden, list_ordersn.ToArray(), 0);
+#else
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, list_ordersn.ToArray(), 0));
+#endif
 
                         var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
                         if (pesananInDb != null)
@@ -5798,21 +5833,21 @@ namespace MasterOnline.Controllers
                             //#else
                             //                        client.Enqueue<ShopeeControllerJob>(x => x.GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST));
                             //#endif
-                            var listorder = new listUpdateOrder()
-                            {
-                                Nobuk = pesananInDb.NO_BUKTI,
-                                Noref = ordersn
-                            };
-                            List<listUpdateOrder> listorders = new List<listUpdateOrder>();
-                            listorders.Add(listorder);
-                            var listordersn = new List<string>();
-                            listordersn.Add(ordersn);
+//                            var listorder = new listUpdateOrder()
+//                            {
+//                                Nobuk = pesananInDb.NO_BUKTI,
+//                                Noref = ordersn
+//                            };
+//                            List<listUpdateOrder> listorders = new List<listUpdateOrder>();
+//                            listorders.Add(listorder);
+//                            var listordersn = new List<string>();
+//                            listordersn.Add(ordersn);
 
-#if (DEBUG || Debug_AWS)
-                            Task.Run(() => updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST)).Wait();
-#else
-                                client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST));
-#endif
+//#if (DEBUG || Debug_AWS)
+//                            Task.Run(() => updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST)).Wait();
+//#else
+//                                client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST));
+//#endif
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                         }
 
@@ -5868,22 +5903,29 @@ namespace MasterOnline.Controllers
                             //#else
                             //                        client.Enqueue<ShopeeControllerJob>(x => x.GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST));
                             //#endif
-                            var listorder = new listUpdateOrder()
-                            {
-                                Nobuk = pesananInDb.NO_BUKTI,
-                                Noref = ordersn
-                            };
-                            List<listUpdateOrder> listorders = new List<listUpdateOrder>();
-                            listorders.Add(listorder);
-                            var listordersn = new List<string>();
-                            listordersn.Add(ordersn);
+                            //                            var listorder = new listUpdateOrder()
+                            //                            {
+                            //                                Nobuk = pesananInDb.NO_BUKTI,
+                            //                                Noref = ordersn
+                            //                            };
+                            //                            List<listUpdateOrder> listorders = new List<listUpdateOrder>();
+                            //                            listorders.Add(listorder);
+                            //                            var listordersn = new List<string>();
+                            //                            listordersn.Add(ordersn);
 
-#if (DEBUG || Debug_AWS)
-                            Task.Run(() => updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST)).Wait();
-#else
-                                client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST));
-#endif
+                            //#if (DEBUG || Debug_AWS)
+                            //                            Task.Run(() => updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST)).Wait();
+                            //#else
+                            //                                client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST));
+                            //#endif
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            List<string> list_ordersn = new List<string>();
+                            list_ordersn.Add(ordersn);
+#if (DEBUG || Debug_AWS)
+                            GetTrackNoShopee(iden, list_ordersn.ToArray(), 0);
+#else
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, list_ordersn.ToArray(), 0));
+#endif
                         }
                         //List<string> list_ordersn = new List<string>();
                         //list_ordersn.Add(ordersn);
@@ -5947,20 +5989,27 @@ namespace MasterOnline.Controllers
                     //#else
                     //                        client.Enqueue<ShopeeControllerJob>(x => x.GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST));
                     //#endif
-                    var listorder = new listUpdateOrder()
-                    {
-                        Nobuk = pesananInDb.NO_BUKTI,
-                        Noref = ordersn
-                    };
-                    List<listUpdateOrder> listorders = new List<listUpdateOrder>();
-                    listorders.Add(listorder);
-                    var listordersn = new List<string>();
-                    listordersn.Add(ordersn);
+                    //                    var listorder = new listUpdateOrder()
+                    //                    {
+                    //                        Nobuk = pesananInDb.NO_BUKTI,
+                    //                        Noref = ordersn
+                    //                    };
+                    //                    List<listUpdateOrder> listorders = new List<listUpdateOrder>();
+                    //                    listorders.Add(listorder);
+                    //                    var listordersn = new List<string>();
+                    //                    listordersn.Add(ordersn);
 
+                    //#if (DEBUG || Debug_AWS)
+                    //                    Task.Run(() => updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST)).Wait();
+                    //#else
+                    //                                client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST));
+                    //#endif
+                    List<string> list_ordersn = new List<string>();
+                    list_ordersn.Add(ordersn);
 #if (DEBUG || Debug_AWS)
-                    Task.Run(() => updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST)).Wait();
+                    GetTrackNoShopee(iden, list_ordersn.ToArray(), 0);
 #else
-                                client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST));
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, list_ordersn.ToArray(), 0));
 #endif
                     throw new Exception(result.msg);
 
@@ -6163,11 +6212,11 @@ namespace MasterOnline.Controllers
                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
                         var client = new BackgroundJobClient(sqlStorage);
-//#if (DEBUG || Debug_AWS)
-//                        GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0);
-//#else
-//                            client.Enqueue<ShopeeControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0));
-//#endif
+#if (DEBUG || Debug_AWS)
+                        GetTrackNoShopee(iden, list_ordersn.ToArray(), 0);
+#else
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, list_ordersn.ToArray(), 0));
+#endif
 
                         var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
                         if (pesananInDb != null)
@@ -6193,21 +6242,21 @@ namespace MasterOnline.Controllers
                             //#else
                             //                        client.Enqueue<ShopeeControllerJob>(x => x.GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST));
                             //#endif
-                            var listorder = new listUpdateOrder()
-                            {
-                                Nobuk = pesananInDb.NO_BUKTI,
-                                Noref = ordersn
-                            };
-                            List<listUpdateOrder> listorders = new List<listUpdateOrder>();
-                            listorders.Add(listorder);
-                            var listordersn = new List<string>();
-                            listordersn.Add(ordersn);
+                            //var listorder = new listUpdateOrder()
+                            //{
+                            //    Nobuk = pesananInDb.NO_BUKTI,
+                            //    Noref = ordersn
+                            //};
+                            //List<listUpdateOrder> listorders = new List<listUpdateOrder>();
+                            //listorders.Add(listorder);
+                            //var listordersn = new List<string>();
+                            //listordersn.Add(ordersn);
 
-#if (DEBUG || Debug_AWS)
-                            Task.Run(() => updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST)).Wait();
-#else
-                                client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST));
-#endif
+//#if (DEBUG || Debug_AWS)
+//                            Task.Run(() => updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST)).Wait();
+//#else
+//                                client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST));
+//#endif
                         }
                     }
                     else
@@ -6242,20 +6291,27 @@ namespace MasterOnline.Controllers
                             //#else
                             //                        client.Enqueue<ShopeeControllerJob>(x => x.GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST));
                             //#endif
-                            var listorder = new listUpdateOrder()
-                            {
-                                Nobuk = pesananInDb.NO_BUKTI,
-                                Noref = ordersn
-                            };
-                            List<listUpdateOrder> listorders = new List<listUpdateOrder>();
-                            listorders.Add(listorder);
-                            var listordersn = new List<string>();
-                            listordersn.Add(ordersn);
+                            //                            var listorder = new listUpdateOrder()
+                            //                            {
+                            //                                Nobuk = pesananInDb.NO_BUKTI,
+                            //                                Noref = ordersn
+                            //                            };
+                            //                            List<listUpdateOrder> listorders = new List<listUpdateOrder>();
+                            //                            listorders.Add(listorder);
+                            //                            var listordersn = new List<string>();
+                            //                            listordersn.Add(ordersn);
 
+                            //#if (DEBUG || Debug_AWS)
+                            //                            Task.Run(() => updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST)).Wait();
+                            //#else
+                            //                                client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST));
+                            //#endif
+                            List<string> list_ordersn = new List<string>();
+                            list_ordersn.Add(ordersn);
 #if (DEBUG || Debug_AWS)
-                            Task.Run(() => updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST)).Wait();
+                            GetTrackNoShopee(iden, list_ordersn.ToArray(), 0);
 #else
-                                client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST));
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, list_ordersn.ToArray(), 0));
 #endif
                         }
                     }
@@ -6277,22 +6333,28 @@ namespace MasterOnline.Controllers
                     //#else
                     //                        client.Enqueue<ShopeeControllerJob>(x => x.GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST));
                     //#endif
-                    var listorder = new listUpdateOrder()
-                    {
-                        Nobuk = pesananInDb.NO_BUKTI,
-                        Noref = ordersn
-                    };
-                    List<listUpdateOrder> listorders = new List<listUpdateOrder>();
-                    listorders.Add(listorder);
-                    var listordersn = new List<string>();
-                    listordersn.Add(ordersn);
+                    //                    var listorder = new listUpdateOrder()
+                    //                    {
+                    //                        Nobuk = pesananInDb.NO_BUKTI,
+                    //                        Noref = ordersn
+                    //                    };
+                    //                    List<listUpdateOrder> listorders = new List<listUpdateOrder>();
+                    //                    listorders.Add(listorder);
+                    //                    var listordersn = new List<string>();
+                    //                    listordersn.Add(ordersn);
 
+                    //#if (DEBUG || Debug_AWS)
+                    //                    Task.Run(() => updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST)).Wait();
+                    //#else
+                    //                                client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST));
+                    //#endif
+                    List<string> list_ordersn = new List<string>();
+                    list_ordersn.Add(ordersn);
 #if (DEBUG || Debug_AWS)
-                    Task.Run(() => updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST)).Wait();
+                    GetTrackNoShopee(iden, list_ordersn.ToArray(), 0);
 #else
-                                client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST));
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, list_ordersn.ToArray(), 0));
 #endif
-
                     throw new Exception(result.msg);
                     //currentLog.REQUEST_EXCEPTION = result.msg;
                     //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
