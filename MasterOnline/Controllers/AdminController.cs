@@ -5215,13 +5215,13 @@ namespace MasterOnline.Controllers
                                 data.StokJobEnqueued = Convert.ToInt32(dsCekQueue.Tables["QUEUE_COUNT_1"].Rows[0]["jumlah"]);
                             }
                             //sSQL = "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%' and InvocationData not like '%GetOrdersToUpdateMO%' and InvocationData not like '%ShopeeControllerJob%GetOrderByStatusCompleted%' and InvocationData not like '%JD_GetOrderByStatusComplete%'" + System.Environment.NewLine;
-                            sSQL = "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%' and InvocationData not like '%GetOrdersToUpdateMO%' and InvocationData not like '%ShopeeControllerJob%GetOrderByStatusCompleted%' and InvocationData not like '%JD_GetOrderByStatusComplete%' and InvocationData not like '%GetOrderLogistics%'" + System.Environment.NewLine;
+                            sSQL = "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%getOrder%' and InvocationData not like '%GetOrdersToUpdateMO%' and InvocationData not like '%ShopeeControllerJob%GetOrderByStatusCompleted%' and InvocationData not like '%JD_GetOrderByStatusComplete%' and InvocationData not like '%GetOrderLogistics%'" + System.Environment.NewLine;
                             dsCekQueue = EDB.GetDataSet("sCon", "QUEUE_COUNT_2", sSQL);
                             if (dsCekQueue.Tables["QUEUE_COUNT_2"].Rows.Count > 0)
                             {
                                 data.PesananJobEnqueued = Convert.ToInt32(dsCekQueue.Tables["QUEUE_COUNT_2"].Rows[0]["jumlah"]);
                             }
-                            sSQL = "select 'Manage' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and (InvocationData like '%GetOrdersToUpdateMO%' or InvocationData like '%ShopeeControllerJob%GetOrderByStatusCompleted%' or InvocationData like '%JD_GetOrderByStatusComplete%')" + System.Environment.NewLine;
+                            sSQL = "select 'Manage' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and (InvocationData like '%GetOrdersToUpdateMO%' or InvocationData like '%ShopeeControllerJob%GetOrderByStatusCompleted%' or InvocationData like '%JD_GetOrderByStatusComplete%' or InvocationData like '%updatekurirshopee%' or InvocationData like '%GetTrackNoShopee%')" + System.Environment.NewLine;
                             dsCekQueue = EDB.GetDataSet("sCon", "QUEUE_COUNT_3", sSQL);
                             if (dsCekQueue.Tables["QUEUE_COUNT_3"].Rows.Count > 0)
                             {
