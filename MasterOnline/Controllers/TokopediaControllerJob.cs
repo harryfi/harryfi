@@ -5268,7 +5268,7 @@ namespace MasterOnline.Controllers
                                                     kdBrg = brgmp[3];
                                                 }
                                             }
-                                            isValid = (item.basic.productID == Convert.ToInt32(kdBrg));
+                                            isValid = (item.basic.productID == Convert.ToInt64(kdBrg));
                                         }
                                     }
                                 }
