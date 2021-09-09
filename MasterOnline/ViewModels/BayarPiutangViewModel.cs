@@ -85,6 +85,10 @@ namespace MasterOnline.ViewModels
         public int successUpdateHeader { get; set; }
 
         public int id { get; set; }
+
+        public string noSTokOM { get; set; }
+        public string noSTokOK { get; set; }
+        public string countAllSukses { get; set; }
     }
 
     public class DetailLazada

@@ -114,6 +114,26 @@
                     }
                 </div>
             </div>
+            <div class="form-group">
+                <label class="control-label col-md-4 col-sm-4 col-xs-12 text-right">Sukses</label>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.HiddenFor(m => m.StokOpname.PROSES)
+                    @if (Model.StokOpname != null)
+                    {
+                        var countDetail = Model.ListBarangStokOpname.Count();
+                        var proses = 0;
+                        if (!string.IsNullOrEmpty(Model.StokOpname.PROSES))
+                        {
+                            proses = Convert.ToInt32(Model.StokOpname.PROSES);
+                        }
+                        <input id="countSukses" type="text" value="@proses / @countDetail" disabled class="form-control" />
+                    }
+                    else
+                    {
+                        <input type="text" value="0 / 0" disabled class="form-control" />
+                    }
+                </div>
+            </div>
         </div>
         <div class="col-md-6 col-sm-12 col-xs-12">
             <div class="form-group">
@@ -184,7 +204,7 @@
                         }
                         else
                         {
-                            <button class="btn btn-primary pull-right" id="prosesSOpname" type="button" data-toggle="modal" data-target="#konfProsesSop" onclick="passNobuk('@Model.StokOpname.ID')">Proses</button>
+                            <button class="btn btn-primary pull-right" id="prosesSOpname" type="button" data-toggle="modal" data-target="#konfProsesStok" onclick="passNobuk('@Model.StokOpname.ID', '@Model.StokOpname.NOBUK')">Proses</button>
                         }
                     }
                     else

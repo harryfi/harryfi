@@ -4627,7 +4627,8 @@ namespace MasterOnline.Controllers
                                                                                                         NPPN = 0,
                                                                                                         BRUTO = 0,
                                                                                                         NETTO = 0,
-                                                                                                        USERNAME = username,
+                                                                                                        //USERNAME = username,
+                                                                                                        USERNAME = "UPLOAD_EXCEL_PEMBELIAN",
                                                                                                         TGLINPUT = DateTime.Now.AddHours(7),
                                                                                                         TGJT = DateTime.Now.AddHours(7).AddDays(Convert.ToInt32(top)),
                                                                                                         KET = "-",
@@ -4707,7 +4708,8 @@ namespace MasterOnline.Controllers
                                                                                                     QTY = Convert.ToInt32(qty),
                                                                                                     HBELI = Convert.ToInt32(harga_satuan),
                                                                                                     THARGA = (TempTotalHargaBarang),
-                                                                                                    USERNAME = username,
+                                                                                                    //USERNAME = username,
+                                                                                                    USERNAME = "UPLOAD_EXCEL_PEMBELIAN",
                                                                                                     TGLINPUT = DateTime.Now.AddHours(7),
                                                                                                     DISCOUNT_1 = 0,
                                                                                                     NILAI_DISC_1 = Convert.ToInt32(total_nilaidisc),
@@ -6790,7 +6792,7 @@ namespace MasterOnline.Controllers
         //end by Indra 16 apr 2020, download stokopname
 
         //add by Indra 16 apr 2020, upload stokopname
-        public async Task<ActionResult> UploadXcelStokOpname(string nobuk, int countAll, string percentDanprogress, string statusLoopSuccess)
+        public async Task<ActionResult> UploadXcelStokOpname(string nobuk, string _gudang, int countAll, string percentDanprogress, string statusLoopSuccess)
         {
             BindUploadExcel ret = new BindUploadExcel();
             ret.Errors = new List<string>();
@@ -6820,6 +6822,11 @@ namespace MasterOnline.Controllers
             {
                 ret.byteData = null;
                 ret.nobuk = nobuk;
+            }
+
+            if (!string.IsNullOrEmpty(_gudang))
+            {
+                ret.gudang = _gudang;
             }
 
             for (int file_index = 0; file_index < Request.Files.Count; file_index++)
@@ -6872,9 +6879,11 @@ namespace MasterOnline.Controllers
                                             }
 
                                             //add by nurul 9/11/2020, bundling
-                                            var listTempBundling = eraDB.STF03.Select(a => a.Unit).Distinct().ToList();
-                                            //end add by nurul 9/11/2020, bundling
-                                            var listTemp = eraDB.STF02.Where(m => m.TYPE == "3" && m.Qty_berat != "1").ToList();
+                                            //var listTempBundling = eraDB.STF03.Select(a => a.Unit).Distinct().ToList();
+                                            ////end add by nurul 9/11/2020, bundling
+                                            //var listTemp = eraDB.STF02.Where(m => m.TYPE == "3" && m.Qty_berat != "1").ToList();
+                                            var listTempBundling = eraDB.STF03.AsNoTracking().Select(a => a.Unit).Distinct().ToList();
+                                            var listTemp = eraDB.STF02.AsNoTracking().Where(m => m.TYPE == "3" && m.Qty_berat != "1").Select(m => new { BRG = m.BRG, NAMA = m.NAMA }).ToList();
                                             if (listTemp.Count > 0)
                                             {
                                                 if (ret.statusLoop == false)
@@ -6928,24 +6937,39 @@ namespace MasterOnline.Controllers
                                                     }
                                                 }
 
+                                                var countProses = 0;
+                                                var tempPercent = Convert.ToInt32(prog[0]);
+                                                
                                                 ret.countAll = worksheet.Dimension.End.Row;
                                                 if (Convert.ToInt32(prog[1]) == 0)
                                                 {
                                                     prog[1] = "0";
                                                 }
-
+                                                if (Convert.ToInt32(prog[1]) != 5)
+                                                {
+                                                    prog[1] = Convert.ToString(Convert.ToInt32(prog[1]) - 1);
+                                                }
                                                 ret.progress = Convert.ToInt32(prog[1]);
+                                                
                                                 var kodeBarangTemp = new List<string>();
+                                                if(ret.statusLoop == true)
+                                                {
+                                                    var cekDetail = ErasoftDbContext.STT04B.Where(a => a.NOBUK == ret.nobuk).Select(a => a.Brg).ToList();
+                                                    kodeBarangTemp.AddRange(cekDetail);
+                                                }
 
                                                 if (ret.countAll > 5)
                                                 {
-                                                    for (int i = Convert.ToInt32(prog[1]); i <= ret.countAll; i++)
+                                                    for (int i = Convert.ToInt32(prog[1]); i <= ret.countAll + 1; i++)
                                                     {
                                                         ret.statusLoop = true;
-                                                        //ret.progress = i;
-                                                        ret.progress += 1;
-                                                        //ret.percent = (i * 100) / ret.countAll;
-                                                        Functions.SendProgress("Process in progress...", ret.progress, ret.countAll);
+                                                        ////ret.progress = i;
+                                                        //ret.progress += 1;
+                                                        ////ret.percent = (i * 100) / ret.countAll;
+                                                        countProses++;
+                                                        ret.progress = i + 1;
+                                                        ret.percent = ((i) * 100) / ret.countAll;
+                                                        Functions.SendProgress("Process in progress...", ret.progress - 1, ret.countAll);
 
                                                         var kd_brg = worksheet.Cells[i, 1].Value == null ? "" : worksheet.Cells[i, 1].Value.ToString();
                                                         if (!string.IsNullOrEmpty(kd_brg))
@@ -6995,31 +7019,85 @@ namespace MasterOnline.Controllers
                                                                                 }
                                                                                 else
                                                                                 {
-                                                                                    transaction.Rollback();
-                                                                                    ret.Errors.Add("Proses Gagal. Kode Barang (" + kd_brg + ") tidak boleh duplikat.");
-                                                                                    ret.statusSuccess = true;
-                                                                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                                                                                    //transaction.Rollback();
+                                                                                    ret.Errors.Add("Kode Barang (" + kd_brg + ") pada row ke-" + i + " tidak boleh duplikat.");
+                                                                                    //ret.statusSuccess = true;
+                                                                                    //return Json(ret, JsonRequestBehavior.AllowGet);
                                                                                 }
                                                                             }
                                                                     }
                                                                 }
                                                                 else
                                                                 {
-                                                                    transaction.Rollback();
-                                                                    ret.Errors.Add("Proses Gagal. Kode Barang (" + kd_brg + ") merupakan barang bundling");
-                                                                    ret.statusSuccess = true;
-                                                                    ret.lastRow[file_index] = i;
-                                                                    i = ret.countAll;
-                                                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                                                                    //transaction.Rollback();
+                                                                    ret.Errors.Add("Kode Barang (" + kd_brg + ") pada row ke-" + i + " merupakan barang bundling");
+                                                                    //ret.statusSuccess = true;
+                                                                    //ret.lastRow[file_index] = i;
+                                                                    //i = ret.countAll;
+                                                                    //return Json(ret, JsonRequestBehavior.AllowGet);
                                                                 }
                                                             }
                                                             else
                                                             {
-                                                                transaction.Rollback();
-                                                                ret.Errors.Add("Proses Gagal. Kode Barang (" + kd_brg + ") tidak ditemukan");
+                                                                //transaction.Rollback();
+                                                                ret.Errors.Add("Kode Barang (" + kd_brg + ") pada row ke-" + i + " tidak ditemukan");
+                                                                //ret.statusSuccess = true;
+                                                                //ret.lastRow[file_index] = i;
+                                                                //i = ret.countAll;
+                                                                //return Json(ret, JsonRequestBehavior.AllowGet);
+                                                            }
+                                                        }
+                                                        if (ret.countAll > 1000)
+                                                        {
+                                                            if (countProses == 1000 || ret.progress - 1 == ret.countAll || ret.percent >= 100)
+                                                            {
+                                                                if (ret.percent >= 100 || ret.progress - 1 == ret.countAll)
+                                                                {
+                                                                    eraDB.SaveChanges();
+                                                                    transaction.Commit();
+                                                                    ret.statusSuccess = true;
+                                                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                                                                }
+                                                                if (tempPercent != ret.percent)
+                                                                {
+                                                                    eraDB.SaveChanges();
+                                                                    ret.statusSuccess = false;
+                                                                    transaction.Commit();
+                                                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                                                                }
+                                                            }
+                                                        }
+                                                        else if (ret.percent == 25 || ret.percent == 50 || ret.percent == 75 || ret.percent == 100)
+                                                        {
+                                                            if (ret.percent >= 100 || ret.progress - 1 == ret.countAll)
+                                                            {
+                                                                eraDB.SaveChanges();
+                                                                transaction.Commit();
                                                                 ret.statusSuccess = true;
-                                                                ret.lastRow[file_index] = i;
-                                                                i = ret.countAll;
+                                                                return Json(ret, JsonRequestBehavior.AllowGet);
+                                                            }
+                                                            if (tempPercent != ret.percent)
+                                                            {
+                                                                eraDB.SaveChanges();
+                                                                ret.statusSuccess = false;
+                                                                transaction.Commit();
+                                                                return Json(ret, JsonRequestBehavior.AllowGet);
+                                                            }
+                                                        }
+                                                        else if (countProses == 1000)
+                                                        {
+                                                            if (ret.percent >= 100 || ret.progress - 1 == ret.countAll)
+                                                            {
+                                                                eraDB.SaveChanges();
+                                                                transaction.Commit();
+                                                                ret.statusSuccess = true;
+                                                                return Json(ret, JsonRequestBehavior.AllowGet);
+                                                            }
+                                                            if (tempPercent != ret.percent)
+                                                            {
+                                                                eraDB.SaveChanges();
+                                                                ret.statusSuccess = false;
+                                                                transaction.Commit();
                                                                 return Json(ret, JsonRequestBehavior.AllowGet);
                                                             }
                                                         }
@@ -7083,7 +7161,6 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-
             }
             //}
             //catch (Exception ex)
