@@ -3648,7 +3648,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Update Resi Pesanan {obj} ke Shopee Gagal.")]
-        public async Task<string> GetOrderDetailsForTrackNo(ShopeeAPIData iden, string[] ordersn_list, int retry)
+        public async Task<string> GetTrackNoShopee(ShopeeAPIData iden, string[] ordersn_list, int retry)
         {
             SetupContext(iden);
             int MOPartnerID = 841371;
@@ -3736,9 +3736,10 @@ namespace MasterOnline.Controllers
 
                             var client = new BackgroundJobClient(sqlStorage);
 #if (DEBUG || Debug_AWS)
-                            GetOrderDetailsForTrackNo(iden, ordersn_list.ToArray(), cekRetry);
+                            GetTrackNoShopee(iden, ordersn_list.ToArray(), cekRetry);
 #else
-                            client.Enqueue<ShopeeControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, ordersn_list.ToArray(), cekRetry));
+                            //client.Enqueue<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, ordersn_list.ToArray(), cekRetry));
+                            client.Schedule<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, ordersn_list.ToArray(), cekRetry), TimeSpan.FromMinutes(1));
 #endif
                         }
                         else
@@ -5667,9 +5668,9 @@ namespace MasterOnline.Controllers
                             List<string> list_ordersn = new List<string>();
                             list_ordersn.Add(ordersn);
 #if (DEBUG || Debug_AWS)
-                            GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0);
+                            GetTrackNoShopee(iden, list_ordersn.ToArray(), 0);
 #else
-                            client.Enqueue<ShopeeControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0));
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, list_ordersn.ToArray(), 0));
 #endif
                         }
                         //remark by nurul 9/9/2021
@@ -5785,9 +5786,9 @@ namespace MasterOnline.Controllers
 
                         var client = new BackgroundJobClient(sqlStorage);
 #if (DEBUG || Debug_AWS)
-                        GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0);
+                        GetTrackNoShopee(iden, list_ordersn.ToArray(), 0);
 #else
-                            client.Enqueue<ShopeeControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0));
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, list_ordersn.ToArray(), 0));
 #endif
 
                         var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
@@ -5921,9 +5922,9 @@ namespace MasterOnline.Controllers
                             List<string> list_ordersn = new List<string>();
                             list_ordersn.Add(ordersn);
 #if (DEBUG || Debug_AWS)
-                            GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0);
+                            GetTrackNoShopee(iden, list_ordersn.ToArray(), 0);
 #else
-                            client.Enqueue<ShopeeControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0));
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, list_ordersn.ToArray(), 0));
 #endif
                         }
                         //List<string> list_ordersn = new List<string>();
@@ -6006,9 +6007,9 @@ namespace MasterOnline.Controllers
                     List<string> list_ordersn = new List<string>();
                     list_ordersn.Add(ordersn);
 #if (DEBUG || Debug_AWS)
-                    GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0);
+                    GetTrackNoShopee(iden, list_ordersn.ToArray(), 0);
 #else
-                            client.Enqueue<ShopeeControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0));
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, list_ordersn.ToArray(), 0));
 #endif
                     throw new Exception(result.msg);
 
@@ -6212,9 +6213,9 @@ namespace MasterOnline.Controllers
 
                         var client = new BackgroundJobClient(sqlStorage);
 #if (DEBUG || Debug_AWS)
-                        GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0);
+                        GetTrackNoShopee(iden, list_ordersn.ToArray(), 0);
 #else
-                            client.Enqueue<ShopeeControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0));
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, list_ordersn.ToArray(), 0));
 #endif
 
                         var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
@@ -6290,21 +6291,28 @@ namespace MasterOnline.Controllers
                             //#else
                             //                        client.Enqueue<ShopeeControllerJob>(x => x.GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST));
                             //#endif
-//                            var listorder = new listUpdateOrder()
-//                            {
-//                                Nobuk = pesananInDb.NO_BUKTI,
-//                                Noref = ordersn
-//                            };
-//                            List<listUpdateOrder> listorders = new List<listUpdateOrder>();
-//                            listorders.Add(listorder);
-//                            var listordersn = new List<string>();
-//                            listordersn.Add(ordersn);
+                            //                            var listorder = new listUpdateOrder()
+                            //                            {
+                            //                                Nobuk = pesananInDb.NO_BUKTI,
+                            //                                Noref = ordersn
+                            //                            };
+                            //                            List<listUpdateOrder> listorders = new List<listUpdateOrder>();
+                            //                            listorders.Add(listorder);
+                            //                            var listordersn = new List<string>();
+                            //                            listordersn.Add(ordersn);
 
-//#if (DEBUG || Debug_AWS)
-//                            Task.Run(() => updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST)).Wait();
-//#else
-//                                client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST));
-//#endif
+                            //#if (DEBUG || Debug_AWS)
+                            //                            Task.Run(() => updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST)).Wait();
+                            //#else
+                            //                                client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST));
+                            //#endif
+                            List<string> list_ordersn = new List<string>();
+                            list_ordersn.Add(ordersn);
+#if (DEBUG || Debug_AWS)
+                            GetTrackNoShopee(iden, list_ordersn.ToArray(), 0);
+#else
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, list_ordersn.ToArray(), 0));
+#endif
                         }
                     }
                 }
@@ -6343,9 +6351,9 @@ namespace MasterOnline.Controllers
                     List<string> list_ordersn = new List<string>();
                     list_ordersn.Add(ordersn);
 #if (DEBUG || Debug_AWS)
-                    GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0);
+                    GetTrackNoShopee(iden, list_ordersn.ToArray(), 0);
 #else
-                            client.Enqueue<ShopeeControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0));
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, list_ordersn.ToArray(), 0));
 #endif
                     throw new Exception(result.msg);
                     //currentLog.REQUEST_EXCEPTION = result.msg;
