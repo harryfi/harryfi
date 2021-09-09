@@ -5221,7 +5221,7 @@ namespace MasterOnline.Controllers
                             {
                                 data.PesananJobEnqueued = Convert.ToInt32(dsCekQueue.Tables["QUEUE_COUNT_2"].Rows[0]["jumlah"]);
                             }
-                            sSQL = "select 'Manage' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and (InvocationData like '%GetOrdersToUpdateMO%' or InvocationData like '%ShopeeControllerJob%GetOrderByStatusCompleted%' or InvocationData like '%JD_GetOrderByStatusComplete%' or InvocationData like '%updatekurirshopee%')" + System.Environment.NewLine;
+                            sSQL = "select 'Manage' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and (InvocationData like '%GetOrdersToUpdateMO%' or InvocationData like '%ShopeeControllerJob%GetOrderByStatusCompleted%' or InvocationData like '%JD_GetOrderByStatusComplete%' or InvocationData like '%updatekurirshopee%' or InvocationData like '%GetTrackNoShopee%')" + System.Environment.NewLine;
                             dsCekQueue = EDB.GetDataSet("sCon", "QUEUE_COUNT_3", sSQL);
                             if (dsCekQueue.Tables["QUEUE_COUNT_3"].Rows.Count > 0)
                             {
