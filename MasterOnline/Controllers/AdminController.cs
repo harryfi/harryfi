@@ -5302,6 +5302,8 @@ namespace MasterOnline.Controllers
             var partnerDb = ErasoftDbContextNew.PARTNER_API.FirstOrDefault(p => p.PartnerId == 20007);
             string access_token = partnerDb.Access_Token;
 
+            string currentSession = dbCheckSession(access_token, partnerDb.Session);
+
             string url = "https://account.accurate.id/api/webhook-renew.do";
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(url);
@@ -5346,6 +5348,140 @@ namespace MasterOnline.Controllers
                     return Json(e.Message, JsonRequestBehavior.AllowGet);
                 }
             }
+        }
+
+        public string dbRefreshSession(string access_token, string session_token, string id_db)
+        {
+            var getAkunBaim = MoDbContext.Account.FirstOrDefault(a => a.Email == "baimsky@gmail.com");
+            ErasoftDbContextNew = new ErasoftContext(getAkunBaim.DatabasePathErasoft);
+
+            string ret = "";
+            string url = "https://account.accurate.id/api/db-refresh-session.do?id=" + id_db + "&session=" + session_token;
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(url);
+
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", "Bearer " + access_token);
+            myReq.Accept = "*/*";
+            myReq.ContentType = "application/json";
+            myReq.ContentLength = 0;
+
+            string responseFromServer = "";
+
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                responseFromServer = ex.Message;
+            }
+
+            var response_session = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ResponseSession)) as ResponseSession;
+            ErasoftDbContextNew.Database.ExecuteSqlCommand("UPDATE PARTNER_API SET Session = '" + response_session.d.session + "' WHERE PartnerId = 20007 ");//fs_id = 1
+
+            var partnerDb = ErasoftDbContextNew.PARTNER_API.FirstOrDefault(p => p.PartnerId == 20007);
+            return partnerDb.Session;
+
+            //return ret;
+        }
+
+        public string dbCheckSession(string access_token, string session_token)
+        {
+            var getAkunBaim = MoDbContext.Account.FirstOrDefault(a => a.Email == "baimsky@gmail.com");
+            ErasoftDbContextNew = new ErasoftContext(getAkunBaim.DatabasePathErasoft);
+            var partnerDb = ErasoftDbContextNew.PARTNER_API.FirstOrDefault(p => p.PartnerId == 20007);
+
+            string ret = "";
+            string url = "https://account.accurate.id/api/db-check-session.do?session=" + session_token;
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(url);
+
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", "Bearer " + access_token);
+            myReq.Accept = "*/*";
+            myReq.ContentType = "application/json";
+
+            string responseFromServer = "";
+
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                string err = "";
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                        return err;
+                    }
+                }
+                else
+                {
+                    return e.Message;
+                }
+            }
+            catch (Exception ex)
+            {
+                responseFromServer = ex.Message;
+            }
+
+            var response_session = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(CheckSession)) as CheckSession;
+            if (response_session.s == false || response_session.d == false)
+            {
+                string db_id = partnerDb.DatabaseId;
+                string newSession = dbRefreshSession(access_token, session_token, db_id);
+                return newSession;
+            }
+            else
+            {
+                return session_token;
+            }
+
+            //return ret;
+        }
+
+        public class CheckSession
+        {
+            public bool s { get; set; }
+            public bool d { get; set; }
+        }
+
+        public class ResponseSession
+        {
+            public bool s { get; set; }
+            public D d { get; set; }
+        }
+
+        public class D
+        {
+            public long dataVersion { get; set; }
+            public string licenseEnd { get; set; }
+            public string session { get; set; }
+            public string host { get; set; }
+            public string errorMessage { get; set; }
+            public bool admin { get; set; }
+            public int errorCode { get; set; }
+            public string accessibleUntil { get; set; }
+            public bool trial { get; set; }
         }
 
         [SessionAdminCheck]
