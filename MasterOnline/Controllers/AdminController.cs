@@ -5306,10 +5306,22 @@ namespace MasterOnline.Controllers
             var session = ErasoftDbContextNew.PARTNER_API.FirstOrDefault(p => datenow < p.Session_ExpiredDate && p.PartnerId == 20007);
             if (session == null)
             {
-                access_token = RefreshToken("baimsky@gmail.com", partnerDb.Access_Token, partnerDb.Refresh_Token, partnerDb.Session);
+                string refreshTokenExc = RefreshToken("baimsky@gmail.com", partnerDb.Access_Token, partnerDb.Refresh_Token, partnerDb.Session);
+                if (refreshTokenExc.Contains("Error : "))
+                {
+                    return Json(refreshTokenExc, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    access_token = refreshTokenExc;
+                }
             }
 
             string currentSession = dbCheckSession(access_token, partnerDb.Session);
+            if (currentSession.Contains("Error : "))
+            {
+                return Json(currentSession, JsonRequestBehavior.AllowGet);
+            }
 
             string url = "https://account.accurate.id/api/webhook-renew.do";
 
@@ -5386,9 +5398,28 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
+            catch (WebException e)
+            {
+                string err = "";
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                        return "Error : " + err;
+                    }
+                }
+                else
+                {
+                    err = "Error : " + e.Message + " | " + e.Source + " | " + e.StackTrace;
+                    return err;
+                }
+            }
             catch (Exception ex)
             {
-                responseFromServer = ex.Message;
+                string error = "Error : " + ex.Message + ". " + ex.Source + ". " + ex.StackTrace;
+                return error;
             }
 
             var response_session = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ResponseSession)) as ResponseSession;
@@ -5438,17 +5469,19 @@ namespace MasterOnline.Controllers
                     using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
                     {
                         err = sr.ReadToEnd();
-                        return err;
+                        return "Error : " + err;
                     }
                 }
                 else
                 {
-                    return e.Message;
+                    err = "Error : " + e.Message + " | " + e.Source + " | " + e.StackTrace;
+                    return err;
                 }
             }
             catch (Exception ex)
             {
-                responseFromServer = ex.Message;
+                string error = "Error : " + ex.Message + ". " + ex.Source + ". " + ex.StackTrace;
+                return error;
             }
 
             var response_session = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(CheckSession)) as CheckSession;
@@ -5517,15 +5550,19 @@ namespace MasterOnline.Controllers
                     using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
                     {
                         err = sr.ReadToEnd();
-                        string error = Newtonsoft.Json.JsonConvert.SerializeObject(err);
-                        return error;
+                        return "Error : " + err;
                     }
                 }
                 else
                 {
-                    err = e.Message;
+                    err = "Error : " + e.Message + " | " + e.Source + " | " + e.StackTrace;
                     return err;
                 }
+            }
+            catch (Exception ex)
+            {
+                string error = "Error : " + ex.Message + ". " + ex.Source + ". " + ex.StackTrace;
+                return error;
             }
 
             try
@@ -5534,6 +5571,10 @@ namespace MasterOnline.Controllers
                 var date_expires = DateTime.Now.AddDays((response_token.expires_in) / 86400).ToString("yyyy-MM-dd HH:mm:ss");
                 ErasoftDbContextNew.Database.ExecuteSqlCommand("UPDATE PARTNER_API SET Access_Token = '" + response_token.access_token + "', Refresh_Token = '" + response_token.refresh_token + "', Session_ExpiredDate = '" + date_expires + "' WHERE PartnerId = 20007 ");
                 string currentSession = dbCheckSession(response_token.access_token, session_token);
+                if (currentSession.Contains("Error : "))
+                {
+                    return currentSession;
+                }
                 return response_token.access_token;
             }
             catch (Exception ex)
