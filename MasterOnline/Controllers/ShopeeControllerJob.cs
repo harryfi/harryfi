@@ -6939,7 +6939,8 @@ namespace MasterOnline.Controllers
                                             if (!string.IsNullOrEmpty(getBuyer.BUYER_CODE))
                                             {
                                                 pesananInDb.PEMESAN = getBuyer.BUYER_CODE;
-                                                pesananInDb.NAMAPEMESAN = Recipient_Address_name;
+                                                //pesananInDb.NAMAPEMESAN = Recipient_Address_name;
+                                                pesananInDb.NAMAPEMESAN= Recipient_Address_name.Trim().Length > 30 ? Recipient_Address_name.Trim().Substring(0, 30) : Recipient_Address_name.Trim();
                                                 pesananInDb.ALAMAT_KIRIM = Recipient_Address_fullAddress;
                                                 pesananInDb.PROPINSI = Recipient_Address_state;
                                                 pesananInDb.KOTA = Recipient_Address_city;
@@ -6949,30 +6950,30 @@ namespace MasterOnline.Controllers
                                                 if (cekPEMBELI_FAKTUR_SHOPEE == null)
                                                 {
                                                     tempBuyerFaktur.PEMBELI = getBuyer.BUYER_CODE;
-                                                    tempBuyerFaktur.NAMA = !string.IsNullOrEmpty(order.recipient_address.name) ? order.recipient_address.name.Trim().Replace('\'', '`') : "";
+                                                    tempBuyerFaktur.NAMA = Recipient_Address_name.Trim().Length > 30 ? Recipient_Address_name.Trim().Substring(0, 30) : Recipient_Address_name.Trim();
                                                     tempBuyerFaktur.TLP = !string.IsNullOrEmpty(order.recipient_address.phone) ? order.recipient_address.phone.Trim().Replace('\'', '`') : "";
                                                     tempBuyerFaktur.ALAMAT = !string.IsNullOrEmpty(order.recipient_address.full_address) ? order.recipient_address.full_address.Trim().Replace('\'', '`') : "";
-                                                    try
-                                                    {
-                                                        var faktur = EDB.GetDataSet("sConn", "SO", "SELECT TOP 1 NO_BUKTI FROM SIT01A (NOLOCK) WHERE NO_SO='" + pesananInDb.NO_BUKTI + "' AND NO_REF='" + pesananInDb.NO_REFERENSI + "' AND CUST='" + pesananInDb.CUST + "'");
-                                                        if (faktur.Tables[0].Rows.Count > 0)
-                                                        {
-                                                            for (int i = 0; i < faktur.Tables[0].Rows.Count; i++)
-                                                            {
-                                                                tempBuyerFaktur.FAKTUR = Convert.ToString(faktur.Tables[0].Rows[i]["NO_BUKTI"]);
-                                                            }
+                                                    //try
+                                                    //{
+                                                    //    var faktur = EDB.GetDataSet("sConn", "SO", "SELECT TOP 1 NO_BUKTI FROM SIT01A (NOLOCK) WHERE NO_SO='" + pesananInDb.NO_BUKTI + "' AND NO_REF='" + pesananInDb.NO_REFERENSI + "' AND CUST='" + pesananInDb.CUST + "'");
+                                                    //    if (faktur.Tables[0].Rows.Count > 0)
+                                                    //    {
+                                                    //        for (int i = 0; i < faktur.Tables[0].Rows.Count; i++)
+                                                    //        {
+                                                    //            tempBuyerFaktur.FAKTUR = Convert.ToString(faktur.Tables[0].Rows[i]["NO_BUKTI"]);
+                                                    //        }
 
-                                                        }
-                                                    }
-                                                    catch (Exception ex) { };
+                                                    //    }
+                                                    //}
+                                                    //catch (Exception ex) { };
                                                     tempBuyerFaktur.PESANAN = pesananInDb.NO_BUKTI;
                                                     tempBuyerFaktur.KURIR = Kurir;
                                                     tempBuyerFaktur.RESI = resi;
 
-                                                    if (!string.IsNullOrEmpty(tempBuyerFaktur.PEMBELI))
-                                                    {
-                                                        ErasoftDbContext.PEMBELI_FAKTUR_SHOPEE.Add(tempBuyerFaktur);
-                                                    }
+                                                    //if (!string.IsNullOrEmpty(tempBuyerFaktur.PEMBELI))
+                                                    //{
+                                                    //    ErasoftDbContext.PEMBELI_FAKTUR_SHOPEE.Add(tempBuyerFaktur);
+                                                    //}
                                                 }
                                             }
                                         }
@@ -7005,7 +7006,7 @@ namespace MasterOnline.Controllers
                                                     ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
                                                 }
                                             }
-                                            catch
+                                            catch(Exception ex)
                                             {
 
                                             }
