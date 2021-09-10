@@ -5302,6 +5302,13 @@ namespace MasterOnline.Controllers
             var partnerDb = ErasoftDbContextNew.PARTNER_API.FirstOrDefault(p => p.PartnerId == 20007);
             string access_token = partnerDb.Access_Token;
 
+            var datenow = DateTime.UtcNow.AddHours(7);
+            var session = ErasoftDbContextNew.PARTNER_API.FirstOrDefault(p => datenow < p.Session_ExpiredDate && p.PartnerId == 20007);
+            if (session == null)
+            {
+                access_token = RefreshToken("baimsky@gmail.com", partnerDb.Access_Token, partnerDb.Refresh_Token, partnerDb.Session);
+            }
+
             string currentSession = dbCheckSession(access_token, partnerDb.Session);
 
             string url = "https://account.accurate.id/api/webhook-renew.do";
@@ -5457,6 +5464,93 @@ namespace MasterOnline.Controllers
             }
 
             //return ret;
+        }
+
+        public string RefreshToken(string email, string access_token, string refresh_token, string session_token)
+        {
+            var getAkunBaim = MoDbContext.Account.FirstOrDefault(a => a.Email == "baimsky@gmail.com");
+            ErasoftDbContextNew = new ErasoftContext(getAkunBaim.DatabasePathErasoft);
+            var partnerDb = ErasoftDbContextNew.PARTNER_API.FirstOrDefault(p => p.PartnerId == 20007);
+
+            string ret = "";
+            string url = "https://account.accurate.id/oauth/token";
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(url);
+
+#if AWS || Debug_AWS
+            var encodedData = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("b9e575d6-e1de-405a-86bd-a18a0e5c19d9" + ":" + "b3217ae03620c4403a9587023fa03ed0")); //IdSec[0].ClientId //IdSec[0].ClientSecret
+#elif DEBUG || DEV
+            var encodedData = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("9ba2291f-6407-4948-be90-955fa8e78f7e" + ":" + "54e4d8110aba0dd922a325658fc1599d"));
+#endif
+
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", "Basic " + encodedData);
+            myReq.Accept = "*/*";
+            myReq.ContentType = "application/x-www-form-urlencoded";
+            myReq.ContentLength = 0;
+
+            string myData = "grant_type=refresh_token&refresh_token=" + refresh_token;
+            string responseFromServer = "";
+
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                string err = "";
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                        string error = Newtonsoft.Json.JsonConvert.SerializeObject(err);
+                        return error;
+                    }
+                }
+                else
+                {
+                    err = e.Message;
+                    return err;
+                }
+            }
+
+            try
+            {
+                var response_token = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(Token)) as Token;
+                var date_expires = DateTime.Now.AddDays((response_token.expires_in) / 86400).ToString("yyyy-MM-dd HH:mm:ss");
+                ErasoftDbContextNew.Database.ExecuteSqlCommand("UPDATE PARTNER_API SET Access_Token = '" + response_token.access_token + "', Refresh_Token = '" + response_token.refresh_token + "', Session_ExpiredDate = '" + date_expires + "' WHERE PartnerId = 20007 ");
+                string currentSession = dbCheckSession(response_token.access_token, session_token);
+                return response_token.access_token;
+            }
+            catch (Exception ex)
+            {
+                string error = ex.Message + ". " + ex.Source + ". " + ex.StackTrace;
+                return error;
+            }
+            return ret;
+        }
+
+        public class Token
+        {
+            public string access_token { get; set; }
+            public string token_type { get; set; }
+            public string refresh_token { get; set; }
+            public int expires_in { get; set; }
+            public string scope { get; set; }
         }
 
         public class CheckSession
