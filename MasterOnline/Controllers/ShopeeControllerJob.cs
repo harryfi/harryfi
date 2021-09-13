@@ -7015,8 +7015,14 @@ namespace MasterOnline.Controllers
                                         {
                                             if (!string.IsNullOrEmpty(tempBuyerFaktur.NAMA) && !string.IsNullOrEmpty(tempBuyerFaktur.PEMBELI) && !string.IsNullOrEmpty(tempBuyerFaktur.ALAMAT))
                                             {
-                                                var sSQL = "UPDATE SIT01A SET PEMESAN='" + tempBuyerFaktur.PEMBELI + "',NAMAPEMESAN='" + tempBuyerFaktur.NAMA + "',AL='" + tempBuyerFaktur.ALAMAT + "' where NO_REF='" + noref + "' and NO_SO='" + nobuk + "' and CUST='" + log_CUST + "'";
-                                                ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                                                try
+                                                {
+                                                    var sSQL = "UPDATE SIT01A SET PEMESAN='" + tempBuyerFaktur.PEMBELI + "',NAMAPEMESAN='" + tempBuyerFaktur.NAMA + "',AL='" + tempBuyerFaktur.ALAMAT + "' where NO_REF='" + noref + "' and NO_SO='" + nobuk + "' and CUST='" + log_CUST + "'";
+                                                    ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                                                }catch(Exception ex)
+                                                {
+
+                                                }
                                             }
                                         }
                                     }

@@ -7047,9 +7047,9 @@ namespace MasterOnline.Controllers
                                                                 //return Json(ret, JsonRequestBehavior.AllowGet);
                                                             }
                                                         }
-                                                        if (ret.countAll > 1000)
+                                                        if (ret.countAll > 2000)
                                                         {
-                                                            if (countProses == 1000 || ret.progress - 1 == ret.countAll || ret.percent >= 100)
+                                                            if (countProses == 500 || ret.progress - 1 == ret.countAll || ret.percent >= 100)
                                                             {
                                                                 if (ret.percent >= 100 || ret.progress - 1 == ret.countAll)
                                                                 {
@@ -7084,7 +7084,7 @@ namespace MasterOnline.Controllers
                                                                 return Json(ret, JsonRequestBehavior.AllowGet);
                                                             }
                                                         }
-                                                        else if (countProses == 1000)
+                                                        else if (countProses == 500)
                                                         {
                                                             if (ret.percent >= 100 || ret.progress - 1 == ret.countAll)
                                                             {
