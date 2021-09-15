@@ -6075,7 +6075,7 @@ namespace MasterOnline.Controllers
                     comment2.Author = "MasterOnline";
 
 
-                    worksheet.Cells["A8"].Value = "Keterangan: Kolom warna kuning harus diisi.";
+                    worksheet.Cells["A8"].Value = "Keterangan: Kolom warna kuning harus diisi & Maximal Character untuk Nomor Bukti adalah 25.";
 
                     worksheet.Cells["A2"].Value = "Contoh Pengisian";
                     worksheet.Cells["A3"].Value = "NOMOR BUKTI";
@@ -6157,7 +6157,10 @@ namespace MasterOnline.Controllers
                         worksheet.Cells[10 + i, 1].Value = ""; //NOMOR BUKTI
                         worksheet.Cells[10 + i, 2].Value = ""; //TANGGAL
                         worksheet.Cells[10 + i, 3].Value = "-- Silahkan Pilih Supplier --"; //KODE SUPPLIER 
-                        worksheet.Cells[10 + i, 4].Value = ""; //TERM OF PAYMENT
+                        //change by nurul 13/9/2021
+                        //worksheet.Cells[10 + i, 4].Value = ""; //TERM OF PAYMENT
+                        worksheet.Cells[10 + i, 4].Value = 0; //TERM OF PAYMENT
+                        //end change by nurul 13/9/2021
                         worksheet.Cells[10 + i, 5].Value = 0; //PPN
                         //worksheet.Cells[10 + i, 6].Value = 0; //NILAI PPN
                         worksheet.Cells[10 + i, 6].Value = 0; //ONGKOS KIRIM
