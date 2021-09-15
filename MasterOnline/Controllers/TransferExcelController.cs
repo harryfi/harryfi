@@ -4267,6 +4267,7 @@ namespace MasterOnline.Controllers
                                 var vCountAllRow = ret.countAll;
                                 int iCountProcessInsertTemp = 0;
                                 bool checklastRow = false;
+                                bool adaerror = false;
 
                                 for (int i = Convert.ToInt32(prog[0]); i <= worksheet.Dimension.End.Row; i++)
                                 {
@@ -4313,9 +4314,11 @@ namespace MasterOnline.Controllers
                                             listTempUploadExcelInvoicePembelian.Add(newTempUploadExcelInvoicePembelian);
                                         }catch(Exception ex)
                                         {
-                                            var msg = ex.InnerException.Message == null ? ex.Message : ex.InnerException.Message;
+                                            var msg = ex.Message;
                                             messageErrorLog = "Ada error pada row " + i + ": " + msg + ".";
                                             tw.WriteLine(messageErrorLog);
+                                            ret.Errors.Add(messageErrorLog);
+                                            adaerror = true;
                                         }
                                     }
                                     else if (string.IsNullOrEmpty(noref) && string.IsNullOrEmpty(tgl) && string.IsNullOrEmpty(kode_supplier) && string.IsNullOrEmpty(kode_barang)
@@ -4325,6 +4328,7 @@ namespace MasterOnline.Controllers
                                     {
                                         messageErrorLog = "Tidak ada data pada row " + i + ".";
                                         tw.WriteLine(messageErrorLog);
+                                        ret.Errors.Add(messageErrorLog);
                                         checklastRow = true;
                                     }
 
@@ -4382,7 +4386,7 @@ namespace MasterOnline.Controllers
 
                                     Functions.SendProgress("Processing upload to Temporary...", iCountProcessInsertTemp, Convert.ToInt32(ret.countAll));
 
-                                    if (!string.IsNullOrEmpty(messageErrorLog) && checklastRow == false && i == worksheet.Dimension.End.Row)
+                                    if (((!string.IsNullOrEmpty(messageErrorLog) && checklastRow == false) || adaerror) && i == worksheet.Dimension.End.Row)
                                     {
                                         dataNoBuktiCodeSupplier.Clear();
                                         listTempUploadExcelInvoicePembelian.Clear();
@@ -5225,6 +5229,13 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
+                                //add by nurul 15/9/2021
+                                else
+                                {
+                                    tw.WriteLine("Ada data tidak sesuai. Proses dibatalkan.");
+                                    ret.Errors.Add("Ada data tidak sesuai. Proses dibatalkan.");
+                                }
+                                //end add by nurul 15/9/2021
                                 #endregion
                                 // end add by fauzi 23/09/2020
 
