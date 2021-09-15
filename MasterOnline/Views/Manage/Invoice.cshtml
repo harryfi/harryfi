@@ -1898,8 +1898,8 @@
         }
 
         function downloadLogErrorUploadInvoicePembelian(txt){
-            window.open('/Manage/DownloadLogErrorUploadExcelInvoicePembelian?filename=' + txt,'_blank');
-
+            //window.open('/Manage/DownloadLogErrorUploadExcelInvoicePembelian?filename=' + txt,'_blank');
+            window.open('/Manage/DownloadLogUploadFaktur?filename=' + txt, '_blank');
         }
 
         function closeUploadInvoicePembelian() {
@@ -1912,17 +1912,17 @@
         }
 
         function uploadExcelInvoicePembelian() {
-            alert("Proses ini sedang dalam pengembangan, untuk sementara waktu akan dibantu oleh tim support kami.");
-            //if ($('#file_upload_excel_invoice_pembelian')[0].files.length < 1) {
-            //    $('#file_upload_excel_invoice_pembelian').click();
-            //    $('#progressBarUpload').hide();
-            //}
-            //else {
-            //    $('#pBar_uploadFileInvoice').css('width', '0%').attr('aria-valuenow', 0);
-            //    $('#pBar_uploadFileInvoice').html('0% Complete');
-            //    $('#progressBarUpload').show();
-            //    uploadFileExcelInvoicePembelian(null, 0, "10;0", "false;false");
-            //}
+            //alert("Proses ini sedang dalam pengembangan, untuk sementara waktu akan dibantu oleh tim support kami.");
+            if ($('#file_upload_excel_invoice_pembelian')[0].files.length < 1) {
+                $('#file_upload_excel_invoice_pembelian').click();
+                $('#progressBarUpload').hide();
+            }
+            else {
+                $('#pBar_uploadFileInvoice').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_uploadFileInvoice').html('0% Complete');
+                $('#progressBarUpload').show();
+                uploadFileExcelInvoicePembelian(null, 0, "10;0", "false;false");
+            }
         }
 
         function uploadFileExcelInvoicePembelian(vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess) {

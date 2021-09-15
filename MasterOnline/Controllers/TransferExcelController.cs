@@ -4267,6 +4267,7 @@ namespace MasterOnline.Controllers
                                 var vCountAllRow = ret.countAll;
                                 int iCountProcessInsertTemp = 0;
                                 bool checklastRow = false;
+                                bool adaerror = false;
 
                                 for (int i = Convert.ToInt32(prog[0]); i <= worksheet.Dimension.End.Row; i++)
                                 {
@@ -4292,84 +4293,110 @@ namespace MasterOnline.Controllers
                                     {
                                         iCountProcessInsertTemp += 1;
                                         vCountInTemp += 1;
-                                        tgl = Convert.ToDateTime(tgl).ToString("yyyy-MM-dd");
-                                        //dataNoBuktiCodeSupplier.Add(tgl + ";" + kode_supplier);
-                                        dataNoBuktiCodeSupplier.Add(noref);
-                                        TEMP_UPLOAD_EXCEL_INVOICE_PEMBELIAN newTempUploadExcelInvoicePembelian = new TEMP_UPLOAD_EXCEL_INVOICE_PEMBELIAN() { };
-                                        newTempUploadExcelInvoicePembelian.NOBUK = noref;
-                                        newTempUploadExcelInvoicePembelian.TGL = Convert.ToDateTime(tgl);
-                                        newTempUploadExcelInvoicePembelian.KODE_SUPPLIER = kode_supplier;
-                                        newTempUploadExcelInvoicePembelian.TOP = Convert.ToInt32(top);
-                                        newTempUploadExcelInvoicePembelian.PPN = Convert.ToDouble(ppn);
-                                        newTempUploadExcelInvoicePembelian.ONGKIR = Convert.ToDouble(ongkir); ;
-                                        newTempUploadExcelInvoicePembelian.KODE_BRG = kode_barang;
-                                        newTempUploadExcelInvoicePembelian.GUDANG = gudang;
-                                        newTempUploadExcelInvoicePembelian.QTY = Convert.ToInt32(qty);
-                                        newTempUploadExcelInvoicePembelian.HARGA_SATUAN = Convert.ToDouble(harga_satuan);
-                                        newTempUploadExcelInvoicePembelian.TOTAL_NILAI_DISC = Convert.ToDouble(total_nilaidisc);
-                                        //newTempUploadExcelInvoicePembelian.TOTAL = Convert.ToDouble(total);
-                                        listTempUploadExcelInvoicePembelian.Add(newTempUploadExcelInvoicePembelian);
+                                        try
+                                        {
+                                            tgl = Convert.ToDateTime(tgl).ToString("yyyy-MM-dd");
+                                            //dataNoBuktiCodeSupplier.Add(tgl + ";" + kode_supplier);
+                                            dataNoBuktiCodeSupplier.Add(noref);
+                                            TEMP_UPLOAD_EXCEL_INVOICE_PEMBELIAN newTempUploadExcelInvoicePembelian = new TEMP_UPLOAD_EXCEL_INVOICE_PEMBELIAN() { };
+                                            newTempUploadExcelInvoicePembelian.NOBUK = noref;
+                                            newTempUploadExcelInvoicePembelian.TGL = Convert.ToDateTime(tgl);
+                                            newTempUploadExcelInvoicePembelian.KODE_SUPPLIER = kode_supplier;
+                                            newTempUploadExcelInvoicePembelian.TOP = Convert.ToInt32(top);
+                                            newTempUploadExcelInvoicePembelian.PPN = Convert.ToDouble(ppn);
+                                            newTempUploadExcelInvoicePembelian.ONGKIR = Convert.ToDouble(ongkir); ;
+                                            newTempUploadExcelInvoicePembelian.KODE_BRG = kode_barang;
+                                            newTempUploadExcelInvoicePembelian.GUDANG = gudang;
+                                            newTempUploadExcelInvoicePembelian.QTY = Convert.ToInt32(qty);
+                                            newTempUploadExcelInvoicePembelian.HARGA_SATUAN = Convert.ToDouble(harga_satuan);
+                                            newTempUploadExcelInvoicePembelian.TOTAL_NILAI_DISC = Convert.ToDouble(total_nilaidisc);
+                                            //newTempUploadExcelInvoicePembelian.TOTAL = Convert.ToDouble(total);
+                                            if (noref.Length > 25)
+                                            {
+                                                messageErrorLog = "Ada error pada row " + i + ": Nomor Bukti tidak boleh lebih dari 25 karakter.";
+                                                tw.WriteLine(messageErrorLog);
+                                                ret.Errors.Add(messageErrorLog);
+                                                adaerror = true;
+                                            }
+                                            else
+                                            {
+                                                listTempUploadExcelInvoicePembelian.Add(newTempUploadExcelInvoicePembelian);
+                                            }
+                                        }catch(Exception ex)
+                                        {
+                                            var msg = ex.Message;
+                                            messageErrorLog = "Ada error pada row " + i + ": " + msg + ".";
+                                            tw.WriteLine(messageErrorLog);
+                                            ret.Errors.Add(messageErrorLog);
+                                            adaerror = true;
+                                        }
                                     }
                                     else if (string.IsNullOrEmpty(noref) && string.IsNullOrEmpty(tgl) && string.IsNullOrEmpty(kode_supplier) && string.IsNullOrEmpty(kode_barang)
                                          && string.IsNullOrEmpty(gudang) && string.IsNullOrEmpty(qty) && string.IsNullOrEmpty(harga_satuan)
                                           //&& string.IsNullOrEmpty(total)
                                           )
                                     {
+                                        messageErrorLog = "Tidak ada data pada row " + i + ".";
+                                        tw.WriteLine(messageErrorLog);
+                                        ret.Errors.Add(messageErrorLog);
                                         checklastRow = true;
                                     }
 
-                                    if (string.IsNullOrEmpty(noref))
+                                    if (!checklastRow)
                                     {
-                                        checklastRow = false;
-                                        messageErrorLog = "No Bukti invoice pembelian kosong pada row " + i + ". Proses Upload dibatalkan.";
-                                        tw.WriteLine(messageErrorLog);
-                                    }
+                                        if (string.IsNullOrEmpty(noref))
+                                        {
+                                            checklastRow = false;
+                                            messageErrorLog = "No Bukti invoice pembelian kosong pada row " + i + ". Proses Upload dibatalkan.";
+                                            tw.WriteLine(messageErrorLog);
+                                        }
 
-                                    if (string.IsNullOrEmpty(tgl))
-                                    {
-                                        checklastRow = false;
-                                        messageErrorLog = "Tanggal invoice pembelian kosong pada row " + i + ". Proses Upload dibatalkan.";
-                                        tw.WriteLine(messageErrorLog);
-                                    }
+                                        if (string.IsNullOrEmpty(tgl))
+                                        {
+                                            checklastRow = false;
+                                            messageErrorLog = "Tanggal invoice pembelian kosong pada row " + i + ". Proses Upload dibatalkan.";
+                                            tw.WriteLine(messageErrorLog);
+                                        }
 
-                                    if (string.IsNullOrEmpty(kode_supplier))
-                                    {
-                                        checklastRow = false;
-                                        messageErrorLog = "Terdapat kolom Kode Supplier kosong pada row " + i + ". Proses Upload dibatalkan.";
-                                        tw.WriteLine(messageErrorLog);
-                                    }
+                                        if (string.IsNullOrEmpty(kode_supplier))
+                                        {
+                                            checklastRow = false;
+                                            messageErrorLog = "Terdapat kolom Kode Supplier kosong pada row " + i + ". Proses Upload dibatalkan.";
+                                            tw.WriteLine(messageErrorLog);
+                                        }
 
-                                    if (string.IsNullOrEmpty(kode_barang))
-                                    {
-                                        checklastRow = false;
-                                        messageErrorLog = "Terdapat kolom Kode barang kosong pada row " + i + ". Proses Upload dibatalkan.";
-                                        tw.WriteLine(messageErrorLog);
-                                    }
+                                        if (string.IsNullOrEmpty(kode_barang))
+                                        {
+                                            checklastRow = false;
+                                            messageErrorLog = "Terdapat kolom Kode barang kosong pada row " + i + ". Proses Upload dibatalkan.";
+                                            tw.WriteLine(messageErrorLog);
+                                        }
 
-                                    //if (string.IsNullOrEmpty(top))
-                                    //{
-                                    //    checklastRow = false;
-                                    //    messageErrorLog = "Terdapat kolom Term of payment invoice pembelian kosong pada row " + i + ". Proses Upload dibatalkan.";
-                                    //    tw.WriteLine(messageErrorLog);
-                                    //}
+                                        if (string.IsNullOrEmpty(top))
+                                        {
+                                            checklastRow = false;
+                                            messageErrorLog = "Terdapat kolom Term of payment invoice pembelian kosong pada row " + i + ". Proses Upload dibatalkan.";
+                                            tw.WriteLine(messageErrorLog);
+                                        }
 
-                                    if (string.IsNullOrEmpty(gudang))
-                                    {
-                                        checklastRow = false;
-                                        messageErrorLog = "Terdapat kolom Gudang kosong pada row " + i + ". Proses Upload dibatalkan.";
-                                        tw.WriteLine(messageErrorLog);
-                                    }
+                                        if (string.IsNullOrEmpty(gudang))
+                                        {
+                                            checklastRow = false;
+                                            messageErrorLog = "Terdapat kolom Gudang kosong pada row " + i + ". Proses Upload dibatalkan.";
+                                            tw.WriteLine(messageErrorLog);
+                                        }
 
-                                    if (string.IsNullOrEmpty(harga_satuan))
-                                    {
-                                        checklastRow = false;
-                                        messageErrorLog = "Terdapat kolom Harga satuan kosong pada row " + i + ". Proses Upload dibatalkan.";
-                                        tw.WriteLine(messageErrorLog);
+                                        if (string.IsNullOrEmpty(harga_satuan))
+                                        {
+                                            checklastRow = false;
+                                            messageErrorLog = "Terdapat kolom Harga satuan kosong pada row " + i + ". Proses Upload dibatalkan.";
+                                            tw.WriteLine(messageErrorLog);
+                                        }
                                     }
 
                                     Functions.SendProgress("Processing upload to Temporary...", iCountProcessInsertTemp, Convert.ToInt32(ret.countAll));
 
-                                    if (!string.IsNullOrEmpty(messageErrorLog) && checklastRow == false && i == worksheet.Dimension.End.Row)
+                                    if (((!string.IsNullOrEmpty(messageErrorLog) && checklastRow == false) || adaerror) && i == worksheet.Dimension.End.Row)
                                     {
                                         dataNoBuktiCodeSupplier.Clear();
                                         listTempUploadExcelInvoicePembelian.Clear();
@@ -5212,6 +5239,13 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
+                                //add by nurul 15/9/2021
+                                else
+                                {
+                                    tw.WriteLine("Ada data tidak sesuai. Proses dibatalkan.");
+                                    ret.Errors.Add("Ada data tidak sesuai. Proses dibatalkan.");
+                                }
+                                //end add by nurul 15/9/2021
                                 #endregion
                                 // end add by fauzi 23/09/2020
 
@@ -6075,7 +6109,7 @@ namespace MasterOnline.Controllers
                     comment2.Author = "MasterOnline";
 
 
-                    worksheet.Cells["A8"].Value = "Keterangan: Kolom warna kuning harus diisi.";
+                    worksheet.Cells["A8"].Value = "Keterangan: Kolom warna kuning harus diisi & Maximal Character untuk Nomor Bukti adalah 25.";
 
                     worksheet.Cells["A2"].Value = "Contoh Pengisian";
                     worksheet.Cells["A3"].Value = "NOMOR BUKTI";
@@ -6157,7 +6191,10 @@ namespace MasterOnline.Controllers
                         worksheet.Cells[10 + i, 1].Value = ""; //NOMOR BUKTI
                         worksheet.Cells[10 + i, 2].Value = ""; //TANGGAL
                         worksheet.Cells[10 + i, 3].Value = "-- Silahkan Pilih Supplier --"; //KODE SUPPLIER 
-                        worksheet.Cells[10 + i, 4].Value = ""; //TERM OF PAYMENT
+                        //change by nurul 13/9/2021
+                        //worksheet.Cells[10 + i, 4].Value = ""; //TERM OF PAYMENT
+                        worksheet.Cells[10 + i, 4].Value = 0; //TERM OF PAYMENT
+                        //end change by nurul 13/9/2021
                         worksheet.Cells[10 + i, 5].Value = 0; //PPN
                         //worksheet.Cells[10 + i, 6].Value = 0; //NILAI PPN
                         worksheet.Cells[10 + i, 6].Value = 0; //ONGKOS KIRIM
