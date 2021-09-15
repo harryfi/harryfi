@@ -4311,7 +4311,17 @@ namespace MasterOnline.Controllers
                                             newTempUploadExcelInvoicePembelian.HARGA_SATUAN = Convert.ToDouble(harga_satuan);
                                             newTempUploadExcelInvoicePembelian.TOTAL_NILAI_DISC = Convert.ToDouble(total_nilaidisc);
                                             //newTempUploadExcelInvoicePembelian.TOTAL = Convert.ToDouble(total);
-                                            listTempUploadExcelInvoicePembelian.Add(newTempUploadExcelInvoicePembelian);
+                                            if (noref.Length > 25)
+                                            {
+                                                messageErrorLog = "Ada error pada row " + i + ": Nomor Bukti tidak boleh lebih dari 25 karakter.";
+                                                tw.WriteLine(messageErrorLog);
+                                                ret.Errors.Add(messageErrorLog);
+                                                adaerror = true;
+                                            }
+                                            else
+                                            {
+                                                listTempUploadExcelInvoicePembelian.Add(newTempUploadExcelInvoicePembelian);
+                                            }
                                         }catch(Exception ex)
                                         {
                                             var msg = ex.Message;
