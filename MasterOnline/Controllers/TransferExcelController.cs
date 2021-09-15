@@ -4315,56 +4315,61 @@ namespace MasterOnline.Controllers
                                           //&& string.IsNullOrEmpty(total)
                                           )
                                     {
+                                        messageErrorLog = "Tidak ada data pada row " + i + ".";
+                                        tw.WriteLine(messageErrorLog);
                                         checklastRow = true;
                                     }
 
-                                    if (string.IsNullOrEmpty(noref))
+                                    if (!checklastRow)
                                     {
-                                        checklastRow = false;
-                                        messageErrorLog = "No Bukti invoice pembelian kosong pada row " + i + ". Proses Upload dibatalkan.";
-                                        tw.WriteLine(messageErrorLog);
-                                    }
+                                        if (string.IsNullOrEmpty(noref))
+                                        {
+                                            checklastRow = false;
+                                            messageErrorLog = "No Bukti invoice pembelian kosong pada row " + i + ". Proses Upload dibatalkan.";
+                                            tw.WriteLine(messageErrorLog);
+                                        }
 
-                                    if (string.IsNullOrEmpty(tgl))
-                                    {
-                                        checklastRow = false;
-                                        messageErrorLog = "Tanggal invoice pembelian kosong pada row " + i + ". Proses Upload dibatalkan.";
-                                        tw.WriteLine(messageErrorLog);
-                                    }
+                                        if (string.IsNullOrEmpty(tgl))
+                                        {
+                                            checklastRow = false;
+                                            messageErrorLog = "Tanggal invoice pembelian kosong pada row " + i + ". Proses Upload dibatalkan.";
+                                            tw.WriteLine(messageErrorLog);
+                                        }
 
-                                    if (string.IsNullOrEmpty(kode_supplier))
-                                    {
-                                        checklastRow = false;
-                                        messageErrorLog = "Terdapat kolom Kode Supplier kosong pada row " + i + ". Proses Upload dibatalkan.";
-                                        tw.WriteLine(messageErrorLog);
-                                    }
+                                        if (string.IsNullOrEmpty(kode_supplier))
+                                        {
+                                            checklastRow = false;
+                                            messageErrorLog = "Terdapat kolom Kode Supplier kosong pada row " + i + ". Proses Upload dibatalkan.";
+                                            tw.WriteLine(messageErrorLog);
+                                        }
 
-                                    if (string.IsNullOrEmpty(kode_barang))
-                                    {
-                                        checklastRow = false;
-                                        messageErrorLog = "Terdapat kolom Kode barang kosong pada row " + i + ". Proses Upload dibatalkan.";
-                                        tw.WriteLine(messageErrorLog);
-                                    }
+                                        if (string.IsNullOrEmpty(kode_barang))
+                                        {
+                                            checklastRow = false;
+                                            messageErrorLog = "Terdapat kolom Kode barang kosong pada row " + i + ". Proses Upload dibatalkan.";
+                                            tw.WriteLine(messageErrorLog);
+                                        }
 
-                                    //if (string.IsNullOrEmpty(top))
-                                    //{
-                                    //    checklastRow = false;
-                                    //    messageErrorLog = "Terdapat kolom Term of payment invoice pembelian kosong pada row " + i + ". Proses Upload dibatalkan.";
-                                    //    tw.WriteLine(messageErrorLog);
-                                    //}
+                                        if (string.IsNullOrEmpty(top))
+                                        {
+                                            checklastRow = false;
+                                            messageErrorLog = "Terdapat kolom Term of payment invoice pembelian kosong pada row " + i + ". Proses Upload dibatalkan.";
+                                            tw.WriteLine(messageErrorLog);
+                                        }
 
-                                    if (string.IsNullOrEmpty(gudang))
-                                    {
-                                        checklastRow = false;
-                                        messageErrorLog = "Terdapat kolom Gudang kosong pada row " + i + ". Proses Upload dibatalkan.";
-                                        tw.WriteLine(messageErrorLog);
-                                    }
+                                        if (string.IsNullOrEmpty(gudang))
+                                        {
+                                            checklastRow = false;
+                                            messageErrorLog = "Terdapat kolom Gudang kosong pada row " + i + ". Proses Upload dibatalkan.";
+                                            tw.WriteLine(messageErrorLog);
+                                        }
 
-                                    if (string.IsNullOrEmpty(harga_satuan))
-                                    {
-                                        checklastRow = false;
-                                        messageErrorLog = "Terdapat kolom Harga satuan kosong pada row " + i + ". Proses Upload dibatalkan.";
-                                        tw.WriteLine(messageErrorLog);
+                                        if (string.IsNullOrEmpty(harga_satuan))
+                                        {
+                                            checklastRow = false;
+                                            messageErrorLog = "Terdapat kolom Harga satuan kosong pada row " + i + ". Proses Upload dibatalkan.";
+                                            tw.WriteLine(messageErrorLog);
+                                        }
                                     }
 
                                     Functions.SendProgress("Processing upload to Temporary...", iCountProcessInsertTemp, Convert.ToInt32(ret.countAll));
