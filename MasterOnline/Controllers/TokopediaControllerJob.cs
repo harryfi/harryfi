@@ -1234,6 +1234,7 @@ namespace MasterOnline.Controllers
                 {
                     var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedCreateProductResult)) as TokpedCreateProductResult;
                     //if (result.header.error_code == "")
+                    if (string.IsNullOrEmpty(result.header.reason))
                     {
                         //change by calvin 9 juni 2019
                         //await EditProductGetStatus(iden, brg, result.data.upload_id, currentLog.REQUEST_ID, product_id);
@@ -1253,13 +1254,13 @@ namespace MasterOnline.Controllers
 #endif
                         //end change by calvin 9 juni 2019
                     }
-                    //else
-                    //{
-                    //    currentLog.REQUEST_RESULT = result.header.reason;
-                    //    currentLog.REQUEST_EXCEPTION = result.header.messages;
-                    //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                    //    throw new Exception(result.header.messages + ";" + result.header.reason);
-                    //}
+                    else
+                    {
+                        currentLog.REQUEST_RESULT = result.header.reason;
+                        currentLog.REQUEST_EXCEPTION = result.header.messages;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        throw new Exception(result.header.messages + ";" + result.header.reason);
+                    }
                 }
                 //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
                 //myReq.Method = "POST";
@@ -1987,6 +1988,7 @@ namespace MasterOnline.Controllers
                     {
                         var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedCreateProductResult)) as TokpedCreateProductResult;
                         //if (result.header.error_code == 0)
+                        if (string.IsNullOrEmpty(result.header.reason))
                         {
                             //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
                             //change by calvin 9 juni 2019
@@ -2007,13 +2009,15 @@ namespace MasterOnline.Controllers
                             //end change by calvin 9 juni 2019
 #endif
                         }
-                        //else
-                        //{
-                        //    currentLog.REQUEST_RESULT = result.header.reason;
-                        //    currentLog.REQUEST_EXCEPTION = result.header.messages;
-                        //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                        //    throw new Exception(result.header.messages + ";" + result.header.reason);
-                        //}
+                        else
+                        {
+                            EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE STF02H SET BRG_MP = '' WHERE BRG = '" + Convert.ToString(brg)
+                                + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                            currentLog.REQUEST_RESULT = result.header.reason;
+                            currentLog.REQUEST_EXCEPTION = result.header.messages;
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                            throw new Exception(result.header.messages + ";" + result.header.reason);
+                        }
                     }
                     //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
                     //myReq.Method = "POST";
@@ -2048,6 +2052,7 @@ namespace MasterOnline.Controllers
             {
                 string sSQL = "UPDATE STF02H SET BRG_MP = '' WHERE BRG_MP = 'WAITING_FOR_HANGFIRE' and BRG = '" + kodeProduk + "' AND IDMARKET = " + iden.idmarket;
                 EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+                throw new Exception(ex.Message);
             }
             return ret;
         }
