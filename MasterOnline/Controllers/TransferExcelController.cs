@@ -4292,23 +4292,31 @@ namespace MasterOnline.Controllers
                                     {
                                         iCountProcessInsertTemp += 1;
                                         vCountInTemp += 1;
-                                        tgl = Convert.ToDateTime(tgl).ToString("yyyy-MM-dd");
-                                        //dataNoBuktiCodeSupplier.Add(tgl + ";" + kode_supplier);
-                                        dataNoBuktiCodeSupplier.Add(noref);
-                                        TEMP_UPLOAD_EXCEL_INVOICE_PEMBELIAN newTempUploadExcelInvoicePembelian = new TEMP_UPLOAD_EXCEL_INVOICE_PEMBELIAN() { };
-                                        newTempUploadExcelInvoicePembelian.NOBUK = noref;
-                                        newTempUploadExcelInvoicePembelian.TGL = Convert.ToDateTime(tgl);
-                                        newTempUploadExcelInvoicePembelian.KODE_SUPPLIER = kode_supplier;
-                                        newTempUploadExcelInvoicePembelian.TOP = Convert.ToInt32(top);
-                                        newTempUploadExcelInvoicePembelian.PPN = Convert.ToDouble(ppn);
-                                        newTempUploadExcelInvoicePembelian.ONGKIR = Convert.ToDouble(ongkir); ;
-                                        newTempUploadExcelInvoicePembelian.KODE_BRG = kode_barang;
-                                        newTempUploadExcelInvoicePembelian.GUDANG = gudang;
-                                        newTempUploadExcelInvoicePembelian.QTY = Convert.ToInt32(qty);
-                                        newTempUploadExcelInvoicePembelian.HARGA_SATUAN = Convert.ToDouble(harga_satuan);
-                                        newTempUploadExcelInvoicePembelian.TOTAL_NILAI_DISC = Convert.ToDouble(total_nilaidisc);
-                                        //newTempUploadExcelInvoicePembelian.TOTAL = Convert.ToDouble(total);
-                                        listTempUploadExcelInvoicePembelian.Add(newTempUploadExcelInvoicePembelian);
+                                        try
+                                        {
+                                            tgl = Convert.ToDateTime(tgl).ToString("yyyy-MM-dd");
+                                            //dataNoBuktiCodeSupplier.Add(tgl + ";" + kode_supplier);
+                                            dataNoBuktiCodeSupplier.Add(noref);
+                                            TEMP_UPLOAD_EXCEL_INVOICE_PEMBELIAN newTempUploadExcelInvoicePembelian = new TEMP_UPLOAD_EXCEL_INVOICE_PEMBELIAN() { };
+                                            newTempUploadExcelInvoicePembelian.NOBUK = noref;
+                                            newTempUploadExcelInvoicePembelian.TGL = Convert.ToDateTime(tgl);
+                                            newTempUploadExcelInvoicePembelian.KODE_SUPPLIER = kode_supplier;
+                                            newTempUploadExcelInvoicePembelian.TOP = Convert.ToInt32(top);
+                                            newTempUploadExcelInvoicePembelian.PPN = Convert.ToDouble(ppn);
+                                            newTempUploadExcelInvoicePembelian.ONGKIR = Convert.ToDouble(ongkir); ;
+                                            newTempUploadExcelInvoicePembelian.KODE_BRG = kode_barang;
+                                            newTempUploadExcelInvoicePembelian.GUDANG = gudang;
+                                            newTempUploadExcelInvoicePembelian.QTY = Convert.ToInt32(qty);
+                                            newTempUploadExcelInvoicePembelian.HARGA_SATUAN = Convert.ToDouble(harga_satuan);
+                                            newTempUploadExcelInvoicePembelian.TOTAL_NILAI_DISC = Convert.ToDouble(total_nilaidisc);
+                                            //newTempUploadExcelInvoicePembelian.TOTAL = Convert.ToDouble(total);
+                                            listTempUploadExcelInvoicePembelian.Add(newTempUploadExcelInvoicePembelian);
+                                        }catch(Exception ex)
+                                        {
+                                            var msg = ex.InnerException.Message == null ? ex.Message : ex.InnerException.Message;
+                                            messageErrorLog = "Ada error pada row " + i + ": " + msg + ".";
+                                            tw.WriteLine(messageErrorLog);
+                                        }
                                     }
                                     else if (string.IsNullOrEmpty(noref) && string.IsNullOrEmpty(tgl) && string.IsNullOrEmpty(kode_supplier) && string.IsNullOrEmpty(kode_barang)
                                          && string.IsNullOrEmpty(gudang) && string.IsNullOrEmpty(qty) && string.IsNullOrEmpty(harga_satuan)
