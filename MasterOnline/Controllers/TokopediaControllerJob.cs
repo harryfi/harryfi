@@ -2052,6 +2052,7 @@ namespace MasterOnline.Controllers
             {
                 string sSQL = "UPDATE STF02H SET BRG_MP = '' WHERE BRG_MP = 'WAITING_FOR_HANGFIRE' and BRG = '" + kodeProduk + "' AND IDMARKET = " + iden.idmarket;
                 EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+                throw new Exception(ex.Message);
             }
             return ret;
         }
