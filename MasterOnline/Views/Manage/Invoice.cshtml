@@ -1949,6 +1949,8 @@
             $('#progressBarUpload').hide();
             $('#pBar_uploadFileInvoice').css('width', '0%').attr('aria-valuenow', 0);
             $('#pBar_uploadFileInvoice').html('0% Complete');
+            var $savePage = $('#txt_last_page').val();
+            refreshTableInvoice1($savePage);
         }
 
         function uploadExcelInvoicePembelian() {
