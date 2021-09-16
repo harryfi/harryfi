@@ -4815,6 +4815,10 @@ namespace MasterOnline.Controllers
                                                                                                             statusSuccessTemp = true;
                                                                                                             statusLoopTemp = false;
                                                                                                             sudahSimpanTemp = true;
+
+                                                                                                            messageErrorLog = "Proses upload excel Invoice Pembelian sudah selesai " + iCountProcessInsertDB + " / " + iCountProcessInsertTemp + ".";
+                                                                                                            tw.WriteLine(messageErrorLog);
+                                                                                                            ret.Errors.Add(messageErrorLog);
                                                                                                         }
                                                                                                         if (tempPercent != percentTemp)
                                                                                                         {
@@ -4837,6 +4841,10 @@ namespace MasterOnline.Controllers
                                                                                                         statusSuccessTemp = true;
                                                                                                         statusLoopTemp = false;
                                                                                                         sudahSimpanTemp = true;
+
+                                                                                                        messageErrorLog = "Proses upload excel Invoice Pembelian sudah selesai " + iCountProcessInsertDB + " / " + iCountProcessInsertTemp + ".";
+                                                                                                        tw.WriteLine(messageErrorLog);
+                                                                                                        ret.Errors.Add(messageErrorLog);
                                                                                                     }
                                                                                                     if (tempPercent != percentTemp)
                                                                                                     {
