@@ -6938,7 +6938,7 @@ namespace MasterOnline.Controllers
 
         public class ActiveProductListResultShop
         {
-            public int id { get; set; }
+            //public int id { get; set; }
             public string name { get; set; }
             public string uri { get; set; }
             public string location { get; set; }
@@ -6960,8 +6960,8 @@ namespace MasterOnline.Controllers
             public int category_id { get; set; }
             public string category_name { get; set; }
             public string category_breadcrumb { get; set; }
-            public int department_id { get; set; }
-            public object[] labels { get; set; }
+            //public int department_id { get; set; }
+            //public object[] labels { get; set; }
             public ActiveProductListResultBadge[] badges { get; set; }
             public int is_featured { get; set; }
             public int rating { get; set; }
@@ -6975,7 +6975,7 @@ namespace MasterOnline.Controllers
 
         public class ActiveProductListResultShop1
         {
-            public int id { get; set; }
+            //public int id { get; set; }
             public string name { get; set; }
             public string url { get; set; }
             public bool is_gold { get; set; }
@@ -7081,7 +7081,7 @@ namespace MasterOnline.Controllers
         {
             public long product_id { get; set; }
             public string name { get; set; }
-            public int shop_id { get; set; }
+            //public int shop_id { get; set; }
             public string shop_name { get; set; }
             public int category_id { get; set; }
             public string desc { get; set; }
@@ -7223,7 +7223,7 @@ namespace MasterOnline.Controllers
 
         public class GetVariantResultData
         {
-            public int variant_id { get; set; }
+            public long variant_id { get; set; }
             public string name { get; set; }
             public string identifier { get; set; }
             public int status { get; set; }
@@ -7559,7 +7559,7 @@ namespace MasterOnline.Controllers
 
         public class Buyer_Info
         {
-            public int buyer_id { get; set; }
+            //public int buyer_id { get; set; }
             public string buyer_fullname { get; set; }
             public string buyer_email { get; set; }
             public string buyer_phone { get; set; }
