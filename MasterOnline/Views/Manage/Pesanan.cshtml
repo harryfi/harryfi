@@ -5751,7 +5751,7 @@
                     url: link,
                     success: function (response) {
                         if (response != null) {
-                            if (response.error == null) {
+                            if (response.Errors == null) {
                                 $('#cancel_reason').show();
                                 response.forEach(function setCBLazada(item, index) {
                                     listReason[index] = {
@@ -5771,8 +5771,12 @@
                                 });
 
                             } else {
-                                alert(response.error);
-                                $('#modalTransfer').modal('hide');
+                                //alert(response.error);
+                                //$('#modalTransfer').modal('hide');
+                                //$('#divReasons').remove();
+                                $('#cancel_reason').show();
+                                $('#txtCancelReason').show();
+                                $('#cbCancelReason').hide();
                             }
                         }
                     },
