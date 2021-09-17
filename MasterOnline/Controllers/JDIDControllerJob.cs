@@ -3285,9 +3285,10 @@ namespace MasterOnline.Controllers
             string ret = "";
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
-            var daysFrom = -1;
-            var daysTo = 1;
-            var daysNow = DateTime.UtcNow.AddHours(7);
+            //var daysFrom = -1;
+            //var daysTo = 0;
+            //var daysNow = DateTime.UtcNow.AddHours(7);
+            var daysNow = DateTime.UtcNow;
             //add by nurul 20/1/2021, bundling 
             var AdaKomponen = false;
             var connIdProses = "";
@@ -3295,22 +3296,22 @@ namespace MasterOnline.Controllers
             //end add by nurul 20/1/2021, bundling 
 
             //while (daysFrom > -13)
-            while (daysFrom >= -3)
+            //while (daysFrom >= -3)
             {
                 //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
                 //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
-                var dateFrom = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
-                var dateTo = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                var dateFrom = (long)daysNow.AddDays(-1).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                var dateTo = (long)daysNow.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
 
                 //change by nurul 20/1/2021, bundling 
                 //await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
-                var returnGetOrder = await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+                var returnGetOrder = await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 0, 0, 0, dateFrom, dateTo);
                 //change by nurul 20/1/2021, bundling 
 
                 //daysFrom -= 3;
                 //daysTo -= 3;
-                daysFrom -= 2;
-                daysTo -= 2;
+                //daysFrom -= 1;
+                //daysTo -= 1;
 
                 //add by nurul 20/1/2021, bundling 
                 //if (returnGetOrder != "")
@@ -3354,6 +3355,49 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public async Task<string> JD_GOLIVE_GetOrderByStatusPaid(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
+        {
+            string ret = "";
+            SetupContext(iden.DatabasePathErasoft, iden.username);
+
+            var daysFrom = -1;
+            var daysTo = 0;
+            //var daysNow = DateTime.UtcNow.AddHours(7);
+            var daysNow = DateTime.UtcNow;
+            //add by nurul 20/1/2021, bundling 
+            var AdaKomponen = false;
+            var connIdProses = "";
+            List<string> tempConnId = new List<string>() { };
+            //end add by nurul 20/1/2021, bundling 
+
+            //while (daysFrom > -13)
+            while (daysFrom >= -3)
+            {
+                var dateFrom = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                var dateTo = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+
+                var returnGetOrder = await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 0, 0, 0, dateFrom, dateTo);
+                
+                daysFrom -= 1;
+                daysTo -= 1;
+
+                if (!string.IsNullOrEmpty(returnGetOrder))
+                {
+                    connIdProses += "'" + returnGetOrder + "' , ";
+                }
+                //end add by nurul 20/1/2021, bundling 
+            }
+           
+            if (!string.IsNullOrEmpty(connIdProses))
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username, connIdProses.Substring(0, connIdProses.Length - 3));
+            }
+            
+            return ret;
+        }
+
         public async Task<string> JD_GetOrderByStatusPaidList3Days(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, long daysFrom, long daysTo)
         {
             //1:Waiting for delivery, 2:Shipped, 3:Waiting_Cancel, 4:Waiting_Refuse, 5:Canceled, 6:Completed, 7:Ready to Ship
@@ -3363,15 +3407,59 @@ namespace MasterOnline.Controllers
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
             var listOrderId = new List<long>();
+            var loop = true;
+
             //add by nurul 4/5/2021, JDID versi 2
             if (iden.versi == "2")
             {
-                listOrderId.AddRange(GetOrderListV2(iden, "1", 0, daysFrom, daysTo));
+                //listOrderId.AddRange(GetOrderListV2(iden, "1", 0, daysFrom, daysTo));
+                while (loop)
+                {
+                    var retData = GetOrderListV2(iden, "1", page, daysFrom, daysTo);
+                    if (retData.Count > 0)
+                    {
+                        if (retData.Count < 20)
+                        {
+                            loop = false;
+                        }
+                        listOrderId.AddRange(retData);
+                    }
+                    else
+                    {
+                        loop = false;
+                    }
+                    page++;
+                    if (page > 100)
+                    {
+                        loop = false;
+                    }
+                }
             }
             else
             //end add by nurul 4/5/2021, JDID versi 2
             {
-                listOrderId.AddRange(GetOrderList(iden, "1", 0, daysFrom, daysTo));
+                //listOrderId.AddRange(GetOrderList(iden, "1", 0, daysFrom, daysTo));
+                while (loop)
+                {
+                    var retData = GetOrderList(iden, "1", page, daysFrom, daysTo);
+                    if (retData.Count > 0)
+                    {
+                        if (retData.Count < 20)
+                        {
+                            loop = false;
+                        }
+                        listOrderId.AddRange(retData);
+                    }
+                    else
+                    {
+                        loop = false;
+                    }
+                    page++;
+                    if (page > 100)
+                    {
+                        loop = false;
+                    }
+                }
             }
 
             string connectionID = Guid.NewGuid().ToString();
@@ -3483,9 +3571,10 @@ namespace MasterOnline.Controllers
             string ret = "";
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
-            var daysFrom = -1;
-            var daysTo = 1;
-            var daysNow = DateTime.UtcNow.AddHours(7);
+            //var daysFrom = -1;
+            //var daysTo = 0;
+            //var daysNow = DateTime.UtcNow.AddHours(7);
+            var daysNow = DateTime.UtcNow;
             //add by nurul 20/1/2021, bundling 
             var AdaKomponen = false;
             var connIdProses = "";
@@ -3493,21 +3582,21 @@ namespace MasterOnline.Controllers
             //end add by nurul 20/1/2021, bundling 
 
 
-            while (daysFrom >= -3)
+            //while (daysFrom >= -3)
             {
                 //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
                 //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
-                var dateFrom = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
-                var dateTo = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                var dateFrom = (long)daysNow.AddDays(-1).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                var dateTo = (long)daysNow.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
 
                 //change by nurul 20/1/2021, bundling 
                 //await JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
-                var returnGetOrder = await JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+                var returnGetOrder = await JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 0, 0, 0, dateFrom, dateTo);
                 //change by nurul 20/1/2021, bundling
                 //daysFrom -= 3;
                 //daysTo -= 3;
-                daysFrom -= 2;
-                daysTo -= 2;
+                //daysFrom -= 1;
+                //daysTo -= 1;
 
                 //add by nurul 20/1/2021, bundling 
                 //if (returnGetOrder != "")
@@ -3551,6 +3640,45 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public async Task<string> JD_GOLIVE_GetOrderByStatusRTS(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
+        {
+            string ret = "";
+            SetupContext(iden.DatabasePathErasoft, iden.username);
+
+            var daysFrom = -1;
+            var daysTo = 0;
+            //var daysNow = DateTime.UtcNow.AddHours(7);
+            var daysNow = DateTime.UtcNow;
+            //add by nurul 20/1/2021, bundling 
+            var AdaKomponen = false;
+            var connIdProses = "";
+            List<string> tempConnId = new List<string>() { };
+            //end add by nurul 20/1/2021, bundling 
+
+
+            while (daysFrom >= -3)
+            {
+                var dateFrom = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                var dateTo = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+
+                var returnGetOrder = await JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 0, 0, 0, dateFrom, dateTo);
+                daysFrom -= 1;
+                daysTo -= 1;
+
+                if (!string.IsNullOrEmpty(returnGetOrder))
+                {
+                    connIdProses += "'" + returnGetOrder + "' , ";
+                }
+            }
+            if (!string.IsNullOrEmpty(connIdProses))
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username, connIdProses.Substring(0, connIdProses.Length - 3));
+            }
+            
+            return ret;
+        }
         public async Task<string> JD_GetOrderByStatusRTSList3Days(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, long daysFrom, long daysTo)
         {
             //1:Waiting for delivery, 2:Shipped, 3:Waiting_Cancel, 4:Waiting_Refuse, 5:Canceled, 6:Completed, 7:Ready to Ship
@@ -3560,15 +3688,58 @@ namespace MasterOnline.Controllers
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
             var listOrderId = new List<long>();
+            var loop = true;
             //add by nurul 4/5/2021, JDID versi 2
             if (iden.versi == "2")
             {
-                listOrderId.AddRange(GetOrderListV2(iden, "7", 0, daysFrom, daysTo));
+                //listOrderId.AddRange(GetOrderListV2(iden, "7", 0, daysFrom, daysTo));
+                while (loop)
+                {
+                    var retData = GetOrderListV2(iden, "7", page, daysFrom, daysTo);
+                    if (retData.Count > 0)
+                    {
+                        if (retData.Count < 20)
+                        {
+                            loop = false;
+                        }
+                        listOrderId.AddRange(retData);
+                    }
+                    else
+                    {
+                        loop = false;
+                    }
+                    page++;
+                    if (page > 100)
+                    {
+                        loop = false;
+                    }
+                }
             }
             else
             //end add by nurul 4/5/2021, JDID versi 2
             {
-                listOrderId.AddRange(GetOrderList(iden, "7", 0, daysFrom, daysTo));
+                //listOrderId.AddRange(GetOrderList(iden, "7", 0, daysFrom, daysTo));
+                while (loop)
+                {
+                    var retData = GetOrderList(iden, "7", page, daysFrom, daysTo);
+                    if (retData.Count > 0)
+                    {
+                        if (retData.Count < 20)
+                        {
+                            loop = false;
+                        }
+                        listOrderId.AddRange(retData);
+                    }
+                    else
+                    {
+                        loop = false;
+                    }
+                    page++;
+                    if (page > 100)
+                    {
+                        loop = false;
+                    }
+                }
             }
 
             string connectionID = Guid.NewGuid().ToString();
@@ -3679,9 +3850,10 @@ namespace MasterOnline.Controllers
             string ret = "";
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
-            var daysFrom = -2;
+            var daysFrom = -1;
             var daysTo = 0;
-            var daysNow = DateTime.UtcNow.AddHours(7);
+            //var daysNow = DateTime.UtcNow.AddHours(7);
+            var daysNow = DateTime.UtcNow;
             //add by nurul 20/1/2021, bundling 
             var AdaKomponen = false;
             var connIdProses = "";
@@ -3697,13 +3869,13 @@ namespace MasterOnline.Controllers
 
                 //change by nurul 20/1/2021, bundling 
                 //await JD_GetOrderByStatusCancelList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
-                var returnGetOrder = await JD_GetOrderByStatusCancelList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+                var returnGetOrder = await JD_GetOrderByStatusCancelList3Days(iden, stat, CUST, NAMA_CUST, 0, 0, 0, dateFrom, dateTo);
                 //change by nurul 20/1/2021, bundling 
 
                 //daysFrom -= 3;
                 //daysTo -= 3;
-                daysFrom -= 2;
-                daysTo -= 2;
+                daysFrom -= 1;
+                daysTo -= 1;
 
                 //add by nurul 20/1/2021, bundling 
                 //if (returnGetOrder != "")
@@ -3756,15 +3928,58 @@ namespace MasterOnline.Controllers
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
             var listOrderId = new List<long>();
+            var loop = true;
             //add by nurul 4/5/2021, JDID versi 2
             if (iden.versi == "2")
             {
-                listOrderId.AddRange(GetOrderListV2(iden, "5", 0, daysFrom, daysTo));
+                //listOrderId.AddRange(GetOrderListV2(iden, "5", 0, daysFrom, daysTo));
+                while (loop)
+                {
+                    var retData = GetOrderListV2(iden, "5", page, daysFrom, daysTo);
+                    if (retData.Count > 0)
+                    {
+                        if (retData.Count < 20)
+                        {
+                            loop = false;
+                        }
+                        listOrderId.AddRange(retData);
+                    }
+                    else
+                    {
+                        loop = false;
+                    }
+                    page++;
+                    if(page > 100)
+                    {
+                        loop = false;
+                    }
+                }
             }
             else
             //end add by nurul 4/5/2021, JDID versi 2
             {
-                listOrderId.AddRange(GetOrderList(iden, "5", 0, daysFrom, daysTo));
+                //listOrderId.AddRange(GetOrderList(iden, "5", 0, daysFrom, daysTo));
+                while (loop)
+                {
+                    var retData = GetOrderList(iden, "5", page, daysFrom, daysTo);
+                    if (retData.Count > 0)
+                    {
+                        if (retData.Count < 20)
+                        {
+                            loop = false;
+                        }
+                        listOrderId.AddRange(retData);
+                    }
+                    else
+                    {
+                        loop = false;
+                    }
+                    page++;
+                    if (page > 100)
+                    {
+                        loop = false;
+                    }
+                }
             }
 
             string connectionID = Guid.NewGuid().ToString();
@@ -4369,8 +4584,8 @@ namespace MasterOnline.Controllers
             string sMethod = "epi.popOrder.getOrderIdListByCondition";
             //string sParamJson = "{\"orderStatus\":" + status + ", \"startRow\": " + page * 20 + ", \"bookTimeBegin\": "
             //    + DateTimeOffset.Now.AddDays(addDays).AddHours(7).ToUnixTimeSeconds() + "000 }";
-            string sParamJson = "{\"orderStatus\":" + status + ", \"startRow\": " + page * 20 + ", \"createdTimeBegin\": "
-                + addDays + ", \"createdTimeEnd\": " + addDays2 + " }";
+            string sParamJson = "{\"orderStatus\":" + status + ", \"startRow\": " + page * 20 + ", \"bookTimeBegin\": "
+                + addDays + ", \"bookTimeEnd\": " + addDays2 + " }";
             //string sParamJson = "{\"orderStatus\":" + status + ", \"startRow\": " + page * 20 + "}";
 
             try
@@ -4383,11 +4598,11 @@ namespace MasterOnline.Controllers
                     if (listOrderId.success)
                     {
                         ret = listOrderId.model;
-                        if (listOrderId.model.Count == 20)
-                        {
-                            var nextOrders = GetOrderList(data, status, page + 1, addDays, addDays2);
-                            ret.AddRange(nextOrders);
-                        }
+                        //if (listOrderId.model.Count == 20)
+                        //{
+                        //    var nextOrders = GetOrderList(data, status, page + 1, addDays, addDays2);
+                        //    ret.AddRange(nextOrders);
+                        //}
                     }
                 }
             }
@@ -5072,11 +5287,11 @@ namespace MasterOnline.Controllers
                 var sysParams = new Dictionary<string, string>();
                 var dayFrom = DateTimeOffset.FromUnixTimeMilliseconds(addDays).UtcDateTime;
                 var dayTo = DateTimeOffset.FromUnixTimeMilliseconds(addDays2).UtcDateTime;
-                var dayFrom1 = dayFrom.ToString("yyyy-MM-dd HH:mm:ss");
-                var dayTo1 = dayTo.ToString("yyyy-MM-dd HH:mm:ss");
+                var dayFrom1 = dayFrom.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                var dayTo1 = dayTo.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
 
-                this.ParamJson = "{\"orderStatus\":\"" + status + "\", \"startRow\": \"" + page * 20 + "\", \"createdTimeBegin\": \""
-                    + dayFrom1 + "\", \"createdTimeEnd\": \"" + dayTo1 + "\" }";
+                this.ParamJson = "{\"orderStatus\":\"" + status + "\", \"startRow\": \"" + page * 20 + "\", \"bookTimeBegin\": \""
+                    + dayFrom1 + "\", \"bookTimeEnd\": \"" + dayTo1 + "\" }";
                 sysParams.Add("360buy_param_json", this.ParamJson);
 
                 sysParams.Add("access_token", data.accessToken);
@@ -5152,11 +5367,11 @@ namespace MasterOnline.Controllers
                             if (listOrderId.jingdong_seller_order_getOrderIdListByCondition_response.result.model != null)
                             {
                                 ret = listOrderId.jingdong_seller_order_getOrderIdListByCondition_response.result.model;
-                                if (listOrderId.jingdong_seller_order_getOrderIdListByCondition_response.result.model.Count() == 20)
-                                {
-                                    var nextOrders = GetOrderListV2(data, status, page + 1, addDays, addDays2);
-                                    ret.AddRange(nextOrders);
-                                }
+                                //if (listOrderId.jingdong_seller_order_getOrderIdListByCondition_response.result.model.Count() == 20)
+                                //{
+                                    //var nextOrders = GetOrderListV2(data, status, page + 1, addDays, addDays2);
+                                    //ret.AddRange(nextOrders);
+                                //}
                             }
                         }
                     }

@@ -5856,6 +5856,7 @@ namespace MasterOnline.Controllers
                                     {
                                         if (data.product.state == "NEED_CORRECTION")
                                         {
+                                            EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '2' WHERE [REQUESTID] = '" + requestID + "' AND [MERCHANT_CODE]='" + iden.merchant_code + "' AND [STATUS] = '1'");
                                             EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE STF02H SET BRG_MP = 'NEED_CORRECTION;" + listBrg.content[0].product.code + "' WHERE BRG = '" + kodeProduk + "' AND IDMARKET = " + tblCustomer.RecNum);
                                             //ret.status = 1;
                                             //ret.message = data.product.revisionNotes;
@@ -5875,7 +5876,7 @@ namespace MasterOnline.Controllers
                     }
                     EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE STF02H SET BRG_MP = '' WHERE BRG = '" + kodeProduk + "' AND IDMARKET = " + tblCustomer.RecNum);
                     string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + kodeProduk + "'";
-                    EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+                    EDB.ExecuteSQL("sConn", CommandType.Text, sSQL); EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '2' WHERE [REQUESTID] = '" + requestID + "' AND [MERCHANT_CODE]='" + iden.merchant_code + "' AND [STATUS] = '1'");
 #if (DEBUG || Debug_AWS)
                     await CreateProduct(dbPathEra, kodeProduk, tblCustomer.CUST, "Barang", "Buat Produk", iden, null, null);
 #else
@@ -11874,14 +11875,18 @@ namespace MasterOnline.Controllers
                 var dateRequest = (new DateTime(1970, 1, 1)).AddMilliseconds(double.Parse(api_log_requestId));
                 if (dateRequest <= DateTime.UtcNow.AddHours(7).AddDays(-1))
                 {
+
                     var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
                     EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE STF02H SET BRG_MP = '' WHERE BRG = '" + kodeProduk + "' AND IDMARKET = " + tblCustomer.RecNum);
                     string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + kodeProduk + "'";
                     EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+
+                    EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '2' WHERE [REQUESTID] = '" + queue_feed_requestid + "' AND [MERCHANT_CODE]='" + iden.merchant_code + "' AND [STATUS] = '1'");
 #if (DEBUG || Debug_AWS)
                     await CreateProduct(dbPathEra, kodeProduk, tblCustomer.CUST, "Barang", "Buat Produk", iden, null, null);
 #else
-                    var sqlStorage = new SqlServerStorage(iden.DatabasePathErasoft);
+                    var EDBConnID = EDB.GetConnectionString("ConnID");
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
                     var clientJobServer = new BackgroundJobClient(sqlStorage);
                     clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, kodeProduk, tblCustomer.CUST, "Barang", "Buat Produk", iden, null, null));
 #endif

@@ -3669,7 +3669,7 @@
                                         //end change by calvin 15 maret 2019
 
                                         var label = '<label class="control-label">'+ ANAME +'</label>';
-                                        if (AMANDATORY == "1") {
+                                        if (AMANDATORY == "1" || ACODE == "FA-2000060") {
                                             label = '<label class="control-label">' + ANAME + '*</label>';
                                         }
                                         var fieldACODE = '<input data-val="true" class="form-control" data-val-length-max="50" id="ListHargaJualPermarket_'+ listmarket_i +'__ACODE_'+ (i + 1) + '" name="ListHargaJualPermarket['+ listmarket_i +'].ACODE_'+ (i + 1) + '" type="hidden" value="'+ ACODE +'" maxlength="50">';
@@ -4615,37 +4615,106 @@
                     });
             }
             //if (ATYPE == "DEFINING_ATTRIBUTE") {
-            if (ATYPE.includes("MULTIPLE_SELECT")) {
-                var AttributeOptSelectMultiple = $('#' + selectID).selectize({
-                    maxItems : 5,
-                    valueField: 'id',
-                    searchField: 'text',
-                    options: listAttributeOpt,
-                    onChange: function (value) {
-                        $('#' + fieldAVALUE_ID).val(value);
-                    }
-                });
+            if (ATYPE.includes("COMBO_BOX")) {
+                if (ATYPE.includes("MULTIPLE_SELECT")) {
+                    var AttributeOptSelectMultiple = $('#' + selectID).selectize({
+                        maxItems: 5,
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listAttributeOpt,
+                        persist: true,
+                        create: function (input) {
+                            return {
+                                id: input,
+                                text: input,
+                            };
+                        },
+                        onChange: function (value) {
+                            $('#' + fieldAVALUE_ID).val(value);
+                        }
+                    });
 
-                if (adaValue != "" && adaValue != null){
-                    var adaValues = adaValue.split(',');
-                    AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
+                    if (adaValue != "" && adaValue != null) {
+                        var adaValues = adaValue.split(',');
+                        for (const val of adaValues) {
+                            if (listAttributeOpt.filter(e => e.id === val).length == 0 && val != "null") {
+                                //console.log('nodata : ' + val);
+                                var customVal = {
+                                    id: val,
+                                    text: val
+                                };
+                                AttributeOptSelectMultiple[0].selectize.addOption(customVal);
+                            }
+                        };
+                        //for (const val of adaValues) {
+                        //    listAttributeOpt.id
+
+                        //};
+                        AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
+                    }
+                }
+                else {
+                    var AttributeOptSelect = $('#' + selectID).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listAttributeOpt,
+                        persist: true,
+                        create: function (input) {
+                            return {
+                                id: input,
+                                text: input,
+                            };
+                        },
+                        onChange: function (value) {
+                            $('#' + fieldAVALUE_ID).val(value);
+                        }
+                    });
+
+                    if (adaValue != "" && adaValue != null) {
+                        if (listAttributeOpt.filter(e => e.id === adaValue).length == 0 && adaValue != "null") {
+                            //console.log('nodata : ' + val);
+                            var customVal = {
+                                id: adaValue,
+                                text: adaValue
+                            };
+                            AttributeOptSelect[0].selectize.addOption(customVal);
+                        }
+                        AttributeOptSelect[0].selectize.setValue(adaValue, true);
+                    }
                 }
             }
             else {
-                var AttributeOptSelect = $('#' + selectID).selectize({
-                    valueField: 'id',
-                    searchField: 'text',
-                    options: listAttributeOpt,
-                    onChange: function (value) {
-                        $('#' + fieldAVALUE_ID).val(value);
-                    }
-                });
+                if (ATYPE.includes("MULTIPLE_SELECT")) {
+                    var AttributeOptSelectMultiple = $('#' + selectID).selectize({
+                        maxItems: 5,
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listAttributeOpt,
+                        onChange: function (value) {
+                            $('#' + fieldAVALUE_ID).val(value);
+                        }
+                    });
 
-                if (adaValue != "" && adaValue != null) {
-                    AttributeOptSelect[0].selectize.setValue(adaValue, true);
+                    if (adaValue != "" && adaValue != null) {
+                        var adaValues = adaValue.split(',');
+                        AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
+                    }
+                }
+                else {
+                    var AttributeOptSelect = $('#' + selectID).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listAttributeOpt,
+                        onChange: function (value) {
+                            $('#' + fieldAVALUE_ID).val(value);
+                        }
+                    });
+
+                    if (adaValue != "" && adaValue != null) {
+                        AttributeOptSelect[0].selectize.setValue(adaValue, true);
+                    }
                 }
             }
-
             //    },
             //    error: function (xhr) {
             //        console.log(xhr);
@@ -5241,6 +5310,341 @@
                 }
             });
         }
+        function getKodeBrg(categoryCode) {
+            if (categoryCode == null || categoryCode == '') {
+                return false;
+            }
+            var link = '@Url.Action("GetKodeBarang", "Manage", new { kode = "replaceCode" })';
+            link = link.replace("replaceCode", encodeURIComponent(categoryCode));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listBarang = [];
+
+                    //var selectizeCopy = $("#COPY_ATTR")[0].selectize;
+                    //if (selectizeCopy != undefined) {
+                    //    selectizeCopy.clear();
+                    //    //selectizeCopy.clearOptions();
+                    //}
+
+                    $.each(data,
+                        function (i, item) {
+                            listBarang[i] = {
+                                id: item.KODE,
+                                text: item.KODE + ' (' + item.NAMABRG.replace("'", "`").replace('"', '') + ')',
+                                namabrg: item.NAMABRG
+                            };
+                        });
+
+                    $('#COPY_ATTR').selectivity({
+                        //valueField: 'id',
+                        allowClear: true,
+                        //searchField: 'text',
+                        placeholder: 'Harap pilih',
+                        items: listBarang,
+                    }).change( function () {
+                        var val = $(this).selectivity('value');
+                        var $objSup = $.grep(listBarang, function (data) { return data.id == val });
+                        CopyDataAttrFromBrg(val, $objSup[0].namabrg);
+                        });
+                    if ($('#COPY_ATTR').selectivity('value') != null) {
+                        $('#COPY_ATTR').trigger('change');
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function CopyDataAttrFromBrg(brg, namabrg) {
+            var textCB = $('#COPY_ATTR').text().split('(');
+            //var namabrg = textCB[1].substring(0, textCB[1].length -1);
+            if (confirm('Semua setting detail per marketplace barang ini akan diubah mengikuti setting detail per marketplace dari :\nKode Barang : ' + brg + '\nNama Barang : ' + namabrg + '\n\nApakah Anda yakin?')) {
+                //model_listhargajualpermarketview
+
+                var link = '@Url.Action("GetBrgSTF02H", "Manage", new { kode = "replaceCode" })';
+                link = link.replace("replaceCode", encodeURIComponent(brg));
+                link += '&brg=' +$('#Stf02_BRG').val();
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (data) {
+                        model_listhargajualpermarketview = data;
+                        $('.reset-data-to-copy').html('');
+                        var i = 0;
+
+                        var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
+                        for (const lMarket of listMarket) {
+                            var fieldCategoryCode = '#ListHargaJualPermarket_' + i + '__CATEGORY_CODE';
+                            var fieldCategoryName = '#ListHargaJualPermarket_' + i + '__CATEGORY_NAME';
+                            $(fieldCategoryCode).val('');
+                            $(fieldCategoryName).val('');
+                            for (const valData of model_listhargajualpermarketview) {
+                                if (lMarket.RecNum == valData.IDMARKET) {
+                                    $(fieldCategoryCode).val(valData.CATEGORY_CODE);
+                                    $(fieldCategoryName).val(valData.CATEGORY_NAME);
+                                    if (lMarket.NAMA == "16")//blibli
+                                    {
+                                        $('#ListHargaJualPermarket_' + i + '__PICKUP_POINT').val(valData.PICKUP_POINT);
+                                        $('#PickupPoint' + i + 'Blibli').val(valData.PICKUP_POINT);
+                                        if (valData.AVALUE_39 != '' && valData.AVALUE_39 != null) {
+                                            $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val(valData.AVALUE_39);
+                                            CKEDITOR.instances['ListHargaJualPermarket_' + i + '__AVALUE_39'].setData(valData.AVALUE_39);
+                                        }
+                                        else {
+                                            $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val('');
+                                            if (CKEDITOR.instances['ListHargaJualPermarket_' + i + '__AVALUE_39'] != undefined)
+                                            CKEDITOR.instances['ListHargaJualPermarket_' + i + '__AVALUE_39'].setData('');
+                                        }
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val(valData.AVALUE_38);
+                                        $('#ListHargaJualPermarket_' + i + '__ANAME_38').val(valData.ANAME_38);
+                                        $('#Brand' + i + 'Blibli').val(valData.ANAME_38);
+                                    }
+                                    if (lMarket.NAMA == "9")//elevenia
+                                    {
+                                        $('#ListHargaJualPermarket_' + i + '__DeliveryTempElevenia').val(valData.DeliveryTempElevenia);
+                                        $('#DeliveryTempElevenia' + i + 'Box').val(valData.DeliveryTempElevenia);
+                                    }
+                                    if (lMarket.NAMA == "7")//Lazada
+                                    {
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val(valData.AVALUE_38);
+                                        $('#ListHargaJualPermarket_' + i + '__ANAME_38').val(valData.ANAME_38);
+                                        $('#Brand' + i + 'Lazada').val(valData.ANAME_38);
+                                    }
+                                    if (lMarket.NAMA == "17")//Shopee
+                                    {
+                                        if (valData.AVALUE_38 != '' && valData.AVALUE_38 != null) {
+                                            $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val(valData.AVALUE_38);
+                                            $('#ListHargaJualPermarket_' + i + '__ANAME_38').val(valData.ANAME_38);
+                                            $('#Brand' + i + 'Shopee').val(valData.ANAME_38);
+                                        }
+                                        else {
+                                            $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val('');
+                                            $('#ListHargaJualPermarket_' + i + '__ANAME_38').val('');
+                                            $('#Brand' + i + 'Shopee').val('');
+                                        }
+                                        if (valData.AVALUE_39 != '' && valData.AVALUE_39 != null && valData.AVALUE_39 != undefined) {
+                                            $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val(valData.AVALUE_39);
+                                            var listLog = valData.AVALUE_39.split(',');
+                                            $('#LOGISTIC_SHOPEE_' + lMarket.RecNum)[0].selectize.setValue(listLog, true);
+                                        }
+                                        else {
+                                            $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val('');
+                                            if ($('#LOGISTIC_SHOPEE_' + lMarket.RecNum)[0].selectize != undefined)
+                                            $('#LOGISTIC_SHOPEE_' + lMarket.RecNum)[0].selectize.setValue('', true);
+                                        }
+                                    }
+                                    if (lMarket.NAMA == "15")//Tokopedia
+                                    {
+                                        $('#ListHargaJualPermarket_' + i + '__PICKUP_POINT').val(valData.PICKUP_POINT);
+                                        $('#TOKPED_ETALASE' + i + 'Box').val(valData.PICKUP_POINT);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_35').val(valData.AVALUE_35);
+                                        if (valData.AVALUE_35 == '1') {
+                                            $('#rdoAsuransi1_' + lMarket.RecNum).prop('checked', true);
+                                            $('#rdoAsuransi2_' + lMarket.RecNum).prop('checked', false);
+                                        }
+                                        else {
+                                            $('#rdoAsuransi1_' + lMarket.RecNum).prop('checked', false);
+                                            $('#rdoAsuransi2_' + lMarket.RecNum).prop('checked', true);
+                                        }
+                                        $('#ListHargaJualPermarket_' + i + '__MIN_ORDER').val(valData.MIN_ORDER);
+                                    }
+                                    if (lMarket.NAMA == "19")//jdid
+                                    {
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val(valData.AVALUE_38);
+                                        $('#ListHargaJualPermarket_' + i + '__ANAME_38').val(valData.ANAME_38);
+                                        $('#Brand' + i + 'JDID').val(valData.ANAME_38);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_43').val(valData.AVALUE_43);
+                                        $('#ListHargaJualPermarket_' + i + '__ACODE_39').val(valData.ACODE_39);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val(valData.AVALUE_39);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_44').val(valData.AVALUE_44);
+                                        $('#ListHargaJualPermarket_' + i + '__ACODE_40').val(valData.ACODE_40);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_40').val(valData.AVALUE_40);
+                                        $('#ListHargaJualPermarket_' + i + '__ACODE_47').val(valData.ACODE_47);
+                                        $('#ListHargaJualPermarket_' + i + '__ACODE_41').val(valData.ACODE_41);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_41').val(valData.AVALUE_41);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_45').val(valData.AVALUE_45);
+                                        if (valData.AVALUE_45 == '1') {
+                                            $('#rdoCODJDID1_' + lMarket.RecNum).prop('checked', true);
+                                            $('#rdoCODJDID2_' + lMarket.RecNum).prop('checked', false);
+                                        }
+                                        else {
+                                            $('#rdoCODJDID1_' + lMarket.RecNum).prop('checked', false);
+                                            $('#rdoCODJDID2_' + lMarket.RecNum).prop('checked', true);
+                                        }
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_46').val(valData.AVALUE_46);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_48').val(valData.AVALUE_48);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_49').val(valData.AVALUE_49);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_47').val(valData.AVALUE_47);
+                                        if (valData.AVALUE_47 == '1') {
+                                            $('#rdoQualityJDID1_' + lMarket.RecNum).prop('checked', true);
+                                            $('#rdoQualityJDID2_' + lMarket.RecNum).prop('checked', false);
+                                        }
+                                        else {
+                                            $('#rdoQualityJDID1_' + lMarket.RecNum).prop('checked', false);
+                                            $('#rdoQualityJDID2_' + lMarket.RecNum).prop('checked', true);
+                                        }
+                                        $('#ListHargaJualPermarket_' + i + '__ANAME_47').val(valData.ACODE_47);
+                                    }
+                                    if (lMarket.NAMA == "20")//82cart
+                                    {
+                                        $('#ListHargaJualPermarket_' + i + '__ACODE_1').val(valData.ACODE_1);
+                                        $('#ListHargaJualPermarket_' + i + '__ANAME_1').val(valData.ANAME_1);
+                                        $('#ListHargaJualPermarket_' + i + '__ACODE_2').val(valData.ACODE_2);
+                                        $('#ListHargaJualPermarket_' + i + '__ANAME_2').val(valData.ANAME_2);
+                                        $('#ListHargaJualPermarket_' + i + '__ACODE_3').val(valData.ACODE_3);
+                                        $('#ListHargaJualPermarket_' + i + '__ANAME_3').val(valData.ANAME_3);
+                                        $('#ListHargaJualPermarket_' + i + '__ACODE_4').val(valData.ACODE_4);
+                                        $('#ListHargaJualPermarket_' + i + '__ANAME_4').val(valData.ANAME_4);
+                                        $('#ListHargaJualPermarket_' + i + '__ACODE_5').val(valData.ACODE_5);
+                                        $('#ListHargaJualPermarket_' + i + '__ANAME_5').val(valData.ANAME_5);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val(valData.AVALUE_38);
+                                        $('#ListHargaJualPermarket_' + i + '__ANAME_38').val(valData.ANAME_38);
+                                        $('#Brand' + i + '82Cart').val(valData.ANAME_38);
+                                    }
+                                }
+                            }
+                            i = i + 1;
+                        };
+
+                        getKategoriPertamaLazada(-1);
+                        getKategoriPertamaBlibli(-1);
+                        getKategoriPertamaElevenia(-1);
+                        getKategoriPertamaShopee(-1);
+                        getKategoriPertamaTokped(-1);
+                        //getKategoriPertamaBukalapak(-1); //remark 9 feb 2021, tutup sementara
+                        getKategoriPertamaJD(-1, false);
+                        getKategoriPertama82Cart(-1);
+                        getAttributeGroupPertama82Cart(-1);
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }
+        }
+
+        function ClearAllCategory() {
+
+            if (confirm('Kosongkan Semua Kategori & Attribute ?')) {
+                var i = 0;
+                $('.reset-data-to-copy').html('');
+                        var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
+                        for (const lMarket of listMarket) {
+                            var fieldCategoryCode = '#ListHargaJualPermarket_' + i + '__CATEGORY_CODE';
+                            var fieldCategoryName = '#ListHargaJualPermarket_' + i + '__CATEGORY_NAME';
+                            $(fieldCategoryCode).val('');
+                            $(fieldCategoryName).val('');
+                            
+                            if (lMarket.NAMA == "16")//blibli
+                            {
+                                $('#ListHargaJualPermarket_' + i + '__PICKUP_POINT').val('');
+                                $('#PickupPoint' + i + 'Blibli').val('');
+                                        
+                                $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val('');
+                                if (CKEDITOR.instances['ListHargaJualPermarket_' + i + '__AVALUE_39'] != undefined)
+                                    CKEDITOR.instances['ListHargaJualPermarket_' + i + '__AVALUE_39'].setData('');
+                                           
+                                $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val('');
+                                $('#ListHargaJualPermarket_' + i + '__ANAME_38').val('');
+                                $('#Brand' + i + 'Blibli').val('');
+                            }
+                            if (lMarket.NAMA == "9")//elevenia
+                            {
+                                $('#ListHargaJualPermarket_' + i + '__DeliveryTempElevenia').val('');
+                                $('#DeliveryTempElevenia' + i + 'Box').val('');
+                            }
+                            if (lMarket.NAMA == "7")//Lazada
+                            {
+                                $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val('');
+                                $('#ListHargaJualPermarket_' + i + '__ANAME_38').val('');
+                                $('#Brand' + i + 'Lazada').val('');
+                            }
+                            if (lMarket.NAMA == "17")//Shopee
+                            {
+                                    $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val('');
+                                    $('#ListHargaJualPermarket_' + i + '__ANAME_38').val('');
+                                    $('#Brand' + i + 'Shopee').val('');
+                                       
+                                    $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val('');
+                                if ($('#LOGISTIC_SHOPEE_' + lMarket.RecNum)[0].selectize != undefined)
+                                    $('#LOGISTIC_SHOPEE_' + lMarket.RecNum)[0].selectize.setValue('', true);
+                                       
+                            }
+                            if (lMarket.NAMA == "15")//Tokopedia
+                            {
+                                $('#ListHargaJualPermarket_' + i + '__PICKUP_POINT').val('');
+                                $('#TOKPED_ETALASE' + i + 'Box').val('');
+                                $('#ListHargaJualPermarket_' + i + '__AVALUE_35').val('');
+                                    $('#rdoAsuransi1_' + lMarket.RecNum).prop('checked', false);
+                                    $('#rdoAsuransi2_' + lMarket.RecNum).prop('checked', true);
+                                $('#ListHargaJualPermarket_' + i + '__MIN_ORDER').val('');
+                            }
+                            if (lMarket.NAMA == "19")//jdid
+                            {
+                                $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val('');
+                                $('#ListHargaJualPermarket_' + i + '__ANAME_38').val('');
+                                $('#Brand' + i + 'JDID').val('');
+                                $('#ListHargaJualPermarket_' + i + '__AVALUE_43').val('');
+                                $('#ListHargaJualPermarket_' + i + '__ACODE_39').val('');
+                                $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val('');
+                                $('#ListHargaJualPermarket_' + i + '__AVALUE_44').val('');
+                                $('#ListHargaJualPermarket_' + i + '__ACODE_40').val('');
+                                $('#ListHargaJualPermarket_' + i + '__AVALUE_40').val('');
+                                $('#ListHargaJualPermarket_' + i + '__ACODE_47').val('');
+                                $('#ListHargaJualPermarket_' + i + '__ACODE_41').val('');
+                                $('#ListHargaJualPermarket_' + i + '__AVALUE_41').val('');
+                                $('#ListHargaJualPermarket_' + i + '__AVALUE_45').val('');
+                                        
+                                    $('#rdoCODJDID1_' + lMarket.RecNum).prop('checked', false);
+                                    $('#rdoCODJDID2_' + lMarket.RecNum).prop('checked', true);
+                                        
+                                $('#ListHargaJualPermarket_' + i + '__AVALUE_46').val('');
+                                $('#ListHargaJualPermarket_' + i + '__AVALUE_48').val('');
+                                $('#ListHargaJualPermarket_' + i + '__AVALUE_49').val('');
+                                $('#ListHargaJualPermarket_' + i + '__AVALUE_47').val('');
+                                    $('#rdoQualityJDID1_' + lMarket.RecNum).prop('checked', false);
+                                    $('#rdoQualityJDID2_' + lMarket.RecNum).prop('checked', true);
+                                $('#ListHargaJualPermarket_' + i + '__ANAME_47').val('');
+                            }
+                            if (lMarket.NAMA == "20")//82cart
+                            {
+                                $('#ListHargaJualPermarket_' + i + '__ACODE_1').val('');
+                                $('#ListHargaJualPermarket_' + i + '__ANAME_1').val('');
+                                $('#ListHargaJualPermarket_' + i + '__ACODE_2').val('');
+                                $('#ListHargaJualPermarket_' + i + '__ANAME_2').val('');
+                                $('#ListHargaJualPermarket_' + i + '__ACODE_3').val('');
+                                $('#ListHargaJualPermarket_' + i + '__ANAME_3').val('');
+                                $('#ListHargaJualPermarket_' + i + '__ACODE_4').val('');
+                                $('#ListHargaJualPermarket_' + i + '__ANAME_4').val('');
+                                $('#ListHargaJualPermarket_' + i + '__ACODE_5').val('');
+                                $('#ListHargaJualPermarket_' + i + '__ANAME_5').val('');
+                                $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val('');
+                                $('#ListHargaJualPermarket_' + i + '__ANAME_38').val('');
+                                $('#Brand' + i + '82Cart').val('');
+                            }
+                            
+                            i = i + 1;
+                        };
+
+                        getKategoriPertamaLazada(-1);
+                        getKategoriPertamaBlibli(-1);
+                        getKategoriPertamaElevenia(-1);
+                        getKategoriPertamaShopee(-1);
+                        getKategoriPertamaTokped(-1);
+                        //getKategoriPertamaBukalapak(-1); //remark 9 feb 2021, tutup sementara
+                        getKategoriPertamaJD(-1, false);
+                        getKategoriPertama82Cart(-1);
+                        getAttributeGroupPertama82Cart(-1);
+            }
+        }
         //END ADD BY CALVIN 6 FEBRUARI 2019
         function getKategori() {
             $.ajax({
@@ -5266,13 +5670,16 @@
                         onChange: function (value) {
                             $('#Stf02_Sort1').val(value);
                             $('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
+                            $('#txtNamaKategori').val($("#KATEGORI option:selected").text());
                             CekStrukturVariant();
+                            getKodeBrg(value);
                         }
                     });
                     if (kategoriSelect[0] != undefined) {
                         //change by calvin 15 februari 2019, saat pertama kali load form, dan mengisi nilai default, jangan trigger kategoriSelect.onchange
                         //kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val());
-                        kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val(),true);
+                        kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val(), true);
+                        getKodeBrg($('#Stf02_Sort1').val());
                         //end change by calvin 15 februari 2019
                     }
                 },

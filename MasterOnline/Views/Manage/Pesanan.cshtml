@@ -2034,11 +2034,11 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-lg-2 col-sm-12"></div>
-                        <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
+                        <div class="col-lg-1 col-sm-12"></div>
+                        <div class="col-lg-5 col-sm-6" style="margin-top:13px;">
                             <div class="pull-right">
                                 <button type="button" id="btn_update_kurir_shopee_dibayar" class="btn btn-success" data-style="expand-right" onclick="updateKurirShopeeDibayar()">
-                                    <span> Perbarui Kurir Shopee</span>
+                                    <span> Perbarui Kurir & Pembeli Shopee</span>
                                 </button>
                                 <button type="button" id="btn_ubahStatusmulti_pesanan_dibayar" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalUbahStatusMultiDibayar" onclick="passRecStatusMultiDibayar()">
                                     <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Ubah Status</span>
@@ -5743,7 +5743,8 @@
                                 response.forEach(function setCBLazada(item, index) {
                                     listReason[index] = {
                                         id: item.reason_id,
-                                        text: item.name
+                                        //text: item.name
+                                        text: item.reason_name
                                     };
                                 });
 
@@ -8455,7 +8456,7 @@
                 contentType: 'application/json; charset=UTF-8',
                 cache: false,
                 success: function(response) {
-                    if (response.Errors == null) {
+                    if (response.Errors == null || response.Errors.length == 0) {
                         //refreshTableSiapKirim();
                         //refreshTablePesanan();
                         //refreshTableCancel();
@@ -8466,8 +8467,8 @@
                         //refreshTablePesanan();
                         //refreshTableCancel();
                         refreshTableSudahDibayar();
-                        alert('Kode barang pada pesanan (' + response.Errors + ') belum terdaftar di Master Online, silahkan cek detail pesanan anda !');
-
+                        //alert('Kode barang pada pesanan (' + response.Errors + ') belum terdaftar di Master Online, silahkan cek detail pesanan anda !');
+                        alert(response.Errors);
                     }
                     $('#modal-status-multi-body').modal('hide');
                     $('#modalUbahStatusMultiDibayar').modal('hide');
@@ -13183,7 +13184,7 @@
             contentType: 'application/json',
             cache: false,
             success: function (response) {
-                if (response == "Proses ambil kurir pesanan shopee sedang berlangsung, mohon refresh halaman ini.") {
+                if (response == "Proses ambil kurir dan pembeli pesanan shopee sedang berlangsung, mohon refresh halaman ini.") {
                     alert(response);
                 } else {
                     //$('#btn_update_kurir_shopee_dibayar').removeAttr('disabled');

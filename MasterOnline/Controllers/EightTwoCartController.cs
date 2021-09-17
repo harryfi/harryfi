@@ -394,7 +394,7 @@ namespace MasterOnline.Controllers
                                             };
                                             newrecord.AVALUE_45 = namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg; //request by Calvin 19 maret 2019, isi nama barang ke avalue 45
                                                                                                                               //add by Tri, 26 Feb 2019
-                                            var kategory = MoDbContext.Category82Cart.Where(m => m.ID_CATEGORY == newrecord.CATEGORY_CODE).FirstOrDefault();
+                                            var kategory = MoDbContext.Category82Cart.Where(m => m.ID_CATEGORY == newrecord.CATEGORY_CODE && m.ACCOUNT.ToLower() == iden.account_store.ToLower()).FirstOrDefault();//tambah validasi cek account
                                             if (kategory != null)
                                             {
                                                 newrecord.CATEGORY_NAME = kategory.NAME;
@@ -703,7 +703,7 @@ namespace MasterOnline.Controllers
             };
             newrecord.AVALUE_45 = namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg; //request by Calvin 19 maret 2019, isi nama barang ke avalue 45
                                                                                               //add by Tri, 26 Feb 2019
-            var kategory = MoDbContext.Category82Cart.Where(m => m.ID_CATEGORY == newrecord.CATEGORY_CODE).FirstOrDefault();
+            var kategory = MoDbContext.Category82Cart.Where(m => m.ID_CATEGORY == newrecord.CATEGORY_CODE && m.ACCOUNT.ToLower() == iden.account_store.ToLower()).FirstOrDefault();
             if (kategory != null)
             {
                 newrecord.CATEGORY_NAME = kategory.NAME;

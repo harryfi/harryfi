@@ -1380,6 +1380,7 @@ namespace MasterOnline.Controllers
                     iden.tgl_expired = tblCustomer.TGL_EXPIRED;
                     iden.token = tblCustomer.TOKEN;
                     iden.refresh_token = tblCustomer.REFRESH_TOKEN;
+                    iden.token_expired = tblCustomer.TOKEN_EXPIRED;
 
                     ShopeeController.ShopeeAPIData iden2 = new ShopeeController.ShopeeAPIData();
                     iden2.merchant_code = tblCustomer.Sort1_Cust;
@@ -1389,6 +1390,7 @@ namespace MasterOnline.Controllers
                     iden2.tgl_expired = tblCustomer.TGL_EXPIRED;
                     iden2.token = tblCustomer.TOKEN;
                     iden2.refresh_token = tblCustomer.REFRESH_TOKEN;
+                    iden2.token_expired = tblCustomer.TOKEN_EXPIRED;
 
                     //remark, tidak perlu cek detail toko
                     // proses cek dan get token
@@ -1744,7 +1746,16 @@ namespace MasterOnline.Controllers
 
                         connId_JobId = dbPathEra + "_JDID_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<JDIDControllerJob>(x => x.JD_GetOrderByStatusCancel(iden, JDIDControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
+                        
+                        if (!string.IsNullOrEmpty(sync_pesanan_stok))
+                        {
+                            if (sync_pesanan_stok == tblCustomer.CUST)
+                            {
+                                client.Enqueue<JDIDControllerJob>(x => x.JD_GOLIVE_GetOrderByStatusPaid(iden, JDIDControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0));
+                                client.Enqueue<JDIDControllerJob>(x => x.JD_GOLIVE_GetOrderByStatusRTS(iden, JDIDControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0));
 
+                            }
+                        }
 #else
                         JDIDControllerJob.JDIDAPIDataJob iden = new JDIDControllerJob.JDIDAPIDataJob();
                         iden.no_cust = tblCustomer.CUST;
@@ -1774,7 +1785,16 @@ namespace MasterOnline.Controllers
                         await new JDIDControllerJob().JD_GetOrderByStatusComplete(iden, JDIDControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
 
                         await new JDIDControllerJob().JD_GetOrderByStatusCancel(iden, JDIDControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
+                        
+                        if (!string.IsNullOrEmpty(sync_pesanan_stok))
+                        {
+                            if (sync_pesanan_stok == tblCustomer.CUST)
+                            {
+                                await new JDIDControllerJob().JD_GOLIVE_GetOrderByStatusPaid(iden, JDIDControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
 
+                                await new JDIDControllerJob().JD_GOLIVE_GetOrderByStatusRTS(iden, JDIDControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
+                            }
+                        }
 #endif
 
 

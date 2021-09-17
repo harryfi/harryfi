@@ -90,6 +90,22 @@
                 //var nFaktur = Model.ListNFaktur.FirstOrDefault(n => n.NFAKTUR == faktur.NO_BUKTI);
                 //var pesananSesuaiFaktur = Model.ListPesanan.FirstOrDefault(p => p.NO_BUKTI == faktur.NO_SO);
                 //DateTime tglJtTempo = faktur.TGL_JT_TEMPO ?? DateTime.MinValue;
+
+                //add by nurul 25/8/2021
+                var pembeli = "";
+                if (string.IsNullOrEmpty(faktur.PEMBELI))
+                {
+                    pembeli = "";
+                }
+                else if (faktur.PEMBELI.Contains("*") && !string.IsNullOrEmpty(faktur.PEMBELI_TEMP))
+                {
+                    pembeli = faktur.PEMBELI_TEMP;
+                }
+                else
+                {
+                    pembeli = faktur.PEMBELI;
+                }
+                //end by nurul 25/8/2021
                 <tr>
                     <td>@faktur.NO_FAKTUR</td>
                     <td>@(faktur.TGL?.ToString("dd/MM/yyyy"))</td>
@@ -102,7 +118,9 @@
                         @*@(buyer.NAMA + " (" + buyer.PERSO + ")")*@
                         @*@buyer.NAMA*@
                         @*@faktur.NAMAPEMESAN*@
-                        @faktur.PEMBELI
+
+                        @*@faktur.PEMBELI*@
+                        @pembeli
                     </td>
                     <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", faktur.SISA_FAKTUR)</td>
 

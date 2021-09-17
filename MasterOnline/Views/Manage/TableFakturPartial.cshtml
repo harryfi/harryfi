@@ -124,7 +124,34 @@
                 //var nFaktur = Model.ListNFaktur.FirstOrDefault(n => n.NFAKTUR == faktur.NO_BUKTI);
                 //var pesananSesuaiFaktur = Model.ListPesanan.FirstOrDefault(p => p.NO_BUKTI == faktur.NO_SO);
 
-
+                //add by nurul 25/8/2021
+                var pembeli = "";
+                var tlp = "";
+                if (string.IsNullOrEmpty(faktur.PEMBELI))
+                {
+                    pembeli = "";
+                }
+                else if (faktur.PEMBELI.Contains("*") && !string.IsNullOrEmpty(faktur.PEMBELI_TEMP))
+                {
+                    pembeli = faktur.PEMBELI_TEMP;
+                }
+                else
+                {
+                    pembeli = faktur.PEMBELI;
+                }
+                if (string.IsNullOrEmpty(faktur.TLP))
+                {
+                    tlp = "";
+                }
+                else if (faktur.TLP.Contains("*") && !string.IsNullOrEmpty(faktur.TLP_TEMP))
+                {
+                    tlp = faktur.TLP_TEMP;
+                }
+                else
+                {
+                    tlp = faktur.TLP;
+                }
+                //end by nurul 25/8/2021
             <tr>
                 <td style="text-align:center;">
                     @if (faktur.STATUS == "11")
@@ -155,14 +182,26 @@
                     @*@faktur.NAMAPEMESAN*@
                     @*//change by nurul 17/6/2021*@
                     @*@pesanan.PEMBELI*@
-                    @if (!string.IsNullOrEmpty(faktur.TLP))
+
+                    @*//change by nurul 25/8/2021*@
+                    @*@if (!string.IsNullOrEmpty(faktur.TLP))
+        {
+            @(faktur.PEMBELI + " (" + faktur.TLP + ")")
+        }
+        else
+        {
+            @faktur.PEMBELI
+        }*@
+                    @if (!string.IsNullOrEmpty(tlp))
                     {
-                        @(faktur.PEMBELI + " (" + faktur.TLP + ")")
+                        @(pembeli + " (" + tlp + ")")
                     }
                     else
                     {
-                        @faktur.PEMBELI
+                        @pembeli
                     }
+                    @*//end change by nurul 25/8/2021*@
+
                     @*//end change by nurul 17/6/2021*@
                 </td>
                 <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", faktur.TOTAL)</td>

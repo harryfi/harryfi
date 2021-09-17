@@ -835,6 +835,9 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        [AutomaticRetry(Attempts = 0)]
+        [Queue("1_create_product")]
+        [NotifyOnFailed("Edit Product {obj} ke Lazada Gagal.")]
         public BindingBase UpdateProduct(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string uname, BrgViewModel data)
         {
             var ret = new BindingBase();
@@ -976,7 +979,7 @@ namespace MasterOnline.Controllers
                 xmlString += "<price>" + stf02h.HJUAL + "</price>";
                 xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
                 xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
-                xmlString += "<Images>";
+                //xmlString += "<Images>";
                 //remark 18 aug 2021, image pindah keluar dari <sku>
                 //if (!string.IsNullOrEmpty(data.imageUrl))
                 //    xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
@@ -1202,28 +1205,38 @@ namespace MasterOnline.Controllers
                     //end change by calvin 10 juni 2019
                     var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.TOKEN == data.token && m.NAMA == "7").FirstOrDefault();
                     if (res.data != null)
-                        foreach (var item in res.data.sku_list)
+                    {
+                        var listStf02 = ErasoftDbContext.STF02.Where(m => m.BRG == data.kdBrg).Select(m => m.BRG).ToList();
+                        if (stf02.TYPE == "4")
+                        {
+                            listStf02 = ErasoftDbContext.STF02.Where(m => m.PART == data.kdBrg).Select(m => m.BRG).ToList();
+                        }
+                        //foreach (var item in res.data.sku_list)
+                        foreach (var item in listStf02)
                         {
                             if (tblCustomer.TIDAK_HIT_UANG_R)
                             {
-                                var brgInDB = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == tblCustomer.RecNum && m.BRG_MP == item.seller_sku).FirstOrDefault();
+                                //var brgInDB = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == tblCustomer.RecNum && m.BRG_MP == item.seller_sku).FirstOrDefault();
+                                var brgInDB = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == tblCustomer.RecNum && m.BRG == item).FirstOrDefault();
                                 if (brgInDB != null)
                                 {
 
 #if (DEBUG || Debug_AWS)
                                     StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
-                                    Task.Run(() => stokAPI.Lazada_updateStock(dbPathEra, brgInDB.BRG, tblCustomer.CUST, "Stock", "Update Stok", item.seller_sku, "", "", data.token, username, null)).Wait();
+                                    //Task.Run(() => stokAPI.Lazada_updateStock(dbPathEra, brgInDB.BRG, tblCustomer.CUST, "Stock", "Update Stok", item.seller_sku, "", "", data.token, username, null)).Wait();
+                                    Task.Run(() => stokAPI.Lazada_updateStock(dbPathEra, item, tblCustomer.CUST, "Stock", "Update Stok", brgInDB.BRG_MP, "", "", data.token, username, null)).Wait();
 #else
                                                         string EDBConnID = EDB.GetConnectionString("ConnId");
                                                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                                         var Jobclient = new BackgroundJobClient(sqlStorage);
-                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(dbPathEra, brgInDB.BRG, tblCustomer.CUST, "Stock", "Update Stok", item.seller_sku, "", "", data.token, username, null));
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(dbPathEra, item, tblCustomer.CUST, "Stock", "Update Stok", brgInDB.BRG_MP, "", "", data.token, username, null));
 #endif
 
                                 }
                             }
                         }
+                    }
                 }
                 else
                 {
@@ -2666,7 +2679,16 @@ namespace MasterOnline.Controllers
                                                     if (!string.IsNullOrEmpty(cekOrder.data.address_billing.phone))
                                                     {
                                                         InsertPembeli(cekOrder.data, connectionID, dbPathEra, username);
-                                                        var pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == cekOrder.data.address_billing.phone).FirstOrDefault();
+                                                        ARF01C pembeliInDB = null;
+                                                        if (!string.IsNullOrEmpty(cekOrder.data.address_billing.customer_email))
+                                                        {
+                                                            pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.EMAIL == cekOrder.data.address_billing.customer_email).FirstOrDefault();
+                                                        }
+                                                        else
+                                                        {
+                                                            pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == cekOrder.data.address_billing.phone).FirstOrDefault();
+                                                        }
+                                                        //var pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == cekOrder.data.address_billing.phone).FirstOrDefault();
                                                         if (pembeliInDB != null)
                                                         {
                                                             var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + orderMO.NO_BUKTI + "'");
@@ -2867,7 +2889,15 @@ namespace MasterOnline.Controllers
                                                 if (string.IsNullOrEmpty(ordInDB.PEMESAN))
                                                 {
                                                     var pembeliInDB = new ARF01C();
-                                                    pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
+                                                    if (!string.IsNullOrEmpty(order.address_billing.customer_email))
+                                                    {
+                                                        pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.EMAIL == order.address_billing.customer_email).FirstOrDefault();
+                                                    }
+                                                    else
+                                                    {
+                                                        pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
+                                                    }
+                                                    
                                                     if (pembeliInDB != null)
                                                     {
                                                         var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + ordInDB.NO_BUKTI + "'");
@@ -2875,7 +2905,14 @@ namespace MasterOnline.Controllers
                                                     else
                                                     {
                                                         InsertPembeli(order, connIDARF01C, dbPathEra, username);
-                                                        pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
+                                                        if (!string.IsNullOrEmpty(order.address_billing.customer_email))
+                                                        {
+                                                            pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.EMAIL == order.address_billing.customer_email).FirstOrDefault();
+                                                        }
+                                                        else
+                                                        {
+                                                            pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
+                                                        }
                                                         if (pembeliInDB != null)
                                                         {
                                                             var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + ordInDB.NO_BUKTI + "'");
@@ -5315,7 +5352,16 @@ namespace MasterOnline.Controllers
                     if (!string.IsNullOrEmpty(ordDetail.data.address_billing.phone))
                     {
                         InsertPembeli(ordDetail.data, Guid.NewGuid().ToString(), dbPathEra, username);
-                        var pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == ordDetail.data.address_billing.phone).FirstOrDefault();
+                        ARF01C pembeliInDB = null;
+                        if (!string.IsNullOrEmpty(ordDetail.data.address_billing.customer_email))
+                        {
+                            pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.EMAIL == ordDetail.data.address_billing.customer_email).FirstOrDefault();
+                        }
+                        else
+                        {
+                            pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == ordDetail.data.address_billing.phone).FirstOrDefault();
+                        }
+                        //var pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == ordDetail.data.address_billing.phone).FirstOrDefault();
                         if (pembeliInDB != null)
                         {
                             var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" 
@@ -8070,6 +8116,33 @@ namespace MasterOnline.Controllers
                 if (bindCancel.code == "0")
                 {
                     ret = bindCancel.data;
+                }
+            }
+            return ret;
+        }
+
+        public List<CancelReasonDetailNew> getCancelReasonNew(string token, string order_id, string order_item_id)
+        {
+            var ret = new List<CancelReasonDetailNew>();
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/order/reverse/cancel/validate");
+            request.SetHttpMethod("GET");
+            request.AddApiParameter("order_id", order_id);
+            request.AddApiParameter("order_item_id_list", order_item_id);
+            LazopResponse response = client.Execute(request, token);
+            var bindCancel = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(CancelReasonNew)) as CancelReasonNew;
+            if (bindCancel != null)
+            {
+                if (bindCancel.code == "0")
+                {
+                    if(bindCancel.data.reason_options != null)
+                    {
+                        if (bindCancel.data.reason_options.Count > 0)
+                        {
+                            ret = bindCancel.data.reason_options;
+                        }
+                    }
                 }
             }
             return ret;

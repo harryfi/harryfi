@@ -210,7 +210,7 @@ namespace MasterOnline.Controllers
                     manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
                 }
 
-                if (responseFromServer != null)
+                if (responseFromServer != "")
                 {
                     try
                     {
@@ -3067,7 +3067,7 @@ namespace MasterOnline.Controllers
             }
 
             var dsOrder = EDB.GetDataSet("CString", "SOT01", "SELECT NO_REFERENSI FROM SOT01A WHERE CUST = '" + CUST + "' AND USER_NAME = 'Auto Shopee"
-            //changed 8 jul 2021, ambil -11jam
+                //changed 8 jul 2021, ambil -11jam
                 //+ "' AND TGL <= '" + DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' AND TGL >= '"
                 + "' AND TGL <= '" + DateTime.UtcNow.AddHours(7).AddHours(-11).ToString("yyyy-MM-dd HH:mm:ss") + "' AND TGL >= '"
             //end changed 8 jul 2021, ambil -11jam
@@ -3648,7 +3648,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Update Resi Pesanan {obj} ke Shopee Gagal.")]
-        public async Task<string> GetOrderDetailsForTrackNo(ShopeeAPIData iden, string[] ordersn_list, int retry)
+        public async Task<string> GetTrackNoShopee(ShopeeAPIData iden, string[] ordersn_list, int retry)
         {
             SetupContext(iden);
             int MOPartnerID = 841371;
@@ -3736,9 +3736,10 @@ namespace MasterOnline.Controllers
 
                             var client = new BackgroundJobClient(sqlStorage);
 #if (DEBUG || Debug_AWS)
-                            GetOrderDetailsForTrackNo(iden, ordersn_list.ToArray(), cekRetry);
+                            GetTrackNoShopee(iden, ordersn_list.ToArray(), cekRetry);
 #else
-                            client.Enqueue<ShopeeControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, ordersn_list.ToArray(), cekRetry));
+                            //client.Enqueue<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, ordersn_list.ToArray(), cekRetry));
+                            client.Schedule<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, ordersn_list.ToArray(), cekRetry), TimeSpan.FromMinutes(1));
 #endif
                         }
                         else
@@ -4332,48 +4333,73 @@ namespace MasterOnline.Controllers
                 insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
                 var kabKot = "3174";
                 var prov = "31";
-
+                string sqlVal = "";
                 foreach (var order in result.orders)
                 {
-                    //insertPembeli += "('" + order.recipient_address.name + "','" + order.recipient_address.full_address + "','" + order.recipient_address.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
-                    //insertPembeli += "1, 'IDR', '01', '" + order.recipient_address.full_address + "', 0, 0, 0, 0, '1', 0, 0, ";
-                    //insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient_address.zipcode + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
+                    //add by nurul 25/8/2021, handle pembeli d samarkan ***
+                    if (!order.recipient_address.name.Contains('*'))
+                    //end add by nurul 25/8/2021, handle pembeli d samarkan ***
+                    {
+                        //insertPembeli += "('" + order.recipient_address.name + "','" + order.recipient_address.full_address + "','" + order.recipient_address.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                        //insertPembeli += "1, 'IDR', '01', '" + order.recipient_address.full_address + "', 0, 0, 0, 0, '1', 0, 0, ";
+                        //insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient_address.zipcode + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
 
-                    string nama = order.recipient_address.name.Length > 30 ? order.recipient_address.name.Substring(0, 30) : order.recipient_address.name;
-                    string tlp = !string.IsNullOrEmpty(order.recipient_address.phone) ? order.recipient_address.phone.Replace('\'', '`') : "";
-                    if (tlp.Length > 30)
-                    {
-                        tlp = tlp.Substring(0, 30);
-                    }
-                    string AL_KIRIM1 = !string.IsNullOrEmpty(order.recipient_address.full_address) ? order.recipient_address.full_address.Replace('\'', '`') : "";
-                    if (AL_KIRIM1.Length > 30)
-                    {
-                        AL_KIRIM1 = AL_KIRIM1.Substring(0, 30);
-                    }
-                    string KODEPOS = !string.IsNullOrEmpty(order.recipient_address.zipcode) ? order.recipient_address.zipcode.Replace('\'', '`') : "";
-                    if (KODEPOS.Length > 7)
-                    {
-                        KODEPOS = KODEPOS.Substring(0, 7);
-                    }
+                        //change by nurul 23/8/2021
+                        //string nama = order.recipient_address.name.Length > 30 ? order.recipient_address.name.Substring(0, 30) : order.recipient_address.name;
+                        string nama = order.recipient_address.name.Trim().Length > 30 ? order.recipient_address.name.Trim().Substring(0, 30) : order.recipient_address.name.Trim();
+                        //end change by nurul 23/8/2021
+                        string tlp = !string.IsNullOrEmpty(order.recipient_address.phone) ? order.recipient_address.phone.Trim().Replace('\'', '`') : "";
+                        if (tlp.Length > 30)
+                        {
+                            tlp = tlp.Substring(0, 30);
+                        }
+                        //change by nurul 23/8/2021
+                        //string AL_KIRIM1 = !string.IsNullOrEmpty(order.recipient_address.full_address) ? order.recipient_address.full_address.Replace('\'', '`') : "";
+                        string AL_KIRIM1 = !string.IsNullOrEmpty(order.recipient_address.full_address.Trim()) ? order.recipient_address.full_address.Trim().Replace('\'', '`') : "";
+                        //end change by nurul 23/8/2021
+                        if (AL_KIRIM1.Length > 30)
+                        {
+                            AL_KIRIM1 = AL_KIRIM1.Substring(0, 30);
+                        }
+                        string KODEPOS = !string.IsNullOrEmpty(order.recipient_address.zipcode) ? order.recipient_address.zipcode.Trim().Replace('\'', '`') : "";
+                        if (KODEPOS.Length > 7)
+                        {
+                            KODEPOS = KODEPOS.Substring(0, 7);
+                        }
 
-                    insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
-                        ((nama ?? "").Replace("'", "`")),
-                        ((order.recipient_address.full_address ?? "").Replace("'", "`")),
-                        (tlp),
-                        //(NAMA_CUST.Replace(',', '.')),
-                        (NAMA_CUST.Length > 30 ? NAMA_CUST.Substring(0, 30) : NAMA_CUST),
-                        (AL_KIRIM1),
-                        DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                        (username),
-                        (KODEPOS),
-                        kabKot,
-                        prov,
-                        connIdARF01C
-                        );
+                        sqlVal += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
+                            ((nama ?? "").Replace("'", "`")),
+                            //change by nurul 23/8/2021
+                            //((order.recipient_address.full_address ?? "").Replace("'", "`")),
+                            ((order.recipient_address.full_address.Trim() ?? "").Replace("'", "`")),
+                            //end change by nurul 23/8/2021
+                            (tlp),
+                            //(NAMA_CUST.Replace(',', '.')),
+                            (NAMA_CUST.Length > 30 ? NAMA_CUST.Substring(0, 30) : NAMA_CUST),
+                            (AL_KIRIM1),
+                            DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                            (username),
+                            (KODEPOS),
+                            kabKot,
+                            prov,
+                            connIdARF01C
+                            );
+                    }
                 }
-                insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
-                EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
+                if (!string.IsNullOrEmpty(sqlVal))
+                {
+                    insertPembeli += sqlVal.Substring(0, sqlVal.Length - 1);
+                    EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
 
+                    using (SqlCommand CommandSQL = new SqlCommand())
+                    {
+                        //call sp to insert buyer data
+                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
+
+                        EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
+                    };
+                }
                 foreach (var order in result.orders)
                 {
                     try
@@ -4383,92 +4409,92 @@ namespace MasterOnline.Controllers
                         ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_SHOPEE_ORDERS_ITEM");
                         batchinsertItem = new List<TEMP_SHOPEE_ORDERS_ITEM>();
                         #region cut max length dan ubah '
-                        string payment_method = !string.IsNullOrEmpty(order.payment_method) ? order.payment_method.Replace('\'', '`') : "";
+                        string payment_method = !string.IsNullOrEmpty(order.payment_method) ? order.payment_method.Trim().Replace('\'', '`') : "";
                         if (payment_method.Length > 100)
                         {
                             payment_method = payment_method.Substring(0, 100);
                         }
-                        string shipping_carrier = !string.IsNullOrEmpty(order.shipping_carrier) ? order.shipping_carrier.Replace('\'', '`') : "";
+                        string shipping_carrier = !string.IsNullOrEmpty(order.shipping_carrier) ? order.shipping_carrier.Trim().Replace('\'', '`') : "";
                         if (shipping_carrier.Length > 300)
                         {
                             shipping_carrier = shipping_carrier.Substring(0, 300);
                         }
-                        string currency = !string.IsNullOrEmpty(order.currency) ? order.currency.Replace('\'', '`') : "";
+                        string currency = !string.IsNullOrEmpty(order.currency) ? order.currency.Trim().Replace('\'', '`') : "";
                         if (currency.Length > 50)
                         {
                             currency = currency.Substring(0, 50);
                         }
-                        string Recipient_Address_town = !string.IsNullOrEmpty(order.recipient_address.town) ? order.recipient_address.town.Replace('\'', '`') : "";
+                        string Recipient_Address_town = !string.IsNullOrEmpty(order.recipient_address.town) ? order.recipient_address.town.Trim().Replace('\'', '`') : "";
                         if (Recipient_Address_town.Length > 300)
                         {
                             Recipient_Address_town = Recipient_Address_town.Substring(0, 300);
                         }
-                        string Recipient_Address_city = !string.IsNullOrEmpty(order.recipient_address.city) ? order.recipient_address.city.Replace('\'', '`') : "";
+                        string Recipient_Address_city = !string.IsNullOrEmpty(order.recipient_address.city) ? order.recipient_address.city.Trim().Replace('\'', '`') : "";
                         if (Recipient_Address_city.Length > 300)
                         {
                             Recipient_Address_city = Recipient_Address_city.Substring(0, 300);
                         }
-                        string Recipient_Address_name = !string.IsNullOrEmpty(order.recipient_address.name) ? order.recipient_address.name.Replace('\'', '`') : "";
+                        string Recipient_Address_name = !string.IsNullOrEmpty(order.recipient_address.name) ? order.recipient_address.name.Trim().Replace('\'', '`') : "";
                         if (Recipient_Address_name.Length > 300)
                         {
                             Recipient_Address_name = Recipient_Address_name.Substring(0, 300);
                         }
-                        string Recipient_Address_district = !string.IsNullOrEmpty(order.recipient_address.district) ? order.recipient_address.district.Replace('\'', '`') : "";
+                        string Recipient_Address_district = !string.IsNullOrEmpty(order.recipient_address.district) ? order.recipient_address.district.Trim().Replace('\'', '`') : "";
                         if (Recipient_Address_district.Length > 300)
                         {
                             Recipient_Address_district = Recipient_Address_district.Substring(0, 300);
                         }
-                        string Recipient_Address_country = !string.IsNullOrEmpty(order.recipient_address.country) ? order.recipient_address.country.Replace('\'', '`') : "";
+                        string Recipient_Address_country = !string.IsNullOrEmpty(order.recipient_address.country) ? order.recipient_address.country.Trim().Replace('\'', '`') : "";
                         if (Recipient_Address_country.Length > 300)
                         {
                             Recipient_Address_country = Recipient_Address_country.Substring(0, 300);
                         }
-                        string Recipient_Address_zipcode = !string.IsNullOrEmpty(order.recipient_address.zipcode) ? order.recipient_address.zipcode.Replace('\'', '`') : "";
+                        string Recipient_Address_zipcode = !string.IsNullOrEmpty(order.recipient_address.zipcode) ? order.recipient_address.zipcode.Trim().Replace('\'', '`') : "";
                         if (Recipient_Address_zipcode.Length > 300)
                         {
                             Recipient_Address_zipcode = Recipient_Address_zipcode.Substring(0, 300);
                         }
-                        string Recipient_Address_phone = !string.IsNullOrEmpty(order.recipient_address.phone) ? order.recipient_address.phone.Replace('\'', '`') : "";
+                        string Recipient_Address_phone = !string.IsNullOrEmpty(order.recipient_address.phone) ? order.recipient_address.phone.Trim().Replace('\'', '`') : "";
                         if (Recipient_Address_phone.Length > 50)
                         {
                             Recipient_Address_phone = Recipient_Address_phone.Substring(0, 50);
                         }
-                        string Recipient_Address_state = !string.IsNullOrEmpty(order.recipient_address.state) ? order.recipient_address.state.Replace('\'', '`') : "";
+                        string Recipient_Address_state = !string.IsNullOrEmpty(order.recipient_address.state) ? order.recipient_address.state.Trim().Replace('\'', '`') : "";
                         if (Recipient_Address_state.Length > 300)
                         {
                             Recipient_Address_state = Recipient_Address_state.Substring(0, 300);
                         }
-                        string tracking_no = !string.IsNullOrEmpty(order.tracking_no) ? order.tracking_no.Replace('\'', '`') : "";
+                        string tracking_no = !string.IsNullOrEmpty(order.tracking_no) ? order.tracking_no.Trim().Replace('\'', '`') : "";
                         if (tracking_no.Length > 100)
                         {
                             tracking_no = tracking_no.Substring(0, 100);
                         }
-                        string order_status = !string.IsNullOrEmpty(order.order_status) ? order.order_status.Replace('\'', '`') : "";
+                        string order_status = !string.IsNullOrEmpty(order.order_status) ? order.order_status.Trim().Replace('\'', '`') : "";
                         if (order_status.Length > 100)
                         {
                             order_status = order_status.Substring(0, 100);
                         }
-                        string service_code = !string.IsNullOrEmpty(order.service_code) ? order.service_code.Replace('\'', '`') : "";
+                        string service_code = !string.IsNullOrEmpty(order.service_code) ? order.service_code.Trim().Replace('\'', '`') : "";
                         if (service_code.Length > 100)
                         {
                             service_code = service_code.Substring(0, 100);
                         }
-                        string ordersn = !string.IsNullOrEmpty(order.ordersn) ? order.ordersn.Replace('\'', '`') : "";
+                        string ordersn = !string.IsNullOrEmpty(order.ordersn) ? order.ordersn.Trim().Replace('\'', '`') : "";
                         if (ordersn.Length > 100)
                         {
                             ordersn = ordersn.Substring(0, 100);
                         }
-                        string country = !string.IsNullOrEmpty(order.country) ? order.country.Replace('\'', '`') : "";
+                        string country = !string.IsNullOrEmpty(order.country) ? order.country.Trim().Replace('\'', '`') : "";
                         if (country.Length > 100)
                         {
                             country = country.Substring(0, 100);
                         }
-                        string dropshipper = !string.IsNullOrEmpty(order.dropshipper) ? order.dropshipper.Replace('\'', '`') : "";
+                        string dropshipper = !string.IsNullOrEmpty(order.dropshipper) ? order.dropshipper.Trim().Replace('\'', '`') : "";
                         if (dropshipper.Length > 300)
                         {
                             dropshipper = dropshipper.Substring(0, 300);
                         }
-                        string buyer_username = !string.IsNullOrEmpty(order.buyer_username) ? order.buyer_username.Replace('\'', '`') : "";
+                        string buyer_username = !string.IsNullOrEmpty(order.buyer_username) ? order.buyer_username.Trim().Replace('\'', '`') : "";
                         if (buyer_username.Length > 300)
                         {
                             buyer_username = buyer_username.Substring(0, 300);
@@ -4478,7 +4504,7 @@ namespace MasterOnline.Controllers
                             NAMA_CUST = NAMA_CUST.Substring(0, 50);
                         }
                         //add by nurul 22/3/2021
-                        string checkout_shipping_carrier = !string.IsNullOrEmpty(order.checkout_shipping_carrier) ? order.checkout_shipping_carrier.Replace('\'', '`') : "";
+                        string checkout_shipping_carrier = !string.IsNullOrEmpty(order.checkout_shipping_carrier) ? order.checkout_shipping_carrier.Trim().Replace('\'', '`') : "";
                         if (checkout_shipping_carrier.Length > 300)
                         {
                             checkout_shipping_carrier = checkout_shipping_carrier.Substring(0, 300);
@@ -4513,7 +4539,7 @@ namespace MasterOnline.Controllers
                             Recipient_Address_city = Recipient_Address_city,
                             Recipient_Address_town = Recipient_Address_town,
                             Recipient_Address_district = Recipient_Address_district,
-                            Recipient_Address_full_address = (order.recipient_address.full_address ?? "").Replace('\'', '`'),
+                            Recipient_Address_full_address = (order.recipient_address.full_address.Trim() ?? "").Replace('\'', '`'),
                             Recipient_Address_name = Recipient_Address_name,
                             Recipient_Address_phone = Recipient_Address_phone,
                             Recipient_Address_zipcode = Recipient_Address_zipcode,
@@ -4612,21 +4638,21 @@ namespace MasterOnline.Controllers
                                     //}
                                     newOrderItem.variation_discounted_price = item.variation_original_price;
                                     var dDisc = listPromo[item.promotion_id];
-                                    foreach(var listAct in dDisc) 
+                                    foreach (var listAct in dDisc)
                                     {
-                                        if(listAct.activity_id == item.promotion_id)
+                                        if (listAct.activity_id == item.promotion_id)
                                         {
                                             foreach (var disc in listAct.items)
                                             {
                                                 if (item.item_id == disc.item_id && item.variation_id == disc.variation_id)
                                                 {
-                                                    discount = (Convert.ToInt64(listAct.original_price) - Convert.ToInt64(listAct.discounted_price)) 
+                                                    discount = (Convert.ToInt64(listAct.original_price) - Convert.ToInt64(listAct.discounted_price))
                                                         * 100 / Convert.ToInt64(listAct.original_price);
                                                     newOrderItem.variation_discounted_price = disc.original_price;
                                                 }
                                             }
                                         }
-                                        
+
                                     }
                                     //discount = (Convert.ToInt64(dDisc.original_price) - Convert.ToInt64(dDisc.discounted_price)) * 100 / Convert.ToInt64(dDisc.original_price);
                                     //foreach (var disc in dDisc.items)
@@ -4648,14 +4674,14 @@ namespace MasterOnline.Controllers
                         ErasoftDbContext.TEMP_SHOPEE_ORDERS_ITEM.AddRange(batchinsertItem);
                         ErasoftDbContext.SaveChanges();
 
-                        using (SqlCommand CommandSQL = new SqlCommand())
-                        {
-                            //call sp to insert buyer data
-                            CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                            CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
+                        //using (SqlCommand CommandSQL = new SqlCommand())
+                        //{
+                        //    //call sp to insert buyer data
+                        //    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                        //    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
 
-                            EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
-                        };
+                        //    EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
+                        //};
                         //add 3 Des 2020
                         EDB.ExecuteSQL("Con", CommandType.Text, "DELETE FROM TEMP_SHOPEE_ORDERS_ITEM WHERE ordersn <> '" + ordersn + "'");
                         //end add 3 Des 2020
@@ -5586,9 +5612,71 @@ namespace MasterOnline.Controllers
                         //DIGANTI PAKE THROW UNTUK RETRY NYA 
                         if (set_job == "1")
                         {
-                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                            //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                         }
-                        throw new Exception("Tracking Number Null");
+                        var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
+                        if (pesananInDb != null)
+                        {
+                            //add by nurul 9/9/2021
+                            if (set_job == "1")
+                            {
+                                pesananInDb.NO_PO_CUST = dTrackNo;
+                            }
+                            else
+                            {
+                                pesananInDb.TRACKING_SHIPMENT = dTrackNo;
+                            }
+                            pesananInDb.status_kirim = "2";
+                            if (string.IsNullOrWhiteSpace(pesananInDb.NO_PO_CUST) && set_job == "1")
+                            {
+                                pesananInDb.status_kirim = "1";
+                            }
+
+                            ErasoftDbContext.SaveChanges();
+                            if (set_job != "1")
+                            {
+                                var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Proses Dropoff/JOB Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
+                            }
+                            //end add by nurul 9/9/2021
+
+                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                            var client = new BackgroundJobClient(sqlStorage);
+                            //#if (DEBUG || Debug_AWS)
+                            //                            Task.Run(() => new ShopeeControllerJob().GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST)).Wait();
+                            //#else
+                            //                        client.Enqueue<ShopeeControllerJob>(x => x.GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST));
+                            //#endif
+                            //                            var listorder = new listUpdateOrder()
+                            //                            {
+                            //                                Nobuk = pesananInDb.NO_BUKTI,
+                            //                                Noref = ordersn
+                            //                            };
+                            //                            List<listUpdateOrder> listorders = new List<listUpdateOrder>();
+                            //                            listorders.Add(listorder);
+                            //                            var listordersn = new List<string>();
+                            //                            listordersn.Add(ordersn);
+
+                            //#if (DEBUG || Debug_AWS)
+                            //                            Task.Run(() => updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST)).Wait();
+                            //#else
+                            //                                client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST));
+                            //#endif
+                            List<string> list_ordersn = new List<string>();
+                            list_ordersn.Add(ordersn);
+#if (DEBUG || Debug_AWS)
+                            GetTrackNoShopee(iden, list_ordersn.ToArray(), 0);
+#else
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, list_ordersn.ToArray(), 0));
+#endif
+                        }
+                        //remark by nurul 9/9/2021
+                        //throw new Exception("Tracking Number Null");
+
+
                         //myData = JsonConvert.SerializeObject(HttpBody);
 
                         //signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
@@ -5698,9 +5786,9 @@ namespace MasterOnline.Controllers
 
                         var client = new BackgroundJobClient(sqlStorage);
 #if (DEBUG || Debug_AWS)
-                        GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0);
+                        GetTrackNoShopee(iden, list_ordersn.ToArray(), 0);
 #else
-                            client.Enqueue<ShopeeControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0));
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, list_ordersn.ToArray(), 0));
 #endif
 
                         var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
@@ -5740,6 +5828,26 @@ namespace MasterOnline.Controllers
                                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                 contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Proses Dropoff/JOB Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
                             }
+                            //#if (DEBUG || Debug_AWS)
+                            //                            Task.Run(() => new ShopeeControllerJob().GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST)).Wait();
+                            //#else
+                            //                        client.Enqueue<ShopeeControllerJob>(x => x.GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST));
+                            //#endif
+//                            var listorder = new listUpdateOrder()
+//                            {
+//                                Nobuk = pesananInDb.NO_BUKTI,
+//                                Noref = ordersn
+//                            };
+//                            List<listUpdateOrder> listorders = new List<listUpdateOrder>();
+//                            listorders.Add(listorder);
+//                            var listordersn = new List<string>();
+//                            listordersn.Add(ordersn);
+
+//#if (DEBUG || Debug_AWS)
+//                            Task.Run(() => updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST)).Wait();
+//#else
+//                                client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST));
+//#endif
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                         }
 
@@ -5786,7 +5894,38 @@ namespace MasterOnline.Controllers
                                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                 contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Proses Dropoff/JOB Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
                             }
+
+                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                            var client = new BackgroundJobClient(sqlStorage);
+                            //#if (DEBUG || Debug_AWS)
+                            //                            Task.Run(() => new ShopeeControllerJob().GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST)).Wait();
+                            //#else
+                            //                        client.Enqueue<ShopeeControllerJob>(x => x.GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST));
+                            //#endif
+                            //                            var listorder = new listUpdateOrder()
+                            //                            {
+                            //                                Nobuk = pesananInDb.NO_BUKTI,
+                            //                                Noref = ordersn
+                            //                            };
+                            //                            List<listUpdateOrder> listorders = new List<listUpdateOrder>();
+                            //                            listorders.Add(listorder);
+                            //                            var listordersn = new List<string>();
+                            //                            listordersn.Add(ordersn);
+
+                            //#if (DEBUG || Debug_AWS)
+                            //                            Task.Run(() => updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST)).Wait();
+                            //#else
+                            //                                client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST));
+                            //#endif
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            List<string> list_ordersn = new List<string>();
+                            list_ordersn.Add(ordersn);
+#if (DEBUG || Debug_AWS)
+                            GetTrackNoShopee(iden, list_ordersn.ToArray(), 0);
+#else
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, list_ordersn.ToArray(), 0));
+#endif
                         }
                         //List<string> list_ordersn = new List<string>();
                         //list_ordersn.Add(ordersn);
@@ -5841,6 +5980,37 @@ namespace MasterOnline.Controllers
                         pesananInDb.status_kirim = "1";
                         ErasoftDbContext.SaveChanges();
                     }
+
+                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    var client = new BackgroundJobClient(sqlStorage);
+                    //#if (DEBUG || Debug_AWS)
+                    //                    Task.Run(() => new ShopeeControllerJob().GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST)).Wait();
+                    //#else
+                    //                        client.Enqueue<ShopeeControllerJob>(x => x.GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST));
+                    //#endif
+                    //                    var listorder = new listUpdateOrder()
+                    //                    {
+                    //                        Nobuk = pesananInDb.NO_BUKTI,
+                    //                        Noref = ordersn
+                    //                    };
+                    //                    List<listUpdateOrder> listorders = new List<listUpdateOrder>();
+                    //                    listorders.Add(listorder);
+                    //                    var listordersn = new List<string>();
+                    //                    listordersn.Add(ordersn);
+
+                    //#if (DEBUG || Debug_AWS)
+                    //                    Task.Run(() => updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST)).Wait();
+                    //#else
+                    //                                client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST));
+                    //#endif
+                    List<string> list_ordersn = new List<string>();
+                    list_ordersn.Add(ordersn);
+#if (DEBUG || Debug_AWS)
+                    GetTrackNoShopee(iden, list_ordersn.ToArray(), 0);
+#else
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, list_ordersn.ToArray(), 0));
+#endif
                     throw new Exception(result.msg);
 
                     //currentLog.REQUEST_EXCEPTION = result.msg;
@@ -6043,9 +6213,9 @@ namespace MasterOnline.Controllers
 
                         var client = new BackgroundJobClient(sqlStorage);
 #if (DEBUG || Debug_AWS)
-                        GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0);
+                        GetTrackNoShopee(iden, list_ordersn.ToArray(), 0);
 #else
-                            client.Enqueue<ShopeeControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0));
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, list_ordersn.ToArray(), 0));
 #endif
 
                         var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
@@ -6066,6 +6236,27 @@ namespace MasterOnline.Controllers
                             //contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(namaPemesan) + " ke Shopee.");
                             contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Request Pickup Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+
+                            //#if (DEBUG || Debug_AWS)
+                            //                            Task.Run(() => new ShopeeControllerJob().GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST)).Wait();
+                            //#else
+                            //                        client.Enqueue<ShopeeControllerJob>(x => x.GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST));
+                            //#endif
+                            //var listorder = new listUpdateOrder()
+                            //{
+                            //    Nobuk = pesananInDb.NO_BUKTI,
+                            //    Noref = ordersn
+                            //};
+                            //List<listUpdateOrder> listorders = new List<listUpdateOrder>();
+                            //listorders.Add(listorder);
+                            //var listordersn = new List<string>();
+                            //listordersn.Add(ordersn);
+
+//#if (DEBUG || Debug_AWS)
+//                            Task.Run(() => updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST)).Wait();
+//#else
+//                                client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST));
+//#endif
                         }
                     }
                     else
@@ -6091,6 +6282,37 @@ namespace MasterOnline.Controllers
                             //contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Request Pickup Pesanan " + Convert.ToString(namaPemesan) + " ke Shopee.");
                             contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Request Pickup Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+
+                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                            var client = new BackgroundJobClient(sqlStorage);
+                            //#if (DEBUG || Debug_AWS)
+                            //                            Task.Run(() => new ShopeeControllerJob().GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST)).Wait();
+                            //#else
+                            //                        client.Enqueue<ShopeeControllerJob>(x => x.GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST));
+                            //#endif
+                            //                            var listorder = new listUpdateOrder()
+                            //                            {
+                            //                                Nobuk = pesananInDb.NO_BUKTI,
+                            //                                Noref = ordersn
+                            //                            };
+                            //                            List<listUpdateOrder> listorders = new List<listUpdateOrder>();
+                            //                            listorders.Add(listorder);
+                            //                            var listordersn = new List<string>();
+                            //                            listordersn.Add(ordersn);
+
+                            //#if (DEBUG || Debug_AWS)
+                            //                            Task.Run(() => updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST)).Wait();
+                            //#else
+                            //                                client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST));
+                            //#endif
+                            List<string> list_ordersn = new List<string>();
+                            list_ordersn.Add(ordersn);
+#if (DEBUG || Debug_AWS)
+                            GetTrackNoShopee(iden, list_ordersn.ToArray(), 0);
+#else
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, list_ordersn.ToArray(), 0));
+#endif
                         }
                     }
                 }
@@ -6102,9 +6324,41 @@ namespace MasterOnline.Controllers
                         pesananInDb.status_kirim = "1";
                         ErasoftDbContext.SaveChanges();
                     }
+
+                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    var client = new BackgroundJobClient(sqlStorage);
+                    //#if (DEBUG || Debug_AWS)
+                    //                    Task.Run(() => new ShopeeControllerJob().GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST)).Wait();
+                    //#else
+                    //                        client.Enqueue<ShopeeControllerJob>(x => x.GetOrderLogistics(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir & Pembeli", iden, pesananInDb.NO_REFERENSI, pesananInDb.NO_BUKTI, pesananInDb.NAMA_CUST));
+                    //#endif
+                    //                    var listorder = new listUpdateOrder()
+                    //                    {
+                    //                        Nobuk = pesananInDb.NO_BUKTI,
+                    //                        Noref = ordersn
+                    //                    };
+                    //                    List<listUpdateOrder> listorders = new List<listUpdateOrder>();
+                    //                    listorders.Add(listorder);
+                    //                    var listordersn = new List<string>();
+                    //                    listordersn.Add(ordersn);
+
+                    //#if (DEBUG || Debug_AWS)
+                    //                    Task.Run(() => updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST)).Wait();
+                    //#else
+                    //                                client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, "Kurir&Pembeli", log_CUST, "Pesanan", "Update Kurir&Pembeli", iden, listordersn.ToArray(), listorders, "2", pesananInDb.NAMA_CUST));
+                    //#endif
+                    List<string> list_ordersn = new List<string>();
+                    list_ordersn.Add(ordersn);
+#if (DEBUG || Debug_AWS)
+                    GetTrackNoShopee(iden, list_ordersn.ToArray(), 0);
+#else
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetTrackNoShopee(iden, list_ordersn.ToArray(), 0));
+#endif
                     throw new Exception(result.msg);
                     //currentLog.REQUEST_EXCEPTION = result.msg;
                     //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                    
                 }
                 //}
                 //catch (Exception ex2)
@@ -6121,6 +6375,7 @@ namespace MasterOnline.Controllers
         {
             public string Noref { get; set; }
             public string Nobuk { get; set; }
+            public string Nama_Cust { get; set; }
             //public string Kurir { get; set; }
         }
         [AutomaticRetry(Attempts = 1)]
@@ -6134,7 +6389,7 @@ namespace MasterOnline.Controllers
                 iden = await RefreshTokenShopee_V2(iden, false);
             }
             string ret = "";
-            var sSQL = "SELECT A.NO_PESANAN AS NOBUK, A.NO_REFERENSI AS NOREF FROM SOT01H A (NOLOCK) INNER JOIN SOT01A B (NOLOCK) ON A.NO_PESANAN=B.NO_BUKTI AND A.NO_REFERENSI=B.NO_REFERENSI AND A.CUST=B.CUST WHERE ISNULL(B.SHIPMENT,'')='' AND A.CUST='" + log_CUST + "' AND STATUS_TRANSAKSI IN ('01','02','03','04')";
+            var sSQL = "SELECT A.NO_PESANAN AS NOBUK, A.NO_REFERENSI AS NOREF,A.NAMA_CUST FROM SOT01H A (NOLOCK) INNER JOIN SOT01A B (NOLOCK) ON A.NO_PESANAN=B.NO_BUKTI AND A.NO_REFERENSI=B.NO_REFERENSI AND A.CUST=B.CUST WHERE ISNULL(B.SHIPMENT,'')='' AND A.CUST='" + log_CUST + "' AND STATUS_TRANSAKSI IN ('01','02','03','04')";
             var cekListPesananTanpaKurir = ErasoftDbContext.Database.SqlQuery<listUpdateOrder>(sSQL).ToList();
             if (cekListPesananTanpaKurir.Count() > 0)
             {
@@ -6152,9 +6407,9 @@ namespace MasterOnline.Controllers
                         var sqlStorage = new SqlServerStorage(EDBConnID);
                         var client = new BackgroundJobClient(sqlStorage);
 #if (DEBUG || Debug_AWS)
-                        await updateKurirShopee(dbPathEra, namaPemesan, log_CUST, "Pesanan", "Update Kurir", iden, listTemptNoref, listTempPesanan, "1");
+                        await updateKurirShopee(dbPathEra, namaPemesan, log_CUST, "Pesanan", "Update Kurir", iden, listTemptNoref, listTempPesanan, "1", order.Nama_Cust);
 #else
-                        client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, namaPemesan, log_CUST, "Pesanan", "Update Kurir", iden, listTemptNoref, listTempPesanan, "1"));
+                        client.Enqueue<ShopeeControllerJob>(x => x.updateKurirShopee(dbPathEra, namaPemesan, log_CUST, "Pesanan", "Update Kurir", iden, listTemptNoref, listTempPesanan, "1", order.Nama_Cust));
 #endif
                         hitungPesanan = hitungPesanan - listOrder.Count();
                         listOrder.Clear();
@@ -6167,7 +6422,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Update Kurir Pesanan {obj} Shopee Gagal.")]
-        public async Task<string> updateKurirShopee(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string[] ordersn_list, List<listUpdateOrder> listPesanan, string type)
+        public async Task<string> updateKurirShopee_Lama(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string[] ordersn_list, List<listUpdateOrder> listPesanan, string type)
         {
             SetupContext(iden);
             int MOPartnerID = 841371;
@@ -6343,6 +6598,901 @@ namespace MasterOnline.Controllers
             return ret;
         }
         //end add by nurul 19/3/2021, update kurir
+
+        //add by nurul 3/9/2021
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Update Kurir Pesanan {obj} Shopee Gagal.")]
+        public async Task<string> updateKurirShopee(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string[] ordersn_list, List<listUpdateOrder> listPesanan, string type, string NAMA_CUST)
+        {
+            SetupContext(iden);
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            string ret = "";
+            string urll = "https://partner.shopeemobile.com/api/v1/orders/detail";
+            if (!string.IsNullOrEmpty(iden.token))
+            {
+                MOPartnerID = MOPartnerIDV2;
+                MOPartnerKey = MOPartnerKeyV2;
+                urll = shopeeV2Url + "/api/v1/orders/detail";
+                iden = await RefreshTokenShopee_V2(iden, false);
+            }
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            //string urll = "https://partner.shopeemobile.com/api/v1/orders/detail";
+
+            GetOrderDetailsData HttpBody = new GetOrderDetailsData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                ordersn_list = ordersn_list
+                //ordersn_list = ordersn_list_test.ToArray()
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+
+            if (responseFromServer != "")
+            {
+                try
+                {
+                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderDetailsResult)) as ShopeeGetOrderDetailsResult;
+                    List<listUpdateOrder> updateKurirSuccess = new List<listUpdateOrder>();
+                    var connIdARF01C = Guid.NewGuid().ToString();
+                    if (result.orders.Count() > 0)
+                    {
+                        foreach (var order in result.orders)
+                        {
+                            //if (order.shipping_carrier != null && order.shipping_carrier != "")
+                            //{
+                            //    try
+                            //    {
+                            //        var Kurir = order.shipping_carrier;
+                            //        var tipe_pengiriman = order.checkout_shipping_carrier;
+                            //        var resi = "";
+                            //        if (order.tracking_no != null && order.tracking_no != "")
+                            //        {
+                            //            resi = order.tracking_no;
+                            //        }
+                            //        var noref = order.ordersn;
+                            //        var nobuk = listPesanan.Where(a => a.Noref == noref).Select(a => a.Nobuk).FirstOrDefault();
+                            //        var temp = new listUpdateOrder()
+                            //        {
+                            //            Noref = noref,
+                            //            Nobuk = nobuk
+                            //        };
+
+                            //        var pesananInDb = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == noref && p.NO_BUKTI == nobuk && p.CUST == log_CUST).FirstOrDefault();
+                            //        if (pesananInDb != null)
+                            //        {
+                            //            var tempKurirBefore = pesananInDb.SHIPMENT;
+                            //            if (type == "1")
+                            //            {
+                            //                try
+                            //                {
+                            //                    pesananInDb.SHIPMENT = Kurir;
+                            //                    if (!string.IsNullOrEmpty(resi))
+                            //                    {
+                            //                        pesananInDb.TRACKING_SHIPMENT = resi;
+                            //                    }
+                            //                    ErasoftDbContext.SaveChanges();
+                            //                    updateKurirSuccess.Add(temp);
+                            //                }
+                            //                catch
+                            //                {
+
+                            //                }
+                            //            }
+                            //            else if (type == "2")
+                            //            {
+                            //                try
+                            //                {
+                            //                    pesananInDb.SHIPMENT = Kurir;
+                            //                    if (!string.IsNullOrEmpty(resi))
+                            //                    {
+                            //                        pesananInDb.TRACKING_SHIPMENT = resi;
+                            //                    }
+                            //                    ErasoftDbContext.SaveChanges();
+                            //                    updateKurirSuccess.Add(temp);
+                            //                }
+                            //                catch
+                            //                {
+
+                            //                }
+                            //                if (tempKurirBefore != Kurir)
+                            //                {
+                            //                    try
+                            //                    {
+                            //                        var sSQL = "UPDATE SIT01A SET NAMAPENGIRIM='" + Kurir + "' where NO_REF='" + noref + "' and NO_SO='" + nobuk + "' and CUST='" + log_CUST + "'";
+                            //                        ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                            //                        //var fakturInDb = ErasoftDbContext.SIT01A.Where(p => p.NO_REF == noref && p.NO_SO == nobuk && p.CUST == log_CUST).FirstOrDefault();
+                            //                        //if (fakturInDb != null)
+                            //                        //{
+                            //                        //    fakturInDb.NAMAPENGIRIM = Kurir;
+                            //                        //    ErasoftDbContext.SaveChanges();
+                            //                        //}
+                            //                    }
+                            //                    catch
+                            //                    {
+
+                            //                    }
+                            //                }
+                            //            }
+                            //        }
+                            //    }
+                            //    catch (Exception ex)
+                            //    {
+
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    //throw new Exception("Update Kurir Gagal. Kurir Null.");
+                            //}
+                            try
+                            {
+                                var Kurir = "";
+                                var resi = "";
+                                var temp_nama = "";
+                                var temp_alamat = "";
+                                var temp_tlp = "";
+                                var noref = order.ordersn;
+                                var nobuk = listPesanan.Where(a => a.Noref == noref).Select(a => a.Nobuk).FirstOrDefault(); ;
+
+                                //var order = ordersn..logistics;
+
+                                var temp = new listUpdateOrder()
+                                {
+                                    Noref = noref,
+                                    Nobuk = nobuk
+                                };
+
+                                TEMP_SHOPEE_ORDERS batchinsert = new TEMP_SHOPEE_ORDERS();
+                                List<TEMP_SHOPEE_ORDERS_ITEM> batchinsertItem = new List<TEMP_SHOPEE_ORDERS_ITEM>();
+                                string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                                insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                                insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
+                                var kabKot = "3174";
+                                var prov = "31";
+
+                                if (order.shipping_carrier != null && order.shipping_carrier != "")
+                                {
+                                    Kurir = order.shipping_carrier;
+                                    if (order.tracking_no != null && order.tracking_no != "")
+                                    {
+                                        resi = order.tracking_no;
+                                    }
+                                }
+
+                                if (order.recipient_address != null)
+                                {
+                                    if (order.recipient_address.name != null && !order.recipient_address.name.Contains("*"))
+                                    {
+                                        temp_nama = order.recipient_address.name.Trim();
+                                    }
+                                    if (order.recipient_address.full_address != null && !order.recipient_address.full_address.Contains("*"))
+                                    {
+                                        temp_alamat = order.recipient_address.full_address.Trim();
+                                    }
+                                    if (order.recipient_address.phone != null && !order.recipient_address.phone.Contains("*"))
+                                    {
+                                        temp_tlp = order.recipient_address.phone.Trim();
+                                    }
+                                }
+
+                                var pesananInDb = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == noref && p.NO_BUKTI == nobuk && p.CUST == log_CUST).FirstOrDefault();
+                                if (pesananInDb != null)
+                                {
+                                    var tempBuyerFaktur = new PEMBELI_FAKTUR_SHOPEE() { };
+                                    if (temp_nama != "" && (pesananInDb.NAMAPEMESAN.Contains('*') || string.IsNullOrEmpty(pesananInDb.NAMAPEMESAN)))
+                                    {
+
+                                        //insertPembeli += "('" + order.recipient_address.name + "','" + order.recipient_address.full_address + "','" + order.recipient_address.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                                        //insertPembeli += "1, 'IDR', '01', '" + order.recipient_address.full_address + "', 0, 0, 0, 0, '1', 0, 0, ";
+                                        //insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient_address.zipcode + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
+
+                                        //change by nurul 23/8/2021
+                                        //string nama = order.recipient_address.name.Length > 30 ? order.recipient_address.name.Substring(0, 30) : order.recipient_address.name;
+                                        string nama = order.recipient_address.name.Trim().Length > 30 ? order.recipient_address.name.Trim().Substring(0, 30) : order.recipient_address.name.Trim();
+                                        //end change by nurul 23/8/2021
+                                        string tlp = !string.IsNullOrEmpty(order.recipient_address.phone) ? order.recipient_address.phone.Trim().Replace('\'', '`') : "";
+                                        if (tlp.Length > 30)
+                                        {
+                                            tlp = tlp.Substring(0, 30);
+                                        }
+                                        //change by nurul 23/8/2021
+                                        //string AL_KIRIM1 = !string.IsNullOrEmpty(order.recipient_address.full_address) ? order.recipient_address.full_address.Replace('\'', '`') : "";
+                                        string AL_KIRIM1 = !string.IsNullOrEmpty(order.recipient_address.full_address) ? order.recipient_address.full_address.Trim().Replace('\'', '`') : "";
+                                        //end change by nurul 23/8/2021
+                                        if (AL_KIRIM1.Length > 30)
+                                        {
+                                            AL_KIRIM1 = AL_KIRIM1.Substring(0, 30);
+                                        }
+                                        string KODEPOS = !string.IsNullOrEmpty(order.recipient_address.zipcode) ? order.recipient_address.zipcode.Trim().Replace('\'', '`') : "";
+                                        if (KODEPOS.Length > 7)
+                                        {
+                                            KODEPOS = KODEPOS.Substring(0, 7);
+                                        }
+
+                                        insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
+                                            ((nama ?? "").Replace("'", "`")),
+                                            //change by nurul 23/8/2021
+                                            //((order.recipient_address.full_address ?? "").Replace("'", "`")),
+                                            ((order.recipient_address.full_address.Trim() ?? "").Replace("'", "`")),
+                                            //end change by nurul 23/8/2021
+                                            (tlp),
+                                            //(NAMA_CUST.Replace(',', '.')),
+                                            (NAMA_CUST.Length > 30 ? NAMA_CUST.Substring(0, 30) : NAMA_CUST),
+                                            (AL_KIRIM1),
+                                            DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                                            (username),
+                                            (KODEPOS),
+                                            kabKot,
+                                            prov,
+                                            connIdARF01C
+                                            );
+
+                                        try
+                                        {
+                                            insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
+                                            EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
+
+                                            using (SqlCommand CommandSQL = new SqlCommand())
+                                            {
+                                                //call sp to insert buyer data
+                                                CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                                CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
+
+                                                EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
+                                            };
+                                        }
+                                        catch (Exception ex)
+                                        {
+
+                                        }
+                                    }
+
+
+                                    var tempKurirBefore = pesananInDb.SHIPMENT;
+
+                                    pesananInDb.SHIPMENT = Kurir;
+                                    if (!string.IsNullOrEmpty(resi))
+                                    {
+                                        pesananInDb.TRACKING_SHIPMENT = resi;
+                                    }
+                                    if (temp_nama != "" && (pesananInDb.NAMAPEMESAN.Contains('*') || string.IsNullOrEmpty(pesananInDb.NAMAPEMESAN)))
+                                    {
+                                        string Recipient_Address_town = !string.IsNullOrEmpty(order.recipient_address.town) ? order.recipient_address.town.Trim().Replace('\'', '`') : "";
+                                        if (Recipient_Address_town.Length > 300)
+                                        {
+                                            Recipient_Address_town = Recipient_Address_town.Substring(0, 300);
+                                        }
+                                        string Recipient_Address_city = !string.IsNullOrEmpty(order.recipient_address.city) ? order.recipient_address.city.Trim().Replace('\'', '`') : "";
+                                        if (Recipient_Address_city.Length > 300)
+                                        {
+                                            Recipient_Address_city = Recipient_Address_city.Substring(0, 300);
+                                        }
+                                        string Recipient_Address_name = !string.IsNullOrEmpty(order.recipient_address.name) ? order.recipient_address.name.Trim().Replace('\'', '`') : "";
+                                        if (Recipient_Address_name.Length > 300)
+                                        {
+                                            Recipient_Address_name = Recipient_Address_name.Substring(0, 300);
+                                        }
+                                        string Recipient_Address_district = !string.IsNullOrEmpty(order.recipient_address.district) ? order.recipient_address.district.Trim().Replace('\'', '`') : "";
+                                        if (Recipient_Address_district.Length > 300)
+                                        {
+                                            Recipient_Address_district = Recipient_Address_district.Substring(0, 300);
+                                        }
+                                        string Recipient_Address_country = !string.IsNullOrEmpty(order.recipient_address.country) ? order.recipient_address.country.Trim().Replace('\'', '`') : "";
+                                        if (Recipient_Address_country.Length > 300)
+                                        {
+                                            Recipient_Address_country = Recipient_Address_country.Substring(0, 300);
+                                        }
+                                        string Recipient_Address_zipcode = !string.IsNullOrEmpty(order.recipient_address.zipcode) ? order.recipient_address.zipcode.Trim().Replace('\'', '`') : "";
+                                        if (Recipient_Address_zipcode.Length > 300)
+                                        {
+                                            Recipient_Address_zipcode = Recipient_Address_zipcode.Substring(0, 300);
+                                        }
+                                        string Recipient_Address_phone = !string.IsNullOrEmpty(order.recipient_address.phone) ? order.recipient_address.phone.Trim().Replace('\'', '`') : "";
+                                        if (Recipient_Address_phone.Length > 50)
+                                        {
+                                            Recipient_Address_phone = Recipient_Address_phone.Substring(0, 50);
+                                        }
+                                        string Recipient_Address_state = !string.IsNullOrEmpty(order.recipient_address.state) ? order.recipient_address.state.Trim().Replace('\'', '`') : "";
+                                        if (Recipient_Address_state.Length > 300)
+                                        {
+                                            Recipient_Address_state = Recipient_Address_state.Substring(0, 300);
+                                        }
+                                        string Recipient_Address_fullAddress = !string.IsNullOrEmpty(order.recipient_address.full_address) ? order.recipient_address.full_address.Trim().Replace('\'', '`') : "";
+                                        if (Recipient_Address_fullAddress.Length > 300)
+                                        {
+                                            Recipient_Address_fullAddress = Recipient_Address_fullAddress.Substring(0, 300);
+                                        }
+
+                                        var getBuyer = ErasoftDbContext.Database.SqlQuery<ARF01C>("select top 1 * from arf01c (nolock) where tlp ='" + Recipient_Address_phone + "'").FirstOrDefault();
+                                        if (getBuyer != null)
+                                        {
+                                            if (!string.IsNullOrEmpty(getBuyer.BUYER_CODE))
+                                            {
+                                                pesananInDb.PEMESAN = getBuyer.BUYER_CODE;
+                                                //pesananInDb.NAMAPEMESAN = Recipient_Address_name;
+                                                pesananInDb.NAMAPEMESAN= Recipient_Address_name.Trim().Length > 30 ? Recipient_Address_name.Trim().Substring(0, 30) : Recipient_Address_name.Trim();
+                                                pesananInDb.ALAMAT_KIRIM = Recipient_Address_fullAddress;
+                                                pesananInDb.PROPINSI = Recipient_Address_state;
+                                                pesananInDb.KOTA = Recipient_Address_city;
+                                                pesananInDb.KODE_POS = Recipient_Address_zipcode;
+
+                                                var cekPEMBELI_FAKTUR_SHOPEE = ErasoftDbContext.PEMBELI_FAKTUR_SHOPEE.Where(a => a.PESANAN == pesananInDb.NO_BUKTI).FirstOrDefault();
+                                                if (cekPEMBELI_FAKTUR_SHOPEE == null)
+                                                {
+                                                    tempBuyerFaktur.PEMBELI = getBuyer.BUYER_CODE;
+                                                    tempBuyerFaktur.NAMA = Recipient_Address_name.Trim().Length > 30 ? Recipient_Address_name.Trim().Substring(0, 30) : Recipient_Address_name.Trim();
+                                                    tempBuyerFaktur.TLP = !string.IsNullOrEmpty(order.recipient_address.phone) ? order.recipient_address.phone.Trim().Replace('\'', '`') : "";
+                                                    tempBuyerFaktur.ALAMAT = !string.IsNullOrEmpty(order.recipient_address.full_address) ? order.recipient_address.full_address.Trim().Replace('\'', '`') : "";
+                                                    //try
+                                                    //{
+                                                    //    var faktur = EDB.GetDataSet("sConn", "SO", "SELECT TOP 1 NO_BUKTI FROM SIT01A (NOLOCK) WHERE NO_SO='" + pesananInDb.NO_BUKTI + "' AND NO_REF='" + pesananInDb.NO_REFERENSI + "' AND CUST='" + pesananInDb.CUST + "'");
+                                                    //    if (faktur.Tables[0].Rows.Count > 0)
+                                                    //    {
+                                                    //        for (int i = 0; i < faktur.Tables[0].Rows.Count; i++)
+                                                    //        {
+                                                    //            tempBuyerFaktur.FAKTUR = Convert.ToString(faktur.Tables[0].Rows[i]["NO_BUKTI"]);
+                                                    //        }
+
+                                                    //    }
+                                                    //}
+                                                    //catch (Exception ex) { };
+                                                    tempBuyerFaktur.PESANAN = pesananInDb.NO_BUKTI;
+                                                    tempBuyerFaktur.KURIR = Kurir;
+                                                    tempBuyerFaktur.RESI = resi;
+
+                                                    //if (!string.IsNullOrEmpty(tempBuyerFaktur.PEMBELI))
+                                                    //{
+                                                    //    ErasoftDbContext.PEMBELI_FAKTUR_SHOPEE.Add(tempBuyerFaktur);
+                                                    //}
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    try
+                                    {
+                                        ErasoftDbContext.SaveChanges();
+                                        updateKurirSuccess.Add(temp);
+                                    }
+                                    catch
+                                    {
+
+                                    }
+
+                                    if (type == "2")
+                                    {
+                                        if (tempKurirBefore != Kurir)
+                                        {
+                                            try
+                                            {
+                                                if (!string.IsNullOrEmpty(tempBuyerFaktur.NAMA) && !string.IsNullOrEmpty(tempBuyerFaktur.PEMBELI) && !string.IsNullOrEmpty(tempBuyerFaktur.ALAMAT))
+                                                {
+                                                    var sSQL = "UPDATE SIT01A SET NAMAPENGIRIM='" + Kurir + "',PEMESAN='" + tempBuyerFaktur.PEMBELI + "',NAMAPEMESAN='" + tempBuyerFaktur.NAMA + "',AL='" + tempBuyerFaktur.ALAMAT + "' where NO_REF='" + noref + "' and NO_SO='" + nobuk + "' and CUST='" + log_CUST + "'";
+                                                    ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                                                }
+                                                else
+                                                {
+                                                    var sSQL = "UPDATE SIT01A SET NAMAPENGIRIM='" + Kurir + "' where NO_REF='" + noref + "' and NO_SO='" + nobuk + "' and CUST='" + log_CUST + "'";
+                                                    ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                                                }
+                                            }
+                                            catch(Exception ex)
+                                            {
+
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (!string.IsNullOrEmpty(tempBuyerFaktur.NAMA) && !string.IsNullOrEmpty(tempBuyerFaktur.PEMBELI) && !string.IsNullOrEmpty(tempBuyerFaktur.ALAMAT))
+                                            {
+                                                try
+                                                {
+                                                    var sSQL = "UPDATE SIT01A SET PEMESAN='" + tempBuyerFaktur.PEMBELI + "',NAMAPEMESAN='" + tempBuyerFaktur.NAMA + "',AL='" + tempBuyerFaktur.ALAMAT + "' where NO_REF='" + noref + "' and NO_SO='" + nobuk + "' and CUST='" + log_CUST + "'";
+                                                    ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                                                }catch(Exception ex)
+                                                {
+
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                //if (updateKurirSuccess.Count() > 0)
+                                //{
+                                //    try
+                                //    {
+                                //        var listOnSOT01H = ErasoftDbContext.SOT01H.Where(a => a.NO_REFERENSI == noref && a.NO_PESANAN == nobuk && a.CUST == log_CUST).ToList();
+                                //        ErasoftDbContext.SOT01H.RemoveRange(listOnSOT01H);
+                                //        ErasoftDbContext.SaveChanges();
+                                //    }
+                                //    catch (Exception ex)
+                                //    {
+
+                                //    }
+                                //}
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        if (updateKurirSuccess.Count() > 0)
+                        {
+                            try
+                            {
+                                var listA = updateKurirSuccess.Select(b => b.Noref).ToList();
+                                var listB = updateKurirSuccess.Select(b => b.Nobuk).ToList();
+                                var listOnSOT01H = ErasoftDbContext.SOT01H.Where(a => listA.Contains(a.NO_REFERENSI) && listB.Contains(a.NO_PESANAN) && a.CUST == log_CUST).ToList();
+                                ErasoftDbContext.SOT01H.RemoveRange(listOnSOT01H);
+                                ErasoftDbContext.SaveChanges();
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Update Kurir & Pembeli Gagal. " + ex.InnerException == null ? ex.Message + System.Environment.NewLine : ex.InnerException.Message + "." + responseFromServer);
+                }
+            }
+            return ret;
+        }
+        //end add by nurul 3/9/2021
+
+        //add by nurul 25/8/2021, update kurir dan pembeli 
+        public class GetOrderLogisticsData
+        {
+            public Int64 partner_id { get; set; }
+            public Int64 shopid { get; set; }
+            public long timestamp { get; set; }
+            public string ordersn { get; set; }
+            public string forder_id { get; set; }
+            public string package_number { get; set; }
+        }
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Update Kurir & Pembeli Pesanan {obj} Shopee Gagal.")]
+        public async Task<string> GetOrderLogistics(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string ordersn, string orderNo, string NAMA_CUST)
+        {
+            SetupContext(iden);
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            string ret = "";
+            string urll = "https://partner.shopeemobile.com/api/v1/logistics/order/get";
+            if (!string.IsNullOrEmpty(iden.token))
+            {
+                MOPartnerID = MOPartnerIDV2;
+                MOPartnerKey = MOPartnerKeyV2;
+                urll = shopeeV2Url + "/api/v1/logistics/order/get";
+                iden = await RefreshTokenShopee_V2(iden, false);
+            }
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            GetOrderLogisticsData HttpBody = new GetOrderLogisticsData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                ordersn = ordersn,
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+
+            myReq.ContentLength = myData.Length;
+            try
+            {
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                string err = "";
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                }
+            }
+
+            if (responseFromServer != "")
+            {
+                try
+                {
+                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ResultGetOrderLogistic)) as ResultGetOrderLogistic;
+                    var connIdARF01C = Guid.NewGuid().ToString();
+                    List<listUpdateOrder> updateKurirSuccess = new List<listUpdateOrder>();
+                    if (result.logistics != null)
+                    {
+                        try
+                        {
+                            var Kurir = "";
+                            var resi = "";
+                            var temp_nama = "";
+                            var temp_alamat = "";
+                            var temp_tlp = "";
+                            var noref = ordersn;
+                            var nobuk = orderNo;
+
+                            var order = result.logistics;
+
+                            var temp = new listUpdateOrder()
+                            {
+                                Noref = noref,
+                                Nobuk = nobuk
+                            };
+
+                            TEMP_SHOPEE_ORDERS batchinsert = new TEMP_SHOPEE_ORDERS();
+                            List<TEMP_SHOPEE_ORDERS_ITEM> batchinsertItem = new List<TEMP_SHOPEE_ORDERS_ITEM>();
+                            string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                            insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                            insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
+                            var kabKot = "3174";
+                            var prov = "31";
+
+                            if (order.shipping_carrier != null && order.shipping_carrier != "")
+                            {
+                                Kurir = order.shipping_carrier;
+                                if (order.tracking_no != null && order.tracking_no != "")
+                                {
+                                    resi = order.tracking_no;
+                                }
+                            }
+
+                            if (order.recipient_address != null)
+                            {
+                                if (order.recipient_address.name != null && !order.recipient_address.name.Contains("*"))
+                                {
+                                    temp_nama = order.recipient_address.name.Trim();
+                                }
+                                if (order.recipient_address.full_address != null && !order.recipient_address.full_address.Contains("*"))
+                                {
+                                    temp_alamat = order.recipient_address.full_address.Trim();
+                                }
+                                if (order.recipient_address.phone != null && !order.recipient_address.phone.Contains("*"))
+                                {
+                                    temp_tlp = order.recipient_address.phone.Trim();
+                                }
+                            }
+
+                            var pesananInDb = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == noref && p.NO_BUKTI == nobuk && p.CUST == log_CUST).FirstOrDefault();
+                            if (pesananInDb != null)
+                            {
+                                var tempBuyerFaktur = new PEMBELI_FAKTUR_SHOPEE() { };
+                                if (temp_nama != "" && (pesananInDb.NAMAPEMESAN.Contains('*') || string.IsNullOrEmpty(pesananInDb.NAMAPEMESAN)))
+                                {
+
+                                    //insertPembeli += "('" + order.recipient_address.name + "','" + order.recipient_address.full_address + "','" + order.recipient_address.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                                    //insertPembeli += "1, 'IDR', '01', '" + order.recipient_address.full_address + "', 0, 0, 0, 0, '1', 0, 0, ";
+                                    //insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient_address.zipcode + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
+
+                                    //change by nurul 23/8/2021
+                                    //string nama = order.recipient_address.name.Length > 30 ? order.recipient_address.name.Substring(0, 30) : order.recipient_address.name;
+                                    string nama = order.recipient_address.name.Trim().Length > 30 ? order.recipient_address.name.Trim().Substring(0, 30) : order.recipient_address.name.Trim();
+                                    //end change by nurul 23/8/2021
+                                    string tlp = !string.IsNullOrEmpty(order.recipient_address.phone) ? order.recipient_address.phone.Trim().Replace('\'', '`') : "";
+                                    if (tlp.Length > 30)
+                                    {
+                                        tlp = tlp.Substring(0, 30);
+                                    }
+                                    //change by nurul 23/8/2021
+                                    //string AL_KIRIM1 = !string.IsNullOrEmpty(order.recipient_address.full_address) ? order.recipient_address.full_address.Replace('\'', '`') : "";
+                                    string AL_KIRIM1 = !string.IsNullOrEmpty(order.recipient_address.full_address) ? order.recipient_address.full_address.Trim().Replace('\'', '`') : "";
+                                    //end change by nurul 23/8/2021
+                                    if (AL_KIRIM1.Length > 30)
+                                    {
+                                        AL_KIRIM1 = AL_KIRIM1.Substring(0, 30);
+                                    }
+                                    string KODEPOS = !string.IsNullOrEmpty(order.recipient_address.zipcode) ? order.recipient_address.zipcode.Trim().Replace('\'', '`') : "";
+                                    if (KODEPOS.Length > 7)
+                                    {
+                                        KODEPOS = KODEPOS.Substring(0, 7);
+                                    }
+
+                                    insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
+                                        ((nama ?? "").Replace("'", "`")),
+                                        //change by nurul 23/8/2021
+                                        //((order.recipient_address.full_address ?? "").Replace("'", "`")),
+                                        ((order.recipient_address.full_address.Trim() ?? "").Replace("'", "`")),
+                                        //end change by nurul 23/8/2021
+                                        (tlp),
+                                        //(NAMA_CUST.Replace(',', '.')),
+                                        (NAMA_CUST.Length > 30 ? NAMA_CUST.Substring(0, 30) : NAMA_CUST),
+                                        (AL_KIRIM1),
+                                        DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                                        (username),
+                                        (KODEPOS),
+                                        kabKot,
+                                        prov,
+                                        connIdARF01C
+                                        );
+
+                                    try
+                                    {
+                                        insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
+                                        EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
+
+                                        using (SqlCommand CommandSQL = new SqlCommand())
+                                        {
+                                            //call sp to insert buyer data
+                                            CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                            CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
+
+                                            EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
+                                        };
+                                    }
+                                    catch (Exception ex)
+                                    {
+
+                                    }
+                                }
+                                
+
+                                var tempKurirBefore = pesananInDb.SHIPMENT;
+
+                                pesananInDb.SHIPMENT = Kurir;
+                                if (!string.IsNullOrEmpty(resi))
+                                {
+                                    pesananInDb.TRACKING_SHIPMENT = resi;
+                                }
+                                if (temp_nama != "" && (pesananInDb.NAMAPEMESAN.Contains('*') || string.IsNullOrEmpty(pesananInDb.NAMAPEMESAN)))
+                                {
+                                    string Recipient_Address_town = !string.IsNullOrEmpty(order.recipient_address.town) ? order.recipient_address.town.Trim().Replace('\'', '`') : "";
+                                    if (Recipient_Address_town.Length > 300)
+                                    {
+                                        Recipient_Address_town = Recipient_Address_town.Substring(0, 300);
+                                    }
+                                    string Recipient_Address_city = !string.IsNullOrEmpty(order.recipient_address.city) ? order.recipient_address.city.Trim().Replace('\'', '`') : "";
+                                    if (Recipient_Address_city.Length > 300)
+                                    {
+                                        Recipient_Address_city = Recipient_Address_city.Substring(0, 300);
+                                    }
+                                    string Recipient_Address_name = !string.IsNullOrEmpty(order.recipient_address.name) ? order.recipient_address.name.Trim().Replace('\'', '`') : "";
+                                    if (Recipient_Address_name.Length > 300)
+                                    {
+                                        Recipient_Address_name = Recipient_Address_name.Substring(0, 300);
+                                    }
+                                    string Recipient_Address_district = !string.IsNullOrEmpty(order.recipient_address.district) ? order.recipient_address.district.Trim().Replace('\'', '`') : "";
+                                    if (Recipient_Address_district.Length > 300)
+                                    {
+                                        Recipient_Address_district = Recipient_Address_district.Substring(0, 300);
+                                    }
+                                    string Recipient_Address_country = !string.IsNullOrEmpty(order.recipient_address.country) ? order.recipient_address.country.Trim().Replace('\'', '`') : "";
+                                    if (Recipient_Address_country.Length > 300)
+                                    {
+                                        Recipient_Address_country = Recipient_Address_country.Substring(0, 300);
+                                    }
+                                    string Recipient_Address_zipcode = !string.IsNullOrEmpty(order.recipient_address.zipcode) ? order.recipient_address.zipcode.Trim().Replace('\'', '`') : "";
+                                    if (Recipient_Address_zipcode.Length > 300)
+                                    {
+                                        Recipient_Address_zipcode = Recipient_Address_zipcode.Substring(0, 300);
+                                    }
+                                    string Recipient_Address_phone = !string.IsNullOrEmpty(order.recipient_address.phone) ? order.recipient_address.phone.Trim().Replace('\'', '`') : "";
+                                    if (Recipient_Address_phone.Length > 50)
+                                    {
+                                        Recipient_Address_phone = Recipient_Address_phone.Substring(0, 50);
+                                    }
+                                    string Recipient_Address_state = !string.IsNullOrEmpty(order.recipient_address.state) ? order.recipient_address.state.Trim().Replace('\'', '`') : "";
+                                    if (Recipient_Address_state.Length > 300)
+                                    {
+                                        Recipient_Address_state = Recipient_Address_state.Substring(0, 300);
+                                    }
+                                    string Recipient_Address_fullAddress = !string.IsNullOrEmpty(order.recipient_address.full_address) ? order.recipient_address.full_address.Trim().Replace('\'', '`') : "";
+                                    if (Recipient_Address_fullAddress.Length > 300)
+                                    {
+                                        Recipient_Address_fullAddress = Recipient_Address_fullAddress.Substring(0, 300);
+                                    }
+
+                                    var getBuyer = ErasoftDbContext.Database.SqlQuery<ARF01C>("select top 1 * from arf01c (nolock) where tlp ='" + Recipient_Address_phone + "'").FirstOrDefault();
+                                    if (getBuyer != null)
+                                    {
+                                        if (!string.IsNullOrEmpty(getBuyer.BUYER_CODE))
+                                        {
+                                            pesananInDb.PEMESAN = getBuyer.BUYER_CODE;
+                                            pesananInDb.NAMAPEMESAN = Recipient_Address_name;
+                                            pesananInDb.ALAMAT_KIRIM = Recipient_Address_fullAddress;
+                                            pesananInDb.PROPINSI = Recipient_Address_state;
+                                            pesananInDb.KOTA = Recipient_Address_city;
+                                            pesananInDb.KODE_POS = Recipient_Address_zipcode;
+
+                                            var cekPEMBELI_FAKTUR_SHOPEE = ErasoftDbContext.PEMBELI_FAKTUR_SHOPEE.Where(a => a.PESANAN == pesananInDb.NO_BUKTI).FirstOrDefault();
+                                            if (cekPEMBELI_FAKTUR_SHOPEE == null)
+                                            {
+                                                tempBuyerFaktur.PEMBELI = getBuyer.BUYER_CODE;
+                                                tempBuyerFaktur.NAMA = !string.IsNullOrEmpty(order.recipient_address.name) ? order.recipient_address.name.Trim().Replace('\'', '`') : "";
+                                                tempBuyerFaktur.TLP = !string.IsNullOrEmpty(order.recipient_address.phone) ? order.recipient_address.phone.Trim().Replace('\'', '`') : "";
+                                                tempBuyerFaktur.ALAMAT = !string.IsNullOrEmpty(order.recipient_address.full_address) ? order.recipient_address.full_address.Trim().Replace('\'', '`') : "";
+                                                try
+                                                {
+                                                    var faktur = EDB.GetDataSet("sConn", "SO", "SELECT TOP 1 NO_BUKTI FROM SIT01A (NOLOCK) WHERE NO_SO='" + pesananInDb.NO_BUKTI + "' AND NO_REF='" + pesananInDb.NO_REFERENSI + "' AND CUST='" + pesananInDb.CUST + "'");
+                                                    if (faktur.Tables[0].Rows.Count > 0)
+                                                    {
+                                                        for (int i = 0; i < faktur.Tables[0].Rows.Count; i++)
+                                                        {
+                                                            tempBuyerFaktur.FAKTUR = Convert.ToString(faktur.Tables[0].Rows[i]["NO_BUKTI"]);
+                                                        }
+
+                                                    }
+                                                }
+                                                catch (Exception ex) { };
+                                                tempBuyerFaktur.PESANAN = pesananInDb.NO_BUKTI;
+                                                tempBuyerFaktur.KURIR = Kurir;
+                                                tempBuyerFaktur.RESI = resi;
+
+                                                if (!string.IsNullOrEmpty(tempBuyerFaktur.PEMBELI))
+                                                {
+                                                    ErasoftDbContext.PEMBELI_FAKTUR_SHOPEE.Add(tempBuyerFaktur);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                try
+                                {
+                                    ErasoftDbContext.SaveChanges();
+                                    updateKurirSuccess.Add(temp);
+                                }
+                                catch
+                                {
+
+                                }
+                                if (tempKurirBefore != Kurir)
+                                {
+                                    try
+                                    {
+                                        if (!string.IsNullOrEmpty(tempBuyerFaktur.NAMA) && !string.IsNullOrEmpty(tempBuyerFaktur.PEMBELI) && !string.IsNullOrEmpty(tempBuyerFaktur.ALAMAT))
+                                        {
+                                            var sSQL = "UPDATE SIT01A SET NAMAPENGIRIM='" + Kurir + "',PEMESAN='" + tempBuyerFaktur.PEMBELI + "',NAMAPEMESAN='" + tempBuyerFaktur.NAMA + "',AL='" + tempBuyerFaktur.ALAMAT + "' where NO_REF='" + noref + "' and NO_SO='" + nobuk + "' and CUST='" + log_CUST + "'";
+                                            ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                                        }
+                                        else
+                                        {
+                                            var sSQL = "UPDATE SIT01A SET NAMAPENGIRIM='" + Kurir + "' where NO_REF='" + noref + "' and NO_SO='" + nobuk + "' and CUST='" + log_CUST + "'";
+                                            ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                                        }
+                                    }
+                                    catch
+                                    {
+
+                                    }
+                                }
+                            }
+
+                            if (updateKurirSuccess.Count() > 0)
+                            {
+                                try
+                                {
+                                    var listOnSOT01H = ErasoftDbContext.SOT01H.Where(a => a.NO_REFERENSI == ordersn && a.NO_PESANAN == orderNo && a.CUST == log_CUST).ToList();
+                                    ErasoftDbContext.SOT01H.RemoveRange(listOnSOT01H);
+                                    ErasoftDbContext.SaveChanges();
+                                }
+                                catch (Exception ex)
+                                {
+
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                        
+                    }
+                }catch(Exception ex)
+                {
+                    throw new Exception("Update Kurir & Pembeli Gagal. " + ex.InnerException == null ? ex.Message + System.Environment.NewLine : ex.InnerException.Message + "." + responseFromServer);
+                }
+
+                //                foreach (var order in result.orders)
+                //                {
+                //                    var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.NO_REFERENSI == order.ordersn);
+
+                //                    if (order.tracking_no != null && order.tracking_no != "")
+                //                    {
+                //                        ret = order.tracking_no;
+                //                        if (pesananInDb != null)
+                //                        {
+                //                            pesananInDb.TRACKING_SHIPMENT = order.tracking_no;
+                //                            ErasoftDbContext.SaveChanges();
+                //                        }
+                //                    }
+                //                    else
+                //                    {
+                //                        //var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                //                        //contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Update Resi Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee gagal.");
+                //                        //List<string> list_ordersn = new List<string>();
+                //                        //list_ordersn.Add(ordersn);
+
+                //                        var cekRetry = retry;
+                //                        if (cekRetry >= 0 && cekRetry < 2)
+                //                        {
+                //                            cekRetry = retry + 1;
+                //                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                //                            var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                //                            var client = new BackgroundJobClient(sqlStorage);
+                //#if (DEBUG || Debug_AWS)
+                //                            GetOrderDetailsForTrackNo(iden, ordersn_list.ToArray(), cekRetry);
+                //#else
+                //                            client.Enqueue<ShopeeControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, ordersn_list.ToArray(), cekRetry));
+                //#endif
+                //                        }
+                //                        else
+                //                        {
+                //                            var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                //                            contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Update Resi Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee gagal.");
+                //                        }
+                //                    }
+                //                }
+                //                //}
+                //                //catch (Exception ex2)
+                //                //{
+                //                //    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+                //                //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                //                //}
+            }
+            return ret;
+        }
+        //end add by nurul 25/8/2021, update kurir dan pembeli
 
         public async Task<string> UpdateStock(ShopeeAPIData iden, string brg_mp, int qty)
         {
@@ -7605,7 +8755,7 @@ namespace MasterOnline.Controllers
             HttpBody.dimension.package_length = Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG);
             HttpBody.dimension.package_width = Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR);
             HttpBody.brand.brand_id = Convert.ToInt32(detailBrg.AVALUE_38);
-            if(HttpBody.brand.brand_id == 0)
+            if (HttpBody.brand.brand_id == 0)
             {
                 HttpBody.brand.original_brand_name = detailBrg.ANAME_38;
             }
@@ -7729,7 +8879,7 @@ namespace MasterOnline.Controllers
                                 //value = value.Trim()
                                 attribute_value_list = new List<ShopeeAttributeValueClass_V2>()
                             };
-                            var listValue = value.Split(','); 
+                            var listValue = value.Split(',');
                             var lattribute_id = Convert.ToInt64(attribute_id);
                             var dataAttr = listAttrShopee.response.attribute_list.Where(p => p.attribute_id == lattribute_id).FirstOrDefault();
                             if (listValue.Length > 0 && !dataAttr.input_type.ToUpper().Contains("MULTIPLE_SELECT"))
@@ -7757,7 +8907,9 @@ namespace MasterOnline.Controllers
                                             {
                                                 if (dataAttr.attribute_value_list != null)
                                                 {
-                                                    if (dataAttr.attribute_value_list.Length == 0)
+                                                    var cekVal = dataAttr.attribute_value_list.Where(m => m.value_id == n).ToList();
+                                                    //if (dataAttr.attribute_value_list.Length == 0)
+                                                    if (cekVal.Count == 0)
                                                     {
                                                         attrValue.value_id = 0;
                                                         attrValue.original_value_name = singleAttr.Trim();
@@ -7776,14 +8928,18 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
+                                    var currentAttr = singleAttr;
                                     if (dataAttr.input_validation_type.ToUpper().Contains("DATE_TYPE"))
                                     {
-                                        var splitDate = value.Split('/');
+                                        //var splitDate = value.Split('/');
+                                        var splitDate = currentAttr.Split('/');
                                         var dateValue = new DateTime(Convert.ToInt32(splitDate[2]), Convert.ToInt32(splitDate[1]), Convert.ToInt32(splitDate[0]));
-                                        value = ((DateTimeOffset)dateValue).ToUnixTimeSeconds().ToString();
+                                        //value = ((DateTimeOffset)dateValue).ToUnixTimeSeconds().ToString();
+                                        currentAttr = ((DateTimeOffset)dateValue).ToUnixTimeSeconds().ToString();
                                     }
                                     attrValue.value_id = 0;
-                                    attrValue.original_value_name = value.Trim();
+                                    //attrValue.original_value_name = value.Trim();
+                                    attrValue.original_value_name = currentAttr.Trim();
                                     attrValue.value_unit = unit ?? "";
                                 }
                                 newAttr.attribute_value_list.Add(attrValue);
@@ -9535,26 +10691,26 @@ namespace MasterOnline.Controllers
 
                                 //var barang = ErasoftDbContext.STF02H.Where(m => m.RecNum == recnum_stf02h_var).FirstOrDefault();
                                 //await UpdateImage(iden, barang.BRG, Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id));
-//                                if (tblCustomer.TIDAK_HIT_UANG_R)
-//                                {
-//                                    //StokControllerJob.ShopeeAPIData data = new StokControllerJob.ShopeeAPIData()
-//                                    //{
-//                                    //    merchant_code = iden.merchant_code,
-//                                    //};
+                                //                                if (tblCustomer.TIDAK_HIT_UANG_R)
+                                //                                {
+                                //                                    //StokControllerJob.ShopeeAPIData data = new StokControllerJob.ShopeeAPIData()
+                                //                                    //{
+                                //                                    //    merchant_code = iden.merchant_code,
+                                //                                    //};
 
-//#if (DEBUG || Debug_AWS)
-//                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
-//                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.response.item_id)
-//                                        + ";" + Convert.ToString(variasi.model_id), 0, username, null)).Wait();
-//#else
-//                                    //string EDBConnID = EDB.GetConnectionString("ConnId");
-//                                    //var sqlStorage = new SqlServerStorage(EDBConnID);
+                                //#if (DEBUG || Debug_AWS)
+                                //                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+                                //                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.response.item_id)
+                                //                                        + ";" + Convert.ToString(variasi.model_id), 0, username, null)).Wait();
+                                //#else
+                                //                                    //string EDBConnID = EDB.GetConnectionString("ConnId");
+                                //                                    //var sqlStorage = new SqlServerStorage(EDBConnID);
 
-//                                    //var Jobclient = new BackgroundJobClient(sqlStorage);
-//                                    client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.response.item_id)
-//                                        + ";" + Convert.ToString(variasi.model_id), 0, username, null));
-//#endif
-//                                }
+                                //                                    //var Jobclient = new BackgroundJobClient(sqlStorage);
+                                //                                    client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.response.item_id)
+                                //                                        + ";" + Convert.ToString(variasi.model_id), 0, username, null));
+                                //#endif
+                                //                                }
                             }
                             #region update price and stok
 
@@ -9565,8 +10721,8 @@ namespace MasterOnline.Controllers
                                 for (int i = 0; i < listBrg.Tables[0].Rows.Count; i++)
                                 {
 #if (Debug_AWS || DEBUG)
-                                await UpdatePrice_Job_V2(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, log_ActionCategory, log_ActionName, 
-                                    listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), iden, float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString()));
+                                    await UpdatePrice_Job_V2(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, log_ActionCategory, log_ActionName,
+                                        listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), iden, float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString()));
                                     if (tblCustomer.TIDAK_HIT_UANG_R)
                                         Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null)).Wait();
 #else
@@ -9852,26 +11008,26 @@ namespace MasterOnline.Controllers
 
                                 //var barang = ErasoftDbContext.STF02H.Where(m => m.RecNum == recnum_stf02h_var).FirstOrDefault();
                                 //await UpdateImage(iden, barang.BRG, Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id));
-//                                if (tblCustomer.TIDAK_HIT_UANG_R)
-//                                {
-//                                    //StokControllerJob.ShopeeAPIData data = new StokControllerJob.ShopeeAPIData()
-//                                    //{
-//                                    //    merchant_code = iden.merchant_code,
-//                                    //};
+                                //                                if (tblCustomer.TIDAK_HIT_UANG_R)
+                                //                                {
+                                //                                    //StokControllerJob.ShopeeAPIData data = new StokControllerJob.ShopeeAPIData()
+                                //                                    //{
+                                //                                    //    merchant_code = iden.merchant_code,
+                                //                                    //};
 
-//#if (DEBUG || Debug_AWS)
-//                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
-//                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.response.item_id)
-//                                        + ";" + Convert.ToString(variasi.model_id), 0, username, null)).Wait();
-//#else
-//                                                        //string EDBConnID = EDB.GetConnectionString("ConnId");
-//                                                        //var sqlStorage = new SqlServerStorage(EDBConnID);
+                                //#if (DEBUG || Debug_AWS)
+                                //                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+                                //                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.response.item_id)
+                                //                                        + ";" + Convert.ToString(variasi.model_id), 0, username, null)).Wait();
+                                //#else
+                                //                                                        //string EDBConnID = EDB.GetConnectionString("ConnId");
+                                //                                                        //var sqlStorage = new SqlServerStorage(EDBConnID);
 
-//                                                        //var Jobclient = new BackgroundJobClient(sqlStorage);
-//                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.response.item_id)
-//                                        + ";" + Convert.ToString(variasi.model_id), 0, username, null));
-//#endif
-//                                }
+                                //                                                        //var Jobclient = new BackgroundJobClient(sqlStorage);
+                                //                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.response.item_id)
+                                //                                        + ";" + Convert.ToString(variasi.model_id), 0, username, null));
+                                //#endif
+                                //                                }
                             }
 
                             #region update price and stok
@@ -10636,7 +11792,9 @@ namespace MasterOnline.Controllers
                                             {
                                                 if (dataAttr.attribute_value_list != null)
                                                 {
-                                                    if (dataAttr.attribute_value_list.Length == 0)
+                                                    var cekVal = dataAttr.attribute_value_list.Where(m => m.value_id == n).ToList();
+                                                    //if (dataAttr.attribute_value_list.Length == 0)
+                                                    if (cekVal.Count == 0)
                                                     {
                                                         attrValue.value_id = 0;
                                                         attrValue.original_value_name = singleAttr.Trim();
@@ -10655,14 +11813,18 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
+                                    var currentAttr = singleAttr;
                                     if (dataAttr.input_validation_type.ToUpper().Contains("DATE_TYPE"))
                                     {
-                                        var splitDate = value.Split('/');
+                                        //var splitDate = value.Split('/');
+                                        var splitDate = currentAttr.Split('/');
                                         var dateValue = new DateTime(Convert.ToInt32(splitDate[2]), Convert.ToInt32(splitDate[1]), Convert.ToInt32(splitDate[0]));
-                                        value = ((DateTimeOffset)dateValue).ToUnixTimeSeconds().ToString();
+                                        //value = ((DateTimeOffset)dateValue).ToUnixTimeSeconds().ToString();
+                                        currentAttr = ((DateTimeOffset)dateValue).ToUnixTimeSeconds().ToString();
                                     }
                                     attrValue.value_id = 0;
-                                    attrValue.original_value_name = value.Trim();
+                                    //attrValue.original_value_name = value.Trim();
+                                    attrValue.original_value_name = currentAttr.Trim();
                                     attrValue.value_unit = unit ?? "";
                                 }
                                 newAttr.attribute_value_list.Add(attrValue);
@@ -11059,9 +12221,9 @@ namespace MasterOnline.Controllers
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                         throw new Exception(resServer.message);
                     }
-                    if(resServer.response.failure_list != null)
+                    if (resServer.response.failure_list != null)
                     {
-                        if(resServer.response.failure_list.Length > 0)
+                        if (resServer.response.failure_list.Length > 0)
                         {
                             currentLog.REQUEST_EXCEPTION = resServer.response.failure_list[0].failed_reason;
                             manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
@@ -13932,5 +15094,80 @@ namespace MasterOnline.Controllers
         {
             public string image_id { get; set; }
         }
+
+        //add by nurul 25/8/2021
+        public class ResultGetOrderLogistic
+        {
+            public Logistics logistics { get; set; }
+            public string request_id { get; set; }
+            public string error { get; set; }
+            public string msg { get; set; }
+        }
+
+        public class Logistics
+        {
+            public bool cod { get; set; }
+            public string create_date_ymd_sl { get; set; }
+            public string deliver_area { get; set; }
+            public string delivery_hub { get; set; }
+            public string ec_order_no { get; set; }
+            public int is_lm_dg_bool { get; set; }
+            public string lm_tn { get; set; }
+            public long logistic_id { get; set; }
+            public string manufacturers_name { get; set; }
+            public string manufacturers_website { get; set; }
+            public string pickup_hub { get; set; }
+            public int preferred_delivery_option { get; set; }
+            public string recipient_addr { get; set; }
+            public Recipient_Address recipient_address { get; set; }
+            public Recipient_Sort_Code recipient_sort_code { get; set; }
+            public Return_Sort_Code return_sort_code { get; set; }
+            public Sender_Sort_Code sender_sort_code { get; set; }
+            public string shipping_carrier { get; set; }
+            public string shopee_tracking_no { get; set; }
+            public Spx_Receive_Station spx_receive_station { get; set; }
+            public string spx_sub_district { get; set; }
+            public string tracking_no { get; set; }
+            public string zone { get; set; }
+        }
+
+        public class Recipient_Address
+        {
+            public string city { get; set; }
+            public string country { get; set; }
+            public string district { get; set; }
+            public string full_address { get; set; }
+            public string name { get; set; }
+            public string phone { get; set; }
+            public string state { get; set; }
+            public string town { get; set; }
+            public string zipcode { get; set; }
+        }
+
+        public class Recipient_Sort_Code
+        {
+            public string first_recipient_sort_code { get; set; }
+            public string second_recipient_sort_code { get; set; }
+            public string third_recipient_sort_code { get; set; }
+        }
+
+        public class Return_Sort_Code
+        {
+            public string return_first_sort_code { get; set; }
+        }
+
+        public class Sender_Sort_Code
+        {
+            public string first_sender_sort_code { get; set; }
+            public string second_sender_sort_code { get; set; }
+            public string third_sender_sort_code { get; set; }
+        }
+
+        public class Spx_Receive_Station
+        {
+            public string spx_first_receive_station { get; set; }
+        }
+
+        //end add by nurul 25/8/2021
     }
 }

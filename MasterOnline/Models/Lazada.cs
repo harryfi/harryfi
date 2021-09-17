@@ -509,5 +509,20 @@ namespace MasterOnline.Models
         public string type { get; set; }
         public int reason_id { get; set; }
     }
+    public class CancelReasonNew : LazadaCommonRes
+    {
+        public CancelReasonNewDetail data { get; set; }
+    }
+    public class CancelReasonNewDetail
+    {
+        public string tip_content { get; set; }
+        public List<CancelReasonDetailNew> reason_options { get; set; }
+        public string tip_type { get; set; }
+    }
+    public class CancelReasonDetailNew
+    {
+        public string reason_name { get; set; }
+        public int reason_id { get; set; }
+    }
 
 }

@@ -83,6 +83,12 @@ namespace MasterOnline.ViewModels
         public List<TEMP_UPLOAD_EXCEL_BAYAR> list_Detail_ret = new List<TEMP_UPLOAD_EXCEL_BAYAR>();
         public int successUpdateDetail { get; set; }
         public int successUpdateHeader { get; set; }
+
+        public int id { get; set; }
+
+        public string noSTokOM { get; set; }
+        public string noSTokOK { get; set; }
+        public string countAllSukses { get; set; }
     }
 
     public class DetailLazada

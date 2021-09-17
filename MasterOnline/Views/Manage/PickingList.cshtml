@@ -332,7 +332,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="modalPackingPesanan" tabindex="-1" role="dialog" aria-labelledby="modalPackingPesananLabel">
+@*<div class="modal fade" id="modalPackingPesanan" tabindex="-1" role="dialog" aria-labelledby="modalPackingPesananLabel">
     <div class="modal-dialog" role="document" style="width:70%;">
         <div class="modal-content">
             <div class="modal-header">
@@ -342,7 +342,7 @@
             <div class="modal-body">
                 @*<div class="row text-center">
                         <button id="btnHapusPicking"></button>
-                    </div>*@
+                    </div>
                 <div id="modal-packing"></div>
             </div>
             <div class="modal-footer">
@@ -362,7 +362,7 @@
             <div class="modal-body">
                 @*<div class="row text-center">
                         <button id="btnHapusPicking"></button>
-                    </div>*@
+                    </div>
                 <div id="modal-picking"></div>
             </div>
             <div class="modal-footer">
@@ -371,7 +371,7 @@
             </div>
         </div>
     </div>
-</div>
+</div>*@
 
 @*<div class="modal fade" id="modalPrint" tabindex="-1" role="dialog" aria-labelledby="modalPrintLabel">
         <div class="modal-dialog" role="document">
@@ -1212,7 +1212,7 @@
             }
         }
 
-        function openModalPicking() {
+        @*function openModalPicking() {
             var link = '@Url.Action("OpenModalPickingBarang", "Manage", new { nobuk = "replaceId" })';
             link = link.replace("replaceId", $('#packingList_NO_BUKTI').val());
 
@@ -1247,9 +1247,9 @@
                     console.log(xhr);
                 }
             });
-        }
+        }*@
 
-        function SimpanPickingBarang() {
+        @*function SimpanPickingBarang() {
             if ($('#maxDataPicking').val() == "0") {
                 alert('Silahkan scan barcode barang terlebih dahulu.');
                 return false;
@@ -1383,7 +1383,7 @@
                     console.log(xhr);
                 }
             });
-        }
+        }*@
 
 
         //add by nurul 23/2/2021

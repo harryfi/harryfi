@@ -1063,6 +1063,33 @@
                                     <div class="x_content">
                                         @if (listMarket != null)
                                         {
+                                        <div id="copy-attr" class="row">
+                                            <div class="col-md-12">
+                                                <div class="row">
+                                                    <div class="col-md-2 col-sm-2 col-xs-12">
+                                                        <label>Kategori Barang :</label>
+                                                    </div>
+                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                        @*<select id="KATEGORI_DIS" class="cbKategori" placeholder="Harap pilih" disabled></select>*@
+                                                        <input id="txtNamaKategori" class="form-control" value="@(Model?.Stf02 != null ? Model?.Stf02.KET_SORT1 : "")" disabled />
+                                                    </div>
+                                                </div>
+                                                <br />
+                                                <div class="row">
+                                                    <div class="col-md-2 col-sm-2 col-xs-12">
+                                                        <label>Copy dari Barang :</label>
+                                                    </div>
+                                                    <div class="col-md-6 col-sm-6 col-xs-12 form-group">
+                                                        @*<select id="COPY_ATTR" placeholder="Harap pilih"></select>*@
+                                                        <div id="COPY_ATTR" class="selectivity-input"></div>
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-2"></div>
+                                                    <div class="col-md-2 col-sm-2 col-xs-12">
+                                                        <button id="btnClearAll" type="button" onclick="ClearAllCategory();">Clear All</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                             var adaElevenia = 0;
                                             var adaBlibli = 0;
                                             var adaBukalapak = 0;
@@ -1253,9 +1280,9 @@
                                                                                 <div class="col-md-1 col-sm-1 col-xs-12">
                                                                                     <label>Category</label>
                                                                                 </div>
-                                                                                <div id="category_blibli_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12">
+                                                                                <div id="category_blibli_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12 reset-data-to-copy">
                                                                                 </div>
-                                                                                <div id="category_blibli_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12">
+                                                                                <div id="category_blibli_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12 reset-data-to-copy">
                                                                                 </div>
                                                                                 <div class="col-md-2 col-sm-2 col-xs-12">
                                                                                     @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model.Stf02 != null ? Model.Stf02.BRG : ""))?.CATEGORY_CODE != null)
@@ -1269,7 +1296,7 @@
                                                                                 <div id="loading_attribute_@Convert.ToString(recnumArf01)" style="display:none" class="text-center">
                                                                                     <img src="~/Content/Images/spinner.gif" width="100" />
                                                                                 </div>
-                                                                                <div id="attribute_blibli_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
+                                                                                <div id="attribute_blibli_@Convert.ToString(recnumArf01)" class="col-md-12 reset-data-to-copy" style="margin-top:10px">
                                                                                 </div>
                                                                             </div>
                                                                             <div class="row">
@@ -1300,7 +1327,7 @@
                                                                                     </div>
                                                                                     <div class="row">
                                                                                         <div class="col-md-2 col-sm-2 col-xs-12">
-                                                                                            @Html.Label("Unique Selling Point *", new { @class = "control-label" })
+                                                                                            @Html.Label("Unique Selling Point", new { @class = "control-label" })
                                                                                         </div>
                                                                                         <div class="col-md-10 col-sm-10 col-xs-12 form-group">
                                                                                             @*<div class="input-group text">*@
@@ -1311,7 +1338,7 @@
                                                                                                 string ValueUniqueSellingPoint = HttpUtility.HtmlDecode(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_39);
                                                                                                 string nameUniqueSellingPoint = "ListHargaJualPermarket[" + i + "].AVALUE_39";
                                                                                             }
-                                                                                            <textarea cols="20" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required." class="form-control make_ckeditor" id="@idUniqueSellingPoint" name="@nameUniqueSellingPoint" rows="2" style="resize: none; width:100%;">@ValueUniqueSellingPoint</textarea>
+                                                                                            <textarea cols="20" data-val="true" class="form-control make_ckeditor" id="@idUniqueSellingPoint" name="@nameUniqueSellingPoint" rows="2" style="resize: none; width:100%;">@ValueUniqueSellingPoint</textarea>
                                                                                             @*</div>*@
                                                                                         </div>
                                                                                     </div>
@@ -1368,9 +1395,9 @@
                                                                             <div class="col-md-1 col-sm-1 col-xs-12">
                                                                                 <label>Category</label>
                                                                             </div>
-                                                                            <div id="category_elevenia_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12">
+                                                                            <div id="category_elevenia_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12 reset-data-to-copy">
                                                                             </div>
-                                                                            <div id="category_elevenia_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12">
+                                                                            <div id="category_elevenia_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12 reset-data-to-copy">
                                                                             </div>
                                                                             <div class="col-md-2 col-sm-2 col-xs-12">
                                                                                 @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model.Stf02 != null ? Model.Stf02.BRG : ""))?.CATEGORY_CODE != null)
@@ -1384,7 +1411,7 @@
                                                                             <div id="loading_attribute_@Convert.ToString(recnumArf01)" style="display:none" class="text-center">
                                                                                 <img src="~/Content/Images/spinner.gif" width="100" />
                                                                             </div>
-                                                                            <div id="attribute_elevenia_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
+                                                                            <div id="attribute_elevenia_@Convert.ToString(recnumArf01)" class="col-md-12 reset-data-to-copy" style="margin-top:10px">
                                                                             </div>
                                                                         </div>
                                                                         <div class="row" style="padding-top:10px">
@@ -1442,9 +1469,9 @@
                                                                                 <div class="col-md-1 col-sm-1 col-xs-12">
                                                                                     <label>Category</label>
                                                                                 </div>
-                                                                                <div id="category_lazada_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12">
+                                                                                <div id="category_lazada_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12 reset-data-to-copy">
                                                                                 </div>
-                                                                                <div id="category_lazada_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12">
+                                                                                <div id="category_lazada_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12 reset-data-to-copy">
                                                                                 </div>
                                                                                 <div class="col-md-2 col-sm-2 col-xs-12">
                                                                                     @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model.Stf02 != null ? Model.Stf02.BRG : ""))?.CATEGORY_CODE != null)
@@ -1458,7 +1485,7 @@
                                                                                 <div id="loading_attribute_@Convert.ToString(recnumArf01)" style="display:none" class="text-center">
                                                                                     <img src="~/Content/Images/spinner.gif" width="100" />
                                                                                 </div>
-                                                                                <div id="attribute_lazada_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
+                                                                                <div id="attribute_lazada_@Convert.ToString(recnumArf01)" class="col-md-12 reset-data-to-copy" style="margin-top:10px">
                                                                                 </div>
                                                                             </div>
                                                                             <div class="row">
@@ -1521,9 +1548,9 @@
                                                                                 <div class="col-md-1 col-sm-1 col-xs-12">
                                                                                     <label>Category</label>
                                                                                 </div>
-                                                                                <div id="category_shopee_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12">
+                                                                                <div id="category_shopee_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12 reset-data-to-copy">
                                                                                 </div>
-                                                                                <div id="category_shopee_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12">
+                                                                                <div id="category_shopee_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12 reset-data-to-copy">
                                                                                 </div>
                                                                                 <div class="col-md-2 col-sm-2 col-xs-12">
                                                                                     @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model.Stf02 != null ? Model.Stf02.BRG : ""))?.CATEGORY_CODE != null)
@@ -1537,7 +1564,7 @@
                                                                                 <div id="loading_attribute_@Convert.ToString(recnumArf01)" style="display:none" class="text-center">
                                                                                     <img src="~/Content/Images/spinner.gif" width="100" />
                                                                                 </div>
-                                                                                <div id="attribute_shopee_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
+                                                                                <div id="attribute_shopee_@Convert.ToString(recnumArf01)" class="col-md-12 reset-data-to-copy" style="margin-top:10px">
                                                                                 </div>
                                                                             </div>
                                                                             //add 21 mei 2021 
@@ -1619,9 +1646,9 @@
                                                                                 <div class="col-md-1 col-sm-1 col-xs-12">
                                                                                     <label>Category</label>
                                                                                 </div>
-                                                                                <div id="category_tokped_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12">
+                                                                                <div id="category_tokped_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12 reset-data-to-copy">
                                                                                 </div>
-                                                                                <div id="category_tokped_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12">
+                                                                                <div id="category_tokped_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12 reset-data-to-copy">
                                                                                 </div>
                                                                                 <div class="col-md-2 col-sm-2 col-xs-12">
                                                                                     @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model.Stf02 != null ? Model.Stf02.BRG : ""))?.CATEGORY_CODE != null)
@@ -1794,9 +1821,9 @@
                                                                                 <div class="col-md-1 col-sm-1 col-xs-12">
                                                                                     <label>Category *</label>
                                                                                 </div>
-                                                                                <div id="category_JD_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12">
+                                                                                <div id="category_JD_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12 reset-data-to-copy">
                                                                                 </div>
-                                                                                <div id="category_JD_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12">
+                                                                                <div id="category_JD_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12 reset-data-to-copy">
                                                                                 </div>
                                                                                 <div class="col-md-2 col-sm-2 col-xs-12">
                                                                                     @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model.Stf02 != null ? Model.Stf02.BRG : ""))?.CATEGORY_CODE != null)
@@ -1810,7 +1837,7 @@
                                                                                 <div id="loading_attribute_@Convert.ToString(recnumArf01)" style="display:none" class="text-center">
                                                                                     <img src="~/Content/Images/spinner.gif" width="100" />
                                                                                 </div>
-                                                                                <div id="attribute_JD_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
+                                                                                <div id="attribute_JD_@Convert.ToString(recnumArf01)" class="col-md-12 reset-data-to-copy" style="margin-top:10px">
                                                                                 </div>
                                                                             </div>
                                                                             <br />
@@ -1874,7 +1901,7 @@
                                                                                 <div class="col-md-5 col-sm-5 col-xs-12 form-group">
                                                                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_39, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_39 })
                                                                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_39, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_39 })
-                                                                                    <div id="tipebarang_JD_@Convert.ToString(recnumArf01)">
+                                                                                    <div id="tipebarang_JD_@Convert.ToString(recnumArf01)" class="reset-data-to-copy">
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="col-md-2 col-sm-2 col-xs-12">
@@ -1899,7 +1926,7 @@
                                                                                 <div class="col-md-5 col-sm-5 col-xs-12 form-group">
                                                                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_40, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_40 })
                                                                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_40, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_40 })
-                                                                                    <div id="aftersale_JD_@Convert.ToString(recnumArf01)">
+                                                                                    <div id="aftersale_JD_@Convert.ToString(recnumArf01)" class="reset-data-to-copy">
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="col-md-2 col-sm-2 col-xs-12">
@@ -1924,7 +1951,7 @@
                                                                                 <div class="col-md-5 col-sm-5 col-xs-12 form-group">
                                                                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_41, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_41 })
                                                                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_41, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_41 })
-                                                                                    <div id="warranty_JD_@Convert.ToString(recnumArf01)">
+                                                                                    <div id="warranty_JD_@Convert.ToString(recnumArf01)" class="reset-data-to-copy">
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="col-md-2 col-sm-2 col-xs-12">
@@ -1958,7 +1985,7 @@
                                                                                         <table>
                                                                                             <tr>
                                                                                                 <td>
-                                                                                                    @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].AVALUE_46, new { @class = "form-control", id = "JDID_keywords_" + i, data_valid_toggle_required = "1", @MaxLength = "30", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_46 })
+                                                                                                    @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].AVALUE_46, new { @class = "form-control", data_valid_toggle_required = "1", @MaxLength = "30", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_46 })
                                                                                                 </td>
                                                                                             </tr>
                                                                                         </table>
@@ -1972,7 +1999,8 @@
                                                                                         <table>
                                                                                             <tr>
                                                                                                 <td>
-                                                                                                    @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].AVALUE_48, new { @class = "form-control", id = "JDID_keywords_" + i, @MaxLength = "30", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_48 })
+                                                                                                    @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].AVALUE_48, new { @class = "form-control", @MaxLength = "30", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_48 })
+                                                                                                    @* id = "JDID_keywords_" + i, *@
                                                                                                 </td>
                                                                                             </tr>
                                                                                         </table>
@@ -1986,7 +2014,7 @@
                                                                                         <table>
                                                                                             <tr>
                                                                                                 <td>
-                                                                                                    @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].AVALUE_49, new { @class = "form-control", id = "JDID_keywords_" + i, @MaxLength = "30", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_49 })
+                                                                                                    @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].AVALUE_49, new { @class = "form-control", @MaxLength = "30", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_49 })
                                                                                                 </td>
                                                                                             </tr>
                                                                                         </table>
@@ -2087,9 +2115,9 @@
                                                                                 @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_4, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_4 })
                                                                                 @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_5, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_5 })
                                                                                 @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_5, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_5 })
-                                                                                <div id="category_82Cart_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12">
+                                                                                <div id="category_82Cart_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12 reset-data-to-copy">
                                                                                 </div>
-                                                                                <div id="category_82Cart_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12">
+                                                                                <div id="category_82Cart_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12 reset-data-to-copy">
                                                                                 </div>
                                                                                 <div class="col-md-2 col-sm-2 col-xs-12">
                                                                                     @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model.Stf02 != null ? Model.Stf02.BRG : ""))?.CATEGORY_CODE != null)

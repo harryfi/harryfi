@@ -578,7 +578,7 @@ namespace MasterOnline.Controllers
                 };
                 EditProduct_Product newDataProduct = new EditProduct_Product()
                 {
-                    id = Convert.ToInt32(product_id),
+                    id = Convert.ToInt64(product_id),
                     name = Convert.ToString(brg_stf02.NAMA + " " + brg_stf02.NAMA2).Trim(),
                     category_id = Convert.ToInt32(brg_stf02h.CATEGORY_CODE),
                     //category_id = null,
@@ -622,7 +622,7 @@ namespace MasterOnline.Controllers
                 //end add by nurul 6/2/2020
                 var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
 
-                var dataTokped = await getItemDetailVarian(iden, Convert.ToInt32(product_id), 1);
+                var dataTokped = await getItemDetailVarian(iden, Convert.ToInt64(product_id), 1);
                 if (dataTokped != null)
                 {
                     if (dataTokped.data != null)
@@ -1002,7 +1002,7 @@ namespace MasterOnline.Controllers
                         }
                         if (!string.IsNullOrEmpty(price_var.BRG_MP))
                         {
-                            var dataTokpedVarian = await getItemDetailVarian(iden, Convert.ToInt32(price_var.BRG_MP), 1);
+                            var dataTokpedVarian = await getItemDetailVarian(iden, Convert.ToInt64(price_var.BRG_MP), 1);
                             if (customer.TIDAK_HIT_UANG_R)
                             {
                                 var qty_stock_var = new StokControllerJob(iden.DatabasePathErasoft, username).GetQOHSTF08A(item_var.BRG, "ALL");
@@ -1234,6 +1234,7 @@ namespace MasterOnline.Controllers
                 {
                     var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedCreateProductResult)) as TokpedCreateProductResult;
                     //if (result.header.error_code == "")
+                    if (string.IsNullOrEmpty(result.header.reason))
                     {
                         //change by calvin 9 juni 2019
                         //await EditProductGetStatus(iden, brg, result.data.upload_id, currentLog.REQUEST_ID, product_id);
@@ -1253,13 +1254,13 @@ namespace MasterOnline.Controllers
 #endif
                         //end change by calvin 9 juni 2019
                     }
-                    //else
-                    //{
-                    //    currentLog.REQUEST_RESULT = result.header.reason;
-                    //    currentLog.REQUEST_EXCEPTION = result.header.messages;
-                    //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                    //    throw new Exception(result.header.messages + ";" + result.header.reason);
-                    //}
+                    else
+                    {
+                        currentLog.REQUEST_RESULT = result.header.reason;
+                        currentLog.REQUEST_EXCEPTION = result.header.messages;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        throw new Exception(result.header.messages + ";" + result.header.reason);
+                    }
                 }
                 //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
                 //myReq.Method = "POST";
@@ -1987,6 +1988,7 @@ namespace MasterOnline.Controllers
                     {
                         var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedCreateProductResult)) as TokpedCreateProductResult;
                         //if (result.header.error_code == 0)
+                        if (string.IsNullOrEmpty(result.header.reason))
                         {
                             //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
                             //change by calvin 9 juni 2019
@@ -2007,13 +2009,15 @@ namespace MasterOnline.Controllers
                             //end change by calvin 9 juni 2019
 #endif
                         }
-                        //else
-                        //{
-                        //    currentLog.REQUEST_RESULT = result.header.reason;
-                        //    currentLog.REQUEST_EXCEPTION = result.header.messages;
-                        //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                        //    throw new Exception(result.header.messages + ";" + result.header.reason);
-                        //}
+                        else
+                        {
+                            EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE STF02H SET BRG_MP = '' WHERE BRG = '" + Convert.ToString(brg)
+                                + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                            currentLog.REQUEST_RESULT = result.header.reason;
+                            currentLog.REQUEST_EXCEPTION = result.header.messages;
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                            throw new Exception(result.header.messages + ";" + result.header.reason);
+                        }
                     }
                     //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
                     //myReq.Method = "POST";
@@ -2048,6 +2052,7 @@ namespace MasterOnline.Controllers
             {
                 string sSQL = "UPDATE STF02H SET BRG_MP = '' WHERE BRG_MP = 'WAITING_FOR_HANGFIRE' and BRG = '" + kodeProduk + "' AND IDMARKET = " + iden.idmarket;
                 EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+                throw new Exception(ex.Message);
             }
             return ret;
         }
@@ -2462,61 +2467,86 @@ namespace MasterOnline.Controllers
 
             if (responseFromServer != null)
             {
-                ActOrderResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ActOrderResult)) as ActOrderResult;
-                //if (result.status == "200 Ok")
-                //{
-                //    var pesananInDb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo && a.NO_REFERENSI == noref).FirstOrDefault();
-                //    if (pesananInDb != null)
-                //    {
-                //        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                //        //#if (DEBUG || Debug_AWS)
-                //        //                        await JOBCOD(iden, pesananInDb.NO_BUKTI, pesananInDb.NO_REFERENSI);
-                //        //#else
-                //        //                        string EDBConnID = EDB.GetConnectionString("ConnId");
-                //        //                        var sqlStorage = new SqlServerStorage(EDBConnID);
-
-                //        //                        var Jobclient = new BackgroundJobClient(sqlStorage);
-                //        //                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.JOBCOD(iden, pesananInDb.NO_BUKTI, pesananInDb.NO_REFERENSI));
-                //        //#endif
-                //    }
-                //}
-                //else if (result.error_message[0].Contains("order already ack-ed") || result.error_message[0].Contains("400") || result.error_message[0].Contains("450") || result.error_message[0].Contains("500") || result.error_message[0].Contains("600"))
-                //{
-                //    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                //}
-                //else
-                //{
-                //    var err_msg = "";
-                //    if (result.error_message.Count() > 0)
-                //    {
-                //        foreach (var err in result.error_message)
-                //        {
-                //            err_msg += " " + err + ".";
-                //        }
-                //    }
-                //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                //    //throw new Exception("Update Status Accept Pesanan " + splitNoRef[1] + " ke Tokopedia Gagal. " + result.error_message[0] + ".");
-                //    throw new Exception("Update Status Accept Pesanan " + splitNoRef[1] + " ke Tokopedia Gagal. " + err_msg );
-                //}
-
-                if (isSuccess)
+                try
                 {
-                    var pesananInDb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo && a.NO_REFERENSI == noref).FirstOrDefault();
-                    if (pesananInDb != null)
+                    //var sukses = false;
+                    ActOrderResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ActOrderResult)) as ActOrderResult;
+                    //if (result.status == "200 Ok")
+                    //{
+                    //    var pesananInDb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo && a.NO_REFERENSI == noref).FirstOrDefault();
+                    //    if (pesananInDb != null)
+                    //    {
+                    //        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                    //        //#if (DEBUG || Debug_AWS)
+                    //        //                        await JOBCOD(iden, pesananInDb.NO_BUKTI, pesananInDb.NO_REFERENSI);
+                    //        //#else
+                    //        //                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                    //        //                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                    //        //                        var Jobclient = new BackgroundJobClient(sqlStorage);
+                    //        //                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.JOBCOD(iden, pesananInDb.NO_BUKTI, pesananInDb.NO_REFERENSI));
+                    //        //#endif
+                    //    }
+                    //}
+                    //else if (result.error_message[0].Contains("order already ack-ed") || result.error_message[0].Contains("400") || result.error_message[0].Contains("450") || result.error_message[0].Contains("500") || result.error_message[0].Contains("600"))
+                    //{
+                    //    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                    //}
+                    //else
+                    //{
+                    //    var err_msg = "";
+                    //    if (result.error_message.Count() > 0)
+                    //    {
+                    //        foreach (var err in result.error_message)
+                    //        {
+                    //            err_msg += " " + err + ".";
+                    //        }
+                    //    }
+                    //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                    //    //throw new Exception("Update Status Accept Pesanan " + splitNoRef[1] + " ke Tokopedia Gagal. " + result.error_message[0] + ".");
+                    //    throw new Exception("Update Status Accept Pesanan " + splitNoRef[1] + " ke Tokopedia Gagal. " + err_msg );
+                    //}
+
+                    if (isSuccess)
                     {
+                        //var pesananInDb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo && a.NO_REFERENSI == noref).FirstOrDefault();
+                        //if (pesananInDb != null)
+                        //{
                         manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                        //sukses = true;
+                        //}
                     }
-                }
-                else if (httpReason == "Bad Request")
-                {
-                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                }
-                else
-                {
-                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                    throw new Exception("Update Status Accept Pesanan " + splitNoRef[1] + " ke Tokopedia Gagal. " + result.header.messages + ". " + result.header.reason);
-                }
+                    else if (httpReason == "Bad Request")
+                    {
+                        //if (responseFromServer.Contains("Order Status not eligible to accept") || result.header.reason == "Order Status not eligible to accept")
 
+                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                        //sukses = true;
+                    }
+                    else
+                    {
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        //sukses = false;
+                        throw new Exception("Update Status Accept Pesanan " + splitNoRef[1] + " ke Tokopedia Gagal. " + result.header.messages + ". " + result.header.reason);
+                    }
+
+//                    if (sukses && type == 2)
+//                    {
+//#if (DEBUG || Debug_AWS)
+//                        JOBCOD1(iden, ordNo, noref);
+//#else
+//                        string EDBConnID = EDB.GetConnectionString("ConnId");
+//                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+//                        var Jobclient = new BackgroundJobClient(sqlStorage);
+//                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.JOBCOD1(iden, ordNo, noref));
+//#endif
+//                    }
+                }
+                catch(Exception ex)
+                {
+
+                }
                 //TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
                 //if (string.IsNullOrEmpty(result.errorCode.Value))
                 //{
@@ -4883,7 +4913,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> UpdateStock(TokopediaAPIData iden, int product_id, int stok)
+        public async Task<string> UpdateStock(TokopediaAPIData iden, long product_id, int stok)
         {
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -4931,7 +4961,7 @@ namespace MasterOnline.Controllers
         //change by nurul 12/2/2020, price (int)
         //public async Task<string> UpdatePrice(TokopediaAPIData iden, int product_id, float price)
         //end change by nurul 12/2/2020
-        public async Task<string> UpdatePrice(TokopediaAPIData iden, int product_id, int price)
+        public async Task<string> UpdatePrice(TokopediaAPIData iden, long product_id, int price)
         {
             var token = SetupContext(iden);
             iden.token = token;
@@ -4982,7 +5012,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Update Harga Jual Produk {obj} ke Tokopedia gagal.")]
-        public async Task<string> UpdatePrice_Job(string dbPathEra, string kdbrgMO, string log_CUST, string log_ActionCategory, string log_ActionName, int product_id, TokopediaAPIData iden, int price)
+        public async Task<string> UpdatePrice_Job(string dbPathEra, string kdbrgMO, string log_CUST, string log_ActionCategory, string log_ActionName, long product_id, TokopediaAPIData iden, int price)
         {
             //add 19 sept 2020, update harga massal
             if (log_ActionName.Contains("UPDATE_MASSAL"))
@@ -5243,7 +5273,7 @@ namespace MasterOnline.Controllers
                                                     kdBrg = brgmp[3];
                                                 }
                                             }
-                                            isValid = (item.basic.productID == Convert.ToInt32(kdBrg));
+                                            isValid = (item.basic.productID == Convert.ToInt64(kdBrg));
                                         }
                                     }
                                 }
@@ -5312,16 +5342,16 @@ namespace MasterOnline.Controllers
 
                                                         StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
 #if (DEBUG || Debug_AWS)
-                                                        Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt32(item.basic.productID), 0, username, null)).Wait();
+                                                        Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null)).Wait();
 #else
                                             string EDBConnID = EDB.GetConnectionString("ConnId");
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                             var Jobclient = new BackgroundJobClient(sqlStorage);
-                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt32(item.basic.productID), 0, username, null));
+                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null));
 #endif
-                                                    }
                                                 }
+                                            }
                                             //end add by Tri 10 Jan 2019, update stok setelah create product sukses
                                         }
                                     }
@@ -5361,23 +5391,23 @@ namespace MasterOnline.Controllers
                                                     data.idmarket = iden.idmarket;
                                                     StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
 #if (DEBUG || Debug_AWS)
-                                                    Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt32(item.basic.productID), 0, username, null)).Wait();
+                                                    Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null)).Wait();
 #else
                                             string EDBConnID = EDB.GetConnectionString("ConnId");
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                             var Jobclient = new BackgroundJobClient(sqlStorage);
-                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt32(item.basic.productID), 0, username, null));
+                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null));
 #endif
-                                                    //}
-                                                    //catch (Exception ex)
-                                                    //{
+                                                //}
+                                                //catch (Exception ex)
+                                                //{
 
-                                                    //}
+                                                //}
 
 
-                                                }
                                             }
+                                        }
                                         //end add by Tri 21 Jan 2019, update stok setelah create product sukses
                                     }
                                 }
@@ -6813,7 +6843,7 @@ namespace MasterOnline.Controllers
 
         public class Products
         {
-            public int id { get; set; }
+            public long id { get; set; }
             public string name { get; set; }
             public int quantity { get; set; }
             public string notes { get; set; }
@@ -6827,7 +6857,7 @@ namespace MasterOnline.Controllers
 
         public class Products_Fulfilled
         {
-            public int product_id { get; set; }
+            public long product_id { get; set; }
             public int quantity_deliver { get; set; }
             public int quantity_reject { get; set; }
         }
@@ -6916,7 +6946,7 @@ namespace MasterOnline.Controllers
 
         public class ActiveProductListResultProduct
         {
-            public int id { get; set; }
+            public long id { get; set; }
             public string name { get; set; }
             public int[] childs { get; set; }
             public string url { get; set; }
@@ -6977,8 +7007,8 @@ namespace MasterOnline.Controllers
 
         public class ActiveProductVariantResultData
         {
-            public int parent_id { get; set; }
-            public int default_child { get; set; }
+            public long parent_id { get; set; }
+            public long default_child { get; set; }
             public string sizechart { get; set; }
             public ActiveProductVariantResultDataVariant[] variant { get; set; }
             public ActiveProductVariantResultDataChild[] children { get; set; }
@@ -7004,7 +7034,7 @@ namespace MasterOnline.Controllers
         {
             public string name { get; set; }
             public string url { get; set; }
-            public int product_id { get; set; }
+            public long product_id { get; set; }
             public int price { get; set; }
             public string price_fmt { get; set; }
             public int stock { get; set; }
@@ -7049,7 +7079,7 @@ namespace MasterOnline.Controllers
 
         public class ItemListResultData
         {
-            public int product_id { get; set; }
+            public long product_id { get; set; }
             public string name { get; set; }
             public int shop_id { get; set; }
             public string shop_name { get; set; }
@@ -7062,14 +7092,14 @@ namespace MasterOnline.Controllers
         public class UpdateStockData
         {
             public string sku { get; set; }
-            public int product_id { get; set; }
+            public long product_id { get; set; }
             public int new_stock { get; set; }
 
         }
         public class UpdatePriceData
         {
             public string sku { get; set; }
-            public int product_id { get; set; }
+            public long product_id { get; set; }
             //change by nurul 12/2/2020
             //public float new_price { get; set; }
             public int new_price { get; set; }
@@ -7224,7 +7254,7 @@ namespace MasterOnline.Controllers
 
         public class EditProduct_Product
         {
-            public int id { get; set; }
+            public long id { get; set; }
             public string name { get; set; }
             public int? category_id { get; set; }
             public int price { get; set; }
@@ -7637,7 +7667,7 @@ namespace MasterOnline.Controllers
         public class Order_Detail
         {
             public int order_detail_id { get; set; }
-            public int product_id { get; set; }
+            public long product_id { get; set; }
             public string product_name { get; set; }
             public string product_desc_pdp { get; set; }
             public string product_desc_atc { get; set; }

@@ -5166,48 +5166,73 @@ namespace MasterOnline.Controllers
                                 StokJobEnqueued = 0,
                                 LAST_HEARTBEAT = lastHeartbeat
                             };
-
-                            //string sSQL = "select 'Stok' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%StokControllerJob%' " + System.Environment.NewLine;
+                            #region function lama
+                            ////string sSQL = "select 'Stok' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%StokControllerJob%' " + System.Environment.NewLine;
+                            //string sSQL = "select 'Stok' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%StokControllerJob%' and InvocationData not like '%updateBruto%'" + System.Environment.NewLine;
+                            //sSQL += "union all" + System.Environment.NewLine;
+                            ////change 2 aug 2021, pisahkan job get order complete shopee dan lzd
+                            ////sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%'" + System.Environment.NewLine;
+                            ////change by nurul 9/8/2021, pisahkan job get order complete jdid
+                            ////sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%' and InvocationData not like '%GetOrdersToUpdateMO%' and InvocationData not like '%ShopeeControllerJob%GetOrderByStatusCompleted%'" + System.Environment.NewLine;
+                            //sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%' and InvocationData not like '%GetOrdersToUpdateMO%' and InvocationData not like '%ShopeeControllerJob%GetOrderByStatusCompleted%' and InvocationData not like '%JD_GetOrderByStatusComplete%'" + System.Environment.NewLine;
+                            //sSQL += "union all" + System.Environment.NewLine;
+                            ////sSQL += "select 'Manage' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and (InvocationData like '%GetOrdersToUpdateMO%' or InvocationData like '%ShopeeControllerJob%GetOrderByStatusCompleted%')" + System.Environment.NewLine;
+                            //sSQL += "select 'Manage' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and (InvocationData like '%GetOrdersToUpdateMO%' or InvocationData like '%ShopeeControllerJob%GetOrderByStatusCompleted%' or InvocationData like '%JD_GetOrderByStatusComplete%')" + System.Environment.NewLine;
+                            ////end change by nurul 9/8/2021, pisahkan job get order complete jdid
+                            ////change 2 aug 2021, pisahkan job get order complete shopee dan lzd
+                            //sSQL += "union all" + System.Environment.NewLine;
+                            ////sSQL += "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%'" + System.Environment.NewLine;
+                            //sSQL += "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%' and InvocationData not like '%stok%'" + System.Environment.NewLine;
+                            //var dsCekQueue = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
+                            //if (dsCekQueue.Tables[0].Rows.Count > 0)
+                            //{
+                            //    for (int i = 0; i < dsCekQueue.Tables[0].Rows.Count; i++)
+                            //    {
+                            //        switch (Convert.ToString(dsCekQueue.Tables[0].Rows[i]["tipe"]))
+                            //        {
+                            //            case "Stok":
+                            //                data.StokJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
+                            //                break;
+                            //            case "Order":
+                            //                data.PesananJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
+                            //                break;
+                            //            case "Manage":
+                            //                data.ManageJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
+                            //                break;
+                            //            case "Product":
+                            //                data.CreateProductJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
+                            //                break;
+                            //            default:
+                            //                break;
+                            //        }
+                            //    }
+                            //}
+                            #endregion
                             string sSQL = "select 'Stok' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%StokControllerJob%' and InvocationData not like '%updateBruto%'" + System.Environment.NewLine;
-                            sSQL += "union all" + System.Environment.NewLine;
-                            //change 2 aug 2021, pisahkan job get order complete shopee dan lzd
-                            //sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%'" + System.Environment.NewLine;
-                            //change by nurul 9/8/2021, pisahkan job get order complete jdid
-                            //sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%' and InvocationData not like '%GetOrdersToUpdateMO%' and InvocationData not like '%ShopeeControllerJob%GetOrderByStatusCompleted%'" + System.Environment.NewLine;
-                            sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%' and InvocationData not like '%GetOrdersToUpdateMO%' and InvocationData not like '%ShopeeControllerJob%GetOrderByStatusCompleted%' and InvocationData not like '%JD_GetOrderByStatusComplete%'" + System.Environment.NewLine;
-                            sSQL += "union all" + System.Environment.NewLine;
-                            //sSQL += "select 'Manage' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and (InvocationData like '%GetOrdersToUpdateMO%' or InvocationData like '%ShopeeControllerJob%GetOrderByStatusCompleted%')" + System.Environment.NewLine;
-                            sSQL += "select 'Manage' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and (InvocationData like '%GetOrdersToUpdateMO%' or InvocationData like '%ShopeeControllerJob%GetOrderByStatusCompleted%' or InvocationData like '%JD_GetOrderByStatusComplete%')" + System.Environment.NewLine;
-                            //end change by nurul 9/8/2021, pisahkan job get order complete jdid
-                            //change 2 aug 2021, pisahkan job get order complete shopee dan lzd
-                            sSQL += "union all" + System.Environment.NewLine;
-                            //sSQL += "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%'" + System.Environment.NewLine;
-                            sSQL += "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%' and InvocationData not like '%stok%'" + System.Environment.NewLine;
-                            var dsCekQueue = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
-                            if (dsCekQueue.Tables[0].Rows.Count > 0)
+                            var dsCekQueue = EDB.GetDataSet("sCon", "QUEUE_COUNT_1", sSQL);
+                            if (dsCekQueue.Tables["QUEUE_COUNT_1"].Rows.Count > 0)
                             {
-                                for (int i = 0; i < dsCekQueue.Tables[0].Rows.Count; i++)
-                                {
-                                    switch (Convert.ToString(dsCekQueue.Tables[0].Rows[i]["tipe"]))
-                                    {
-                                        case "Stok":
-                                            data.StokJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
-                                            break;
-                                        case "Order":
-                                            data.PesananJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
-                                            break;
-                                        case "Manage":
-                                            data.ManageJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
-                                            break;
-                                        case "Product":
-                                            data.CreateProductJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                }
+                                data.StokJobEnqueued = Convert.ToInt32(dsCekQueue.Tables["QUEUE_COUNT_1"].Rows[0]["jumlah"]);
                             }
-
+                            //sSQL = "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%' and InvocationData not like '%GetOrdersToUpdateMO%' and InvocationData not like '%ShopeeControllerJob%GetOrderByStatusCompleted%' and InvocationData not like '%JD_GetOrderByStatusComplete%'" + System.Environment.NewLine;
+                            sSQL = "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%getOrder%' and InvocationData not like '%GetOrdersToUpdateMO%' and InvocationData not like '%ShopeeControllerJob%GetOrderByStatusCompleted%' and InvocationData not like '%JD_GetOrderByStatusComplete%' and InvocationData not like '%GetOrderLogistics%'" + System.Environment.NewLine;
+                            dsCekQueue = EDB.GetDataSet("sCon", "QUEUE_COUNT_2", sSQL);
+                            if (dsCekQueue.Tables["QUEUE_COUNT_2"].Rows.Count > 0)
+                            {
+                                data.PesananJobEnqueued = Convert.ToInt32(dsCekQueue.Tables["QUEUE_COUNT_2"].Rows[0]["jumlah"]);
+                            }
+                            sSQL = "select 'Manage' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and (InvocationData like '%GetOrdersToUpdateMO%' or InvocationData like '%ShopeeControllerJob%GetOrderByStatusCompleted%' or InvocationData like '%JD_GetOrderByStatusComplete%' or InvocationData like '%updatekurirshopee%' or InvocationData like '%GetTrackNoShopee%')" + System.Environment.NewLine;
+                            dsCekQueue = EDB.GetDataSet("sCon", "QUEUE_COUNT_3", sSQL);
+                            if (dsCekQueue.Tables["QUEUE_COUNT_3"].Rows.Count > 0)
+                            {
+                                data.ManageJobEnqueued = Convert.ToInt32(dsCekQueue.Tables["QUEUE_COUNT_3"].Rows[0]["jumlah"]);
+                            }
+                            sSQL = "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%' and InvocationData not like '%stok%'" + System.Environment.NewLine;
+                            dsCekQueue = EDB.GetDataSet("sCon", "QUEUE_COUNT_4", sSQL);
+                            if (dsCekQueue.Tables["QUEUE_COUNT_4"].Rows.Count > 0)
+                            {
+                                data.CreateProductJobEnqueued = Convert.ToInt32(dsCekQueue.Tables["QUEUE_COUNT_4"].Rows[0]["jumlah"]);
+                            }
                             pageContent.Add(data);
                         }
                         catch (Exception ex)
@@ -5267,6 +5292,331 @@ namespace MasterOnline.Controllers
                 return Json(new { success = false, status = "Terjadi Kesalahan, mohon hubungi support." }, JsonRequestBehavior.AllowGet);
             }
 
+        }
+
+        [SessionAdminCheck]
+        public ActionResult RenewWebhook()
+        {
+            var getAkunBaim = MoDbContext.Account.FirstOrDefault(a => a.Email == "baimsky@gmail.com");
+            ErasoftDbContextNew = new ErasoftContext(getAkunBaim.DatabasePathErasoft);
+            var partnerDb = ErasoftDbContextNew.PARTNER_API.FirstOrDefault(p => p.PartnerId == 20007);
+            string access_token = partnerDb.Access_Token;
+
+            var datenow = DateTime.UtcNow.AddHours(7);
+            var session = ErasoftDbContextNew.PARTNER_API.FirstOrDefault(p => datenow < p.Session_ExpiredDate && p.PartnerId == 20007);
+            if (session == null)
+            {
+                string refreshTokenExc = RefreshToken("baimsky@gmail.com", partnerDb.Access_Token, partnerDb.Refresh_Token, partnerDb.Session);
+                if (refreshTokenExc.Contains("Error : "))
+                {
+                    return Json(refreshTokenExc, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    access_token = refreshTokenExc;
+                }
+            }
+
+            string currentSession = dbCheckSession(access_token, partnerDb.Session);
+            if (currentSession.Contains("Error : "))
+            {
+                return Json(currentSession, JsonRequestBehavior.AllowGet);
+            }
+
+            string url = "https://account.accurate.id/api/webhook-renew.do";
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(url);
+
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", "Bearer " + access_token);
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+            myReq.ContentLength = 0;
+
+            string responseFromServer = "";
+
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+                return Json(responseFromServer, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (WebException e)
+            {
+                string err = "";
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                        string error = Newtonsoft.Json.JsonConvert.SerializeObject(err);
+
+                        return Json(error, JsonRequestBehavior.AllowGet);
+                    }
+                }
+                else
+                {
+                    return Json(e.Message, JsonRequestBehavior.AllowGet);
+                }
+            }
+        }
+
+        public string dbRefreshSession(string access_token, string session_token, string id_db)
+        {
+            var getAkunBaim = MoDbContext.Account.FirstOrDefault(a => a.Email == "baimsky@gmail.com");
+            ErasoftDbContextNew = new ErasoftContext(getAkunBaim.DatabasePathErasoft);
+
+            string ret = "";
+            string url = "https://account.accurate.id/api/db-refresh-session.do?id=" + id_db + "&session=" + session_token;
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(url);
+
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", "Bearer " + access_token);
+            myReq.Accept = "*/*";
+            myReq.ContentType = "application/json";
+            myReq.ContentLength = 0;
+
+            string responseFromServer = "";
+
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                string err = "";
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                        return "Error : " + err;
+                    }
+                }
+                else
+                {
+                    err = "Error : " + e.Message + " | " + e.Source + " | " + e.StackTrace;
+                    return err;
+                }
+            }
+            catch (Exception ex)
+            {
+                string error = "Error : " + ex.Message + ". " + ex.Source + ". " + ex.StackTrace;
+                return error;
+            }
+
+            var response_session = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ResponseSession)) as ResponseSession;
+            ErasoftDbContextNew.Database.ExecuteSqlCommand("UPDATE PARTNER_API SET Session = '" + response_session.d.session + "' WHERE PartnerId = 20007 ");//fs_id = 1
+
+            var partnerDb = ErasoftDbContextNew.PARTNER_API.FirstOrDefault(p => p.PartnerId == 20007);
+            return partnerDb.Session;
+
+            //return ret;
+        }
+
+        public string dbCheckSession(string access_token, string session_token)
+        {
+            var getAkunBaim = MoDbContext.Account.FirstOrDefault(a => a.Email == "baimsky@gmail.com");
+            ErasoftDbContextNew = new ErasoftContext(getAkunBaim.DatabasePathErasoft);
+            var partnerDb = ErasoftDbContextNew.PARTNER_API.FirstOrDefault(p => p.PartnerId == 20007);
+
+            string ret = "";
+            string url = "https://account.accurate.id/api/db-check-session.do?session=" + session_token;
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(url);
+
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", "Bearer " + access_token);
+            myReq.Accept = "*/*";
+            myReq.ContentType = "application/json";
+
+            string responseFromServer = "";
+
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                string err = "";
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                        return "Error : " + err;
+                    }
+                }
+                else
+                {
+                    err = "Error : " + e.Message + " | " + e.Source + " | " + e.StackTrace;
+                    return err;
+                }
+            }
+            catch (Exception ex)
+            {
+                string error = "Error : " + ex.Message + ". " + ex.Source + ". " + ex.StackTrace;
+                return error;
+            }
+
+            var response_session = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(CheckSession)) as CheckSession;
+            if (response_session.s == false || response_session.d == false)
+            {
+                string db_id = partnerDb.DatabaseId;
+                string newSession = dbRefreshSession(access_token, session_token, db_id);
+                return newSession;
+            }
+            else
+            {
+                return session_token;
+            }
+
+            //return ret;
+        }
+
+        public string RefreshToken(string email, string access_token, string refresh_token, string session_token)
+        {
+            var getAkunBaim = MoDbContext.Account.FirstOrDefault(a => a.Email == "baimsky@gmail.com");
+            ErasoftDbContextNew = new ErasoftContext(getAkunBaim.DatabasePathErasoft);
+            var partnerDb = ErasoftDbContextNew.PARTNER_API.FirstOrDefault(p => p.PartnerId == 20007);
+
+            string ret = "";
+            string url = "https://account.accurate.id/oauth/token";
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(url);
+
+#if AWS || Debug_AWS
+            var encodedData = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("b9e575d6-e1de-405a-86bd-a18a0e5c19d9" + ":" + "b3217ae03620c4403a9587023fa03ed0")); //IdSec[0].ClientId //IdSec[0].ClientSecret
+#elif DEBUG || DEV
+            var encodedData = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("9ba2291f-6407-4948-be90-955fa8e78f7e" + ":" + "54e4d8110aba0dd922a325658fc1599d"));
+#endif
+
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", "Basic " + encodedData);
+            myReq.Accept = "*/*";
+            myReq.ContentType = "application/x-www-form-urlencoded";
+            myReq.ContentLength = 0;
+
+            string myData = "grant_type=refresh_token&refresh_token=" + refresh_token;
+            string responseFromServer = "";
+
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                string err = "";
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                        return "Error : " + err;
+                    }
+                }
+                else
+                {
+                    err = "Error : " + e.Message + " | " + e.Source + " | " + e.StackTrace;
+                    return err;
+                }
+            }
+            catch (Exception ex)
+            {
+                string error = "Error : " + ex.Message + ". " + ex.Source + ". " + ex.StackTrace;
+                return error;
+            }
+
+            try
+            {
+                var response_token = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(Token)) as Token;
+                var date_expires = DateTime.Now.AddDays((response_token.expires_in) / 86400).ToString("yyyy-MM-dd HH:mm:ss");
+                ErasoftDbContextNew.Database.ExecuteSqlCommand("UPDATE PARTNER_API SET Access_Token = '" + response_token.access_token + "', Refresh_Token = '" + response_token.refresh_token + "', Session_ExpiredDate = '" + date_expires + "' WHERE PartnerId = 20007 ");
+                string currentSession = dbCheckSession(response_token.access_token, session_token);
+                if (currentSession.Contains("Error : "))
+                {
+                    return currentSession;
+                }
+                return response_token.access_token;
+            }
+            catch (Exception ex)
+            {
+                string error = ex.Message + ". " + ex.Source + ". " + ex.StackTrace;
+                return error;
+            }
+            return ret;
+        }
+
+        public class Token
+        {
+            public string access_token { get; set; }
+            public string token_type { get; set; }
+            public string refresh_token { get; set; }
+            public int expires_in { get; set; }
+            public string scope { get; set; }
+        }
+
+        public class CheckSession
+        {
+            public bool s { get; set; }
+            public bool d { get; set; }
+        }
+
+        public class ResponseSession
+        {
+            public bool s { get; set; }
+            public D d { get; set; }
+        }
+
+        public class D
+        {
+            public long dataVersion { get; set; }
+            public string licenseEnd { get; set; }
+            public string session { get; set; }
+            public string host { get; set; }
+            public string errorMessage { get; set; }
+            public bool admin { get; set; }
+            public int errorCode { get; set; }
+            public string accessibleUntil { get; set; }
+            public bool trial { get; set; }
         }
 
         [SessionAdminCheck]
@@ -6075,6 +6425,9 @@ namespace MasterOnline.Controllers
                 sSQLSelectGroupMethod += "SELECT statename, invocationdata, arguments " +
                     "FROM hangfire.[job] " +
                     "WHERE invocationdata LIKE '%getorder%' and statename LIKE '%succ%' " +
+                    //add by nurul 2/9/2021
+                    "and invocationdata not like '%GetOrderLogistics%' " +
+                    //end add by nurul 2/9/2021
                     "GROUP BY statename, invocationdata, arguments " +
                     "ORDER BY invocationdata ASC ";
                 //sSQLSelectGroupMethod += "SELECT statename, invocationdata " +

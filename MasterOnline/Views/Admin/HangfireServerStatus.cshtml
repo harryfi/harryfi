@@ -217,8 +217,12 @@
                     </span>
                 </div>
             </div>
+            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12" style="text-align: right">
+                <button id="renew_webhook_btn" type="button" class="btn btn-primary" onclick="callRenewWebhook()">
+                    Renew Webhook Accurate
+                </button>
+            </div>
         </div>
-    </div>
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="row" style="margin-top: 5px;">
             <div class="col-sm-12" id="table-market-log-partial-div">
@@ -396,6 +400,33 @@
         $('#txtTahun2').val(d.getFullYear());
         refreshTableLog();
     });
+
+        function callRenewWebhook() {
+            if(confirm("Apakah Anda yakin ingin melakukan renew webhook Accurate ?")){
+                var link = '@Url.Action("RenewWebhook", "Admin")';
+
+                $.ajax({
+                    type: "POST",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    beforeSend: function () {
+                        $('#loading_barang_tab').show();
+                    },
+                    success: function (response) {
+                        if (response != null) {
+                            alert(response);
+                            $('#loading_barang_tab').hide();
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        alert('Gagal renew webhook.');
+                        $('#loading_barang_tab').hide();
+                    }
+                });
+            }
+        }
 
     function searchTableLog() {
         var $link = '@Html.Raw(Url.Action("RefreshHangfireServerStatus", "Admin", new { search = "replaceSearch" }))';
@@ -1046,7 +1077,7 @@
 
         var $link = '@Html.Raw(Url.Action("GetCategoryJDID", "Admin", new { email = "replaceEmail" }))';
         $link = $link.replace("replaceEmail", "camellilac@gmail.com");
-        
+
             $.ajax({
                 type: "GET",
                 url: $link,
@@ -1073,7 +1104,7 @@
 
         var $link = '@Html.Raw(Url.Action("GetAttributeJDID", "Admin", new { email = "replaceEmail" }))';
         $link = $link.replace("replaceEmail", "camellilac@gmail.com");
-        
+
             $.ajax({
                 type: "GET",
                 url: $link,
