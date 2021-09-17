@@ -2300,17 +2300,26 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-lg-5 col-sm-12"></div>
+                        <div class="col-lg-4 col-sm-12"></div>
+                        @*add by nurul 17/9/2021*@
+                        <div class="col-lg-1 col-sm-6" style="margin-top:13px;">
+                            <div class="pull-right">
+                                <button type="button" id="btn_refresh_pesanan_faktur" class="btn btn-default" data-style="expand-right">
+                                    <span>Refresh</span>
+                                </button>
+                            </div>
+                        </div>
+                        @*end add by nurul 17/9/2021*@
                         <div class="col-lg-1 col-sm-6" style="margin-top:13px;">
                             <div class="pull-right">
                                 @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
-                                        <span>Refresh</span>
-                                    </button>*@
+                    <span>Refresh</span>
+                </button>*@
                                 @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
                                 @*<button type="button" id="btn_generateFaktur" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalGenerateFaktur" onclick="passRecStatusMultiDibayar()">
-                                        <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Buat Faktur</span>
-                                    </button>*@
+                    <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Buat Faktur</span>
+                </button>*@
                                 @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
                                 <div class="btn-group" role="group">
                                     <button id="pesanan_faktur_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -2331,7 +2340,7 @@
                             <div class="input-group text">
                                 <select class="form-control" id="TakeRecordInvoicing" name="TakeRecordInvoicing" required="required">
                                     @*
-                                        <option>--Pilih--</option>*@
+                    <option>--Pilih--</option>*@
                                     <option value="10">10</option>
                                     <option value="20">20</option>
                                     <option value="50">50</option>
@@ -4753,7 +4762,11 @@
                 //});
                 //$('#datatable_sudahkirim').DataTable().page($page).draw(false);
             });
-
+            //add by nurul 17/9/2021
+            $('#btn_refresh_pesanan_faktur').click(function () {
+                refreshTableSudahKirim();
+            });
+            //add by nurul 17/9/2021
             $('#selesai-tab').click(function () {
                 $TabAktif = 4;
                 refreshTableSelesai();
