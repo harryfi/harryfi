@@ -7223,7 +7223,8 @@ namespace MasterOnline.Controllers
 
         public class GetVariantResultData
         {
-            public long variant_id { get; set; }
+            //public int variant_id { get; set; }
+            public int variant_id { get; set; }
             public string name { get; set; }
             public string identifier { get; set; }
             public int status { get; set; }
