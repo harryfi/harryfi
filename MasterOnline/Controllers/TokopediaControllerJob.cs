@@ -6620,7 +6620,7 @@ namespace MasterOnline.Controllers
                                         if (!cekListMessage.Contains(message.msg_id))
                                         {
                                             listMessage.Add(message);
-                                            var cekListChat = ErasoftDbContext.TOKPED_LISTCHAT.AsNoTracking().Where(a => a.msg_id == message.msg_id && a.CUST == cust.CUST).Count();
+                                            var cekListChat = ErasoftDbContext.TOKPED_LISTCHAT.AsNoTracking().Where(b => b.msg_id == message.msg_id && b.CUST == cust.CUST).Count();
                                             if (cekListChat == 0)
                                             {
                                                 await ListReply(iden, message.msg_id, 0);
