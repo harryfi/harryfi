@@ -1157,13 +1157,13 @@
                                         </div>
                                             //end add by nurul 16/7/2020
                                             // add by fauzi, add selection untuk setting status sync pesanan stok marketplace 25 November 2019
-                                        <div class="form-group" id="status-sync">
+                                        @*<div class="form-group" id="status-sync">
                                             @Html.LabelFor(m => m.Customers.TIDAK_HIT_UANG_R, "Status Sync Pesanan & Stok", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 @Html.HiddenFor(m => m.Customers.TIDAK_HIT_UANG_R)
                                                 <select style="display:none" single class="selectize-dropdown single" id="Customers_TIDAK_HIT_UANG_R" placeholder="Harap pilih" required="disabled"></select>
                                             </div>
-                                        </div>
+                                        </div>*@
                                             // end add by fauzi, add selection untuk setting status sync pesanan stok marketplace 25 November 2019
 
                                         @*<div class="form-group">
@@ -1244,6 +1244,13 @@
                                         <div id="JDAccessToken" class="form-group">
                                         </div>
                                         @*end add by Tri 10/04/2019*@
+                                        <div class="form-group" id="status-sync">
+                                            @Html.LabelFor(m => m.Customers.STATUS_SYNC_CHAT, "Status Sync Chat", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @Html.HiddenFor(m => m.Customers.STATUS_SYNC_CHAT)
+                                                <select style="display:none" single class="selectize-dropdown single" id="Customers_STATUS_SYNC_CHAT" placeholder="Harap pilih" required="disabled"></select>
+                                            </div>
+                                        </div>
                                         @*add by nurul 24/10/2018*@
                                         <div id="descAPIKey2" class="form-group">
                                             <div id="emptyDiv3" class="col-md-3 col-sm-3 col-xs-1"></div>
@@ -1610,7 +1617,8 @@
         //add by fauzi 06/12/2019
         function simpanStatusSyncPesananStok(custID, status) {
             @*var link = '@Url.Action("SaveStatusSyncPesananStok", "Manage", new { data = "custID_statusSync"})';*@
-             var $link = '@Html.Raw(Url.Action("SaveStatusSyncPesananStok", "Manage", new { custID = "cust_ID", statusSync = "status_Sync" }))';
+             @*var $link = '@Html.Raw(Url.Action("SaveStatusSyncPesananStok", "Manage", new { custID = "cust_ID", statusSync = "status_Sync" }))';*@
+            var $link = '@Html.Raw(Url.Action("SaveStatusSyncChat", "Manage", new { custID = "cust_ID", statusSync = "status_Sync" }))';
             $link = $link.replace("cust_ID", custID);
             $link = $link.replace("status_Sync", String(status));
             var msg = null;
@@ -2668,7 +2676,12 @@
                     //end add by nurul 16/7/2020
 
                     //add by fauzi 06/12/2019 function for onchange selectize and change db arf01 TIDAK_HIT_UANG_R (sync_pesanan_dan_stok)
-                    getStatusSyncMarketplace(response.Customers.TIDAK_HIT_UANG_R);
+                    var statusSync = false;
+                    if (response.Customers.STATUS_SYNC_CHAT == "1") {
+                        statusSync = true;
+                    }
+                    //getStatusSyncMarketplace(response.Customers.STATUS_SYNC_CHAT);
+                    getStatusSyncMarketplace(statusSync);
 
                     //add fauzi
                     //$('#formdivAPIKey').show();
@@ -3081,6 +3094,15 @@
                             validateInput($(this), 'TOP');
                         });
                     //END ADD
+                    $('input').each(function () {
+                        $(this).attr('disabled', 'disabled');
+                    });
+                    if (@blibli == response.Customers.NAMA || @shopee == response.Customers.NAMA || @jd == response.Customers.NAMA) {
+                        $('#cbVersiAPI')[0].selectize.disable();
+                    }
+                    if (@shopee != response.Customers.NAMA) {
+                        $('#simpan_btn').hide();
+                    }
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
@@ -3099,8 +3121,8 @@
             } else if (response == false) {
                 resp = "false02"
             }
-
-            var statusSyncMarketplace = $('#Customers_TIDAK_HIT_UANG_R').selectize({
+            
+            var statusSyncMarketplace = $('#Customers_STATUS_SYNC_CHAT').selectize({
                 create: true,
                 maxItems: 1,
                 multiple: false,
@@ -3119,41 +3141,95 @@
                 //},
                 onChange: function (value) {
                     if (value == "true") {
-                        if (confirm("Anda akan menghidupkan fitur sync pesanan dan stok dari MasterOnline ke akun marketplace Anda dengan stok yang sudah Anda lengkapi di Master Online.\n\nLanjutkan ?")) {
-                            $('#Customers_TIDAK_HIT_UANG_R').val("true");
+                        if (confirm("Anda akan menghidupkan fitur sync chat dari MasterOnline ke akun marketplace Anda.\n\nLanjutkan ?")) {
+                            $('#Customers_STATUS_SYNC_CHAT').val("true");
                             resultStatus = true;
                             simpanStatusSyncPesananStok($('#Customers_CUST').val(), String(resultStatus));
-                            statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+                            statusSyncMarketplace[0].selectize.setValue($('#Customers_STATUS_SYNC_CHAT').val(), true);
                         }
                         else {
-                            $('#Customers_TIDAK_HIT_UANG_R').val("false");
+                            $('#Customers_STATUS_SYNC_CHAT').val("false");
                             resultStatus = false;
-                            statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+                            statusSyncMarketplace[0].selectize.setValue($('#Customers_STATUS_SYNC_CHAT').val(), true);
                         }
                     }
                     else if (value == "false") {
-                        if (confirm("Anda akan mematikan fitur sync pesanan dan stok dari MasterOnline ke akun marketplace Anda.\n\nLanjutkan ?")) {
-                            $('#Customers_TIDAK_HIT_UANG_R').val("false");
+                        if (confirm("Anda akan mematikan fitur sync chat dari MasterOnline ke akun marketplace Anda.\n\nLanjutkan ?")) {
+                            $('#Customers_STATUS_SYNC_CHAT').val("false");
                             resultStatus = false;
                             simpanStatusSyncPesananStok($('#Customers_CUST').val(), String(resultStatus));
-                            statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+                            statusSyncMarketplace[0].selectize.setValue($('#Customers_STATUS_SYNC_CHAT').val(), true);
                         }
                         else {
-                            $('#Customers_TIDAK_HIT_UANG_R').val("true");
+                            $('#Customers_STATUS_SYNC_CHAT').val("true");
                             resultStatus = true;
-                            statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+                            statusSyncMarketplace[0].selectize.setValue($('#Customers_STATUS_SYNC_CHAT').val(), true);
                         }
                     }
                     else if (value == "true01") {
-                        $('#Customers_TIDAK_HIT_UANG_R').val("true");
-                        statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+                        $('#Customers_STATUS_SYNC_CHAT').val("true");
+                        statusSyncMarketplace[0].selectize.setValue($('#Customers_STATUS_SYNC_CHAT').val(), true);
                     }
                     else if (value == "false02") {
-                        $('#Customers_TIDAK_HIT_UANG_R').val("false");
-                        statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+                        $('#Customers_STATUS_SYNC_CHAT').val("false");
+                        statusSyncMarketplace[0].selectize.setValue($('#Customers_STATUS_SYNC_CHAT').val(), true);
                     }
                 }
             });
+            //var statusSyncMarketplace = $('#Customers_TIDAK_HIT_UANG_R').selectize({
+            //    create: true,
+            //    maxItems: 1,
+            //    multiple: false,
+            //    addOption: false,
+            //    sortField: 'text',
+            //    valueField: 'value',
+            //    labelField: 'text',
+            //    searchField: ['text'],
+            //    options: [
+            //        { value: "true", text: "Aktif", selected: true },
+            //        { value: "false", text: "Tidak Aktif", selected: true },
+            //    ],
+            //    selectedField: "selected",
+            //    //onInitialize: function () {
+            //    //this.trigger('change', resp);
+            //    //},
+            //    onChange: function (value) {
+            //        if (value == "true") {
+            //            if (confirm("Anda akan menghidupkan fitur sync pesanan dan stok dari MasterOnline ke akun marketplace Anda dengan stok yang sudah Anda lengkapi di Master Online.\n\nLanjutkan ?")) {
+            //                $('#Customers_TIDAK_HIT_UANG_R').val("true");
+            //                resultStatus = true;
+            //                simpanStatusSyncPesananStok($('#Customers_CUST').val(), String(resultStatus));
+            //                statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+            //            }
+            //            else {
+            //                $('#Customers_TIDAK_HIT_UANG_R').val("false");
+            //                resultStatus = false;
+            //                statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+            //            }
+            //        }
+            //        else if (value == "false") {
+            //            if (confirm("Anda akan mematikan fitur sync pesanan dan stok dari MasterOnline ke akun marketplace Anda.\n\nLanjutkan ?")) {
+            //                $('#Customers_TIDAK_HIT_UANG_R').val("false");
+            //                resultStatus = false;
+            //                simpanStatusSyncPesananStok($('#Customers_CUST').val(), String(resultStatus));
+            //                statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+            //            }
+            //            else {
+            //                $('#Customers_TIDAK_HIT_UANG_R').val("true");
+            //                resultStatus = true;
+            //                statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+            //            }
+            //        }
+            //        else if (value == "true01") {
+            //            $('#Customers_TIDAK_HIT_UANG_R').val("true");
+            //            statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+            //        }
+            //        else if (value == "false02") {
+            //            $('#Customers_TIDAK_HIT_UANG_R').val("false");
+            //            statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+            //        }
+            //    }
+            //});
             statusSyncMarketplace[0].selectize.trigger('change', resp);
 
             if ($('#CUSTNUMBER').val() == "[AUTO]") {

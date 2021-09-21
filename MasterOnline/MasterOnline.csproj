@@ -1087,6 +1087,8 @@
     <Compile Include="Models\FAKTUR_API.cs" />
     <Compile Include="Models\LINKFTP.cs" />
     <Compile Include="Models\LOG_HARGAJUAL.cs" />
+    <Compile Include="Models\SHOPEE_LISTCONVERSATION.cs" />
+    <Compile Include="Models\SHOPEE_MESSAGE.cs" />
     <Compile Include="Models\SOT01H.cs" />
     <Compile Include="Models\SupportMenu.cs" />
     <Compile Include="Models\SOT01G.cs" />
@@ -1433,6 +1435,9 @@
     <Compile Include="Models\Subscription.cs" />
     <Compile Include="Models\TEMP_BRG_MP.cs" />
     <Compile Include="Models\TEMP_UPLOAD_EXCEL_INVOICE_PEMBELIAN.cs" />
+    <Compile Include="Models\TOKPED_LISTCHAT.cs" />
+    <Compile Include="Models\TOKPED_LISTMESSAGE.cs" />
+    <Compile Include="Models\TOKPED_SHOPID.cs" />
     <Compile Include="Models\TransaksiMidtrans.cs" />
     <Compile Include="Models\Tutorial_Detail.cs" />
     <Compile Include="Models\Tutorial_Header.cs" />
