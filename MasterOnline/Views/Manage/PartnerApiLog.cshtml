@@ -138,8 +138,9 @@
     });
 
     function searchTableLog() {
-        var $link = '@Html.Raw(Url.Action("RefreshTableApiLog", "Manage", new { search = "replaceSearch" }))';
+        var $link = '@Html.Raw(Url.Action("RefreshTableApiLog", "Manage", new { take = "replaceLastTake", search = "replaceSearch" }))';
         $link = $link.replace("replaceSearch", encodeURIComponent($('#search_api_log').val()));
+        $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordInvoicing').val()));
 
         $.ajax({
             type: "GET",
