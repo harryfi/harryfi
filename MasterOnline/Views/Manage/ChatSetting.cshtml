@@ -1215,34 +1215,30 @@
                                                 <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
                                             </div>*@
                                         @*add by nurul 28/4/2021*@
-                                        <div id="JDShopId" class="form-group">
+                                        @*<div id="JDShopId" class="form-group">
                                         </div>
-                                        @*add by nurul 28/4/2021*@
                                         <div class="form-group">
                                             <div id="divAPIKey"></div>
                                             <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
-                                        </div>
+                                        </div>*@
                                         <div id="descAPIKey" class="form-group">
                                             <div id="emptyDiv" class=" col-md-3 col-sm-3 col-xs-1"></div>
-                                            @*<label id="lblDesc" style="visibility:hidden">API key harus terisi untuk dapat terintegrasi dengan marketplace.</label>*@
                                             <label id="lblDesc" style="visibility:hidden">API key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.</label>
                                             <br />
-                                            @*<label id="lblDesc2" style="visibility:hidden">API key harus terisi untuk dapat terintegrasi dengan marketplace.</label>*@
                                             <label id="lblDesc2" style="visibility:hidden">API key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.</label>
                                             <label id="lblPopUp" style="visibility:hidden;color:blue" onclick="openModalDesc(MARKET.value)"><u>Di Sini</u></label>
                                             <div id="emptyDiv2" class=" col-md-3 col-sm-3 col-xs-1"></div>
                                         </div>
-                                        <div id="BlibliMerchantID" class="form-group">
+                                        @*<div id="BlibliMerchantID" class="form-group">
                                         </div>
                                         <div id="BlibliClient" class="form-group">
                                         </div>
                                         <div id="BlibliClientPass" class="form-group">
                                         </div>
-                                        @*add by Tri 10/04/2019*@
                                         <div id="JDAppSecret" class="form-group">
                                         </div>
                                         <div id="JDAccessToken" class="form-group">
-                                        </div>
+                                        </div>*@
                                         @*end add by Tri 10/04/2019*@
                                         <div class="form-group" id="status-sync">
                                             @Html.LabelFor(m => m.Customers.STATUS_SYNC_CHAT, "Status Sync Chat", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
@@ -3100,8 +3096,11 @@
                     if (@blibli == response.Customers.NAMA || @shopee == response.Customers.NAMA || @jd == response.Customers.NAMA) {
                         $('#cbVersiAPI')[0].selectize.disable();
                     }
-                    if (@shopee != response.Customers.NAMA) {
+                    if (@tokped == response.Customers.NAMA) {
                         $('#simpan_btn').hide();
+                    } else if (@shopee == response.Customers.NAMA) {
+                        $('#simpan_btn').show();
+                        $('#simpan_btn').removeAttr('disabled');
                     }
                     $('#loading_spinner').hide();
                 },
