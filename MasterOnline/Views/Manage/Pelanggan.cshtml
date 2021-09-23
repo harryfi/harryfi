@@ -2108,6 +2108,15 @@
         function simpanCustomer(btnClicked) {
             if (!validateForm()) return false;
 
+            //add by nurul 23/9/2021
+            if ($('#Customers_NAMA').val() === "16") {
+                if ($('#Customers_KD_ANALISA').val() !== "2") {
+                    alert("Blibli versi token sudah expired.");
+                    return false;
+                }
+            }
+            //end add by nurul 23/9/2021
+       
             //change by nurul 21/2/2019
             @*var link = '@Url.Action("CekJumlahMarketplace", "Manage", new { uname = "replaceUname" })';
             link = link.replace("replaceUname", '@(username)');*@
@@ -3744,6 +3753,11 @@
                 id: "2",
                 text: "Non Token"
             };
+
+            //listVersi[0] = {
+            //    id: "2",
+            //    text: "Non Token"
+            //};
 
             var comboSelect = $('#cbVersiAPI').selectize({
                 valueField: 'id',
