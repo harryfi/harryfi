@@ -88,13 +88,13 @@
 
 @if (Model.PageCount > 1)
 {
-    <div id="tabelpembelipartialpager" class="pager">
+    <div id="tabellogerrorpager" class="pager">
         @Html.PagedListPager(Model, page => Url.Action("RefreshTableApiLog", new
    {
        take = ViewData["takeRecord"],
        page,
        search = ViewData["searchParam"],
-       
+
         }),
         new PagedListRenderOptions
         {
@@ -110,7 +110,7 @@
 
 <script type="text/javascript">
     $(function () {
-        $('#table-market-log-partial-div').on('click', 'a', function () {
+        $('#tabellogerrorpager').on('click', 'a', function () {
             if (this.href != "") {
                 var link = this.href;
                 link += "&take=replaceTake&page=replaceLastPage";
@@ -126,38 +126,15 @@
                         $('#loading_barang_tab').show();
                     },
                     success: function (response) {
-                        $('#table-market-log-partial-div').html(response);
+                        $('#table-partner-api-log-error').html(response);
                         $('#loading_barang_tab').hide();
+                        $page = @Model.PageNumber;
+                        $GetPage = @Model.PageCount;
                     }
                 });
                 return false;
             }
         });
-        //$('#tabelpesananInvoicingpartialpager').on('click', 'a', function () {
-        //    if (this.href != "") {
-        //        var link = this.href;
-        //        var filterby = get_pesanan_faktur_filterby();
-        //        var filtervalue = get_pesanan_faktur_filtervalue(filterby);
-        //        link += "&filter=replaceFilter&filtervalue=replaceValueFilter";
-        //        link = link.replace("replaceFilter", encodeURIComponent(filterby));
-        //        link = link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
-
-        //        $.ajax({
-        //            url: link,
-        //            type: 'GET',
-        //            cache: false,
-        //            beforeSend: function () {
-        //                $('#loading_pesanan_invoicing_tab').show();
-        //                $('#text-check-faktur').text('');
-        //            },
-        //            success: function (response) {
-        //                $('#table-pesanan-sudah-kirim-partial').html(response);
-        //                $('#loading_pesanan_invoicing_tab').hide();
-        //            }
-        //        });
-        //    }
-        //    return false;
-        //});
     });
 </script>
 @* end add by calvin 22 april 2019, paging *@
