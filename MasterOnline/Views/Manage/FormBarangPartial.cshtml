@@ -1367,6 +1367,22 @@
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
+                                                                                    <div class="row">
+                                                                                        <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                            @Html.Label("Nama Barang", new { @class = "control-label" })
+                                                                                        </div>
+                                                                                        <div class="col-md-10 col-sm-10 col-xs-12 form-group">
+                                                                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control", maxlength = 70 })
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="row">
+                                                                                        <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                            @Html.Label("Deskripsi Barang", new { @class = "control-label" })
+                                                                                        </div>
+                                                                                        <div class="col-md-10 col-sm-10 col-xs-12 form-group">
+                                                                                            @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor" })
+                                                                                        </div>
+                                                                                    </div>
                                                                                 </div>
                                                                             </div>
                                                                         }
