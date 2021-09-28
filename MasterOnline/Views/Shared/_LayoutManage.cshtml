@@ -474,7 +474,9 @@
                                                                 if (child.Show && !child.HaveChild)
                                                                 {
                                                                     <li>
-                                                                        <a @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                        @if (child.ScrId == 1101) //chat
+                                                                        {
+                                                                        <a @(!child.HaveChild ? "href=" + child.Url + sessionAccountDatabasePathErasoft : "")>
                                                                             @if (!string.IsNullOrEmpty(child.Icon))
                                                                             {
                                                                                 <i class="fa @child.Icon"></i>
@@ -489,6 +491,25 @@
                                                                                 <span class="fa fa-chevron-down"></span>
                                                                             }
                                                                         </a>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <a @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                            @if (!string.IsNullOrEmpty(child.Icon))
+                                                                            {
+                                                                                <i class="fa @child.Icon"></i>
+                                                                            }
+                                                                            @child.NamaForm
+                                                                            @if (parent.ScrId == 38 && child.ParentId == 38) //Expired Akun Marketplace
+                                                                            {
+                                                                                <img id="new_expired_mp_sub_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
+                                                                            }
+                                                                            @if (child.HaveChild)
+                                                                            {
+                                                                                <span class="fa fa-chevron-down"></span>
+                                                                            }
+                                                                        </a>
+                                                                        }
                                                                     </li>
                                                                 }
                                                                 else
