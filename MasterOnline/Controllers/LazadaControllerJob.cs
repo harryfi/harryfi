@@ -1825,6 +1825,16 @@ namespace MasterOnline.Controllers
                             order.status_kirim = "1";
                         }
                         ErasoftDbContext.SaveChanges();
+                        //ADD BY NURUL 28/9/2021
+                        try
+                        {
+                            EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SIT01A SET NAMAPENGIRIM='" + order.SHIPMENT + "' WHERE NO_SO = '" + order.NO_BUKTI + "' AND CUST='" + order.CUST + "' AND NO_REFERENSI='" + order.NO_REFERENSI + "'");
+                        }
+                        catch(Exception ex)
+                        {
+
+                        }
+                        //END ADD BY NURUL 28/9/2021
                         //
                         //
                         //                        string EDBConnID = EDB.GetConnectionString("ConnId");
@@ -1894,6 +1904,16 @@ namespace MasterOnline.Controllers
                             order.TRACKING_SHIPMENT = resi;
                             order.SHIPMENT = kurir;
                             ErasoftDbContext.SaveChanges();
+                            //ADD BY NURUL 28/9/2021
+                            try
+                            {
+                                EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SIT01A SET NAMAPENGIRIM='" + kurir + "' WHERE NO_SO = '" + order.NO_BUKTI + "' AND CUST='" + order.CUST + "' AND NO_REFERENSI='" + order.NO_REFERENSI + "'");
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                            //END ADD BY NURUL 28/9/2021
                         }
                     }
                 }
