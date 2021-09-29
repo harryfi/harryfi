@@ -6582,7 +6582,7 @@ namespace MasterOnline.Controllers
                         {
                             var dateNow = DateTime.UtcNow.AddHours(7);
                             //var dateLast1Month = dateNow.AddMonths(-1);
-                            var dateLast1Month = dateNow.AddDays(-14);
+                            var dateLast1Month = dateNow.AddDays(-30);
                             var cust = ErasoftDbContext.ARF01.Where(a => a.API_KEY == iden.API_secret_key && a.Sort1_Cust == iden.merchant_code).FirstOrDefault();
                             if (cust != null)
                             {
@@ -6694,7 +6694,7 @@ namespace MasterOnline.Controllers
                         if (cust != null)
                         {
                             var dateNow = DateTime.UtcNow.AddHours(7);
-                            var dateLast1Month = dateNow.AddDays(-14);
+                            var dateLast1Month = dateNow.AddDays(-30);
                             var firstReply = false;
                             var cekListReply = ErasoftDbContext.TOKPED_LISTCHAT.ToList();
                             var replyid = cekListReply.Select(a => a.reply_id).ToList();
