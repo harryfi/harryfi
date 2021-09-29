@@ -1828,7 +1828,7 @@ namespace MasterOnline.Controllers
                         //ADD BY NURUL 28/9/2021
                         try
                         {
-                            EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SIT01A SET NAMAPENGIRIM='" + order.SHIPMENT + "' WHERE NO_SO = '" + order.NO_BUKTI + "' AND CUST='" + order.CUST + "' AND NO_REFERENSI='" + order.NO_REFERENSI + "'");
+                            ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE SIT01A SET NAMAPENGIRIM = '" + order.SHIPMENT + "' WHERE NO_SO = '" + order.NO_BUKTI + "' AND CUST = '" + order.CUST + "' AND NO_REF = '" + order.NO_REFERENSI + "'");
                         }
                         catch(Exception ex)
                         {
@@ -1907,7 +1907,7 @@ namespace MasterOnline.Controllers
                             //ADD BY NURUL 28/9/2021
                             try
                             {
-                                EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SIT01A SET NAMAPENGIRIM='" + kurir + "' WHERE NO_SO = '" + order.NO_BUKTI + "' AND CUST='" + order.CUST + "' AND NO_REFERENSI='" + order.NO_REFERENSI + "'");
+                                ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE SIT01A SET NAMAPENGIRIM = '" + order.SHIPMENT + "' WHERE NO_SO = '" + order.NO_BUKTI + "' AND CUST = '" + order.CUST + "' AND NO_REF = '" + order.NO_REFERENSI + "'");
                             }
                             catch (Exception ex)
                             {
