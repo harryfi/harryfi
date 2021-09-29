@@ -1826,14 +1826,14 @@ namespace MasterOnline.Controllers
                         }
                         ErasoftDbContext.SaveChanges();
                         //ADD BY NURUL 28/9/2021
-                        try
-                        {
-                            ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE SIT01A SET NAMAPENGIRIM = '" + order.SHIPMENT + "' WHERE NO_SO = '" + order.NO_BUKTI + "' AND CUST = '" + order.CUST + "' AND NO_REF = '" + order.NO_REFERENSI + "'");
-                        }
-                        catch(Exception ex)
-                        {
+                        //try
+                        //{
+                        //    ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE SIT01A SET NAMAPENGIRIM = '" + order.SHIPMENT + "' WHERE NO_SO = '" + order.NO_BUKTI + "' AND CUST = '" + order.CUST + "' AND NO_REF = '" + order.NO_REFERENSI + "'");
+                        //}
+                        //catch(Exception ex)
+                        //{
 
-                        }
+                        //}
                         //END ADD BY NURUL 28/9/2021
                         //
                         //
@@ -1905,14 +1905,14 @@ namespace MasterOnline.Controllers
                             order.SHIPMENT = kurir;
                             ErasoftDbContext.SaveChanges();
                             //ADD BY NURUL 28/9/2021
-                            try
-                            {
-                                ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE SIT01A SET NAMAPENGIRIM = '" + order.SHIPMENT + "' WHERE NO_SO = '" + order.NO_BUKTI + "' AND CUST = '" + order.CUST + "' AND NO_REF = '" + order.NO_REFERENSI + "'");
-                            }
-                            catch (Exception ex)
-                            {
+                            //try
+                            //{
+                            //    ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE SIT01A SET NAMAPENGIRIM = '" + order.SHIPMENT + "' WHERE NO_SO = '" + order.NO_BUKTI + "' AND CUST = '" + order.CUST + "' AND NO_REF = '" + order.NO_REFERENSI + "'");
+                            //}
+                            //catch (Exception ex)
+                            //{
 
-                            }
+                            //}
                             //END ADD BY NURUL 28/9/2021
                         }
                     }
