@@ -6612,7 +6612,7 @@ namespace MasterOnline.Controllers
                                             shop_id = iden.API_secret_key
                                         };
                                         //masukin sampe -1 bulan 
-                                        if (message.last_reply_time < dateLast1Month)
+                                        if (message.last_reply_time < dateLast1Month && msg.attributes.pin_status == 0)
                                         {
                                             lastGetMessage = true; break;
                                         }
