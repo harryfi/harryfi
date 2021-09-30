@@ -6623,10 +6623,11 @@ namespace MasterOnline.Controllers
                                             var cekListChat = ErasoftDbContext.TOKPED_LISTCHAT.AsNoTracking().Where(b => b.msg_id == message.msg_id && b.CUST == cust.CUST).Count();
                                             if (cekListChat == 0)
                                             {
-                                                await ListReply(iden, message.msg_id, 0);
+                                                await ListReply(iden, message.msg_id, 1);
                                             }
                                         }
                                     }
+                                    lastGetMessage = true; break;
                                 }
                                 if (listMessage.Count() > 0)
                                 {
@@ -6701,15 +6702,20 @@ namespace MasterOnline.Controllers
                             var lastGetMessage = false;
                             while (!lastGetMessage)
                             {
-                                foreach (var msg in result.data.OrderBy(a => a.reply_id))
+                                foreach (var msg in result.data)
                                 {
                                     try
                                     {
                                         var ax = DateTimeOffset.FromUnixTimeMilliseconds(msg.reply_time).UtcDateTime.AddHours(7);
                                         var bx = DateTimeOffset.FromUnixTimeMilliseconds(msg.read_time).UtcDateTime.AddHours(7);
+                                        //var bx = DateTime.UtcNow.AddHours(7);
+                                        //if(msg.read_time != 0)
+                                        //{
+                                        //    bx = DateTimeOffset.FromUnixTimeMilliseconds(msg.read_time).UtcDateTime.AddHours(7);
+                                        //}
                                         //if (cekListReply.Count() == 0 || !replyid.Contains(msg.reply_id.ToString()))
                                         //{
-                                            var message = new TOKPED_LISTCHAT
+                                        var message = new TOKPED_LISTCHAT
                                             {
                                                 CUST = cust.CUST,
                                                 msg_id = msg.msg_id.ToString(),
@@ -6777,21 +6783,25 @@ namespace MasterOnline.Controllers
                                                     message.fallback_attachment_message = string.IsNullOrEmpty(msg.attachment.fallback_attachment.message) ? "" : msg.attachment.fallback_attachment.message;
                                                 }
                                             }
-                                            
-                                            //masukin sampe -1 bulan 
-                                            if (message.reply_time < dateLast1Month)
-                                            {
-                                                firstReply = true;
-                                                message.is_first_reply = 1;
-                                                listChat.Add(message);
-                                                lastGetMessage = true; break;
-                                            }
-                                            else
-                                            {
-                                                listChat.Add(message);
-                                            }
 
-                                            if (firstReply) break;
+                                        //masukin sampe -1 bulan 
+                                        //if (message.reply_time < dateLast1Month)
+                                        //{
+                                        //    firstReply = true;
+                                        //    message.is_first_reply = 1;
+                                        //    listChat.Add(message);
+                                        //    lastGetMessage = true; break;
+                                        //}
+                                        //else
+                                        //{
+                                        //    listChat.Add(message);
+                                        //}
+                                        listChat.Add(message);
+
+                                        if (firstReply)
+                                        {
+                                            lastGetMessage = true; break;
+                                        }
                                         //}
                                         //else
                                         //{
@@ -6861,13 +6871,15 @@ namespace MasterOnline.Controllers
 
                                     }
                                 }
+
+                                lastGetMessage = true;break;
                             }
                             if (listChat.Count() > 0)
                             {
                                 ErasoftDbContext.TOKPED_LISTCHAT.AddRange(listChat);
                                 ErasoftDbContext.SaveChanges();
                             }
-                            if (!firstReply)
+                            if (!firstReply && result.data.Count() == 10)
                             {
                                 var nextReply = await ListReply(iden, msgId, page + 1);
                             }
