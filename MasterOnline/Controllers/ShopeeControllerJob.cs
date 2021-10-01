@@ -12215,12 +12215,7 @@ namespace MasterOnline.Controllers
                 try
                 {
                     var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeUpdatePriceResponse)) as ShopeeUpdatePriceResponse;
-                    if (!string.IsNullOrEmpty(resServer.error))
-                    {
-                        currentLog.REQUEST_EXCEPTION = resServer.message;
-                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                        throw new Exception(resServer.message);
-                    }
+                    //change position, cek list error first
                     if (resServer.response.failure_list != null)
                     {
                         if (resServer.response.failure_list.Length > 0)
@@ -12230,6 +12225,13 @@ namespace MasterOnline.Controllers
                             throw new Exception(resServer.response.failure_list[0].failed_reason);
                         }
                     }
+                    if (!string.IsNullOrEmpty(resServer.error))
+                    {
+                        currentLog.REQUEST_EXCEPTION = resServer.message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        throw new Exception(resServer.message);
+                    }
+                    //end change position, cek list error first
                     //add 19 sept 2020, update harga massal
                     if (log_ActionName.Contains("UPDATE_MASSAL"))
                     {
