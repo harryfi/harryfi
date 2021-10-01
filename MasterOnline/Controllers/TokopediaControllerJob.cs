@@ -621,6 +621,7 @@ namespace MasterOnline.Controllers
                 newDataProduct.description = newDataProduct.description.Replace("<p>", "").Replace("</p>", "").
                         Replace("</ul>\r\n\r\n", "").Replace("<ul>", "").Replace("&nbsp;\r\n\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("&nbsp;", " ").
                         Replace("\r\n", "").Replace("<br />", "\n");
+                newDataProduct.description = System.Net.WebUtility.HtmlDecode(newDataProduct.description);
                 //end add by nurul 6/2/2020
                 var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
 
@@ -1441,6 +1442,7 @@ namespace MasterOnline.Controllers
                     newDataProduct.description = newDataProduct.description.Replace("<p>", "").Replace("</p>", "").
                         Replace("</ul>\r\n\r\n", "").Replace("<ul>", "").Replace("&nbsp;\r\n\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("&nbsp;", " ").
                         Replace("\r\n", "").Replace("<br />", "\n");
+                    newDataProduct.description = System.Net.WebUtility.HtmlDecode(newDataProduct.description);
                     //end add by nurul 6/2/2020
 
                     //add by calvin 1 mei 2019
