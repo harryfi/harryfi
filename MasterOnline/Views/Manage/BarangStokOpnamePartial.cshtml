@@ -199,8 +199,12 @@
             </div>
             <div class="form-group">
                 <label class="control-label col-md-4 col-sm-4 col-xs-12"></label>
-                <div class="col-md-4 col-sm-4 col-xs-12"></div>
-                <div class="col-md-4 col-sm-4 col-xs-12">
+                <div class="col-md-3 col-sm-3 col-xs-12"></div>
+                <div class="col-md-5 col-sm-5 col-xs-12">
+                    @if (Model.adaErrorProses)
+                    {
+                    <button class="btn btn-primary" id="btn-error" type="button" data-toggle="modal" data-target="#modalError" onclick="showErrorProsesStokOpname('@Model.StokOpname.NOBUK')" >View Error</button>
+                    }
                     @if (Model.StokOpname != null)
                     {
                         if (Model.StokOpname.POSTING == "1")

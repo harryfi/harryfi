@@ -19,5 +19,7 @@ namespace MasterOnline.ViewModels
         public string buktiOM { get; set; }
         public string buktiOK { get; set; }
         public string setGD { get; set; }
+
+        public bool adaErrorProses { get; set; }
     }
 }
