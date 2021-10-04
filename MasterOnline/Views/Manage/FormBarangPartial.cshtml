@@ -1454,6 +1454,24 @@
                                                                                 </div>
                                                                             </div>
                                                                         </div>
+                                                                        <div class="row" style="padding-top:10px">
+                                                                            <div class="row">
+                                                                                <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                    @Html.Label("Nama Barang", new { @class = "control-label" })
+                                                                                </div>
+                                                                                <div class="col-md-10 col-sm-10 col-xs-12 form-group">
+                                                                                    @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control", maxlength = 70 })
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="row">
+                                                                                <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                    @Html.Label("Deskripsi Barang", new { @class = "control-label" })
+                                                                                </div>
+                                                                                <div class="col-md-10 col-sm-10 col-xs-12 form-group">
+                                                                                    @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor" })
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             }
@@ -1529,6 +1547,24 @@
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
+                                                                            <div class="row" style="padding-top:10px">
+                                                                                <div class="row">
+                                                                                    <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                        @Html.Label("Nama Barang", new { @class = "control-label" })
+                                                                                    </div>
+                                                                                    <div class="col-md-10 col-sm-10 col-xs-12 form-group">
+                                                                                        @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control", maxlength = 70 })
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="row">
+                                                                                    <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                        @Html.Label("Deskripsi Barang", new { @class = "control-label" })
+                                                                                    </div>
+                                                                                    <div class="col-md-10 col-sm-10 col-xs-12 form-group">
+                                                                                        @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor" })
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
                                                                         }
                                                                     </div>
                                                                 </div>
@@ -1583,7 +1619,7 @@
                                                                                 <div id="attribute_shopee_@Convert.ToString(recnumArf01)" class="col-md-12 reset-data-to-copy" style="margin-top:10px">
                                                                                 </div>
                                                                             </div>
-                                                                            //add 21 mei 2021 
+                                                                            //add 21 mei 2021
                                                                             <div class="row">
                                                                                 <div class="col-md-12">
                                                                                     <div class="row">
@@ -1597,39 +1633,58 @@
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
-                                                                            //end add 21 mei 2021 
+                                                                            //end add 21 mei 2021
                                                                             if (listMarket[i].KD_ANALISA == "2")
                                                                             {
-                                                                            <div class="row">
-                                                                                <div class="col-md-12">
-                                                                                    <div class="row">
-                                                                                        <div class="col-md-2 col-sm-2 col-xs-12">
-                                                                                            @Html.Label("Brand", new { @class = "control-label" })
-                                                                                        </div>
-                                                                                        <div class="col-md-4 col-sm-4 col-xs-12 form-group">
-                                                                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_38, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_38 })
-                                                                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_38, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_38 })
-                                                                                            <div class="input-group text">
-                                                                                                <table>
-                                                                                                    <tr>
-                                                                                                        <td>
-                                                                                                            @Html.TextBox("Brand" + i + "Shopee", "", new { @class = "form-control", data_valid_toggle_required = "1", @MaxLength = "10", disabled = "disabled", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_38 })
-                                                                                                        </td>
-                                                                                                        <td>
-                                                                                                            <span class="input-group-btn">
-                                                                                                                <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptBrandShopee(@i,@($"(\"{listMarket[i].CUST}\")"))">
-                                                                                                                    <span class="glyphicon glyphicon-option-horizontal"></span>
-                                                                                                                </button>
-                                                                                                            </span>
-                                                                                                        </td>
-                                                                                                    </tr>
-                                                                                                </table>
+                                                                                <div class="row">
+                                                                                    <div class="col-md-12">
+                                                                                        <div class="row">
+                                                                                            <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                                @Html.Label("Brand", new { @class = "control-label" })
+                                                                                            </div>
+                                                                                            <div class="col-md-4 col-sm-4 col-xs-12 form-group">
+                                                                                                @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_38, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_38 })
+                                                                                                @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_38, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_38 })
+                                                                                                <div class="input-group text">
+                                                                                                    <table>
+                                                                                                        <tr>
+                                                                                                            <td>
+                                                                                                                @Html.TextBox("Brand" + i + "Shopee", "", new { @class = "form-control", data_valid_toggle_required = "1", @MaxLength = "10", disabled = "disabled", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_38 })
+                                                                                                            </td>
+                                                                                                            <td>
+                                                                                                                <span class="input-group-btn">
+                                                                                                                    <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptBrandShopee(@i,@($"(\"{listMarket[i].CUST}\")"))">
+                                                                                                                        <span class="glyphicon glyphicon-option-horizontal"></span>
+                                                                                                                    </button>
+                                                                                                                </span>
+                                                                                                            </td>
+                                                                                                        </tr>
+                                                                                                    </table>
+                                                                                                </div>
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
-                                                                            </div>
                                                                             }
+
+                                                                            <div class="row" style="padding-top:10px">
+                                                                                <div class="row">
+                                                                                    <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                        @Html.Label("Nama Barang", new { @class = "control-label" })
+                                                                                    </div>
+                                                                                    <div class="col-md-10 col-sm-10 col-xs-12 form-group">
+                                                                                        @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control", maxlength = 70 })
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="row">
+                                                                                    <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                        @Html.Label("Deskripsi Barang", new { @class = "control-label" })
+                                                                                    </div>
+                                                                                    <div class="col-md-10 col-sm-10 col-xs-12 form-group">
+                                                                                        @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor" })
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
                                                                         }
                                                                     </div>
                                                                  </div>
@@ -1737,6 +1792,24 @@
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
+                                                                            <div class="row" style="padding-top:10px">
+                                                                                <div class="row">
+                                                                                    <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                        @Html.Label("Nama Barang", new { @class = "control-label" })
+                                                                                    </div>
+                                                                                    <div class="col-md-10 col-sm-10 col-xs-12 form-group">
+                                                                                        @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control", maxlength = 70 })
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="row">
+                                                                                    <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                        @Html.Label("Deskripsi Barang", new { @class = "control-label" })
+                                                                                    </div>
+                                                                                    <div class="col-md-10 col-sm-10 col-xs-12 form-group">
+                                                                                        @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor" })
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
                                                                         }
                                                                     </div>
                                                                 </div>
@@ -1824,15 +1897,15 @@
                                                                             @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_CODE, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_CODE })
                                                                             @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_NAME, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_NAME })
                                                                             @*@Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_1, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_1 })
-                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_1, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_1 })
-                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_2, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_2 })
-                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_2, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_2 })
-                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_3, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_3 })
-                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_3, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_3 })
-                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_4, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_4 })
-                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_4, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_4 })
-                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_5, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_5 })
-                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_5, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_5 })*@
+            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_1, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_1 })
+            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_2, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_2 })
+            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_2, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_2 })
+            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_3, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_3 })
+            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_3, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_3 })
+            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_4, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_4 })
+            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_4, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_4 })
+            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_5, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_5 })
+            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_5, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_5 })*@
                                                                             <div class="row">
                                                                                 <div class="col-md-1 col-sm-1 col-xs-12">
                                                                                     <label>Category *</label>
@@ -1882,19 +1955,19 @@
                                                                                     </div>
                                                                                 </div>
                                                                                 @*<div class="col-md-2 col-sm-2 col-xs-12">
-                                    @Html.Label("Video Url ", new { @class = "control-label" })
-                                </div>
-                                <div class="col-md-4 col-sm-4 col-xs-12 form-group">
-                                    <div class="input-group text">
-                                        <table>
-                                            <tr>
-                                                <td>
-                                                    @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].AVALUE_42, new { @class = "form-control", style = "width:300px", @MaxLength = "100", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_42 })
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                </div>*@
+                    @Html.Label("Video Url ", new { @class = "control-label" })
+                </div>
+                <div class="col-md-4 col-sm-4 col-xs-12 form-group">
+                    <div class="input-group text">
+                        <table>
+                            <tr>
+                                <td>
+                                    @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].AVALUE_42, new { @class = "form-control", style = "width:300px", @MaxLength = "100", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_42 })
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>*@
                                                                                 <div class="col-md-2 col-sm-2 col-xs-12">
                                                                                     @Html.Label("Promo Wording ", new { @class = "control-label" })
                                                                                 </div>
@@ -2076,6 +2149,25 @@
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
+                                                                            <div class="row" style="padding-top:10px">
+                                                                                <div class="row">
+                                                                                    <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                        @Html.Label("Nama Barang", new { @class = "control-label" })
+                                                                                    </div>
+                                                                                    <div class="col-md-10 col-sm-10 col-xs-12 form-group">
+                                                                                        @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control", maxlength = 70 })
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="row">
+                                                                                    <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                        @Html.Label("Deskripsi Barang", new { @class = "control-label" })
+                                                                                    </div>
+                                                                                    <div class="col-md-10 col-sm-10 col-xs-12 form-group">
+                                                                                        @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor" })
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
                                                                         }
                                                                     </div>
                                                                 </div>
@@ -2109,12 +2201,12 @@
                                                                         else
                                                                         {
                                                                             @*<div class="row">
-                                                                                    <div id="loading_attribute_@Convert.ToString(recnumArf01)" style="display:none" class="text-center">
-                                                                                        <img src="~/Content/Images/spinner.gif" width="100" />
-                                                                                    </div>
-                                                                                    <div id="attribute_82Cart_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
-                                                                                    </div>
-                                                                                </div>*@
+                <div id="loading_attribute_@Convert.ToString(recnumArf01)" style="display:none" class="text-center">
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>
+                <div id="attribute_82Cart_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
+                </div>
+            </div>*@
                                                                             <div class="row">
                                                                                 <div class="col-md-1 col-sm-1 col-xs-12">
                                                                                     @Html.Label("Category *", new { @class = "control-label" })
@@ -2144,26 +2236,26 @@
                                                                                 </div>
                                                                             </div>
                                                                             @*<div class="row">
-                                                                                <div class="col-md-1 col-sm-1 col-xs-12">
-                                                                                    @Html.Label("Attribute *", new { @class = "control-label" })
-                                                                                </div>
-                                                                                @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_10, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_10 })
-                                                                                @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_10, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_10 })
-                                                                                @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_11, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_11 })
-                                                                                @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_11, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_11 })
-                                                                                <div id="attribute_82Cart_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12">
-                                                                                </div>
-                                                                                <div id="attribute_82Cart_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12">
-                                                                                    @Html.TextBox("Attribute" + i + "82Cart", "", new { @class = "form-control", data_valid_toggle_required = "1", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_11 })
-                                                                                </div>
-                                                                               <div class="col-md-2 col-sm-2 col-xs-12">
-                                                                                    @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model.Stf02 != null ? Model.Stf02.BRG : ""))?.ACODE_1 != null)
-                                                                                    {
-                                                                                        <button type="button" onclick="ClearAttribute82Cart('attribute_82Cart_pertama_' + @recnumArf01, 'attribute_82Cart_selanjutnya_' + @recnumArf01, @i, true, @recnumArf01);">Undo</button>
-                                                                                    }
-                                                                                    <button type="button" onclick="ClearAttribute82Cart('attribute_82Cart_pertama_' + @recnumArf01, 'attribute_82Cart_selanjutnya_' + @recnumArf01, @i, false, @recnumArf01);">Clear</button>
-                                                                                </div>
-                                                                            </div>*@
+                <div class="col-md-1 col-sm-1 col-xs-12">
+                    @Html.Label("Attribute *", new { @class = "control-label" })
+                </div>
+                @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_10, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_10 })
+                @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_10, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_10 })
+                @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_11, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_11 })
+                @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_11, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_11 })
+                <div id="attribute_82Cart_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12">
+                </div>
+                <div id="attribute_82Cart_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.TextBox("Attribute" + i + "82Cart", "", new { @class = "form-control", data_valid_toggle_required = "1", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_11 })
+                </div>
+               <div class="col-md-2 col-sm-2 col-xs-12">
+                    @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model.Stf02 != null ? Model.Stf02.BRG : ""))?.ACODE_1 != null)
+                    {
+                        <button type="button" onclick="ClearAttribute82Cart('attribute_82Cart_pertama_' + @recnumArf01, 'attribute_82Cart_selanjutnya_' + @recnumArf01, @i, true, @recnumArf01);">Undo</button>
+                    }
+                    <button type="button" onclick="ClearAttribute82Cart('attribute_82Cart_pertama_' + @recnumArf01, 'attribute_82Cart_selanjutnya_' + @recnumArf01, @i, false, @recnumArf01);">Clear</button>
+                </div>
+            </div>*@
                                                                             <div class="row">
                                                                                 <div class="col-md-1 col-sm-1 col-xs-12">
                                                                                     @Html.Label("Brand ", new { @class = "control-label" })
@@ -2187,6 +2279,24 @@
                                                                                                 </td>
                                                                                             </tr>
                                                                                         </table>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="row" style="padding-top:10px">
+                                                                                <div class="row">
+                                                                                    <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                        @Html.Label("Nama Barang", new { @class = "control-label" })
+                                                                                    </div>
+                                                                                    <div class="col-md-10 col-sm-10 col-xs-12 form-group">
+                                                                                        @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control", maxlength = 70 })
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="row">
+                                                                                    <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                        @Html.Label("Deskripsi Barang", new { @class = "control-label" })
+                                                                                    </div>
+                                                                                    <div class="col-md-10 col-sm-10 col-xs-12 form-group">
+                                                                                        @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor" })
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
