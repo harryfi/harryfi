@@ -8164,27 +8164,29 @@ namespace MasterOnline
                 .Property(e => e.USERNAME_APPROVAL)
                 .IsUnicode(false);
 
-            modelBuilder.Entity<SIT01A>()
-                .HasMany(e => e.SIT01B)
-                .WithRequired(e => e.SIT01A)
-                .HasForeignKey(e => new { e.JENIS_FORM, e.NO_BUKTI })
-                .WillCascadeOnDelete(false);
+            //remark by nurul 6/10/2021
+            //modelBuilder.Entity<SIT01A>()
+            //    .HasMany(e => e.SIT01B)
+            //    .WithRequired(e => e.SIT01A)
+            //    .HasForeignKey(e => new { e.JENIS_FORM, e.NO_BUKTI })
+            //    .WillCascadeOnDelete(false);
 
-            modelBuilder.Entity<SIT01A>()
-                .HasMany(e => e.SIT01B1)
-                .WithRequired(e => e.SIT01A)
-                .HasForeignKey(e => new { e.JENIS_FORM, e.NO_BUKTI })
-                .WillCascadeOnDelete(false);
+            //modelBuilder.Entity<SIT01A>()
+            //    .HasMany(e => e.SIT01B1)
+            //    .WithRequired(e => e.SIT01A)
+            //    .HasForeignKey(e => new { e.JENIS_FORM, e.NO_BUKTI })
+            //    .WillCascadeOnDelete(false);
 
-            modelBuilder.Entity<SIT01A>()
-                .HasMany(e => e.SIT01C)
-                .WithRequired(e => e.SIT01A)
-                .HasForeignKey(e => new { e.JENIS_FORM, e.NO_BUKTI })
-                .WillCascadeOnDelete(false);
+            //modelBuilder.Entity<SIT01A>()
+            //    .HasMany(e => e.SIT01C)
+            //    .WithRequired(e => e.SIT01A)
+            //    .HasForeignKey(e => new { e.JENIS_FORM, e.NO_BUKTI })
+            //    .WillCascadeOnDelete(false);
 
-            modelBuilder.Entity<SIT01A>()
-                .HasOptional(e => e.SIT01F)
-                .WithRequired(e => e.SIT01A);
+            //modelBuilder.Entity<SIT01A>()
+            //    .HasOptional(e => e.SIT01F)
+            //    .WithRequired(e => e.SIT01A);
+            //end remark by nurul 6/10/2021
 
             modelBuilder.Entity<SIT01B>()
                 .Property(e => e.JENIS_FORM)

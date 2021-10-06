@@ -12,12 +12,14 @@ namespace MasterOnline
     public partial class SIT01A
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public SIT01A()
-        {
-            SIT01B = new HashSet<SIT01B>();
-            SIT01B1 = new HashSet<SIT01B1>();
-            SIT01C = new HashSet<SIT01C>();
-        }
+        //remark by nurul 6/10/2021
+        //public SIT01A()
+        //{
+        //    SIT01B = new HashSet<SIT01B>();
+        //    SIT01B1 = new HashSet<SIT01B1>();
+        //    SIT01C = new HashSet<SIT01C>();
+        //}
+        //end remark by nurul 6/10/2021
 
         [Key]
         [Column(Order = 0)]
@@ -251,19 +253,21 @@ namespace MasterOnline
 
         public int? WMS { get; set; }
 
-        [JsonIgnore]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<SIT01B> SIT01B { get; set; }
+        //remark by nurul 6/10/2021
+        //[JsonIgnore]
+        //[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        //public virtual ICollection<SIT01B> SIT01B { get; set; }
 
-        [JsonIgnore]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<SIT01B1> SIT01B1 { get; set; }
+        //[JsonIgnore]
+        //[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        //public virtual ICollection<SIT01B1> SIT01B1 { get; set; }
 
-        [JsonIgnore]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<SIT01C> SIT01C { get; set; }
+        //[JsonIgnore]
+        //[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        //public virtual ICollection<SIT01C> SIT01C { get; set; }
 
-        [JsonIgnore]
-        public virtual SIT01F SIT01F { get; set; }
+        //[JsonIgnore]
+        //public virtual SIT01F SIT01F { get; set; }
+        //end remark by nurul 6/10/2021
     }
 }
