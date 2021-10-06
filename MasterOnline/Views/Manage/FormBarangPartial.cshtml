@@ -538,7 +538,10 @@
                                             @Html.LabelFor(m => m.Stf02.Deskripsi, "Deskripsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 @{
-                                                    Model.Stf02.Deskripsi = System.Web.HttpUtility.HtmlDecode(Model.Stf02.Deskripsi);
+                                                    if (Model.Stf02 != null)
+                                                    {
+                                                        Model.Stf02.Deskripsi = System.Web.HttpUtility.HtmlDecode(Model.Stf02.Deskripsi);
+                                                    }
                                                 }
                                                 @Html.TextAreaFor(m => m.Stf02.Deskripsi, new { @class = "form-control make_ckeditor", required = "required", minlength = 30 })
                                             </div>
@@ -1380,7 +1383,7 @@
                                                                                             @Html.Label("Nama Barang", new { @class = "control-label" })
                                                                                         </div>
                                                                                         <div class="col-md-10 col-sm-10 col-xs-12 form-group">
-                                                                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control namamp", maxlength = 70 })
+                                                                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control namamp", maxlength = 70, Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.NAMA_BARANG_MP })
                                                                                         </div>
                                                                                     </div>
                                                                                     <div class="row">
@@ -1389,12 +1392,12 @@
                                                                                         </div>
                                                                                         <div class="col-md-10 col-sm-10 col-xs-12 form-group">
                                                                                             @{
-                                                                                                if (Model.ListHargaJualPermarket[i] != null)
-                                                                                                {
-                                                                                                    Model.ListHargaJualPermarket[i].DESKRIPSI_MP = HttpUtility.HtmlDecode(Model.ListHargaJualPermarket[i].DESKRIPSI_MP);
-                                                                                                }
+                                                                                                string idDeskripsiMP = "ListHargaJualPermarket_" + i + "__DESKRIPSI_MP";
+                                                                                                string ValueDeskripsiMP = HttpUtility.HtmlDecode(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DESKRIPSI_MP);
+                                                                                                string nameDeskripsiMP = "ListHargaJualPermarket[" + i + "].DESKRIPSI_MP";
                                                                                             }
-                                                                                            @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor deskripsimp" })
+                                                                                            <textarea cols="20" data-val="true" class="form-control make_ckeditor deskripsimp" id="@idDeskripsiMP" name="@nameDeskripsiMP" rows="2" style="resize: none; width:100%;">@HttpUtility.HtmlDecode(ValueDeskripsiMP) </textarea>
+
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
@@ -1403,13 +1406,13 @@
                                                                     </div>
                                                                 </div>
                                                             }
-                                                        }
+                                                                                                        }
                                                     </div>
                                                     <div id="elevenia_detail_tab" class="tab-pane fade in">
                                                         @for (var i = 0; i < listMarket.ToList().Count; i++)
                                                         {
                                                             var idMarket = Convert.ToInt32(listMarket[i].NAMA);
-                                                            var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
+                                                                                                    var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
                                                             if (idMarket == 9)
                                                             {
                                                                 <div>
@@ -1483,41 +1486,48 @@
                                                                                 </div>
                                                                                 <div class="col-md-10 col-sm-10 col-xs-12 form-group">
                                                                                     @{
-                                                                                        if (Model.ListHargaJualPermarket[i] != null)
-                                                                                        {
-                                                                                            Model.ListHargaJualPermarket[i].DESKRIPSI_MP = HttpUtility.HtmlDecode(Model.ListHargaJualPermarket[i].DESKRIPSI_MP);
-                                                                                        }
-                                                                                    }
-                                                                                    @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor deskripsimp" })
+                                                                                                if (Model.ListHargaJualPermarket != null)
+                                                                                                {
+                                                                                                    Model.ListHargaJualPermarket[i].DESKRIPSI_MP = HttpUtility.HtmlDecode(Model.ListHargaJualPermarket[i].DESKRIPSI_MP);
+                                                                                                }
+                                                                                            }
+                                                                                            @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor deskripsimp" })
+                                                                                        </div>
+        
+                                                                                    </div>
+        
                                                                                 </div>
+        
                                                                             </div>
+        
                                                                         </div>
-                                                                    </div>
-                                                                </div>
                                                             }
                                                         }
                                                     </div>
                                                     <div id="lazada_detail_tab" class="tab-pane fade in">
                                                         @for (var i = 0; i < listMarket.ToList().Count; i++)
                                                         {
-                                                            var idMarket = Convert.ToInt32(listMarket[i].NAMA);
-                                                            var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
-                                                            if (idMarket == 7)
-                                                            {
+                                                                                                var idMarket = Convert.ToInt32(listMarket[i].NAMA);
+                                                                                                var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
+                                                                                                if (idMarket == 7)
+                                                                                                {
                                                                 <div>
                                                                     <h2 style="font-size: 14px">
-                                                                        @($"Lazada ({listMarket[i].PERSO})")
-                                                                    </h2>
-                                                                </div>
-                                                                <div class="form-group">
-                                                                    <div class="col-md-12 col-sm-12 col-xs-12" id="div_detail_@(recnumArf01)">
-                                                                        @if (string.IsNullOrEmpty(listMarket[i].TOKEN))
+                                                                                                            @($"Lazada ({listMarket[i].PERSO})")
+                                                                                                        </h2>
+                                    
+                                                                                                    </div>
+                                    
+                                                                                                    <div class="form-group">
+                                    
+                                                                                                        <div class="col-md-12 col-sm-12 col-xs-12" id="div_detail_@(recnumArf01)">
+                                                                                                            @if (string.IsNullOrEmpty(listMarket[i].TOKEN))
                                                                         {
                                                                             <label>Anda belum terintegrasi dengan akun marketplace ini.</label>
                                                                         }
                                                                         else
-                                                                        {
-                                                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_CODE, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_CODE })
+                                                                                            {
+                                                                                                @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_CODE, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_CODE })
                                                                             @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_NAME, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_NAME })
                                                                             <div class="row">
                                                                                 <div class="col-md-1 col-sm-1 col-xs-12">
@@ -1582,7 +1592,7 @@
                                                                                     </div>
                                                                                     <div class="col-md-10 col-sm-10 col-xs-12 form-group">
                                                                                         @{
-                                                                                            if (Model.ListHargaJualPermarket[i] != null)
+                                                                                            if (Model.ListHargaJualPermarket != null)
                                                                                             {
                                                                                                 Model.ListHargaJualPermarket[i].DESKRIPSI_MP = HttpUtility.HtmlDecode(Model.ListHargaJualPermarket[i].DESKRIPSI_MP);
                                                                                             }
@@ -1708,7 +1718,7 @@
                                                                                     </div>
                                                                                     <div class="col-md-10 col-sm-10 col-xs-12 form-group">
                                                                                         @{
-                                                                                            if (Model.ListHargaJualPermarket[i] != null)
+                                                                                            if (Model.ListHargaJualPermarket != null)
                                                                                             {
                                                                                                 Model.ListHargaJualPermarket[i].DESKRIPSI_MP = HttpUtility.HtmlDecode(Model.ListHargaJualPermarket[i].DESKRIPSI_MP);
                                                                                             }
@@ -1839,7 +1849,7 @@
                                                                                     </div>
                                                                                     <div class="col-md-10 col-sm-10 col-xs-12 form-group">
                                                                                         @{
-                                                                                            if (Model.ListHargaJualPermarket[i] != null)
+                                                                                            if (Model.ListHargaJualPermarket != null)
                                                                                             {
                                                                                                 Model.ListHargaJualPermarket[i].DESKRIPSI_MP = HttpUtility.HtmlDecode(Model.ListHargaJualPermarket[i].DESKRIPSI_MP);
                                                                                             }
@@ -2202,7 +2212,7 @@
                                                                                     </div>
                                                                                     <div class="col-md-10 col-sm-10 col-xs-12 form-group">
                                                                                         @{
-                                                                                            if (Model.ListHargaJualPermarket[i] != null)
+                                                                                            if (Model.ListHargaJualPermarket != null)
                                                                                             {
                                                                                                 Model.ListHargaJualPermarket[i].DESKRIPSI_MP = HttpUtility.HtmlDecode(Model.ListHargaJualPermarket[i].DESKRIPSI_MP);
                                                                                             }
@@ -2341,7 +2351,7 @@
                                                                                     </div>
                                                                                     <div class="col-md-10 col-sm-10 col-xs-12 form-group">
                                                                                         @{
-                                                                                            if (Model.ListHargaJualPermarket[i] != null)
+                                                                                            if (Model.ListHargaJualPermarket != null)
                                                                                             {
                                                                                                 Model.ListHargaJualPermarket[i].DESKRIPSI_MP = HttpUtility.HtmlDecode(Model.ListHargaJualPermarket[i].DESKRIPSI_MP);
                                                                                             }
