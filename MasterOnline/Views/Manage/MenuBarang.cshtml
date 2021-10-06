@@ -344,8 +344,11 @@
                     </div>
                     <div class="row" style="margin-top: 5px;">
                         @* remark by calvin 24 mei 2019 <div id="loading_barang_tab" class="text-center">
-                                <img src="~/Content/Images/spinner.gif" width="100" />
-                            </div>*@
+            <img src="~/Content/Images/spinner.gif" width="100" />
+        </div>*@
+                        <div id="loading_barang_tab" class="text-center">
+                            <img src="~/Content/Images/spinner.gif" width="100" />
+                        </div>
                         <div class="col-sm-12 barang_table_section" id="table-barang-1-partial">
                             @* remark by calvin 24 mei 2019 @Html.Partial("TableMenuBarang1Partial")*@
                         </div>
@@ -401,9 +404,9 @@
                             </div>*@
                     </div>
                     <div class="row" style="margin-top: 5px;">
-                        @*<div id="loading_kosong_tab" class="text-center">
+                        <div id="loading_kosong_tab" class="text-center">
                                 <img src="~/Content/Images/spinner.gif" width="100" />
-                            </div>*@
+                            </div>
                         <div class="col-sm-12" id="table-barang-kosong-partial">
                             @* remark by calvin 24 mei 2019 @Html.Partial("TableBarangKosongPartial", new List<PenjualanBarang>())*@
                         </div>
@@ -454,9 +457,9 @@
                         </div>
                     </div>
                     <div class="row" style="margin-top: 5px;">
-                        @*<div id="loading_tidak_laku_tab" class="text-center">
+                        <div id="loading_tidak_laku_tab" class="text-center">
                                 <img src="~/Content/Images/spinner.gif" width="100" />
-                            </div>*@
+                            </div>
                         <div class="col-sm-12" id="table-barang-tidak-laku-partial">
                             @* remark by calvin 24 mei 2019 @Html.Partial("TableBarangTidakLakuPartial", new List<PenjualanBarang>())*@
                         </div>
@@ -574,9 +577,9 @@
                         </div>
                     </div>
                     <div class="row" style="margin-top: 5px;">
-                        @*<div id="loading_palinglaku_tab" class="text-center">
+                        <div id="loading_palinglaku_tab" class="text-center">
                                 <img src="~/Content/Images/spinner.gif" width="100" />
-                            </div>*@
+                            </div>
                         <div class="col-sm-12" id="table-barang-paling-laku-partial">
                         </div>
                     </div>
@@ -819,7 +822,7 @@
             $('#DrTanggal1').datepicker({
                 format: 'dd/mm/yyyy',
                 language: 'id'
-            }).datepicker('setDate', d);
+            }).datepicker('setDate', e);
             $('#DrTanggal1').datepicker({
                 format: 'dd/mm/yyyy',
                 language: 'id'
