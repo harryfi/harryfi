@@ -131,7 +131,10 @@
                 //        showParagraphs: false
                 //    }
                 //});
-                CKEDITOR.replace(item.id);
+                //CKEDITOR.replace(item.id);
+                 CKEDITOR.replace(item.id, {
+                     htmlEncodeOutput: true
+                });
             }
         });
 
@@ -238,9 +241,11 @@
         //add by nurul 10/9/2019, buat preview nama barang
         $('#Stf02_NAMA').change(function () {
             $('#preview_Nama').val($('#Stf02_NAMA').val() + ' ' + $('#Stf02_NAMA2').val());
+            $('.namamp').val($('#Stf02_NAMA').val() + ' ' + $('#Stf02_NAMA2').val());
         });
         $('#Stf02_NAMA2').change(function () {
             $('#preview_Nama').val($('#Stf02_NAMA').val() + ' ' + $('#Stf02_NAMA2').val());
+            $('.namamp').val($('#Stf02_NAMA').val() + ' ' + $('#Stf02_NAMA2').val());
         });
         //end add by nurul 10/9/2019, buat preview nama barang
 
@@ -532,6 +537,9 @@
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.Stf02.Deskripsi, "Deskripsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @{
+                                                    Model.Stf02.Deskripsi = System.Web.HttpUtility.HtmlDecode(Model.Stf02.Deskripsi);
+                                                }
                                                 @Html.TextAreaFor(m => m.Stf02.Deskripsi, new { @class = "form-control make_ckeditor", required = "required", minlength = 30 })
                                             </div>
                                         </div>
@@ -1372,7 +1380,7 @@
                                                                                             @Html.Label("Nama Barang", new { @class = "control-label" })
                                                                                         </div>
                                                                                         <div class="col-md-10 col-sm-10 col-xs-12 form-group">
-                                                                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control", maxlength = 70 })
+                                                                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control namamp", maxlength = 70 })
                                                                                         </div>
                                                                                     </div>
                                                                                     <div class="row">
@@ -1380,7 +1388,13 @@
                                                                                             @Html.Label("Deskripsi Barang", new { @class = "control-label" })
                                                                                         </div>
                                                                                         <div class="col-md-10 col-sm-10 col-xs-12 form-group">
-                                                                                            @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor" })
+                                                                                            @{
+                                                                                                if (Model.ListHargaJualPermarket[i] != null)
+                                                                                                {
+                                                                                                    Model.ListHargaJualPermarket[i].DESKRIPSI_MP = HttpUtility.HtmlDecode(Model.ListHargaJualPermarket[i].DESKRIPSI_MP);
+                                                                                                }
+                                                                                            }
+                                                                                            @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor deskripsimp" })
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
@@ -1460,7 +1474,7 @@
                                                                                     @Html.Label("Nama Barang", new { @class = "control-label" })
                                                                                 </div>
                                                                                 <div class="col-md-10 col-sm-10 col-xs-12 form-group">
-                                                                                    @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control", maxlength = 70 })
+                                                                                    @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control namamp", maxlength = 70 })
                                                                                 </div>
                                                                             </div>
                                                                             <div class="row">
@@ -1468,7 +1482,13 @@
                                                                                     @Html.Label("Deskripsi Barang", new { @class = "control-label" })
                                                                                 </div>
                                                                                 <div class="col-md-10 col-sm-10 col-xs-12 form-group">
-                                                                                    @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor" })
+                                                                                    @{
+                                                                                        if (Model.ListHargaJualPermarket[i] != null)
+                                                                                        {
+                                                                                            Model.ListHargaJualPermarket[i].DESKRIPSI_MP = HttpUtility.HtmlDecode(Model.ListHargaJualPermarket[i].DESKRIPSI_MP);
+                                                                                        }
+                                                                                    }
+                                                                                    @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor deskripsimp" })
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -1553,7 +1573,7 @@
                                                                                         @Html.Label("Nama Barang", new { @class = "control-label" })
                                                                                     </div>
                                                                                     <div class="col-md-10 col-sm-10 col-xs-12 form-group">
-                                                                                        @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control", maxlength = 70 })
+                                                                                        @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control namamp", maxlength = 70 })
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="row">
@@ -1561,7 +1581,13 @@
                                                                                         @Html.Label("Deskripsi Barang", new { @class = "control-label" })
                                                                                     </div>
                                                                                     <div class="col-md-10 col-sm-10 col-xs-12 form-group">
-                                                                                        @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor" })
+                                                                                        @{
+                                                                                            if (Model.ListHargaJualPermarket[i] != null)
+                                                                                            {
+                                                                                                Model.ListHargaJualPermarket[i].DESKRIPSI_MP = HttpUtility.HtmlDecode(Model.ListHargaJualPermarket[i].DESKRIPSI_MP);
+                                                                                            }
+                                                                                        }
+                                                                                        @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor deskripsimp" })
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -1673,7 +1699,7 @@
                                                                                         @Html.Label("Nama Barang", new { @class = "control-label" })
                                                                                     </div>
                                                                                     <div class="col-md-10 col-sm-10 col-xs-12 form-group">
-                                                                                        @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control", maxlength = 70 })
+                                                                                        @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control namamp", maxlength = 70 })
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="row">
@@ -1681,7 +1707,13 @@
                                                                                         @Html.Label("Deskripsi Barang", new { @class = "control-label" })
                                                                                     </div>
                                                                                     <div class="col-md-10 col-sm-10 col-xs-12 form-group">
-                                                                                        @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor" })
+                                                                                        @{
+                                                                                            if (Model.ListHargaJualPermarket[i] != null)
+                                                                                            {
+                                                                                                Model.ListHargaJualPermarket[i].DESKRIPSI_MP = HttpUtility.HtmlDecode(Model.ListHargaJualPermarket[i].DESKRIPSI_MP);
+                                                                                            }
+                                                                                        }
+                                                                                        @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor deskripsimp" })
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -1798,7 +1830,7 @@
                                                                                         @Html.Label("Nama Barang", new { @class = "control-label" })
                                                                                     </div>
                                                                                     <div class="col-md-10 col-sm-10 col-xs-12 form-group">
-                                                                                        @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control", maxlength = 70 })
+                                                                                        @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control namamp", maxlength = 70 })
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="row">
@@ -1806,7 +1838,13 @@
                                                                                         @Html.Label("Deskripsi Barang", new { @class = "control-label" })
                                                                                     </div>
                                                                                     <div class="col-md-10 col-sm-10 col-xs-12 form-group">
-                                                                                        @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor" })
+                                                                                        @{
+                                                                                            if (Model.ListHargaJualPermarket[i] != null)
+                                                                                            {
+                                                                                                Model.ListHargaJualPermarket[i].DESKRIPSI_MP = HttpUtility.HtmlDecode(Model.ListHargaJualPermarket[i].DESKRIPSI_MP);
+                                                                                            }
+                                                                                        }
+                                                                                        @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor deskripsimp" })
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -2155,7 +2193,7 @@
                                                                                         @Html.Label("Nama Barang", new { @class = "control-label" })
                                                                                     </div>
                                                                                     <div class="col-md-10 col-sm-10 col-xs-12 form-group">
-                                                                                        @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control", maxlength = 70 })
+                                                                                        @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control namamp", maxlength = 70 })
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="row">
@@ -2163,7 +2201,13 @@
                                                                                         @Html.Label("Deskripsi Barang", new { @class = "control-label" })
                                                                                     </div>
                                                                                     <div class="col-md-10 col-sm-10 col-xs-12 form-group">
-                                                                                        @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor" })
+                                                                                        @{
+                                                                                            if (Model.ListHargaJualPermarket[i] != null)
+                                                                                            {
+                                                                                                Model.ListHargaJualPermarket[i].DESKRIPSI_MP = HttpUtility.HtmlDecode(Model.ListHargaJualPermarket[i].DESKRIPSI_MP);
+                                                                                            }
+                                                                                        }
+                                                                                        @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor deskripsimp" })
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -2288,7 +2332,7 @@
                                                                                         @Html.Label("Nama Barang", new { @class = "control-label" })
                                                                                     </div>
                                                                                     <div class="col-md-10 col-sm-10 col-xs-12 form-group">
-                                                                                        @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control", maxlength = 70 })
+                                                                                        @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control namamp", maxlength = 70 })
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="row">
@@ -2296,7 +2340,13 @@
                                                                                         @Html.Label("Deskripsi Barang", new { @class = "control-label" })
                                                                                     </div>
                                                                                     <div class="col-md-10 col-sm-10 col-xs-12 form-group">
-                                                                                        @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor" })
+                                                                                        @{
+                                                                                            if (Model.ListHargaJualPermarket[i] != null)
+                                                                                            {
+                                                                                                Model.ListHargaJualPermarket[i].DESKRIPSI_MP = HttpUtility.HtmlDecode(Model.ListHargaJualPermarket[i].DESKRIPSI_MP);
+                                                                                            }
+                                                                                        }
+                                                                                        @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor deskripsimp" })
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
