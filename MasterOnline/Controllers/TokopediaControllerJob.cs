@@ -6592,7 +6592,7 @@ namespace MasterOnline.Controllers
                                 {
                                     foreach (var msg in result.data)
                                     {
-                                        var a = DateTimeOffset.FromUnixTimeMilliseconds(msg.attributes.last_reply_time).UtcDateTime.AddHours(7);
+                                        var ax = DateTimeOffset.FromUnixTimeMilliseconds(msg.attributes.last_reply_time).UtcDateTime.AddHours(7);
                                         var message = new TOKPED_LISTMESSAGE
                                         {
                                             CUST = cust.CUST,
@@ -6604,7 +6604,7 @@ namespace MasterOnline.Controllers
                                             attributes_thumbnail = msg.attributes.contact.attributes.thumbnail + "/desktop",
                                             last_reply_msg = msg.attributes.last_reply_msg,
                                             //last_reply_time = Convert.ToDateTime(msg.attributes.last_reply_time),
-                                            last_reply_time = a,
+                                            last_reply_time = ax,
                                             read_status = msg.attributes.read_status,
                                             unreads = msg.attributes.unreads,
                                             pin_status = msg.attributes.pin_status,
@@ -6617,13 +6617,37 @@ namespace MasterOnline.Controllers
                                             lastGetMessage = true; break;
                                         }
                                         //hanya masukin yg blm ada di list message 
+                                        var cekExistingHeader = ErasoftDbContext.TOKPED_LISTMESSAGE.Where(a => a.shop_id == cust.API_KEY && a.CUST == cust.CUST && a.last_reply_time >= dateLast1Month && a.msg_id == message.msg_id).ToList();
+                                        if (cekExistingHeader.Count() > 0)
+                                        {
+                                            ErasoftDbContext.TOKPED_LISTMESSAGE.RemoveRange(cekExistingHeader);
+                                        }
+                                        var cekExistingDetail = ErasoftDbContext.TOKPED_LISTCHAT.Where(a => a.shop_id == cust.API_KEY && a.CUST == cust.CUST && a.reply_time >= dateLast1Month && a.msg_id == message.msg_id).ToList();
+                                        if (cekExistingDetail.Count() > 0)
+                                        {
+                                            ErasoftDbContext.TOKPED_LISTCHAT.RemoveRange(cekExistingDetail);
+                                        }
                                         if (!cekListMessage.Contains(message.msg_id))
                                         {
                                             listMessage.Add(message);
-                                            var cekListChat = ErasoftDbContext.TOKPED_LISTCHAT.AsNoTracking().Where(b => b.msg_id == message.msg_id && b.CUST == cust.CUST).Count();
-                                            if (cekListChat == 0)
+                                            //var cekListChat = ErasoftDbContext.TOKPED_LISTCHAT.AsNoTracking().Where(b => b.msg_id == message.msg_id && b.CUST == cust.CUST).Count();
+                                            //if (cekListChat == 0)
+                                            //{
+                                            //await ListReply(iden, message.msg_id, 1);
+                                            Task.Run(() => ListReply(iden, message.msg_id, 1)).Wait();
+                                            //}
+                                        }
+                                        else
+                                        {
+                                            var getConversation = ErasoftDbContext.TOKPED_LISTMESSAGE.Where(a => a.msg_id == message.msg_id).FirstOrDefault();
+                                            if(getConversation != null)
                                             {
-                                                await ListReply(iden, message.msg_id, 1);
+                                                getConversation.last_reply_time = message.last_reply_time;
+                                                getConversation.unreads = message.unreads;
+                                                getConversation.last_reply_msg = message.last_reply_msg;
+                                                ErasoftDbContext.SaveChanges();
+                                                //await ListReply(iden, message.msg_id, 1);
+                                                Task.Run(() => ListReply(iden, message.msg_id, 1)).Wait();
                                             }
                                         }
                                     }
@@ -6694,15 +6718,19 @@ namespace MasterOnline.Controllers
                         var cust = ErasoftDbContext.ARF01.Where(a => a.API_KEY == iden.API_secret_key && a.Sort1_Cust == iden.merchant_code).FirstOrDefault();
                         if (cust != null)
                         {
+                            var cekFirstReply = ErasoftDbContext.TOKPED_LISTCHAT.Where(a => a.CUST == cust.CUST && a.msg_id == msgId && a.is_first_reply == 1).FirstOrDefault();
                             var dateNow = DateTime.UtcNow.AddHours(7);
                             var dateLast1Month = dateNow.AddDays(-30);
                             var firstReply = false;
                             var cekListReply = ErasoftDbContext.TOKPED_LISTCHAT.ToList();
                             var replyid = cekListReply.Select(a => a.reply_id).ToList();
                             var lastGetMessage = false;
+                            var temp_listChat = new List<TOKPED_LISTCHAT>() { };
+                            var orderDesc = result.data.OrderByDescending(a => a.reply_time).ToList();
                             while (!lastGetMessage)
                             {
-                                foreach (var msg in result.data)
+                                //foreach (var msg in result.data)
+                                foreach (var msg in orderDesc)
                                 {
                                     try
                                     {
@@ -6716,73 +6744,73 @@ namespace MasterOnline.Controllers
                                         //if (cekListReply.Count() == 0 || !replyid.Contains(msg.reply_id.ToString()))
                                         //{
                                         var message = new TOKPED_LISTCHAT
-                                            {
-                                                CUST = cust.CUST,
-                                                msg_id = msg.msg_id.ToString(),
-                                                reply_id = msg.reply_id.ToString(),
-                                                sender_id = msg.sender_id.ToString(),
-                                                sender_name = msg.sender_name,
-                                                msg = msg.msg,
-                                                reply_time = ax,
-                                                read_status = msg.read_status,
-                                                read_time = bx,
-                                                status_ = msg.status,
-                                                //message_is_read = msg.message_is_read.ToString(),
-                                                //is_opposite = msg.is_opposite.ToString(),
-                                                //is_first_reply = msg.is_first_reply.ToString(),
-                                                //is_reported = msg.is_reported.ToString(),
+                                        {
+                                            CUST = cust.CUST,
+                                            msg_id = msg.msg_id.ToString(),
+                                            reply_id = msg.reply_id.ToString(),
+                                            sender_id = msg.sender_id.ToString(),
+                                            sender_name = msg.sender_name,
+                                            msg = msg.msg,
+                                            reply_time = ax,
+                                            read_status = msg.read_status,
+                                            read_time = bx,
+                                            status_ = msg.status,
+                                            //message_is_read = msg.message_is_read.ToString(),
+                                            //is_opposite = msg.is_opposite.ToString(),
+                                            //is_first_reply = msg.is_first_reply.ToString(),
+                                            //is_reported = msg.is_reported.ToString(),
 
-                                                tglinput = DateTime.UtcNow.AddHours(7),
-                                                shop_id = iden.API_secret_key
-                                            };
-                                            if (msg.message_is_read)
+                                            tglinput = DateTime.UtcNow.AddHours(7),
+                                            shop_id = iden.API_secret_key
+                                        };
+                                        if (msg.message_is_read)
+                                        {
+                                            message.message_is_read = 1;
+                                        }
+                                        else
+                                        {
+                                            message.message_is_read = 0;
+                                        }
+                                        if (msg.is_opposite)
+                                        {
+                                            message.is_opposite = 1;
+                                        }
+                                        else
+                                        {
+                                            message.is_opposite = 0;
+                                        }
+                                        if (msg.is_first_reply)
+                                        {
+                                            message.is_first_reply = 1;
+                                            firstReply = true;
+                                        }
+                                        else
+                                        {
+                                            message.is_first_reply = 0;
+                                        }
+                                        if (msg.is_reported)
+                                        {
+                                            message.is_reported = 1;
+                                        }
+                                        else
+                                        {
+                                            message.is_reported = 0;
+                                        }
+                                        if (msg.attachment != null)
+                                        {
+                                            message.attachment_id = string.IsNullOrEmpty(Convert.ToString(msg.attachment_id)) ? "" : Convert.ToString(msg.attachment_id);
+                                            message.attachment_type = msg.attachment.type;
+                                            if (msg.attachment.attributes != null)
                                             {
-                                                message.message_is_read = 1;
+                                                message.image_url = string.IsNullOrEmpty(msg.attachment.attributes.image_url) ? "" : msg.attachment.attributes.image_url;
+                                                message.product_id = string.IsNullOrEmpty(msg.attachment.attributes.product_id.ToString()) ? "" : msg.attachment.attributes.product_id.ToString();
                                             }
-                                            else
+                                            if (msg.attachment.fallback_attachment != null)
                                             {
-                                                message.message_is_read = 0;
+                                                message.fallback_attachment_html = string.IsNullOrEmpty(msg.attachment.fallback_attachment.html) ? "" : msg.attachment.fallback_attachment.html;
+                                                message.fallback_attachment_message = string.IsNullOrEmpty(msg.attachment.fallback_attachment.message) ? "" : msg.attachment.fallback_attachment.message;
                                             }
-                                            if (msg.is_opposite)
-                                            {
-                                                message.is_opposite = 1;
-                                            }
-                                            else
-                                            {
-                                                message.is_opposite = 0;
-                                            }
-                                            if (msg.is_first_reply)
-                                            {
-                                                message.is_first_reply = 1;
-                                                firstReply = true;
-                                            }
-                                            else
-                                            {
-                                                message.is_first_reply = 0;
-                                            }
-                                            if (msg.is_reported)
-                                            {
-                                                message.is_reported = 1;
-                                            }
-                                            else
-                                            {
-                                                message.is_reported = 0;
-                                            }
-                                            if (msg.attachment != null)
-                                            {
-                                                message.attachment_id = string.IsNullOrEmpty(Convert.ToString(msg.attachment_id)) ? "" : Convert.ToString(msg.attachment_id);
-                                                message.attachment_type = msg.attachment.type;
-                                                if (msg.attachment.attributes != null)
-                                                {
-                                                    message.image_url = string.IsNullOrEmpty(msg.attachment.attributes.image_url) ? "" : msg.attachment.attributes.image_url;
-                                                    message.product_id = string.IsNullOrEmpty(msg.attachment.attributes.product_id.ToString()) ? "" : msg.attachment.attributes.product_id.ToString();
-                                                }
-                                                if (msg.attachment.fallback_attachment != null)
-                                                {
-                                                    message.fallback_attachment_html = string.IsNullOrEmpty(msg.attachment.fallback_attachment.html) ? "" : msg.attachment.fallback_attachment.html;
-                                                    message.fallback_attachment_message = string.IsNullOrEmpty(msg.attachment.fallback_attachment.message) ? "" : msg.attachment.fallback_attachment.message;
-                                                }
-                                            }
+                                        }
 
                                         //masukin sampe -1 bulan 
                                         //if (message.reply_time < dateLast1Month)
@@ -6796,7 +6824,26 @@ namespace MasterOnline.Controllers
                                         //{
                                         //    listChat.Add(message);
                                         //}
-                                        listChat.Add(message);
+
+                                        if (message.reply_time < dateLast1Month)
+                                        {
+                                            if(cekFirstReply != null)
+                                            {
+                                                message.is_first_reply = 1;
+                                            }
+                                            firstReply = true;
+                                            var cekExist = ErasoftDbContext.TOKPED_LISTCHAT.Where(a => a.CUST == message.CUST && a.msg_id == message.msg && a.msg == message.msg && a.reply_time == message.reply_time && a.attachment_id == message.attachment_id).Count();
+                                            if(cekExist == 0)
+                                            {
+                                                listChat.Add(message);
+                                            }
+                                            lastGetMessage = true; break;
+                                        }
+                                        else
+                                        {
+                                            listChat.Add(message);
+                                        }
+                                        //listChat.Add(message);
 
                                         if (firstReply)
                                         {
@@ -8623,7 +8670,7 @@ namespace MasterOnline.Controllers
             public string msg { get; set; }
             public long reply_time { get; set; }
             public int read_status { get; set; }
-            public int read_time { get; set; }
+            public long read_time { get; set; }
             public int status { get; set; }
             public long attachment_id { get; set; }
             public bool message_is_read { get; set; }
