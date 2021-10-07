@@ -6617,11 +6617,11 @@ namespace MasterOnline.Controllers
                                             lastGetMessage = true; break;
                                         }
                                         //hanya masukin yg blm ada di list message 
-                                        var cekExistingHeader = ErasoftDbContext.TOKPED_LISTMESSAGE.Where(a => a.shop_id == cust.API_KEY && a.CUST == cust.CUST && a.last_reply_time >= dateLast1Month && a.msg_id == message.msg_id).ToList();
-                                        if (cekExistingHeader.Count() > 0)
-                                        {
-                                            ErasoftDbContext.TOKPED_LISTMESSAGE.RemoveRange(cekExistingHeader);
-                                        }
+                                        //var cekExistingHeader = ErasoftDbContext.TOKPED_LISTMESSAGE.Where(a => a.shop_id == cust.API_KEY && a.CUST == cust.CUST && a.last_reply_time >= dateLast1Month && a.msg_id == message.msg_id).ToList();
+                                        //if (cekExistingHeader.Count() > 0)
+                                        //{
+                                        //    ErasoftDbContext.TOKPED_LISTMESSAGE.RemoveRange(cekExistingHeader);
+                                        //}
                                         var cekExistingDetail = ErasoftDbContext.TOKPED_LISTCHAT.Where(a => a.shop_id == cust.API_KEY && a.CUST == cust.CUST && a.reply_time >= dateLast1Month && a.msg_id == message.msg_id).ToList();
                                         if (cekExistingDetail.Count() > 0)
                                         {
