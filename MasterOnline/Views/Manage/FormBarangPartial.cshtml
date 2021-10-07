@@ -144,11 +144,22 @@
             //alert(e.getData());
             //getValueFromCKEditor();
             setTimeout(function () {
-                CheckCharCount();
+                CheckCharCount('Stf02_Deskripsi');
             }, 10);
             //document.getElementById('txtCharCount').innerHTML = "Jumlah karakter :" ;
             //$("#divCharCount").show();
         });
+        //for (var i in CKEDITOR.instances) {
+        //    var e = CKEDITOR.instances[i];
+        //    //if (i == "Stf02_Deskripsi") {
+        //    //    alert(i);
+        //    //}
+        //     e.on('key', function (event) {
+        //        setTimeout(function () {
+        //            CheckCharCount(e.name);
+        //        }, 10);
+        //    });
+        //}
     }
 
     $(document).ready(function () {
@@ -160,7 +171,16 @@
         $(function () {
             $('#setting-detail-market-tabs a:first').tab('show');
         });
-
+        $('.deskripsimp').each(function (i, item) {
+            var data_id = $(item).attr("id");
+            var e = CKEDITOR.instances[data_id];
+            e.on('key', function (event) {
+                setTimeout(function () {
+                    //alert(data_id);
+                    CheckCharCount(data_id);
+                }, 10);
+            });
+        });
         //add by calvin 28 februari 2019
         $('.btn_hapus_foto_produk_blibli').each(function (i, item) {
             var data_barang_level = $(item).attr("data-barang-level");
@@ -336,29 +356,47 @@
 
     });
 
-    function CheckCharCount() {
+    function CheckCharCount(val) {
 
-        var aa = CKEDITOR.instances["Stf02_Deskripsi"].getData();
+        var aa = CKEDITOR.instances[val].getData();
         $formData = {
             deskripsi: aa,
         }
         $.ajax({
-                type: "POST",
-                url: '@Url.Action("HitungCharDeskripsi", "Manage")',
-                data: JSON.stringify($formData),
-                processData: false,  // tell jQuery not to process the data
-                contentType: "application/json; charset=UTF-8",  // tell jQuery not to set contentType
-                beforeSend: function () {
-                },
-                success: function (response) {
+            type: "POST",
+            url: '@Url.Action("HitungCharDeskripsi", "Manage")',
+            data: JSON.stringify($formData),
+            processData: false,  // tell jQuery not to process the data
+            contentType: "application/json; charset=UTF-8",  // tell jQuery not to set contentType
+            beforeSend: function () {
+            },
+            success: function (response) {
+                if (val == "Stf02_Deskripsi") {
                     document.getElementById('txtCharCount').innerHTML = "Jumlah karakter :" + response.Errors[0];
                     $("#divCharCount").show();
-                },
-                error: function (xhr, status, error) {
-
-                    console.log(error);
+                    UpdateAllDeskripsi();
                 }
-            });
+                else {
+                    document.getElementById('txt_' + val).innerHTML = "Jumlah karakter :" + response.Errors[0];
+                    $("#div_" + val).show();
+                }
+            },
+            error: function (xhr, status, error) {
+
+                console.log(error);
+            }
+        });
+    }
+    function UpdateAllDeskripsi() {
+        for (var i in CKEDITOR.instances) {
+            if (i.includes("_DESKRIPSI_MP")) {
+                if (CKEDITOR.instances[i].getData() == "" || CKEDITOR.instances[i].getData() == "null") {
+                    var aa = CKEDITOR.instances['Stf02_Deskripsi'].getData();
+                    CKEDITOR.instances[i].setData(aa);
+                }
+
+            }
+        }
     }
 
     function getFotoProdukBlibli() {
@@ -1383,7 +1421,12 @@
                                                                                             @Html.Label("Nama Barang", new { @class = "control-label" })
                                                                                         </div>
                                                                                         <div class="col-md-10 col-sm-10 col-xs-12 form-group">
-                                                                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control namamp", maxlength = 70, Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.NAMA_BARANG_MP })
+                                                                                            @{
+                                                                                                string idNamaBrgMP = "ListHargaJualPermarket_" + i + "__NAMA_BARANG_MP";
+                                                                                                string ValueNamaBrgMP = HttpUtility.HtmlDecode(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.NAMA_BARANG_MP);
+                                                                                                string nameNamaBrgMP = "ListHargaJualPermarket[" + i + "].NAMA_BARANG_MP";
+                                                                                            }
+                                                                                            <input class="form-control namamp" type="text" id="@idNamaBrgMP" name="@nameNamaBrgMP" value="@ValueNamaBrgMP" />
                                                                                         </div>
                                                                                     </div>
                                                                                     <div class="row">
@@ -1397,8 +1440,11 @@
                                                                                                 string nameDeskripsiMP = "ListHargaJualPermarket[" + i + "].DESKRIPSI_MP";
                                                                                             }
                                                                                             <textarea cols="20" data-val="true" class="form-control make_ckeditor deskripsimp" id="@idDeskripsiMP" name="@nameDeskripsiMP" rows="2" style="resize: none; width:100%;">@HttpUtility.HtmlDecode(ValueDeskripsiMP) </textarea>
-
                                                                                         </div>
+                                                                                    </div>
+                                                                                    <div class="form-group" id="div_@idDeskripsiMP" style="display:none">
+                                                                                        <div class="col-md-8 col-sm-8"></div>
+                                                                                        <div class="col-md-4 col-sm-4 col-xs-12"><span id="txt_@idDeskripsiMP"></span></div>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -1406,7 +1452,7 @@
                                                                     </div>
                                                                 </div>
                                                             }
-                                                                                                        }
+                                                         }
                                                     </div>
                                                     <div id="elevenia_detail_tab" class="tab-pane fade in">
                                                         @for (var i = 0; i < listMarket.ToList().Count; i++)
@@ -1477,7 +1523,12 @@
                                                                                     @Html.Label("Nama Barang", new { @class = "control-label" })
                                                                                 </div>
                                                                                 <div class="col-md-10 col-sm-10 col-xs-12 form-group">
-                                                                                    @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control namamp", maxlength = 70 })
+                                                                                    @{
+                                                                                        string idNamaBrgMP = "ListHargaJualPermarket_" + i + "__NAMA_BARANG_MP";
+                                                                                        string ValueNamaBrgMP = HttpUtility.HtmlDecode(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.NAMA_BARANG_MP);
+                                                                                        string nameNamaBrgMP = "ListHargaJualPermarket[" + i + "].NAMA_BARANG_MP";
+                                                                                    }
+                                                                                    <input class="form-control namamp" type="text" id="@idNamaBrgMP" name="@nameNamaBrgMP" value="@ValueNamaBrgMP" />
                                                                                 </div>
                                                                             </div>
                                                                             <div class="row">
@@ -1485,18 +1536,21 @@
                                                                                     @Html.Label("Deskripsi Barang", new { @class = "control-label" })
                                                                                 </div>
                                                                                 <div class="col-md-10 col-sm-10 col-xs-12 form-group">
+
                                                                                     @{
-                                                                                                if (Model.ListHargaJualPermarket != null)
-                                                                                                {
-                                                                                                    Model.ListHargaJualPermarket[i].DESKRIPSI_MP = HttpUtility.HtmlDecode(Model.ListHargaJualPermarket[i].DESKRIPSI_MP);
-                                                                                                }
-                                                                                            }
-                                                                                            @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor deskripsimp" })
-                                                                                        </div>
-        
-                                                                                    </div>
-        
+                                                                                        string idDeskripsiMP = "ListHargaJualPermarket_" + i + "__DESKRIPSI_MP";
+                                                                                        string ValueDeskripsiMP = HttpUtility.HtmlDecode(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DESKRIPSI_MP);
+                                                                                        string nameDeskripsiMP = "ListHargaJualPermarket[" + i + "].DESKRIPSI_MP";
+                                                                                    }
+                                                                                    <textarea cols="20" data-val="true" class="form-control make_ckeditor deskripsimp" id="@idDeskripsiMP" name="@nameDeskripsiMP" rows="2" style="resize: none; width:100%;">@HttpUtility.HtmlDecode(ValueDeskripsiMP) </textarea>
                                                                                 </div>
+                                                                            </div>
+                                                                            <div class="form-group" id="div_@idDeskripsiMP" style="display:none">
+                                                                                <div class="col-md-8 col-sm-8"></div>
+                                                                                <div class="col-md-4 col-sm-4 col-xs-12"><span id="txt_@idDeskripsiMP"></span></div>
+                                                                            </div>
+
+                                                                        </div>
         
                                                                             </div>
         
@@ -1583,7 +1637,12 @@
                                                                                         @Html.Label("Nama Barang", new { @class = "control-label" })
                                                                                     </div>
                                                                                     <div class="col-md-10 col-sm-10 col-xs-12 form-group">
-                                                                                        @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control namamp", maxlength = 70 })
+                                                                                        @{
+                                                                                            string idNamaBrgMP = "ListHargaJualPermarket_" + i + "__NAMA_BARANG_MP";
+                                                                                            string ValueNamaBrgMP = HttpUtility.HtmlDecode(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.NAMA_BARANG_MP);
+                                                                                            string nameNamaBrgMP = "ListHargaJualPermarket[" + i + "].NAMA_BARANG_MP";
+                                                                                        }
+                                                                                        <input class="form-control namamp" type="text" id="@idNamaBrgMP" name="@nameNamaBrgMP" value="@ValueNamaBrgMP" />
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="row">
@@ -1591,14 +1650,19 @@
                                                                                         @Html.Label("Deskripsi Barang", new { @class = "control-label" })
                                                                                     </div>
                                                                                     <div class="col-md-10 col-sm-10 col-xs-12 form-group">
+
                                                                                         @{
-                                                                                            if (Model.ListHargaJualPermarket != null)
-                                                                                            {
-                                                                                                Model.ListHargaJualPermarket[i].DESKRIPSI_MP = HttpUtility.HtmlDecode(Model.ListHargaJualPermarket[i].DESKRIPSI_MP);
-                                                                                            }
+                                                                                            string idDeskripsiMP = "ListHargaJualPermarket_" + i + "__DESKRIPSI_MP";
+                                                                                            string ValueDeskripsiMP = HttpUtility.HtmlDecode(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DESKRIPSI_MP);
+                                                                                            string nameDeskripsiMP = "ListHargaJualPermarket[" + i + "].DESKRIPSI_MP";
                                                                                         }
-                                                                                        @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor deskripsimp" })
+                                                                                        <textarea cols="20" data-val="true" class="form-control make_ckeditor deskripsimp" id="@idDeskripsiMP" name="@nameDeskripsiMP" rows="2" style="resize: none; width:100%;">@HttpUtility.HtmlDecode(ValueDeskripsiMP) </textarea>
+
                                                                                     </div>
+                                                                                </div>
+                                                                                <div class="form-group" id="div_@idDeskripsiMP" style="display:none">
+                                                                                    <div class="col-md-8 col-sm-8"></div>
+                                                                                    <div class="col-md-4 col-sm-4 col-xs-12"><span id="txt_@idDeskripsiMP"></span></div>
                                                                                 </div>
                                                                             </div>
                                                                         }
@@ -1703,30 +1767,39 @@
                                                                                 </div>
                                                                             }
 
-                                                                            <div class="row" style="padding-top:10px">
-                                                                                <div class="row">
-                                                                                    <div class="col-md-2 col-sm-2 col-xs-12">
-                                                                                        @Html.Label("Nama Barang", new { @class = "control-label" })
-                                                                                    </div>
-                                                                                    <div class="col-md-10 col-sm-10 col-xs-12 form-group">
-                                                                                        @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control namamp", maxlength = 70 })
-                                                                                    </div>
-                                                                                </div>
-                                                                                <div class="row">
-                                                                                    <div class="col-md-2 col-sm-2 col-xs-12">
-                                                                                        @Html.Label("Deskripsi Barang", new { @class = "control-label" })
-                                                                                    </div>
-                                                                                    <div class="col-md-10 col-sm-10 col-xs-12 form-group">
-                                                                                        @{
-                                                                                            if (Model.ListHargaJualPermarket != null)
-                                                                                            {
-                                                                                                Model.ListHargaJualPermarket[i].DESKRIPSI_MP = HttpUtility.HtmlDecode(Model.ListHargaJualPermarket[i].DESKRIPSI_MP);
-                                                                                            }
-                                                                                        }
-                                                                                        @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor deskripsimp" })
-                                                                                    </div>
-                                                                                </div>
+                                                                    <div class="row" style="padding-top:10px">
+                                                                        <div class="row">
+                                                                            <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                @Html.Label("Nama Barang", new { @class = "control-label" })
                                                                             </div>
+                                                                            <div class="col-md-10 col-sm-10 col-xs-12 form-group">
+                                                                                @{
+                                                                                    string idNamaBrgMP = "ListHargaJualPermarket_" + i + "__NAMA_BARANG_MP";
+                                                                                    string ValueNamaBrgMP = HttpUtility.HtmlDecode(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.NAMA_BARANG_MP);
+                                                                                    string nameNamaBrgMP = "ListHargaJualPermarket[" + i + "].NAMA_BARANG_MP";
+                                                                                }
+                                                                                <input class="form-control namamp" type="text" id="@idNamaBrgMP" name="@nameNamaBrgMP" value="@ValueNamaBrgMP" />
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row">
+                                                                            <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                @Html.Label("Deskripsi Barang", new { @class = "control-label" })
+                                                                            </div>
+                                                                            <div class="col-md-10 col-sm-10 col-xs-12 form-group">
+
+                                                                                @{
+                                                                                    string idDeskripsiMP = "ListHargaJualPermarket_" + i + "__DESKRIPSI_MP";
+                                                                                    string ValueDeskripsiMP = HttpUtility.HtmlDecode(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DESKRIPSI_MP);
+                                                                                    string nameDeskripsiMP = "ListHargaJualPermarket[" + i + "].DESKRIPSI_MP";
+                                                                                }
+                                                                                <textarea cols="20" data-val="true" class="form-control make_ckeditor deskripsimp" id="@idDeskripsiMP" name="@nameDeskripsiMP" rows="2" style="resize: none; width:100%;">@HttpUtility.HtmlDecode(ValueDeskripsiMP) </textarea>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="form-group" id="div_@idDeskripsiMP" style="display:none">
+                                                                            <div class="col-md-8 col-sm-8"></div>
+                                                                            <div class="col-md-4 col-sm-4 col-xs-12"><span id="txt_@idDeskripsiMP"></span></div>
+                                                                        </div>
+                                                                    </div>
                                                                         }
                                                                     </div>
                                                                  </div>
@@ -1840,7 +1913,12 @@
                                                                                         @Html.Label("Nama Barang", new { @class = "control-label" })
                                                                                     </div>
                                                                                     <div class="col-md-10 col-sm-10 col-xs-12 form-group">
-                                                                                        @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control namamp", maxlength = 70 })
+                                                                                        @{
+                                                                                            string idNamaBrgMP = "ListHargaJualPermarket_" + i + "__NAMA_BARANG_MP";
+                                                                                            string ValueNamaBrgMP = HttpUtility.HtmlDecode(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.NAMA_BARANG_MP);
+                                                                                            string nameNamaBrgMP = "ListHargaJualPermarket[" + i + "].NAMA_BARANG_MP";
+                                                                                        }
+                                                                                        <input class="form-control namamp" type="text" id="@idNamaBrgMP" name="@nameNamaBrgMP" value="@ValueNamaBrgMP" />
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="row">
@@ -1848,14 +1926,18 @@
                                                                                         @Html.Label("Deskripsi Barang", new { @class = "control-label" })
                                                                                     </div>
                                                                                     <div class="col-md-10 col-sm-10 col-xs-12 form-group">
+
                                                                                         @{
-                                                                                            if (Model.ListHargaJualPermarket != null)
-                                                                                            {
-                                                                                                Model.ListHargaJualPermarket[i].DESKRIPSI_MP = HttpUtility.HtmlDecode(Model.ListHargaJualPermarket[i].DESKRIPSI_MP);
-                                                                                            }
+                                                                                            string idDeskripsiMP = "ListHargaJualPermarket_" + i + "__DESKRIPSI_MP";
+                                                                                            string ValueDeskripsiMP = HttpUtility.HtmlDecode(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DESKRIPSI_MP);
+                                                                                            string nameDeskripsiMP = "ListHargaJualPermarket[" + i + "].DESKRIPSI_MP";
                                                                                         }
-                                                                                        @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor deskripsimp" })
+                                                                                        <textarea cols="20" data-val="true" class="form-control make_ckeditor deskripsimp" id="@idDeskripsiMP" name="@nameDeskripsiMP" rows="2" style="resize: none; width:100%;">@HttpUtility.HtmlDecode(ValueDeskripsiMP) </textarea>
                                                                                     </div>
+                                                                                </div>
+                                                                                <div class="form-group" id="div_@idDeskripsiMP" style="display:none">
+                                                                                    <div class="col-md-8 col-sm-8"></div>
+                                                                                    <div class="col-md-4 col-sm-4 col-xs-12"><span id="txt_@idDeskripsiMP"></span></div>
                                                                                 </div>
                                                                             </div>
                                                                         }
@@ -2203,7 +2285,12 @@
                                                                                         @Html.Label("Nama Barang", new { @class = "control-label" })
                                                                                     </div>
                                                                                     <div class="col-md-10 col-sm-10 col-xs-12 form-group">
-                                                                                        @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control namamp", maxlength = 70 })
+                                                                                        @{
+                                                                                            string idNamaBrgMP = "ListHargaJualPermarket_" + i + "__NAMA_BARANG_MP";
+                                                                                            string ValueNamaBrgMP = HttpUtility.HtmlDecode(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.NAMA_BARANG_MP);
+                                                                                            string nameNamaBrgMP = "ListHargaJualPermarket[" + i + "].NAMA_BARANG_MP";
+                                                                                        }
+                                                                                        <input class="form-control namamp" type="text" id="@idNamaBrgMP" name="@nameNamaBrgMP" value="@ValueNamaBrgMP" />
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="row">
@@ -2211,14 +2298,18 @@
                                                                                         @Html.Label("Deskripsi Barang", new { @class = "control-label" })
                                                                                     </div>
                                                                                     <div class="col-md-10 col-sm-10 col-xs-12 form-group">
+
                                                                                         @{
-                                                                                            if (Model.ListHargaJualPermarket != null)
-                                                                                            {
-                                                                                                Model.ListHargaJualPermarket[i].DESKRIPSI_MP = HttpUtility.HtmlDecode(Model.ListHargaJualPermarket[i].DESKRIPSI_MP);
-                                                                                            }
+                                                                                            string idDeskripsiMP = "ListHargaJualPermarket_" + i + "__DESKRIPSI_MP";
+                                                                                            string ValueDeskripsiMP = HttpUtility.HtmlDecode(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DESKRIPSI_MP);
+                                                                                            string nameDeskripsiMP = "ListHargaJualPermarket[" + i + "].DESKRIPSI_MP";
                                                                                         }
-                                                                                        @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor deskripsimp" })
+                                                                                        <textarea cols="20" data-val="true" class="form-control make_ckeditor deskripsimp" id="@idDeskripsiMP" name="@nameDeskripsiMP" rows="2" style="resize: none; width:100%;">@HttpUtility.HtmlDecode(ValueDeskripsiMP) </textarea>
                                                                                     </div>
+                                                                                </div>
+                                                                                <div class="form-group" id="div_@idDeskripsiMP" style="display:none">
+                                                                                    <div class="col-md-8 col-sm-8"></div>
+                                                                                    <div class="col-md-4 col-sm-4 col-xs-12"><span id="txt_@idDeskripsiMP"></span></div>
                                                                                 </div>
                                                                             </div>
 
@@ -2342,7 +2433,12 @@
                                                                                         @Html.Label("Nama Barang", new { @class = "control-label" })
                                                                                     </div>
                                                                                     <div class="col-md-10 col-sm-10 col-xs-12 form-group">
-                                                                                        @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].NAMA_BARANG_MP, new { @class = "form-control namamp", maxlength = 70 })
+                                                                                        @{
+                                                                                            string idNamaBrgMP = "ListHargaJualPermarket_" + i + "__NAMA_BARANG_MP";
+                                                                                            string ValueNamaBrgMP = HttpUtility.HtmlDecode(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.NAMA_BARANG_MP);
+                                                                                            string nameNamaBrgMP = "ListHargaJualPermarket[" + i + "].NAMA_BARANG_MP";
+                                                                                        }
+                                                                                        <input class="form-control namamp" type="text" id="@idNamaBrgMP" name="@nameNamaBrgMP" value="@ValueNamaBrgMP" />
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="row">
@@ -2350,14 +2446,18 @@
                                                                                         @Html.Label("Deskripsi Barang", new { @class = "control-label" })
                                                                                     </div>
                                                                                     <div class="col-md-10 col-sm-10 col-xs-12 form-group">
+
                                                                                         @{
-                                                                                            if (Model.ListHargaJualPermarket != null)
-                                                                                            {
-                                                                                                Model.ListHargaJualPermarket[i].DESKRIPSI_MP = HttpUtility.HtmlDecode(Model.ListHargaJualPermarket[i].DESKRIPSI_MP);
-                                                                                            }
+                                                                                            string idDeskripsiMP = "ListHargaJualPermarket_" + i + "__DESKRIPSI_MP";
+                                                                                            string ValueDeskripsiMP = HttpUtility.HtmlDecode(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DESKRIPSI_MP);
+                                                                                            string nameDeskripsiMP = "ListHargaJualPermarket[" + i + "].DESKRIPSI_MP";
                                                                                         }
-                                                                                        @Html.TextAreaFor(m => m.ListHargaJualPermarket[i].DESKRIPSI_MP, new { @class = "form-control make_ckeditor deskripsimp" })
+                                                                                        <textarea cols="20" data-val="true" class="form-control make_ckeditor deskripsimp" id="@idDeskripsiMP" name="@nameDeskripsiMP" rows="2" style="resize: none; width:100%;">@HttpUtility.HtmlDecode(ValueDeskripsiMP) </textarea>
                                                                                     </div>
+                                                                                </div>
+                                                                                <div class="form-group" id="div_@idDeskripsiMP" style="display:none">
+                                                                                    <div class="col-md-8 col-sm-8"></div>
+                                                                                    <div class="col-md-4 col-sm-4 col-xs-12"><span id="txt_@idDeskripsiMP"></span></div>
                                                                                 </div>
                                                                             </div>
                                                                         }

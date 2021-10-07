@@ -7947,13 +7947,23 @@ namespace MasterOnline.Controllers
                 Keterangan = barangInDb.Deskripsi,
                 Qty = "0",
                 MinQty = "0",
-                PickupPoint = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == barangInDb.BRG && m.IDMARKET == arf01.RecNum).PICKUP_POINT.ToString(),
+                //PickupPoint = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == barangInDb.BRG && m.IDMARKET == arf01.RecNum).PICKUP_POINT.ToString(),
+                PickupPoint = stf02h.PICKUP_POINT,
                 IDMarket = arf01.RecNum.ToString(),
                 Length = Convert.ToString(barangInDb.PANJANG),
                 Width = Convert.ToString(barangInDb.LEBAR),
                 Height = Convert.ToString(barangInDb.TINGGI),
                 dataBarangInDb = barangInDb
             };
+            if (!string.IsNullOrEmpty(stf02h.NAMA_BARANG_MP))
+            {
+                data.nama = stf02h.NAMA_BARANG_MP;
+            }
+            if (!string.IsNullOrEmpty(stf02h.DESKRIPSI_MP))
+            {
+                if(stf02h.DESKRIPSI_MP != "null")
+                data.Keterangan = stf02h.DESKRIPSI_MP;
+            }
             data.type = barangInDb.TYPE;//add by Tri 27/9/2019
             data.Brand = stf02h.AVALUE_38;
             data.Price = barangInDb.HJUAL.ToString();

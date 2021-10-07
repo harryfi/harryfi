@@ -599,6 +599,15 @@ namespace MasterOnline.Controllers
                     pictures = new List<CreateProduct_Images>(),
                     price_currency = "IDR"
                 };
+                if (!string.IsNullOrEmpty(brg_stf02h.NAMA_BARANG_MP))
+                {
+                    newDataProduct.name = brg_stf02h.NAMA_BARANG_MP.Trim().Replace("’", "`");
+                }
+                if (!string.IsNullOrEmpty(brg_stf02h.DESKRIPSI_MP))
+                {
+                    if (brg_stf02h.DESKRIPSI_MP != "null")
+                        newDataProduct.description = brg_stf02h.DESKRIPSI_MP.Replace("’", "`");
+                }
                 if (!brg_stf02h.DISPLAY)
                 {
                     newDataProduct.status = "EMPTY";
@@ -1419,6 +1428,15 @@ namespace MasterOnline.Controllers
                         pictures = new List<CreateProduct_Images>(),
                         price_currency = "IDR"
                     };
+                    if (!string.IsNullOrEmpty(brg_stf02h.NAMA_BARANG_MP))
+                    {
+                        newDataProduct.name = brg_stf02h.NAMA_BARANG_MP.Trim().Replace("’", "`");
+                    }
+                    if (!string.IsNullOrEmpty(brg_stf02h.DESKRIPSI_MP))
+                    {
+                        if (brg_stf02h.DESKRIPSI_MP != "null")
+                            newDataProduct.description = brg_stf02h.DESKRIPSI_MP.Replace("’", "`");
+                    }
 
                     if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_35))
                     {

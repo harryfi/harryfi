@@ -684,6 +684,11 @@ namespace MasterOnline.Controllers
 
             //Start handle description
             var vDescription = brgInDb.Deskripsi;
+            if (!string.IsNullOrEmpty(detailBrg.DESKRIPSI_MP))
+            {
+                if (detailBrg.DESKRIPSI_MP != "null")
+                    vDescription = detailBrg.DESKRIPSI_MP;
+            }
             vDescription = new StokControllerJob().RemoveSpecialCharacters(vDescription);
 
             //add by nurul 20/1/2020, handle <p> dan enter double di shopee
@@ -753,6 +758,10 @@ namespace MasterOnline.Controllers
             if (!string.IsNullOrEmpty(brgInDb.NAMA3))
             {
                 namafull += " " + brgInDb.NAMA3;
+            }
+            if (!string.IsNullOrEmpty(detailBrg.NAMA_BARANG_MP))
+            {
+                namafull = detailBrg.NAMA_BARANG_MP;
             }
 
             var commonAttribute = "";
@@ -1186,6 +1195,11 @@ namespace MasterOnline.Controllers
 
             //Start handle description
             var vDescription = brgInDb.Deskripsi;
+            if (!string.IsNullOrEmpty(detailBrg.DESKRIPSI_MP))
+            {
+                if (detailBrg.DESKRIPSI_MP != "null")
+                    vDescription = detailBrg.DESKRIPSI_MP;
+            }
             vDescription = new StokControllerJob().RemoveSpecialCharacters(vDescription);
             //add by nurul 20/1/2020, handle <p> dan enter double di shopee
             //vDescription = vDescription.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
@@ -1248,6 +1262,10 @@ namespace MasterOnline.Controllers
             if (!string.IsNullOrEmpty(brgInDb.NAMA3))
             {
                 namafull += " " + brgInDb.NAMA3;
+            }
+            if (!string.IsNullOrEmpty(detailBrg.NAMA_BARANG_MP))
+            {
+                namafull = detailBrg.NAMA_BARANG_MP;
             }
 
             var commonAttribute = "";
@@ -6734,6 +6752,11 @@ namespace MasterOnline.Controllers
 
             //Start handle description
             var vDescription = brgInDb.Deskripsi;
+            if (!string.IsNullOrEmpty(detailBrg.DESKRIPSI_MP))
+            {
+                if (detailBrg.DESKRIPSI_MP != "null")
+                    vDescription = detailBrg.DESKRIPSI_MP;
+            }
             vDescription = new StokControllerJob().RemoveSpecialCharacters(vDescription);
 
             //add by nurul 20/1/2020, handle <p> dan enter double di shopee
@@ -6803,6 +6826,10 @@ namespace MasterOnline.Controllers
             if (!string.IsNullOrEmpty(brgInDb.NAMA3))
             {
                 namafull += " " + brgInDb.NAMA3;
+            }
+            if (!string.IsNullOrEmpty(detailBrg.NAMA_BARANG_MP))
+            {
+                namafull = detailBrg.NAMA_BARANG_MP;
             }
 
             var commonAttribute = "";
@@ -7427,6 +7454,11 @@ namespace MasterOnline.Controllers
 
             //Start handle description
             var vDescription = brgInDb.Deskripsi;
+            if (!string.IsNullOrEmpty(detailBrg.DESKRIPSI_MP))
+            {
+                if (detailBrg.DESKRIPSI_MP != "null")
+                    vDescription = detailBrg.DESKRIPSI_MP;
+            }
             vDescription = new StokControllerJob().RemoveSpecialCharacters(vDescription);
             //add by nurul 20/1/2020, handle <p> dan enter double di shopee
             //vDescription = vDescription.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
@@ -7489,6 +7521,10 @@ namespace MasterOnline.Controllers
             if (!string.IsNullOrEmpty(brgInDb.NAMA3))
             {
                 namafull += " " + brgInDb.NAMA3;
+            }
+            if (!string.IsNullOrEmpty(detailBrg.NAMA_BARANG_MP))
+            {
+                namafull = detailBrg.NAMA_BARANG_MP;
             }
 
             var commonAttribute = "";

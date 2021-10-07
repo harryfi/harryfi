@@ -2009,6 +2009,15 @@ namespace MasterOnline.Controllers
                 options = new List<ShopifyCreateProductDataVariantOptions>(),
                 images = new List<ShopifyCreateProductImages>()
             };
+            if (!string.IsNullOrEmpty(detailBrg.NAMA_BARANG_MP))
+            {
+                body.title = detailBrg.NAMA_BARANG_MP.Trim().Replace("’", "`");
+            }
+            if (!string.IsNullOrEmpty(detailBrg.DESKRIPSI_MP))
+            {
+                if (detailBrg.DESKRIPSI_MP != "null")
+                    body.body_html = detailBrg.DESKRIPSI_MP.Replace("’", "`");
+            }
 
             if (brgInDb.TYPE == "4")
             {
@@ -2714,6 +2723,15 @@ namespace MasterOnline.Controllers
                 //options = new List<ShopifyUpdateProductDataVariantOptions>(),
                 images = new List<ImagesUpdateProduct>()
             };
+            if (!string.IsNullOrEmpty(detailBrg.NAMA_BARANG_MP))
+            {
+                body.title = detailBrg.NAMA_BARANG_MP.Trim().Replace("’", "`");
+            }
+            if (!string.IsNullOrEmpty(detailBrg.DESKRIPSI_MP))
+            {
+                if (detailBrg.DESKRIPSI_MP != "null")
+                    body.body_html = detailBrg.DESKRIPSI_MP.Replace("’", "`");
+            }
 
             //List<string> varlv1 = new List<string>();
             //List<string> varlv2 = new List<string>();

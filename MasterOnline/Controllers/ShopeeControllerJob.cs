@@ -8126,6 +8126,15 @@ namespace MasterOnline.Controllers
                 variations = new List<ShopeeVariationClass>(),
                 logistics = logistics
             };
+            if (!string.IsNullOrEmpty(detailBrg.NAMA_BARANG_MP))
+            {
+                HttpBody.name = detailBrg.NAMA_BARANG_MP.Trim().Replace("’", "`");
+            }
+            if (!string.IsNullOrEmpty(detailBrg.DESKRIPSI_MP))
+            {
+                if (detailBrg.DESKRIPSI_MP != "null")
+                    HttpBody.description = detailBrg.DESKRIPSI_MP.Replace("’", "`");
+            }
 
             //add by calvin 10 mei 2019
             HttpBody.description = new StokControllerJob().RemoveSpecialCharacters(HttpBody.description);
@@ -8663,6 +8672,15 @@ namespace MasterOnline.Controllers
                 item_dangerous = 0,
                 item_status = "NORMAL",
             };
+            if (!string.IsNullOrEmpty(detailBrg.NAMA_BARANG_MP))
+            {
+                HttpBody.item_name = detailBrg.NAMA_BARANG_MP.Trim().Replace("’", "`");
+            }
+            if (!string.IsNullOrEmpty(detailBrg.DESKRIPSI_MP))
+            {
+                if (detailBrg.DESKRIPSI_MP != "null")
+                    HttpBody.description = detailBrg.DESKRIPSI_MP.Replace("’", "`");
+            }
             HttpBody.dimension.package_height = Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI);
             HttpBody.dimension.package_length = Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG);
             HttpBody.dimension.package_width = Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR);
@@ -11183,6 +11201,15 @@ namespace MasterOnline.Controllers
                 attributes = new List<ShopeeAttributeClass>(),
                 logistics = logistics
             };
+            if (!string.IsNullOrEmpty(detailBrg.NAMA_BARANG_MP))
+            {
+                HttpBody.name = detailBrg.NAMA_BARANG_MP.Trim().Replace("’", "`");
+            }
+            if (!string.IsNullOrEmpty(detailBrg.DESKRIPSI_MP))
+            {
+                if (detailBrg.DESKRIPSI_MP != "null")
+                    HttpBody.description = detailBrg.DESKRIPSI_MP.Replace("’", "`");
+            }
 
             //add by nurul 20/1/2020, handle <p> dan enter double di shopee
             HttpBody.description = new StokControllerJob().RemoveSpecialCharacters(HttpBody.description);
@@ -11593,6 +11620,15 @@ namespace MasterOnline.Controllers
                 item_dangerous = 0,
                 item_status = "NORMAL",
             };
+            if (!string.IsNullOrEmpty(detailBrg.NAMA_BARANG_MP))
+            {
+                HttpBody.item_name = detailBrg.NAMA_BARANG_MP.Trim().Replace("’", "`");
+            }
+            if (!string.IsNullOrEmpty(detailBrg.DESKRIPSI_MP))
+            {
+                if (detailBrg.DESKRIPSI_MP != "null")
+                    HttpBody.description = detailBrg.DESKRIPSI_MP.Replace("’", "`");
+            }
             HttpBody.dimension.package_height = Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI);
             HttpBody.dimension.package_length = Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG);
             HttpBody.dimension.package_width = Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR);
