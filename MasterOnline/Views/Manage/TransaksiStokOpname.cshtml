@@ -146,6 +146,12 @@
         .hscroll {
             overflow-x: auto; /* Horizontal */
         }
+
+        #div-scroll-list {
+            overflow-x: hidden;
+            overflow-y: scroll;
+            height: 310px;
+        }
     </style>
 }
 
@@ -313,26 +319,67 @@
         </div>
     </div>
 </div>
-
+@*//change by nurul 9/9/2021
+    <div class="modal fade" id="konfHapusStok" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content modalresponsivetrmsk">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row text-center">
+                        <h4>Apakah Anda yakin ingin menghapus transaksi stok opname ini?</h4>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                    <button type="button" class="btn btn-success" onclick="deleteStokOp();">Ya</button>
+                </div>
+            </div>
+        </div>
+    </div>*@
 <div class="modal fade" id="konfHapusStok" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content modalresponsivetrmsk">
+        <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="max-height: calc(100vh - 210px);overflow-y: auto;">
                 <div class="row text-center">
                     <h4>Apakah Anda yakin ingin menghapus transaksi stok opname ini?</h4>
                 </div>
+                <br />
+                <div class="col-md-12">
+                    <div id="progressBarDelete" class="text-center" style="display:none;">
+                        <table class="col-md-12" id="tbl_progbar2">
+                            <tr>
+                                <td class="col-md-2">
+                                    <label id="lblPBDelete"></label>
+                                </td>
+                                <td class="col-md-10">
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" id="pBar_Delete"
+                                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+                                            0% Complete (success)
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
-                <button type="button" class="btn btn-success" onclick="deleteStokOp();">Ya</button>
+                <div class="right">
+                    <button type="button" class="btn btn-danger " onclick="$('#konfHapusStok').modal('hide');" id="konfHapusStok_btn_tidak">Tidak</button>
+                    <button type="button" class="btn btn-success" onclick="beforeDelete();" id="konfHapusStok_btn_ya">Ya</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
+@*change by nurul 9/9/2021*@
 
 <div class="modal fade" id="konfHapusBarang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
@@ -369,6 +416,63 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
                 <button type="button" class="btn btn-success" onclick="prosesSOpname();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="konfProsesStok" tabindex="-1" role="dialog" aria-labelledby="konfirmasiProsesLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="konfirmasiProsesLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body" style="max-height: calc(100vh - 210px);overflow-y: auto;">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin memproses stok opname ini?</h4>
+                </div>
+                <br />
+                <div class="col-md-12">
+                    <div id="progressBarProses" class="text-center" style="display:none;">
+                        <table class="col-md-12" id="tbl_progbar2">
+                            <tr>
+                                <td class="col-md-2">
+                                    <label id="lblPBProses"></label>
+                                </td>
+                                <td class="col-md-10">
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" id="pBar_Proses"
+                                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+                                            0% Complete (success)
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="right">
+                    <button type="button" class="btn btn-danger " onclick="$('#konfProsesStok').modal('hide');" id="konfProsesStok_btn_tidak">Tidak</button>
+                    <button type="button" class="btn btn-success" onclick="beforeProses();" id="konfProsesStok_btn_ya">Ya</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalError" tabindex="-1" role="dialog" aria-labelledby="modalErrorLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="width:700px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modalErrorLabel">List Error</h4>
+            </div>
+            <div class="modal-body edit-content" id="error-list">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="close-modal-error" onclick="$('#modalError').modal('hide')">Tutup</button>
             </div>
         </div>
     </div>
@@ -933,11 +1037,12 @@
             });
         }
 
+        //change by nurul 3/9/2021
         function pass(idStok) {
             this.$idStok = idStok;
         }
 
-        function deleteStokOp() {
+        function deleteStokOp_Lama() {
             var $savePage = $('#txt_last_page').val();
             var link = '@Url.Action("DeleteStokOpname", "Manage", new { stokId = "replaceId" })';
             link = link.replace("replaceId", encodeURIComponent(this.$idStok));
@@ -963,6 +1068,110 @@
                 }
             });
         }
+
+        var $idStokTemp = "";
+        var $NobukTemp = "";
+        function pass(idStok, nobuk) {
+            this.$idStok = idStok;
+            $idStokTemp = idStok;
+            $NobukTemp = nobuk;
+            $('#progressBarDelete').hide();
+        }
+
+        function beforeDelete() {
+            $('#pBar_Delete').css('width', '0%').attr('aria-valuenow', 0);
+            $('#pBar_Delete').html('0% Complete');
+            $('#progressBarDelete').show();
+            deleteStokOp($idStokTemp, $NobukTemp, 0, "0;0", "false;false", false);
+        }
+
+        function deleteStokOp(vid, vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess) {
+            var splitpro = vpercentvprogress.split(';');
+            var vpercent = splitpro[0];
+            var vprogress = splitpro[1];
+
+            var splitStatus = vstatusLoopvSuccess.split(';');
+            var vstatusLoop = splitStatus[0];
+            var vstatusSuccess = splitStatus[1];
+
+            $('#konfHapusStok_btn_ya').attr('disabled', 'disabled');
+            $('#lblPBDelete').text('Processing Delete');
+
+            var $savePage = $('#txt_last_page').val();
+
+            var $urlProgress = "";
+                    $urlProgress = '@Html.Raw(Url.Action("DeleteStokOpname", "Manage"))';
+
+            if (vid == null || vid == "") {
+                vid = $idStokTemp;
+            }
+            if (vnobuk == null || vnobuk == "") {
+                vnobuk = $NobukTemp;
+            }
+
+            $postdata = {
+                stokId: vid,
+                nobuk: vnobuk,
+                countAll: vcountAll,
+                percentDanprogress: String(vpercent) + ";" + String(vprogress),
+                statusLoopSuccess: String(vstatusLoop) + ";" + String(vstatusSuccess)
+            };
+
+            $.ajax({
+                type: "POST",
+                url: $urlProgress,
+                contentType: "application/json; charset=UTF-8",
+                cache: false,
+                data: JSON.stringify($postdata),
+                beforeSend: function () {
+                    $('#konfHapusStok_btn_tidak').hide();
+                },
+                success: function (response) {
+                    if (response.countAll != null && response.statusLoop == true && response.statusSuccess == false && response.TidakLanjutProses == false) {
+                        $('#pBar_Delete').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
+                        $('#pBar_Delete').html(response.percent + '% Complete');
+
+                        if (response.progress <= response.countAll) {
+                            deleteStokOp(response.id, response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess));
+                        }
+
+                    } else if (response.statusSuccess == true) {
+                        $('#pBar_Delete').css('width', '100%').attr('aria-valuenow', 100);
+                        $('#pBar_Delete').html('100% Complete');
+                        $('#konfHapusStok_btn_ya').removeAttr('disabled');
+                        $('#konfHapusStok_btn_tidak').show();
+                        alert('Proses delete saldo awal stok sudah selesai.');
+                        if (response.Errors != null && response.Errors.length > 0) {
+                            alert(response.Errors)
+                        }
+
+                        refreshTableStokOpname($savePage);
+                        $('#konfHapusStok').modal('hide');
+                    } else {
+                        $('#pBar_Delete').css('width', '100%').attr('aria-valuenow', 100);
+                        $('#pBar_Delete').html('0% Complete');
+                        $('#konfHapusStok_btn_ya').removeAttr('disabled');
+                        $('#konfHapusStok_btn_tidak').show();
+                        alert('Proses delete saldo awal stok gagal.');
+                        if (response.Errors != null && response.Errors.length > 0) {
+                            alert(response.Errors)
+                        }
+
+                        refreshTableStokOpname($savePage);
+                        $('#konfHapusStok').modal('hide');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    alert(error);
+                    $('#progressBarDelete').hide();
+                    $('#konfHapusStok_btn_ya').removeAttr('disabled');
+                    $('#konfHapusStok_btn_tidak').show();
+                    $("#konfHapusStok").modal('hide');
+                }
+            });
+        }
+        //end change by nurul 3/9/2021
 
         var $brg = '';
 
@@ -1001,11 +1210,12 @@
             });
         }
 
+        //change by nurul 3/9/2021
         function passNobuk(idStokOp) {
             this.$idStokOp = idStokOp;
         }
 
-        function prosesSOpname() {
+        function prosesSOpname_Lama() {
 
             var $savePage = $('#txt_last_page').val();
             //console.log(this.$idStokOp);
@@ -1043,6 +1253,170 @@
             });
 
         }
+
+        var $idStokTempProses = "";
+        var $NobukTempProses = "";
+        function passNobuk(idStok, nobuk) {
+            this.$idStok = idStok;
+            $idStokTempProses = idStok;
+            $NobukTempProses = nobuk;
+            $('#progressBarProses').hide();
+        }
+
+        function beforeProses() {
+            $('#pBar_Proses').css('width', '0%').attr('aria-valuenow', 0);
+            $('#pBar_Proses').html('0% Complete');
+            $('#progressBarProses').show();
+            prosesSOpname($idStokTempProses, $NobukTempProses, 0, "0;0", "false;false", "0;0", null);
+        }
+
+        function prosesSOpname(vid, vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess, vCountOMvOK, vBuktiLog) {
+            var splitpro = vpercentvprogress.split(';');
+            var vpercent = splitpro[0];
+            var vprogress = splitpro[1];
+
+            var splitStatus = vstatusLoopvSuccess.split(';');
+            var vstatusLoop = splitStatus[0];
+            var vstatusSuccess = splitStatus[1];
+
+            var splitCount = vCountOMvOK.split(';');
+            var vOM = splitCount[0];
+            var vOK = splitCount[1];
+
+            $('#konfProsesStok_btn_ya').attr('disabled', 'disabled');
+            $('#lblPBProses').text('Processing ...');
+
+            var $savePage = $('#txt_last_page').val();
+
+            var $urlProgress = "";
+                    $urlProgress = '@Html.Raw(Url.Action("ProsesStokOpname", "Manage"))';
+
+            if (vid == null || vid == "") {
+                vid = $idStokTempProses;
+            }
+            if (vnobuk == null || vnobuk == "") {
+                vnobuk = $NobukTempProses;
+            }
+
+            $postdata = {
+                stokId: vid,
+                nobuk: vnobuk,
+                countAll: vcountAll,
+                percentDanprogress: String(vpercent) + ";" + String(vprogress),
+                statusLoopSuccess: String(vstatusLoop) + ";" + String(vstatusSuccess),
+                NoOM_OK: String(vOM) + ";" + String(vOK),
+                log: String(vBuktiLog)
+            };
+
+            $.ajax({
+                type: "POST",
+                url: $urlProgress,
+                contentType: "application/json; charset=UTF-8",
+                cache: false,
+                data: JSON.stringify($postdata),
+                beforeSend: function () {
+                    $('#konfProsesStok_btn_tidak').hide();
+                },
+                success: function (response) {
+                    if (response.countAll != null && response.statusLoop == true && response.statusSuccess == false && response.TidakLanjutProses == false) {
+                        $('#pBar_Proses').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
+                        $('#pBar_Proses').html(response.percent + '% Complete');
+
+                        if (response.progress <= response.countAll) {
+                            prosesSOpname(response.id, response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.noSTokOM) + ";" + String(response.noSTokOK), response.buktiLog);
+                        }
+
+                    } else if (response.statusSuccess == true) {
+                        $('#pBar_Proses').css('width', '100%').attr('aria-valuenow', 100);
+                        $('#pBar_Proses').html('100% Complete');
+                        $('#konfProsesStok_btn_ya').removeAttr('disabled');
+                        $('#konfProsesStok_btn_tidak').show();
+                        alert('Proses proses stok opname sudah selesai.');
+                        if (response.Errors != null && response.Errors.length > 0) {
+                            alert(response.Errors);
+                        }
+                        if (response.adaErrorQty) {
+                            $("#modalError").modal('show');
+                            showErrorProsesStokOpname(vnobuk);
+                        }
+                        
+                        lihatStokOP(vid);
+                        //$('#statpros').val("Sudah");
+                        //$('#bktOM').val(response.noSTokOM);
+                        //$('#bktOK').val(response.noSTokOK);
+                        //$('#countSukses').val(response.countAllSukses)
+                        //$('#prosesSOpname').attr('disabled', 'disabled');
+                        //$('input, select, .btn-danger').each(function () {
+                        //    $(this).attr('disabled', 'disabled');
+                        //});
+                        //$('tr[data-stok-id="0"]').remove();
+
+                        $('#konfProsesStok').modal('hide');
+                    } else {
+                        $('#pBar_Proses').css('width', '100%').attr('aria-valuenow', 100);
+                        $('#pBar_Proses').html('0% Complete');
+                        $('#konfProsesStok_btn_ya').removeAttr('disabled');
+                        $('#konfProsesStok_btn_tidak').show();
+                        alert('Proses proses stok opname gagal.');
+                        if (response.Errors != null && response.Errors.length > 0) {
+                            alert(response.Errors)
+                        }
+                        if (response.adaErrorQty) {
+                            $("#modalError").modal('show');
+                            showErrorProsesStokOpname(vnobuk);
+                        }
+
+                        lihatStokOP(vid);
+                        //refreshTableStokOpname($savePage);
+                        $('#konfProsesStok').modal('hide');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    alert(error);
+                    $('#progressBarProses').hide();
+                    $('#konfProsesStok_btn_ya').removeAttr('disabled');
+                    $('#konfProsesStok_btn_tidak').show();
+                    $("#konfProsesStok").modal('hide');
+                }
+            });
+        }
+        //end change by nurul 3/9/2021
+
+        //add by nurul 4/10/2021
+        function showErrorProsesStokOpname($nobuk) {
+            var link = '@Url.Action("ShowErrorProsesStokOpname", "Manage")';
+            var $bukti = "";
+
+            if ($nobuk != undefined && $nobuk != null && $nobuk != "" ) {
+                $bukti = $nobuk;
+            } else {
+                if (tempLog == "") {
+                }
+                $bukti = tempNobuk;
+            }
+            $postdata = {
+                bukti: $bukti,
+            };
+            $('#close-modal-error').removeAttr('disabled');
+            $.ajax({
+                type: "POST",
+                url: link,
+                contentType: "application/json; charset=UTF-8",
+                cache: false,
+                data: JSON.stringify($postdata),
+                success: function (value) {
+                    //$('#modalError').find('.edit-content').html(value);
+                    //$('#Modal').modal('show');
+                    $('#error-list').html(value);
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    $tempErr.length = 0;
+                }
+            });
+        }
+        //end add by nurul 4/10/2021
 
         function getNoBuktiSOP() {
 
@@ -1216,8 +1590,8 @@
             //alert("Proses upload dan input Stok Opname sudah selesai!");
             alert(message);
         }
-        
-        function uploadExcelSOP() {
+
+        function uploadExcelSOP_Lama() {
             if ($('#file_upload_excel')[0].files.length < 1) {
                 $('#file_upload_excel').click();
                 $('#progressBarUpload').hide();
@@ -1230,7 +1604,7 @@
             }
         }
 
-        function uploadFileExcelStokOpname(vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess) {
+        function uploadFileExcelStokOpname_Lama(vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess) {
 
             var splitpro = vpercentvprogress.split(';');
             var vpercent = splitpro[0];
@@ -1314,6 +1688,128 @@
                     }
                 });
                 $('#loading_upload').hide();
+            }
+        }
+
+
+        function uploadExcelSOP() {
+            if ($('#file_upload_excel')[0].files.length < 1) {
+                $('#file_upload_excel').click();
+                $('#progressBarUpload').hide();
+            }
+            else
+            {
+                $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_uploadFile').html('0% Complete');
+                $('#progressBarUpload').show();
+                uploadFileExcelStokOpname(null, null, 0, "0;5", "false;false");
+            }
+        }
+
+        function uploadFileExcelStokOpname(vnobuk, vgd, vcountAll, vpercentvprogress, vstatusLoopvSuccess) {
+
+            var splitpro = vpercentvprogress.split(';');
+            var vpercent = splitpro[0];
+            var vprogress = splitpro[1];
+
+            var splitStatus = vstatusLoopvSuccess.split(';');
+            var vstatusLoop = splitStatus[0];
+            var vstatusSuccess = splitStatus[1];
+
+            if ($('#file_upload_excel')[0].files.length <= 0) {
+                $('#progressBarUpload').hide();
+                $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_uploadFile').html('0% Complete');
+                $('#loading_upload').hide();
+            }
+            else
+            {
+                $('#btnUploadExcelSOP').attr('disabled', 'disabled');
+
+                var formdata = new FormData(); //FormData object
+                var fileInput = document.getElementById('file_upload_excel');
+                //Iterating through each files selected in fileInput
+                for (i = 0; i < fileInput.files.length; i++) {
+                    //Appending each file to FormData object
+                    if (i == 0) {
+                        formdata.append(fileInput.files[i].name, fileInput.files[i]);
+                        $('#lblPBUpload').text('Uploading File : ' + fileInput.files[i].name);
+                    }
+                }
+
+                @*var $urlProgress = '@Html.Raw(Url.Action("UploadXcelSaldoAwal", "TransferExcel", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success" }))';*@
+                var $urlProgress = '@Html.Raw(Url.Action("UploadXcelStokOpname", "TransferExcel", new { nobuk = "rep1", _gudang= "repGd", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success" }))';
+                $urlProgress = $urlProgress.replace("rep1", vnobuk);
+                $urlProgress = $urlProgress.replace("repGd", vgd);
+                $urlProgress = $urlProgress.replace("rep2", vcountAll);
+                $urlProgress = $urlProgress.replace("rep3percent", vpercent);
+                $urlProgress = $urlProgress.replace("rep4progress", vprogress);
+                $urlProgress = $urlProgress.replace("rep5loop", String(vstatusLoop));
+                $urlProgress = $urlProgress.replace("rep6success", String(vstatusSuccess));
+                
+                $.ajax({
+                    type: "POST",
+                    url: $urlProgress,
+                    data: formdata,
+                    processData: false,  // tell jQuery not to process the data
+                    contentType: false,  // tell jQuery not to set contentType
+                    beforeSend: function () {
+                        $('#loading_upload').show();
+                    },
+                    success: function (response) {
+                        if (response.countAll != null && response.Errors.length == 0 && response.statusLoop == true && response.statusSuccess == false) {
+                            $('#pBar_uploadFile').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
+                            $('#pBar_uploadFile').html(response.percent + '% Complete');
+
+                            if (response.progress <= response.countAll) {
+                                uploadFileExcelStokOpname(response.nobuk, response.gudang, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess));
+                            }
+
+                        } else if (response.statusSuccess == true && response.Errors.length == 0) {
+                            $('#loading_upload').hide();
+                            document.getElementById("file_upload_excel").value = "";
+                            $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                            $('#pBar_uploadFile').html('100% Complete');
+                            $('#btnUploadExcelSOP').removeAttr('disabled');
+                            setTimeout(popupAlertUploadStokOpname("Proses upload dan input Stok Opname sudah selesai"), 500);
+                            //alert('Proses upload dan input Saldo awal stok sudah selesai.');
+                        } else if (response.statusSuccess == true && response.Errors.length > 0) {
+                            $('#loading_upload').hide();
+                            document.getElementById("file_upload_excel").value = "";
+                            $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                            $('#pBar_uploadFile').html('100% Complete');
+                            $('#btnUploadExcelSOP').removeAttr('disabled');
+                            //setTimeout(popupAlertUploadSaldoAwal, 500);
+                            //alert('Proses upload dan input Saldo awal stok sudah selesai.');
+                            var err = "";
+                            for (i = 0; i < response.Errors.length; i++) {
+                                err += response.Errors[i] + "\n";
+                            }
+                            setTimeout(popupAlertUploadStokOpname(err), 500);
+                        } else {
+                            $('#loading_upload').hide();
+                            $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                            $('#pBar_uploadFile').html('0% Complete');
+                            $('#btnUploadExcelSOP').removeAttr('disabled');
+                            document.getElementById("file_upload_excel").value = "";
+                            alert(response.Errors);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        var err = "";
+                        if (error != null) {
+                            err = error;
+                        }
+                        alert(err);
+                        console.log(error);
+                        $('#loading_upload').hide();
+                        $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                        $('#pBar_uploadFile').html('0% Complete');
+                        $('#btnUploadExcelSOP').removeAttr('disabled');
+                        document.getElementById("file_upload_excel").value = "";
+                    }
+                });
+
             }
         }
 

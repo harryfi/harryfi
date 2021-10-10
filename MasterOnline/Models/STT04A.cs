@@ -42,6 +42,9 @@ namespace MasterOnline
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int? ID { get; set; }
 
+        [StringLength(100)]
+        public string PROSES { get; set; }
+
         [JsonIgnore]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<STT04B> STT04B { get; set; }

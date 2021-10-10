@@ -158,21 +158,21 @@ namespace MasterOnline.Controllers
         public ActionResult getLastTglPosting()
         {
             var sSQL = "select top 1 * from ( ";
-            sSQL += "select * from (SELECT top 1 no_bukti,tgl as tanggal FROM sit01a where ISNULL(st_POSTING,'') <> 'Y' AND STATUS NOT IN ('2','3')  order by tanggal asc )a ";
+            sSQL += "select * from (SELECT top 1 no_bukti,tgl as tanggal FROM sit01a (nolock) where ISNULL(st_POSTING,'') <> 'Y' AND STATUS NOT IN ('2','3')  order by tanggal asc )a ";
             sSQL += "union ";
-            sSQL += "select * from (SELECT top 1 inv as no_bukti,tgl as tanggal FROM pbt01a where ISNULL(POSTING,'') <> 'Y' AND STATUS NOT IN ('2','3')  order by tanggal asc )a ";
+            sSQL += "select * from (SELECT top 1 inv as no_bukti,tgl as tanggal FROM pbt01a (nolock) where ISNULL(POSTING,'') <> 'Y' AND STATUS NOT IN ('2','3')  order by tanggal asc )a ";
             sSQL += "union ";
-            sSQL += "select * from (SELECT top 1 nobuk as no_bukti,tgl as tanggal FROM stt01a where ISNULL(st_POSTING,'') <> 'Y'  order by tanggal asc )a ";
+            sSQL += "select * from (SELECT top 1 nobuk as no_bukti,tgl as tanggal FROM stt01a (nolock) where ISNULL(st_POSTING,'') <> 'Y'  order by tanggal asc )a ";
             sSQL += "union ";
-            sSQL += "select * from (SELECT top 1 faktur as no_bukti,tgl as tanggal FROM art01a where ISNULL(POST,'') <> 'Y'  order by tanggal asc )a ";
+            sSQL += "select * from (SELECT top 1 faktur as no_bukti,tgl as tanggal FROM art01a (nolock) where ISNULL(POST,'') <> 'Y'  order by tanggal asc )a ";
             sSQL += "union ";
-            sSQL += "select * from (SELECT top 1 inv as no_bukti,tgl as tanggal FROM apt01a where ISNULL(POSTING,'') <> 'Y' order by tanggal asc )a ";
+            sSQL += "select * from (SELECT top 1 inv as no_bukti,tgl as tanggal FROM apt01a (nolock) where ISNULL(POSTING,'') <> 'Y' order by tanggal asc )a ";
             sSQL += "union ";
-            sSQL += "select * from (SELECT top 1 bukti as no_bukti,tgl as tanggal FROM art03a where ISNULL(POSTING,'') <> 'Y'  order by tanggal asc )a ";
+            sSQL += "select * from (SELECT top 1 bukti as no_bukti,tgl as tanggal FROM art03a (nolock) where ISNULL(POSTING,'') <> 'Y'  order by tanggal asc )a ";
             sSQL += "union ";
-            sSQL += "select * from (SELECT top 1 bukti as no_bukti,tgl as tanggal FROM apt03a where ISNULL(POSTING,'') <> 'Y' order by tanggal asc )a ";
+            sSQL += "select * from (SELECT top 1 bukti as no_bukti,tgl as tanggal FROM apt03a (nolock) where ISNULL(POSTING,'') <> 'Y' order by tanggal asc )a ";
             sSQL += "union ";
-            sSQL += "select * from (SELECT top 1 bukti as no_bukti,tgl as tanggal FROM GLFTRAN1 where ISNULL(POSTING,'') <> 'Y' order by tanggal asc )a ";
+            sSQL += "select * from (SELECT top 1 bukti as no_bukti,tgl as tanggal FROM GLFTRAN1 (nolock) where ISNULL(POSTING,'') <> 'Y' order by tanggal asc )a ";
             sSQL += ")b order by tanggal asc ";
             var tempLastPosting = ErasoftDbContext.Database.SqlQuery<lastPosting>(sSQL).SingleOrDefault();
 

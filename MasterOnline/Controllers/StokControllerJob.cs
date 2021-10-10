@@ -1347,10 +1347,10 @@ namespace MasterOnline.Controllers
                                     else
                                     {
 #if (DEBUG || Debug_AWS)
-                                        Task.Run(() => Tokped_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", iden, Convert.ToInt32(stf02h.BRG_MP), 0, uname, null)).Wait();
+                                        Task.Run(() => Tokped_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", iden, Convert.ToInt64(stf02h.BRG_MP), 0, uname, null)).Wait();
 #else
                                         //delayTokped++;
-                                        client.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", iden, Convert.ToInt32(stf02h.BRG_MP), 0, uname, null));
+                                        client.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", iden, Convert.ToInt64(stf02h.BRG_MP), 0, uname, null));
                                         //client.Schedule<StokControllerJob>(x => x.Tokped_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", iden, Convert.ToInt32(stf02h.BRG_MP), 0, uname, null), TimeSpan.FromSeconds(delayTokped));
 #endif
                                     }
@@ -1808,10 +1808,10 @@ namespace MasterOnline.Controllers
                                     else
                                     {
 #if (DEBUG || Debug_AWS)
-                                        Task.Run(() => Tokped_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", iden, Convert.ToInt32(stf02h.BRG_MP), 0, uname, null)).Wait();
+                                        Task.Run(() => Tokped_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", iden, Convert.ToInt64(stf02h.BRG_MP), 0, uname, null)).Wait();
 #else
                                         //delayTokped++;
-                                        client.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", iden, Convert.ToInt32(stf02h.BRG_MP), 0, uname, null));
+                                        client.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", iden, Convert.ToInt64(stf02h.BRG_MP), 0, uname, null));
                                         //client.Schedule<StokControllerJob>(x => x.Tokped_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", iden, Convert.ToInt32(stf02h.BRG_MP), 0, uname, null), TimeSpan.FromSeconds(delayTokped));
 
 #endif
@@ -3143,7 +3143,7 @@ namespace MasterOnline.Controllers
             return QOHBlibli;
         }
 
-        public async Task<int> TokpedCheckUpdateStock(TokopediaAPIData data, int product_id)
+        public async Task<int> TokpedCheckUpdateStock(TokopediaAPIData data, long product_id)
         {
             int newQty = -1;
             long milis = CurrentTimeMillis();
@@ -3214,7 +3214,7 @@ namespace MasterOnline.Controllers
 
         public class failed_rows_data
         {
-            public int product_id { get; set; }
+            public long product_id { get; set; }
             public string sku { get; set; }
             public string product_url { get; set; }
             public int new_stock { get; set; }
@@ -3296,7 +3296,7 @@ namespace MasterOnline.Controllers
 
         public class TokpedGetProductInfoMenu
         {
-            public int id { get; set; }
+            public long id { get; set; }
             public string name { get; set; }
         }
 
@@ -3383,7 +3383,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
         [NotifyOnFailed("Update Stok {obj} ke Tokopedia gagal.")]
-        public async Task<string> Tokped_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, int product_id, int stok, string uname, PerformContext context)
+        public async Task<string> Tokped_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, long product_id, int stok, string uname, PerformContext context)
         {
             await Task.Delay(1000);
             var token = SetupContextTokopedia(DatabasePathErasoft, uname, iden);
@@ -5750,7 +5750,7 @@ namespace MasterOnline.Controllers
         public class TokopediaUpdateStockData
         {
             public string sku { get; set; }
-            public int product_id { get; set; }
+            public long product_id { get; set; }
             public int new_stock { get; set; }
 
         }

@@ -3468,7 +3468,8 @@ namespace MasterOnline.Controllers
                                 asd.Close();
                             }
                             StreamWriter tw = new StreamWriter(path);
-
+                            string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, CUST_ATTRIBUTE_1, REQUEST_EXCEPTION) VALUES ";
+                            int iCountProcessInsertTemp = 0;
                             try
                             {
                                 eraDB.Database.CommandTimeout = 1800;
@@ -3495,7 +3496,7 @@ namespace MasterOnline.Controllers
 
                                 //eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_UPLOADPESANAN");
                                 //List<TEMP_UPLOADPESANAN> batchinsertItem = new List<TEMP_UPLOADPESANAN>();
-                                string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, CUST_ATTRIBUTE_1, REQUEST_EXCEPTION) VALUES ";
+                                //string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, CUST_ATTRIBUTE_1, REQUEST_EXCEPTION) VALUES ";
 
                                 //batchinsertItem = new List<TEMP_UPLOADPESANAN>();
 
@@ -4265,8 +4266,9 @@ namespace MasterOnline.Controllers
 
                                 var vCountInTemp = 0;
                                 var vCountAllRow = ret.countAll;
-                                int iCountProcessInsertTemp = 0;
+                                //int iCountProcessInsertTemp = 0;
                                 bool checklastRow = false;
+                                bool adaerror = false;
 
                                 for (int i = Convert.ToInt32(prog[0]); i <= worksheet.Dimension.End.Row; i++)
                                 {
@@ -4292,84 +4294,110 @@ namespace MasterOnline.Controllers
                                     {
                                         iCountProcessInsertTemp += 1;
                                         vCountInTemp += 1;
-                                        tgl = Convert.ToDateTime(tgl).ToString("yyyy-MM-dd");
-                                        //dataNoBuktiCodeSupplier.Add(tgl + ";" + kode_supplier);
-                                        dataNoBuktiCodeSupplier.Add(noref);
-                                        TEMP_UPLOAD_EXCEL_INVOICE_PEMBELIAN newTempUploadExcelInvoicePembelian = new TEMP_UPLOAD_EXCEL_INVOICE_PEMBELIAN() { };
-                                        newTempUploadExcelInvoicePembelian.NOBUK = noref;
-                                        newTempUploadExcelInvoicePembelian.TGL = Convert.ToDateTime(tgl);
-                                        newTempUploadExcelInvoicePembelian.KODE_SUPPLIER = kode_supplier;
-                                        newTempUploadExcelInvoicePembelian.TOP = Convert.ToInt32(top);
-                                        newTempUploadExcelInvoicePembelian.PPN = Convert.ToDouble(ppn);
-                                        newTempUploadExcelInvoicePembelian.ONGKIR = Convert.ToDouble(ongkir); ;
-                                        newTempUploadExcelInvoicePembelian.KODE_BRG = kode_barang;
-                                        newTempUploadExcelInvoicePembelian.GUDANG = gudang;
-                                        newTempUploadExcelInvoicePembelian.QTY = Convert.ToInt32(qty);
-                                        newTempUploadExcelInvoicePembelian.HARGA_SATUAN = Convert.ToDouble(harga_satuan);
-                                        newTempUploadExcelInvoicePembelian.TOTAL_NILAI_DISC = Convert.ToDouble(total_nilaidisc);
-                                        //newTempUploadExcelInvoicePembelian.TOTAL = Convert.ToDouble(total);
-                                        listTempUploadExcelInvoicePembelian.Add(newTempUploadExcelInvoicePembelian);
+                                        try
+                                        {
+                                            tgl = Convert.ToDateTime(tgl).ToString("yyyy-MM-dd");
+                                            //dataNoBuktiCodeSupplier.Add(tgl + ";" + kode_supplier);
+                                            dataNoBuktiCodeSupplier.Add(noref);
+                                            TEMP_UPLOAD_EXCEL_INVOICE_PEMBELIAN newTempUploadExcelInvoicePembelian = new TEMP_UPLOAD_EXCEL_INVOICE_PEMBELIAN() { };
+                                            newTempUploadExcelInvoicePembelian.NOBUK = noref;
+                                            newTempUploadExcelInvoicePembelian.TGL = Convert.ToDateTime(tgl);
+                                            newTempUploadExcelInvoicePembelian.KODE_SUPPLIER = kode_supplier;
+                                            newTempUploadExcelInvoicePembelian.TOP = Convert.ToInt32(top);
+                                            newTempUploadExcelInvoicePembelian.PPN = Convert.ToDouble(ppn);
+                                            newTempUploadExcelInvoicePembelian.ONGKIR = Convert.ToDouble(ongkir); ;
+                                            newTempUploadExcelInvoicePembelian.KODE_BRG = kode_barang;
+                                            newTempUploadExcelInvoicePembelian.GUDANG = gudang;
+                                            newTempUploadExcelInvoicePembelian.QTY = Convert.ToInt32(qty);
+                                            newTempUploadExcelInvoicePembelian.HARGA_SATUAN = Convert.ToDouble(harga_satuan);
+                                            newTempUploadExcelInvoicePembelian.TOTAL_NILAI_DISC = Convert.ToDouble(total_nilaidisc);
+                                            //newTempUploadExcelInvoicePembelian.TOTAL = Convert.ToDouble(total);
+                                            if (noref.Length > 25)
+                                            {
+                                                messageErrorLog = "Ada error pada row " + i + ": Nomor Bukti tidak boleh lebih dari 25 karakter.";
+                                                tw.WriteLine(messageErrorLog);
+                                                ret.Errors.Add(messageErrorLog);
+                                                adaerror = true;
+                                            }
+                                            else
+                                            {
+                                                listTempUploadExcelInvoicePembelian.Add(newTempUploadExcelInvoicePembelian);
+                                            }
+                                        }catch(Exception ex)
+                                        {
+                                            var msg = ex.Message;
+                                            messageErrorLog = "Ada error pada row " + i + ": " + msg + ".";
+                                            tw.WriteLine(messageErrorLog);
+                                            ret.Errors.Add(messageErrorLog);
+                                            adaerror = true;
+                                        }
                                     }
                                     else if (string.IsNullOrEmpty(noref) && string.IsNullOrEmpty(tgl) && string.IsNullOrEmpty(kode_supplier) && string.IsNullOrEmpty(kode_barang)
                                          && string.IsNullOrEmpty(gudang) && string.IsNullOrEmpty(qty) && string.IsNullOrEmpty(harga_satuan)
                                           //&& string.IsNullOrEmpty(total)
                                           )
                                     {
+                                        messageErrorLog = "Tidak ada data pada row " + i + ".";
+                                        tw.WriteLine(messageErrorLog);
+                                        ret.Errors.Add(messageErrorLog);
                                         checklastRow = true;
                                     }
 
-                                    if (string.IsNullOrEmpty(noref))
+                                    if (!checklastRow)
                                     {
-                                        checklastRow = false;
-                                        messageErrorLog = "No Bukti invoice pembelian kosong pada row " + i + ". Proses Upload dibatalkan.";
-                                        tw.WriteLine(messageErrorLog);
-                                    }
+                                        if (string.IsNullOrEmpty(noref))
+                                        {
+                                            checklastRow = false;
+                                            messageErrorLog = "No Bukti invoice pembelian kosong pada row " + i + ". Proses Upload dibatalkan.";
+                                            tw.WriteLine(messageErrorLog);
+                                        }
 
-                                    if (string.IsNullOrEmpty(tgl))
-                                    {
-                                        checklastRow = false;
-                                        messageErrorLog = "Tanggal invoice pembelian kosong pada row " + i + ". Proses Upload dibatalkan.";
-                                        tw.WriteLine(messageErrorLog);
-                                    }
+                                        if (string.IsNullOrEmpty(tgl))
+                                        {
+                                            checklastRow = false;
+                                            messageErrorLog = "Tanggal invoice pembelian kosong pada row " + i + ". Proses Upload dibatalkan.";
+                                            tw.WriteLine(messageErrorLog);
+                                        }
 
-                                    if (string.IsNullOrEmpty(kode_supplier))
-                                    {
-                                        checklastRow = false;
-                                        messageErrorLog = "Terdapat kolom Kode Supplier kosong pada row " + i + ". Proses Upload dibatalkan.";
-                                        tw.WriteLine(messageErrorLog);
-                                    }
+                                        if (string.IsNullOrEmpty(kode_supplier))
+                                        {
+                                            checklastRow = false;
+                                            messageErrorLog = "Terdapat kolom Kode Supplier kosong pada row " + i + ". Proses Upload dibatalkan.";
+                                            tw.WriteLine(messageErrorLog);
+                                        }
 
-                                    if (string.IsNullOrEmpty(kode_barang))
-                                    {
-                                        checklastRow = false;
-                                        messageErrorLog = "Terdapat kolom Kode barang kosong pada row " + i + ". Proses Upload dibatalkan.";
-                                        tw.WriteLine(messageErrorLog);
-                                    }
+                                        if (string.IsNullOrEmpty(kode_barang))
+                                        {
+                                            checklastRow = false;
+                                            messageErrorLog = "Terdapat kolom Kode barang kosong pada row " + i + ". Proses Upload dibatalkan.";
+                                            tw.WriteLine(messageErrorLog);
+                                        }
 
-                                    //if (string.IsNullOrEmpty(top))
-                                    //{
-                                    //    checklastRow = false;
-                                    //    messageErrorLog = "Terdapat kolom Term of payment invoice pembelian kosong pada row " + i + ". Proses Upload dibatalkan.";
-                                    //    tw.WriteLine(messageErrorLog);
-                                    //}
+                                        if (string.IsNullOrEmpty(top))
+                                        {
+                                            checklastRow = false;
+                                            messageErrorLog = "Terdapat kolom Term of payment invoice pembelian kosong pada row " + i + ". Proses Upload dibatalkan.";
+                                            tw.WriteLine(messageErrorLog);
+                                        }
 
-                                    if (string.IsNullOrEmpty(gudang))
-                                    {
-                                        checklastRow = false;
-                                        messageErrorLog = "Terdapat kolom Gudang kosong pada row " + i + ". Proses Upload dibatalkan.";
-                                        tw.WriteLine(messageErrorLog);
-                                    }
+                                        if (string.IsNullOrEmpty(gudang))
+                                        {
+                                            checklastRow = false;
+                                            messageErrorLog = "Terdapat kolom Gudang kosong pada row " + i + ". Proses Upload dibatalkan.";
+                                            tw.WriteLine(messageErrorLog);
+                                        }
 
-                                    if (string.IsNullOrEmpty(harga_satuan))
-                                    {
-                                        checklastRow = false;
-                                        messageErrorLog = "Terdapat kolom Harga satuan kosong pada row " + i + ". Proses Upload dibatalkan.";
-                                        tw.WriteLine(messageErrorLog);
+                                        if (string.IsNullOrEmpty(harga_satuan))
+                                        {
+                                            checklastRow = false;
+                                            messageErrorLog = "Terdapat kolom Harga satuan kosong pada row " + i + ". Proses Upload dibatalkan.";
+                                            tw.WriteLine(messageErrorLog);
+                                        }
                                     }
 
                                     Functions.SendProgress("Processing upload to Temporary...", iCountProcessInsertTemp, Convert.ToInt32(ret.countAll));
 
-                                    if (!string.IsNullOrEmpty(messageErrorLog) && checklastRow == false && i == worksheet.Dimension.End.Row)
+                                    if (((!string.IsNullOrEmpty(messageErrorLog) && checklastRow == false) || adaerror) && i == worksheet.Dimension.End.Row)
                                     {
                                         dataNoBuktiCodeSupplier.Clear();
                                         listTempUploadExcelInvoicePembelian.Clear();
@@ -4627,7 +4655,8 @@ namespace MasterOnline.Controllers
                                                                                                         NPPN = 0,
                                                                                                         BRUTO = 0,
                                                                                                         NETTO = 0,
-                                                                                                        USERNAME = username,
+                                                                                                        //USERNAME = username,
+                                                                                                        USERNAME = "UPLOAD_EXCEL_PEMBELIAN",
                                                                                                         TGLINPUT = DateTime.Now.AddHours(7),
                                                                                                         TGJT = DateTime.Now.AddHours(7).AddDays(Convert.ToInt32(top)),
                                                                                                         KET = "-",
@@ -4707,7 +4736,8 @@ namespace MasterOnline.Controllers
                                                                                                     QTY = Convert.ToInt32(qty),
                                                                                                     HBELI = Convert.ToInt32(harga_satuan),
                                                                                                     THARGA = (TempTotalHargaBarang),
-                                                                                                    USERNAME = username,
+                                                                                                    //USERNAME = username,
+                                                                                                    USERNAME = "UPLOAD_EXCEL_PEMBELIAN",
                                                                                                     TGLINPUT = DateTime.Now.AddHours(7),
                                                                                                     DISCOUNT_1 = 0,
                                                                                                     NILAI_DISC_1 = Convert.ToInt32(total_nilaidisc),
@@ -4769,6 +4799,9 @@ namespace MasterOnline.Controllers
                                                                                                 success = success + 1;
                                                                                                 if(iCountProcessInsertDB == iCountProcessInsertTemp)
                                                                                                 {
+                                                                                                    messageErrorLog = "Proses upload excel Invoice Pembelian sudah selesai. Sukses : " + iCountProcessInsertDB + " / " + iCountProcessInsertTemp + ".";
+                                                                                                    tw.WriteLine(messageErrorLog);
+                                                                                                    ret.Errors.Add(messageErrorLog);
                                                                                                     Functions.SendProgress("Process Upload Complete !", iCountProcessInsertDB, iCountProcessInsertTemp);
                                                                                                 }
                                                                                                 else
@@ -5210,6 +5243,13 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
+                                //add by nurul 15/9/2021
+                                else
+                                {
+                                    tw.WriteLine("Ada data tidak sesuai. Proses dibatalkan.");
+                                    ret.Errors.Add("Ada data tidak sesuai. Proses dibatalkan.");
+                                }
+                                //end add by nurul 15/9/2021
                                 #endregion
                                 // end add by fauzi 23/09/2020
 
@@ -5229,6 +5269,29 @@ namespace MasterOnline.Controllers
 
                             byte[] byteLog2 = System.IO.File.ReadAllBytes(path);
                             var pathLoc2 = UploadFileServices.UploadFile_Log(byteLog2, dbPathEra + "_" + filename);
+
+                            try
+                            {
+                                var cekLog2 = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Invoice Pembelian" && p.REQUEST_ID == connID).FirstOrDefault();
+                                if (cekLog2 == null)
+                                {
+                                    string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
+                                (""),
+                                (connID),
+                                ("Upload Excel Invoice Pembelian"),
+                                (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                ("SUCCESS"),
+                                (iCountProcessInsertTemp + " / " + Convert.ToInt32(ret.countAll)),
+                                (username),
+                                (filename));
+                                    var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
+                                    // error log terjadi error pada insert header pesanan
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+                            }
                             //tw.Dispose();
                             //}
                         }
@@ -5494,14 +5557,14 @@ namespace MasterOnline.Controllers
                         "A.STATUS_TRANSAKSI AS STATUS_PESANAN, B.BRG AS KODE_BRG, ISNULL(C.NAMA,'') + ' ' + ISNULL(C.NAMA2, '') AS NAMA_BARANG, QTY, " +
                         "H_SATUAN AS HARGA_SATUAN, B.DISCOUNT AS DISC1, B.NILAI_DISC_1 AS NDISC1, B.DISCOUNT_2 AS DISC2, B.NILAI_DISC_2 AS NDISC2, HARGA AS TOTAL " +
                         //ADD BY NURUL 25/8/2021
-                        ",ISNULL(Z.NAMA,'') AS TEMP_PEMBELI, ISNULL(Z.TLP,'') AS TEMP_TLP, ISNULL(Z.ALAMAT,'') AS TEMP_ALAMAT_KIRIM, ISNULL(Z.PEMBELI,'') AS TEMP_KODE_PEMBELI " +
+                        //",ISNULL(Z.NAMA,'') AS TEMP_PEMBELI, ISNULL(Z.TLP,'') AS TEMP_TLP, ISNULL(Z.ALAMAT,'') AS TEMP_ALAMAT_KIRIM, ISNULL(Z.PEMBELI,'') AS TEMP_KODE_PEMBELI " +
                         //END ADD BY NURUL 25/8/2021
                         "FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI " +
                         "LEFT JOIN STF02 C(NOLOCK) ON B.BRG = C.BRG " +
                         "INNER JOIN ARF01 D(NOLOCK) ON A.CUST = D.CUST " +
                         "INNER JOIN MO..MARKETPLACE E(NOLOCK) ON D.NAMA = E.IDMARKET " +
                         //ADD BY NURUL 25/8/2021
-                        "LEFT JOIN PEMBELI_FAKTUR_SHOPEE Z(NOLOCK) ON Z.PESANAN=A.NO_BUKTI " +
+                        //"LEFT JOIN PEMBELI_FAKTUR_SHOPEE Z(NOLOCK) ON Z.PESANAN=A.NO_BUKTI " +
                         //END ADD BY NURUL 25/8/2021
                         "WHERE A.TGL BETWEEN '" + dt1 + "' AND '" + dt2 + "'";
 
@@ -5531,55 +5594,55 @@ namespace MasterOnline.Controllers
                             worksheet.Cells[5 + i, 5].Value = lsPesanan.Tables[0].Rows[i]["MARKETPLACE"];
 
                             //add by nurul 25/8/2021
-                            var kode_pembeli = "";
-                            var pembeli = "";
-                            var tlp = "";
-                            var alamat = "";
-                            if (Convert.ToString(lsPesanan.Tables[0].Rows[i]["KODE_PEMBELI"]).Contains("*") && Convert.ToString(lsPesanan.Tables[0].Rows[i]["TEMP_KODE_PEMBELI"]) != "")
-                            {
-                                kode_pembeli = Convert.ToString(lsPesanan.Tables[0].Rows[i]["TEMP_KODE_PEMBELI"]);
-                            }
-                            else
-                            {
-                                kode_pembeli = Convert.ToString(lsPesanan.Tables[0].Rows[i]["KODE_PEMBELI"]);
-                            }
-                            if (Convert.ToString(lsPesanan.Tables[0].Rows[i]["PEMBELI"]).Contains("*") && Convert.ToString(lsPesanan.Tables[0].Rows[i]["TEMP_PEMBELI"]) != "")
-                            {
-                                pembeli = Convert.ToString(lsPesanan.Tables[0].Rows[i]["TEMP_PEMBELI"]);
-                            }
-                            else
-                            {
-                                pembeli = Convert.ToString(lsPesanan.Tables[0].Rows[i]["PEMBELI"]);
-                            }
-                            if (Convert.ToString(lsPesanan.Tables[0].Rows[i]["TLP"]).Contains("*") && Convert.ToString(lsPesanan.Tables[0].Rows[i]["TEMP_TLP"]) != "")
-                            {
-                                tlp = Convert.ToString(lsPesanan.Tables[0].Rows[i]["TEMP_TLP"]);
-                            }
-                            else
-                            {
-                                tlp = Convert.ToString(lsPesanan.Tables[0].Rows[i]["TLP"]);
-                            }
-                            if (Convert.ToString(lsPesanan.Tables[0].Rows[i]["ALAMAT_KIRIM"]).Contains("*") && Convert.ToString(lsPesanan.Tables[0].Rows[i]["TEMP_ALAMAT_KIRIM"]) != "")
-                            {
-                                alamat = Convert.ToString(lsPesanan.Tables[0].Rows[i]["TEMP_ALAMAT_KIRIM"]);
-                            }
-                            else
-                            {
-                                alamat = Convert.ToString(lsPesanan.Tables[0].Rows[i]["ALAMAT_KIRIM"]);
-                            }
+                            //var kode_pembeli = "";
+                            //var pembeli = "";
+                            //var tlp = "";
+                            //var alamat = "";
+                            //if (Convert.ToString(lsPesanan.Tables[0].Rows[i]["KODE_PEMBELI"]).Contains("*") && Convert.ToString(lsPesanan.Tables[0].Rows[i]["TEMP_KODE_PEMBELI"]) != "")
+                            //{
+                            //    kode_pembeli = Convert.ToString(lsPesanan.Tables[0].Rows[i]["TEMP_KODE_PEMBELI"]);
+                            //}
+                            //else
+                            //{
+                            //    kode_pembeli = Convert.ToString(lsPesanan.Tables[0].Rows[i]["KODE_PEMBELI"]);
+                            //}
+                            //if (Convert.ToString(lsPesanan.Tables[0].Rows[i]["PEMBELI"]).Contains("*") && Convert.ToString(lsPesanan.Tables[0].Rows[i]["TEMP_PEMBELI"]) != "")
+                            //{
+                            //    pembeli = Convert.ToString(lsPesanan.Tables[0].Rows[i]["TEMP_PEMBELI"]);
+                            //}
+                            //else
+                            //{
+                            //    pembeli = Convert.ToString(lsPesanan.Tables[0].Rows[i]["PEMBELI"]);
+                            //}
+                            //if (Convert.ToString(lsPesanan.Tables[0].Rows[i]["TLP"]).Contains("*") && Convert.ToString(lsPesanan.Tables[0].Rows[i]["TEMP_TLP"]) != "")
+                            //{
+                            //    tlp = Convert.ToString(lsPesanan.Tables[0].Rows[i]["TEMP_TLP"]);
+                            //}
+                            //else
+                            //{
+                            //    tlp = Convert.ToString(lsPesanan.Tables[0].Rows[i]["TLP"]);
+                            //}
+                            //if (Convert.ToString(lsPesanan.Tables[0].Rows[i]["ALAMAT_KIRIM"]).Contains("*") && Convert.ToString(lsPesanan.Tables[0].Rows[i]["TEMP_ALAMAT_KIRIM"]) != "")
+                            //{
+                            //    alamat = Convert.ToString(lsPesanan.Tables[0].Rows[i]["TEMP_ALAMAT_KIRIM"]);
+                            //}
+                            //else
+                            //{
+                            //    alamat = Convert.ToString(lsPesanan.Tables[0].Rows[i]["ALAMAT_KIRIM"]);
+                            //}
 
-                            //worksheet.Cells[5 + i, 6].Value = lsPesanan.Tables[0].Rows[i]["KODE_PEMBELI"];
-                            //worksheet.Cells[5 + i, 7].Value = lsPesanan.Tables[0].Rows[i]["PEMBELI"];
-                            ////ADD BY NURUL 17/6/2021
-                            //worksheet.Cells[5 + i, 8].Value = lsPesanan.Tables[0].Rows[i]["TLP"];
-                            ////END ADD BY NURUL 17/6/2021
-                            //worksheet.Cells[5 + i, 9].Value = lsPesanan.Tables[0].Rows[i]["ALAMAT_KIRIM"];
-                            worksheet.Cells[5 + i, 6].Value = kode_pembeli;
-                            worksheet.Cells[5 + i, 7].Value = pembeli;
+                            worksheet.Cells[5 + i, 6].Value = lsPesanan.Tables[0].Rows[i]["KODE_PEMBELI"];
+                            worksheet.Cells[5 + i, 7].Value = lsPesanan.Tables[0].Rows[i]["PEMBELI"];
                             //ADD BY NURUL 17/6/2021
-                            worksheet.Cells[5 + i, 8].Value = tlp;
+                            worksheet.Cells[5 + i, 8].Value = lsPesanan.Tables[0].Rows[i]["TLP"];
                             //END ADD BY NURUL 17/6/2021
-                            worksheet.Cells[5 + i, 9].Value = alamat;
+                            worksheet.Cells[5 + i, 9].Value = lsPesanan.Tables[0].Rows[i]["ALAMAT_KIRIM"];
+                            //worksheet.Cells[5 + i, 6].Value = kode_pembeli;
+                            //worksheet.Cells[5 + i, 7].Value = pembeli;
+                            ////ADD BY NURUL 17/6/2021
+                            //worksheet.Cells[5 + i, 8].Value = tlp;
+                            ////END ADD BY NURUL 17/6/2021
+                            //worksheet.Cells[5 + i, 9].Value = alamat;
                             //add by nurul 25/8/2021
 
                             
@@ -6073,7 +6136,7 @@ namespace MasterOnline.Controllers
                     comment2.Author = "MasterOnline";
 
 
-                    worksheet.Cells["A8"].Value = "Keterangan: Kolom warna kuning harus diisi.";
+                    worksheet.Cells["A8"].Value = "Keterangan: Kolom warna kuning harus diisi & Maximal Character untuk Nomor Bukti adalah 25.";
 
                     worksheet.Cells["A2"].Value = "Contoh Pengisian";
                     worksheet.Cells["A3"].Value = "NOMOR BUKTI";
@@ -6155,7 +6218,10 @@ namespace MasterOnline.Controllers
                         worksheet.Cells[10 + i, 1].Value = ""; //NOMOR BUKTI
                         worksheet.Cells[10 + i, 2].Value = ""; //TANGGAL
                         worksheet.Cells[10 + i, 3].Value = "-- Silahkan Pilih Supplier --"; //KODE SUPPLIER 
-                        worksheet.Cells[10 + i, 4].Value = ""; //TERM OF PAYMENT
+                        //change by nurul 13/9/2021
+                        //worksheet.Cells[10 + i, 4].Value = ""; //TERM OF PAYMENT
+                        worksheet.Cells[10 + i, 4].Value = 0; //TERM OF PAYMENT
+                        //end change by nurul 13/9/2021
                         worksheet.Cells[10 + i, 5].Value = 0; //PPN
                         //worksheet.Cells[10 + i, 6].Value = 0; //NILAI PPN
                         worksheet.Cells[10 + i, 6].Value = 0; //ONGKOS KIRIM
@@ -6351,7 +6417,7 @@ namespace MasterOnline.Controllers
                         "ISNULL(H_SATUAN, '') AS HARGA_SATUAN, ISNULL(G.DISCOUNT, '') AS DISC1, ISNULL(G.NILAI_DISC_1, '') AS NDISC1, " +
                         "ISNULL(G.DISCOUNT_2, '') AS DISC2, ISNULL(G.NILAI_DISC_2, '') AS NDISC2, ISNULL(HARGA, '') AS TOTAL " +
                         //ADD BY NURUL 25/8/2021
-                        ",ISNULL(Z.NAMA,'') AS TEMP_PEMBELI, ISNULL(Z.TLP,'') AS TEMP_TLP, ISNULL(Z.ALAMAT,'') AS TEMP_ALAMAT_KIRIM, ISNULL(Z.PEMBELI,'') AS TEMP_KODE_PEMBELI " +
+                        //",ISNULL(Z.NAMA,'') AS TEMP_PEMBELI, ISNULL(Z.TLP,'') AS TEMP_TLP, ISNULL(Z.ALAMAT,'') AS TEMP_ALAMAT_KIRIM, ISNULL(Z.PEMBELI,'') AS TEMP_KODE_PEMBELI " +
                         //END ADD BY NURUL 25/8/2021
                         "FROM SIT01A A LEFT JOIN ARF01 B ON A.CUST = B.CUST " +
                         "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket " +
@@ -6361,7 +6427,7 @@ namespace MasterOnline.Controllers
                         "LEFT JOIN (SELECT DISTINCT NO_BUKTI FROM SIT01A A INNER JOIN ART03B B ON A.NO_BUKTI = B.NFAKTUR)E ON A.NO_BUKTI = E.NO_BUKTI " +
                         "LEFT JOIN (select ret.jenis_form,ret.no_bukti as bukti_ret,ret.no_ref as no_si,fkt.no_bukti as bukti_faktur from sit01a ret inner join sit01a fkt on fkt.no_bukti=ret.no_ref where ret.jenis_form='3') F ON A.NO_BUKTI=F.BUKTI_FAKTUR " +
                         //ADD BY NURUL 25/8/2021
-                        "LEFT JOIN PEMBELI_FAKTUR_SHOPEE Z(NOLOCK) ON Z.FAKTUR=A.NO_BUKTI " +
+                        //"LEFT JOIN PEMBELI_FAKTUR_SHOPEE Z(NOLOCK) ON Z.FAKTUR=A.NO_BUKTI " +
                         //END ADD BY NURUL 25/8/2021
                         "WHERE A.TGL BETWEEN '" + dt1 + "' AND '" + dt2 + "' " +
                         "AND A.JENIS_FORM = '2' " +
@@ -6394,55 +6460,55 @@ namespace MasterOnline.Controllers
                             //END ADD BY NURUL 22/6/2021
                             worksheet.Cells[5 + i, 8].Value = lsFaktur.Tables[0].Rows[i]["MARKETPLACE"];
                             //add by nurul 25/8/2021
-                            var kode_pembeli = "";
-                            var pembeli = "";
-                            var tlp = "";
-                            var alamat = "";
-                            if(Convert.ToString(lsFaktur.Tables[0].Rows[i]["KODE_PEMBELI"]).Contains("*") && Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_KODE_PEMBELI"]) != "")
-                            {
-                                kode_pembeli = Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_KODE_PEMBELI"]);
-                            }
-                            else
-                            {
-                                kode_pembeli = Convert.ToString(lsFaktur.Tables[0].Rows[i]["KODE_PEMBELI"]);
-                            }
-                            if (Convert.ToString(lsFaktur.Tables[0].Rows[i]["PEMBELI"]).Contains("*") && Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_PEMBELI"]) != "")
-                            {
-                                pembeli = Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_PEMBELI"]);
-                            }
-                            else
-                            {
-                                pembeli = Convert.ToString(lsFaktur.Tables[0].Rows[i]["PEMBELI"]);
-                            }
-                            if (Convert.ToString(lsFaktur.Tables[0].Rows[i]["TLP"]).Contains("*") && Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_TLP"]) != "")
-                            {
-                                tlp = Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_TLP"]);
-                            }
-                            else
-                            {
-                                tlp = Convert.ToString(lsFaktur.Tables[0].Rows[i]["TLP"]);
-                            }
-                            if (Convert.ToString(lsFaktur.Tables[0].Rows[i]["ALAMAT_KIRIM"]).Contains("*") && Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_ALAMAT_KIRIM"]) != "")
-                            {
-                                alamat = Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_ALAMAT_KIRIM"]);
-                            }
-                            else
-                            {
-                                alamat = Convert.ToString(lsFaktur.Tables[0].Rows[i]["ALAMAT_KIRIM"]);
-                            }
+                            //var kode_pembeli = "";
+                            //var pembeli = "";
+                            //var tlp = "";
+                            //var alamat = "";
+                            //if(Convert.ToString(lsFaktur.Tables[0].Rows[i]["KODE_PEMBELI"]).Contains("*") && Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_KODE_PEMBELI"]) != "")
+                            //{
+                            //    kode_pembeli = Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_KODE_PEMBELI"]);
+                            //}
+                            //else
+                            //{
+                            //    kode_pembeli = Convert.ToString(lsFaktur.Tables[0].Rows[i]["KODE_PEMBELI"]);
+                            //}
+                            //if (Convert.ToString(lsFaktur.Tables[0].Rows[i]["PEMBELI"]).Contains("*") && Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_PEMBELI"]) != "")
+                            //{
+                            //    pembeli = Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_PEMBELI"]);
+                            //}
+                            //else
+                            //{
+                            //    pembeli = Convert.ToString(lsFaktur.Tables[0].Rows[i]["PEMBELI"]);
+                            //}
+                            //if (Convert.ToString(lsFaktur.Tables[0].Rows[i]["TLP"]).Contains("*") && Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_TLP"]) != "")
+                            //{
+                            //    tlp = Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_TLP"]);
+                            //}
+                            //else
+                            //{
+                            //    tlp = Convert.ToString(lsFaktur.Tables[0].Rows[i]["TLP"]);
+                            //}
+                            //if (Convert.ToString(lsFaktur.Tables[0].Rows[i]["ALAMAT_KIRIM"]).Contains("*") && Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_ALAMAT_KIRIM"]) != "")
+                            //{
+                            //    alamat = Convert.ToString(lsFaktur.Tables[0].Rows[i]["TEMP_ALAMAT_KIRIM"]);
+                            //}
+                            //else
+                            //{
+                            //    alamat = Convert.ToString(lsFaktur.Tables[0].Rows[i]["ALAMAT_KIRIM"]);
+                            //}
 
-                            //worksheet.Cells[5 + i, 9].Value = lsFaktur.Tables[0].Rows[i]["KODE_PEMBELI"];
-                            //worksheet.Cells[5 + i, 10].Value = lsFaktur.Tables[0].Rows[i]["PEMBELI"];
-                            ////ADD BY NURUL 17/6/2021
-                            //worksheet.Cells[5 + i, 11].Value = lsFaktur.Tables[0].Rows[i]["TLP"];
-                            ////END ADD BY NURUL 17/6/2021
-                            //worksheet.Cells[5 + i, 12].Value = lsFaktur.Tables[0].Rows[i]["ALAMAT_KIRIM"];
-                            worksheet.Cells[5 + i, 9].Value = kode_pembeli;
-                            worksheet.Cells[5 + i, 10].Value = pembeli;
+                            worksheet.Cells[5 + i, 9].Value = lsFaktur.Tables[0].Rows[i]["KODE_PEMBELI"];
+                            worksheet.Cells[5 + i, 10].Value = lsFaktur.Tables[0].Rows[i]["PEMBELI"];
                             //ADD BY NURUL 17/6/2021
-                            worksheet.Cells[5 + i, 11].Value = tlp;
+                            worksheet.Cells[5 + i, 11].Value = lsFaktur.Tables[0].Rows[i]["TLP"];
                             //END ADD BY NURUL 17/6/2021
-                            worksheet.Cells[5 + i, 12].Value = alamat;
+                            worksheet.Cells[5 + i, 12].Value = lsFaktur.Tables[0].Rows[i]["ALAMAT_KIRIM"];
+                            //worksheet.Cells[5 + i, 9].Value = kode_pembeli;
+                            //worksheet.Cells[5 + i, 10].Value = pembeli;
+                            ////ADD BY NURUL 17/6/2021
+                            //worksheet.Cells[5 + i, 11].Value = tlp;
+                            ////END ADD BY NURUL 17/6/2021
+                            //worksheet.Cells[5 + i, 12].Value = alamat;
                             //add by nurul 25/8/2021
 
                             worksheet.Cells[5 + i, 13].Value = lsFaktur.Tables[0].Rows[i]["KURIR"];
@@ -6790,7 +6856,7 @@ namespace MasterOnline.Controllers
         //end by Indra 16 apr 2020, download stokopname
 
         //add by Indra 16 apr 2020, upload stokopname
-        public async Task<ActionResult> UploadXcelStokOpname(string nobuk, int countAll, string percentDanprogress, string statusLoopSuccess)
+        public async Task<ActionResult> UploadXcelStokOpname(string nobuk, string _gudang, int countAll, string percentDanprogress, string statusLoopSuccess)
         {
             BindUploadExcel ret = new BindUploadExcel();
             ret.Errors = new List<string>();
@@ -6820,6 +6886,11 @@ namespace MasterOnline.Controllers
             {
                 ret.byteData = null;
                 ret.nobuk = nobuk;
+            }
+
+            if (!string.IsNullOrEmpty(_gudang))
+            {
+                ret.gudang = _gudang;
             }
 
             for (int file_index = 0; file_index < Request.Files.Count; file_index++)
@@ -6872,9 +6943,11 @@ namespace MasterOnline.Controllers
                                             }
 
                                             //add by nurul 9/11/2020, bundling
-                                            var listTempBundling = eraDB.STF03.Select(a => a.Unit).Distinct().ToList();
-                                            //end add by nurul 9/11/2020, bundling
-                                            var listTemp = eraDB.STF02.Where(m => m.TYPE == "3" && m.Qty_berat != "1").ToList();
+                                            //var listTempBundling = eraDB.STF03.Select(a => a.Unit).Distinct().ToList();
+                                            ////end add by nurul 9/11/2020, bundling
+                                            //var listTemp = eraDB.STF02.Where(m => m.TYPE == "3" && m.Qty_berat != "1").ToList();
+                                            var listTempBundling = eraDB.STF03.AsNoTracking().Select(a => a.Unit).Distinct().ToList();
+                                            var listTemp = eraDB.STF02.AsNoTracking().Where(m => m.TYPE == "3" && m.Qty_berat != "1").Select(m => new { BRG = m.BRG, NAMA = m.NAMA }).ToList();
                                             if (listTemp.Count > 0)
                                             {
                                                 if (ret.statusLoop == false)
@@ -6928,24 +7001,39 @@ namespace MasterOnline.Controllers
                                                     }
                                                 }
 
+                                                var countProses = 0;
+                                                var tempPercent = Convert.ToInt32(prog[0]);
+                                                
                                                 ret.countAll = worksheet.Dimension.End.Row;
                                                 if (Convert.ToInt32(prog[1]) == 0)
                                                 {
                                                     prog[1] = "0";
                                                 }
-
+                                                if (Convert.ToInt32(prog[1]) != 5)
+                                                {
+                                                    prog[1] = Convert.ToString(Convert.ToInt32(prog[1]) - 1);
+                                                }
                                                 ret.progress = Convert.ToInt32(prog[1]);
+                                                
                                                 var kodeBarangTemp = new List<string>();
+                                                if(ret.statusLoop == true)
+                                                {
+                                                    var cekDetail = ErasoftDbContext.STT04B.Where(a => a.NOBUK == ret.nobuk).Select(a => a.Brg).ToList();
+                                                    kodeBarangTemp.AddRange(cekDetail);
+                                                }
 
                                                 if (ret.countAll > 5)
                                                 {
-                                                    for (int i = Convert.ToInt32(prog[1]); i <= ret.countAll; i++)
+                                                    for (int i = Convert.ToInt32(prog[1]); i <= ret.countAll + 1; i++)
                                                     {
                                                         ret.statusLoop = true;
-                                                        //ret.progress = i;
-                                                        ret.progress += 1;
-                                                        //ret.percent = (i * 100) / ret.countAll;
-                                                        Functions.SendProgress("Process in progress...", ret.progress, ret.countAll);
+                                                        ////ret.progress = i;
+                                                        //ret.progress += 1;
+                                                        ////ret.percent = (i * 100) / ret.countAll;
+                                                        countProses++;
+                                                        ret.progress = i + 1;
+                                                        ret.percent = ((i) * 100) / ret.countAll;
+                                                        Functions.SendProgress("Process in progress...", ret.progress - 1, ret.countAll);
 
                                                         var kd_brg = worksheet.Cells[i, 1].Value == null ? "" : worksheet.Cells[i, 1].Value.ToString();
                                                         if (!string.IsNullOrEmpty(kd_brg))
@@ -6995,31 +7083,85 @@ namespace MasterOnline.Controllers
                                                                                 }
                                                                                 else
                                                                                 {
-                                                                                    transaction.Rollback();
-                                                                                    ret.Errors.Add("Proses Gagal. Kode Barang (" + kd_brg + ") tidak boleh duplikat.");
-                                                                                    ret.statusSuccess = true;
-                                                                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                                                                                    //transaction.Rollback();
+                                                                                    ret.Errors.Add("Kode Barang (" + kd_brg + ") pada row ke-" + i + " tidak boleh duplikat.");
+                                                                                    //ret.statusSuccess = true;
+                                                                                    //return Json(ret, JsonRequestBehavior.AllowGet);
                                                                                 }
                                                                             }
                                                                     }
                                                                 }
                                                                 else
                                                                 {
-                                                                    transaction.Rollback();
-                                                                    ret.Errors.Add("Proses Gagal. Kode Barang (" + kd_brg + ") merupakan barang bundling");
-                                                                    ret.statusSuccess = true;
-                                                                    ret.lastRow[file_index] = i;
-                                                                    i = ret.countAll;
-                                                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                                                                    //transaction.Rollback();
+                                                                    ret.Errors.Add("Kode Barang (" + kd_brg + ") pada row ke-" + i + " merupakan barang bundling");
+                                                                    //ret.statusSuccess = true;
+                                                                    //ret.lastRow[file_index] = i;
+                                                                    //i = ret.countAll;
+                                                                    //return Json(ret, JsonRequestBehavior.AllowGet);
                                                                 }
                                                             }
                                                             else
                                                             {
-                                                                transaction.Rollback();
-                                                                ret.Errors.Add("Proses Gagal. Kode Barang (" + kd_brg + ") tidak ditemukan");
+                                                                //transaction.Rollback();
+                                                                ret.Errors.Add("Kode Barang (" + kd_brg + ") pada row ke-" + i + " tidak ditemukan");
+                                                                //ret.statusSuccess = true;
+                                                                //ret.lastRow[file_index] = i;
+                                                                //i = ret.countAll;
+                                                                //return Json(ret, JsonRequestBehavior.AllowGet);
+                                                            }
+                                                        }
+                                                        if (ret.countAll > 2000)
+                                                        {
+                                                            if (countProses == 500 || ret.progress - 1 == ret.countAll || ret.percent >= 100)
+                                                            {
+                                                                if (ret.percent >= 100 || ret.progress - 1 == ret.countAll)
+                                                                {
+                                                                    eraDB.SaveChanges();
+                                                                    transaction.Commit();
+                                                                    ret.statusSuccess = true;
+                                                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                                                                }
+                                                                if (tempPercent != ret.percent)
+                                                                {
+                                                                    eraDB.SaveChanges();
+                                                                    ret.statusSuccess = false;
+                                                                    transaction.Commit();
+                                                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                                                                }
+                                                            }
+                                                        }
+                                                        else if (ret.percent == 25 || ret.percent == 50 || ret.percent == 75 || ret.percent == 100)
+                                                        {
+                                                            if (ret.percent >= 100 || ret.progress - 1 == ret.countAll)
+                                                            {
+                                                                eraDB.SaveChanges();
+                                                                transaction.Commit();
                                                                 ret.statusSuccess = true;
-                                                                ret.lastRow[file_index] = i;
-                                                                i = ret.countAll;
+                                                                return Json(ret, JsonRequestBehavior.AllowGet);
+                                                            }
+                                                            if (tempPercent != ret.percent)
+                                                            {
+                                                                eraDB.SaveChanges();
+                                                                ret.statusSuccess = false;
+                                                                transaction.Commit();
+                                                                return Json(ret, JsonRequestBehavior.AllowGet);
+                                                            }
+                                                        }
+                                                        else if (countProses == 500)
+                                                        {
+                                                            if (ret.percent >= 100 || ret.progress - 1 == ret.countAll)
+                                                            {
+                                                                eraDB.SaveChanges();
+                                                                transaction.Commit();
+                                                                ret.statusSuccess = true;
+                                                                return Json(ret, JsonRequestBehavior.AllowGet);
+                                                            }
+                                                            if (tempPercent != ret.percent)
+                                                            {
+                                                                eraDB.SaveChanges();
+                                                                ret.statusSuccess = false;
+                                                                transaction.Commit();
                                                                 return Json(ret, JsonRequestBehavior.AllowGet);
                                                             }
                                                         }
@@ -7083,7 +7225,6 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-
             }
             //}
             //catch (Exception ex)
@@ -7128,13 +7269,13 @@ namespace MasterOnline.Controllers
                             //    "WHERE A.NO_BUKTI = '" + noPackingList + "' GROUP BY A.NO_PESANAN,A.BRG,B.NAMA,B.NAMA2,QTY, PEMBELI, MARKETPLACE,D.NO_REFERENSI ,E.BRG_MULTISKU,E.NAMA_BRG_MULTISKU ORDER BY A.NO_PESANAN, NAMA_BARANG ";
 
                             //change by nurul 26/8/2021
-                            //string sSQL = "SELECT A.NO_BUKTI AS NO_PESANAN, B.BRG,C.NAMA + ' ' + (ISNULL(C.NAMA2, '')) NAMA_BARANG,B.QTY,A.NAMAPEMESAN AS PEMBELI,F.NAMAMARKET + ' (' + E.PERSO +')' AS MARKETPLACE, ISNULL(A.NO_REFERENSI,'')NO_REFERENSI, ISNULL(B.BRG_MULTISKU,'')BRG_MULTISKU, ISNULL(D.NAMA + ' ' + (ISNULL(D.NAMA2, '')),'') NAMA_BRG_MULTISKU " +
-                            string sSQL = "SELECT A.NO_BUKTI AS NO_PESANAN, B.BRG,C.NAMA + ' ' + (ISNULL(C.NAMA2, '')) NAMA_BARANG,B.QTY, CASE WHEN ISNULL(A.NAMAPEMESAN,'') LIKE '%*%' AND ISNULL(Z.NAMA,'')<>'' THEN ISNULL(Z.NAMA,'') ELSE ISNULL(A.NAMAPEMESAN,'') END as PEMBELI,F.NAMAMARKET + ' (' + E.PERSO +')' AS MARKETPLACE, ISNULL(A.NO_REFERENSI,'')NO_REFERENSI, ISNULL(B.BRG_MULTISKU,'')BRG_MULTISKU, ISNULL(D.NAMA + ' ' + (ISNULL(D.NAMA2, '')),'') NAMA_BRG_MULTISKU " +
+                            string sSQL = "SELECT A.NO_BUKTI AS NO_PESANAN, B.BRG,C.NAMA + ' ' + (ISNULL(C.NAMA2, '')) NAMA_BARANG,B.QTY,A.NAMAPEMESAN AS PEMBELI,F.NAMAMARKET + ' (' + E.PERSO +')' AS MARKETPLACE, ISNULL(A.NO_REFERENSI,'')NO_REFERENSI, ISNULL(B.BRG_MULTISKU,'')BRG_MULTISKU, ISNULL(D.NAMA + ' ' + (ISNULL(D.NAMA2, '')),'') NAMA_BRG_MULTISKU " +
+                            //string sSQL = "SELECT A.NO_BUKTI AS NO_PESANAN, B.BRG,C.NAMA + ' ' + (ISNULL(C.NAMA2, '')) NAMA_BARANG,B.QTY, CASE WHEN ISNULL(A.NAMAPEMESAN,'') LIKE '%*%' AND ISNULL(Z.NAMA,'')<>'' THEN ISNULL(Z.NAMA,'') ELSE ISNULL(A.NAMAPEMESAN,'') END as PEMBELI,F.NAMAMARKET + ' (' + E.PERSO +')' AS MARKETPLACE, ISNULL(A.NO_REFERENSI,'')NO_REFERENSI, ISNULL(B.BRG_MULTISKU,'')BRG_MULTISKU, ISNULL(D.NAMA + ' ' + (ISNULL(D.NAMA2, '')),'') NAMA_BRG_MULTISKU " +
                             //end change by nurul 26/8/2021
                             "FROM SOT01A A(nolock) INNER JOIN SOT01B B(nolock) ON A.NO_BUKTI=B.NO_BUKTI LEFT JOIN STF02 C(nolock) ON B.BRG=C.BRG LEFT JOIN STF02 D ON D.BRG=B.BRG_MULTISKU  " +
                             "LEFT JOIN ARF01 E(nolock) ON A.CUST=E.CUST LEFT JOIN MO..MARKETPLACE F(nolock) ON E.NAMA=F.IDMARKET " +
                             //add by nurul 26/8/2021
-                            "LEFT JOIN PEMBELI_FAKTUR_SHOPEE Z(NOLOCK) ON A.NO_BUKTI=Z.PESANAN " +
+                            //"LEFT JOIN PEMBELI_FAKTUR_SHOPEE Z(NOLOCK) ON A.NO_BUKTI=Z.PESANAN " +
                             //end add by nurul 26/8/2021
                             "WHERE A.NO_BUKTI IN (SELECT NO_PESANAN FROM SOT03C WHERE NO_BUKTI='" + noPackingList + "')  and isnull(A.status_kirim,'') <> '5' ";
                             //end change by nurul 27/9/2020

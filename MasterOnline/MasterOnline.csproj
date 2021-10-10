@@ -6993,6 +6993,7 @@
     <Content Include="Views\Manage\TableMenuHapusBarangPartial.cshtml" />
     <Content Include="Views\Manage\TableKonfirmasiDeleteBarang.cshtml" />
     <Content Include="Views\Manage\TableBarangPendingPartial.cshtml" />
+    <Content Include="Views\Manage\ListError_ProsesStokOpname.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

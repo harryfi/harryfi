@@ -111,8 +111,10 @@ namespace MasterOnline
 
         public double? QOH { get; set; }
 
-        [JsonIgnore]
-        public virtual SIT01A SIT01A { get; set; }
+        //remark by nurul 6/10/2021
+        //[JsonIgnore]
+        //public virtual SIT01A SIT01A { get; set; }
+        //end remark by nurul 6/10/2021
 
         //ADD BY NURUL 9/9/2020
         [StringLength(20)]

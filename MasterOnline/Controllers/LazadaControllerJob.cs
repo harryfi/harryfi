@@ -1846,6 +1846,16 @@ namespace MasterOnline.Controllers
                             order.status_kirim = "1";
                         }
                         ErasoftDbContext.SaveChanges();
+                        //ADD BY NURUL 28/9/2021
+                        //try
+                        //{
+                        //    ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE SIT01A SET NAMAPENGIRIM = '" + order.SHIPMENT + "' WHERE NO_SO = '" + order.NO_BUKTI + "' AND CUST = '" + order.CUST + "' AND NO_REF = '" + order.NO_REFERENSI + "'");
+                        //}
+                        //catch(Exception ex)
+                        //{
+
+                        //}
+                        //END ADD BY NURUL 28/9/2021
                         //
                         //
                         //                        string EDBConnID = EDB.GetConnectionString("ConnId");
@@ -1915,6 +1925,16 @@ namespace MasterOnline.Controllers
                             order.TRACKING_SHIPMENT = resi;
                             order.SHIPMENT = kurir;
                             ErasoftDbContext.SaveChanges();
+                            //ADD BY NURUL 28/9/2021
+                            //try
+                            //{
+                            //    ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE SIT01A SET NAMAPENGIRIM = '" + order.SHIPMENT + "' WHERE NO_SO = '" + order.NO_BUKTI + "' AND CUST = '" + order.CUST + "' AND NO_REF = '" + order.NO_REFERENSI + "'");
+                            //}
+                            //catch (Exception ex)
+                            //{
+
+                            //}
+                            //END ADD BY NURUL 28/9/2021
                         }
                     }
                 }
@@ -2700,7 +2720,16 @@ namespace MasterOnline.Controllers
                                                     if (!string.IsNullOrEmpty(cekOrder.data.address_billing.phone))
                                                     {
                                                         InsertPembeli(cekOrder.data, connectionID, dbPathEra, username);
-                                                        var pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == cekOrder.data.address_billing.phone).FirstOrDefault();
+                                                        ARF01C pembeliInDB = null;
+                                                        if (!string.IsNullOrEmpty(cekOrder.data.address_billing.customer_email))
+                                                        {
+                                                            pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.EMAIL == cekOrder.data.address_billing.customer_email).FirstOrDefault();
+                                                        }
+                                                        else
+                                                        {
+                                                            pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == cekOrder.data.address_billing.phone).FirstOrDefault();
+                                                        }
+                                                        //var pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == cekOrder.data.address_billing.phone).FirstOrDefault();
                                                         if (pembeliInDB != null)
                                                         {
                                                             var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + orderMO.NO_BUKTI + "'");
@@ -2901,7 +2930,15 @@ namespace MasterOnline.Controllers
                                                 if (string.IsNullOrEmpty(ordInDB.PEMESAN))
                                                 {
                                                     var pembeliInDB = new ARF01C();
-                                                    pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
+                                                    if (!string.IsNullOrEmpty(order.address_billing.customer_email))
+                                                    {
+                                                        pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.EMAIL == order.address_billing.customer_email).FirstOrDefault();
+                                                    }
+                                                    else
+                                                    {
+                                                        pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
+                                                    }
+                                                    
                                                     if (pembeliInDB != null)
                                                     {
                                                         var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + ordInDB.NO_BUKTI + "'");
@@ -2909,7 +2946,14 @@ namespace MasterOnline.Controllers
                                                     else
                                                     {
                                                         InsertPembeli(order, connIDARF01C, dbPathEra, username);
-                                                        pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
+                                                        if (!string.IsNullOrEmpty(order.address_billing.customer_email))
+                                                        {
+                                                            pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.EMAIL == order.address_billing.customer_email).FirstOrDefault();
+                                                        }
+                                                        else
+                                                        {
+                                                            pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
+                                                        }
                                                         if (pembeliInDB != null)
                                                         {
                                                             var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + ordInDB.NO_BUKTI + "'");
@@ -5349,7 +5393,16 @@ namespace MasterOnline.Controllers
                     if (!string.IsNullOrEmpty(ordDetail.data.address_billing.phone))
                     {
                         InsertPembeli(ordDetail.data, Guid.NewGuid().ToString(), dbPathEra, username);
-                        var pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == ordDetail.data.address_billing.phone).FirstOrDefault();
+                        ARF01C pembeliInDB = null;
+                        if (!string.IsNullOrEmpty(ordDetail.data.address_billing.customer_email))
+                        {
+                            pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.EMAIL == ordDetail.data.address_billing.customer_email).FirstOrDefault();
+                        }
+                        else
+                        {
+                            pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == ordDetail.data.address_billing.phone).FirstOrDefault();
+                        }
+                        //var pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == ordDetail.data.address_billing.phone).FirstOrDefault();
                         if (pembeliInDB != null)
                         {
                             var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" 
@@ -8104,6 +8157,33 @@ namespace MasterOnline.Controllers
                 if (bindCancel.code == "0")
                 {
                     ret = bindCancel.data;
+                }
+            }
+            return ret;
+        }
+
+        public List<CancelReasonDetailNew> getCancelReasonNew(string token, string order_id, string order_item_id)
+        {
+            var ret = new List<CancelReasonDetailNew>();
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/order/reverse/cancel/validate");
+            request.SetHttpMethod("GET");
+            request.AddApiParameter("order_id", order_id);
+            request.AddApiParameter("order_item_id_list", order_item_id);
+            LazopResponse response = client.Execute(request, token);
+            var bindCancel = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(CancelReasonNew)) as CancelReasonNew;
+            if (bindCancel != null)
+            {
+                if (bindCancel.code == "0")
+                {
+                    if(bindCancel.data.reason_options != null)
+                    {
+                        if (bindCancel.data.reason_options.Count > 0)
+                        {
+                            ret = bindCancel.data.reason_options;
+                        }
+                    }
                 }
             }
             return ret;

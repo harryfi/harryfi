@@ -4104,7 +4104,7 @@ namespace MasterOnline.Controllers
         public class ActiveProductVariantResultData
         {
             public long parent_id { get; set; }
-            public int default_child { get; set; }
+            public long default_child { get; set; }
             public string sizechart { get; set; }
             public ActiveProductVariantResultDataVariant[] variant { get; set; }
             public ActiveProductVariantResultDataChild[] children { get; set; }
@@ -4311,7 +4311,7 @@ namespace MasterOnline.Controllers
 
         public class GetVariantResultData
         {
-            public long variant_id { get; set; }
+            public int variant_id { get; set; }
             public string name { get; set; }
             public string identifier { get; set; }
             public int status { get; set; }
