@@ -6833,7 +6833,7 @@ namespace MasterOnline.Controllers
                                                 message.is_first_reply = 1;
                                             }
                                             firstReply = true;
-                                            var cekExist = ErasoftDbContext.TOKPED_LISTCHAT.Where(a => a.CUST == message.CUST && a.msg_id == message.msg_id && a.msg == message.msg && a.reply_time == message.reply_time && a.attachment_id == message.attachment_id && a.product_id == message.product_id).Count();
+                                            var cekExist = ErasoftDbContext.TOKPED_LISTCHAT.Where(a => a.CUST == message.CUST && a.msg_id == message.msg_id && a.msg == message.msg && a.attachment_id == message.attachment_id && a.attachment_type == a.attachment_type && a.product_id == message.product_id).Count();
                                             if(cekExist == 0)
                                             {
                                                 listChat.Add(message);
