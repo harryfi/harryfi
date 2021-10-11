@@ -8778,6 +8778,7 @@ namespace MasterOnline.Controllers
                 HttpBody.brand.original_brand_name = detailBrg.ANAME_38;
             }
             HttpBody.image.image_id_list = new List<string>();
+            HttpBody.description = System.Net.WebUtility.HtmlDecode(HttpBody.description.Replace("&nbsp;", ""));
             //add by calvin 10 mei 2019
             HttpBody.description = new StokControllerJob().RemoveSpecialCharacters(HttpBody.description);
             //end add by calvin 10 mei 2019
@@ -11728,6 +11729,7 @@ namespace MasterOnline.Controllers
                 HttpBody.item_status = "UNLIST";
             }
             //add by nurul 20/1/2020, handle <p> dan enter double di shopee
+            HttpBody.description = System.Net.WebUtility.HtmlDecode(HttpBody.description.Replace("&nbsp;", ""));
             HttpBody.description = new StokControllerJob().RemoveSpecialCharacters(HttpBody.description);
 
             HttpBody.description = HttpBody.description.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");

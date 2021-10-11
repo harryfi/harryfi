@@ -627,10 +627,12 @@ namespace MasterOnline.Controllers
                     }
                 }
                 //add by nurul 6/2/2020
-                newDataProduct.description = newDataProduct.description.Replace("<p>", "").Replace("</p>", "").
-                        Replace("</ul>\r\n\r\n", "").Replace("<ul>", "").Replace("&nbsp;\r\n\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("&nbsp;", " ").
-                        Replace("\r\n", "").Replace("<br />", "\n");
-                newDataProduct.description = System.Net.WebUtility.HtmlDecode(newDataProduct.description);
+                //newDataProduct.description = newDataProduct.description.Replace("<p>", "").Replace("</p>", "").
+                //        Replace("</ul>\r\n\r\n", "").Replace("<ul>", "").Replace("&nbsp;\r\n\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("&nbsp;", " ").
+                //        Replace("\r\n", "").Replace("<br />", "\n");
+                //newDataProduct.description = System.Net.WebUtility.HtmlDecode(newDataProduct.description);
+                newDataProduct.description = System.Net.WebUtility.HtmlDecode(newDataProduct.description.Replace("&nbsp;", " ")).Replace("<p>", "").
+                    Replace("</p>", "").Replace("</ul>", "").Replace("<ul>", "").Replace("\r\n\r\n", "\n").Replace("\r\n", "").Replace("<br />", "\n");
                 //end add by nurul 6/2/2020
                 var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
 
@@ -1457,10 +1459,12 @@ namespace MasterOnline.Controllers
                         }
                     }
                     //add by nurul 6/2/2020
-                    newDataProduct.description = newDataProduct.description.Replace("<p>", "").Replace("</p>", "").
-                        Replace("</ul>\r\n\r\n", "").Replace("<ul>", "").Replace("&nbsp;\r\n\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("&nbsp;", " ").
-                        Replace("\r\n", "").Replace("<br />", "\n");
-                    newDataProduct.description = System.Net.WebUtility.HtmlDecode(newDataProduct.description);
+                    //newDataProduct.description = newDataProduct.description.Replace("<p>", "").Replace("</p>", "").
+                    //    Replace("</ul>\r\n\r\n", "").Replace("<ul>", "").Replace("&nbsp;\r\n\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("&nbsp;", " ").
+                    //    Replace("\r\n", "").Replace("<br />", "\n");
+                    //newDataProduct.description = System.Net.WebUtility.HtmlDecode(newDataProduct.description);
+                    newDataProduct.description = System.Net.WebUtility.HtmlDecode(newDataProduct.description.Replace("&nbsp;", " ")).Replace("<p>", "").
+                        Replace("</p>", "").Replace("</ul>", "").Replace("<ul>", "").Replace("\r\n\r\n", "\n").Replace("\r\n", "").Replace("<br />", "\n");
                     //end add by nurul 6/2/2020
 
                     //add by calvin 1 mei 2019

@@ -390,10 +390,13 @@
     function UpdateAllDeskripsi() {
         for (var i in CKEDITOR.instances) {
             if (i.includes("_DESKRIPSI_MP")) {
-                if (CKEDITOR.instances[i].getData() == "" || CKEDITOR.instances[i].getData() == "null") {
-                    var aa = CKEDITOR.instances['Stf02_Deskripsi'].getData();
-                    CKEDITOR.instances[i].setData(aa);
+                //if (CKEDITOR.instances[i].getData() == "" || CKEDITOR.instances[i].getData() == "null") {
+                var aa = CKEDITOR.instances['Stf02_Deskripsi'].getData();
+                if (aa.substring(0, 15) === '<p>&nbsp;</p>\n\n<p>') {
+                    aa = aa.substring(18, aa.length);
                 }
+                    CKEDITOR.instances[i].setData(aa);
+                //}
 
             }
         }
