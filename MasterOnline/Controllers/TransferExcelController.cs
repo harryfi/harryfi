@@ -750,7 +750,10 @@ namespace MasterOnline.Controllers
                         worksheet.Cells[2, 2].Style.Fill.PatternType = ExcelFillStyle.Solid;
                         worksheet.Cells[2, 2].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
                         //var gudang = ErasoftDbContext.STF18.Where(m => m.Kode_Gudang == kd_gudang).FirstOrDefault();
-                        var gudang = ErasoftDbContext.STF18.ToList();
+                        //change by nurul 11/10/2021
+                        //var gudang = ErasoftDbContext.STF18.ToList();
+                        var gudang = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang != "GB").ToList();
+                        //end change by nurul 11/10/2021
 
                         if (gudang.Count > 0)
                         {
@@ -6317,7 +6320,10 @@ namespace MasterOnline.Controllers
                     sheet3.Cells[2, 1].Value = "MASTER GUDANG";
 
                     // GUDANG
-                    var gudang = ErasoftDbContext.STF18.ToList();
+                    //change by nurul 11/10/2021
+                    //var gudang = ErasoftDbContext.STF18.ToList();
+                    var gudang = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang != "GB").ToList();
+                    //end change by nurul 11/10/2021
 
                     if (gudang.Count() > 0)
                     {
@@ -6752,8 +6758,11 @@ namespace MasterOnline.Controllers
                         worksheet.Cells[2, 2].Value = "Isi kode gudang sesuai dengan master gudang pada sheet2";
                         worksheet.Cells[2, 2].Style.Fill.PatternType = ExcelFillStyle.Solid;
                         worksheet.Cells[2, 2].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
-
-                        var gudang = ErasoftDbContext.STF18.ToList();
+                        
+                        //change by nurul 11/10/2021
+                        //var gudang = ErasoftDbContext.STF18.ToList();
+                        var gudang = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang != "GB").ToList();
+                        //end change by nurul 11/10/2021
 
                         if (gudang.Count > 0)
                         {
