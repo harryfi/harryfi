@@ -6582,7 +6582,7 @@ namespace MasterOnline.Controllers
                         {
                             var dateNow = DateTime.UtcNow.AddHours(7);
                             //var dateLast1Month = dateNow.AddMonths(-1);
-                            var dateLast1Month = dateNow.AddDays(-30);
+                            var dateLast1Month = dateNow.AddDays(-14);
                             var cust = ErasoftDbContext.ARF01.Where(a => a.API_KEY == iden.API_secret_key && a.Sort1_Cust == iden.merchant_code).FirstOrDefault();
                             if (cust != null)
                             {
@@ -6601,7 +6601,7 @@ namespace MasterOnline.Controllers
                                             contact_role = msg.attributes.contact.role,
                                             attributes_name = msg.attributes.contact.attributes.name,
                                             attributes_tag = msg.attributes.contact.attributes.tag,
-                                            attributes_thumbnail = msg.attributes.contact.attributes.thumbnail + "/desktop",
+                                            attributes_thumbnail = msg.attributes.contact.attributes.thumbnail + "desktop",
                                             last_reply_msg = msg.attributes.last_reply_msg,
                                             //last_reply_time = Convert.ToDateTime(msg.attributes.last_reply_time),
                                             last_reply_time = ax,
@@ -6721,7 +6721,7 @@ namespace MasterOnline.Controllers
                         {
                             var cekFirstReply = ErasoftDbContext.TOKPED_LISTCHAT.Where(a => a.CUST == cust.CUST && a.msg_id == msgId && a.is_first_reply == 1).FirstOrDefault();
                             var dateNow = DateTime.UtcNow.AddHours(7);
-                            var dateLast1Month = dateNow.AddDays(-30);
+                            var dateLast1Month = dateNow.AddDays(-14);
                             var firstReply = false;
                             var cekListReply = ErasoftDbContext.TOKPED_LISTCHAT.ToList();
                             var replyid = cekListReply.Select(a => a.reply_id).ToList();
