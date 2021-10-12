@@ -8010,10 +8010,10 @@ namespace MasterOnline.Controllers
                 width = Convert.ToInt32(Convert.ToDouble(data.Width)),
                 height = Convert.ToInt32(Convert.ToDouble(data.Height)),
                 weight = Convert.ToInt32(Convert.ToDouble(data.berat)),
-                description = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
+                description = Convert.ToBase64String(Encoding.ASCII.GetBytes(WebUtility.HtmlDecode(data.Keterangan))),
                 //uniqueSellingPoint = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
                 //diisi dengan AVALUE_39
-                productStory = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
+                productStory = Convert.ToBase64String(Encoding.ASCII.GetBytes(WebUtility.HtmlDecode(data.Keterangan))),
             };
             //add 6 april 2021, validasi big product
             if (newData.weight > 50000)// berat lebih dari 50kg -> big product

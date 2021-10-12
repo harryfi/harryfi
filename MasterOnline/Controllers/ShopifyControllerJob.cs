@@ -2163,7 +2163,7 @@ namespace MasterOnline.Controllers
                 product = body
             };
 
-            HttpBody.product.body_html = new StokControllerJob().RemoveSpecialCharacters(HttpBody.product.body_html);
+            HttpBody.product.body_html = new StokControllerJob().RemoveSpecialCharacters(System.Net.WebUtility.HtmlDecode(System.Net.WebUtility.HtmlDecode(HttpBody.product.body_html)));
 
             //add by nurul 20/1/2020, handle <p> dan enter double di shopee
             HttpBody.product.body_html = HttpBody.product.body_html.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
@@ -2876,7 +2876,7 @@ namespace MasterOnline.Controllers
                 product = body
             };
 
-            HttpBody.product.body_html = new StokControllerJob().RemoveSpecialCharacters(HttpBody.product.body_html);
+            HttpBody.product.body_html = new StokControllerJob().RemoveSpecialCharacters(System.Net.WebUtility.HtmlDecode(System.Net.WebUtility.HtmlDecode(HttpBody.product.body_html)));
 
             //add by nurul 20/1/2020, handle <p> dan enter double di shopee
             HttpBody.product.body_html = HttpBody.product.body_html.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");

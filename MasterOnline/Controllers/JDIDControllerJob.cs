@@ -689,7 +689,7 @@ namespace MasterOnline.Controllers
                 if (detailBrg.DESKRIPSI_MP != "null")
                     vDescription = detailBrg.DESKRIPSI_MP;
             }
-            vDescription = new StokControllerJob().RemoveSpecialCharacters(vDescription);
+            vDescription = new StokControllerJob().RemoveSpecialCharacters(WebUtility.HtmlDecode(WebUtility.HtmlDecode(vDescription)));
 
             //add by nurul 20/1/2020, handle <p> dan enter double di shopee
             //vDescription = vDescription.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
@@ -1200,7 +1200,7 @@ namespace MasterOnline.Controllers
                 if (detailBrg.DESKRIPSI_MP != "null")
                     vDescription = detailBrg.DESKRIPSI_MP;
             }
-            vDescription = new StokControllerJob().RemoveSpecialCharacters(vDescription);
+            vDescription = new StokControllerJob().RemoveSpecialCharacters(WebUtility.HtmlDecode(WebUtility.HtmlDecode(vDescription)));
             //add by nurul 20/1/2020, handle <p> dan enter double di shopee
             //vDescription = vDescription.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
             vDescription = vDescription.Replace("<li>", "- ").Replace("</li>", "\r\n");
@@ -6757,7 +6757,7 @@ namespace MasterOnline.Controllers
                 if (detailBrg.DESKRIPSI_MP != "null")
                     vDescription = detailBrg.DESKRIPSI_MP;
             }
-            vDescription = new StokControllerJob().RemoveSpecialCharacters(vDescription);
+            vDescription = new StokControllerJob().RemoveSpecialCharacters(WebUtility.HtmlDecode(WebUtility.HtmlDecode(vDescription)));
 
             //add by nurul 20/1/2020, handle <p> dan enter double di shopee
             //vDescription = vDescription.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
@@ -7459,7 +7459,7 @@ namespace MasterOnline.Controllers
                 if (detailBrg.DESKRIPSI_MP != "null")
                     vDescription = detailBrg.DESKRIPSI_MP;
             }
-            vDescription = new StokControllerJob().RemoveSpecialCharacters(vDescription);
+            vDescription = new StokControllerJob().RemoveSpecialCharacters(WebUtility.HtmlDecode(WebUtility.HtmlDecode(vDescription)));
             //add by nurul 20/1/2020, handle <p> dan enter double di shopee
             //vDescription = vDescription.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
             vDescription = vDescription.Replace("<li>", "- ").Replace("</li>", "\r\n");

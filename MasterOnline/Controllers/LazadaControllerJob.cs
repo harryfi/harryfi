@@ -347,7 +347,7 @@ namespace MasterOnline.Controllers
             xmlString = "<Request><Product><PrimaryCategory>" + primCategory + "</PrimaryCategory>";
             xmlString += "<Attributes><name>" + XmlEscape(namabrg) + "</name>";
             //xmlString += "<short_description><![CDATA[" + data.deskripsi + "]]></short_description>";
-            xmlString += "<description><![CDATA[" + deskripsibrg.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+            xmlString += "<description><![CDATA[" + System.Net.WebUtility.HtmlDecode(deskripsibrg).Replace(System.Environment.NewLine, "<br>") + "]]></description>";
 
             //xmlString += "<brand>No Brand</brand>";
             xmlString += "<brand><![CDATA[" + stf02h.ANAME_38 + "]]></brand>";
@@ -914,23 +914,23 @@ namespace MasterOnline.Controllers
                     {
                         if (!(cekBrg.data.attributes.description ?? "").Contains("img src="))
                         {
-                            xmlString += "<description><![CDATA[" + deskripsibrg.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+                            xmlString += "<description><![CDATA[" + System.Net.WebUtility.HtmlDecode(deskripsibrg).Replace(System.Environment.NewLine, "<br>") + "]]></description>";
                         }
                     }
                     else
                     {
-                        xmlString += "<description><![CDATA[" + deskripsibrg.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+                        xmlString += "<description><![CDATA[" + System.Net.WebUtility.HtmlDecode(deskripsibrg).Replace(System.Environment.NewLine, "<br>") + "]]></description>";
 
                     }
                 }
                 else
                 {
-                    xmlString += "<description><![CDATA[" + deskripsibrg.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+                    xmlString += "<description><![CDATA[" + System.Net.WebUtility.HtmlDecode(deskripsibrg).Replace(System.Environment.NewLine, "<br>") + "]]></description>";
                 }
             }
             else
             {
-                xmlString += "<description><![CDATA[" + deskripsibrg.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+                xmlString += "<description><![CDATA[" + System.Net.WebUtility.HtmlDecode(deskripsibrg).Replace(System.Environment.NewLine, "<br>") + "]]></description>";
             }
             xmlString += "<brand><![CDATA[" + stf02h.ANAME_38 + "]]></brand>";
 
