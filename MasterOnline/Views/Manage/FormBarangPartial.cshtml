@@ -188,7 +188,7 @@
 
         CKEDITOR.instances['Stf02_Deskripsi'].on("blur", function () {
             //alert(CKEDITOR.instances['Stf02_Deskripsi'].getData());
-            UpdateAllDeskripsi();
+            UpdateAllDeskripsi(false);
         });
         //add by calvin 28 februari 2019
         $('.btn_hapus_foto_produk_blibli').each(function (i, item) {
@@ -396,10 +396,11 @@
             }
         });
     }
-    function UpdateAllDeskripsi() {
+    function UpdateAllDeskripsi(val) {
+       
         for (var i in CKEDITOR.instances) {
             if (i.includes("_DESKRIPSI_MP")) {
-                if (CKEDITOR.instances[i].getData() == "" || CKEDITOR.instances[i].getData() == "null") {
+                if (CKEDITOR.instances[i].getData() == "" || CKEDITOR.instances[i].getData() == "null" || val) {
                 var aa = CKEDITOR.instances['Stf02_Deskripsi'].getData();
                     if (aa.substring(0, 15) === '<p>&nbsp;</p>\n\n<p>') {
                         aa = aa.substring(18, aa.length);
@@ -409,6 +410,9 @@
 
             }
         }
+        //if (val) {
+        //    alert('Berhasil update semua deskripsi marketplace');
+        //}
     }
 
     function getFotoProdukBlibli() {
@@ -585,7 +589,13 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            @Html.LabelFor(m => m.Stf02.Deskripsi, "Deskripsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-3 col-sm-3 col-xs-12" style="text-align:end;">
+                                                @Html.LabelFor(m => m.Stf02.Deskripsi, "Deskripsi *", new { @class = "control-label" })
+                                                <br />
+                                                <br />
+                                                <button id="btnSyncDeskripsi" data-tip="Sync deskripsi ke semua detail akun marketplace" type="button" onclick="UpdateAllDeskripsi(true);">Sync All</button>
+                                            </div>
+                                            
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 @{
                                                     if (Model.Stf02 != null)
@@ -595,6 +605,8 @@
                                                 }
                                                 @Html.TextAreaFor(m => m.Stf02.Deskripsi, new { @class = "form-control make_ckeditor", required = "required", minlength = 30 })
                                             </div>
+                                            @*<div class="col-md-2 col-sm-2">
+                                            </div>*@
                                         </div>
                                         <div class="form-group" id="divCharCount" style="display:none">
                                             <div class="col-md-6 col-sm-6"></div>
