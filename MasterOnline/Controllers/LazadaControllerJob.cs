@@ -331,13 +331,23 @@ namespace MasterOnline.Controllers
                 }
             }
             //end change 8 Apriil 2019, get attr from api
-
+            var namabrg = data.nama + (string.IsNullOrEmpty(data.nama2) ? "" : " " + data.nama2);
+            if (!string.IsNullOrEmpty(stf02h.NAMA_BARANG_MP))
+            {
+                namabrg = stf02h.NAMA_BARANG_MP;
+            }
+            var deskripsibrg = data.deskripsi;
+            if (!string.IsNullOrEmpty(stf02h.DESKRIPSI_MP))
+            {
+                if (stf02h.DESKRIPSI_MP != "null")
+                    deskripsibrg = stf02h.DESKRIPSI_MP;
+            }
             string primCategory = EDB.GetFieldValue("MOConnectionString", "STF02H", "BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'", "category_code").ToString();
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
             xmlString = "<Request><Product><PrimaryCategory>" + primCategory + "</PrimaryCategory>";
-            xmlString += "<Attributes><name>" + XmlEscape(data.nama + (string.IsNullOrEmpty(data.nama2) ? "" : " " + data.nama2)) + "</name>";
+            xmlString += "<Attributes><name>" + XmlEscape(namabrg) + "</name>";
             //xmlString += "<short_description><![CDATA[" + data.deskripsi + "]]></short_description>";
-            xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+            xmlString += "<description><![CDATA[" + System.Net.WebUtility.HtmlDecode(deskripsibrg).Replace(System.Environment.NewLine, "<br>") + "]]></description>";
 
             //xmlString += "<brand>No Brand</brand>";
             xmlString += "<brand><![CDATA[" + stf02h.ANAME_38 + "]]></brand>";
@@ -357,7 +367,7 @@ namespace MasterOnline.Controllers
             for (int i = 1; i <= 50; i++)
             {
                 string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
-                string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
+                string value = System.Net.WebUtility.HtmlDecode(Convert.ToString(stf02h["AVALUE_" + i.ToString()]));
                 if (!string.IsNullOrWhiteSpace(value) && value != "null")
                 {
                     if (dsNormal.Contains(attribute_id))
@@ -876,11 +886,22 @@ namespace MasterOnline.Controllers
                 }
             }
             //end change by calvin 16 mei 2019
+            var namabrg = data.nama + (string.IsNullOrEmpty(data.nama2) ? "" : " " + data.nama2);
+            if (!string.IsNullOrEmpty(stf02h.NAMA_BARANG_MP))
+            {
+                namabrg = stf02h.NAMA_BARANG_MP;
+            }
+            var deskripsibrg = data.deskripsi;
+            if (!string.IsNullOrEmpty(stf02h.DESKRIPSI_MP))
+            {
+                if (stf02h.DESKRIPSI_MP != "null")
+                    deskripsibrg = stf02h.DESKRIPSI_MP;
+            }
 
             string primCategory = EDB.GetFieldValue("MOConnectionString", "STF02H", "BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'", "category_code").ToString();
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
             xmlString = "<Request><Product><PrimaryCategory>" + primCategory + "</PrimaryCategory>";
-            xmlString += "<Attributes><name>" + XmlEscape(data.nama + (string.IsNullOrEmpty(data.nama2) ? "" : " " + data.nama2)) + "</name>";
+            xmlString += "<Attributes><name>" + XmlEscape(namabrg) + "</name>";
             //xmlString += "<short_description><![CDATA[" + data.deskripsi + "]]></short_description>";
             //change 16 okt 2020
             var stf02 = ErasoftDbContext.STF02.Where(p => p.BRG == data.kdBrg).FirstOrDefault();
@@ -893,23 +914,23 @@ namespace MasterOnline.Controllers
                     {
                         if (!(cekBrg.data.attributes.description ?? "").Contains("img src="))
                         {
-                            xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+                            xmlString += "<description><![CDATA[" + System.Net.WebUtility.HtmlDecode(deskripsibrg).Replace(System.Environment.NewLine, "<br>") + "]]></description>";
                         }
                     }
                     else
                     {
-                        xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+                        xmlString += "<description><![CDATA[" + System.Net.WebUtility.HtmlDecode(deskripsibrg).Replace(System.Environment.NewLine, "<br>") + "]]></description>";
 
                     }
                 }
                 else
                 {
-                    xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+                    xmlString += "<description><![CDATA[" + System.Net.WebUtility.HtmlDecode(deskripsibrg).Replace(System.Environment.NewLine, "<br>") + "]]></description>";
                 }
             }
             else
             {
-                xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+                xmlString += "<description><![CDATA[" + System.Net.WebUtility.HtmlDecode(deskripsibrg).Replace(System.Environment.NewLine, "<br>") + "]]></description>";
             }
             xmlString += "<brand><![CDATA[" + stf02h.ANAME_38 + "]]></brand>";
 
@@ -918,7 +939,7 @@ namespace MasterOnline.Controllers
             for (int i = 1; i <= 50; i++)
             {
                 string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
-                string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
+                string value = System.Net.WebUtility.HtmlDecode(Convert.ToString(stf02h["AVALUE_" + i.ToString()]));
                 if (!string.IsNullOrWhiteSpace(value) && value != "null")
                 {
                     if (dsNormal.Contains(attribute_id))

@@ -315,6 +315,11 @@ namespace MasterOnline.Controllers
             var listattributeIDGroup = "";
             var listattributeIDItems = "";
 
+            var namabrg = brgInDb.NAMA + (string.IsNullOrEmpty(brgInDb.NAMA2) ? "" : " " + brgInDb.NAMA2);
+            if (!string.IsNullOrEmpty(detailBrg.NAMA_BARANG_MP))
+            {
+                namabrg = detailBrg.NAMA_BARANG_MP;
+            }
 
             if (detailBrg != null)
             {
@@ -364,14 +369,15 @@ namespace MasterOnline.Controllers
             //Required parameters, other parameters can be add
             var postData = "apiKey=" + Uri.EscapeDataString(iden.API_key);
             postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
-            if (!string.IsNullOrEmpty(brgInDb.NAMA2))
-            {
-                postData += "&name=" + Uri.EscapeDataString(brgInDb.NAMA + " " + brgInDb.NAMA2);
-            }
-            else
-            {
-                postData += "&name=" + Uri.EscapeDataString(brgInDb.NAMA);
-            }
+            //if (!string.IsNullOrEmpty(brgInDb.NAMA2))
+            //{
+            //    postData += "&name=" + Uri.EscapeDataString(brgInDb.NAMA + " " + brgInDb.NAMA2);
+            //}
+            //else
+            //{
+            //    postData += "&name=" + Uri.EscapeDataString(brgInDb.NAMA);
+            //}
+            postData += "&name=" + Uri.EscapeDataString(namabrg);
             postData += "&reference=" + Uri.EscapeDataString(brgInDb.BRG);
             postData += "&active=" + Uri.EscapeDataString("1");
             postData += "&visibility=" + Uri.EscapeDataString("both");
@@ -420,7 +426,12 @@ namespace MasterOnline.Controllers
 
             //Start handle description
             var vDescription = brgInDb.Deskripsi;
-            vDescription = new StokControllerJob().RemoveSpecialCharacters(vDescription);
+            if (!string.IsNullOrEmpty(detailBrg.DESKRIPSI_MP))
+            {
+                if (detailBrg.DESKRIPSI_MP != "null")
+                    vDescription = detailBrg.DESKRIPSI_MP;
+            }
+            vDescription = new StokControllerJob().RemoveSpecialCharacters(System.Net.WebUtility.HtmlDecode(System.Net.WebUtility.HtmlDecode(vDescription)));
 
             //add by nurul 20/1/2020, handle <p> dan enter double di shopee
             //vDescription = vDescription.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
@@ -670,6 +681,12 @@ namespace MasterOnline.Controllers
             var listattributeIDGroup = "";
             var listattributeIDItems = "";
 
+            var namabrg = brgInDb.NAMA + (string.IsNullOrEmpty(brgInDb.NAMA2) ? "" : " " + brgInDb.NAMA2);
+            if (!string.IsNullOrEmpty(detailBrg.NAMA_BARANG_MP))
+            {
+                namabrg = detailBrg.NAMA_BARANG_MP;
+            }
+
             if (detailBrg != null)
             {
                 if (detailBrg.ACODE_1 != null)
@@ -721,14 +738,15 @@ namespace MasterOnline.Controllers
             var postData = "apiKey=" + Uri.EscapeDataString(iden.API_key);
             postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
             postData += "&id_product=" + Uri.EscapeDataString(splitBrg[0]);
-            if (!string.IsNullOrEmpty(brgInDb.NAMA2))
-            {
-                postData += "&name=" + Uri.EscapeDataString(brgInDb.NAMA + " " + brgInDb.NAMA2);
-            }
-            else
-            {
-                postData += "&name=" + Uri.EscapeDataString(brgInDb.NAMA);
-            }
+            //if (!string.IsNullOrEmpty(brgInDb.NAMA2))
+            //{
+            //    postData += "&name=" + Uri.EscapeDataString(brgInDb.NAMA + " " + brgInDb.NAMA2);
+            //}
+            //else
+            //{
+            //    postData += "&name=" + Uri.EscapeDataString(brgInDb.NAMA);
+            //}
+            postData += "&name=" + Uri.EscapeDataString(namabrg);
             postData += "&reference=" + Uri.EscapeDataString(brgInDb.BRG.Replace(";", ""));
             postData += "&active=" + Uri.EscapeDataString("1");
             postData += "&visibility=" + Uri.EscapeDataString("both");
@@ -778,6 +796,11 @@ namespace MasterOnline.Controllers
 
             //Start handle description
             var vDescription = brgInDb.Deskripsi;
+            if (!string.IsNullOrEmpty(detailBrg.DESKRIPSI_MP))
+            {
+                if (detailBrg.DESKRIPSI_MP != "null")
+                    vDescription = detailBrg.DESKRIPSI_MP;
+            }
             vDescription = new StokControllerJob().RemoveSpecialCharacters(vDescription);
 
             //add by nurul 20/1/2020, handle <p> dan enter double di shopee

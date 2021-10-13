@@ -7947,13 +7947,23 @@ namespace MasterOnline.Controllers
                 Keterangan = barangInDb.Deskripsi,
                 Qty = "0",
                 MinQty = "0",
-                PickupPoint = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == barangInDb.BRG && m.IDMARKET == arf01.RecNum).PICKUP_POINT.ToString(),
+                //PickupPoint = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == barangInDb.BRG && m.IDMARKET == arf01.RecNum).PICKUP_POINT.ToString(),
+                PickupPoint = stf02h.PICKUP_POINT,
                 IDMarket = arf01.RecNum.ToString(),
                 Length = Convert.ToString(barangInDb.PANJANG),
                 Width = Convert.ToString(barangInDb.LEBAR),
                 Height = Convert.ToString(barangInDb.TINGGI),
                 dataBarangInDb = barangInDb
             };
+            if (!string.IsNullOrEmpty(stf02h.NAMA_BARANG_MP))
+            {
+                data.nama = stf02h.NAMA_BARANG_MP;
+            }
+            if (!string.IsNullOrEmpty(stf02h.DESKRIPSI_MP))
+            {
+                if(stf02h.DESKRIPSI_MP != "null")
+                data.Keterangan = stf02h.DESKRIPSI_MP;
+            }
             data.type = barangInDb.TYPE;//add by Tri 27/9/2019
             data.Brand = stf02h.AVALUE_38;
             data.Price = barangInDb.HJUAL.ToString();
@@ -8000,10 +8010,10 @@ namespace MasterOnline.Controllers
                 width = Convert.ToInt32(Convert.ToDouble(data.Width)),
                 height = Convert.ToInt32(Convert.ToDouble(data.Height)),
                 weight = Convert.ToInt32(Convert.ToDouble(data.berat)),
-                description = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
+                description = Convert.ToBase64String(Encoding.ASCII.GetBytes(WebUtility.HtmlDecode(data.Keterangan))),
                 //uniqueSellingPoint = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
                 //diisi dengan AVALUE_39
-                productStory = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
+                productStory = Convert.ToBase64String(Encoding.ASCII.GetBytes(WebUtility.HtmlDecode(data.Keterangan))),
             };
             //add 6 april 2021, validasi big product
             if (newData.weight > 50000)// berat lebih dari 50kg -> big product
@@ -8867,7 +8877,7 @@ namespace MasterOnline.Controllers
 
             newData.productItems = (productItems);
             newData.imageMap = images;
-            newData.uniqueSellingPoint = Convert.ToBase64String(Encoding.ASCII.GetBytes(Convert.ToString(stf02h["AVALUE_39"])));
+            newData.uniqueSellingPoint = Convert.ToBase64String(Encoding.ASCII.GetBytes(System.Net.WebUtility.HtmlDecode(Convert.ToString(stf02h["AVALUE_39"]))));
 
             string myData = JsonConvert.SerializeObject(newData);
 

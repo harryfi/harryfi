@@ -2009,6 +2009,15 @@ namespace MasterOnline.Controllers
                 options = new List<ShopifyCreateProductDataVariantOptions>(),
                 images = new List<ShopifyCreateProductImages>()
             };
+            if (!string.IsNullOrEmpty(detailBrg.NAMA_BARANG_MP))
+            {
+                body.title = detailBrg.NAMA_BARANG_MP.Trim().Replace("’", "`");
+            }
+            if (!string.IsNullOrEmpty(detailBrg.DESKRIPSI_MP))
+            {
+                if (detailBrg.DESKRIPSI_MP != "null")
+                    body.body_html = detailBrg.DESKRIPSI_MP.Replace("’", "`");
+            }
 
             if (brgInDb.TYPE == "4")
             {
@@ -2154,7 +2163,7 @@ namespace MasterOnline.Controllers
                 product = body
             };
 
-            HttpBody.product.body_html = new StokControllerJob().RemoveSpecialCharacters(HttpBody.product.body_html);
+            HttpBody.product.body_html = new StokControllerJob().RemoveSpecialCharacters(System.Net.WebUtility.HtmlDecode(System.Net.WebUtility.HtmlDecode(HttpBody.product.body_html)));
 
             //add by nurul 20/1/2020, handle <p> dan enter double di shopee
             HttpBody.product.body_html = HttpBody.product.body_html.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
@@ -2714,6 +2723,15 @@ namespace MasterOnline.Controllers
                 //options = new List<ShopifyUpdateProductDataVariantOptions>(),
                 images = new List<ImagesUpdateProduct>()
             };
+            if (!string.IsNullOrEmpty(detailBrg.NAMA_BARANG_MP))
+            {
+                body.title = detailBrg.NAMA_BARANG_MP.Trim().Replace("’", "`");
+            }
+            if (!string.IsNullOrEmpty(detailBrg.DESKRIPSI_MP))
+            {
+                if (detailBrg.DESKRIPSI_MP != "null")
+                    body.body_html = detailBrg.DESKRIPSI_MP.Replace("’", "`");
+            }
 
             //List<string> varlv1 = new List<string>();
             //List<string> varlv2 = new List<string>();
@@ -2858,7 +2876,7 @@ namespace MasterOnline.Controllers
                 product = body
             };
 
-            HttpBody.product.body_html = new StokControllerJob().RemoveSpecialCharacters(HttpBody.product.body_html);
+            HttpBody.product.body_html = new StokControllerJob().RemoveSpecialCharacters(System.Net.WebUtility.HtmlDecode(System.Net.WebUtility.HtmlDecode(HttpBody.product.body_html)));
 
             //add by nurul 20/1/2020, handle <p> dan enter double di shopee
             HttpBody.product.body_html = HttpBody.product.body_html.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
