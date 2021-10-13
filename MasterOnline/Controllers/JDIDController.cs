@@ -3146,6 +3146,9 @@ namespace MasterOnline.Controllers
                                         ret.totalData += retProd.totalData;//add 18 Juli 2019, show total record
                                         if (retProd.status == 1)
                                         {
+                                            //add by nurul 12/10/2021
+                                            ret.status = retProd.status;
+                                            //end add by nurul 12/10/2021
                                             ret.recordCount += retProd.recordCount;
                                         }
                                         else
@@ -3321,6 +3324,9 @@ namespace MasterOnline.Controllers
                                                     ret.exception = 1;
                                                 if (retData.status == 1)
                                                 {
+                                                    //add by nurul 12/10/2021
+                                                    ret.status = retData.status;
+                                                    //end add by nurul 12/10/2021
                                                     ret.recordCount += retData.recordCount;
                                                 }
                                             }
@@ -3333,6 +3339,9 @@ namespace MasterOnline.Controllers
                                                         ret.exception = 1;
                                                     if (retDataParent.status == 1)
                                                     {
+                                                        //add by nurul 12/10/2021
+                                                        ret.status = retDataParent.status;
+                                                        //end add by nurul 12/10/2021
                                                         ret.recordCount += retDataParent.recordCount;
                                                         //createParent = false;
                                                     }
@@ -3353,6 +3362,9 @@ namespace MasterOnline.Controllers
                                                     ret.exception = 1;
                                                 if (retData.status == 1)
                                                 {
+                                                    //add by nurul 12/10/2021
+                                                    ret.status = retData.status;
+                                                    //end add by nurul 12/10/2021
                                                     ret.recordCount += retData.recordCount;
                                                 }
                                             }
@@ -3479,6 +3491,9 @@ namespace MasterOnline.Controllers
                                     ret.exception = 1;
                                 if (retData.status == 1)
                                 {
+                                    //add by nurul 12/10/2021
+                                    ret.status = retData.status;
+                                    //end add by nurul 12/10/2021
                                     ret.recordCount += retData.recordCount;
                                 }
 
