@@ -367,7 +367,7 @@ namespace MasterOnline.Controllers
             for (int i = 1; i <= 50; i++)
             {
                 string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
-                string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
+                string value = System.Net.WebUtility.HtmlDecode(Convert.ToString(stf02h["AVALUE_" + i.ToString()]));
                 if (!string.IsNullOrWhiteSpace(value) && value != "null")
                 {
                     if (dsNormal.Contains(attribute_id))
@@ -939,7 +939,7 @@ namespace MasterOnline.Controllers
             for (int i = 1; i <= 50; i++)
             {
                 string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
-                string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
+                string value = System.Net.WebUtility.HtmlDecode(Convert.ToString(stf02h["AVALUE_" + i.ToString()]));
                 if (!string.IsNullOrWhiteSpace(value) && value != "null")
                 {
                     if (dsNormal.Contains(attribute_id))
