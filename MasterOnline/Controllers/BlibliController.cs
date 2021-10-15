@@ -2803,13 +2803,13 @@ namespace MasterOnline.Controllers
                         if (numVarian > 1)
                         {
                             ////change 19/9/19, varian ambil 2 barang
-                            sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + blibliBrand.Replace("\'", "\'\'") + "' , '" + urlImage + "' , '' , '', '', ''";
+                            sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + blibliBrand.Replace("\'", "`") + "' , '" + urlImage + "' , '' , '', '', ''";
                             //sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '" + urlImage2 + "', '', '', ''";
                             ////end change 19/9/19, varian ambil 2 barang
                         }
                         else
                         {
-                            sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + blibliBrand.Replace("\'", "\'\'") + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "'";
+                            sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + blibliBrand.Replace("\'", "`") + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "'";
                         }
                         //end change 21/8/2019, barang varian ambil 1 gambar saja
                         //add kode brg induk dan type brg
@@ -4050,6 +4050,7 @@ namespace MasterOnline.Controllers
             string unqsellpoint = Convert.ToString(result.value.uniqueSellingPoint).Replace('\'', '`').Replace("<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>", "").Replace("</body>\n</html>", "");
             string desc = Convert.ToString(result.value.description).Replace('\'', '`').Replace("<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>", "").Replace("</body>\n</html>", "");
             string categoryCode = result.value.categoryCode.ToString();
+            string brand = result.value.brand;
             //string merchantSku = result.value.items[0].merchantSku.ToString();
             //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
             //sSQL += "('" + kdBrg + "' , '" + kdBrg + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
@@ -4060,7 +4061,7 @@ namespace MasterOnline.Controllers
             //sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].salePrice;
             sSQL += cust + "' , '" + namaBrg + "' , '" + desc.Replace('\'', '`') + "' , '" + unqsellpoint + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].salePrice;
             //end change 9/9/19, add unique selling point
-            sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "', '', ''";
+            sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + brand.Replace("\'", "`") + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "', '', ''";
             //add kode brg induk dan type brg
             sSQL += ", '' , '4'";
             //end add kode brg induk dan type brg
