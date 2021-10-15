@@ -3320,7 +3320,7 @@ namespace MasterOnline.Controllers
             {
                 //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
                 //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
-                var dateFrom = (long)daysNow.AddDays(-1).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                var dateFrom = (long)daysNow.AddDays(-1).AddHours(-3).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
                 var dateTo = (long)daysNow.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
 
                 //change by nurul 20/1/2021, bundling 
@@ -3606,7 +3606,7 @@ namespace MasterOnline.Controllers
             {
                 //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
                 //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
-                var dateFrom = (long)daysNow.AddDays(-1).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                var dateFrom = (long)daysNow.AddDays(-1).AddHours(-3).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
                 var dateTo = (long)daysNow.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
 
                 //change by nurul 20/1/2021, bundling 
