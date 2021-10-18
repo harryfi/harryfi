@@ -12212,6 +12212,7 @@ namespace MasterOnline.Controllers
                 REQUEST_ACTION = "Update Price V2", //ganti
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_ATTRIBUTE_2 = kdbrgMO,
                 REQUEST_STATUS = "Pending",
             };
 
