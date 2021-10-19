@@ -22,6 +22,7 @@ using System.Net.Http;
 using Hangfire;
 using Hangfire.SqlServer;
 using RestSharp;
+using Amazon.DynamoDBv2.Model;
 
 namespace MasterOnline.Controllers
 {
@@ -138,6 +139,49 @@ namespace MasterOnline.Controllers
 
             if (TokenExpired || bForceRefresh)
             {
+                #region dynamodb
+                if (dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_RAHMAMK")
+                {
+                    try { 
+                    var dataInDDB = Services.UploadImageService.selectToDB("shopeev2_token", "db_name", dataAPI.DatabasePathErasoft);
+                    var newToken = "";
+                    var newRefresh = "";
+                    var newExpired = DateTime.UtcNow;
+                    foreach(var lData in dataInDDB)
+                    {
+                        var valueDB = new AttributeValue();
+                        if (lData.TryGetValue("cust", out valueDB))
+                        {
+                            if(valueDB.S == dataAPI.no_cust)
+                            {
+                                if (lData.TryGetValue("expired_date", out valueDB))
+                                {
+                                    var dtExp = Convert.ToDateTime(valueDB.S);
+                                    if(dtExp > newExpired)
+                                    {
+                                        newToken = lData.TryGetValue("token", out valueDB) ? valueDB.S : newToken;
+                                        newRefresh = lData.TryGetValue("refresh_token", out valueDB) ? valueDB.S : newRefresh;
+                                        newExpired = dtExp;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if(newToken != "")
+                    {
+                        dataAPI.refresh_token = newRefresh;
+                        dataAPI.token_expired = newExpired;
+                        dataAPI.token = newToken;
+
+                        if (newExpired.AddMinutes(-30) > DateTime.UtcNow.AddHours(7))
+                        {
+                            return dataAPI;
+                        }
+                    }
+                    }
+                    catch (Exception ex) { }
+                }
+                #endregion
                 int MOPartnerID = MOPartnerIDV2;
                 string MOPartnerKey = MOPartnerKeyV2;
 
@@ -223,6 +267,23 @@ namespace MasterOnline.Controllers
                                 dataAPI.refresh_token = result.refresh_token;
                                 dataAPI.token_expired = DateTime.UtcNow.AddHours(7).AddSeconds(result.expire_in);
                                 var dateExpired = dataAPI.token_expired.Value.ToString("yyyy-MM-dd HH:mm:ss");
+
+                                #region insert to dynamo db
+                                if (dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_RAHMAMK") { 
+                                    try
+                                    {
+                                        var ttl = (long)milisBack.AddDays(1).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                                        string js = "{ \"db_name\": \""+ dataAPI.DatabasePathErasoft + "\", \"expired_date\": \""+ dateExpired 
+                                            + "\", \"token\": \""+ dataAPI.token + "\", \"refresh_token\": \""+ dataAPI.refresh_token 
+                                            + "\", \"cust\": \""+ dataAPI.no_cust + "\", \"ttl\": "+ ttl + "}";
+                                        Services.UploadImageService.InsertToDB(js, "shopeev2_token");
+                                    }
+                                    catch (Exception ex)
+                                    {
+
+                                    }
+                                }
+                                #endregion
 
                                 DatabaseSQL EDB = new DatabaseSQL(dataAPI.DatabasePathErasoft);
                                 var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', KD_ANALISA = '2', Sort1_Cust = '"

@@ -12,6 +12,10 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using MasterOnline.Models;
 using MasterOnline.Utils;
+using Newtonsoft.Json;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DocumentModel;
+using Amazon.DynamoDBv2.Model;
 
 namespace MasterOnline.Services
 {
@@ -474,5 +478,60 @@ namespace MasterOnline.Services
             //return imgurImage;
         }
         //end add by nurul 14/7/2021
+
+        public static void InsertToDB(string jsonText, string tableName)
+        {
+            //DateTime date0 = DateTime.UtcNow;
+            //DateTime datenow = date0.AddHours(7);
+            //var datetimeDel = date0.AddDays(+2);
+            //insert ke dynamodb 
+            try
+            {
+                var client = new AmazonDynamoDBClient(_awsAccessKey, _awsSecretKey, Amazon.RegionEndpoint.APSoutheast1);
+                var table = Table.LoadTable(client, tableName);
+                //long date = (long)datenow.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                //long ttlDel = (long)datetimeDel.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                //var id = date.ToString();
+                //var data = new tesInsert()
+                //{
+                //    Chat_Id = date,
+                //    Cust = "Tokped",
+                //    Date = datenow.ToString("yyyy-MM-dd HH:mm:ss"),
+                //    //Result = "{\"msg_id\":419536600,\"message\":\"tes webhook\",\"thumbnail\":\"https://accounts.tokopedia.com/image/v1/u/15305276/user_thumbnail/desktop\",\"full_name\":\"Dhe\",\"shop_id\":2739385,\"user_id\":15305276,\"payload\":{\"attachment_type\":0,\"image\":{\"image_thumbnail\":\"\",\"image_url\":\"\"},\"product\":{\"image_url\":\"\",\"name\":\"\",\"price\":\"\",\"product_id\":0,\"product_url\":\"\"}}}"
+                //    Result = json,
+                //    ttl = ttlDel.ToString()
+                //};
+                //var jsonText = JsonConvert.SerializeObject(data);
+                var item = Amazon.DynamoDBv2.DocumentModel.Document.FromJson(jsonText);
+                table.PutItem(item);
+            }
+            catch (Exception ex) 
+            { 
+            }
+            //end insert ke dynamodb
+        }
+        public static List<Dictionary<string, AttributeValue>> selectToDB( string tableName, string sWhere, string sWhereVal)
+        {
+            var ret = new List<Dictionary<string, AttributeValue>>();
+            try
+            {
+                var client = new AmazonDynamoDBClient(_awsAccessKey, _awsSecretKey, Amazon.RegionEndpoint.APSoutheast1);
+                var request = new QueryRequest
+                {
+                    TableName = tableName,
+                    KeyConditionExpression = sWhere + " = :v_Id",
+                    ExpressionAttributeValues = new Dictionary<string, AttributeValue> {
+        {":v_Id", new AttributeValue { S =  sWhereVal }}}
+                };
+
+                var response = client.Query(request);
+                ret = response.Items;
+            }
+            catch(Exception ex)
+            {
+
+            }
+            return ret;
+        }
     }
 }
