@@ -8769,6 +8769,7 @@ namespace MasterOnline.Controllers
                 if (detailBrg.DESKRIPSI_MP != "null")
                     HttpBody.description = detailBrg.DESKRIPSI_MP.Replace("’", "`");
             }
+            HttpBody.item_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(HttpBody.item_name).Replace("&nbsp;", " "));
             HttpBody.dimension.package_height = Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI);
             HttpBody.dimension.package_length = Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG);
             HttpBody.dimension.package_width = Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR);
@@ -8778,7 +8779,7 @@ namespace MasterOnline.Controllers
                 HttpBody.brand.original_brand_name = detailBrg.ANAME_38;
             }
             HttpBody.image.image_id_list = new List<string>();
-            HttpBody.description = WebUtility.HtmlDecode(System.Net.WebUtility.HtmlDecode(HttpBody.description.Replace("&nbsp;", "")));
+            HttpBody.description = WebUtility.HtmlDecode(System.Net.WebUtility.HtmlDecode(HttpBody.description.Replace("&nbsp;", "")).Replace("&nbsp;", ""));
             //add by calvin 10 mei 2019
             HttpBody.description = new StokControllerJob().RemoveSpecialCharacters(HttpBody.description);
             //end add by calvin 10 mei 2019
@@ -8931,14 +8932,14 @@ namespace MasterOnline.Controllers
                                                     if (cekVal.Count == 0)
                                                     {
                                                         attrValue.value_id = 0;
-                                                        attrValue.original_value_name = singleAttr.Trim();
+                                                        attrValue.original_value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(singleAttr.Trim()).Replace("&nbsp;", " "));
                                                         attrValue.value_unit = unit ?? "";
                                                     }
                                                 }
                                                 else
                                                 {
                                                     attrValue.value_id = 0;
-                                                    attrValue.original_value_name = value.Trim();
+                                                    attrValue.original_value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(value.Trim()).Replace("&nbsp;", " "));
                                                     attrValue.value_unit = unit ?? "";
                                                 }
                                             }
@@ -8958,7 +8959,7 @@ namespace MasterOnline.Controllers
                                     }
                                     attrValue.value_id = 0;
                                     //attrValue.original_value_name = value.Trim();
-                                    attrValue.original_value_name = currentAttr.Trim();
+                                    attrValue.original_value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(currentAttr.Trim()).Replace("&nbsp;", " "));
                                     attrValue.value_unit = unit ?? "";
                                 }
                                 newAttr.attribute_value_list.Add(attrValue);
@@ -11718,6 +11719,7 @@ namespace MasterOnline.Controllers
                 if (detailBrg.DESKRIPSI_MP != "null")
                     HttpBody.description = detailBrg.DESKRIPSI_MP.Replace("’", "`");
             }
+            HttpBody.item_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(HttpBody.item_name).Replace("&nbsp;", " "));
             HttpBody.dimension.package_height = Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI);
             HttpBody.dimension.package_length = Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG);
             HttpBody.dimension.package_width = Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR);
@@ -11835,14 +11837,14 @@ namespace MasterOnline.Controllers
                                                     if (cekVal.Count == 0)
                                                     {
                                                         attrValue.value_id = 0;
-                                                        attrValue.original_value_name = singleAttr.Trim();
+                                                        attrValue.original_value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(singleAttr.Trim()).Replace("&nbsp;", " "));
                                                         attrValue.value_unit = unit ?? "";
                                                     }
                                                 }
                                                 else
                                                 {
                                                     attrValue.value_id = 0;
-                                                    attrValue.original_value_name = value.Trim();
+                                                    attrValue.original_value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(value.Trim()).Replace("&nbsp;", " "));
                                                     attrValue.value_unit = unit ?? "";
                                                 }
                                             }
@@ -11862,7 +11864,7 @@ namespace MasterOnline.Controllers
                                     }
                                     attrValue.value_id = 0;
                                     //attrValue.original_value_name = value.Trim();
-                                    attrValue.original_value_name = currentAttr.Trim();
+                                    attrValue.original_value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(currentAttr.Trim()).Replace("&nbsp;", " "));
                                     attrValue.value_unit = unit ?? "";
                                 }
                                 newAttr.attribute_value_list.Add(attrValue);

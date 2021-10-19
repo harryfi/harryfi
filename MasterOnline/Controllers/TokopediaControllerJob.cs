@@ -634,7 +634,7 @@ namespace MasterOnline.Controllers
                 newDataProduct.description = WebUtility.HtmlDecode(System.Net.WebUtility.HtmlDecode(newDataProduct.description.Replace("&nbsp;", " "))).Replace("<p>", "").
                     Replace("</p>", "").Replace("</ul>", "").Replace("<ul>", "").Replace("\r\n\r\n", "\n").Replace("\r\n", "").Replace("<br />", "\n");
                 //end add by nurul 6/2/2020
-                newDataProduct.description = System.Text.RegularExpressions.Regex.Replace(newDataProduct.description.Replace("&nbsp;", " "), "<.*?>", String.Empty);
+                newDataProduct.description = newDataProduct.description.Replace("&nbsp;", " ");
                 var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
 
                 var dataTokped = await getItemDetailVarian(iden, Convert.ToInt64(product_id), 1);
@@ -1468,7 +1468,7 @@ namespace MasterOnline.Controllers
                         Replace("</p>", "").Replace("</ul>", "").Replace("<ul>", "").Replace("\r\n\r\n", "\n").Replace("\r\n", "").Replace("<br />", "\n");
                     //end add by nurul 6/2/2020
 
-                    newDataProduct.description = System.Text.RegularExpressions.Regex.Replace(newDataProduct.description.Replace("&nbsp;", " "), "<.*?>", String.Empty);
+                    newDataProduct.description = newDataProduct.description.Replace("&nbsp;", " ");
                     //add by calvin 1 mei 2019
                     var qty_stock = new StokControllerJob(iden.DatabasePathErasoft, username).GetQOHSTF08A(brg, "ALL");
                     if (qty_stock > 0)
