@@ -479,7 +479,7 @@ namespace MasterOnline.Services
         }
         //end add by nurul 14/7/2021
 
-        public static void InsertToDB(string jsonText, string tableName)
+        public static string InsertToDB(string jsonText, string tableName)
         {
             //DateTime date0 = DateTime.UtcNow;
             //DateTime datenow = date0.AddHours(7);
@@ -504,9 +504,11 @@ namespace MasterOnline.Services
                 //var jsonText = JsonConvert.SerializeObject(data);
                 var item = Amazon.DynamoDBv2.DocumentModel.Document.FromJson(jsonText);
                 table.PutItem(item);
+                return "";
             }
             catch (Exception ex) 
-            { 
+            {
+                return ex.Message;
             }
             //end insert ke dynamodb
         }
