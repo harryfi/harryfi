@@ -3135,7 +3135,7 @@ namespace MasterOnline.Controllers
                                 {
                                     try
                                     {
-                                        var ttl = (long)milisBack.AddDays(1).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                                        var ttl = (long)milisBack.AddDays(1).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
                                         string js = "{ \"db_name\": \"" + dataAPI.DatabasePathErasoft + "\", \"expired_date\": \"" + dateExpired
                                             + "\", \"token\": \"" + dataAPI.token + "\", \"refresh_token\": \"" + dataAPI.refresh_token
                                             + "\", \"cust\": \"" + dataAPI.no_cust + "\", \"ttl\": " + ttl + "}";
