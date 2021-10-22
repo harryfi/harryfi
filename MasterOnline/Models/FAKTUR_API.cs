@@ -19,5 +19,6 @@
         public string No_FakturRef { get; set; }
 
         public DateTime? Tgl { get; set; }
+        public string LUNAS { get; set; }
     }
 }

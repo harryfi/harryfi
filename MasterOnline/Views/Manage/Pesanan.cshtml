@@ -2300,7 +2300,16 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-lg-5 col-sm-12"></div>
+                        <div class="col-lg-4 col-sm-12"></div>
+                        @*add by nurul 17/9/2021*@
+                        <div class="col-lg-1 col-sm-6" style="margin-top:13px;">
+                            <div class="pull-right">
+                                <button type="button" id="btn_refresh_pesanan_faktur" class="btn btn-default" data-style="expand-right">
+                                    <span>Refresh</span>
+                                </button>
+                            </div>
+                        </div>
+                        @*end add by nurul 17/9/2021*@
                         <div class="col-lg-1 col-sm-6" style="margin-top:13px;">
                             <div class="pull-right">
                                 @*//remark by nurul 17/6/2019*@
@@ -4058,24 +4067,24 @@
                     </div>*@
             </div>
             @*<div class="row" style="padding-left:15px; margin-top:-8px">
-                <div class="form-group" style="margin-top: 8px;">
-                    <label class="control-label col-md-3 col-sm-3" style="margin-top: 6px;">No. Pesanan</label>
-                    <div class="col-md-9 col-sm-9">
-                        @Html.TextBox("ganti_brg_no_bukti", "", new { @class = "form-control control-label", disabled = "disabled", Value = "", @style = "width:180px" })
+                    <div class="form-group" style="margin-top: 8px;">
+                        <label class="control-label col-md-3 col-sm-3" style="margin-top: 6px;">No. Pesanan</label>
+                        <div class="col-md-9 col-sm-9">
+                            @Html.TextBox("ganti_brg_no_bukti", "", new { @class = "form-control control-label", disabled = "disabled", Value = "", @style = "width:180px" })
+                        </div>
                     </div>
-                </div>
-            </div>*@
+                </div>*@
             <div class="row form-group" style="padding-left:15px">
                 @Html.Hidden("textRec", "", new { Value = "" })
                 @Html.Hidden("textType", "", new { Value = "" })
                 @*@Html.Label("", "Barang Bundling", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                @Html.Hidden("cbx_NotFound_bundling", new { data_cbx = $"cbx-NotFound-Bundling", @class = "cls-cbxNotFoundBundling" })
-                <div class="col-md-9 col-sm-9 col-xs-12">
-                    <label class="checkbox-container">
-                        <input type="checkbox" id="cbxNotFoundBundling" class="cls-cbxNotFoundBundling" name="@($"cbx-NotFound-Pesanan-Bundling")" onclick="NotFoundBundling($('#cbxNotFoundBundling').is(':checked'));" />
-                        <span class="checkmark"></span>
-                    </label>
-                </div>*@
+                    @Html.Hidden("cbx_NotFound_bundling", new { data_cbx = $"cbx-NotFound-Bundling", @class = "cls-cbxNotFoundBundling" })
+                    <div class="col-md-9 col-sm-9 col-xs-12">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="cbxNotFoundBundling" class="cls-cbxNotFoundBundling" name="@($"cbx-NotFound-Pesanan-Bundling")" onclick="NotFoundBundling($('#cbxNotFoundBundling').is(':checked'));" />
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>*@
             </div>
             <div class="modal-body" id="modal-ganti-barang-body">
                 @*@Html.Partial("BarangFixNotFoundPartial")*@
@@ -4084,6 +4093,30 @@
     </div>
 </div>
 @*//end add by nurul 15/6/2021*@
+@*//add by nurul 4/10/2021*@
+<div class="modal fade" id="konfGantiBarang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiGantiBarang">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiGantiBarang">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4><span id="konf-ganti-barang-harga-lebih-besar"></span></h4>
+                    <div id="temp-nourut"></div>
+                    <div id="temp-recnum"></div>
+                    <div id="temp-kode"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="$('#konfGantiBarang').hide()">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="saveGantiBarang($('#temp-nourut').val(),$('#temp-recnum').val(),$('#temp-kode').val(),'1');">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*//end add by nurul 4/10/2021*@
 @section scripts
 {
     <script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
@@ -4753,7 +4786,11 @@
                 //});
                 //$('#datatable_sudahkirim').DataTable().page($page).draw(false);
             });
-
+            //add by nurul 17/9/2021
+            $('#btn_refresh_pesanan_faktur').click(function () {
+                refreshTableSudahKirim();
+            });
+            //add by nurul 17/9/2021
             $('#selesai-tab').click(function () {
                 $TabAktif = 4;
                 refreshTableSelesai();
@@ -5738,7 +5775,7 @@
                     url: link,
                     success: function (response) {
                         if (response != null) {
-                            if (response.error == null) {
+                            if (response.Errors == null) {
                                 $('#cancel_reason').show();
                                 response.forEach(function setCBLazada(item, index) {
                                     listReason[index] = {
@@ -5758,8 +5795,12 @@
                                 });
 
                             } else {
-                                alert(response.error);
-                                $('#modalTransfer').modal('hide');
+                                //alert(response.error);
+                                //$('#modalTransfer').modal('hide');
+                                //$('#divReasons').remove();
+                                $('#cancel_reason').show();
+                                $('#txtCancelReason').show();
+                                $('#cbCancelReason').hide();
                             }
                         }
                     },
@@ -7143,7 +7184,7 @@
                         //$angka = $this.text();
                         $angka = convertToAngka($this.text());
                         //end change by calvin 12 nov 2018
-                    } 
+                    }
 
                     //var valueHiddenInput = 0;
                     //if ($($this.children()[0]).val() != undefined) {
@@ -13233,25 +13274,48 @@
                 }
             });
         }
-        function saveGantiBarang(sot01b_nourut,stf02h_recnum,kode){
-            if (confirm("Ganti Kode Barang menjadi " + kode + " ?")) {
+        function saveGantiBarang(sot01b_nourut, stf02h_recnum, kode, approve) {
+            var lanjut = true;
+            if (approve == "0") {
+                lanjut = confirm("Ganti Kode Barang menjadi " + kode + " ?");
+            }
+            if (lanjut) {
                 if ($('#textType').val() != "" && $('#textType').val() != null) {
-                    var link = '@Url.Action("saveGantiBarang", "Manage", new { nourut = "replaceNoUrut" })';
-                    link = link.replace("replaceNoUrut", encodeURIComponent(sot01b_nourut + ';' + stf02h_recnum + ';' + $('#textType').val()));
+                    @*var link = '@Url.Action("saveGantiBarang", "Manage", new { nourut = "replaceNoUrut" })';
+                    link = link.replace("replaceNoUrut", encodeURIComponent(sot01b_nourut + ';' + stf02h_recnum + ';' + $('#textType').val()));*@
+                    var link = '@Url.Action("saveGantiBarang", "Manage")';
+                    var replaceNoUrut = sot01b_nourut + ';' + stf02h_recnum + ';' + $('#textType').val();
+                    var replaceApproved = approve;
 
                     $.ajax({
                         type: "POST",
                         url: link,
-                        contentType: 'application/json',
+                        data: JSON.stringify({ nourut: replaceNoUrut, approved: replaceApproved }),
+                        contentType: 'application/json; charset=UTF-8',
                         cache: false,
+
+                        //type: "POST",
+                        //url: link,
+                        //contentType: 'application/json',
+                        //cache: false,
                         beforeSend: function () {
                             $('#loading_spinner').show();
                         },
                         success: function (response) {
                             if (response.Errors != null) {
-                                alert(response.Errors[0]);
+                                if (response.Errors[0].includes("Apakah Anda yakin ingin melanjutkan?")) {
+                                    $('#konfGantiBarang').modal('show');
+                                    $('#konf-ganti-barang-harga-lebih-besar').text(response.Errors[0]);
+                                    $('#temp-nourut').val(sot01b_nourut);
+                                    $('#temp-recnum').val(stf02h_recnum);
+                                    $('#temp-kode').val(kode);
+                                } else {
+                                    $('#konfGantiBarang').modal('hide');
+                                    alert(response.Errors[0]);
+                                }
                             }
                             else {
+                                $('#konfGantiBarang').modal('hide');
                                 alert('Data berhasil disimpan!');
                                 $('#modalGantiBarang').modal('hide');
                                 if ($('#textType').val() == "01") {
@@ -13316,7 +13380,7 @@
                                                 });
                                         }
                                         //end add by calvin 27 nov 2018
-                                        
+
                                         var gdSelect = $('#Gudang-Dropdown-' + $recNum).selectize({
                                             valueField: 'id',
                                             searchField: 'text',
@@ -13431,7 +13495,7 @@
                     $('#table-ganti-barang-partial').html(response);
 
                     $('#table-ganti-barang-partial').show();
-                    
+
                     $('#loading_promptbarang_tab').hide();
                 },
                 error: function (xhr, status, error) {

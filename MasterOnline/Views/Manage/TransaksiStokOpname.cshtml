@@ -146,6 +146,12 @@
         .hscroll {
             overflow-x: auto; /* Horizontal */
         }
+
+        #div-scroll-list {
+            overflow-x: hidden;
+            overflow-y: scroll;
+            height: 310px;
+        }
     </style>
 }
 
@@ -451,6 +457,22 @@
                     <button type="button" class="btn btn-danger " onclick="$('#konfProsesStok').modal('hide');" id="konfProsesStok_btn_tidak">Tidak</button>
                     <button type="button" class="btn btn-success" onclick="beforeProses();" id="konfProsesStok_btn_ya">Ya</button>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalError" tabindex="-1" role="dialog" aria-labelledby="modalErrorLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="width:700px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modalErrorLabel">List Error</h4>
+            </div>
+            <div class="modal-body edit-content" id="error-list">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="close-modal-error" onclick="$('#modalError').modal('hide')">Tutup</button>
             </div>
         </div>
     </div>
@@ -1245,10 +1267,10 @@
             $('#pBar_Proses').css('width', '0%').attr('aria-valuenow', 0);
             $('#pBar_Proses').html('0% Complete');
             $('#progressBarProses').show();
-            prosesSOpname($idStokTempProses, $NobukTempProses, 0, "0;0", "false;false", "0;0");
+            prosesSOpname($idStokTempProses, $NobukTempProses, 0, "0;0", "false;false", "0;0", null);
         }
 
-        function prosesSOpname(vid, vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess, vCountOMvOK) {
+        function prosesSOpname(vid, vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess, vCountOMvOK, vBuktiLog) {
             var splitpro = vpercentvprogress.split(';');
             var vpercent = splitpro[0];
             var vprogress = splitpro[1];
@@ -1283,6 +1305,7 @@
                 percentDanprogress: String(vpercent) + ";" + String(vprogress),
                 statusLoopSuccess: String(vstatusLoop) + ";" + String(vstatusSuccess),
                 NoOM_OK: String(vOM) + ";" + String(vOK),
+                log: String(vBuktiLog)
             };
 
             $.ajax({
@@ -1300,7 +1323,7 @@
                         $('#pBar_Proses').html(response.percent + '% Complete');
 
                         if (response.progress <= response.countAll) {
-                            prosesSOpname(response.id, response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.noSTokOM) + ";" + String(response.noSTokOK));
+                            prosesSOpname(response.id, response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.noSTokOM) + ";" + String(response.noSTokOK), response.buktiLog);
                         }
 
                     } else if (response.statusSuccess == true) {
@@ -1310,19 +1333,23 @@
                         $('#konfProsesStok_btn_tidak').show();
                         alert('Proses proses stok opname sudah selesai.');
                         if (response.Errors != null && response.Errors.length > 0) {
-                            alert(response.Errors)
+                            alert(response.Errors);
+                        }
+                        if (response.adaErrorQty) {
+                            $("#modalError").modal('show');
+                            showErrorProsesStokOpname(vnobuk);
                         }
                         
-
-                        $('#statpros').val("Sudah");
-                        $('#bktOM').val(response.noSTokOM);
-                        $('#bktOK').val(response.noSTokOK);
-                        $('#countSukses').val(response.countAllSukses)
-                        $('#prosesSOpname').attr('disabled', 'disabled');
-                        $('input, select, .btn-danger').each(function () {
-                            $(this).attr('disabled', 'disabled');
-                        });
-                        $('tr[data-stok-id="0"]').remove();
+                        lihatStokOP(vid);
+                        //$('#statpros').val("Sudah");
+                        //$('#bktOM').val(response.noSTokOM);
+                        //$('#bktOK').val(response.noSTokOK);
+                        //$('#countSukses').val(response.countAllSukses)
+                        //$('#prosesSOpname').attr('disabled', 'disabled');
+                        //$('input, select, .btn-danger').each(function () {
+                        //    $(this).attr('disabled', 'disabled');
+                        //});
+                        //$('tr[data-stok-id="0"]').remove();
 
                         $('#konfProsesStok').modal('hide');
                     } else {
@@ -1334,7 +1361,12 @@
                         if (response.Errors != null && response.Errors.length > 0) {
                             alert(response.Errors)
                         }
+                        if (response.adaErrorQty) {
+                            $("#modalError").modal('show');
+                            showErrorProsesStokOpname(vnobuk);
+                        }
 
+                        lihatStokOP(vid);
                         //refreshTableStokOpname($savePage);
                         $('#konfProsesStok').modal('hide');
                     }
@@ -1350,6 +1382,41 @@
             });
         }
         //end change by nurul 3/9/2021
+
+        //add by nurul 4/10/2021
+        function showErrorProsesStokOpname($nobuk) {
+            var link = '@Url.Action("ShowErrorProsesStokOpname", "Manage")';
+            var $bukti = "";
+
+            if ($nobuk != undefined && $nobuk != null && $nobuk != "" ) {
+                $bukti = $nobuk;
+            } else {
+                if (tempLog == "") {
+                }
+                $bukti = tempNobuk;
+            }
+            $postdata = {
+                bukti: $bukti,
+            };
+            $('#close-modal-error').removeAttr('disabled');
+            $.ajax({
+                type: "POST",
+                url: link,
+                contentType: "application/json; charset=UTF-8",
+                cache: false,
+                data: JSON.stringify($postdata),
+                success: function (value) {
+                    //$('#modalError').find('.edit-content').html(value);
+                    //$('#Modal').modal('show');
+                    $('#error-list').html(value);
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    $tempErr.length = 0;
+                }
+            });
+        }
+        //end add by nurul 4/10/2021
 
         function getNoBuktiSOP() {
 

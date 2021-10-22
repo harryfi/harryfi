@@ -599,6 +599,15 @@ namespace MasterOnline.Controllers
                     pictures = new List<CreateProduct_Images>(),
                     price_currency = "IDR"
                 };
+                if (!string.IsNullOrEmpty(brg_stf02h.NAMA_BARANG_MP))
+                {
+                    newDataProduct.name = brg_stf02h.NAMA_BARANG_MP.Trim().Replace("’", "`");
+                }
+                if (!string.IsNullOrEmpty(brg_stf02h.DESKRIPSI_MP))
+                {
+                    if (brg_stf02h.DESKRIPSI_MP != "null")
+                        newDataProduct.description = brg_stf02h.DESKRIPSI_MP.Replace("’", "`");
+                }
                 if (!brg_stf02h.DISPLAY)
                 {
                     newDataProduct.status = "EMPTY";
@@ -618,8 +627,14 @@ namespace MasterOnline.Controllers
                     }
                 }
                 //add by nurul 6/2/2020
-                newDataProduct.description = newDataProduct.description.Replace("<p>", "").Replace("</p>", "").Replace("</ul>\r\n\r\n", "</ul>").Replace("&nbsp;\r\n\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("&nbsp;", " ").Replace("\r\n", "");
+                //newDataProduct.description = newDataProduct.description.Replace("<p>", "").Replace("</p>", "").
+                //        Replace("</ul>\r\n\r\n", "").Replace("<ul>", "").Replace("&nbsp;\r\n\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("&nbsp;", " ").
+                //        Replace("\r\n", "").Replace("<br />", "\n");
+                //newDataProduct.description = System.Net.WebUtility.HtmlDecode(newDataProduct.description);
+                newDataProduct.description = WebUtility.HtmlDecode(System.Net.WebUtility.HtmlDecode(newDataProduct.description.Replace("&nbsp;", " "))).Replace("<p>", "").
+                    Replace("</p>", "").Replace("</ul>", "").Replace("<ul>", "").Replace("\r\n\r\n", "\n").Replace("\r\n", "").Replace("<br />", "\n");
                 //end add by nurul 6/2/2020
+                newDataProduct.description = newDataProduct.description.Replace("&nbsp;", " ");
                 var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
 
                 var dataTokped = await getItemDetailVarian(iden, Convert.ToInt64(product_id), 1);
@@ -1420,6 +1435,15 @@ namespace MasterOnline.Controllers
                         pictures = new List<CreateProduct_Images>(),
                         price_currency = "IDR"
                     };
+                    if (!string.IsNullOrEmpty(brg_stf02h.NAMA_BARANG_MP))
+                    {
+                        newDataProduct.name = brg_stf02h.NAMA_BARANG_MP.Trim().Replace("’", "`");
+                    }
+                    if (!string.IsNullOrEmpty(brg_stf02h.DESKRIPSI_MP))
+                    {
+                        if (brg_stf02h.DESKRIPSI_MP != "null")
+                            newDataProduct.description = brg_stf02h.DESKRIPSI_MP.Replace("’", "`");
+                    }
 
                     if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_35))
                     {
@@ -1436,9 +1460,15 @@ namespace MasterOnline.Controllers
                         }
                     }
                     //add by nurul 6/2/2020
-                    newDataProduct.description = newDataProduct.description.Replace("<p>", "").Replace("</p>", "").Replace("</ul>\r\n\r\n", "</ul>").Replace("&nbsp;\r\n\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("&nbsp;", " ").Replace("\r\n", "");
+                    //newDataProduct.description = newDataProduct.description.Replace("<p>", "").Replace("</p>", "").
+                    //    Replace("</ul>\r\n\r\n", "").Replace("<ul>", "").Replace("&nbsp;\r\n\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("&nbsp;", " ").
+                    //    Replace("\r\n", "").Replace("<br />", "\n");
+                    //newDataProduct.description = System.Net.WebUtility.HtmlDecode(newDataProduct.description);
+                    newDataProduct.description = WebUtility.HtmlDecode(System.Net.WebUtility.HtmlDecode(newDataProduct.description.Replace("&nbsp;", " "))).Replace("<p>", "").
+                        Replace("</p>", "").Replace("</ul>", "").Replace("<ul>", "").Replace("\r\n\r\n", "\n").Replace("\r\n", "").Replace("<br />", "\n");
                     //end add by nurul 6/2/2020
 
+                    newDataProduct.description = newDataProduct.description.Replace("&nbsp;", " ");
                     //add by calvin 1 mei 2019
                     var qty_stock = new StokControllerJob(iden.DatabasePathErasoft, username).GetQOHSTF08A(brg, "ALL");
                     if (qty_stock > 0)
@@ -7343,7 +7373,7 @@ namespace MasterOnline.Controllers
 
         public class ActiveProductListResultShop
         {
-            public int id { get; set; }
+            //public int id { get; set; }
             public string name { get; set; }
             public string uri { get; set; }
             public string location { get; set; }
@@ -7365,8 +7395,8 @@ namespace MasterOnline.Controllers
             public int category_id { get; set; }
             public string category_name { get; set; }
             public string category_breadcrumb { get; set; }
-            public int department_id { get; set; }
-            public object[] labels { get; set; }
+            //public int department_id { get; set; }
+            //public object[] labels { get; set; }
             public ActiveProductListResultBadge[] badges { get; set; }
             public int is_featured { get; set; }
             public int rating { get; set; }
@@ -7380,7 +7410,7 @@ namespace MasterOnline.Controllers
 
         public class ActiveProductListResultShop1
         {
-            public int id { get; set; }
+            //public int id { get; set; }
             public string name { get; set; }
             public string url { get; set; }
             public bool is_gold { get; set; }
@@ -7486,7 +7516,7 @@ namespace MasterOnline.Controllers
         {
             public long product_id { get; set; }
             public string name { get; set; }
-            public int shop_id { get; set; }
+            //public int shop_id { get; set; }
             public string shop_name { get; set; }
             public int category_id { get; set; }
             public string desc { get; set; }
@@ -7628,6 +7658,7 @@ namespace MasterOnline.Controllers
 
         public class GetVariantResultData
         {
+            //public int variant_id { get; set; }
             public int variant_id { get; set; }
             public string name { get; set; }
             public string identifier { get; set; }
@@ -7964,7 +7995,7 @@ namespace MasterOnline.Controllers
 
         public class Buyer_Info
         {
-            public int buyer_id { get; set; }
+            //public int buyer_id { get; set; }
             public string buyer_fullname { get; set; }
             public string buyer_email { get; set; }
             public string buyer_phone { get; set; }

@@ -1407,6 +1407,11 @@
                 addError($("#Stf02_HJUAL").parent().parent(), "Harga Jual harus lebih dari 0.");
                 ret = false;
             }
+            if (convertToAngka($("#Stf02_MINI").val()) < 0) {
+                addErrorCenter($("#Stf02_MINI").parent().parent(), "Minimum stok tidak bisa lebih kecil dari 0.");
+                document.getElementById("Stf02_MINI").focus();
+                ret = false;
+            }
             if ($('#cmbVar').val() == "1") {
                 if ($('#txtBrgInduk').val() == "") {
                     addError($("#txtBrgInduk").parent().parent(), "Kode Barang Induk harus diisi.");
@@ -1421,6 +1426,14 @@
                 }
             }
             return ret;
+        }
+        function addErrorCenter(obj, msg) {
+            $this = obj;
+            $this.closest('.form-group').addClass('has-error');
+            if (!$this.closest('div').find('.text-danger').length) {
+                //$this.closest('div').append('<span class="text-danger">'+msg+'</span>');
+                $this.closest('div').append('<div class="row"><div class="col-md-3 col-sm-3 col-xs-12"></div><div class="col-md-6 col-sm-6 col-xs-12"><span class="text-danger span-error">' + msg + '</span></div></div>');
+            }
         }
 
         function addError(obj, msg) {

@@ -3214,7 +3214,7 @@ namespace MasterOnline.Controllers
 
         public class failed_rows_data
         {
-            public int product_id { get; set; }
+            public long product_id { get; set; }
             public string sku { get; set; }
             public string product_url { get; set; }
             public int new_stock { get; set; }
@@ -3296,7 +3296,7 @@ namespace MasterOnline.Controllers
 
         public class TokpedGetProductInfoMenu
         {
-            public int id { get; set; }
+            public long id { get; set; }
             public string name { get; set; }
         }
 

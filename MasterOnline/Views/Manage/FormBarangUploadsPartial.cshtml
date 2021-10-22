@@ -48,31 +48,31 @@
         username = username.Substring(0, 17) + "...";
     }
 }
-    <div class="hiddenField">
-        @Html.AntiForgeryToken()
-        @Html.HiddenFor(m => m.TempBrg.HJUAL)
-        @Html.HiddenFor(m => m.TempBrg.BRG_MP)
-        @Html.HiddenFor(m => m.TempBrg.BERAT)
-        @Html.HiddenFor(m => m.TempBrg.NAMA3)
-        @Html.HiddenFor(m => m.TempBrg.PANJANG)
-        @Html.HiddenFor(m => m.TempBrg.LEBAR)
-        @Html.HiddenFor(m => m.TempBrg.TINGGI)
-        @Html.HiddenFor(m => m.TempBrg.DeliveryTempElevenia)
-        @Html.HiddenFor(m => m.TempBrg.Deskripsi)
-        @Html.HiddenFor(m => m.TempBrg.IDMARKET)
-        @Html.HiddenFor(m => m.TempBrg.CATEGORY_CODE)
-        @Html.HiddenFor(m => m.TempBrg.CATEGORY_NAME)
-        @Html.HiddenFor(m => m.TempBrg.PICKUP_POINT)
-        @Html.HiddenFor(m => m.TempBrg.CUST)
-        @Html.HiddenFor(m => m.TempBrg.DISPLAY)
-        @Html.HiddenFor(m => m.TempBrg.IMAGE)
-        @Html.HiddenFor(m => m.TempBrg.IMAGE2)
-        @Html.HiddenFor(m => m.TempBrg.IMAGE3)
-        @Html.HiddenFor(m => m.TempBrg.IMAGE4)
-        @Html.HiddenFor(m => m.TempBrg.IMAGE5)
-        @Html.HiddenFor(m => m.TempBrg.TYPE)
-        @Html.HiddenFor(m => m.TempBrg.MIN_ORDER)
-        @*@Html.HiddenFor(m => m.TempBrg.ACODE_1)
+<div class="hiddenField">
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.TempBrg.HJUAL)
+    @Html.HiddenFor(m => m.TempBrg.BRG_MP)
+    @Html.HiddenFor(m => m.TempBrg.BERAT)
+    @Html.HiddenFor(m => m.TempBrg.NAMA3)
+    @Html.HiddenFor(m => m.TempBrg.PANJANG)
+    @Html.HiddenFor(m => m.TempBrg.LEBAR)
+    @Html.HiddenFor(m => m.TempBrg.TINGGI)
+    @Html.HiddenFor(m => m.TempBrg.DeliveryTempElevenia)
+    @Html.HiddenFor(m => m.TempBrg.Deskripsi)
+    @Html.HiddenFor(m => m.TempBrg.IDMARKET)
+    @Html.HiddenFor(m => m.TempBrg.CATEGORY_CODE)
+    @Html.HiddenFor(m => m.TempBrg.CATEGORY_NAME)
+    @Html.HiddenFor(m => m.TempBrg.PICKUP_POINT)
+    @Html.HiddenFor(m => m.TempBrg.CUST)
+    @Html.HiddenFor(m => m.TempBrg.DISPLAY)
+    @Html.HiddenFor(m => m.TempBrg.IMAGE)
+    @Html.HiddenFor(m => m.TempBrg.IMAGE2)
+    @Html.HiddenFor(m => m.TempBrg.IMAGE3)
+    @Html.HiddenFor(m => m.TempBrg.IMAGE4)
+    @Html.HiddenFor(m => m.TempBrg.IMAGE5)
+    @Html.HiddenFor(m => m.TempBrg.TYPE)
+    @Html.HiddenFor(m => m.TempBrg.MIN_ORDER)
+    @*@Html.HiddenFor(m => m.TempBrg.ACODE_1)
         @Html.HiddenFor(m => m.TempBrg.ANAME_1)
         @Html.HiddenFor(m => m.TempBrg.AVALUE_1)
         @Html.HiddenFor(m => m.TempBrg.ACODE_2)
@@ -223,34 +223,36 @@
         @Html.HiddenFor(m => m.TempBrg.ANAME_50)
         @Html.HiddenFor(m => m.TempBrg.AVALUE_50)*@
 
-        @Html.HiddenFor(m => m.Stf02.ID)
-        @Html.HiddenFor(m => m.Stf02.NAMA3)
-        @Html.HiddenFor(m => m.Stf02.HPP, new { Value = 0 })
-        @Html.HiddenFor(m => m.Stf02.HBELI, new { Value = 0 })
-        @Html.HiddenFor(m => m.Stf02.HBESAR, new { Value = 0 })
-        @Html.HiddenFor(m => m.Stf02.HKECIL, new { Value = 0 })
-        @Html.HiddenFor(m => m.Stf02.TYPE, new { Value = 3 })
-        @Html.HiddenFor(m => m.Stf02.KLINK, new { Value = 1 })
-        @Html.HiddenFor(m => m.Stf02.HP_STD, new { Value = 0 })
-        @Html.HiddenFor(m => m.Stf02.QPROD, new { Value = 0 })
-        @Html.HiddenFor(m => m.Stf02.ISI3, new { Value = 3 })
-        @Html.HiddenFor(m => m.Stf02.ISI4, new { Value = 1 })
-        @Html.HiddenFor(m => m.Stf02.TOLERANSI, new { Value = 0 })
-        @Html.HiddenFor(m => m.Stf02.H_STN_3, new { Value = 0 })
-        @Html.HiddenFor(m => m.Stf02.H_STN_4, new { Value = 0 })
-        @Html.HiddenFor(m => m.Stf02.SS, new { Value = 0 })
-        @Html.HiddenFor(m => m.Stf02.METODA_HPP_PER_SN, new { Value = false })
-        @Html.HiddenFor(m => m.Stf02.HNA_PPN, new { Value = 0 })
-        @Html.HiddenFor(m => m.Stf02.LABA, new { Value = 0 })
-        @Html.HiddenFor(m => m.Stf02.DEFAULT_STN_HRG_JUAL, new { Value = 0 })
-        @Html.HiddenFor(m => m.Stf02.DEFAULT_STN_JUAL, new { Value = 0 })
-        @Html.HiddenFor(m => m.Stf02.USERNAME, new { Value = username })
-        @Html.HiddenFor(m => m.Stf02.ISI, new { Value = 1 })
-        @Html.HiddenFor(m => m.Stf02.STN)
-        @Html.HiddenFor(m => m.Stf02.Metoda, new { Value = "1" })
-        @Html.HiddenFor(m => m.Stf02.Tgl_Input, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
-        @Html.HiddenFor(m => m.Stf02.TGL_KLR, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
-    </div>
+    @Html.HiddenFor(m => m.Stf02.ID)
+    @Html.HiddenFor(m => m.Stf02.NAMA3)
+    @Html.HiddenFor(m => m.Stf02.HPP, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.HBELI, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.HBESAR, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.HKECIL, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.TYPE, new { Value = 3 })
+    @Html.HiddenFor(m => m.Stf02.KLINK, new { Value = 1 })
+    @Html.HiddenFor(m => m.Stf02.HP_STD, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.QPROD, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.ISI3, new { Value = 3 })
+    @Html.HiddenFor(m => m.Stf02.ISI4, new { Value = 1 })
+    @Html.HiddenFor(m => m.Stf02.TOLERANSI, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.H_STN_3, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.H_STN_4, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.SS, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.METODA_HPP_PER_SN, new { Value = false })
+    @Html.HiddenFor(m => m.Stf02.HNA_PPN, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.LABA, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.DEFAULT_STN_HRG_JUAL, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.DEFAULT_STN_JUAL, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.USERNAME, new { Value = username })
+    @Html.HiddenFor(m => m.Stf02.ISI, new { Value = 1 })
+    @Html.HiddenFor(m => m.Stf02.STN)
+    @Html.HiddenFor(m => m.Stf02.Metoda, new { Value = "1" })
+    @Html.HiddenFor(m => m.Stf02.Tgl_Input, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+    @Html.HiddenFor(m => m.Stf02.TGL_KLR, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+
+    @Html.HiddenFor(m => m.Stf02.MAXI, new { Value = 99 })
+</div>
 <script src="~/Scripts/ckeditor/ckeditor.js"></script>
 <script type="text/javascript">
     function initCKEditor() {
@@ -488,13 +490,12 @@
                             @*end change by nurul 22/6/2021*@
                         </div>
                     </div>
-                    <div class="form-group">
+                    @*<div class="form-group">
                         @Html.LabelFor(m => m.Stf02.MAXI, "Stok Maksimum *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                         <div class="col-md-2 col-sm-2 col-xs-12">
-                            @*@Html.TextBoxFor(m => m.Stf02.MAXI, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 999, maxlength = 3 })*@
                             @Html.TextBoxFor(m => m.Stf02.MAXI, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 999, maxlength = 3 })
                         </div>
-                    </div>
+                    </div>*@
                     <div class="form-group">
                         @Html.LabelFor(m => m.Stf02.LKS, "Lokasi Rak", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                         <div class="col-md-6 col-sm-6 col-xs-12">

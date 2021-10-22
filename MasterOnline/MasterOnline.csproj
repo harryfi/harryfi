@@ -6999,6 +6999,7 @@
     <Content Include="Views\Manage\TableMenuHapusBarangPartial.cshtml" />
     <Content Include="Views\Manage\TableKonfirmasiDeleteBarang.cshtml" />
     <Content Include="Views\Manage\TableBarangPendingPartial.cshtml" />
+    <Content Include="Views\Manage\ListError_ProsesStokOpname.cshtml" />
     <Content Include="Views\Manage\ChatSetting.cshtml" />
     <Content Include="Views\Manage\TableCustomerChatPartial.cshtml" />
     <Content Include="ShopeeChat\ShopeeAuthChat.cshtml" />

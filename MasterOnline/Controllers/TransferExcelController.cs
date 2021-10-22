@@ -750,7 +750,10 @@ namespace MasterOnline.Controllers
                         worksheet.Cells[2, 2].Style.Fill.PatternType = ExcelFillStyle.Solid;
                         worksheet.Cells[2, 2].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
                         //var gudang = ErasoftDbContext.STF18.Where(m => m.Kode_Gudang == kd_gudang).FirstOrDefault();
-                        var gudang = ErasoftDbContext.STF18.ToList();
+                        //change by nurul 11/10/2021
+                        //var gudang = ErasoftDbContext.STF18.ToList();
+                        var gudang = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang != "GB").ToList();
+                        //end change by nurul 11/10/2021
 
                         if (gudang.Count > 0)
                         {
@@ -3468,7 +3471,8 @@ namespace MasterOnline.Controllers
                                 asd.Close();
                             }
                             StreamWriter tw = new StreamWriter(path);
-
+                            string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, CUST_ATTRIBUTE_1, REQUEST_EXCEPTION) VALUES ";
+                            int iCountProcessInsertTemp = 0;
                             try
                             {
                                 eraDB.Database.CommandTimeout = 1800;
@@ -3495,7 +3499,7 @@ namespace MasterOnline.Controllers
 
                                 //eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_UPLOADPESANAN");
                                 //List<TEMP_UPLOADPESANAN> batchinsertItem = new List<TEMP_UPLOADPESANAN>();
-                                string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, CUST_ATTRIBUTE_1, REQUEST_EXCEPTION) VALUES ";
+                                //string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, CUST_ATTRIBUTE_1, REQUEST_EXCEPTION) VALUES ";
 
                                 //batchinsertItem = new List<TEMP_UPLOADPESANAN>();
 
@@ -4265,7 +4269,7 @@ namespace MasterOnline.Controllers
 
                                 var vCountInTemp = 0;
                                 var vCountAllRow = ret.countAll;
-                                int iCountProcessInsertTemp = 0;
+                                //int iCountProcessInsertTemp = 0;
                                 bool checklastRow = false;
                                 bool adaerror = false;
 
@@ -4798,6 +4802,9 @@ namespace MasterOnline.Controllers
                                                                                                 success = success + 1;
                                                                                                 if(iCountProcessInsertDB == iCountProcessInsertTemp)
                                                                                                 {
+                                                                                                    messageErrorLog = "Proses upload excel Invoice Pembelian sudah selesai. Sukses : " + iCountProcessInsertDB + " / " + iCountProcessInsertTemp + ".";
+                                                                                                    tw.WriteLine(messageErrorLog);
+                                                                                                    ret.Errors.Add(messageErrorLog);
                                                                                                     Functions.SendProgress("Process Upload Complete !", iCountProcessInsertDB, iCountProcessInsertTemp);
                                                                                                 }
                                                                                                 else
@@ -5265,6 +5272,29 @@ namespace MasterOnline.Controllers
 
                             byte[] byteLog2 = System.IO.File.ReadAllBytes(path);
                             var pathLoc2 = UploadFileServices.UploadFile_Log(byteLog2, dbPathEra + "_" + filename);
+
+                            try
+                            {
+                                var cekLog2 = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Invoice Pembelian" && p.REQUEST_ID == connID).FirstOrDefault();
+                                if (cekLog2 == null)
+                                {
+                                    string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
+                                (""),
+                                (connID),
+                                ("Upload Excel Invoice Pembelian"),
+                                (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                ("SUCCESS"),
+                                (iCountProcessInsertTemp + " / " + Convert.ToInt32(ret.countAll)),
+                                (username),
+                                (filename));
+                                    var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
+                                    // error log terjadi error pada insert header pesanan
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+                            }
                             //tw.Dispose();
                             //}
                         }
@@ -6290,7 +6320,10 @@ namespace MasterOnline.Controllers
                     sheet3.Cells[2, 1].Value = "MASTER GUDANG";
 
                     // GUDANG
-                    var gudang = ErasoftDbContext.STF18.ToList();
+                    //change by nurul 11/10/2021
+                    //var gudang = ErasoftDbContext.STF18.ToList();
+                    var gudang = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang != "GB").ToList();
+                    //end change by nurul 11/10/2021
 
                     if (gudang.Count() > 0)
                     {
@@ -6725,8 +6758,11 @@ namespace MasterOnline.Controllers
                         worksheet.Cells[2, 2].Value = "Isi kode gudang sesuai dengan master gudang pada sheet2";
                         worksheet.Cells[2, 2].Style.Fill.PatternType = ExcelFillStyle.Solid;
                         worksheet.Cells[2, 2].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
-
-                        var gudang = ErasoftDbContext.STF18.ToList();
+                        
+                        //change by nurul 11/10/2021
+                        //var gudang = ErasoftDbContext.STF18.ToList();
+                        var gudang = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang != "GB").ToList();
+                        //end change by nurul 11/10/2021
 
                         if (gudang.Count > 0)
                         {

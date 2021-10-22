@@ -8214,6 +8214,15 @@ namespace MasterOnline.Controllers
                 variations = new List<ShopeeVariationClass>(),
                 logistics = logistics
             };
+            if (!string.IsNullOrEmpty(detailBrg.NAMA_BARANG_MP))
+            {
+                HttpBody.name = detailBrg.NAMA_BARANG_MP.Trim().Replace("’", "`");
+            }
+            if (!string.IsNullOrEmpty(detailBrg.DESKRIPSI_MP))
+            {
+                if (detailBrg.DESKRIPSI_MP != "null")
+                    HttpBody.description = detailBrg.DESKRIPSI_MP.Replace("’", "`");
+            }
 
             //add by calvin 10 mei 2019
             HttpBody.description = new StokControllerJob().RemoveSpecialCharacters(HttpBody.description);
@@ -8751,6 +8760,16 @@ namespace MasterOnline.Controllers
                 item_dangerous = 0,
                 item_status = "NORMAL",
             };
+            if (!string.IsNullOrEmpty(detailBrg.NAMA_BARANG_MP))
+            {
+                HttpBody.item_name = detailBrg.NAMA_BARANG_MP.Trim().Replace("’", "`");
+            }
+            if (!string.IsNullOrEmpty(detailBrg.DESKRIPSI_MP))
+            {
+                if (detailBrg.DESKRIPSI_MP != "null")
+                    HttpBody.description = detailBrg.DESKRIPSI_MP.Replace("’", "`");
+            }
+            HttpBody.item_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(HttpBody.item_name).Replace("&nbsp;", " "));
             HttpBody.dimension.package_height = Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI);
             HttpBody.dimension.package_length = Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG);
             HttpBody.dimension.package_width = Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR);
@@ -8760,6 +8779,7 @@ namespace MasterOnline.Controllers
                 HttpBody.brand.original_brand_name = detailBrg.ANAME_38;
             }
             HttpBody.image.image_id_list = new List<string>();
+            HttpBody.description = WebUtility.HtmlDecode(System.Net.WebUtility.HtmlDecode(HttpBody.description.Replace("&nbsp;", "")).Replace("&nbsp;", ""));
             //add by calvin 10 mei 2019
             HttpBody.description = new StokControllerJob().RemoveSpecialCharacters(HttpBody.description);
             //end add by calvin 10 mei 2019
@@ -8912,14 +8932,14 @@ namespace MasterOnline.Controllers
                                                     if (cekVal.Count == 0)
                                                     {
                                                         attrValue.value_id = 0;
-                                                        attrValue.original_value_name = singleAttr.Trim();
+                                                        attrValue.original_value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(singleAttr.Trim()).Replace("&nbsp;", " "));
                                                         attrValue.value_unit = unit ?? "";
                                                     }
                                                 }
                                                 else
                                                 {
                                                     attrValue.value_id = 0;
-                                                    attrValue.original_value_name = value.Trim();
+                                                    attrValue.original_value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(value.Trim()).Replace("&nbsp;", " "));
                                                     attrValue.value_unit = unit ?? "";
                                                 }
                                             }
@@ -8939,7 +8959,7 @@ namespace MasterOnline.Controllers
                                     }
                                     attrValue.value_id = 0;
                                     //attrValue.original_value_name = value.Trim();
-                                    attrValue.original_value_name = currentAttr.Trim();
+                                    attrValue.original_value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(currentAttr.Trim()).Replace("&nbsp;", " "));
                                     attrValue.value_unit = unit ?? "";
                                 }
                                 newAttr.attribute_value_list.Add(attrValue);
@@ -11271,6 +11291,15 @@ namespace MasterOnline.Controllers
                 attributes = new List<ShopeeAttributeClass>(),
                 logistics = logistics
             };
+            if (!string.IsNullOrEmpty(detailBrg.NAMA_BARANG_MP))
+            {
+                HttpBody.name = detailBrg.NAMA_BARANG_MP.Trim().Replace("’", "`");
+            }
+            if (!string.IsNullOrEmpty(detailBrg.DESKRIPSI_MP))
+            {
+                if (detailBrg.DESKRIPSI_MP != "null")
+                    HttpBody.description = detailBrg.DESKRIPSI_MP.Replace("’", "`");
+            }
 
             //add by nurul 20/1/2020, handle <p> dan enter double di shopee
             HttpBody.description = new StokControllerJob().RemoveSpecialCharacters(HttpBody.description);
@@ -11681,6 +11710,16 @@ namespace MasterOnline.Controllers
                 item_dangerous = 0,
                 item_status = "NORMAL",
             };
+            if (!string.IsNullOrEmpty(detailBrg.NAMA_BARANG_MP))
+            {
+                HttpBody.item_name = detailBrg.NAMA_BARANG_MP.Trim().Replace("’", "`");
+            }
+            if (!string.IsNullOrEmpty(detailBrg.DESKRIPSI_MP))
+            {
+                if (detailBrg.DESKRIPSI_MP != "null")
+                    HttpBody.description = detailBrg.DESKRIPSI_MP.Replace("’", "`");
+            }
+            HttpBody.item_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(HttpBody.item_name).Replace("&nbsp;", " "));
             HttpBody.dimension.package_height = Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI);
             HttpBody.dimension.package_length = Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG);
             HttpBody.dimension.package_width = Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR);
@@ -11692,6 +11731,7 @@ namespace MasterOnline.Controllers
                 HttpBody.item_status = "UNLIST";
             }
             //add by nurul 20/1/2020, handle <p> dan enter double di shopee
+            HttpBody.description = WebUtility.HtmlDecode(WebUtility.HtmlDecode(HttpBody.description.Replace("&nbsp;", "")));
             HttpBody.description = new StokControllerJob().RemoveSpecialCharacters(HttpBody.description);
 
             HttpBody.description = HttpBody.description.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
@@ -11797,14 +11837,14 @@ namespace MasterOnline.Controllers
                                                     if (cekVal.Count == 0)
                                                     {
                                                         attrValue.value_id = 0;
-                                                        attrValue.original_value_name = singleAttr.Trim();
+                                                        attrValue.original_value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(singleAttr.Trim()).Replace("&nbsp;", " "));
                                                         attrValue.value_unit = unit ?? "";
                                                     }
                                                 }
                                                 else
                                                 {
                                                     attrValue.value_id = 0;
-                                                    attrValue.original_value_name = value.Trim();
+                                                    attrValue.original_value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(value.Trim()).Replace("&nbsp;", " "));
                                                     attrValue.value_unit = unit ?? "";
                                                 }
                                             }
@@ -11824,7 +11864,7 @@ namespace MasterOnline.Controllers
                                     }
                                     attrValue.value_id = 0;
                                     //attrValue.original_value_name = value.Trim();
-                                    attrValue.original_value_name = currentAttr.Trim();
+                                    attrValue.original_value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(currentAttr.Trim()).Replace("&nbsp;", " "));
                                     attrValue.value_unit = unit ?? "";
                                 }
                                 newAttr.attribute_value_list.Add(attrValue);
@@ -12174,6 +12214,7 @@ namespace MasterOnline.Controllers
                 REQUEST_ACTION = "Update Price V2", //ganti
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_ATTRIBUTE_2 = kdbrgMO,
                 REQUEST_STATUS = "Pending",
             };
 
@@ -12215,12 +12256,7 @@ namespace MasterOnline.Controllers
                 try
                 {
                     var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeUpdatePriceResponse)) as ShopeeUpdatePriceResponse;
-                    if (!string.IsNullOrEmpty(resServer.error))
-                    {
-                        currentLog.REQUEST_EXCEPTION = resServer.message;
-                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                        throw new Exception(resServer.message);
-                    }
+                    //change position, cek list error first
                     if (resServer.response.failure_list != null)
                     {
                         if (resServer.response.failure_list.Length > 0)
@@ -12230,6 +12266,13 @@ namespace MasterOnline.Controllers
                             throw new Exception(resServer.response.failure_list[0].failed_reason);
                         }
                     }
+                    if (!string.IsNullOrEmpty(resServer.error))
+                    {
+                        currentLog.REQUEST_EXCEPTION = resServer.message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        throw new Exception(resServer.message);
+                    }
+                    //end change position, cek list error first
                     //add 19 sept 2020, update harga massal
                     if (log_ActionName.Contains("UPDATE_MASSAL"))
                     {

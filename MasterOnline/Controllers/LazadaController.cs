@@ -4180,6 +4180,13 @@ namespace MasterOnline.Controllers
                     string namaVar = brg.skus[i]._compatible_variation_;
                     if (string.IsNullOrEmpty(namaVar))
                     {
+                        foreach (var attrVar in brgSku)
+                        {
+                            if (attrVar.Key.Contains("Variation"))
+                            {
+                                namaVar += " " + attrVar.Value;
+                            }
+                        }
                         var attr = CekAttribute(categoryCode);
                         if(attr.code == "0")
                         {
