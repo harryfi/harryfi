@@ -542,10 +542,12 @@
         var namaFileLog = '';
         var lastPage = 0;
         var loop = 1;
+        var pageinfo_shopify = '';
         //get data barang with record
         function GetDataBrgWithRecord(cust, page, recordCount, statBL, totalData) {
                  var link = '@Url.Action("ImportDataMP", "Manage")';
-            link += '?cust=' + encodeURIComponent(cust) + '&page=' + encodeURIComponent(page) + '&recordCount=' + encodeURIComponent(recordCount) + '&statBL=' + encodeURIComponent(statBL) + '&totalData=' + encodeURIComponent(totalData);
+            link += '?cust=' + encodeURIComponent(cust) + '&page=' + encodeURIComponent(page) + '&recordCount=' + encodeURIComponent(recordCount) + '&statBL='
+                + encodeURIComponent(statBL) + '&totalData=' + encodeURIComponent(totalData) + '&pageinfo=' + encodeURIComponent(pageinfo_shopify);
                 $.ajax({
                     type: "GET",
                     url: link,
@@ -564,6 +566,7 @@
                                 document.getElementById('lblRecord_' + cust).innerText = 'Jumlah data berhasil tersimpan ke MO : ' + response.RecordCount;
                                 document.getElementById('lblTotalData_' + cust).innerText = 'Jumlah data yang didapat dari marketplace : ' + response.totalData;
                             }
+                            pageinfo_shopify = response.pageinfodhopify;
                             if (response.exception == 1)
                                 exGetData = 1;
                             if (response.Recursive) {
