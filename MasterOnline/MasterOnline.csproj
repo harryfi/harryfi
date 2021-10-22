@@ -680,6 +680,7 @@
     <Compile Include="Controllers\JDIDControllerJob.cs" />
     <Compile Include="Controllers\ExcelControllerJob.cs" />
     <Compile Include="Controllers\MasterOnlineController.cs" />
+    <Compile Include="Controllers\ShopeeChatController.cs" />
     <Compile Include="Controllers\ShopifyController.cs" />
     <Compile Include="Controllers\ShopifyControllerJob.cs" />
     <Compile Include="Controllers\StokControllerJob.cs" />
@@ -1086,6 +1087,8 @@
     <Compile Include="Models\FAKTUR_API.cs" />
     <Compile Include="Models\LINKFTP.cs" />
     <Compile Include="Models\LOG_HARGAJUAL.cs" />
+    <Compile Include="Models\SHOPEE_LISTCONVERSATION.cs" />
+    <Compile Include="Models\SHOPEE_MESSAGE.cs" />
     <Compile Include="Models\SOT01H.cs" />
     <Compile Include="Models\SupportMenu.cs" />
     <Compile Include="Models\SOT01G.cs" />
@@ -1432,6 +1435,9 @@
     <Compile Include="Models\Subscription.cs" />
     <Compile Include="Models\TEMP_BRG_MP.cs" />
     <Compile Include="Models\TEMP_UPLOAD_EXCEL_INVOICE_PEMBELIAN.cs" />
+    <Compile Include="Models\TOKPED_LISTCHAT.cs" />
+    <Compile Include="Models\TOKPED_LISTMESSAGE.cs" />
+    <Compile Include="Models\TOKPED_SHOPID.cs" />
     <Compile Include="Models\TransaksiMidtrans.cs" />
     <Compile Include="Models\Tutorial_Detail.cs" />
     <Compile Include="Models\Tutorial_Header.cs" />
@@ -6994,6 +7000,9 @@
     <Content Include="Views\Manage\TableKonfirmasiDeleteBarang.cshtml" />
     <Content Include="Views\Manage\TableBarangPendingPartial.cshtml" />
     <Content Include="Views\Manage\ListError_ProsesStokOpname.cshtml" />
+    <Content Include="Views\Manage\ChatSetting.cshtml" />
+    <Content Include="Views\Manage\TableCustomerChatPartial.cshtml" />
+    <Content Include="ShopeeChat\ShopeeAuthChat.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

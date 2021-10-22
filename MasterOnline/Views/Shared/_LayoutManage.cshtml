@@ -57,6 +57,10 @@
     //    //end add by nurul 26/7/2019
     //}
 
+    //add by nurul 11/10/2021
+    var emailAccount = "";
+    //end add by nurul 11/10/2021
+
     var sessionAccount = HttpContext.Current.Session["SessionAccount"];
     var sessionAccountUserID = HttpContext.Current.Session["SessionAccountUserID"];
     var sessionAccountUserName = HttpContext.Current.Session["SessionAccountUserName"];
@@ -90,6 +94,10 @@
         member = sessionAccountKodeSub.ToString();
         nmMember = context.Subscription.Where(a => a.KODE == member).Single().KETERANGAN;
         //end add by nurul 26/7/2019
+
+        //add by nurul 11/10/2021
+        emailAccount = sessionAccountEmail.ToString();
+        //end add by nurul 11/10/2021
     }
     else
     {
@@ -110,11 +118,32 @@
         member = accFromUser.KODE_SUBSCRIPTION;
         nmMember = context.Subscription.Where(a => a.KODE == member).Single().KETERANGAN;
         //end add by nurul 26/7/2019
+
+        //add by nurul 11/10/2021
+        emailAccount = accFromUser.Email.ToString();
+        //end add by nurul 11/10/2021
     }
 
     var listParent = context.FormMoses.Where(m => m.ParentId == 0).OrderBy(m => m.ScrId).ToList();
     var dataUsahaInDb = erasoftContext.SIFSYS.Single(p => p.BLN == 1);
     var jumlahAkunMarketplace = erasoftContext.ARF01.Count();
+
+    //add by nurul 11/10/2021
+    var checkSubAddonChat = context.Addons_Customer.Where(p => p.Account == emailAccount && p.ID_ADDON == "10").OrderByDescending(a => a.RecNum).FirstOrDefault(); // ID 10 = CHAT
+    var statusAktifSubAddonChat = 2; // status expired Addon CHAT DEFAULT
+
+    if (checkSubAddonChat != null)
+    {
+        if (checkSubAddonChat.TglSubscription > DateTime.UtcNow.AddHours(7))
+        {
+            statusAktifSubAddonChat = 1; // registered CHAT
+        }
+    }
+    else
+    {
+        statusAktifSubAddonChat = 0; // not registered CHAT
+    }
+    //end add by nurul 11/10/2021
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -431,6 +460,12 @@
                                                         {
                                                             <img id="new_expired_mp_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
                                                         }
+                                                        @*//add by nurul 28/9/2021*@
+                                                        if (parent.ScrId == 1100) //chat
+                                                        {
+                                                            <img id="new_order_icon_bundling" alt="logo" style="width: 42px; height: 43px; margin-left: 60px;" src="~/Content/Images/ICON_NEW_5.png">
+                                                        }
+                                                        @*//end add by nurul 28/9/2021*@
                                                         <span class="fa fa-chevron-down"></span>
                                                     }
                                                     //add by calvin 5 april 2019
@@ -447,7 +482,7 @@
                                                         @*//add by nurul 22/1/2021*@
                                                         if (parent.ScrId == 11) //Rekap Serah Terima
                                                         {
-                                                            <img id="new_order_icon_bundling" alt="logo" style="width: 42px; height: 43px;" src="~/Content/Images/ICON_NEW_5.png">
+                                                            @*<img id="new_order_icon_bundling" alt="logo" style="width: 42px; height: 43px;" src="~/Content/Images/ICON_NEW_5.png">*@
                                                         }
                                                         @*//end add by nurul 22/1/2021*@
                                                     }
@@ -474,21 +509,140 @@
                                                                 if (child.Show && !child.HaveChild)
                                                                 {
                                                                     <li>
-                                                                        <a @(!child.HaveChild ? "href=" + child.Url : "")>
-                                                                            @if (!string.IsNullOrEmpty(child.Icon))
+                                                                        @*//add by nurul 28/9/2021*@
+                                                                        @if (child.ScrId == 1101) //chat
+                                                                        {
+                                                                            if (statusAktifSubAddonChat == 1)
                                                                             {
-                                                                                <i class="fa @child.Icon"></i>
+                                                                                <a target="_blank" @(!child.HaveChild ? "href=" + child.Url + sessionAccountDatabasePathErasoft : "")>
+                                                                                    @if (!string.IsNullOrEmpty(child.Icon))
+                                                                                    {
+                                                                                        <i class="fa @child.Icon"></i>
+                                                                                    }
+                                                                                    @child.NamaForm
+                                                                                    @if (parent.ScrId == 38 && child.ParentId == 38) //Expired Akun Marketplace
+                                                                                    {
+                                                                                        <img id="new_expired_mp_sub_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
+                                                                                    }
+                                                                                    @if (child.HaveChild)
+                                                                                    {
+                                                                                        <span class="fa fa-chevron-down"></span>
+                                                                                    }
+                                                                                </a>
                                                                             }
-                                                                            @child.NamaForm
-                                                                            @if (parent.ScrId == 38 && child.ParentId == 38) //Expired Akun Marketplace
+                                                                            else if (statusAktifSubAddonChat == 2)
                                                                             {
-                                                                                <img id="new_expired_mp_sub_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
+                                                                                <a href="javascript:alert('Masa subscription anda sudah berakhir, untuk ketentuan lebih lanjut silahkan hubungi tim support.');">
+                                                                                    @if (!string.IsNullOrEmpty(child.Icon))
+                                                                                    {
+                                                                                        <i class="fa @child.Icon"></i>
+                                                                                    }
+                                                                                    @child.NamaForm
+                                                                                    @if (parent.ScrId == 38 && child.ParentId == 38) //Expired Akun Marketplace
+                                                                                    {
+                                                                                        <img id="new_expired_mp_sub_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
+                                                                                    }
+                                                                                    @if (child.HaveChild)
+                                                                                    {
+                                                                                        <span class="fa fa-chevron-down"></span>
+                                                                                    }
+                                                                                </a>
                                                                             }
-                                                                            @if (child.HaveChild)
+                                                                            else
                                                                             {
-                                                                                <span class="fa fa-chevron-down"></span>
+                                                                                <a href="javascript:alert('Fitur ini termasuk fitur ADD ON, untuk ketentuan lebih lanjut silahkan hubungi tim support.');">
+                                                                                    @if (!string.IsNullOrEmpty(child.Icon))
+                                                                                    {
+                                                                                        <i class="fa @child.Icon"></i>
+                                                                                    }
+                                                                                    @child.NamaForm
+                                                                                    @if (parent.ScrId == 38 && child.ParentId == 38) //Expired Akun Marketplace
+                                                                                    {
+                                                                                        <img id="new_expired_mp_sub_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
+                                                                                    }
+                                                                                    @if (child.HaveChild)
+                                                                                    {
+                                                                                        <span class="fa fa-chevron-down"></span>
+                                                                                    }
+                                                                                </a>
                                                                             }
-                                                                        </a>
+                                                                        }
+                                                                        else if (child.ScrId == 1102) //chat
+                                                                        {
+                                                                            if (statusAktifSubAddonChat == 1)
+                                                                            {
+                                                                                <a @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                                    @if (!string.IsNullOrEmpty(child.Icon))
+                                                                                    {
+                                                                                        <i class="fa @child.Icon"></i>
+                                                                                    }
+                                                                                    @child.NamaForm
+                                                                                    @if (parent.ScrId == 38 && child.ParentId == 38) //Expired Akun Marketplace
+                                                                                    {
+                                                                                        <img id="new_expired_mp_sub_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
+                                                                                    }
+                                                                                    @if (child.HaveChild)
+                                                                                    {
+                                                                                        <span class="fa fa-chevron-down"></span>
+                                                                                    }
+                                                                                </a>
+                                                                            }
+                                                                            else if (statusAktifSubAddonChat == 2)
+                                                                            {
+                                                                                <a href="javascript:alert('Masa subscription anda sudah berakhir, untuk ketentuan lebih lanjut silahkan hubungi tim support.');">
+                                                                                    @if (!string.IsNullOrEmpty(child.Icon))
+                                                                                    {
+                                                                                        <i class="fa @child.Icon"></i>
+                                                                                    }
+                                                                                    @child.NamaForm
+                                                                                    @if (parent.ScrId == 38 && child.ParentId == 38) //Expired Akun Marketplace
+                                                                                    {
+                                                                                        <img id="new_expired_mp_sub_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
+                                                                                    }
+                                                                                    @if (child.HaveChild)
+                                                                                    {
+                                                                                        <span class="fa fa-chevron-down"></span>
+                                                                                    }
+                                                                                </a>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <a href="javascript:alert('Fitur ini termasuk fitur ADD ON, untuk ketentuan lebih lanjut silahkan hubungi tim support.');">
+                                                                                    @if (!string.IsNullOrEmpty(child.Icon))
+                                                                                    {
+                                                                                        <i class="fa @child.Icon"></i>
+                                                                                    }
+                                                                                    @child.NamaForm
+                                                                                    @if (parent.ScrId == 38 && child.ParentId == 38) //Expired Akun Marketplace
+                                                                                    {
+                                                                                        <img id="new_expired_mp_sub_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
+                                                                                    }
+                                                                                    @if (child.HaveChild)
+                                                                                    {
+                                                                                        <span class="fa fa-chevron-down"></span>
+                                                                                    }
+                                                                                </a>
+                                                                            }
+                                                                        }
+                                                                        @*//add by nurul 28/9/2021*@
+                                                                        else
+                                                                        {
+                                                                            <a @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                                @if (!string.IsNullOrEmpty(child.Icon))
+                                                                                {
+                                                                                    <i class="fa @child.Icon"></i>
+                                                                                }
+                                                                                @child.NamaForm
+                                                                                @if (parent.ScrId == 38 && child.ParentId == 38) //Expired Akun Marketplace
+                                                                                {
+                                                                                    <img id="new_expired_mp_sub_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
+                                                                                }
+                                                                                @if (child.HaveChild)
+                                                                                {
+                                                                                    <span class="fa fa-chevron-down"></span>
+                                                                                }
+                                                                            </a>
+                                                                        }
                                                                     </li>
                                                                 }
                                                                 else

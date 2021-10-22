@@ -6564,6 +6564,411 @@ namespace MasterOnline.Controllers
         }
         //end add by Tri 11 Nov 2019, cancel order
 
+        //add by nurul 20/9/2021
+        public async Task<string> ListMessage(TokopediaAPIData iden, string filter, int page)
+        {
+            string ret = "";
+            string connId = Guid.NewGuid().ToString();
+            var token = SetupContext(iden);
+            iden.token = token;
+            //filter: “all”, “read”, or “unread”.
+            string urll = "https://fs.tokopedia.net/v1/chat/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/messages?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&page=" + page + "&per_page=10&order=desc&filter=" + Uri.EscapeDataString(filter);
+
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+
+
+            string responseFromServer = "";
+            try
+            {
+
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != null)
+            {
+                try
+                {
+                    resultListMessage result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(resultListMessage)) as resultListMessage;
+                    if (result.header.error_code == 0)
+                    {
+                        var listMessage = new List<TOKPED_LISTMESSAGE>() { };
+                        if (result.data.Count() > 0)
+                        {
+                            var dateNow = DateTime.UtcNow.AddHours(7);
+                            //var dateLast1Month = dateNow.AddMonths(-1);
+                            var dateLast1Month = dateNow.AddDays(-14);
+                            var cust = ErasoftDbContext.ARF01.Where(a => a.API_KEY == iden.API_secret_key && a.Sort1_Cust == iden.merchant_code).FirstOrDefault();
+                            if (cust != null)
+                            {
+                                var cekListMessage = ErasoftDbContext.TOKPED_LISTMESSAGE.Select(a => a.msg_id).ToList();
+                                var lastGetMessage = false;
+                                while (!lastGetMessage)
+                                {
+                                    foreach (var msg in result.data)
+                                    {
+                                        var ax = DateTimeOffset.FromUnixTimeMilliseconds(msg.attributes.last_reply_time).UtcDateTime.AddHours(7);
+                                        var message = new TOKPED_LISTMESSAGE
+                                        {
+                                            CUST = cust.CUST,
+                                            msg_id = msg.msg_id.ToString(),
+                                            contact_id = msg.attributes.contact.id.ToString(),
+                                            contact_role = msg.attributes.contact.role,
+                                            attributes_name = msg.attributes.contact.attributes.name,
+                                            attributes_tag = msg.attributes.contact.attributes.tag,
+                                            attributes_thumbnail = msg.attributes.contact.attributes.thumbnail + "desktop",
+                                            last_reply_msg = msg.attributes.last_reply_msg,
+                                            //last_reply_time = Convert.ToDateTime(msg.attributes.last_reply_time),
+                                            last_reply_time = ax,
+                                            read_status = msg.attributes.read_status,
+                                            unreads = msg.attributes.unreads,
+                                            pin_status = msg.attributes.pin_status,
+                                            tglinput = DateTime.UtcNow.AddHours(7),
+                                            shop_id = iden.API_secret_key
+                                        };
+                                        //masukin sampe -1 bulan 
+                                        if (message.last_reply_time < dateLast1Month && msg.attributes.pin_status == 0)
+                                        {
+                                            lastGetMessage = true; break;
+                                        }
+                                        //hanya masukin yg blm ada di list message 
+                                        //var cekExistingHeader = ErasoftDbContext.TOKPED_LISTMESSAGE.Where(a => a.shop_id == cust.API_KEY && a.CUST == cust.CUST && a.last_reply_time >= dateLast1Month && a.msg_id == message.msg_id).ToList();
+                                        //if (cekExistingHeader.Count() > 0)
+                                        //{
+                                        //    ErasoftDbContext.TOKPED_LISTMESSAGE.RemoveRange(cekExistingHeader);
+                                        //}
+                                        var cekExistingDetail = ErasoftDbContext.TOKPED_LISTCHAT.Where(a => a.shop_id == cust.API_KEY && a.CUST == cust.CUST && a.reply_time >= dateLast1Month && a.msg_id == message.msg_id).ToList();
+                                        if (cekExistingDetail.Count() > 0)
+                                        {
+                                            ErasoftDbContext.TOKPED_LISTCHAT.RemoveRange(cekExistingDetail);
+                                        }
+                                        if (!cekListMessage.Contains(message.msg_id))
+                                        {
+                                            listMessage.Add(message);
+                                            ErasoftDbContext.SaveChanges();
+                                            //var cekListChat = ErasoftDbContext.TOKPED_LISTCHAT.AsNoTracking().Where(b => b.msg_id == message.msg_id && b.CUST == cust.CUST).Count();
+                                            //if (cekListChat == 0)
+                                            //{
+                                            //await ListReply(iden, message.msg_id, 1);
+                                            Task.Run(() => ListReply(iden, message.msg_id, 1)).Wait();
+                                            //}
+                                        }
+                                        else
+                                        {
+                                            var getConversation = ErasoftDbContext.TOKPED_LISTMESSAGE.Where(a => a.msg_id == message.msg_id).FirstOrDefault();
+                                            if(getConversation != null)
+                                            {
+                                                getConversation.last_reply_time = message.last_reply_time;
+                                                getConversation.unreads = message.unreads;
+                                                getConversation.last_reply_msg = message.last_reply_msg;
+                                                ErasoftDbContext.SaveChanges();
+                                                //await ListReply(iden, message.msg_id, 1);
+                                                Task.Run(() => ListReply(iden, message.msg_id, 1)).Wait();
+                                            }
+                                        }
+                                    }
+                                    lastGetMessage = true; break;
+                                }
+                                if (listMessage.Count() > 0)
+                                {
+                                    ErasoftDbContext.TOKPED_LISTMESSAGE.AddRange(listMessage);
+                                    ErasoftDbContext.SaveChanges();
+                                }
+                                if (!lastGetMessage)
+                                {
+                                    var nextMessage = await ListMessage(iden, filter, page + 1);
+                                    //ret.AddRange(nextOrders);
+                                }
+                                
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+            return ret;
+        }
+
+        public async Task<string> ListReply(TokopediaAPIData iden, string msgId, int page)
+        {
+            string ret = "";
+            string connId = Guid.NewGuid().ToString();
+            var token = SetupContext(iden);
+            iden.token = token;
+            string urll = "https://fs.tokopedia.net/v1/chat/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/messages/" + Uri.EscapeDataString(msgId) + "/replies?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&page=" + page + "&per_page=10&order=desc";
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != null)
+            {
+                ResultListReply result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ResultListReply)) as ResultListReply;
+                if (result.header.error_code == 0)
+                {
+                    var listChat = new List<TOKPED_LISTCHAT>() { };
+                    if (result.data.Count() > 0)
+                    {
+                        var cust = ErasoftDbContext.ARF01.Where(a => a.API_KEY == iden.API_secret_key && a.Sort1_Cust == iden.merchant_code).FirstOrDefault();
+                        if (cust != null)
+                        {
+                            var cekFirstReply = ErasoftDbContext.TOKPED_LISTCHAT.Where(a => a.CUST == cust.CUST && a.msg_id == msgId && a.is_first_reply == 1).FirstOrDefault();
+                            var dateNow = DateTime.UtcNow.AddHours(7);
+                            var dateLast1Month = dateNow.AddDays(-14);
+                            var firstReply = false;
+                            var cekListReply = ErasoftDbContext.TOKPED_LISTCHAT.ToList();
+                            var replyid = cekListReply.Select(a => a.reply_id).ToList();
+                            var lastGetMessage = false;
+                            var temp_listChat = new List<TOKPED_LISTCHAT>() { };
+                            var orderDesc = result.data.OrderByDescending(a => a.reply_time).ToList();
+                            while (!lastGetMessage)
+                            {
+                                //foreach (var msg in result.data)
+                                foreach (var msg in orderDesc)
+                                {
+                                    try
+                                    {
+                                        var ax = DateTimeOffset.FromUnixTimeMilliseconds(msg.reply_time).UtcDateTime.AddHours(7);
+                                        var bx = DateTimeOffset.FromUnixTimeMilliseconds(msg.read_time).UtcDateTime.AddHours(7);
+                                        //var bx = DateTime.UtcNow.AddHours(7);
+                                        //if(msg.read_time != 0)
+                                        //{
+                                        //    bx = DateTimeOffset.FromUnixTimeMilliseconds(msg.read_time).UtcDateTime.AddHours(7);
+                                        //}
+                                        //if (cekListReply.Count() == 0 || !replyid.Contains(msg.reply_id.ToString()))
+                                        //{
+                                        var message = new TOKPED_LISTCHAT
+                                        {
+                                            CUST = cust.CUST,
+                                            msg_id = msg.msg_id.ToString(),
+                                            reply_id = msg.reply_id.ToString(),
+                                            sender_id = msg.sender_id.ToString(),
+                                            sender_name = msg.sender_name,
+                                            msg = msg.msg,
+                                            reply_time = ax,
+                                            read_status = msg.read_status,
+                                            read_time = bx,
+                                            status_ = msg.status,
+                                            //message_is_read = msg.message_is_read.ToString(),
+                                            //is_opposite = msg.is_opposite.ToString(),
+                                            //is_first_reply = msg.is_first_reply.ToString(),
+                                            //is_reported = msg.is_reported.ToString(),
+
+                                            tglinput = DateTime.UtcNow.AddHours(7),
+                                            shop_id = iden.API_secret_key
+                                        };
+                                        if (msg.message_is_read)
+                                        {
+                                            message.message_is_read = 1;
+                                        }
+                                        else
+                                        {
+                                            message.message_is_read = 0;
+                                        }
+                                        if (msg.is_opposite)
+                                        {
+                                            message.is_opposite = 1;
+                                        }
+                                        else
+                                        {
+                                            message.is_opposite = 0;
+                                        }
+                                        if (msg.is_first_reply)
+                                        {
+                                            message.is_first_reply = 1;
+                                            firstReply = true;
+                                        }
+                                        else
+                                        {
+                                            message.is_first_reply = 0;
+                                        }
+                                        if (msg.is_reported)
+                                        {
+                                            message.is_reported = 1;
+                                        }
+                                        else
+                                        {
+                                            message.is_reported = 0;
+                                        }
+                                        if (msg.attachment != null)
+                                        {
+                                            message.attachment_id = string.IsNullOrEmpty(Convert.ToString(msg.attachment_id)) ? "" : Convert.ToString(msg.attachment_id);
+                                            message.attachment_type = msg.attachment.type;
+                                            if (msg.attachment.attributes != null)
+                                            {
+                                                message.image_url = string.IsNullOrEmpty(msg.attachment.attributes.image_url) ? "" : msg.attachment.attributes.image_url;
+                                                message.product_id = string.IsNullOrEmpty(msg.attachment.attributes.product_id.ToString()) ? "" : msg.attachment.attributes.product_id.ToString();
+                                            }
+                                            if (msg.attachment.fallback_attachment != null)
+                                            {
+                                                message.fallback_attachment_html = string.IsNullOrEmpty(msg.attachment.fallback_attachment.html) ? "" : msg.attachment.fallback_attachment.html;
+                                                message.fallback_attachment_message = string.IsNullOrEmpty(msg.attachment.fallback_attachment.message) ? "" : msg.attachment.fallback_attachment.message;
+                                            }
+                                        }
+
+                                        //masukin sampe -1 bulan 
+                                        //if (message.reply_time < dateLast1Month)
+                                        //{
+                                        //    firstReply = true;
+                                        //    message.is_first_reply = 1;
+                                        //    listChat.Add(message);
+                                        //    lastGetMessage = true; break;
+                                        //}
+                                        //else
+                                        //{
+                                        //    listChat.Add(message);
+                                        //}
+
+                                        if (message.reply_time < dateLast1Month)
+                                        {
+                                            if(cekFirstReply != null)
+                                            {
+                                                message.is_first_reply = 1;
+                                            }
+                                            firstReply = true;
+                                            var cekExist = ErasoftDbContext.TOKPED_LISTCHAT.Where(a => a.CUST == message.CUST && a.msg_id == message.msg_id && a.msg == message.msg && a.attachment_id == message.attachment_id && a.attachment_type == a.attachment_type && a.product_id == message.product_id).Count();
+                                            if(cekExist == 0)
+                                            {
+                                                listChat.Add(message);
+                                            }
+                                            lastGetMessage = true; break;
+                                        }
+                                        else
+                                        {
+                                            listChat.Add(message);
+                                        }
+                                        //listChat.Add(message);
+
+                                        if (firstReply)
+                                        {
+                                            lastGetMessage = true; break;
+                                        }
+                                        //}
+                                        //else
+                                        //{
+                                        //    var cekreply = cekListReply.Where(a => a.reply_id == msg.reply_id.ToString()).FirstOrDefault();
+                                        //    if (cekreply != null)
+                                        //    {
+                                        //        cekreply.CUST = cust.CUST;
+                                        //        cekreply.msg_id = msg.msg_id.ToString();
+                                        //        cekreply.reply_id = msg.reply_id.ToString();
+                                        //        cekreply.sender_id = msg.sender_id.ToString();
+                                        //        cekreply.sender_name = msg.sender_name;
+                                        //        cekreply.msg = msg.msg.ToString();
+                                        //        cekreply.reply_time = ax;
+                                        //        cekreply.read_status = msg.read_status;
+                                        //        cekreply.read_time = bx;
+                                        //        cekreply.status_ = msg.status;
+                                        //        if (msg.attachment != null)
+                                        //        {
+                                        //            cekreply.attachment_id = string.IsNullOrEmpty(Convert.ToString(msg.attachment_id)) ? "" : Convert.ToString(msg.attachment_id);
+                                        //            cekreply.attachment_type = msg.attachment.type;
+                                        //            if (msg.attachment.attributes != null)
+                                        //            {
+                                        //                cekreply.image_url = string.IsNullOrEmpty(msg.attachment.attributes.image_url) ? "" : msg.attachment.attributes.image_url;
+                                        //                cekreply.product_id = string.IsNullOrEmpty(msg.attachment.attributes.product_id.ToString()) ? "" : msg.attachment.attributes.product_id.ToString();
+                                        //            }
+                                        //            if (msg.attachment.fallback_attachment != null)
+                                        //            {
+                                        //                cekreply.fallback_attachment_html = string.IsNullOrEmpty(msg.attachment.fallback_attachment.html) ? "" : msg.attachment.fallback_attachment.html;
+                                        //                cekreply.fallback_attachment_message = string.IsNullOrEmpty(msg.attachment.fallback_attachment.message) ? "" : msg.attachment.fallback_attachment.message;
+                                        //            }
+                                        //        }
+                                        //        cekreply.tglinput = DateTime.UtcNow.AddHours(7);
+                                        //        cekreply.shop_id = iden.API_secret_key;
+                                        //        if (msg.message_is_read)
+                                        //        {
+                                        //            cekreply.message_is_read = 1;
+                                        //        }
+                                        //        if (msg.is_opposite)
+                                        //        {
+                                        //            cekreply.is_opposite = 1;
+                                        //        }
+                                        //        if (msg.is_first_reply)
+                                        //        {
+                                        //            cekreply.is_first_reply = 1;
+                                        //            firstReply = true;
+                                        //        }
+                                        //        if (msg.is_reported)
+                                        //        {
+                                        //            cekreply.is_reported = 1;
+                                        //        }
+
+                                        //    }
+
+                                        //    //masukin sampe -1 bulan 
+                                        //    if (ax < dateLast1Month)
+                                        //    {
+                                        //        cekreply.is_first_reply = 1;
+                                        //        firstReply = true;
+                                        //        lastGetMessage = true; break;
+                                        //    }
+
+                                        //    if (firstReply) break;
+                                        //}
+                                    }
+                                    catch (Exception ex)
+                                    {
+
+                                    }
+                                }
+
+                                lastGetMessage = true;break;
+                            }
+                            if (listChat.Count() > 0)
+                            {
+                                ErasoftDbContext.TOKPED_LISTCHAT.AddRange(listChat);
+                                ErasoftDbContext.SaveChanges();
+                            }
+                            if (!firstReply && result.data.Count() == 10)
+                            {
+                                var nextReply = await ListReply(iden, msgId, page + 1);
+                            }
+                        }
+                    }
+                }
+            }
+            return ret;
+        }
+        //end add by nurul 20/9/2021
+
         public enum StatusOrder
         {
             Cancel = 1,
@@ -8224,5 +8629,108 @@ namespace MasterOnline.Controllers
             public string shipping_ref_num { get; set; }
         }
         //end add by nurul 4/6/2020
+
+        //add by nurul 20/9/2021
+        //List Message 
+        public class resultListMessage
+        {
+            public HeaderListMessage header { get; set; }
+            public DatumListMessage[] data { get; set; }
+        }
+
+        public class HeaderListMessage
+        {
+            public int process_time { get; set; }
+            public string messages { get; set; }
+            public string reason { get; set; }
+            public int error_code { get; set; }
+        }
+
+        public class DatumListMessage
+        {
+            public string message_key { get; set; }
+            public long msg_id { get; set; }
+            public AttributesListMessage attributes { get; set; }
+        }
+
+        public class AttributesListMessage
+        {
+            public Contact contact { get; set; }
+            public string last_reply_msg { get; set; }
+            public long last_reply_time { get; set; }
+            public int read_status { get; set; }
+            public int unreads { get; set; }
+            public int pin_status { get; set; }
+        }
+
+        public class Contact
+        {
+            public long id { get; set; }
+            public string role { get; set; }
+            public Attributes1 attributes { get; set; }
+        }
+
+        public class Attributes1
+        {
+            public string name { get; set; }
+            public string tag { get; set; }
+            public string thumbnail { get; set; }
+        }
+
+        //list reply
+        public class ResultListReply
+        {
+            public HeaderListReply header { get; set; }
+            public DatumListReply[] data { get; set; }
+        }
+
+        public class HeaderListReply
+        {
+            public int process_time { get; set; }
+            public string messages { get; set; }
+            public string reason { get; set; }
+            public int error_code { get; set; }
+        }
+
+        public class DatumListReply
+        {
+            public long msg_id { get; set; }
+            public long reply_id { get; set; }
+            public int sender_id { get; set; }
+            public string sender_name { get; set; }
+            public string role { get; set; }
+            public string msg { get; set; }
+            public long reply_time { get; set; }
+            public int read_status { get; set; }
+            public long read_time { get; set; }
+            public int status { get; set; }
+            public long attachment_id { get; set; }
+            public bool message_is_read { get; set; }
+            public bool is_opposite { get; set; }
+            public bool is_first_reply { get; set; }
+            public bool is_reported { get; set; }
+            public Attachment attachment { get; set; }
+        }
+
+        public class Attachment
+        {
+            public long id { get; set; }
+            public int type { get; set; }
+            public AttributesListReply attributes { get; set; }
+            public Fallback_Attachment fallback_attachment { get; set; }
+        }
+
+        public class AttributesListReply
+        {
+            public long product_id { get; set; }
+            public string image_url { get; set; }
+        }
+
+        public class Fallback_Attachment
+        {
+            public string html { get; set; }
+            public string message { get; set; }
+        }
+        //end add by nurul 20/9/2021
     }
 }

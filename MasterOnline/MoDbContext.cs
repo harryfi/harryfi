@@ -68,6 +68,11 @@ namespace MasterOnline
         public DbSet<Addons_Customer> Addons_Customer { get; set; }
 
         public DbSet<CATEGORY_SHOPEE_V2> CategoryShopeeV2 { get; set; }
+
+        //add by nurul 20/9/2021
+        public DbSet<TOKPED_SHOPID> TOKPED_SHOPID { get; set; }
+        //end add by nurul 20/9/2021
+
         public MoDbContext()
             : base("name=MoDbContext")
         {

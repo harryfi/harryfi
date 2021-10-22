@@ -213,5 +213,23 @@ namespace MasterOnline
         [StringLength(200)]
         public string BRANCH_NAME_ACCURATE { get; set; }
         public DateTime? TOKEN_EXPIRED { get; set; }//add 28 mei 2021, for shopee
+
+        //add by nurul 19/8/2021, chat 
+        [StringLength(100)]
+        public string TOKEN_CHAT { get; set; }
+
+        [StringLength(100)]
+        public string REFRESH_TOKEN_CHAT { get; set; }
+
+        public DateTime? TOKEN_EXPIRED_CHAT { get; set; }//add 28 mei 2021, for shopee
+
+        [StringLength(1)]
+        public string STATUS_API_CHAT { get; set; }
+
+        [StringLength(1)]
+        public string STATUS_SYNC_CHAT { get; set; }
+
+        public DateTime? TGL_EXPIRED_CHAT { get; set; }
+        //end add by nurul 19/8/2021,
     }
 }

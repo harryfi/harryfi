@@ -528,6 +528,13 @@ namespace MasterOnline
         public virtual DbSet<PEMBELI_FAKTUR_SHOPEE> PEMBELI_FAKTUR_SHOPEE { get; set; }
         //end add by nurul 25/8/2021
 
+        //add by nurul 20/9/2021
+        public virtual DbSet<TOKPED_LISTMESSAGE> TOKPED_LISTMESSAGE { get; set; }
+        public virtual DbSet<TOKPED_LISTCHAT> TOKPED_LISTCHAT { get; set; }
+        public virtual DbSet<SHOPEE_LISTCONVERSATION> SHOPEE_LISTCONVERSATION { get; set; }
+        public virtual DbSet<SHOPEE_MESSAGE> SHOPEE_MESSAGE { get; set; }
+        //end add by nurul 20/9/2021
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
 
