@@ -798,6 +798,7 @@
         var namaFileLog = '';
         var lastPage = 0;
         var loop = 1;
+        var pageinfo_shopify = '';
         function GetDataBrgWithRecord(page, recordCount, statBL, totalData) {
             if ($('#promptHiddenField').val() == null || $('#promptHiddenField').val() == "" ) {
                 alert('Anda belum memilih Toko');
@@ -805,7 +806,8 @@
                 @*var link = '@Url.Action("ImportDataMP", "Manage", new { cust = "replaceCust"})';
                 link = link.replace("replaceCust", $('#promptHiddenField').val());*@
                  var link = '@Url.Action("ImportDataMP", "Manage")';
-                link += '?cust=' + encodeURIComponent($('#promptHiddenField').val()) + '&page=' + encodeURIComponent(page) + '&recordCount=' + encodeURIComponent(recordCount) + '&statBL=' + encodeURIComponent(statBL) + '&totalData=' + encodeURIComponent(totalData);
+                link += '?cust=' + encodeURIComponent($('#promptHiddenField').val()) + '&page=' + encodeURIComponent(page) + '&recordCount='
+                    + encodeURIComponent(recordCount) + '&statBL=' + encodeURIComponent(statBL) + '&totalData=' + encodeURIComponent(totalData) + '&pageinfo=' + encodeURIComponent(pageinfo_shopify);
                 $.ajax({
                     type: "GET",
                     url: link,
@@ -827,6 +829,7 @@
                                 document.getElementById('txtInfo2').innerText = 'Jumlah data yang didapat dari marketplace : ' + response.totalData;
 
                             }
+                            pageinfo_shopify = response.pageinfodhopify;
                             if (response.exception == 1)
                                 exGetData = 1;
                             if (response.Recursive) {

@@ -33,6 +33,7 @@ namespace MasterOnline.ViewModels
         public int BLProductActive { get; set; }
         public int exception { get; set; }
         public int totalData { get; set; }//add 18 Juli 2019, show total record
+        public string pageinfodhopify { get; set; }
     }
 
     public class SimpleJsonObject

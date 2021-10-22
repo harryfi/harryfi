@@ -307,14 +307,15 @@ namespace MasterOnline.Controllers
             return result;
         }
 
-        public async Task<BindingBase> Shopify_GetProductList_Sync(ShopifyAPIData iden, int IdMarket, int page, int recordCount, int totalData)
+        public async Task<BindingBase> Shopify_GetProductList_Sync(ShopifyAPIData iden, int IdMarket, int page, int recordCount, int totalData, string pageinfo)
         {
             var ret = new BindingBase
             {
                 status = 0,
                 recordCount = recordCount,
                 exception = 0,
-                totalData = totalData//add 18 Juli 2019, show total record
+                totalData = totalData,//add 18 Juli 2019, show total record
+                pageinfo = ""
             };
 
             long seconds = CurrentTimeSecond();
@@ -331,8 +332,9 @@ namespace MasterOnline.Controllers
             };
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
 
-            string urll = "https://{0}:{1}@{2}.myshopify.com/admin/product_listings.json?limit={3}";
-            var vformatUrl = String.Format(urll, iden.API_key, iden.API_password, iden.account_store, 250);
+            //string urll = "https://{0}:{1}@{2}.myshopify.com/admin/product_listings.json?limit={3}";
+            string urll = "https://{0}:{1}@{2}.myshopify.com/admin/api/2021-04/product_listings.json?limit={3}&page_info={4}"; 
+            var vformatUrl = String.Format(urll, iden.API_key, iden.API_password, iden.account_store, 10, pageinfo);
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
             myReq.Method = "GET";
@@ -346,6 +348,26 @@ namespace MasterOnline.Controllers
                 {
                     using (Stream stream = response.GetResponseStream())
                     {
+                        var link = response.Headers["Link"];
+                        if (link != null)
+                        {
+                            string[] linkslit1 = link.Split(',');
+                            foreach (var prev in linkslit1)
+                            {
+                                if (prev.Contains("rel=\"next\""))
+                                {
+                                    string[] linksplit = prev.Trim().Split(';');
+                                    string substring = linksplit[0].Substring(1, linksplit[0].Length - 2);
+                                    Uri myUri = new Uri(substring);
+                                    string page_info = HttpUtility.ParseQueryString(myUri.Query).Get("page_info");
+                                    ret.pageinfo = page_info;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            ret.pageinfo = "";
+                        }
                         StreamReader reader = new StreamReader(stream);
                         responseFromServer = reader.ReadToEnd();
                     }
@@ -445,6 +467,10 @@ namespace MasterOnline.Controllers
                                             };
                                             newrecord.AVALUE_45 = namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg; //request by Calvin 19 maret 2019, isi nama barang ke avalue 45
                                                                                                                               //add by Tri, 26 Feb 2019
+                                            if(newrecord.CATEGORY_NAME.Length > 50)
+                                            {
+                                                newrecord.CATEGORY_NAME = newrecord.CATEGORY_NAME.Substring(newrecord.CATEGORY_NAME.Length - 50, 50);
+                                            }
                                             var kategory = MoDbContext.CategoryShopify.Where(m => m.NAME == newrecord.CATEGORY_NAME).FirstOrDefault();
                                             if (kategory != null)
                                             {
@@ -757,6 +783,10 @@ namespace MasterOnline.Controllers
             };
             newrecord.AVALUE_45 = namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg; //request by Calvin 19 maret 2019, isi nama barang ke avalue 45
                                                                                               //add by Tri, 26 Feb 2019
+            if (newrecord.CATEGORY_NAME.Length > 50)
+            {
+                newrecord.CATEGORY_NAME = newrecord.CATEGORY_NAME.Substring(newrecord.CATEGORY_NAME.Length - 50, 50);
+            }
             var kategory = MoDbContext.CategoryShopify.Where(m => m.NAME == newrecord.CATEGORY_NAME).FirstOrDefault();
             if (kategory != null)
             {
@@ -2456,10 +2486,10 @@ namespace MasterOnline.Controllers
             public string body_html { get; set; }
             public string vendor { get; set; }
             public string product_type { get; set; }
-            public DateTime created_at { get; set; }
+            public DateTime? created_at { get; set; }
             public string handle { get; set; }
-            public DateTime updated_at { get; set; }
-            public DateTime published_at { get; set; }
+            public DateTime? updated_at { get; set; }
+            public DateTime? published_at { get; set; }
             public string template_suffix { get; set; }
             public string published_scope { get; set; }
             public string tags { get; set; }
@@ -2475,8 +2505,8 @@ namespace MasterOnline.Controllers
             public long id { get; set; }
             public long product_id { get; set; }
             public int position { get; set; }
-            public DateTime created_at { get; set; }
-            public DateTime updated_at { get; set; }
+            public DateTime? created_at { get; set; }
+            public DateTime? updated_at { get; set; }
             public object alt { get; set; }
             public int width { get; set; }
             public int height { get; set; }
@@ -2500,8 +2530,8 @@ namespace MasterOnline.Controllers
             public string option1 { get; set; }
             public object option2 { get; set; }
             public object option3 { get; set; }
-            public DateTime created_at { get; set; }
-            public DateTime updated_at { get; set; }
+            public DateTime? created_at { get; set; }
+            public DateTime? updated_at { get; set; }
             public bool taxable { get; set; }
             public string barcode { get; set; }
             public int grams { get; set; }
@@ -2529,8 +2559,8 @@ namespace MasterOnline.Controllers
             public long id { get; set; }
             public long product_id { get; set; }
             public int position { get; set; }
-            public DateTime created_at { get; set; }
-            public DateTime updated_at { get; set; }
+            public DateTime? created_at { get; set; }
+            public DateTime? updated_at { get; set; }
             public object alt { get; set; }
             public int width { get; set; }
             public int height { get; set; }

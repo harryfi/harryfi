@@ -56,6 +56,7 @@ namespace MasterOnline.Models
         public string ConnId { get; set; }
         public bool AdaKomponen { get; set; }
         //end add by nurul 20/1/2021, bundling
+        public string pageinfo { get; set; }
     }
 
     public class BindingBase82Cart
