@@ -498,4 +498,18 @@
             }
         });
     }
+    function InsertToDDB() {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("InsertToDDB", "Manage")',
+            contentType: 'application/json',
+            cache: false,
+            success: function (data) {
+                alert(data.Errors[0]);
+            },
+            error: function (xhr) {
+                console.log(xhr);
+            }
+        });
+    }
 </script>
