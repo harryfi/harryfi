@@ -2987,7 +2987,7 @@ namespace MasterOnline.Controllers
                         var dataInDDB = Services.UploadImageService.selectToDB("shopeev2_token", "db_name", dataAPI.DatabasePathErasoft);
                         var newToken = "";
                         var newRefresh = "";
-                        var newExpired = dataAPI.token_expired;
+                        var newExpired = DateTime.UtcNow.AddHours(7);
                         foreach (var lData in dataInDDB)
                         {
                             var valueDB = new AttributeValue();
