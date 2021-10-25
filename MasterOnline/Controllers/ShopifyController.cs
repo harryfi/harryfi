@@ -455,7 +455,7 @@ namespace MasterOnline.Controllers
                                                 NAMA3 = nama3,
                                                 //CATEGORY_CODE = Convert.ToString(product_induk.id_category_default),
                                                 CATEGORY_CODE = "1",
-                                                CATEGORY_NAME = item.product_type,
+                                                CATEGORY_NAME = (item.product_type ?? "").Replace('\'', '`'),
                                                 IDMARKET = IdMarket,
                                                 //IMAGE = item.cover_image_url ?? "",
                                                 DISPLAY = true,
@@ -467,9 +467,9 @@ namespace MasterOnline.Controllers
                                             };
                                             newrecord.AVALUE_45 = namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg; //request by Calvin 19 maret 2019, isi nama barang ke avalue 45
                                                                                                                               //add by Tri, 26 Feb 2019
-                                            if(newrecord.CATEGORY_NAME.Length > 50)
+                                            if(newrecord.CATEGORY_NAME.Length > 250)
                                             {
-                                                newrecord.CATEGORY_NAME = newrecord.CATEGORY_NAME.Substring(newrecord.CATEGORY_NAME.Length - 50, 50);
+                                                newrecord.CATEGORY_NAME = newrecord.CATEGORY_NAME.Substring(newrecord.CATEGORY_NAME.Length - 250, 250);
                                             }
                                             var kategory = MoDbContext.CategoryShopify.Where(m => m.NAME == newrecord.CATEGORY_NAME).FirstOrDefault();
                                             if (kategory != null)
@@ -771,7 +771,7 @@ namespace MasterOnline.Controllers
                 NAMA3 = nama3,
                 //CATEGORY_CODE = Convert.ToString(product_induk.id_category_default),
                 CATEGORY_CODE = "1",
-                CATEGORY_NAME = product_induk.product_type,
+                CATEGORY_NAME = (product_induk.product_type ?? "").Replace('\'', '`'),
                 IDMARKET = idmarket,
                 IMAGE = "",
                 DISPLAY = true,
@@ -783,9 +783,9 @@ namespace MasterOnline.Controllers
             };
             newrecord.AVALUE_45 = namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg; //request by Calvin 19 maret 2019, isi nama barang ke avalue 45
                                                                                               //add by Tri, 26 Feb 2019
-            if (newrecord.CATEGORY_NAME.Length > 50)
+            if (newrecord.CATEGORY_NAME.Length > 250)
             {
-                newrecord.CATEGORY_NAME = newrecord.CATEGORY_NAME.Substring(newrecord.CATEGORY_NAME.Length - 50, 50);
+                newrecord.CATEGORY_NAME = newrecord.CATEGORY_NAME.Substring(newrecord.CATEGORY_NAME.Length - 250, 250);
             }
             var kategory = MoDbContext.CategoryShopify.Where(m => m.NAME == newrecord.CATEGORY_NAME).FirstOrDefault();
             if (kategory != null)

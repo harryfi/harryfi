@@ -1781,19 +1781,19 @@
                                                 //if (ANAME == 'short_description') {
                                                 if (AINPUT_TYPE == "richText") {
                                                     //fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control removeHTMLTag" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + removeTag(adaValue) + '"></div>';
-                                                    fieldAVALUE += '<div class="col-md-4 form-group"><textarea cols="20" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required." class="form-control make_ckeditor" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" rows="2" style="resize: none; width:100%;">' + (adaValue) + '</textarea></div>';
+                                                    fieldAVALUE += '<div class="col-md-4 form-group"><textarea cols="20" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required." class="form-control make_ckeditor" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" rows="2" style="resize: none; width:100%;">' + decodeHtmlJS(adaValue) + '</textarea></div>';
                                                     setCKEditor = true;
                                                     CKEditorInstanceName = fieldAVALUE_ID;
-                                                    CKEditorAdaValue = adaValue;
+                                                    CKEditorAdaValue = decodeHtmlJS(adaValue);
                                                 } else {
                                                     fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control removeHTMLTag" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
                                                 }
                                             } else {
                                                 if (AINPUT_TYPE == "richText") {
-                                                    fieldAVALUE += '<div class="col-md-4 form-group"><textarea cols="20" data-val="true" class="form-control make_ckeditor" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" rows="2" style="resize: none; width:100%;">' + (adaValue) + '</textarea></div>';
+                                                    fieldAVALUE += '<div class="col-md-4 form-group"><textarea cols="20" data-val="true" class="form-control make_ckeditor" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" rows="2" style="resize: none; width:100%;">' + decodeHtmlJS(adaValue) + '</textarea></div>';
                                                     setCKEditor = true;
                                                     CKEditorInstanceName = fieldAVALUE_ID;
-                                                    CKEditorAdaValue = adaValue;
+                                                    CKEditorAdaValue = decodeHtmlJS(adaValue);
                                                 }
                                                 else {
                                                     fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" data-val-length-max="250"  class="form-control removeHTMLTag" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
@@ -1854,6 +1854,11 @@
             var tmp = document.createElement("DIV");
             tmp.innerHTML = html;
             return tmp.textContent || tmp.innerText || "";
+        }
+        function decodeHtmlJS(html) {
+            var txt = document.createElement("textarea");
+            txt.innerHTML = html;
+            return txt.value;
         }
         function getAttributeOptionLazada(ANAME, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, AINPUT_TYPE, categoryCode){
             var link = '@Url.Action("GetAttributeOptLazada", "Manage", new { code = "replaceCode" })';

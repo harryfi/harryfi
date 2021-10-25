@@ -14,7 +14,7 @@ namespace MasterOnline.Models
         [StringLength(50)]
         public string ID_CATEGORY { get; set; }
 
-        [StringLength(50)]
+        [StringLength(250)]
         public string NAME { get; set; }
 
         [StringLength(50)]
