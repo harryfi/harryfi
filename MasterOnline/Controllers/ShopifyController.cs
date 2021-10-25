@@ -467,9 +467,9 @@ namespace MasterOnline.Controllers
                                             };
                                             newrecord.AVALUE_45 = namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg; //request by Calvin 19 maret 2019, isi nama barang ke avalue 45
                                                                                                                               //add by Tri, 26 Feb 2019
-                                            if(newrecord.CATEGORY_NAME.Length > 50)
+                                            if(newrecord.CATEGORY_NAME.Length > 250)
                                             {
-                                                newrecord.CATEGORY_NAME = newrecord.CATEGORY_NAME.Substring(newrecord.CATEGORY_NAME.Length - 50, 50);
+                                                newrecord.CATEGORY_NAME = newrecord.CATEGORY_NAME.Substring(newrecord.CATEGORY_NAME.Length - 250, 250);
                                             }
                                             var kategory = MoDbContext.CategoryShopify.Where(m => m.NAME == newrecord.CATEGORY_NAME).FirstOrDefault();
                                             if (kategory != null)
@@ -783,9 +783,9 @@ namespace MasterOnline.Controllers
             };
             newrecord.AVALUE_45 = namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg; //request by Calvin 19 maret 2019, isi nama barang ke avalue 45
                                                                                               //add by Tri, 26 Feb 2019
-            if (newrecord.CATEGORY_NAME.Length > 50)
+            if (newrecord.CATEGORY_NAME.Length > 250)
             {
-                newrecord.CATEGORY_NAME = newrecord.CATEGORY_NAME.Substring(newrecord.CATEGORY_NAME.Length - 50, 50);
+                newrecord.CATEGORY_NAME = newrecord.CATEGORY_NAME.Substring(newrecord.CATEGORY_NAME.Length - 250, 250);
             }
             var kategory = MoDbContext.CategoryShopify.Where(m => m.NAME == newrecord.CATEGORY_NAME).FirstOrDefault();
             if (kategory != null)
