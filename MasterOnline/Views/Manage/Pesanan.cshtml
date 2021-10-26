@@ -9988,7 +9988,14 @@
                 }
             });
         }
-        function updateNotFound(sot01b_nourut,stf02h_recnum,kode){
+        function updateNotFound(sot01b_nourut, stf02h_recnum, kode) {
+
+            if (confirm("Perbaiki Kode Barang menjadi " + kode + " ?"))
+            {
+
+            }
+        }
+        function updateNotFoundProcess(sot01b_nourut,stf02h_recnum,kode){
             if(confirm("Perbaiki Kode Barang menjadi " + kode + " ?")){
                 var link = '@Url.Action("UpdateFixNotFound", "Manage", new { nourut = "replaceNoUrut" })';
                 link = link.replace("replaceNoUrut", encodeURIComponent(sot01b_nourut + ';' + stf02h_recnum));
