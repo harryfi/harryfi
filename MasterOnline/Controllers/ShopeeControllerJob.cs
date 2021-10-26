@@ -116,7 +116,8 @@ namespace MasterOnline.Controllers
                     if (cekInDB != null)
                     {
                         //if (dataAPI.token != cekInDB.TOKEN)
-                        if (dataAPI.token_expired != cekInDB.TOKEN_EXPIRED)
+                        //if (dataAPI.token_expired != cekInDB.TOKEN_EXPIRED)
+                        if (dataAPI.token_expired < cekInDB.TOKEN_EXPIRED)
                         {
                             dataAPI.refresh_token = cekInDB.REFRESH_TOKEN;
                             dataAPI.tgl_expired = cekInDB.TGL_EXPIRED.Value;
@@ -140,7 +141,9 @@ namespace MasterOnline.Controllers
             if (TokenExpired || bForceRefresh)
             {
                 #region dynamodb
-                if (dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_RAHMAMK")
+                if (dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_RAHMAMK" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_710298"
+                    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_930355" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_750320"
+                    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_1521519" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_770308")
                 {
                     try { 
                     var dataInDDB = Services.UploadImageService.selectToDB("shopeev2_token", "db_name", dataAPI.DatabasePathErasoft);
@@ -269,7 +272,10 @@ namespace MasterOnline.Controllers
                                 var dateExpired = dataAPI.token_expired.Value.ToString("yyyy-MM-dd HH:mm:ss");
 
                                 #region insert to dynamo db
-                                if (dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_RAHMAMK") { 
+                                if (dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_RAHMAMK" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_710298"
+                                    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_930355" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_750320"
+                                    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_1521519" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_770308")
+                                { 
                                     try
                                     {
                                         var ttl = (long)milisBack.AddDays(1).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
