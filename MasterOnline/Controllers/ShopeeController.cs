@@ -19,6 +19,7 @@ using System.Xml;
 using System.Web.Script.Serialization;
 using System.Security.Cryptography;
 using System.Net.Http;
+using Amazon.DynamoDBv2.Model;
 
 namespace MasterOnline.Controllers
 {
@@ -2955,7 +2956,8 @@ namespace MasterOnline.Controllers
                     if (cekInDB != null)
                     {
                         //if (dataAPI.token != cekInDB.TOKEN)
-                        if (dataAPI.token_expired != cekInDB.TOKEN_EXPIRED)
+                        //if (dataAPI.token_expired != cekInDB.TOKEN_EXPIRED)
+                        if (dataAPI.token_expired < cekInDB.TOKEN_EXPIRED)
                         {
                             dataAPI.refresh_token = cekInDB.REFRESH_TOKEN;
                             dataAPI.tgl_expired = cekInDB.TGL_EXPIRED.Value;
@@ -2978,6 +2980,52 @@ namespace MasterOnline.Controllers
 
             if (TokenExpired || bForceRefresh)
             {
+                #region dynamodb
+                if (dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_RAHMAMK" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_710298"
+                    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_930355" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_750320"
+                    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_1521519" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_770308")
+                {
+                    try
+                    {
+                        var dataInDDB = Services.UploadImageService.selectToDB("shopeev2_token", "db_name", dataAPI.DatabasePathErasoft);
+                        var newToken = "";
+                        var newRefresh = "";
+                        var newExpired = DateTime.UtcNow.AddHours(7);
+                        foreach (var lData in dataInDDB)
+                        {
+                            var valueDB = new AttributeValue();
+                            if (lData.TryGetValue("cust", out valueDB))
+                            {
+                                if (valueDB.S == dataAPI.no_cust)
+                                {
+                                    if (lData.TryGetValue("expired_date", out valueDB))
+                                    {
+                                        var dtExp = Convert.ToDateTime(valueDB.S);
+                                        if (dtExp > newExpired)
+                                        {
+                                            newToken = lData.TryGetValue("token", out valueDB) ? valueDB.S : newToken;
+                                            newRefresh = lData.TryGetValue("refresh_token", out valueDB) ? valueDB.S : newRefresh;
+                                            newExpired = dtExp;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (newToken != "")
+                        {
+                            dataAPI.refresh_token = newRefresh;
+                            dataAPI.token_expired = newExpired;
+                            dataAPI.token = newToken;
+
+                            if (newExpired.AddMinutes(-30) > DateTime.UtcNow.AddHours(7))
+                            {
+                                return dataAPI;
+                            }
+                        }
+                    }
+                    catch (Exception ex) { }
+                }
+                #endregion
                 int MOPartnerID = MOPartnerIDV2;
                 string MOPartnerKey = MOPartnerKeyV2;
 
@@ -3085,6 +3133,25 @@ namespace MasterOnline.Controllers
                                 //var dateExpired = DateTimeOffset.FromUnixTimeSeconds(result.expire_in).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                                 var dateExpired = dataAPI.token_expired.Value.ToString("yyyy-MM-dd HH:mm:ss");
 
+                                #region insert to dynamo db
+                                if (dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_RAHMAMK" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_710298"
+                                    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_930355" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_750320"
+                                    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_1521519" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_770308")
+                                {
+                                    try
+                                    {
+                                        var ttl = (long)milisBack.AddDays(1).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+                                        string js = "{ \"db_name\": \"" + dataAPI.DatabasePathErasoft + "\", \"expired_date\": \"" + dateExpired
+                                            + "\", \"token\": \"" + dataAPI.token + "\", \"refresh_token\": \"" + dataAPI.refresh_token
+                                            + "\", \"cust\": \"" + dataAPI.no_cust + "\", \"ttl\": " + ttl + "}";
+                                        Services.UploadImageService.InsertToDB(js, "shopeev2_token");
+                                    }
+                                    catch (Exception ex)
+                                    {
+
+                                    }
+                                }
+                                #endregion
                                 DatabaseSQL EDB = new DatabaseSQL(dataAPI.DatabasePathErasoft);
                                 var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', KD_ANALISA = '2', Sort1_Cust = '"
                                     + dataAPI.merchant_code + "', TOKEN_EXPIRED = '" + dateExpired + "', API_KEY = '" + dataAPI.API_secret_key
