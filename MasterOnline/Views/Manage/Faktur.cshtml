@@ -7036,7 +7036,7 @@
         function getGudangForBarangBundling() {
             if ($('#FakturBundling_BRG').val() != '') {
 
-                var link = '@Url.Action("GetGudangBarangFaktur", "Manage", new { brgId = "replaceId" })';
+                var link = '@Url.Action("GetGudangBarangBundlingFaktur", "Manage", new { brgId = "replaceId" })';
                 link = link.replace("replaceId", encodeURIComponent($('#FakturBundling_BRG').val()));
                 $.ajax({
                     type: "GET",
