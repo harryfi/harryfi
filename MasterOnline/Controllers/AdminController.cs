@@ -870,7 +870,7 @@ namespace MasterOnline.Controllers
                     //marketVm.Marketplace.LokasiLogo = IPServerLocation + @"Content\Uploaded\" + fileName;
                     //file.SaveAs(path);
                     
-                    var pathLoc = UploadFileServices.UploadFile_KTP(file);
+                    var pathLoc = UploadFileServices.UploadFile_KTP(file, marketVm.Marketplace.NamaMarket);
                     if (pathLoc != null)
                     {
                         marketVm.Marketplace.LokasiLogo = pathLoc;

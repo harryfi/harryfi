@@ -5764,6 +5764,9 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+
+        [AutomaticRetry(Attempts = 0)]
+        [Queue("1_create_product")]
         public async Task<string> GetProdukInReviewList(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, string requestID, string ProductCode, string gdnSku, string api_log_requestId)
         {
             long milis = CurrentTimeMillis();
