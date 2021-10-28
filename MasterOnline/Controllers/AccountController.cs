@@ -1922,7 +1922,7 @@ namespace MasterOnline.Controllers
                     //file.SaveAs(path);
                     
                     var fileName = account.Email.Replace(".", "_").Replace("@", "_") + ".jpg";
-                    var pathLoc = UploadFileServices.UploadFile_KTP(file);
+                    var pathLoc = UploadFileServices.UploadFile_KTP(file, fileName);
                     if (pathLoc != null)
                     {
                         account.PhotoKtpUrl = pathLoc;
@@ -2494,7 +2494,7 @@ namespace MasterOnline.Controllers
 
                     var fileName = "partner_" + partner.Email.Replace(".", "_").Replace("@", "_") + ".jpg";
                     
-                    var pathLoc = UploadFileServices.UploadFile_KTP(file);
+                    var pathLoc = UploadFileServices.UploadFile_KTP(file, fileName);
                     if (pathLoc != null)
                     {
                         partner.PhotoKtpUrl = pathLoc;

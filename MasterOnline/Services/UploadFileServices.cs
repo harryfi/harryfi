@@ -180,10 +180,10 @@ namespace MasterOnline.Services
             return dataUrl;
         }
 
-        public static string UploadFile_KTP(HttpPostedFileBase file)
+        public static string UploadFile_KTP(HttpPostedFileBase file, string fileName)
         {
             string dataUrl = null;
-            var fileName = Guid.NewGuid().ToString();
+            //var fileName = Guid.NewGuid().ToString();
 
             try
             {
@@ -194,7 +194,7 @@ namespace MasterOnline.Services
                     PutObjectRequest putRequest = new PutObjectRequest
                     {
                         BucketName = _bucketName,
-                        Key = _bucketFileName_FotoKTP + string.Format(file.FileName),
+                        Key = _bucketFileName_FotoKTP + fileName,
                         CannedACL = S3CannedACL.PublicRead,//PERMISSION TO FILE PUBLIC ACCESIBLE
                         ContentType = file.ContentType,
                         InputStream = inputSteram,
