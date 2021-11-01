@@ -9992,7 +9992,7 @@
 
             if (confirm("Perbaiki Kode Barang menjadi " + kode + " ?"))
             {
-                var link = '@Url.Action("UpdateFixNotFound", "Manage", new { nourut = "replaceNoUrut" })';
+                var link = '@Url.Action("CheckFixNotFound", "Manage", new { nourut = "replaceNoUrut" })';
                 link = link.replace("replaceNoUrut", encodeURIComponent(sot01b_nourut + ';' + stf02h_recnum));
 
                 $.ajax({
@@ -10008,25 +10008,15 @@
                             alert(response.Errors[0]);
                         }
                         else {
-                            alert('Data berhasil disimpan!');
-                            $('#modalFixNotFound').modal('hide');
-                            $modeEdit = 1;
-                            $modeEditDibayar = 1;
-                            $('#form-partial-sudah-dibayar').html(response);
-                            $('#see_tgl_pesanan').removeAttr('style');
-                            $('#TGL').parent().hide();
-                            $('.pesanan_sudah_dibayar_section').hide();
-                            $('.pesanan_editor_sudah_dibayar_section').show();
-                            $('#myTab li a').each(function () {
-                                $(this).removeAttr('data-toggle');
-
-                                if ($(this).attr('id') === 'nunggu-tab') return;
-
-                                $(this).addClass('disabled-tab');
-                            });
-                            $('.cm-bundling').attr('readonly', 'readonly').css('cursor', 'not-allowed');
-                            if (flagBundling != "1") {
-                                $('.cm-bundling').attr('readonly', 'readonly').css('background-color', '#eee').css('cursor', 'not-allowed');
+                            if (response.qnf > 0) {
+                                $('#divDetail').show();
+                                $('#txtKdBrg').text('Kode Barang : ' + kode);
+                                $('#txtStok').text(response.qoh);
+                                $('#txtStokPesanan').text(response.qoo);
+                                $('#txtStokPesananNF').text(response.qnf);
+                            }
+                            else {
+                                updateNotFoundProcess(sot01b_nourut, stf02h_recnum, kode);
                             }
                         }
                         $('#loading_spinner').hide();
@@ -10036,9 +10026,82 @@
                     }
                 });
             }
+    }
+    function HideNotFoundAll() {
+        $('#divDetail').hide();
+        $('#txtKdBrg').innerText('');
+        $('#txtStok').innerText('');
+        $('#txtStokPesanan').innerText('');
+        $('#txtStokPesananNF').innerText('');
+    }
+    var codenotfound = "";
+        function updateNotFoundProcessNew(all){
+            if (confirm("Perbaiki Kode Barang menjadi " + $('#txtKdBrg').innerText() + (all == 1 ? " untuk semua pesanan" : "") + " ?"))
+            {
+                var link = '@Url.Action("UpdateFixNotFound", "Manage", new { nourut = "replaceNoUrut" })';
+                link = link.replace("replaceNoUrut", encodeURIComponent(codenotfound));
+                link += "&updateall=" + all;
+                $.ajax({
+                    type: "POST",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    beforeSend: function() {
+                        $('#loading_spinner').show();
+                    },
+                    success: function (response) {
+                        HideNotFoundAll();
+                        if (response.Errors != null) {
+                            alert(response.Errors[0]);
+                        }
+                        else {
+                            //lihatPesananSudahDibayar
+                            alert('Data berhasil disimpan!');
+                            $('#modalFixNotFound').modal('hide');
+                            //samakan dengan function lihatPesananSudahDibayar onSuccess
+                            //add by nurul 1/11/2018
+                            $modeEdit = 1;
+                            $modeEditDibayar = 1;
+                            //end add
+                            $('#form-partial-sudah-dibayar').html(response);
+                            $('#see_tgl_pesanan').removeAttr('style');
+                            //$('#see_marketplace_pesanan').val($('#Pesanan_CUST').val()).show();
+                            //$('#see_expedisi_pesanan').val($('#Pesanan_SHIPMENT').val()).show();//remark 15 april 2019
+                            //$('#see_pembeli_pesanan').val($('#Pesanan_NAMAPEMESAN').val()).show();
+                            //ADD BY NURUL 16/4/2019
+                            //$('#see_alamat_pembeli').val().show();
+                            //END ADD BY NURUL 16/4/2019
+                            $('#TGL').parent().hide();
+                            $('.pesanan_sudah_dibayar_section').hide();
+                            $('.pesanan_editor_sudah_dibayar_section').show();
+                            //add by nurul 17/10/2018
+                            $('#myTab li a').each(function () {
+                                $(this).removeAttr('data-toggle');
+
+                                if ($(this).attr('id') === 'nunggu-tab') return;
+
+                                $(this).addClass('disabled-tab');
+                            });
+                            //end add
+                            $('.cm-bundling').attr('readonly', 'readonly').css('cursor', 'not-allowed');
+                            if (flagBundling != "1") {
+                                $('.cm-bundling').attr('readonly', 'readonly').css('background-color', '#eee').css('cursor', 'not-allowed');
+                            }
+                        }
+                        $('#loading_spinner').hide();
+                        //end samakan dengan function lihatPesananSudahDibayar onSuccess
+                    },
+                    error: function(xhr) {
+                        console.log(xhr);
+                        HideNotFoundAll();
+                    }
+                });
+
+            }
         }
         function updateNotFoundProcess(sot01b_nourut,stf02h_recnum,kode){
-            if(confirm("Perbaiki Kode Barang menjadi " + kode + " ?")){
+            //if (confirm("Perbaiki Kode Barang menjadi " + kode + " ?"))
+            {
                 var link = '@Url.Action("UpdateFixNotFound", "Manage", new { nourut = "replaceNoUrut" })';
                 link = link.replace("replaceNoUrut", encodeURIComponent(sot01b_nourut + ';' + stf02h_recnum));
 
