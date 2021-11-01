@@ -3517,6 +3517,55 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="modalFixNotFoundMassal" tabindex="-1" role="dialog" aria-labelledby="fixNotFoundMassalLabel">
+    <div class="modal-dialog" id="fix-not-foundMassal" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="fixNotFoundMassalLabel">Perbaikan data barang</h4>
+            </div>
+            <div class="modal-body" id="modal-fix-not-foundMassal-body">
+                <div class="row">
+                    <label class="control-label col-md-5 col-sm-5">Kode Barang Tujuan</label>
+                    <label class="control-label col-md-1 col-sm-1" style="text-align:end">:</label>
+                    <label class="control-label col-md-1 col-sm-1" id="txtKdBrg"></label>
+                </div>
+                <div class="row">
+                    <label class="control-label col-md-5 col-sm-5">Stok Fisik</label>
+                    <label class="control-label col-md-1 col-sm-1" style="text-align:end">:</label>
+                    <label class="control-label col-md-1 col-sm-1" id="txtStok"></label>
+                </div>
+                <div class="row">
+                    <label class="control-label col-md-5 col-sm-5">Qty Pesanan</label>
+                    <label class="control-label col-md-1 col-sm-1" style="text-align:end">:</label>
+                    <label class="control-label col-md-1 col-sm-1" id="txtStokPesanan"></label>
+                </div>
+                <div class="row">
+                    <label class="control-label col-md-5 col-sm-5">Qty Siap Jual</label>
+                    <label class="control-label col-md-1 col-sm-1" style="text-align:end">:</label>
+                    <label class="control-label col-md-1 col-sm-1" id="txtStokSJ"></label>
+                </div>
+                <br />
+                <div class="row">
+                    <label class="control-label col-md-12 col-sm-12">Ada <span id="txtJmlPesanan"></span> Pesanan NOT_FOUND lain dengan barang marketplace yang sama.</label>
+                </div>
+                <div class="row">
+                    <label class="control-label col-md-5 col-sm-5">Total Qty Pesanan NOT FOUND</label>
+                    <label class="control-label col-md-1 col-sm-1" style="text-align:end">:</label>
+                    <label class="control-label col-md-1 col-sm-1" id="txtStokPesananNF"></label>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="row form-group">
+                    <div class="col-md-4 col-sm-4" style="text-align:start"> <button id="btnCancel" class="btn btn-danger" onclick="batalFixNotFound();"> Batal </button></div>
+                    <div class="col-md-4 col-sm-4" style="text-align:center"> <button id="btnConf" class="btn btn-primary" onclick="updateNotFoundProcessNew(0);"> Perbaiki Pesanan ini </button></div>
+                    <div class="col-md-4 col-sm-4" style="text-align:end"> <button id="btnUpdateAll" class="btn btn-primary" onclick="updateNotFoundProcessNew(1);"> Perbaiki Semua Pesanan </button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="modal fade" id="modalFixNotFound" tabindex="-1" role="dialog" aria-labelledby="fixNotFoundLabel">
     <div class="modal-dialog" id="fix-not-found" role="document">
         <div class="modal-content">
@@ -4135,7 +4184,7 @@
     @*<script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>*@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
-<script type="text/javascript">
+    <script type="text/javascript">
         var selectBrg = $('#BRG').selectivity();
         var $statusAPI = window.text;
         var $modeEditPesanan = 0;
@@ -10009,11 +10058,18 @@
                         }
                         else {
                             if (response.qnf > 0) {
+                                codenotfound = sot01b_nourut + ';' + stf02h_recnum;
+                                //$('#divDetail').show();
+                                qtynow = response.qoh - response.qoo - response.qnf;
                                 $('#divDetail').show();
-                                $('#txtKdBrg').text('Kode Barang : ' + kode);
+                                $('#txtKdBrg').text(kode);
                                 $('#txtStok').text(response.qoh);
                                 $('#txtStokPesanan').text(response.qoo);
+                                $('#txtStokSJ').text(response.qoh - response.qoo);
                                 $('#txtStokPesananNF').text(response.qnf);
+                                $('#txtJmlPesanan').text(response.jmlOrder);
+                                $('#modalFixNotFound').modal('hide');
+                                $('#modalFixNotFoundMassal').modal('show');
                             }
                             else {
                                 updateNotFoundProcess(sot01b_nourut, stf02h_recnum, kode);
@@ -10029,14 +10085,21 @@
     }
     function HideNotFoundAll() {
         $('#divDetail').hide();
-        $('#txtKdBrg').innerText('');
-        $('#txtStok').innerText('');
-        $('#txtStokPesanan').innerText('');
-        $('#txtStokPesananNF').innerText('');
+        $('#txtKdBrg').text('');
+        $('#txtStok').text('');
+        $('#txtStokPesanan').text('');
+        $('#txtStokPesananNF').text('');
     }
-    var codenotfound = "";
+        var codenotfound = "";
+        var qtynow = 0;
+    function batalFixNotFound() {
+        $('#modalFixNotFound').modal('hide');
+        $('#modalFixNotFoundMassal').modal('hide');
+        //HideNotFoundAll();
+    }
         function updateNotFoundProcessNew(all){
-            if (confirm("Perbaiki Kode Barang menjadi " + $('#txtKdBrg').innerText() + (all == 1 ? " untuk semua pesanan" : "") + " ?"))
+            if (confirm("Perbaiki Kode Barang menjadi " + $('#txtKdBrg')[0].innerHTML
+                + (all == 1 ? " untuk " + $('#txtJmlPesanan')[0].innerHTML + " pesanan?\nQty siap jual " + $('#txtKdBrg')[0].innerHTML + " akan menjadi : " + qtynow : " untuk pesanan " + $('#Pesanan_NO_REFERENSI').val() + " ?")))
             {
                 var link = '@Url.Action("UpdateFixNotFound", "Manage", new { nourut = "replaceNoUrut" })';
                 link = link.replace("replaceNoUrut", encodeURIComponent(codenotfound));
@@ -10050,14 +10113,15 @@
                         $('#loading_spinner').show();
                     },
                     success: function (response) {
-                        HideNotFoundAll();
+                        //HideNotFoundAll();
                         if (response.Errors != null) {
                             alert(response.Errors[0]);
                         }
                         else {
                             //lihatPesananSudahDibayar
                             alert('Data berhasil disimpan!');
-                            $('#modalFixNotFound').modal('hide');
+                            //$('#modalFixNotFound').modal('hide');
+                            $('#modalFixNotFoundMassal').modal('hide');
                             //samakan dengan function lihatPesananSudahDibayar onSuccess
                             //add by nurul 1/11/2018
                             $modeEdit = 1;
@@ -10093,7 +10157,7 @@
                     },
                     error: function(xhr) {
                         console.log(xhr);
-                        HideNotFoundAll();
+                        //HideNotFoundAll();
                     }
                 });
 
@@ -13640,7 +13704,7 @@
             });
         }
         //end add by nurul 15/6/2021
-</script>
+    </script>
     <script>
         //Disable Enter Key Submit Form
         function stopRKey(evt) {
