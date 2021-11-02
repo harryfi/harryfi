@@ -10103,7 +10103,7 @@
             {
                 var link = '@Url.Action("UpdateFixNotFound", "Manage", new { nourut = "replaceNoUrut" })';
                 link = link.replace("replaceNoUrut", encodeURIComponent(codenotfound));
-                link += "&updateall=" + all;
+                link += "&all=" + all;
                 $.ajax({
                     type: "POST",
                     url: link,
