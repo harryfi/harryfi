@@ -6288,7 +6288,8 @@ namespace MasterOnline.Controllers
                                 //change by calvin 1 maret 2019
                                 //ImageConverter _imageConverter = new ImageConverter();
                                 //byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
-                                System.Drawing.Imaging.ImageCodecInfo jpgEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
+                                //System.Drawing.Imaging.ImageCodecInfo jpgEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
+                                ImageCodecInfo jpgEncoder = GetEncoder(urlPicture.Split('.').Last() != "png" ? ImageFormat.Jpeg : ImageFormat.Png);
 
                                 System.Drawing.Imaging.Encoder myEncoder =
                                     System.Drawing.Imaging.Encoder.Quality;
