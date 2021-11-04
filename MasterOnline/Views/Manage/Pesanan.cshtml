@@ -3517,6 +3517,55 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="modalFixNotFoundMassal" tabindex="-1" role="dialog" aria-labelledby="fixNotFoundMassalLabel">
+    <div class="modal-dialog" id="fix-not-foundMassal" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="fixNotFoundMassalLabel">Perbaikan data barang</h4>
+            </div>
+            <div class="modal-body" id="modal-fix-not-foundMassal-body">
+                <div class="row">
+                    <label class="control-label col-md-5 col-sm-5">Kode Barang Tujuan</label>
+                    <label class="control-label col-md-1 col-sm-1" style="text-align:end">:</label>
+                    <label class="control-label col-md-1 col-sm-1" id="txtKdBrg"></label>
+                </div>
+                <div class="row">
+                    <label class="control-label col-md-5 col-sm-5">Stok Fisik</label>
+                    <label class="control-label col-md-1 col-sm-1" style="text-align:end">:</label>
+                    <label class="control-label col-md-1 col-sm-1" id="txtStok"></label>
+                </div>
+                <div class="row">
+                    <label class="control-label col-md-5 col-sm-5">Qty Pesanan</label>
+                    <label class="control-label col-md-1 col-sm-1" style="text-align:end">:</label>
+                    <label class="control-label col-md-1 col-sm-1" id="txtStokPesanan"></label>
+                </div>
+                <div class="row">
+                    <label class="control-label col-md-5 col-sm-5">Qty Siap Jual</label>
+                    <label class="control-label col-md-1 col-sm-1" style="text-align:end">:</label>
+                    <label class="control-label col-md-1 col-sm-1" id="txtStokSJ"></label>
+                </div>
+                <br />
+                <div class="row">
+                    <label class="control-label col-md-12 col-sm-12">Ada <span id="txtJmlPesanan"></span> Pesanan NOT_FOUND lain dengan barang marketplace yang sama.</label>
+                </div>
+                <div class="row">
+                    <label class="control-label col-md-5 col-sm-5">Total Qty Pesanan NOT FOUND</label>
+                    <label class="control-label col-md-1 col-sm-1" style="text-align:end">:</label>
+                    <label class="control-label col-md-1 col-sm-1" id="txtStokPesananNF"></label>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="row form-group">
+                    <div class="col-md-4 col-sm-4" style="text-align:start"> <button id="btnCancel" class="btn btn-danger" onclick="batalFixNotFound();"> Batal </button></div>
+                    <div class="col-md-4 col-sm-4" style="text-align:center"> <button id="btnConf" class="btn btn-primary" onclick="updateNotFoundProcessNew(0);"> Perbaiki Pesanan ini </button></div>
+                    <div class="col-md-4 col-sm-4" style="text-align:end"> <button id="btnUpdateAll" class="btn btn-primary" onclick="updateNotFoundProcessNew(1);"> Perbaiki Semua Pesanan </button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="modal fade" id="modalFixNotFound" tabindex="-1" role="dialog" aria-labelledby="fixNotFoundLabel">
     <div class="modal-dialog" id="fix-not-found" role="document">
         <div class="modal-content">
@@ -9988,8 +10037,135 @@
                 }
             });
         }
-        function updateNotFound(sot01b_nourut,stf02h_recnum,kode){
-            if(confirm("Perbaiki Kode Barang menjadi " + kode + " ?")){
+        function updateNotFound(sot01b_nourut, stf02h_recnum, kode) {
+
+            if (confirm("Perbaiki Kode Barang menjadi " + kode + " ?"))
+            {
+                var link = '@Url.Action("CheckFixNotFound", "Manage", new { nourut = "replaceNoUrut" })';
+                link = link.replace("replaceNoUrut", encodeURIComponent(sot01b_nourut + ';' + stf02h_recnum));
+
+                $.ajax({
+                    type: "POST",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    beforeSend: function() {
+                        $('#loading_spinner').show();
+                    },
+                    success: function (response) {
+                        if (response.Errors != null) {
+                            alert(response.Errors[0]);
+                        }
+                        else {
+                            if (response.qnf > 0) {
+                                codenotfound = sot01b_nourut + ';' + stf02h_recnum;
+                                //$('#divDetail').show();
+                                qtynow = response.qoh - response.qoo - response.qnf;
+                                $('#divDetail').show();
+                                $('#txtKdBrg').text(kode);
+                                $('#txtStok').text(response.qoh);
+                                $('#txtStokPesanan').text(response.qoo);
+                                $('#txtStokSJ').text(response.qoh - response.qoo);
+                                $('#txtStokPesananNF').text(response.qnf);
+                                $('#txtJmlPesanan').text(response.jmlOrder);
+                                $('#modalFixNotFound').modal('hide');
+                                $('#modalFixNotFoundMassal').modal('show');
+                            }
+                            else {
+                                updateNotFoundProcess(sot01b_nourut, stf02h_recnum, kode);
+                            }
+                        }
+                        $('#loading_spinner').hide();
+                    },
+                    error: function(xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }
+    }
+    function HideNotFoundAll() {
+        $('#divDetail').hide();
+        $('#txtKdBrg').text('');
+        $('#txtStok').text('');
+        $('#txtStokPesanan').text('');
+        $('#txtStokPesananNF').text('');
+    }
+        var codenotfound = "";
+        var qtynow = 0;
+    function batalFixNotFound() {
+        $('#modalFixNotFound').modal('hide');
+        $('#modalFixNotFoundMassal').modal('hide');
+        //HideNotFoundAll();
+    }
+        function updateNotFoundProcessNew(all){
+            if (confirm("Perbaiki Kode Barang menjadi " + $('#txtKdBrg')[0].innerHTML
+                + (all == 1 ? " untuk " + $('#txtJmlPesanan')[0].innerHTML + " pesanan?\nQty siap jual " + $('#txtKdBrg')[0].innerHTML + " akan menjadi : " + qtynow : " untuk pesanan " + $('#Pesanan_NO_REFERENSI').val() + " ?")))
+            {
+                var link = '@Url.Action("UpdateFixNotFound", "Manage", new { nourut = "replaceNoUrut" })';
+                link = link.replace("replaceNoUrut", encodeURIComponent(codenotfound));
+                link += "&all=" + all;
+                $.ajax({
+                    type: "POST",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    beforeSend: function() {
+                        $('#loading_spinner').show();
+                    },
+                    success: function (response) {
+                        //HideNotFoundAll();
+                        if (response.Errors != null) {
+                            alert(response.Errors[0]);
+                        }
+                        else {
+                            //lihatPesananSudahDibayar
+                            alert('Data berhasil disimpan!');
+                            //$('#modalFixNotFound').modal('hide');
+                            $('#modalFixNotFoundMassal').modal('hide');
+                            //samakan dengan function lihatPesananSudahDibayar onSuccess
+                            //add by nurul 1/11/2018
+                            $modeEdit = 1;
+                            $modeEditDibayar = 1;
+                            //end add
+                            $('#form-partial-sudah-dibayar').html(response);
+                            $('#see_tgl_pesanan').removeAttr('style');
+                            //$('#see_marketplace_pesanan').val($('#Pesanan_CUST').val()).show();
+                            //$('#see_expedisi_pesanan').val($('#Pesanan_SHIPMENT').val()).show();//remark 15 april 2019
+                            //$('#see_pembeli_pesanan').val($('#Pesanan_NAMAPEMESAN').val()).show();
+                            //ADD BY NURUL 16/4/2019
+                            //$('#see_alamat_pembeli').val().show();
+                            //END ADD BY NURUL 16/4/2019
+                            $('#TGL').parent().hide();
+                            $('.pesanan_sudah_dibayar_section').hide();
+                            $('.pesanan_editor_sudah_dibayar_section').show();
+                            //add by nurul 17/10/2018
+                            $('#myTab li a').each(function () {
+                                $(this).removeAttr('data-toggle');
+
+                                if ($(this).attr('id') === 'nunggu-tab') return;
+
+                                $(this).addClass('disabled-tab');
+                            });
+                            //end add
+                            $('.cm-bundling').attr('readonly', 'readonly').css('cursor', 'not-allowed');
+                            if (flagBundling != "1") {
+                                $('.cm-bundling').attr('readonly', 'readonly').css('background-color', '#eee').css('cursor', 'not-allowed');
+                            }
+                        }
+                        $('#loading_spinner').hide();
+                        //end samakan dengan function lihatPesananSudahDibayar onSuccess
+                    },
+                    error: function(xhr) {
+                        console.log(xhr);
+                        //HideNotFoundAll();
+                    }
+                });
+
+            }
+        }
+        function updateNotFoundProcess(sot01b_nourut,stf02h_recnum,kode){
+            //if (confirm("Perbaiki Kode Barang menjadi " + kode + " ?"))
+            {
                 var link = '@Url.Action("UpdateFixNotFound", "Manage", new { nourut = "replaceNoUrut" })';
                 link = link.replace("replaceNoUrut", encodeURIComponent(sot01b_nourut + ';' + stf02h_recnum));
 
