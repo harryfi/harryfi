@@ -1052,9 +1052,11 @@ namespace MasterOnline.Controllers
                                 if (sync_pesanan_stok == tblCustomer.CUST)
                                 {
 #if (AWS || DEV)
+                                    client.Enqueue<LazadaControllerJob>(x => x.GetOrders_GoLive_Unpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username));
                                     client.Enqueue<LazadaControllerJob>(x => x.GetOrders_GoLive_Pending(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username));
                                     client.Enqueue<LazadaControllerJob>(x => x.GetOrders_GoLive_RTS(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username));
 #else
+                                    new LazadaControllerJob().GetOrders_GoLive_Unpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
                                     new LazadaControllerJob().GetOrders_GoLive_Pending(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
                                     new LazadaControllerJob().GetOrders_GoLive_RTS(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
 #endif
@@ -1481,8 +1483,10 @@ namespace MasterOnline.Controllers
                                 //client.Enqueue<ShopeeControllerJob>(x => x.GetOrderByStatusWithDay(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0, fromDt, toDt));
 
 #if (AWS || DEV)
+                                client.Enqueue<ShopeeControllerJob>(x => x.GetOrderGoLiveUnpaid(iden, ShopeeControllerJob.StatusOrder.UNPAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0));
                                 client.Enqueue<ShopeeControllerJob>(x => x.GetOrderGoLive(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0));
 #else
+                                await new ShopeeControllerJob().GetOrderGoLiveUnpaid(iden, ShopeeControllerJob.StatusOrder.UNPAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
                                 await new ShopeeControllerJob().GetOrderGoLive(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
 #endif
                             }

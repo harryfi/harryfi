@@ -2200,7 +2200,7 @@ namespace MasterOnline.Controllers
             var more = true;
             //add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
             var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
-            delQry += DateTime.UtcNow.AddHours(7).AddHours(-12).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + cust + "'";
+            delQry += DateTime.UtcNow.AddHours(7).AddHours(-6).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + cust + "'";
             
             var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
             //end add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
@@ -2210,7 +2210,7 @@ namespace MasterOnline.Controllers
             //var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-3); 
             //changed 8 jul 2021, ambil -12jam
             //var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-1);
-            var fromDt = DateTime.UtcNow.AddHours(7).AddHours(-12);
+            var fromDt = DateTime.UtcNow.AddHours(7).AddHours(-6);
             //end changed 8 jul 2021, ambil -12jam
             //end change 24 mei 2021, ubah ambil -1 hari saja
             //var toDt = DateTime.UtcNow.AddHours(7).AddDays(1)
@@ -2270,6 +2270,58 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public BindingBase GetOrders_GoLive_Unpaid(string cust, string accessToken, string dbPathEra, string uname)
+        {
+            var ret = new BindingBase();
+            SetupContext(dbPathEra, uname);
+            int page = 0;
+            var more = true;
+
+            var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-1);
+            var toDt = DateTime.UtcNow.AddHours(7);
+
+            //add by nurul 20/1/2021, bundling 
+            var AdaPesanan = false;
+            var AdaKomponen = false;
+            var connIdProses = "";
+            List<string> tempConnId = new List<string>() { };
+            //end add by nurul 20/1/2021, bundling 
+
+            while (more)
+            {
+                var count = GetOrdersUnpaidWithPage(cust, accessToken, dbPathEra, uname, page, fromDt, toDt);
+                page++;
+                //add by nurul 20/1/2021, bundling 
+                if (count.AdaPesanan)
+                {
+                    AdaPesanan = count.AdaPesanan;
+                }
+                if (count.ConnId != "")
+                {
+                    tempConnId.Add(count.ConnId);
+                    connIdProses += "'" + count.ConnId + "' , ";
+                }
+                if (count.AdaKomponen)
+                {
+                    AdaKomponen = count.AdaKomponen;
+                }
+                //end add by nurul 20/1/2021, bundling 
+                if (count.recordCount < 100)
+                {
+                    more = false;
+                }
+            }
+            //add by nurul 20/1/2021, bundling 
+            if (!string.IsNullOrEmpty(connIdProses))
+            {
+                new StokControllerJob().getQtyBundling(dbPathEra, uname, connIdProses.Substring(0, connIdProses.Length - 3));
+            }
+            //end add by nurul 20/1/2021, bundling
+
+            return ret;
+        }
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
         public BindingBase GetOrders_GoLive_Pending(string cust, string accessToken, string dbPathEra, string uname)
@@ -2600,7 +2652,7 @@ namespace MasterOnline.Controllers
             var dsOrder = EDB.GetDataSet("CString", "SOT01", "SELECT NO_REFERENSI FROM SOT01A WHERE CUST = '" + CUST + "' AND USER_NAME = 'Auto Lazada"
                 //changed 8 jul 2021, ambil -11jam
                 //+ "' AND TGL <= '" + DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' AND TGL >= '"
-                + "' AND TGL <= '" + DateTime.UtcNow.AddHours(7).AddHours(-11).ToString("yyyy-MM-dd HH:mm:ss") + "' AND TGL >= '"
+                + "' AND TGL <= '" + DateTime.UtcNow.AddHours(7).AddHours(-6).ToString("yyyy-MM-dd HH:mm:ss") + "' AND TGL >= '"
             //end changed 8 jul 2021, ambil -11jam
                 + DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "' AND STATUS_TRANSAKSI = '0' AND ISNULL(NO_REFERENSI, '') <> ''");
             if (dsOrder.Tables[0].Rows.Count > 0)
@@ -3630,7 +3682,7 @@ namespace MasterOnline.Controllers
 
             //add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
             var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
-            delQry += DateTime.UtcNow.AddHours(7).AddHours(-12).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + cust + "'";
+            delQry += DateTime.UtcNow.AddHours(7).AddHours(-6).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + cust + "'";
 
             var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
             //end add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
@@ -3638,7 +3690,7 @@ namespace MasterOnline.Controllers
             //add 16 des 2020, fixed date
             //changed 8 jul 2021, ambil -12jam
             //var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-1);
-            var fromDt = DateTime.UtcNow.AddHours(7).AddHours(-12);
+            var fromDt = DateTime.UtcNow.AddHours(7).AddHours(-6);
             //end changed 8 jul 2021, ambil -12jam
             //var toDt = DateTime.UtcNow.AddHours(7).AddDays(1);
             var toDt = DateTime.UtcNow.AddHours(7);
