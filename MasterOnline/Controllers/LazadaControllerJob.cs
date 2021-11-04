@@ -2272,6 +2272,58 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
+        public BindingBase GetOrders_GoLive_Unpaid(string cust, string accessToken, string dbPathEra, string uname)
+        {
+            var ret = new BindingBase();
+            SetupContext(dbPathEra, uname);
+            int page = 0;
+            var more = true;
+
+            var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-1);
+            var toDt = DateTime.UtcNow.AddHours(7);
+
+            //add by nurul 20/1/2021, bundling 
+            var AdaPesanan = false;
+            var AdaKomponen = false;
+            var connIdProses = "";
+            List<string> tempConnId = new List<string>() { };
+            //end add by nurul 20/1/2021, bundling 
+
+            while (more)
+            {
+                var count = GetOrdersUnpaidWithPage(cust, accessToken, dbPathEra, uname, page, fromDt, toDt);
+                page++;
+                //add by nurul 20/1/2021, bundling 
+                if (count.AdaPesanan)
+                {
+                    AdaPesanan = count.AdaPesanan;
+                }
+                if (count.ConnId != "")
+                {
+                    tempConnId.Add(count.ConnId);
+                    connIdProses += "'" + count.ConnId + "' , ";
+                }
+                if (count.AdaKomponen)
+                {
+                    AdaKomponen = count.AdaKomponen;
+                }
+                //end add by nurul 20/1/2021, bundling 
+                if (count.recordCount < 100)
+                {
+                    more = false;
+                }
+            }
+            //add by nurul 20/1/2021, bundling 
+            if (!string.IsNullOrEmpty(connIdProses))
+            {
+                new StokControllerJob().getQtyBundling(dbPathEra, uname, connIdProses.Substring(0, connIdProses.Length - 3));
+            }
+            //end add by nurul 20/1/2021, bundling
+
+            return ret;
+        }
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
         public BindingBase GetOrders_GoLive_Pending(string cust, string accessToken, string dbPathEra, string uname)
         {
             var ret = new BindingBase();

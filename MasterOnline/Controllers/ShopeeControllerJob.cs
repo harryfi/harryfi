@@ -2418,6 +2418,57 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
+        public async Task<string> GetOrderGoLiveUnpaid(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar)
+        {
+            SetupContext(iden);
+
+            if (!string.IsNullOrEmpty(iden.token))
+            {
+                iden = await RefreshTokenShopee_V2(iden, false);
+            }
+
+            var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-1).AddHours(-7).ToUnixTimeSeconds();
+            var toDt = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+           
+            var AdaKomponen = false;
+            var returnGetOrder = await GetOrderByStatusWithDay(iden, stat, CUST, NAMA_CUST, 0, 0, 0, fromDt, toDt);
+            if (returnGetOrder.AdaKomponen)
+            {
+                AdaKomponen = returnGetOrder.AdaKomponen;
+            }
+            var lanjut = returnGetOrder.more;
+            var connIdProses = "";
+            List<string> tempConnId = new List<string>() { };
+            if (returnGetOrder.ConnId != "")
+            {
+                tempConnId.Add(returnGetOrder.ConnId);
+                connIdProses += "'" + returnGetOrder.ConnId + "' , ";
+            }
+            while (lanjut)
+            {
+                var nextReturnGetOrder = await GetOrderByStatusWithDay(iden, stat, CUST, NAMA_CUST, returnGetOrder.page, returnGetOrder.jmlhNewOrder, returnGetOrder.jmlhPesananDibayar, fromDt, toDt);
+                if (nextReturnGetOrder.ConnId != "")
+                {
+                    tempConnId.Add(nextReturnGetOrder.ConnId);
+                    connIdProses += "'" + returnGetOrder.ConnId + "' , ";
+                }
+                if (nextReturnGetOrder.AdaKomponen)
+                {
+                    AdaKomponen = nextReturnGetOrder.AdaKomponen;
+                }
+                returnGetOrder = nextReturnGetOrder;
+                if (!nextReturnGetOrder.more) { lanjut = false; break; }
+            }
+            if (!string.IsNullOrEmpty(connIdProses))
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username, connIdProses.Substring(0, connIdProses.Length - 3));
+            }
+
+            return "";
+        }
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
         //public async Task<string> GetOrderByStatusWithDay(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, long daysFrom, long daysTo)
         public async Task<returnsGetOrder> GetOrderByStatusWithDay(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, long daysFrom, long daysTo)
         {
