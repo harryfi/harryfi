@@ -9050,14 +9050,14 @@ namespace MasterOnline.Controllers
                                                     if (cekVal.Count == 0)
                                                     {
                                                         attrValue.value_id = 0;
-                                                        attrValue.original_value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(singleAttr.Trim()).Replace("&nbsp;", " "));
+                                                        attrValue.original_value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(singleAttr.Trim()).Replace("&nbsp;", " ").Replace("&#160;", " ").Replace("&#xA0;", " "));
                                                         attrValue.value_unit = unit ?? "";
                                                     }
                                                 }
                                                 else
                                                 {
                                                     attrValue.value_id = 0;
-                                                    attrValue.original_value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(value.Trim()).Replace("&nbsp;", " "));
+                                                    attrValue.original_value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(value.Trim()).Replace("&nbsp;", " ").Replace("&#160;", " ").Replace("&#xA0;", " "));
                                                     attrValue.value_unit = unit ?? "";
                                                 }
                                             }
@@ -9077,7 +9077,7 @@ namespace MasterOnline.Controllers
                                     }
                                     attrValue.value_id = 0;
                                     //attrValue.original_value_name = value.Trim();
-                                    attrValue.original_value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(currentAttr.Trim()).Replace("&nbsp;", " "));
+                                    attrValue.original_value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(currentAttr.Trim()).Replace("&nbsp;", " ").Replace("&#160;", " ").Replace("&#xA0;", " "));
                                     attrValue.value_unit = unit ?? "";
                                 }
                                 newAttr.attribute_value_list.Add(attrValue);
@@ -11955,14 +11955,14 @@ namespace MasterOnline.Controllers
                                                     if (cekVal.Count == 0)
                                                     {
                                                         attrValue.value_id = 0;
-                                                        attrValue.original_value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(singleAttr.Trim()).Replace("&nbsp;", " "));
+                                                        attrValue.original_value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(singleAttr.Trim()).Replace("&nbsp;", " ").Replace("&#160;", " ").Replace("&#xA0;", " "));
                                                         attrValue.value_unit = unit ?? "";
                                                     }
                                                 }
                                                 else
                                                 {
                                                     attrValue.value_id = 0;
-                                                    attrValue.original_value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(value.Trim()).Replace("&nbsp;", " "));
+                                                    attrValue.original_value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(value.Trim()).Replace("&nbsp;", " ").Replace("&#160;", " ").Replace("&#xA0;", " "));
                                                     attrValue.value_unit = unit ?? "";
                                                 }
                                             }
@@ -11982,7 +11982,7 @@ namespace MasterOnline.Controllers
                                     }
                                     attrValue.value_id = 0;
                                     //attrValue.original_value_name = value.Trim();
-                                    attrValue.original_value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(currentAttr.Trim()).Replace("&nbsp;", " "));
+                                    attrValue.original_value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(currentAttr.Trim()).Replace("&nbsp;", " ").Replace("&#160;", " ").Replace("&#xA0;", " "));
                                     attrValue.value_unit = unit ?? "";
                                 }
                                 newAttr.attribute_value_list.Add(attrValue);
