@@ -8887,7 +8887,7 @@ namespace MasterOnline.Controllers
                 if (detailBrg.DESKRIPSI_MP != "null")
                     HttpBody.description = detailBrg.DESKRIPSI_MP.Replace("’", "`");
             }
-            HttpBody.item_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(HttpBody.item_name).Replace("&nbsp;", " "));
+            HttpBody.item_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(HttpBody.item_name).Replace("&nbsp;", " ").Replace("&#160;", " ").Replace("&#xA0;", " "));
             HttpBody.dimension.package_height = Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI);
             HttpBody.dimension.package_length = Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG);
             HttpBody.dimension.package_width = Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR);
@@ -8897,7 +8897,7 @@ namespace MasterOnline.Controllers
                 HttpBody.brand.original_brand_name = detailBrg.ANAME_38;
             }
             HttpBody.image.image_id_list = new List<string>();
-            HttpBody.description = WebUtility.HtmlDecode(System.Net.WebUtility.HtmlDecode(HttpBody.description.Replace("&nbsp;", "")).Replace("&nbsp;", ""));
+            HttpBody.description = WebUtility.HtmlDecode(System.Net.WebUtility.HtmlDecode(HttpBody.description.Replace("&nbsp;", "").Replace("&#160;", " ").Replace("&#xA0;", " ")).Replace("&nbsp;", "").Replace("&#160;", " ").Replace("&#xA0;", " "));
             //add by calvin 10 mei 2019
             HttpBody.description = new StokControllerJob().RemoveSpecialCharacters(HttpBody.description);
             //end add by calvin 10 mei 2019
@@ -8907,7 +8907,7 @@ namespace MasterOnline.Controllers
             HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
             HttpBody.description = HttpBody.description.Replace("<ul>", "").Replace("</ul>", "\r\n");
             HttpBody.description = HttpBody.description.Replace("&nbsp;\r\n\r\n", "\n").Replace("&nbsp;<em>", " ");
-            HttpBody.description = HttpBody.description.Replace("</em>&nbsp;", " ").Replace("&nbsp;", " ").Replace("</em>", "");
+            HttpBody.description = HttpBody.description.Replace("</em>&nbsp;", " ").Replace("&nbsp;", " ").Replace("&#160;", " ").Replace("&#xA0;", " ").Replace("</em>", "");
             HttpBody.description = HttpBody.description.Replace("<br />\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("\r\n", "");
             //end add by nurul 20/1/2020, handle <p> dan enter double di shopee
 
@@ -11837,7 +11837,7 @@ namespace MasterOnline.Controllers
                 if (detailBrg.DESKRIPSI_MP != "null")
                     HttpBody.description = detailBrg.DESKRIPSI_MP.Replace("’", "`");
             }
-            HttpBody.item_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(HttpBody.item_name).Replace("&nbsp;", " "));
+            HttpBody.item_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(HttpBody.item_name).Replace("&nbsp;", " ").Replace("&#160;", " ").Replace("&#xA0;", " "));
             HttpBody.dimension.package_height = Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI);
             HttpBody.dimension.package_length = Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG);
             HttpBody.dimension.package_width = Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR);
@@ -11849,14 +11849,14 @@ namespace MasterOnline.Controllers
                 HttpBody.item_status = "UNLIST";
             }
             //add by nurul 20/1/2020, handle <p> dan enter double di shopee
-            HttpBody.description = WebUtility.HtmlDecode(WebUtility.HtmlDecode(HttpBody.description.Replace("&nbsp;", "")));
+            HttpBody.description = WebUtility.HtmlDecode(WebUtility.HtmlDecode(HttpBody.description.Replace("&nbsp;", "").Replace("&#160;", " ").Replace("&#xA0;", " ")));
             HttpBody.description = new StokControllerJob().RemoveSpecialCharacters(HttpBody.description);
 
             HttpBody.description = HttpBody.description.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
             HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
             HttpBody.description = HttpBody.description.Replace("<ul>", "").Replace("</ul>", "\r\n");
             HttpBody.description = HttpBody.description.Replace("&nbsp;\r\n\r\n", "\n").Replace("&nbsp;<em>", " ");
-            HttpBody.description = HttpBody.description.Replace("</em>&nbsp;", " ").Replace("&nbsp;", " ").Replace("</em>", "");
+            HttpBody.description = HttpBody.description.Replace("</em>&nbsp;", " ").Replace("&nbsp;", " ").Replace("&#160;", " ").Replace("&#xA0;", " ").Replace("</em>", "");
             HttpBody.description = HttpBody.description.Replace("<br />\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("\r\n", "");
 
             //HttpBody.description = HttpBody.description.Replace("<p>", "").Replace("</p>", "").Replace("&nbsp;\r\n\r\n", "\n").Replace("&nbsp;<em>", " ").Replace("</em>&nbsp;", " ");
