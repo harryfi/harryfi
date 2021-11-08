@@ -226,7 +226,7 @@
         });
 
         $('.foto_produk_blibli').each(function (i, item) {
-            var validImageBlibli = ["image/jpeg"];
+            var validImageBlibli = ["image/jpeg", "image/png"];
             var data_barang_level = $(item).attr("data-barang-level");
             var data_barang_id = $(item).attr("data-barang-id");
             $('#foto_produk_blibli_' + data_barang_level + '_' + data_barang_id).hide();
