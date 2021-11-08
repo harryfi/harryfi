@@ -107,7 +107,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-#if (Debug_AWS)
+#if (Debug_AWS || DEBUG)
                     dbSourceEra = sessionAccountDataSourcePathDebug.ToString(); 
 #else
                     dbSourceEra = sessionAccountDataSourcePath.ToString();
@@ -125,7 +125,7 @@ namespace MasterOnline.Controllers
                 {
                     var userAccID = Convert.ToInt64(sessionUserAccountID);
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == userAccID);
-#if (Debug_AWS)
+#if (Debug_AWS || DEBUG)
                     dbSourceEra = accFromUser.DataSourcePathDebug;
 #else
                     dbSourceEra = accFromUser.DataSourcePath;
