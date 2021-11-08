@@ -84,6 +84,7 @@ namespace MasterOnline.Models
 
         public string content_text { get; set; }
 
-        
+        [StringLength(50)]
+        public string cust { get; set; }
     }
 }

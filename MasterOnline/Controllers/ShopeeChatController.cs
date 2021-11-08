@@ -7457,6 +7457,7 @@ namespace MasterOnline.Controllers
                                             to_id = msg.to_id,
                                             to_name = msg.to_name,
                                             unread_count = msg.unread_count,
+                                            cust = cust.CUST
                                         };
                                         //masukin sampe -1 bulan 
                                         if (Convert.ToDateTime(last_message_timestamp) < dateLast1Month)
@@ -7746,6 +7747,7 @@ namespace MasterOnline.Controllers
                                             content_chat_product_infos_shop_id = 0,
                                             content_chat_product_infos_snap_shop_id = 0,
                                             content_chat_product_infos_thumb_url = "",
+                                            cust = cust.CUST
                                         };
                                         //masukin sampe -1 bulan 
                                         //if (message.last_reply_time < dateLast1Month)
