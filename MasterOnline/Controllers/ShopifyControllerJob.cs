@@ -2187,13 +2187,40 @@ namespace MasterOnline.Controllers
             }
             //end add by calvin 1 mei 2019
 
+            //change image
+            //if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
+            //    HttpBody.product.images.Add(new ShopifyCreateProductImages { position = "1", src = brgInDb.LINK_GAMBAR_1, alt = brgInDb.NAMA.ToString() });
+            //if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
+            //    HttpBody.product.images.Add(new ShopifyCreateProductImages { position = "2", src = brgInDb.LINK_GAMBAR_2, alt = brgInDb.NAMA.ToString() });
+            //if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
+            //    HttpBody.product.images.Add(new ShopifyCreateProductImages { position = "3", src = brgInDb.LINK_GAMBAR_3, alt = brgInDb.NAMA.ToString() });
+            int imageIndex = 1;
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
-                HttpBody.product.images.Add(new ShopifyCreateProductImages { position = "1", src = brgInDb.LINK_GAMBAR_1, alt = brgInDb.NAMA.ToString() });
+            {
+                HttpBody.product.images.Add(new ShopifyCreateProductImages { position = imageIndex.ToString(), src = brgInDb.LINK_GAMBAR_1, alt = brgInDb.NAMA.ToString() });
+                imageIndex++;
+            }
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
-                HttpBody.product.images.Add(new ShopifyCreateProductImages { position = "2", src = brgInDb.LINK_GAMBAR_2, alt = brgInDb.NAMA.ToString() });
+            {
+                HttpBody.product.images.Add(new ShopifyCreateProductImages { position = imageIndex.ToString(), src = brgInDb.LINK_GAMBAR_2, alt = brgInDb.NAMA.ToString() });
+                imageIndex++;
+            }
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
-                HttpBody.product.images.Add(new ShopifyCreateProductImages { position = "3", src = brgInDb.LINK_GAMBAR_3, alt = brgInDb.NAMA.ToString() });
-
+            {
+                HttpBody.product.images.Add(new ShopifyCreateProductImages { position = imageIndex.ToString(), src = brgInDb.LINK_GAMBAR_3, alt = brgInDb.NAMA.ToString() });
+                imageIndex++;
+            }
+            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_4))
+            {
+                HttpBody.product.images.Add(new ShopifyCreateProductImages { position = imageIndex.ToString(), src = brgInDb.LINK_GAMBAR_4, alt = brgInDb.NAMA.ToString() });
+                imageIndex++;
+            }
+            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
+            {
+                HttpBody.product.images.Add(new ShopifyCreateProductImages { position = imageIndex.ToString(), src = brgInDb.LINK_GAMBAR_5, alt = brgInDb.NAMA.ToString() });
+                imageIndex++;
+            }
+            //end change image
 
             string myData = JsonConvert.SerializeObject(HttpBody);
 
@@ -2900,13 +2927,40 @@ namespace MasterOnline.Controllers
             }
             //end add by calvin 1 mei 2019
 
+            //change image
+            //if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
+            //    HttpBody.product.images.Add(new ImagesUpdateProduct { position = 1, src = brgInDb.LINK_GAMBAR_1, alt = brgInDb.NAMA.ToString() });
+            //if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
+            //    HttpBody.product.images.Add(new ImagesUpdateProduct { position = 2, src = brgInDb.LINK_GAMBAR_2, alt = brgInDb.NAMA.ToString() });
+            //if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
+            //    HttpBody.product.images.Add(new ImagesUpdateProduct { position = 3, src = brgInDb.LINK_GAMBAR_3, alt = brgInDb.NAMA.ToString() });
+            int imageIndex = 1;
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
-                HttpBody.product.images.Add(new ImagesUpdateProduct { position = 1, src = brgInDb.LINK_GAMBAR_1, alt = brgInDb.NAMA.ToString() });
+            {
+                HttpBody.product.images.Add(new ImagesUpdateProduct { position = imageIndex, src = brgInDb.LINK_GAMBAR_1, alt = brgInDb.NAMA.ToString() });
+                imageIndex++;
+            }
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
-                HttpBody.product.images.Add(new ImagesUpdateProduct { position = 2, src = brgInDb.LINK_GAMBAR_2, alt = brgInDb.NAMA.ToString() });
+            {
+                HttpBody.product.images.Add(new ImagesUpdateProduct { position = imageIndex, src = brgInDb.LINK_GAMBAR_2, alt = brgInDb.NAMA.ToString() });
+                imageIndex++;
+            }
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
-                HttpBody.product.images.Add(new ImagesUpdateProduct { position = 3, src = brgInDb.LINK_GAMBAR_3, alt = brgInDb.NAMA.ToString() });
-
+            {
+                HttpBody.product.images.Add(new ImagesUpdateProduct { position = imageIndex, src = brgInDb.LINK_GAMBAR_3, alt = brgInDb.NAMA.ToString() });
+                imageIndex++;
+            }
+            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_4))
+            {
+                HttpBody.product.images.Add(new ImagesUpdateProduct { position = imageIndex, src = brgInDb.LINK_GAMBAR_4, alt = brgInDb.NAMA.ToString() });
+                imageIndex++;
+            }
+            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
+            {
+                HttpBody.product.images.Add(new ImagesUpdateProduct { position = imageIndex, src = brgInDb.LINK_GAMBAR_5, alt = brgInDb.NAMA.ToString() });
+                imageIndex++;
+            }
+            //end change image
 
             string myData = JsonConvert.SerializeObject(HttpBody);
 
