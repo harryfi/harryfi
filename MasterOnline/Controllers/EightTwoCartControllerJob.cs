@@ -2810,21 +2810,27 @@ namespace MasterOnline.Controllers
             SetupContext(iden);
 
             string urll = string.Format("{0}/api/v1/getOrderStates?apiKey={1}&apiCredential={2}", iden.API_url, iden.API_key, iden.API_credential);
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-            myReq.Method = "GET";
-            myReq.ContentType = "application/json";
+            //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            //myReq.Method = "GET";
+            //myReq.ContentType = "application/json";
             string responseServer = "";
+            var client = new RestClient(urll);
+            //client.Timeout = -1;
+            var request = new RestRequest(Method.GET);
+
 
             try
             {
-                using (WebResponse response = await myReq.GetResponseAsync())
-                {
-                    using (Stream stream = response.GetResponseStream())
-                    {
-                        StreamReader reader = new StreamReader(stream);
-                        responseServer = reader.ReadToEnd();
-                    }
-                }
+                //using (WebResponse response = await myReq.GetResponseAsync())
+                //{
+                //    using (Stream stream = response.GetResponseStream())
+                //    {
+                //        StreamReader reader = new StreamReader(stream);
+                //        responseServer = reader.ReadToEnd();
+                //    }
+                //}
+                IRestResponse response = client.Execute(request);
+                responseServer = response.Content;
             }
             catch (Exception ex)
             {
