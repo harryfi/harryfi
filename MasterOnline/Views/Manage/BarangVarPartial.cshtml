@@ -717,6 +717,7 @@
             if ($('#selectJudulVariantBlibliLv1').length > 0 || $('#selectJudulVariantBlibliLv2').length > 0 || $('#selectJudulVariantBlibliLv3').length > 0) {
                 var link = '@Url.Action("GetAttributeBlibliVar", "Manage", new { code = "replaceCode" })';
                 link = link.replace("replaceCode", encodeURIComponent($(fieldCategoryCode).val() + ';' + $('#txtBlibliMarketRecnumFound').val()));
+                link += "&kategori=" + encodeURIComponent($('#txtKodeKategori').val());
                 $.ajax({
                     type: "GET",
                     url: link,
