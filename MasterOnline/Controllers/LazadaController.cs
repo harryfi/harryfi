@@ -4213,6 +4213,7 @@ namespace MasterOnline.Controllers
                 }
                 namaBrg = namaBrg.Replace('\'', '`');//add by Tri 8 Juli 2019, replace petik pada nama barang
 
+                string urlBrg = "";
                 #region get item detail
                 ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
                 LazopRequest request = new LazopRequest();
@@ -4237,6 +4238,19 @@ namespace MasterOnline.Controllers
                     {
                         brg = resultItemDetail.data;
                         i = 0;
+                        if (typeBrg != 1)
+                        {
+                            if(brg.skus != null)
+                            {
+                                if (brg.skus[0].Url.Count > 0)
+                                {
+                                    if (brg.skus[0].Url != null)
+                                    {
+                                        urlBrg = brg.skus[0].Url;
+                                    }
+                                }
+                            }
+                        }
                     }
 
                 }
@@ -4943,20 +4957,20 @@ namespace MasterOnline.Controllers
                     {
                         sSQL_Value += ", '', '', ''";
                     }
-                    if (!string.IsNullOrEmpty(attributeLzd.ANAME34))
+                    //if (!string.IsNullOrEmpty(attributeLzd.ANAME34))
+                    //{
+                    //    if (attributeLzd.ATYPE34.Equals("sku"))
+                    //    {
+                    //        sSQL_Value += ", '" + attributeLzd.ANAME34 + "' , '" + attributeLzd.ALABEL34.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME34, out value) ? value.Replace("\'", "\'\'") : "") + "'";
+                    //    }
+                    //    else
+                    //    {
+                    //        sSQL_Value += ", '" + attributeLzd.ANAME34 + "' , '" + attributeLzd.ALABEL34.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME34, out value) ? value.Replace("\'", "\'\'") : "") + "'";
+                    //    }
+                    //}
+                    //else
                     {
-                        if (attributeLzd.ATYPE34.Equals("sku"))
-                        {
-                            sSQL_Value += ", '" + attributeLzd.ANAME34 + "' , '" + attributeLzd.ALABEL34.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME34, out value) ? value.Replace("\'", "\'\'") : "") + "'";
-                        }
-                        else
-                        {
-                            sSQL_Value += ", '" + attributeLzd.ANAME34 + "' , '" + attributeLzd.ALABEL34.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME34, out value) ? value.Replace("\'", "\'\'") : "") + "'";
-                        }
-                    }
-                    else
-                    {
-                        sSQL_Value += ", '', '', ''";
+                        sSQL_Value += ", '', '', '"+ urlBrg + "'";
                     }
                     if (!string.IsNullOrEmpty(attributeLzd.ANAME35))
                     {
