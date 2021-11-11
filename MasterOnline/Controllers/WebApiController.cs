@@ -302,6 +302,21 @@ namespace MasterOnline.Controllers
 
                     var EDB = new DatabaseSQL(dbPathEra);
                     EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES ('" + data.brg + "', '" + connID + "')");
+                    
+                    //add by nurul 10/11/2021, stok bundling
+                    var sSQLInsertTempBundling = "INSERT INTO TEMP_ALL_MP_ORDER_ITEM_BUNDLING ([BRG],[CONN_ID],[TGL]) " +
+                                                 "SELECT DISTINCT C.UNIT AS BRG, '" + connID + "' AS CONN_ID, DATEADD(HOUR, +7, GETUTCDATE()) AS TGL " +
+                                                 "FROM TEMP_ALL_MP_ORDER_ITEM A (NOLOCK) " +
+                                                 "LEFT JOIN TEMP_ALL_MP_ORDER_ITEM_BUNDLING B(NOLOCK) ON B.CONN_ID = '" + connID + "' AND A.BRG = B.BRG " +
+                                                 "INNER JOIN STF03 C(NOLOCK) ON A.BRG = C.BRG " +
+                                                 "WHERE ISNULL(A.CONN_ID,'') = '" + connID + "' " +
+                                                 "AND ISNULL(B.BRG,'') = '' AND A.BRG <> 'NOT_FOUND'";
+                    var execInsertTempBundling = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLInsertTempBundling);
+                    if (execInsertTempBundling > 0)
+                    {
+                        new StokControllerJob().getQtyBundling(dbPathEra, userName, "'" + connID + "'");
+                    }
+                    //end add by nurul 10/11/2021, stok bundling
 
                     await Task.Run(() => new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, userName));
                     result.code = 200;
