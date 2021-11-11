@@ -453,7 +453,7 @@ namespace MasterOnline.Controllers
             //vDescription = System.Text.RegularExpressions.Regex.Replace(vDescription, "<.*?>", String.Empty);
             //end add by calvin 10 september 2019
 
-            postData += "&short_description=" + Uri.EscapeDataString(vDescription);
+            postData += "&short_description=" + Uri.EscapeDataString(WebUtility.HtmlDecode(WebUtility.HtmlDecode(vDescription)));
             //postData += "&description=" + Uri.EscapeDataString(vDescription);
             //end handle description
 
@@ -801,7 +801,7 @@ namespace MasterOnline.Controllers
                 if (detailBrg.DESKRIPSI_MP != "null")
                     vDescription = detailBrg.DESKRIPSI_MP;
             }
-            vDescription = new StokControllerJob().RemoveSpecialCharacters(vDescription);
+            vDescription = new StokControllerJob().RemoveSpecialCharacters(WebUtility.HtmlDecode(WebUtility.HtmlDecode(vDescription)));
 
             //add by nurul 20/1/2020, handle <p> dan enter double di shopee
             //vDescription = vDescription.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
@@ -1657,19 +1657,19 @@ namespace MasterOnline.Controllers
                                                                 #endregion
 
                                                                 var name_brg_variasi = "";
-                                                                if (item.product_attribute_id == "0")
-                                                                {
-                                                                    //var kodeBrg = ErasoftDbContext.STF02.SingleOrDefault(p => p.NAMA.Contains(item.product_name) && p.PART == "");
-                                                                    //product_id = kodeBrg.BRG;
-                                                                    //product_id = item.product_id;
-                                                                    //name_brg = item.product_name;
-                                                                }
-                                                                else
-                                                                {
-                                                                    //product_id = item.product_attribute_id;
-                                                                    //name_brg_variasi = item.product_name;
-                                                                    name_brg_variasi = item_name;
-                                                                }
+                                                                //if (item.product_attribute_id == "0")
+                                                                //{
+                                                                //    //var kodeBrg = ErasoftDbContext.STF02.SingleOrDefault(p => p.NAMA.Contains(item.product_name) && p.PART == "");
+                                                                //    //product_id = kodeBrg.BRG;
+                                                                //    //product_id = item.product_id;
+                                                                //    //name_brg = item.product_name;
+                                                                //}
+                                                                //else
+                                                                //{
+                                                                //    //product_id = item.product_attribute_id;
+                                                                //    //name_brg_variasi = item.product_name;
+                                                                //    name_brg_variasi = item_name;
+                                                                //}
                                                                 TEMP_82CART_ORDERS_ITEM newOrderItem = new TEMP_82CART_ORDERS_ITEM()
                                                                 {
                                                                     ordersn = u_ordersn,
@@ -1994,19 +1994,19 @@ namespace MasterOnline.Controllers
                                                 #endregion
 
                                                 var name_brg_variasi = "";
-                                                if (item.product_attribute_id == "0")
-                                                {
-                                                    //var kodeBrg = ErasoftDbContext.STF02.SingleOrDefault(p => p.NAMA.Contains(item.product_name) && p.PART == "");
-                                                    //product_id = kodeBrg.BRG;
-                                                    //product_id = item.product_id;
-                                                    //name_brg = item.product_name;
-                                                }
-                                                else
-                                                {
-                                                    //product_id = item.product_attribute_id;
-                                                    //name_brg_variasi = item.product_name;
-                                                    name_brg_variasi = p_item_name;
-                                                }
+                                                //if (item.product_attribute_id == "0")
+                                                //{
+                                                //    //var kodeBrg = ErasoftDbContext.STF02.SingleOrDefault(p => p.NAMA.Contains(item.product_name) && p.PART == "");
+                                                //    //product_id = kodeBrg.BRG;
+                                                //    //product_id = item.product_id;
+                                                //    //name_brg = item.product_name;
+                                                //}
+                                                //else
+                                                //{
+                                                //    //product_id = item.product_attribute_id;
+                                                //    //name_brg_variasi = item.product_name;
+                                                //    name_brg_variasi = p_item_name;
+                                                //}
 
                                                 TEMP_82CART_ORDERS_ITEM newOrderItem = new TEMP_82CART_ORDERS_ITEM()
                                                 {
