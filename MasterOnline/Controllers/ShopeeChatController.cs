@@ -28,11 +28,11 @@ namespace MasterOnline.Controllers
         private static readonly DateTime Jan1st1970 = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);//string auth = Base64Encode();
 #if AWS
         string shpCallbackUrl = "https://masteronline.co.id/shp/code?user=";
-        string shpCallbackUrlV2 = "https://masteronline.co.id/shp/v2/code?user=";
+        string shpCallbackUrlV2 = "https://masteronline.co.id/shp/v2/codechat?user=";
 #else
         //string shpCallbackUrl = "https://dev.masteronline.co.id/shp/code?user=";
-        //string shpCallbackUrlV2 = "http://dev.masteronline.co.id/shp/v2/code?user=";
-        string shpCallbackUrlV2 = "http://localhost:50109/shp/v2/codechat?user=";
+        string shpCallbackUrlV2 = "http://dev.masteronline.co.id/shp/v2/codechat?user=";
+        //string shpCallbackUrlV2 = "http://localhost:50109/shp/v2/codechat?user=";
         string shpCallbackUrl = "https://masteronline.my.id/shp/code?user=";
 #endif
         string shopeeV2Url = "https://partner.shopeemobile.com";
@@ -7765,7 +7765,7 @@ namespace MasterOnline.Controllers
                                             {
                                                 //text = "https://seller.shopee.co.id/portal/sale/order/?search=" + msg.content.order_sn;
                                                 var url_ = "https://seller.shopee.co.id/portal/sale/order/?search=" + msg.content.order_sn;
-                                                text = "<u><a rel=\"nofollow\" target=\"_blank\" href=\"" + url_ + "\">Link Pesanan</a></u>";
+                                                text = "<u><a rel=\"nofollow\" target=\"_blank\" href=\"" + url_ + "\">Link Pesanan " + msg.content.order_sn +  "</a></u>";
                                             }
                                             else
                                             {
@@ -7777,7 +7777,7 @@ namespace MasterOnline.Controllers
                                             {
                                                 //text = "https://shopee.co.id/product/" + dataAPI.merchant_code + "/" + msg.content.item_id.ToString();
                                                 var url_ = "https://shopee.co.id/product/" + dataAPI.merchant_code + "/" + msg.content.item_id.ToString();
-                                                text = "<u><a rel=\"nofollow\" target=\"_blank\" href=\"" + url_ + "\">Link Produk</a></u>";
+                                                text = "<u><a rel=\"nofollow\" target=\"_blank\" href=\"" + url_ + "\">Link Produk " + msg.content.item_id.ToString() + "</a></u>";
                                             }
                                             else
                                             {

@@ -1,6 +1,7 @@
 ﻿@using System.Globalization
 @using MasterOnline.ViewModels
-@model CustomerViewModel
+
+@model CustomerChatViewModel
 @{
     ViewBag.Title = "Pengaturan Chat";
     Layout = "~/Views/Shared/_LayoutManage.cshtml";
@@ -1090,7 +1091,7 @@
                                             }
                                         }
                                         <br>
-                                        @using (Html.BeginForm("SaveCustomerChat", "Manage", FormMethod.Post, new { @autocomplete = "off", enctype = "multipart/form-data", id = "form-customer-chat" }))
+                                        @using (Html.BeginForm("SaveCustomerChat", "Manage", FormMethod.Post, new { @autocomplete = "off", enctype = "multipart/form-data", id="form-customer-chat" }))
                                         {
                                             @Html.HiddenFor(m => m.Customers.USERNAME, new { Value = username })
                                             @Html.HiddenFor(m => m.Customers.KLINK, new { Value = "1" })
@@ -1108,7 +1109,7 @@
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     @Html.HiddenFor(m => m.Customers.CUST)
                                                     @if (Model.Customers != null)
-                                                    {
+                                            {
                                                         <input type="text" value="@Model.Customers.CUST" disabled class="form-control" />
                                                     }
                                                     else
@@ -2138,10 +2139,28 @@
                         showSubsMenu(1);
 
                     } else {
-                        var $form = $(btnClicked).parents('form');
+                        if ($('#Customers_NAMA').val() == "17") //shopee
+                        {
+                            if ($('#Customers_KD_ANALISA').val() == "2") {
+                                if ($('#Customers_CUST').val() != null && $('#Customers_CUST').val() != "" && $('#Customers_CUST').val() != undefined && $('#Customers_CUST').val() != "[AUTO]") {
+                                    if (confirm("Authorization Shopee account?")) {
+                                        GetShopeeShopId($('#Customers_CUST').val(), "V2");
+                                    }
+                                } else {
+                                    alert("Proses Gagal. Tidak ditemukan kode customer.");
+                                }
+                            }
+                            else {
+                                alert("Chat Shopee hanya bisa digunakan pada akun dengan versi 2.");
+                            }
+                        } else {
+                            alert("Proses Gagal.");
+                        }
+                        @*var $form = $(btnClicked).parents('form');
                         var $link = '@Url.Action("SaveCustomerChat", "Manage", new { api_client_username = "replaceClientU", api_client_password = "replaceClientP" })';
                         $link = $link.replace("replaceClientU", $API_CLIENT_U);
                         $link = $link.replace("replaceClientP", $API_CLIENT_P);
+                        var chatsss = $form.serialize();
                         $.ajax({
                             type: "POST",
                             //url: $form.attr('action'),
@@ -2240,7 +2259,7 @@
                             error: function (xhr, status, error) {
                                 console.log(error);
                             }
-                        });
+                        });*@
                     }
                 },
                 error: function (xhr, status, error) {
@@ -2627,7 +2646,7 @@
         }
 
         function editcustomer(customerId) {
-            var link = '@Url.Action("EditCustomer", "Manage", new { recNum = "replaceId" })';
+            var link = '@Url.Action("EditCustomerChat", "Manage", new { recNum = "replaceId" })';
             link = link.replace("replaceId", encodeURIComponent(customerId));
 
             $.ajax({
