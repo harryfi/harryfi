@@ -7427,10 +7427,10 @@ namespace MasterOnline.Controllers
                                     foreach (var msg in listConv)
                                     {
                                         var txtmsg = "";
-                                        if (msg.latest_message_type == "text")
-                                        {
+                                        //if (msg.latest_message_type == "text")
+                                        //{
                                             txtmsg = msg.latest_message_type;
-                                        }
+                                        //}
 
                                         //var date_last_message_timestamp = DateTime.UtcNow.AddHours(7).AddSeconds(msg.last_message_timestamp);
                                         //var date_last_message_timestamp = DateTimeOffset.FromUnixTimeSeconds(msg.last_message_timestamp).UtcDateTime.AddHours(7);
@@ -7439,13 +7439,22 @@ namespace MasterOnline.Controllers
                                         var date_last_message_timestamp = DateTimeOffset.FromUnixTimeSeconds((msg.last_message_timestamp) / 1000000000).UtcDateTime.AddHours(7);
                                         var last_message_timestamp = date_last_message_timestamp.ToString("yyyy-MM-dd HH:mm:ss");
 
+                                        var text = "";
+                                        if(msg.latest_message_content != null)
+                                        {
+                                            if (!string.IsNullOrEmpty(msg.latest_message_content.text))
+                                            {
+                                                text = msg.latest_message_content.text;
+                                            }
+                                        }
+
                                         var message = new SHOPEE_LISTCONVERSATION
                                         {
                                             conversation_id = msg.conversation_id,
                                             last_message_option = msg.last_message_option,
                                             last_message_timestamp = Convert.ToDateTime(last_message_timestamp),
                                             last_read_message_id = msg.last_read_message_id,
-                                            latest_message_content_text = msg.latest_message_content.text,
+                                            latest_message_content_text = text,
                                             latest_message_content_url = "",
                                             latest_message_from_id = msg.latest_message_from_id,
                                             latest_message_id = msg.latest_message_id,
@@ -7695,14 +7704,99 @@ namespace MasterOnline.Controllers
                                             url = msg.content.url;
                                         }
 
+                                        long t_height = 0;
+                                        long t_widht = 0;
+                                        long duration_s = 0;
+                                        var t_url = "";
                                         var text = "";
-                                        if (string.IsNullOrEmpty(msg.content.text))
+                                        if (msg.message_type == "text")
                                         {
-                                            text = "";
+                                            if (!string.IsNullOrEmpty(msg.content.text))
+                                            {
+                                                text = msg.content.text;
+                                            }
+                                            else
+                                            {
+                                                text = "*Ada pesan baru masuk dengan tipe " + msg.message_type + ".";
+                                            }
+                                        }else if(msg.message_type == "video")
+                                        {
+                                            if (!string.IsNullOrEmpty(msg.content.video_url))
+                                            {
+                                                //text = "https://cvf.shopee.co.id/file/" + msg.content.video_url;
+                                                var url_ = "https://cvf.shopee.co.id/file/" + msg.content.video_url;
+                                                text = "<u><a rel=\"nofollow\" target=\"_blank\" href=\"" + url_ + "\">Link Video</a></u>";
+                                                t_url = msg.content.thumb_url;
+                                                t_height = msg.content.thumb_height;
+                                                t_widht = msg.content.thumb_width;
+                                                duration_s = msg.content.duration_seconds;
+                                            }
+                                            else
+                                            {
+                                                text = "*Ada pesan baru masuk dengan tipe " + msg.message_type + ".";
+                                                t_url = msg.content.thumb_url;
+                                                t_height = msg.content.thumb_height;
+                                                t_widht = msg.content.thumb_width;
+                                                duration_s = msg.content.duration_seconds;
+                                            }
+                                        }else if(msg.message_type == "image")
+                                        {
+                                            if (!string.IsNullOrEmpty(msg.content.url))
+                                            {
+                                                //text = msg.content.url;
+                                                var url_ = msg.content.url;
+                                                text = "<u><a rel=\"nofollow\" target=\"_blank\" href=\"" + url_ + "\">Link Gambar</a></u>";
+                                                t_url = msg.content.thumb_url;
+                                                t_height = msg.content.thumb_height;
+                                                t_widht = msg.content.thumb_width;
+                                                file_server_id = msg.content.file_server_id;
+                                            }
+                                            else
+                                            {
+                                                text = "*Ada pesan baru masuk dengan tipe " + msg.message_type + ".";
+                                                t_url = msg.content.thumb_url;
+                                                t_height = msg.content.thumb_height;
+                                                t_widht = msg.content.thumb_width;
+                                                file_server_id = msg.content.file_server_id;
+                                            }
+                                        }else if(msg.message_type== "order")
+                                        {
+                                            if (!string.IsNullOrEmpty(msg.content.order_sn))
+                                            {
+                                                //text = "https://seller.shopee.co.id/portal/sale/order/?search=" + msg.content.order_sn;
+                                                var url_ = "https://seller.shopee.co.id/portal/sale/order/?search=" + msg.content.order_sn;
+                                                text = "<u><a rel=\"nofollow\" target=\"_blank\" href=\"" + url_ + "\">Link Pesanan</a></u>";
+                                            }
+                                            else
+                                            {
+                                                text = "*Ada pesan baru masuk dengan tipe " + msg.message_type + ".";
+                                            }
+                                        }else if(msg.message_type == "item")
+                                        {
+                                            if (!string.IsNullOrEmpty(msg.content.item_id.ToString()))
+                                            {
+                                                //text = "https://shopee.co.id/product/" + dataAPI.merchant_code + "/" + msg.content.item_id.ToString();
+                                                var url_ = "https://shopee.co.id/product/" + dataAPI.merchant_code + "/" + msg.content.item_id.ToString();
+                                                text = "<u><a rel=\"nofollow\" target=\"_blank\" href=\"" + url_ + "\">Link Produk</a></u>";
+                                            }
+                                            else
+                                            {
+                                                text = "*Ada pesan baru masuk dengan tipe " + msg.message_type + ".";
+                                            }
+                                        }else if(msg.message_type== "sticker")
+                                        {
+                                            if (!string.IsNullOrEmpty(msg.content.sticker_id))
+                                            {
+                                                text = "Sticker id : " + msg.content.sticker_id + " " + msg.content.sticker_package_id;
+                                            }
+                                            else
+                                            {
+                                                text = "*Ada pesan baru masuk dengan tipe " + msg.message_type + ".";
+                                            }
                                         }
                                         else
                                         {
-                                            text = msg.content.text;
+                                            text = "*Ada pesan baru masuk dengan tipe " + msg.message_type + ".";
                                         }
 
                                         var source = "";
@@ -7747,7 +7841,12 @@ namespace MasterOnline.Controllers
                                             content_chat_product_infos_shop_id = 0,
                                             content_chat_product_infos_snap_shop_id = 0,
                                             content_chat_product_infos_thumb_url = "",
-                                            cust = cust.CUST
+                                            cust = cust.CUST,
+
+                                            thumb_url = t_url,
+                                            thumb_height = t_height,
+                                            thumb_width = t_widht,
+                                            duration_seconds = duration_s,
                                         };
                                         //masukin sampe -1 bulan 
                                         //if (message.last_reply_time < dateLast1Month)
@@ -9027,6 +9126,17 @@ namespace MasterOnline.Controllers
             public string url { get; set; }
             public int file_server_id { get; set; }
             public string text { get; set; }
+
+
+            public string video_url { get; set; }
+            public string thumb_url { get; set; }
+            public int thumb_width { get; set; }
+            public int thumb_height { get; set; }
+            public int duration_seconds { get; set; }
+            public string order_sn { get; set; }
+            public long item_id { get; set; }
+            public string sticker_id { get; set; }
+            public string sticker_package_id { get; set; }
         }
 
         public class Chat_Product_InfosGetMsg

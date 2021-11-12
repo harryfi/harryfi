@@ -1062,7 +1062,7 @@
                     <button id="close-editor" type="button" class="pull-right page-close">
                         <span class="close-btn thick"></span>
                     </button>
-                    <div class="form-horizontal" id="form_input">
+                    <div class="form-horizontal" id="form_input_chat">
                         <div id="somediv" role="dialog"></div>
                         <div class="row">
                             <div class="col-md-12 col-sm-12 col-xs-12">
@@ -1081,190 +1081,190 @@
                                         {
                                             foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
                                             {
-                                        <div class="alert alert-danger">
-                                            <span class="message-error">@modelError.ErrorMessage</span>
-                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
+                                                <div class="alert alert-danger">
+                                                    <span class="message-error">@modelError.ErrorMessage</span>
+                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
                                             }
                                         }
                                         <br>
-                                        @using (Html.BeginForm("SaveCustomer", "Manage", FormMethod.Post, new { @autocomplete = "off", enctype = "multipart/form-data", id = "form-customer" }))
+                                        @using (Html.BeginForm("SaveCustomerChat", "Manage", FormMethod.Post, new { @autocomplete = "off", enctype = "multipart/form-data", id = "form-customer-chat" }))
                                         {
-                                        @Html.HiddenFor(m => m.Customers.USERNAME, new { Value = username })
-                                        @Html.HiddenFor(m => m.Customers.KLINK, new { Value = "1" })
-                                        @Html.HiddenFor(m => m.Customers.TGL_INPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
-                                        @Html.HiddenFor(m => m.Customers.RecNum)
-                                        @Html.HiddenFor(m => m.Customers.AL, new { Value = "." })
-                                        @Html.HiddenFor(m => m.Customers.TLP, new { Value = "." })
-                                        @Html.HiddenFor(m => m.Customers.KODEKABKOT, new { Value = "3174" })
-                                        @Html.HiddenFor(m => m.Customers.KODEPOS, new { Value = "." })
-                                        @Html.HiddenFor(m => m.Customers.KODEPROV, new { Value = "31" })
-                                        @Html.HiddenFor(m => m.Customers.TOP, new { Value = "1" })
+                                            @Html.HiddenFor(m => m.Customers.USERNAME, new { Value = username })
+                                            @Html.HiddenFor(m => m.Customers.KLINK, new { Value = "1" })
+                                            @Html.HiddenFor(m => m.Customers.TGL_INPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+                                            @Html.HiddenFor(m => m.Customers.RecNum)
+                                            @Html.HiddenFor(m => m.Customers.AL, new { Value = "." })
+                                            @Html.HiddenFor(m => m.Customers.TLP, new { Value = "." })
+                                            @Html.HiddenFor(m => m.Customers.KODEKABKOT, new { Value = "3174" })
+                                            @Html.HiddenFor(m => m.Customers.KODEPOS, new { Value = "." })
+                                            @Html.HiddenFor(m => m.Customers.KODEPROV, new { Value = "31" })
+                                            @Html.HiddenFor(m => m.Customers.TOP, new { Value = "1" })
 
-                                        <div class="form-group">
-                                            @Html.LabelFor(m => m.Customers.CUST, "Kode", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                @Html.HiddenFor(m => m.Customers.CUST)
-                                                @if (Model.Customers != null)
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Customers.CUST, "Kode", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.HiddenFor(m => m.Customers.CUST)
+                                                    @if (Model.Customers != null)
                                                     {
-                                                <input type="text" value="@Model.Customers.CUST" disabled class="form-control" />
+                                                        <input type="text" value="@Model.Customers.CUST" disabled class="form-control" />
                                                     }
                                                     else
                                                     {
-                                                <input id="CUSTNUMBER" type="text" value="[AUTO]" disabled class="form-control" />
+                                                        <input id="CUSTNUMBER" type="text" value="[AUTO]" disabled class="form-control" />
                                                     }
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="form-group">
-                                            @Html.LabelFor(m => m.Customers.NAMA, "Nama Marketplace *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                @Html.HiddenFor(m => m.Customers.NAMA)
-                                                <select id="MARKET" placeholder="Harap pilih" required="required"></select>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Customers.NAMA, "Nama Marketplace *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.HiddenFor(m => m.Customers.NAMA)
+                                                    <select id="MARKET" placeholder="Harap pilih" required="required"></select>
+                                                </div>
                                             </div>
-                                        </div>
                                             //add by nurul 15/7/2020
-                                        <div class="form-group" id="versi-blibli" hidden="hidden">
-                                            @Html.LabelFor(m => m.Customers.KD_ANALISA, "Versi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                            <div class="col-md-6 col-sm-6 col-xs-12" id="divCBVersi">
-                                                @Html.HiddenFor(m => m.Customers.KD_ANALISA)
-                                                @*<select style="display:none" single class="selectize-dropdown single" id="Customers_KD_ANALISA" placeholder="Harap pilih"></select>*@
+                                            <div class="form-group" id="versi-blibli" hidden="hidden">
+                                                @Html.LabelFor(m => m.Customers.KD_ANALISA, "Versi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12" id="divCBVersi">
+                                                    @Html.HiddenFor(m => m.Customers.KD_ANALISA)
+                                                    @*<select style="display:none" single class="selectize-dropdown single" id="Customers_KD_ANALISA" placeholder="Harap pilih"></select>*@
+                                                </div>
                                             </div>
-                                        </div>
                                             //add by nurul 15/7/2020
-                                        <div class="form-group">
-                                            @Html.LabelFor(m => m.Customers.PERSO, "Nama Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", id = "id-nama-akun" })
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                @Html.TextBoxFor(m => m.Customers.PERSO, new { @class = "form-control", required = "required", id = "txt-nama-akun" })
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Customers.PERSO, "Nama Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", id = "id-nama-akun" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Customers.PERSO, new { @class = "form-control", required = "required", id = "txt-nama-akun" })
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="form-group">
-                                            @Html.LabelFor(m => m.Customers.EMAIL, "Email Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                @Html.TextBoxFor(m => m.Customers.EMAIL, new { @class = "form-control", @autocomplete = "off", type = "email", required = "required" })
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Customers.EMAIL, "Email Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Customers.EMAIL, new { @class = "form-control", @autocomplete = "off", type = "email", required = "required" })
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div id="BlibliSellerID" class="form-group"></div>
-                                        <div class="form-group" id="password-akun">
-                                            @Html.LabelFor(m => m.Customers.PASSWORD, "Password Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                @Html.TextBoxFor(m => m.Customers.PASSWORD, new { @class = "form-control", @autocomplete = "off", type = "password", required = "required" })
+                                            <div id="BlibliSellerID" class="form-group"></div>
+                                            <div class="form-group" id="password-akun">
+                                                @Html.LabelFor(m => m.Customers.PASSWORD, "Password Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Customers.PASSWORD, new { @class = "form-control", @autocomplete = "off", type = "password", required = "required" })
+                                                </div>
                                             </div>
-                                        </div>
                                             //add by nurul 16/7/2020
-                                        <div id="blibliAPIKey" class="form-group">
-                                        </div>
+                                            <div id="blibliAPIKey" class="form-group">
+                                            </div>
                                             //end add by nurul 16/7/2020
                                             // add by fauzi, add selection untuk setting status sync pesanan stok marketplace 25 November 2019
-                                        @*<div class="form-group" id="status-sync">
-                                            @Html.LabelFor(m => m.Customers.TIDAK_HIT_UANG_R, "Status Sync Pesanan & Stok", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                @Html.HiddenFor(m => m.Customers.TIDAK_HIT_UANG_R)
-                                                <select style="display:none" single class="selectize-dropdown single" id="Customers_TIDAK_HIT_UANG_R" placeholder="Harap pilih" required="disabled"></select>
-                                            </div>
-                                        </div>*@
+                                            @*<div class="form-group" id="status-sync">
+                @Html.LabelFor(m => m.Customers.TIDAK_HIT_UANG_R, "Status Sync Pesanan & Stok", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.HiddenFor(m => m.Customers.TIDAK_HIT_UANG_R)
+                    <select style="display:none" single class="selectize-dropdown single" id="Customers_TIDAK_HIT_UANG_R" placeholder="Harap pilih" required="disabled"></select>
+                </div>
+            </div>*@
                                             // end add by fauzi, add selection untuk setting status sync pesanan stok marketplace 25 November 2019
 
-                                        @*<div class="form-group">
-                                                @Html.LabelFor(m => m.Customers.AL, "Alamat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            @*<div class="form-group">
+                @Html.LabelFor(m => m.Customers.AL, "Alamat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.TextAreaFor(m => m.Customers.AL, new { @class = "form-control", maxlength = 200, required = "required" })
+                </div>
+            </div>*@
+                                            @*<div class="form-group">
+                @Html.LabelFor(m => m.Customers.TOP, "Term Of Payment (TOP) *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    @Html.TextBoxFor(m => m.Customers.TOP, new { @class = "form-control limited_number_textbox num-only", required = "required", maxlength = 3, min = 0, max = 999 })
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-6">
+                    <h5>Hari</h5>
+                </div>
+            </div>*@
+                                            @*<div class="form-group">
+                @Html.LabelFor(m => m.Customers.KODEPROV, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.HiddenFor(m => m.Customers.KODEPROV)
+                    <div id="KODEPROV" class="selectivity-input" tabindex="0"></div>
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(m => m.Customers.KODEKABKOT, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.HiddenFor(m => m.Customers.KODEKABKOT)
+                    <div id="KODEKABKOT" class="selectivity-input" tabindex="0"></div>
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(m => m.Customers.KODEPOS, "Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.TextBoxFor(m => m.Customers.KODEPOS, new { @class = "form-control", required = "required", type = "number" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(m => m.Customers.TLP, "Telepon *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.TextBoxFor(m => m.Customers.TLP, new { @class = "form-control", required = "required", type = "number" })
+                </div>
+            </div>*@
+                                            @*<div class="form-group">
+                @Html.LabelFor(m => m.Customers.API_KEY, "API Key *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", @id = "lbl_Customers_API_KEY" })
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    @Html.TextBoxFor(m => m.Customers.API_KEY, new { @class = "form-control" })
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
+            </div>*@
+                                            @*add by nurul 28/4/2021*@
+                                            @*<div id="JDShopId" class="form-group">
+            </div>
+            <div class="form-group">
+                <div id="divAPIKey"></div>
+                <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
+            </div>*@
+                                            <div id="descAPIKey" class="form-group">
+                                                <div id="emptyDiv" class=" col-md-3 col-sm-3 col-xs-1"></div>
+                                                <label id="lblDesc" style="visibility:hidden">API key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.</label>
+                                                <br />
+                                                <label id="lblDesc2" style="visibility:hidden">API key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.</label>
+                                                <label id="lblPopUp" style="visibility:hidden;color:blue" onclick="openModalDesc(MARKET.value)"><u>Di Sini</u></label>
+                                                <div id="emptyDiv2" class=" col-md-3 col-sm-3 col-xs-1"></div>
+                                            </div>
+                                            @*<div id="BlibliMerchantID" class="form-group">
+            </div>
+            <div id="BlibliClient" class="form-group">
+            </div>
+            <div id="BlibliClientPass" class="form-group">
+            </div>
+            <div id="JDAppSecret" class="form-group">
+            </div>
+            <div id="JDAccessToken" class="form-group">
+            </div>*@
+                                            @*end add by Tri 10/04/2019*@
+                                            <div class="form-group" id="status-sync">
+                                                @Html.LabelFor(m => m.Customers.STATUS_SYNC_CHAT, "Status Sync Chat", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextAreaFor(m => m.Customers.AL, new { @class = "form-control", maxlength = 200, required = "required" })
-                                                </div>
-                                            </div>*@
-                                        @*<div class="form-group">
-                                                @Html.LabelFor(m => m.Customers.TOP, "Term Of Payment (TOP) *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-6">
-                                                    @Html.TextBoxFor(m => m.Customers.TOP, new { @class = "form-control limited_number_textbox num-only", required = "required", maxlength = 3, min = 0, max = 999 })
-                                                </div>
-                                                <div class="col-md-2 col-sm-2 col-xs-6">
-                                                    <h5>Hari</h5>
-                                                </div>
-                                            </div>*@
-                                        @*<div class="form-group">
-                                                @Html.LabelFor(m => m.Customers.KODEPROV, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.HiddenFor(m => m.Customers.KODEPROV)
-                                                    <div id="KODEPROV" class="selectivity-input" tabindex="0"></div>
+                                                    @Html.HiddenFor(m => m.Customers.STATUS_SYNC_CHAT)
+                                                    <select style="display:none" single class="selectize-dropdown single" id="Customers_STATUS_SYNC_CHAT" placeholder="Harap pilih" required="disabled"></select>
                                                 </div>
                                             </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Customers.KODEKABKOT, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.HiddenFor(m => m.Customers.KODEKABKOT)
-                                                    <div id="KODEKABKOT" class="selectivity-input" tabindex="0"></div>
-                                                </div>
+                                            @*add by nurul 24/10/2018*@
+                                            <div id="descAPIKey2" class="form-group">
+                                                <div id="emptyDiv3" class="col-md-3 col-sm-3 col-xs-1"></div>
+                                                <label id="lblDesc3" style="visibility:hidden">1. Untuk dapat tersambung secara otomatis ke Tokopedia, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Tokopedia, silahkan hubungi customer service kami.</label>
+                                                <br />
+                                                <label id="lblDesc4" style="visibility:hidden"></label>
+                                                <div id="emptyDiv4" class="col-md-3 col-sm-3 col-xs-1"></div>
                                             </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Customers.KODEPOS, "Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Customers.KODEPOS, new { @class = "form-control", required = "required", type = "number" })
-                                                </div>
+                                            @*end add by nurul 24/10/2018*@
+                                            @*add by nurul 25/03/2019*@
+                                            <div id="TokpedShopID" class="form-group">
                                             </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Customers.TLP, "Telepon *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Customers.TLP, new { @class = "form-control", required = "required", type = "number" })
-                                                </div>
-                                            </div>*@
-                                        @*<div class="form-group">
-                                                @Html.LabelFor(m => m.Customers.API_KEY, "API Key *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", @id = "lbl_Customers_API_KEY" })
-                                                <div class="col-md-6 col-sm-6 col-xs-6">
-                                                    @Html.TextBoxFor(m => m.Customers.API_KEY, new { @class = "form-control" })
-                                                </div>
-                                                <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
-                                            </div>*@
-                                        @*add by nurul 28/4/2021*@
-                                        @*<div id="JDShopId" class="form-group">
-                                        </div>
-                                        <div class="form-group">
-                                            <div id="divAPIKey"></div>
-                                            <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
-                                        </div>*@
-                                        <div id="descAPIKey" class="form-group">
-                                            <div id="emptyDiv" class=" col-md-3 col-sm-3 col-xs-1"></div>
-                                            <label id="lblDesc" style="visibility:hidden">API key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.</label>
-                                            <br />
-                                            <label id="lblDesc2" style="visibility:hidden">API key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.</label>
-                                            <label id="lblPopUp" style="visibility:hidden;color:blue" onclick="openModalDesc(MARKET.value)"><u>Di Sini</u></label>
-                                            <div id="emptyDiv2" class=" col-md-3 col-sm-3 col-xs-1"></div>
-                                        </div>
-                                        @*<div id="BlibliMerchantID" class="form-group">
-                                        </div>
-                                        <div id="BlibliClient" class="form-group">
-                                        </div>
-                                        <div id="BlibliClientPass" class="form-group">
-                                        </div>
-                                        <div id="JDAppSecret" class="form-group">
-                                        </div>
-                                        <div id="JDAccessToken" class="form-group">
-                                        </div>*@
-                                        @*end add by Tri 10/04/2019*@
-                                        <div class="form-group" id="status-sync">
-                                            @Html.LabelFor(m => m.Customers.STATUS_SYNC_CHAT, "Status Sync Chat", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                @Html.HiddenFor(m => m.Customers.STATUS_SYNC_CHAT)
-                                                <select style="display:none" single class="selectize-dropdown single" id="Customers_STATUS_SYNC_CHAT" placeholder="Harap pilih" required="disabled"></select>
+                                            <div id="LabelTokped1" class="form-group">
                                             </div>
-                                        </div>
-                                        @*add by nurul 24/10/2018*@
-                                        <div id="descAPIKey2" class="form-group">
-                                            <div id="emptyDiv3" class="col-md-3 col-sm-3 col-xs-1"></div>
-                                            <label id="lblDesc3" style="visibility:hidden">1. Untuk dapat tersambung secara otomatis ke Tokopedia, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Tokopedia, silahkan hubungi customer service kami.</label>
-                                            <br />
-                                            <label id="lblDesc4" style="visibility:hidden"></label>
-                                            <div id="emptyDiv4" class="col-md-3 col-sm-3 col-xs-1"></div>
-                                        </div>
-                                        @*end add by nurul 24/10/2018*@
-                                        @*add by nurul 25/03/2019*@
-                                        <div id="TokpedShopID" class="form-group">
-                                        </div>
-                                        <div id="LabelTokped1" class="form-group">
-                                        </div>
-                                        <div id="LabelTokped2" class="form-group">
-                                        </div>
-                                        @*end add by nurul 25/03/2019*@
-                                        <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanCustomer(this)" />
+                                            <div id="LabelTokped2" class="form-group">
+                                            </div>
+                                            @*end add by nurul 25/03/2019*@
+                                            <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn_chat" onclick="simpanCustomer(this)" />
                                         }
                                     </div>
                                 </div>
@@ -1521,7 +1521,7 @@
     @*<script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>*@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
-<script type="text/javascript">
+    <script type="text/javascript">
         var getLink = "";
         var $Sort1_Cust = "";
         var $API_CLIENT_U = "";
@@ -1683,7 +1683,7 @@
                             getStatusSyncMarketplace(false);
                             //end
                             $('.customer_editor_section').show();
-                            $('#form_input').hide();
+                            $('#form_input_chat').hide();
                             $('#form_subs').show();
                         });
                         showSubsMenu(2);
@@ -1699,7 +1699,7 @@
                             getStatusSyncMarketplace(false);
                             //end
                             $('.customer_editor_section').show();
-                            $('#form_input').show();
+                            $('#form_input_chat').show();
                             $('#form_subs').hide();
                             $('#generate_code').remove();
                             Customers_TLP.value = '.';
@@ -1813,7 +1813,7 @@
                                 $("#Customers_NAMA").val(null);
                                 $('#tambah_market_pricing').click();
 
-                                $('#form_input').hide();
+                                $('#form_input_chat').hide();
                                 $('#form_subs').show();
 
                                 showSubsMenu(1);
@@ -2133,7 +2133,7 @@
                         $("#Customers_NAMA").val(null);
                         $('#tambah_market_pricing').click();
 
-                        $('#form_input').hide();
+                        $('#form_input_chat').hide();
                         $('#form_subs').show();
                         showSubsMenu(1);
 
@@ -2147,7 +2147,7 @@
                             //url: $form.attr('action'),
                             url: $link,
                             //data: $form.serialize(),
-                            data: $('#form-customer').serialize(),
+                            data: $('#form-customer-chat').serialize(),
                             beforeSend: function () {
                                 $('#loading_spinner').show();
                             },
@@ -2160,7 +2160,7 @@
                                             if (confirm("Generate New API Key?")) {
                                                 GenerateLazadaCode(custCode);
                                             } else {
-                                                //window.location.href = '@Url.Action("Pelanggan", "Manage")';
+                                                //window.location.href = '@Url.Action("ChatSetting", "Manage")';
                                                 refreshTableCustomerChat();
                                             }
                                         }
@@ -2688,7 +2688,7 @@
 
                     //$('#Customers_API_KEY').val(response.Customers.API_KEY);
                     //end add by Tri 11 Maret 2019
-                    $('#form_input').show();
+                    $('#form_input_chat').show();
                     $('#form_subs').hide();
                     //end add by Tri 11 Maret 2019
                     //add by Tri, remove/append api_key
@@ -3097,10 +3097,10 @@
                         $('#cbVersiAPI')[0].selectize.disable();
                     }
                     if (@tokped == response.Customers.NAMA) {
-                        $('#simpan_btn').hide();
+                        $('#simpan_btn_chat').hide();
                     } else if (@shopee == response.Customers.NAMA) {
-                        $('#simpan_btn').show();
-                        $('#simpan_btn').removeAttr('disabled');
+                        $('#simpan_btn_chat').show();
+                        $('#simpan_btn_chat').removeAttr('disabled');
                     }
                     $('#loading_spinner').hide();
                 },
@@ -3462,7 +3462,7 @@
                         if (lzdAuthPopUp.closed) {
                             clearInterval(timer);
                             $('#loading_spinner').hide();
-                            window.location.href = '@Url.Action("Pelanggan", "Manage")';
+                            window.location.href = '@Url.Action("ChatSetting", "Manage")';
                         }
                     }, 1000);
                 },
@@ -3486,7 +3486,7 @@
                         if (blAuthPopUp.closed) {
                             clearInterval(timer);
                             $('#loading_spinner').hide();
-                            window.location.href = '@Url.Action("Pelanggan", "Manage")';
+                            window.location.href = '@Url.Action("ChatSetting", "Manage")';
                         }
                     }, 1000);
                 },
@@ -3561,7 +3561,7 @@
                         if (shpAuthPopUp.closed) {
                             clearInterval(timer);
                             $('#loading_spinner').hide();
-                            window.location.href = '@Url.Action("Pelanggan", "Manage")';
+                            window.location.href = '@Url.Action("ChatSetting", "Manage")';
                         }
                     }, 1000);
                 },
