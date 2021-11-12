@@ -915,6 +915,7 @@ namespace MasterOnline.Controllers
             var AdminController = new AdminController();
 
             #region bukalapak
+            try {
             var kdBL = 8;
             //var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
             var BLShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.ToString());
@@ -984,9 +985,12 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
+            }
+            catch (Exception ex) { }
             #endregion
 
             #region lazada
+            try { 
             var kdLazada = 7;
             //var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
             var LazadaShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdLazada.ToString());
@@ -1116,9 +1120,12 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
+            }
+            catch (Exception ex) { }
             #endregion
 
             #region Blibli
+            try { 
             //change by fauzi 18 Desember 2019
             var kdBli = 16;
             //var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
@@ -1211,9 +1218,12 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
+            }
+            catch (Exception ex) { }
             #endregion
 
             #region elevenia
+            try { 
             var kdElevenia = 9;
             //var kdElevenia = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "ELEVENIA");
             var EleveniaShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdElevenia.ToString());
@@ -1272,9 +1282,12 @@ namespace MasterOnline.Controllers
                     //end add by calvin 2 april 2019
                 }
             }
+            }
+            catch (Exception ex) { }
             #endregion
 
             #region Tokopedia
+            try { 
             var kdTokped = 15;
             //var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
             var TokpedShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.ToString());
@@ -1379,17 +1392,12 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
+            }
+            catch (Exception ex) { }
             #endregion
 
             #region Shopee
-            //debug
-            //ShopeeController.ShopeeAPIData dataaa = new ShopeeController.ShopeeAPIData()
-            //{
-            //    merchant_code = "6297330",
-
-            //};
-            //var ShopeeApi = new ShopeeController();
-            //var resultShopee = ShopeeApi.GetItemDetail(dataaa, 470836261);
+            try { 
             var kdShopee = 17;
             //var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
             var ShopeeShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.ToString());
@@ -1554,10 +1562,12 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
+            }
+            catch (Exception ex) { }
             #endregion
 
             #region Shopify
-
+            try { 
             var kdShopify = 21;
             var ShopifyShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopify.ToString());
             if (id_single_account.HasValue)
@@ -1622,9 +1632,12 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
+            }
+            catch (Exception ex) { }
             #endregion
 
             #region 82Cart
+            try { 
             var kd82Cart = 20;
 
             var v82CartShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kd82Cart.ToString());
@@ -1702,9 +1715,12 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
+            }
+            catch (Exception ex) { }
             #endregion
 
             #region JDID
+            try { 
             var kdJDID = 19;
 
             var vJDIDShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdJDID.ToString());
@@ -1851,9 +1867,12 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
+            }
+            catch (Exception ex) { }
             #endregion
 
             #region Accurate
+            try { 
 #if AWS
 	        string idaddon = "7";
 #else
@@ -1870,6 +1889,8 @@ namespace MasterOnline.Controllers
                     LocalErasoftDbContext.Database.ExecuteSqlCommand("UPDATE PARTNER_API SET STATUS = 0 WHERE PartnerId = 20007");
                 }
             }
+            }
+            catch (Exception ex) { }
             #endregion
 
             return "";
