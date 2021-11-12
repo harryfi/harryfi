@@ -52,5 +52,8 @@ namespace MasterOnline.Models
         public string to_name { get; set; }
 
         public long unread_count { get; set; }
+
+        [StringLength(50)]
+        public string cust { get; set; }
     }
 }

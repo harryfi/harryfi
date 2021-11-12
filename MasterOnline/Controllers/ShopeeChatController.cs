@@ -28,11 +28,11 @@ namespace MasterOnline.Controllers
         private static readonly DateTime Jan1st1970 = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);//string auth = Base64Encode();
 #if AWS
         string shpCallbackUrl = "https://masteronline.co.id/shp/code?user=";
-        string shpCallbackUrlV2 = "https://masteronline.co.id/shp/v2/code?user=";
+        string shpCallbackUrlV2 = "https://masteronline.co.id/shp/v2/codechat?user=";
 #else
         //string shpCallbackUrl = "https://dev.masteronline.co.id/shp/code?user=";
-        //string shpCallbackUrlV2 = "http://dev.masteronline.co.id/shp/v2/code?user=";
-        string shpCallbackUrlV2 = "http://localhost:50109/shp/v2/codechat?user=";
+        string shpCallbackUrlV2 = "http://dev.masteronline.co.id/shp/v2/codechat?user=";
+        //string shpCallbackUrlV2 = "http://localhost:50109/shp/v2/codechat?user=";
         string shpCallbackUrl = "https://masteronline.my.id/shp/code?user=";
 #endif
         string shopeeV2Url = "https://partner.shopeemobile.com";
@@ -66,40 +66,88 @@ namespace MasterOnline.Controllers
 
         public ShopeeChatController()
         {
-            MoDbContext = new MoDbContext("");
-            username = "";
-            //            var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            //            if (sessionData?.Account != null)
+            //            MoDbContext = new MoDbContext("");
+            //            username = "";
+            //            //            var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            //            //            if (sessionData?.Account != null)
+            //            //            {
+            //            //                if (sessionData.Account.UserId == "admin_manage")
+            //            //                {
+            //            //                    ErasoftDbContext = new ErasoftContext();
+            //            //                }
+            //            //                else
+            //            //                {
+            //            //#if (Debug_AWS)
+            //            //                    dbSourceEra = sessionData.Account.DataSourcePathDebug;
+            //            //#else
+            //            //                    dbSourceEra = sessionData.Account.DataSourcePath;
+            //            //#endif
+            //            //                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionData.Account.DatabasePathErasoft);
+            //            //                }                    
+
+            //            //                EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
+            //            //                DatabasePathErasoft = sessionData.Account.DatabasePathErasoft;
+            //            //                username = sessionData.Account.Username;
+            //            //            }
+            //            //            else
+            //            //            {
+            //            //                if (sessionData?.User != null)
+            //            //                {
+            //            //                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+            //            //#if (Debug_AWS)
+            //            //                    dbSourceEra = accFromUser.DataSourcePathDebug;
+            //            //#else
+            //            //                    dbSourceEra = accFromUser.DataSourcePath;
+            //            //#endif
+            //            //                    //ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
+            //            //                    ErasoftDbContext = new ErasoftContext(dbSourceEra, accFromUser.DatabasePathErasoft);
+            //            //                    EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
+            //            //                    DatabasePathErasoft = accFromUser.DatabasePathErasoft;
+            //            //                    username = accFromUser.Username;
+            //            //                }
+            //            //            }
+
+            //            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            //            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            //            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            //            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            //            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            //            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            //            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            //            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+            //            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+
+            //            if (sessionAccount != null)
             //            {
-            //                if (sessionData.Account.UserId == "admin_manage")
+            //                if (sessionAccountUserID.ToString() == "admin_manage")
             //                {
             //                    ErasoftDbContext = new ErasoftContext();
             //                }
             //                else
             //                {
-            //#if (Debug_AWS)
-            //                    dbSourceEra = sessionData.Account.DataSourcePathDebug;
+            //#if (Debug_AWS || DEBUG)
+            //                    dbSourceEra = sessionAccountDataSourcePathDebug.ToString();
             //#else
-            //                    dbSourceEra = sessionData.Account.DataSourcePath;
+            //                    dbSourceEra = sessionAccountDataSourcePath.ToString();
             //#endif
-            //                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionData.Account.DatabasePathErasoft);
-            //                }                    
-
-            //                EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
-            //                DatabasePathErasoft = sessionData.Account.DatabasePathErasoft;
-            //                username = sessionData.Account.Username;
+            //                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionAccountDatabasePathErasoft.ToString());
+            //                }
+            //                EDB = new DatabaseSQL(sessionAccountDatabasePathErasoft.ToString());
+            //                DatabasePathErasoft = sessionAccountDatabasePathErasoft.ToString();
+            //                username = sessionAccountUserName.ToString();
             //            }
             //            else
             //            {
-            //                if (sessionData?.User != null)
+            //                if (sessionUser != null)
             //                {
-            //                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
-            //#if (Debug_AWS)
+            //                    var userAccID = Convert.ToInt64(sessionUserAccountID);
+            //                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == userAccID);
+            //#if (Debug_AWS || DEBUG)
             //                    dbSourceEra = accFromUser.DataSourcePathDebug;
             //#else
             //                    dbSourceEra = accFromUser.DataSourcePath;
             //#endif
-            //                    //ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
             //                    ErasoftDbContext = new ErasoftContext(dbSourceEra, accFromUser.DatabasePathErasoft);
             //                    EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
             //                    DatabasePathErasoft = accFromUser.DatabasePathErasoft;
@@ -107,56 +155,8 @@ namespace MasterOnline.Controllers
             //                }
             //            }
 
-            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
-            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
-            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
-            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
-            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
-            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
-
-            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
-            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
-            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
-
-            if (sessionAccount != null)
-            {
-                if (sessionAccountUserID.ToString() == "admin_manage")
-                {
-                    ErasoftDbContext = new ErasoftContext();
-                }
-                else
-                {
-#if (Debug_AWS || DEBUG)
-                    dbSourceEra = sessionAccountDataSourcePathDebug.ToString();
-#else
-                    dbSourceEra = sessionAccountDataSourcePath.ToString();
-#endif
-                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionAccountDatabasePathErasoft.ToString());
-                }
-                EDB = new DatabaseSQL(sessionAccountDatabasePathErasoft.ToString());
-                DatabasePathErasoft = sessionAccountDatabasePathErasoft.ToString();
-                username = sessionAccountUserName.ToString();
-            }
-            else
-            {
-                if (sessionUser != null)
-                {
-                    var userAccID = Convert.ToInt64(sessionUserAccountID);
-                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == userAccID);
-#if (Debug_AWS || DEBUG)
-                    dbSourceEra = accFromUser.DataSourcePathDebug;
-#else
-                    dbSourceEra = accFromUser.DataSourcePath;
-#endif
-                    ErasoftDbContext = new ErasoftContext(dbSourceEra, accFromUser.DatabasePathErasoft);
-                    EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
-                    DatabasePathErasoft = accFromUser.DatabasePathErasoft;
-                    username = accFromUser.Username;
-                }
-            }
-
-            if (username.Length > 20)
-                username = username.Substring(0, 17) + "...";
+            //            if (username.Length > 20)
+            //                username = username.Substring(0, 17) + "...";
         }
         //[Route("shp/code")]
         //[HttpGet]
@@ -2914,7 +2914,7 @@ namespace MasterOnline.Controllers
                             var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API_CHAT  = '1', Sort1_Cust = '"
                                 + dataAPI.merchant_code + "', TOKEN_EXPIRED_CHAT  = '" + dateExpired
                                  + "', TOKEN_CHAT = '" + result.access_token + "', REFRESH_TOKEN_CHAT = '" + result.refresh_token
-                                 + "', TGL_EXPIRED_CHAT='" + tglExpired 
+                                 + "', TGL_EXPIRED_CHAT='" + tglExpired
                                 + "' WHERE CUST = '" + dataAPI.no_cust + "'");
                             if (resultquery != 0)
                             {
@@ -3361,3693 +3361,3693 @@ namespace MasterOnline.Controllers
         //    }
         //    return ret;
         //}
-//        public async Task<string> GetCategoryShopee_V2(ShopeeAPIData dataAPI)
-//        {
-//            dataAPI = await RefreshTokenShopee_V2(dataAPI, false);
-//            string ret = "";
-//            DateTime dateNow = DateTime.UtcNow.AddHours(7);
-
-//            {
-//                int MOPartnerID = MOPartnerIDV2;
-//                string MOPartnerKey = MOPartnerKeyV2;
-
-//                long seconds = CurrentTimeSecond();
-//                DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//                //ganti
-//                string urll = shopeeV2Url;
-//                string path = "/api/v2/product/get_category";
-
-//                var baseString = MOPartnerID + path + seconds + dataAPI.token + dataAPI.merchant_code;
-//                var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
-
-//                string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds + "&access_token=" + dataAPI.token
-//                    + "&shop_id=" + dataAPI.merchant_code + "&sign=" + sign + "&language=id";
-
-//                //string myData = "{\"refresh_token\":\"" + dataAPI.refresh_token + "\",\"partner_id\":" + MOPartnerID + ",\"shop_id\":" + dataAPI.merchant_code + "}";
-
-//                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
-//                myReq.Method = "GET";
-//                myReq.Accept = "application/json";
-//                myReq.ContentType = "application/json";
-//                string responseFromServer = "";
-//                try
-//                {
-//                    //myReq.ContentLength = myData.Length;
-//                    //using (var dataStream = myReq.GetRequestStream())
-//                    //{
-//                    //    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                    //}
-//                    using (WebResponse response = await myReq.GetResponseAsync())
-//                    {
-//                        using (Stream stream = response.GetResponseStream())
-//                        {
-//                            StreamReader reader = new StreamReader(stream);
-//                            responseFromServer = reader.ReadToEnd();
-//                        }
-//                    }
-//                }
-//                catch (WebException e)
-//                {
-//                    string err = "";
-//                    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//                    if (e.Status == WebExceptionStatus.ProtocolError)
-//                    {
-//                        WebResponse resp = e.Response;
-//                        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
-//                        {
-//                            err = sr.ReadToEnd();
-//                        }
-//                    }
-//                }
-
-//                if (!string.IsNullOrEmpty(responseFromServer))
-//                {
-//                    try
-//                    {
-//                        var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetCategoryResult_V2)) as ShopeeGetCategoryResult_V2;
-//#if AWS
-//                string con = "Data Source=172.31.20.192;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-//#elif Debug_AWS
-//                        string con = "Data Source=54.151.175.62, 12354;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-//#elif DEV
-//                        string con = "Data Source=172.31.20.73;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-//#else
-//                        string con = "Data Source=54.151.175.62, 45650;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-//#endif
-
-//                        using (SqlConnection oConnection = new SqlConnection(con))
-//                        {
-//                            oConnection.Open();
-//                            //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
-//                            //{
-//                            using (SqlCommand oCommand = oConnection.CreateCommand())
-//                            {
-//                                oCommand.CommandText = "DELETE FROM [CATEGORY_SHOPEE_V2]";
-//                                oCommand.ExecuteNonQuery();
-//                                //oCommand.Transaction = oTransaction;
-//                                oCommand.CommandType = CommandType.Text;
-//                                oCommand.CommandText = "INSERT INTO [CATEGORY_SHOPEE_V2] ([CATEGORY_CODE], [CATEGORY_NAME], [PARENT_CODE], [IS_LAST_NODE], [MASTER_CATEGORY_CODE]) VALUES (@CATEGORY_CODE, @CATEGORY_NAME, @PARENT_CODE, @IS_LAST_NODE, @MASTER_CATEGORY_CODE)";
-//                                //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
-//                                oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
-//                                oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
-//                                oCommand.Parameters.Add(new SqlParameter("@PARENT_CODE", SqlDbType.NVarChar, 50));
-//                                oCommand.Parameters.Add(new SqlParameter("@IS_LAST_NODE", SqlDbType.NVarChar, 1));
-//                                oCommand.Parameters.Add(new SqlParameter("@MASTER_CATEGORY_CODE", SqlDbType.NVarChar, 50));
-
-//                                try
-//                                {
-//                                    //foreach (var item in result.categories.Where(P => P.parent_id == 0)) //foreach parent level top
-//                                    foreach (var item in result.response.category_list) //foreach parent level top
-//                                    {
-//                                        oCommand.Parameters[0].Value = item.category_id;
-//                                        oCommand.Parameters[1].Value = item.display_category_name;
-//                                        oCommand.Parameters[2].Value = item.parent_category_id == 0 ? "" : item.parent_category_id.ToString();
-//                                        oCommand.Parameters[3].Value = item.has_children ? "0" : "1";
-//                                        oCommand.Parameters[4].Value = "";
-//                                        if (oCommand.ExecuteNonQuery() > 0)
-//                                        {
-//                                            //if (item.has_children)
-//                                            //{
-//                                            //    RecursiveInsertCategory(oCommand, result.categories, item.category_id, item.category_id);
-//                                            //}
-//                                        }
-//                                        else
-//                                        {
-
-//                                        }
-//                                    }
-//                                    //oTransaction.Commit();
-//                                }
-//                                catch (Exception ex)
-//                                {
-//                                    //oTransaction.Rollback();
-//                                }
-//                            }
-//                        }
-//                    }
-//                    catch (Exception ex2)
-//                    {
-
-//                    }
-//                }
-//            }
-//            return ret;
-//        }
-//        public async Task<string> GetAttribute(ShopeeAPIData iden)
-//        {
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            string ret = "";
-//            var categories = MoDbContext.CategoryShopee.Where(p => p.IS_LAST_NODE.Equals("1")).ToList();
-//            foreach (var category in categories)
-//            {
-//                long seconds = CurrentTimeSecond();
-//                DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//                //ganti
-//                string urll = "https://partner.shopeemobile.com/api/v1/item/attributes/get";
-
-//                //ganti
-//                ShopeeGetAttributeData HttpBody = new ShopeeGetAttributeData
-//                {
-//                    partner_id = MOPartnerID,
-//                    shopid = Convert.ToInt32(iden.merchant_code),
-//                    timestamp = seconds,
-//                    language = "id",
-//                    category_id = Convert.ToInt32(category.CATEGORY_CODE)
-//                };
-
-//                string myData = JsonConvert.SerializeObject(HttpBody);
-
-//                string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//                myReq.Method = "POST";
-//                myReq.Headers.Add("Authorization", signature);
-//                myReq.Accept = "application/json";
-//                myReq.ContentType = "application/json";
-//                string responseFromServer = "";
-//                try
-//                {
-//                    myReq.ContentLength = myData.Length;
-//                    using (var dataStream = myReq.GetRequestStream())
-//                    {
-//                        dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                    }
-//                    using (WebResponse response = await myReq.GetResponseAsync())
-//                    {
-//                        using (Stream stream = response.GetResponseStream())
-//                        {
-//                            StreamReader reader = new StreamReader(stream);
-//                            responseFromServer = reader.ReadToEnd();
-//                        }
-//                    }
-//                }
-//                catch (Exception ex)
-//                {
-//                }
-
-//                if (responseFromServer != null)
-//                {
-//                    try
-//                    {
-//                        var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetAttributeResult)) as ShopeeGetAttributeResult;
-//#if AWS
-//                        string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-//#elif Debug_AWS
-//                        string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-//#else
-//                        string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-//#endif
-//                        using (SqlConnection oConnection = new SqlConnection(con))
-//                        {
-//                            oConnection.Open();
-//                            //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
-//                            //{
-//                            using (SqlCommand oCommand = oConnection.CreateCommand())
-//                            {
-//                                var AttributeInDb = MoDbContext.AttributeShopee.Where(p => p.CATEGORY_CODE.ToUpper().Equals(category.CATEGORY_CODE)).ToList();
-//                                //cek jika belum ada di database, insert
-//                                var cari = AttributeInDb;
-//                                if (cari.Count() == 0)
-//                                {
-//                                    oCommand.CommandType = CommandType.Text;
-//                                    oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
-//                                    oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
-
-//                                    string sSQL = "INSERT INTO [ATTRIBUTE_SHOPEE] ([CATEGORY_CODE], [CATEGORY_NAME],";
-//                                    string sSQLValue = ") VALUES (@CATEGORY_CODE, @CATEGORY_NAME,";
-//                                    string a = "";
-//                                    int i = 0;
-//                                    foreach (var attribs in result.attributes)
-//                                    {
-//                                        a = Convert.ToString(i + 1);
-//                                        sSQL += "[ACODE_" + a + "],[ATYPE_" + a + "],[ANAME_" + a + "],[AOPTIONS_" + a + "],[AMANDATORY_" + a + "],";
-//                                        sSQLValue += "@ACODE_" + a + ",@ATYPE_" + a + ",@ANAME_" + a + ",@AOPTIONS_" + a + ",@AMANDATORY_" + a + ",";
-//                                        oCommand.Parameters.Add(new SqlParameter("@ACODE_" + a, SqlDbType.NVarChar, 50));
-//                                        oCommand.Parameters.Add(new SqlParameter("@ATYPE_" + a, SqlDbType.NVarChar, 50));
-//                                        oCommand.Parameters.Add(new SqlParameter("@ANAME_" + a, SqlDbType.NVarChar, 250));
-//                                        oCommand.Parameters.Add(new SqlParameter("@AOPTIONS_" + a, SqlDbType.NVarChar, 1));
-//                                        oCommand.Parameters.Add(new SqlParameter("@AMANDATORY_" + a, SqlDbType.NVarChar, 1));
-
-//                                        a = Convert.ToString(i * 5 + 2);
-//                                        oCommand.Parameters[(i * 5) + 2].Value = "";
-//                                        oCommand.Parameters[(i * 5) + 3].Value = "";
-//                                        oCommand.Parameters[(i * 5) + 4].Value = "";
-//                                        oCommand.Parameters[(i * 5) + 5].Value = "";
-//                                        oCommand.Parameters[(i * 5) + 6].Value = "";
-
-//                                        oCommand.Parameters[(i * 5) + 2].Value = attribs.attribute_id;
-//                                        oCommand.Parameters[(i * 5) + 3].Value = attribs.options.Count() > 0 ? "PREDEFINED_ATTRIBUTE" : "DESCRIPTIVE_ATTRIBUTE";
-//                                        oCommand.Parameters[(i * 5) + 4].Value = attribs.attribute_name;
-//                                        oCommand.Parameters[(i * 5) + 5].Value = attribs.options.Count() > 0 ? "1" : "0";
-//                                        oCommand.Parameters[(i * 5) + 6].Value = attribs.is_mandatory ? "1" : "0";
-
-//                                        if (attribs.options.Count() > 0)
-//                                        {
-//                                            var AttributeOptInDb = MoDbContext.AttributeOptShopee.AsNoTracking().ToList();
-//                                            foreach (var option in attribs.options)
-//                                            {
-//                                                var cariOpt = AttributeOptInDb.Where(p => p.ACODE == Convert.ToString(attribs.attribute_id) && p.OPTION_VALUE == option);
-//                                                if (cariOpt.Count() == 0)
-//                                                {
-//                                                    using (SqlCommand oCommand2 = oConnection.CreateCommand())
-//                                                    {
-//                                                        oCommand2.CommandType = CommandType.Text;
-//                                                        oCommand2.CommandText = "INSERT INTO ATTRIBUTE_OPT_SHOPEE ([ACODE], [OPTION_VALUE]) VALUES (@ACODE, @OPTION_VALUE)";
-//                                                        oCommand2.Parameters.Add(new SqlParameter("@ACODE", SqlDbType.NVarChar, 50));
-//                                                        oCommand2.Parameters.Add(new SqlParameter("@OPTION_VALUE", SqlDbType.NVarChar, 250));
-//                                                        oCommand2.Parameters[0].Value = attribs.attribute_id;
-//                                                        oCommand2.Parameters[1].Value = option;
-//                                                        oCommand2.ExecuteNonQuery();
-//                                                    }
-//                                                }
-//                                            }
-//                                        }
-//                                        i = i + 1;
-//                                    }
-//                                    sSQL = sSQL.Substring(0, sSQL.Length - 1) + sSQLValue.Substring(0, sSQLValue.Length - 1) + ")";
-//                                    oCommand.CommandText = sSQL;
-//                                    oCommand.Parameters[0].Value = category.CATEGORY_CODE;
-//                                    oCommand.Parameters[1].Value = "";
-//                                    oCommand.ExecuteNonQuery();
-//                                }
-//                            }
-//                        }
-//                    }
-//                    catch (Exception ex2)
-//                    {
-
-//                    }
-//                }
-//            }
-//            return ret;
-//        }
-//        public async Task<string> GetOrderByStatus(ShopeeAPIData iden, StatusOrder stat, string connID, string CUST, string NAMA_CUST, int page)
-//        {
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            string ret = "";
-
-//            long seconds = CurrentTimeSecond();
-//            long timestamp7Days = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
-
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            string urll = "https://partner.shopeemobile.com/api/v1/orders/get";
-
-//            ShopeeGetOrderByStatusData HttpBody = new ShopeeGetOrderByStatusData
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                pagination_offset = page,
-//                pagination_entries_per_page = 50,
-//                create_time_from = timestamp7Days,
-//                create_time_to = seconds,
-//                order_status = stat.ToString()
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//            }
-//            catch (Exception ex)
-//            {
-//            }
-
-//            if (responseFromServer != null)
-//            {
-//                try
-//                {
-
-//                    var listOrder = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderByStatusResult)) as ShopeeGetOrderByStatusResult;
-//                    if (stat == StatusOrder.READY_TO_SHIP)
-//                    {
-//                        string[] ordersn_list = listOrder.orders.Select(p => p.ordersn).ToArray();
-//                        //add by calvin 4 maret 2019, filter
-//                        var dariTgl = DateTimeOffset.UtcNow.AddDays(-30).DateTime;
-//                        var SudahAdaDiMO = ErasoftDbContext.SOT01A.Where(p => p.USER_NAME == "Auto Shopee" && p.TGL >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
-//                        //end add by calvin
-//                        var filtered = ordersn_list.Where(p => !SudahAdaDiMO.Contains(p));
-//                        if (filtered.Count() > 0)
-//                        {
-//                            await GetOrderDetails(iden, filtered.ToArray(), connID, CUST, NAMA_CUST);
-//                        }
-//                        if (listOrder.more)
-//                        {
-//                            await GetOrderByStatus(iden, stat, connID, CUST, NAMA_CUST, page + 50);
-//                        }
-//                    }
-
-//                }
-//                catch (Exception ex2)
-//                {
-//                }
-//            }
-//            return ret;
-//        }
-//        public async Task<string> GetOrderDetails(ShopeeAPIData iden, string[] ordersn_list, string connID, string CUST, string NAMA_CUST)
-//        {
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            string ret = "";
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-//            {
-//                //REQUEST_ID = seconds.ToString(),
-//                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
-//                REQUEST_ACTION = "Get Order List", //ganti
-//                REQUEST_DATETIME = milisBack,
-//                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
-//                REQUEST_STATUS = "Pending",
-//            };
-
-//            string urll = "https://partner.shopeemobile.com/api/v1/orders/detail";
-
-//            GetOrderDetailsData HttpBody = new GetOrderDetailsData
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                ordersn_list = ordersn_list
-//                //ordersn_list = ordersn_list_test.ToArray()
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-//            }
-//            catch (Exception ex)
-//            {
-//                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//            }
-
-//            if (responseFromServer != null)
-//            {
-//                try
-//                {
-//                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderDetailsResult)) as ShopeeGetOrderDetailsResult;
-//                    var connIdARF01C = Guid.NewGuid().ToString();
-//                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-//                    TEMP_SHOPEE_ORDERS batchinsert = new TEMP_SHOPEE_ORDERS();
-//                    List<TEMP_SHOPEE_ORDERS_ITEM> batchinsertItem = new List<TEMP_SHOPEE_ORDERS_ITEM>();
-//                    string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
-//                    insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
-//                    insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
-//                    var kabKot = "3174";
-//                    var prov = "31";
-
-//                    foreach (var order in result.orders)
-//                    {
-//                        //insertPembeli += "('" + order.recipient_address.name + "','" + order.recipient_address.full_address + "','" + order.recipient_address.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
-//                        //insertPembeli += "1, 'IDR', '01', '" + order.recipient_address.full_address + "', 0, 0, 0, 0, '1', 0, 0, ";
-//                        //insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient_address.zipcode + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
-
-//                        string nama = order.recipient_address.name.Length > 30 ? order.recipient_address.name.Substring(0, 30) : order.recipient_address.name;
-
-//                        insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
-//                            ((nama ?? "").Replace("'", "`")),
-//                            ((order.recipient_address.full_address ?? "").Replace("'", "`")),
-//                            ((order.recipient_address.phone ?? "").Replace("'", "`")),
-//                            (NAMA_CUST.Replace(',', '.')),
-//                            ((order.recipient_address.full_address ?? "").Replace("'", "`")),
-//                            DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-//                            (username),
-//                            ((order.recipient_address.zipcode ?? "").Replace("'", "`")),
-//                            kabKot,
-//                            prov,
-//                            connIdARF01C
-//                            );
-//                    }
-//                    insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
-//                    EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
-
-//                    foreach (var order in result.orders)
-//                    {
-//                        try
-//                        {
-//                            ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_SHOPEE_ORDERS");
-//                            ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_SHOPEE_ORDERS_ITEM");
-//                            batchinsertItem = new List<TEMP_SHOPEE_ORDERS_ITEM>();
-//                            TEMP_SHOPEE_ORDERS newOrder = new TEMP_SHOPEE_ORDERS()
-//                            {
-//                                actual_shipping_cost = order.actual_shipping_cost,
-//                                buyer_username = order.buyer_username,
-//                                cod = order.cod,
-//                                country = order.country,
-//                                create_time = DateTimeOffset.FromUnixTimeSeconds(order.create_time).UtcDateTime,
-//                                currency = order.currency,
-//                                days_to_ship = order.days_to_ship,
-//                                dropshipper = order.dropshipper,
-//                                escrow_amount = order.escrow_amount,
-//                                estimated_shipping_fee = order.estimated_shipping_fee,
-//                                goods_to_declare = order.goods_to_declare,
-//                                message_to_seller = order.message_to_seller,
-//                                note = order.note,
-//                                note_update_time = DateTimeOffset.FromUnixTimeSeconds(order.note_update_time).UtcDateTime,
-//                                ordersn = order.ordersn,
-//                                order_status = order.order_status,
-//                                payment_method = order.payment_method,
-//                                pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
-//                                Recipient_Address_country = order.recipient_address.country,
-//                                Recipient_Address_state = order.recipient_address.state,
-//                                Recipient_Address_city = order.recipient_address.city,
-//                                Recipient_Address_town = order.recipient_address.town,
-//                                Recipient_Address_district = order.recipient_address.district,
-//                                Recipient_Address_full_address = order.recipient_address.full_address,
-//                                Recipient_Address_name = order.recipient_address.name,
-//                                Recipient_Address_phone = order.recipient_address.phone,
-//                                Recipient_Address_zipcode = order.recipient_address.zipcode,
-//                                service_code = order.service_code,
-//                                shipping_carrier = order.shipping_carrier,
-//                                total_amount = order.total_amount,
-//                                tracking_no = order.tracking_no,
-//                                update_time = DateTimeOffset.FromUnixTimeSeconds(order.update_time).UtcDateTime,
-//                                CONN_ID = connID,
-//                                CUST = CUST,
-//                                NAMA_CUST = NAMA_CUST
-//                            };
-//                            foreach (var item in order.items)
-//                            {
-//                                TEMP_SHOPEE_ORDERS_ITEM newOrderItem = new TEMP_SHOPEE_ORDERS_ITEM()
-//                                {
-//                                    ordersn = order.ordersn,
-//                                    is_wholesale = item.is_wholesale,
-//                                    item_id = item.item_id,
-//                                    item_name = item.item_name,
-//                                    item_sku = item.item_sku,
-//                                    variation_discounted_price = item.variation_discounted_price,
-//                                    variation_id = item.variation_id,
-//                                    variation_name = item.variation_name,
-//                                    variation_original_price = item.variation_original_price,
-//                                    variation_quantity_purchased = item.variation_quantity_purchased,
-//                                    variation_sku = item.variation_sku,
-//                                    weight = item.weight,
-//                                    pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
-//                                    CONN_ID = connID,
-//                                    CUST = CUST,
-//                                    NAMA_CUST = NAMA_CUST
-//                                };
-//                                batchinsertItem.Add(newOrderItem);
-//                            }
-//                            batchinsert = (newOrder);
-
-//                            ErasoftDbContext.TEMP_SHOPEE_ORDERS.Add(batchinsert);
-//                            ErasoftDbContext.TEMP_SHOPEE_ORDERS_ITEM.AddRange(batchinsertItem);
-//                            ErasoftDbContext.SaveChanges();
-//                            using (SqlCommand CommandSQL = new SqlCommand())
-//                            {
-//                                //call sp to insert buyer data
-//                                CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-//                                CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
-
-//                                EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
-//                            };
-//                            using (SqlCommand CommandSQL = new SqlCommand())
-//                            {
-//                                CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-//                                CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connID;
-//                                CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
-//                                CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-//                                CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
-//                                CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
-//                                CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
-//                                CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
-//                                CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
-//                                CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 1;
-//                                CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
-//                                CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
-//                                CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
-
-//                                EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
-//                            }
-//                        }
-//                        catch (Exception ex3)
-//                        {
-
-//                        }
-//                    }
-//                }
-//                catch (Exception ex2)
-//                {
-//                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-//                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//                }
-//            }
-//            return ret;
-//        }
-//        public async Task<ShopeeGetParameterForInitLogisticResult> GetParameterForInitLogistic(ShopeeAPIData iden, string ordersn)
-//        {
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            string urll = "https://partner.shopeemobile.com/api/v1/logistics/init_parameter/get";
-//            if (!string.IsNullOrEmpty(iden.token))
-//            {
-//                MOPartnerID = MOPartnerIDV2;
-//                MOPartnerKey = MOPartnerKeyV2;
-//                urll = shopeeV2Url + "/api/v1/logistics/init_parameter/get";
-//            }
-//            ShopeeGetParameterForInitLogisticResult ret = null;
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            //string urll = "https://partner.shopeemobile.com/api/v1/logistics/init_parameter/get";
-
-//            ShopeeGetParameterForInitLogisticData HttpBody = new ShopeeGetParameterForInitLogisticData
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                ordersn = ordersn
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-
-//            }
-//            catch (Exception ex)
-//            {
-
-//            }
-
-//            if (responseFromServer != "")
-//            {
-//                try
-//                {
-//                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetParameterForInitLogisticResult)) as ShopeeGetParameterForInitLogisticResult;
-//                    ret = result;
-//                }
-//                catch (Exception ex2)
-//                {
-
-//                }
-//            }
-//            return ret;
-//        }
-//        public async Task<ShopeeGetParameterForInitLogisticResult> GetLogisticInfo(ShopeeAPIData iden, string ordersn)
-//        {
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            ShopeeGetParameterForInitLogisticResult ret = null;
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            string urll = "https://partner.shopeemobile.com/api/v1/logistics/init_info/get";
-
-//            ShopeeGetParameterForInitLogisticData HttpBody = new ShopeeGetParameterForInitLogisticData
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                ordersn = ordersn
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-
-//            }
-//            catch (Exception ex)
-//            {
-
-//            }
-
-//            if (responseFromServer != null)
-//            {
-//                try
-//                {
-//                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetParameterForInitLogisticResult)) as ShopeeGetParameterForInitLogisticResult;
-//                    ret = result;
-//                }
-//                catch (Exception ex2)
-//                {
-
-//                }
-//            }
-//            return ret;
-//        }
-//        public async Task<string> InitLogisticDropOff(ShopeeAPIData iden, string ordersn, ShopeeInitLogisticDropOffDetailData data, int recnum, string dBranch, string dSender, string dTrackNo)
-//        {
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            string ret = "";
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-//            {
-//                //REQUEST_ID = seconds.ToString(),
-//                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
-//                REQUEST_ACTION = "Update No Resi",
-//                REQUEST_DATETIME = milisBack,
-//                REQUEST_ATTRIBUTE_1 = ordersn,
-//                REQUEST_ATTRIBUTE_2 = dTrackNo,
-//                REQUEST_ATTRIBUTE_3 = "dropoff",
-//                REQUEST_ATTRIBUTE_4 = dSender + "[;]" + dBranch,
-//                REQUEST_STATUS = "Pending",
-//            };
-
-//            string urll = "https://partner.shopeemobile.com/api/v1/logistics/init";
-//            ShopeeInitLogisticDropOffData HttpBody = new ShopeeInitLogisticDropOffData
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                ordersn = ordersn,
-//                dropoff = data
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-//            string responseFromServer = "";
-
-//            //var client = new HttpClient();
-//            //client.DefaultRequestHeaders.Add("Authorization", signature);
-//            //var content = new FormUrlEncodedContent(ToKeyValue(HttpBody));
-
-//            //HttpResponseMessage clientResponse = await client.PostAsync(
-//            //    urll, content);
-
-//            //using (HttpContent responseContent = clientResponse.Content)
-//            //{
-//            //    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
-//            //    {
-//            //        responseFromServer = await reader.ReadToEndAsync();
-//            //    }
-//            //};
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-//            }
-//            catch (Exception ex)
-//            {
-//                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//            }
-
-//            if (responseFromServer != null)
-//            {
-//                try
-//                {
-//                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeInitLogisticResult)) as ShopeeInitLogisticResult;
-//                    if ((result.error == null ? "" : result.error) == "")
-//                    {
-//                        if (!string.IsNullOrWhiteSpace(result.tracking_no) || !string.IsNullOrWhiteSpace(result.tracking_number))
-//                        {
-//                            var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
-//                            if (pesananInDb != null)
-//                            {
-//                                if (dTrackNo == "")
-//                                {
-//                                    dTrackNo = ((result.tracking_no == null ? "" : result.tracking_no) == "") ? (result.tracking_number) : result.tracking_no;
-//                                }
-//                                string nilaiTRACKING_SHIPMENT = "D[;]" + dBranch + "[;]" + dSender + "[;]" + dTrackNo;
-//                                pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
-//                                ErasoftDbContext.SaveChanges();
-//                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-//                            }
-//                        }
-//                    }
-//                    else
-//                    {
-//                        currentLog.REQUEST_EXCEPTION = result.msg;
-//                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-//                    }
-//                }
-//                catch (Exception ex2)
-//                {
-//                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-//                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//                }
-//            }
-//            return ret;
-//        }
-//        public async Task<string> InitLogisticNonIntegrated(ShopeeAPIData iden, string ordersn, ShopeeInitLogisticNotIntegratedDetailData data, int recnum, string savedParam)
-//        {
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            string ret = "";
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-//            {
-//                //REQUEST_ID = seconds.ToString(),
-//                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
-//                REQUEST_ACTION = "Update No Resi",
-//                REQUEST_DATETIME = milisBack,
-//                REQUEST_ATTRIBUTE_1 = ordersn,
-//                REQUEST_ATTRIBUTE_2 = "",
-//                REQUEST_ATTRIBUTE_3 = "NonIntegrated",
-//                REQUEST_ATTRIBUTE_4 = savedParam,
-//                REQUEST_STATUS = "Pending",
-//            };
-
-//            string urll = "https://partner.shopeemobile.com/api/v1/logistics/init";
-//            ShopeeInitLogisticNonIntegratedData HttpBody = new ShopeeInitLogisticNonIntegratedData
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                ordersn = ordersn,
-//                non_integrated = data
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-//            }
-//            catch (Exception ex)
-//            {
-//                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//            }
-
-//            if (responseFromServer != null)
-//            {
-//                try
-//                {
-//                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeInitLogisticResult)) as ShopeeInitLogisticResult;
-//                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-//                }
-//                catch (Exception ex2)
-//                {
-//                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-//                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//                }
-//            }
-//            return ret;
-//        }
-//        public async Task<string> InitLogisticPickup(ShopeeAPIData iden, string ordersn, ShopeeInitLogisticPickupDetailData data, int recnum, string savedParam)
-//        {
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            string ret = "";
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-//            {
-//                //REQUEST_ID = seconds.ToString(),
-//                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
-//                REQUEST_ACTION = "Update No Resi",
-//                REQUEST_DATETIME = milisBack,
-//                REQUEST_ATTRIBUTE_1 = ordersn,
-//                REQUEST_ATTRIBUTE_2 = "",
-//                REQUEST_ATTRIBUTE_3 = "Pickup",
-//                REQUEST_ATTRIBUTE_4 = savedParam,
-//                REQUEST_STATUS = "Pending",
-//            };
-
-//            string urll = "https://partner.shopeemobile.com/api/v1/logistics/init";
-//            ShopeeInitLogisticPickupData HttpBody = new ShopeeInitLogisticPickupData
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                ordersn = ordersn,
-//                pickup = data
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-//            }
-//            catch (Exception ex)
-//            {
-//                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//            }
-
-//            if (responseFromServer != null)
-//            {
-//                try
-//                {
-//                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeInitLogisticResult)) as ShopeeInitLogisticResult;
-//                    if (result.error == null)
-//                    {
-//                        if (!string.IsNullOrWhiteSpace(result.tracking_no) || !string.IsNullOrWhiteSpace(result.tracking_number))
-//                        {
-//                            var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
-//                            if (pesananInDb != null)
-//                            {
-//                                pesananInDb.TRACKING_SHIPMENT = savedParam;
-//                                ErasoftDbContext.SaveChanges();
-//                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-//                            }
-//                        }
-//                    }
-//                    else
-//                    {
-//                        currentLog.REQUEST_EXCEPTION = result.msg;
-//                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-//                    }
-//                }
-//                catch (Exception ex2)
-//                {
-//                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-//                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//                }
-//            }
-//            return ret;
-//        }
-
-//        public async Task<string> UpdateStock(ShopeeAPIData iden, string brg_mp, int qty)
-//        {
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            string ret = "";
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-//            {
-//                //REQUEST_ID = seconds.ToString(),
-//                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
-//                REQUEST_ACTION = "Update QOH",
-//                REQUEST_DATETIME = milisBack,
-//                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
-//                REQUEST_STATUS = "Pending",
-//            };
-
-//            string urll = "https://partner.shopeemobile.com/api/v1/items/update_stock";
-//            string[] brg_mp_split = brg_mp.Split(';');
-//            ShopeeUpdateStockData HttpBody = new ShopeeUpdateStockData
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                item_id = Convert.ToInt64(brg_mp_split[0]),
-//                stock = qty
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-//            }
-//            catch (Exception ex)
-//            {
-//                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//            }
-
-//            if (responseFromServer != null)
-//            {
-//                try
-//                {
-//                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-//                }
-//                catch (Exception ex2)
-//                {
-//                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-//                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//                }
-//            }
-//            return ret;
-//        }
-//        public async Task<string> UpdateVariationStock(ShopeeAPIData iden, string brg_mp, int qty)
-//        {
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            string ret = "";
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-//            {
-//                //REQUEST_ID = seconds.ToString(),
-//                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
-//                REQUEST_ACTION = "Update QOH",
-//                REQUEST_DATETIME = milisBack,
-//                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
-//                REQUEST_STATUS = "Pending",
-//            };
-
-//            string urll = "https://partner.shopeemobile.com/api/v1/items/update_variation_stock";
-//            string[] brg_mp_split = brg_mp.Split(';');
-//            ShopeeUpdateVariationStockData HttpBody = new ShopeeUpdateVariationStockData
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                item_id = Convert.ToInt64(brg_mp_split[0]),
-//                variation_id = Convert.ToInt64(brg_mp_split[1]),
-//                stock = qty
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-//            }
-//            catch (Exception ex)
-//            {
-//                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//            }
-
-//            if (responseFromServer != null)
-//            {
-//                try
-//                {
-//                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-//                }
-//                catch (Exception ex2)
-//                {
-//                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-//                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//                }
-//            }
-//            return ret;
-//        }
-
-//        public async Task<ShopeeGetLogisticsResult> GetLogistics(ShopeeAPIData iden)
-//        {
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            ShopeeGetLogisticsResult ret = null;
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            string urll = "https://partner.shopeemobile.com/api/v1/logistics/channel/get";
-
-//            ShopeeGetLogisticsData HttpBody = new ShopeeGetLogisticsData
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//            }
-//            catch (Exception ex)
-//            {
-//            }
-
-//            if (responseFromServer != null)
-//            {
-//                try
-//                {
-//                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetLogisticsResult)) as ShopeeGetLogisticsResult;
-//                    ret = result;
-//                }
-//                catch (Exception ex2)
-//                {
-//                }
-//            }
-//            return ret;
-//        }
-//        public async Task<string> AcceptBuyerCancellation(ShopeeAPIData iden, string ordersn)
-//        {
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            string ret = "";
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-//            {
-//                //REQUEST_ID = seconds.ToString(),
-//                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
-//                REQUEST_ACTION = "Accept Buyer Cancel", //ganti
-//                REQUEST_DATETIME = milisBack,
-//                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
-//                REQUEST_STATUS = "Pending",
-//            };
-
-//            string urll = "https://partner.shopeemobile.com/api/v1/orders/buyer_cancellation/accept";
-
-//            ShopeeAcceptBuyerCancelOrderData HttpBody = new ShopeeAcceptBuyerCancelOrderData
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                ordersn = ordersn
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-//            }
-//            catch (Exception ex)
-//            {
-//                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//            }
-
-//            if (responseFromServer != null)
-//            {
-//                try
-//                {
-//                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-
-
-
-//                }
-//                catch (Exception ex2)
-//                {
-//                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-//                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//                }
-//            }
-//            return ret;
-//        }
-//        public async Task<string> CancelOrder(ShopeeAPIData iden, string ordersn)
-//        {
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            string ret = "";
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-//            {
-//                //REQUEST_ID = seconds.ToString(),
-//                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
-//                REQUEST_ACTION = "Cancel Order",
-//                REQUEST_DATETIME = milisBack,
-//                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
-//                REQUEST_STATUS = "Pending",
-//            };
-
-//            string urll = "https://partner.shopeemobile.com/api/v1/orders/cancel";
-
-//            ShopeeCancelOrderData HttpBody = new ShopeeCancelOrderData
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                ordersn = ordersn,
-//                cancel_reason = "CUSTOMER_REQUEST"
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-//            }
-//            catch (Exception ex)
-//            {
-//                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//            }
-
-//            if (responseFromServer != null)
-//            {
-//                try
-//                {
-//                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-//                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCancelOrderResult)) as ShopeeCancelOrderResult;
-//                    if (result.error != null)
-//                    {
-//                        if (result.error != "")
-//                        {
-//                            await AcceptBuyerCancellation(iden, ordersn);
-//                        }
-//                    }
-//                }
-//                catch (Exception ex2)
-//                {
-//                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-//                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//                }
-//            }
-//            return ret;
-//        }
-//        public async Task<string> CreateProduct(ShopeeAPIData iden, string brg, string cust, List<ShopeeLogisticsClass> logistics)
-//        {
-//            string ret = "";
-//            var brgInDb = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper() == brg.ToUpper()).FirstOrDefault();
-//            var marketplace = ErasoftDbContext.ARF01.Where(c => c.CUST.ToUpper() == cust.ToUpper()).FirstOrDefault();
-//            if (brgInDb == null || marketplace == null)
-//                return "invalid passing data";
-//            var detailBrg = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).FirstOrDefault();
-//            if (detailBrg == null)
-//                return "invalid passing data";
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-//            {
-//                //REQUEST_ID = seconds.ToString(),
-//                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
-//                REQUEST_ACTION = "Create Product",
-//                REQUEST_DATETIME = milisBack,
-//                REQUEST_ATTRIBUTE_1 = brg,
-//                REQUEST_ATTRIBUTE_2 = brgInDb.NAMA,
-//                REQUEST_STATUS = "Pending",
-//            };
-
-//            string urll = "https://partner.shopeemobile.com/api/v1/item/add";
-
-//            //add by calvin 21 desember 2018, default nya semua logistic enabled
-//            var ShopeeGetLogisticsResult = await GetLogistics(iden);
-
-//            foreach (var log in ShopeeGetLogisticsResult.logistics.Where(p => p.enabled == true && p.fee_type.ToUpper() != "CUSTOM_PRICE" && p.fee_type.ToUpper() != "SIZE_SELECTION"))
-//            {
-//                bool lolosValidLogistic = true;
-//                if (log.weight_limits != null)
-//                {
-//                    if (log.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
-//                    {
-//                        lolosValidLogistic = false;
-//                    }
-//                    if (log.weight_limits.item_min_weight > (brgInDb.BERAT / 1000))
-//                    {
-//                        lolosValidLogistic = false;
-//                    }
-//                }
-
-//                if (log.item_max_dimension != null)
-//                {
-//                    if (log.item_max_dimension.length > 0)
-//                    {
-//                        if (log.item_max_dimension.length < (Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG)))
-//                        {
-//                            lolosValidLogistic = false;
-//                        }
-//                    }
-//                    if (log.item_max_dimension.height > 0)
-//                    {
-//                        if (log.item_max_dimension.height < (Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI)))
-//                        {
-//                            lolosValidLogistic = false;
-//                        }
-//                    }
-//                    if (log.item_max_dimension.width > 0)
-//                    {
-//                        if (log.item_max_dimension.width < (Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR)))
-//                        {
-//                            lolosValidLogistic = false;
-//                        }
-//                    }
-//                }
-
-//                if (lolosValidLogistic)
-//                {
-//                    logistics.Add(new ShopeeLogisticsClass()
-//                    {
-//                        enabled = log.enabled,
-//                        is_free = false,
-//                        logistic_id = log.logistic_id,
-//                    });
-//                }
-//            }
-//            //end add by calvin 21 desember 2018, default nya semua logistic enabled
-
-//            ShopeeProductData HttpBody = new ShopeeProductData
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                item_sku = brg,
-//                category_id = Convert.ToInt64(detailBrg.CATEGORY_CODE),
-//                condition = "NEW",
-//                name = (brgInDb.NAMA + " " + brgInDb.NAMA2).Trim().Replace("’", "`"),
-//                description = brgInDb.Deskripsi.Replace("’", "`"),
-//                package_height = Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI),
-//                package_length = Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG),
-//                package_width = Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR),
-//                weight = brgInDb.BERAT / 1000,
-//                price = detailBrg.HJUAL,
-//                stock = 1,//create product min stock = 1
-//                images = new List<ShopeeImageClass>(),
-//                attributes = new List<ShopeeAttributeClass>(),
-//                variations = new List<ShopeeVariationClass>(),
-//                logistics = logistics
-//            };
-
-//            //add by calvin 10 mei 2019
-//            HttpBody.description = new StokControllerJob().RemoveSpecialCharacters(HttpBody.description);
-//            //end add by calvin 10 mei 2019
-
-//            //add by nurul 20/1/2020, handle <p> dan enter double di shopee
-//            HttpBody.description = HttpBody.description.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
-//            HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
-//            HttpBody.description = HttpBody.description.Replace("<ul>", "").Replace("</ul>", "\r\n");
-//            HttpBody.description = HttpBody.description.Replace("&nbsp;\r\n\r\n", "\n").Replace("&nbsp;<em>", " ");
-//            HttpBody.description = HttpBody.description.Replace("</em>&nbsp;", " ").Replace("&nbsp;", " ").Replace("</em>", "");
-//            HttpBody.description = HttpBody.description.Replace("<br />\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("\r\n", "");
-
-//            HttpBody.description = HttpBody.description.Replace("<h1>", "\r\n").Replace("</h1>", "\r\n");
-//            HttpBody.description = HttpBody.description.Replace("<h2>", "\r\n").Replace("</h2>", "\r\n");
-//            HttpBody.description = HttpBody.description.Replace("<h3>", "\r\n").Replace("</h3>", "\r\n");
-//            HttpBody.description = HttpBody.description.Replace("<p>", "\r\n").Replace("</p>", "\r\n");
-
-//            HttpBody.description = System.Text.RegularExpressions.Regex.Replace(HttpBody.description, "<.*?>", String.Empty);
-//            //end add by nurul 20/1/2020, handle <p> dan enter double di shopee
-
-//            //add by calvin 1 mei 2019
-//            var qty_stock = new StokControllerJob(DatabasePathErasoft, username).GetQOHSTF08A(brg, "ALL");
-//            if (qty_stock > 0)
-//            {
-//                HttpBody.stock = Convert.ToInt32(qty_stock);
-//            }
-//            //end add by calvin 1 mei 2019
-
-//            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
-//                HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_1 });
-//            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
-//                HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_2 });
-//            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
-//                HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_3 });
-//            if (brgInDb.TYPE == "4")
-//            {
-//                var ListVariant = ErasoftDbContext.STF02.Where(p => p.PART == brg).ToList();
-//                var ListSettingVariasi = ErasoftDbContext.STF02I.Where(p => p.BRG == brg).ToList();
-//                //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
-//                List<string> byteGambarUploaded = new List<string>();
-//                //end add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
-//                foreach (var item in ListVariant)
-//                {
-//                    List<string> Duplikat = HttpBody.variations.Select(p => p.name).ToList();
-//                    //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
-//                    if (!byteGambarUploaded.Contains(item.Sort5))
-//                    {
-//                        byteGambarUploaded.Add(item.Sort5);
-//                        if (!string.IsNullOrEmpty(item.LINK_GAMBAR_1))
-//                            HttpBody.images.Add(new ShopeeImageClass { url = item.LINK_GAMBAR_1 });
-//                    }
-//                    //end add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
-//                }
-//            }
-//            try
-//            {
-//                for (int i = 1; i <= 30; i++)
-//                {
-//                    string attribute_id = Convert.ToString(detailBrg["ACODE_" + i.ToString()]);
-//                    string value = Convert.ToString(detailBrg["AVALUE_" + i.ToString()]);
-//                    if (!string.IsNullOrWhiteSpace(attribute_id))
-//                    {
-
-//                        HttpBody.attributes.Add(new ShopeeAttributeClass
-//                        {
-//                            attributes_id = Convert.ToInt64(attribute_id),
-//                            value = value.Trim()
-//                        });
-//                    }
-//                }
-
-//            }
-//            catch (Exception ex)
-//            {
-
-//            }
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            string responseFromServer = "";
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-
-//            try
-//            {
-//                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//            }
-//            catch (Exception ex)
-//            {
-//                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//            }
-
-//            //try
-//            //{
-//            //    var client = new HttpClient();
-
-//            //    client.DefaultRequestHeaders.Add("Authorization", (signature));
-//            //    var content = new StringContent(myData, Encoding.UTF8, "application/json");
-//            //    content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
-//            //    HttpResponseMessage clientResponse = await client.PostAsync(
-//            //        urll, content);
-
-//            //    using (HttpContent responseContent = clientResponse.Content)
-//            //    {
-//            //        using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
-//            //        {
-//            //            responseFromServer = await reader.ReadToEndAsync();
-//            //        }
-//            //    };
-//            //}
-//            //catch (Exception ex)
-//            //{
-//            //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//            //}
-
-
-//            if (responseFromServer != null)
-//            {
-//                try
-//                {
-//                    var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCreateProdResponse)) as ShopeeCreateProdResponse;
-//                    if (resServer != null)
-//                    {
-//                        if (string.IsNullOrEmpty(resServer.error))
-//                        {
-//                            var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
-//                            if (item != null)
-//                            {
-//                                item.BRG_MP = Convert.ToString(resServer.item_id) + ";0";
-//                                ErasoftDbContext.SaveChanges();
-
-//                                if (brgInDb.TYPE == "4")
-//                                {
-//                                    await InitTierVariation(iden, brgInDb, resServer.item_id, marketplace);
-//                                }
-
-//                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-//                            }
-//                            else
-//                            {
-//                                currentLog.REQUEST_EXCEPTION = "item not found";
-//                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-//                            }
-//                        }
-//                        else
-//                        {
-//                            currentLog.REQUEST_RESULT = resServer.msg;
-//                            currentLog.REQUEST_EXCEPTION = resServer.error + ";" + resServer.msg;
-//                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-//                        }
-//                    }
-
-//                }
-//                catch (Exception ex2)
-//                {
-//                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-//                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//                }
-//            }
-//            return ret;
-//        }
-//        public async Task<string> GetVariation(ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace, Dictionary<string, int> mapSTF02HRecnum_IndexVariasi, List<ShopeeVariation> MOVariation, List<ShopeeTierVariation> tier_variation)
-//        {
-//            var MOVariationNew = MOVariation.ToList();
-
-//            string ret = "";
-//            string brg = brgInDb.BRG;
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            string urll = "https://partner.shopeemobile.com/api/v1/item/tier_var/get";
-
-//            ShopeeGetVariation HttpBody = new ShopeeGetVariation
-//            {
-//                partner_id = MOPartnerID,
-//                item_id = item_id,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-//            }
-//            catch (Exception ex)
-//            {
-//                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//            }
-
-
-//            if (responseFromServer != null)
-//            {
-//                var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(GetVariationResult)) as GetVariationResult;
-//                var new_tier_variation = new List<ShopeeUpdateVariation>();
-
-//                foreach (var variasi in resServer.variations)
-//                {
-//                    string key_map_tier_index_recnum = "";
-//                    foreach (var indexes in variasi.tier_index)
-//                    {
-//                        key_map_tier_index_recnum = key_map_tier_index_recnum + Convert.ToString(indexes) + ";";
-//                    }
-//                    int recnum_stf02h_var = mapSTF02HRecnum_IndexVariasi.Where(p => p.Key == key_map_tier_index_recnum).Select(p => p.Value).SingleOrDefault();
-
-//                    //var var_item = ErasoftDbContext.STF02H.Where(b => b.RecNum == recnum_stf02h_var).SingleOrDefault();
-//                    //var_item.BRG_MP = Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id);
-//                    //ErasoftDbContext.SaveChanges();
-//                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "' AND ISNULL(BRG_MP,'') = '' ");
-//                    //tes remark by calvin 16 mei
-//                    mapSTF02HRecnum_IndexVariasi.Remove(key_map_tier_index_recnum);
-//                    foreach (var item in MOVariation)
-//                    {
-//                        var isiTier_Index = "";
-//                        foreach (var indexes in item.tier_index)
-//                        {
-//                            isiTier_Index = isiTier_Index + Convert.ToString(indexes) + ";";
-//                        }
-//                        if (isiTier_Index == key_map_tier_index_recnum)
-//                        {
-//                            MOVariationNew.Remove(item);
-//                            new_tier_variation.Add(new ShopeeUpdateVariation()
-//                            {
-//                                price = item.price,
-//                                stock = item.stock,
-//                                tier_index = item.tier_index,
-//                                variation_sku = item.variation_sku,
-//                                variation_id = variasi.variation_id
-//                            });
-//                        }
-//                    }
-//                    //end tes remark by calvin 16 mei
-//                }
-//                if (MOVariationNew.Count() > 0)
-//                {
-//                    //foreach (var variasi in mapSTF02HRecnum_IndexVariasi)
-//                    //{
-//                    //    await AddVariation(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew);
-//                    //}
-//                    //await UpdateTierVariationIndex(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation);
-//                    await UpdateTierVariationList(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation);
-//                }
-//            }
-
-//            return ret;
-//        }
-//        public async Task<string> UpdateTierVariationList(ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace, Dictionary<string, int> mapSTF02HRecnum_IndexVariasi, List<ShopeeVariation> MOVariationNew, List<ShopeeTierVariation> tier_variation, List<ShopeeUpdateVariation> new_tier_variation, List<ShopeeVariation> MOVariation)
-//        {
-//            //Use this api to update tier-variation list or upload variation image of a tier-variation item
-//            string ret = "";
-//            string brg = brgInDb.BRG;
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            string urll = "https://partner.shopeemobile.com/api/v1/item/tier_var/update_list";
-
-//            ShopeeUpdateTierVariationList HttpBody = new ShopeeUpdateTierVariationList
-//            {
-//                partner_id = MOPartnerID,
-//                item_id = item_id,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                tier_variation = tier_variation.ToArray(),
-//                timestamp = seconds,
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-//            }
-//            catch (Exception ex)
-//            {
-//                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//            }
-
-
-//            if (responseFromServer != null)
-//            {
-//                //AddTierVariation
-//                var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeUpdateTierVariationResult)) as ShopeeUpdateTierVariationResult;
-//                if (resServer.item_id == item_id)
-//                {
-//                    //foreach (var variasi in mapSTF02HRecnum_IndexVariasi)
-//                    //{
-//                    //    await AddVariation(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew);
-//                    //}
-//                    await AddTierVariation(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew);
-//                }
-//            }
-
-//            return ret;
-//        }
-//        public async Task<string> AddTierVariation(ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace, Dictionary<string, int> mapSTF02HRecnum_IndexVariasi, List<ShopeeVariation> MOVariation, List<ShopeeVariation> MOVariationNew)
-//        {
-//            string ret = "";
-//            string brg = brgInDb.BRG;
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            string urll = "https://partner.shopeemobile.com/api/v1/item/tier_var/add";
-//            ShopeeAddTierVariation HttpBody = new ShopeeAddTierVariation
-//            {
-//                partner_id = MOPartnerID,
-//                item_id = item_id,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                variation = MOVariationNew.ToArray()
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-//            }
-//            catch (Exception ex)
-//            {
-//                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//            }
-
-
-//            if (responseFromServer != null)
-//            {
-//                var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(InitTierVariationResult)) as InitTierVariationResult;
-//                if (resServer.variation_id_list != null)
-//                {
-//                    await GetVariation(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, null);
-
-//                }
-//            }
-
-//            return ret;
-//        }
-//        public async Task<string> UpdateTierVariationIndex(ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace, Dictionary<string, int> mapSTF02HRecnum_IndexVariasi, List<ShopeeVariation> MOVariationNew, List<ShopeeTierVariation> tier_variation, List<ShopeeUpdateVariation> new_tier_variation)
-//        {
-//            List<object> variation = new List<object>();
-//            string ret = "";
-//            string brg = brgInDb.BRG;
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            string urll = "https://partner.shopeemobile.com/api/v1/item/tier_var/update";
-//            foreach (var item in new_tier_variation)
-//            {
-//                variation.Add(new ShopeeUpdateVariation()
-//                {
-//                    price = item.price,
-//                    stock = item.stock,
-//                    tier_index = item.tier_index,
-//                    variation_sku = item.variation_sku,
-//                    variation_id = item.variation_id
-//                });
-//            }
-//            //foreach (var item in MOVariationNew)
-//            //{
-//            //    variation.Add(new ShopeeVariation()
-//            //    {
-//            //        price = item.price,
-//            //        stock = item.stock,
-//            //        tier_index = item.tier_index,
-//            //        variation_sku = item.variation_sku,
-
-//            //    });
-//            //}
-
-//            ShopeeUpdateTierVariationIndex HttpBody = new ShopeeUpdateTierVariationIndex
-//            {
-//                partner_id = MOPartnerID,
-//                item_id = item_id,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                tier_variation = tier_variation.ToArray(),
-//                variation = variation.ToArray()
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-//            }
-//            catch (Exception ex)
-//            {
-//                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//            }
-//            return ret;
-//        }
-//        public async Task<string> InitTierVariation(ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace)
-//        {
-//            string ret = "";
-//            string brg = brgInDb.BRG;
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-//            //{
-//            //    REQUEST_ID = seconds.ToString(),
-//            //    REQUEST_ACTION = "Create Product",
-//            //    REQUEST_DATETIME = milisBack,
-//            //    REQUEST_ATTRIBUTE_1 = brg,
-//            //    REQUEST_ATTRIBUTE_2 = brgInDb.NAMA,
-//            //    REQUEST_STATUS = "Pending",
-//            //};
-
-//            string urll = "https://partner.shopeemobile.com/api/v1/item/tier_var/init";
-
-//            ShopeeInitTierVariation HttpBody = new ShopeeInitTierVariation
-//            {
-//                partner_id = MOPartnerID,
-//                item_id = item_id,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                tier_variation = new List<ShopeeTierVariation>().ToArray(),
-//                variation = new List<ShopeeVariation>().ToArray(),
-//                timestamp = seconds
-//            };
-//            List<ShopeeTierVariation> tier_variation = new List<ShopeeTierVariation>();
-//            List<ShopeeVariation> variation = new List<ShopeeVariation>();
-//            Dictionary<string, int> mapIndexVariasi1 = new Dictionary<string, int>();
-//            Dictionary<string, int> mapIndexVariasi2 = new Dictionary<string, int>();
-//            Dictionary<string, int> mapSTF02HRecnum_IndexVariasi = new Dictionary<string, int>();
-
-//            if (brgInDb.TYPE == "4")//Barang Induk ( memiliki Variant )
-//            {
-//                var ListVariant = ErasoftDbContext.STF02.Where(p => p.PART == brg).ToList();
-//                var ListSettingVariasi = ErasoftDbContext.STF02I.Where(p => p.BRG == brg).ToList();
-//                var ListKodeBrgVariant = ListVariant.Select(p => p.BRG).ToList();
-//                var ListStf02hVariasi = ErasoftDbContext.STF02H.Where(p => ListKodeBrgVariant.Contains(p.BRG) && p.IDMARKET == marketplace.RecNum).ToList();
-
-//                int index_var_1 = 0;
-//                int index_var_2 = 0;
-//                ShopeeTierVariation tier1 = new ShopeeTierVariation();
-//                ShopeeTierVariation tier2 = new ShopeeTierVariation();
-//                List<string> tier1_options = new List<string>();
-//                List<string> tier2_options = new List<string>();
-//                foreach (var item in ListVariant.OrderBy(p => p.ID))
-//                {
-//                    var stf02h = ListStf02hVariasi.Where(p => p.BRG.ToUpper() == item.BRG.ToUpper() && p.IDMARKET == marketplace.RecNum).FirstOrDefault();
-//                    if (stf02h != null)
-//                    {
-//                        string namaVariasiLV1 = "";
-//                        if ((item.Sort8 == null ? "" : item.Sort8) != "")
-//                        {
-//                            var getNamaVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 1 && p.MARKET == "SHOPEE" && p.KODE_VAR == item.Sort8).FirstOrDefault();
-//                            if (getNamaVar != null)
-//                            {
-//                                namaVariasiLV1 = getNamaVar.MP_JUDUL_VAR;
-//                            }
-//                        }
-
-//                        string namaVariasiLV2 = "";
-//                        if ((item.Sort9 == null ? "" : item.Sort9) != "")
-//                        {
-//                            var getNamaVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.MARKET == "SHOPEE" && p.KODE_VAR == item.Sort9).FirstOrDefault();
-//                            if (getNamaVar != null)
-//                            {
-//                                namaVariasiLV2 = getNamaVar.MP_JUDUL_VAR;
-//                            }
-//                        }
-
-//                        List<string> DuplikatNamaVariasi = tier_variation.Select(p => p.name).ToList();
-//                        if (!DuplikatNamaVariasi.Contains(namaVariasiLV1))
-//                        {
-//                            if (namaVariasiLV1 != "")
-//                            {
-//                                tier1.name = namaVariasiLV1;
-//                            }
-//                        }
-//                        if (!DuplikatNamaVariasi.Contains(namaVariasiLV2))
-//                        {
-//                            if (namaVariasiLV2 != "")
-//                            {
-//                                tier2.name = namaVariasiLV2;
-//                            }
-//                        }
-
-//                        string nama_var1 = "";
-//                        if ((item.Sort8 == null ? "" : item.Sort8) != "")
-//                        {
-//                            var getNamaVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 1 && p.MARKET == "SHOPEE" && p.KODE_VAR == item.Sort8).FirstOrDefault();
-//                            if (getNamaVar != null)
-//                            {
-//                                nama_var1 = getNamaVar.MP_VALUE_VAR;
-//                                if (!mapIndexVariasi1.ContainsKey(nama_var1))
-//                                {
-//                                    mapIndexVariasi1.Add(nama_var1, index_var_1);
-//                                    tier1_options.Add(nama_var1);
-//                                    index_var_1++;
-//                                }
-//                            }
-//                        }
-//                        string nama_var2 = "";
-//                        if ((item.Sort9 == null ? "" : item.Sort9) != "")
-//                        {
-//                            var getNamaVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.MARKET == "SHOPEE" && p.KODE_VAR == item.Sort9).FirstOrDefault();
-//                            if (getNamaVar != null)
-//                            {
-//                                nama_var2 = getNamaVar.MP_VALUE_VAR;
-//                                if (!mapIndexVariasi2.ContainsKey(nama_var2))
-//                                {
-//                                    mapIndexVariasi2.Add(nama_var2, index_var_2);
-//                                    tier2_options.Add(nama_var2);
-//                                    index_var_2++;
-//                                }
-//                            }
-//                        }
-//                        int getIndexVar1 = 0;
-//                        int getIndexVar2 = 0;
-//                        List<int> ListTierIndex = new List<int>();
-//                        if (mapIndexVariasi1.ContainsKey(nama_var1))
-//                        {
-//                            getIndexVar1 = mapIndexVariasi1[nama_var1];
-//                            ListTierIndex.Add(getIndexVar1);
-//                        }
-//                        if (mapIndexVariasi2.ContainsKey(nama_var2))
-//                        {
-//                            getIndexVar2 = mapIndexVariasi2[nama_var2];
-//                            ListTierIndex.Add(getIndexVar2);
-//                        }
-
-//                        ShopeeVariation adaVariant = new ShopeeVariation()
-//                        {
-//                            tier_index = ListTierIndex.ToArray(),
-//                            price = (float)stf02h.HJUAL,
-//                            stock = 1,//create product min stock = 1
-//                            variation_sku = item.BRG
-//                        };
-
-//                        //add by calvin 1 mei 2019
-//                        var qty_stock = new StokControllerJob(DatabasePathErasoft, username).GetQOHSTF08A(item.BRG, "ALL");
-//                        if (qty_stock > 0)
-//                        {
-//                            adaVariant.stock = Convert.ToInt32(qty_stock);
-//                        }
-//                        //end add by calvin 1 mei 2019
-
-//                        string key_map_tier_index_recnum = "";
-//                        foreach (var indexes in ListTierIndex)
-//                        {
-//                            key_map_tier_index_recnum = key_map_tier_index_recnum + Convert.ToString(indexes) + ";";
-//                        }
-//                        mapSTF02HRecnum_IndexVariasi.Add(key_map_tier_index_recnum, stf02h.RecNum.Value);
-//                        variation.Add(adaVariant);
-//                    }
-//                }
-//                if (!string.IsNullOrWhiteSpace(tier1.name))
-//                {
-//                    tier1.options = tier1_options.ToArray();
-//                    tier_variation.Add(tier1);
-//                }
-//                if (!string.IsNullOrWhiteSpace(tier2.name))
-//                {
-//                    tier2.options = tier2_options.ToArray();
-//                    tier_variation.Add(tier2);
-//                }
-//            }
-//            HttpBody.variation = variation.ToArray();
-//            HttpBody.tier_variation = tier_variation.ToArray();
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-//            }
-//            catch (Exception ex)
-//            {
-//                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//            }
-
-
-//            if (responseFromServer != "")
-//            {
-//                var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(InitTierVariationResult)) as InitTierVariationResult;
-//                if (resServer.variation_id_list != null)
-//                {
-//                    if (resServer.variation_id_list.Count() > 0)
-//                    {
-//                        foreach (var variasi in resServer.variation_id_list)
-//                        {
-//                            string key_map_tier_index_recnum = "";
-//                            foreach (var indexes in variasi.tier_index)
-//                            {
-//                                key_map_tier_index_recnum = key_map_tier_index_recnum + Convert.ToString(indexes) + ";";
-//                            }
-//                            int recnum_stf02h_var = mapSTF02HRecnum_IndexVariasi.Where(p => p.Key == key_map_tier_index_recnum).Select(p => p.Value).SingleOrDefault();
-//                            //var var_item = ErasoftDbContext.STF02H.Where(b => b.RecNum == recnum_stf02h_var).SingleOrDefault();
-//                            //var_item.BRG_MP = Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id);
-//                            //ErasoftDbContext.SaveChanges();
-//                            var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "'");
-//                        }
-//                    }
-//                }
-//                else
-//                {
-//                    await GetVariation(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation, tier_variation);
-//                }
-//            }
-
-//            return ret;
-//        }
-//        public async Task<string> UpdateProduct(ShopeeAPIData iden, string brg, string cust, List<ShopeeLogisticsClass> logistics)
-//        {
-//            string ret = "";
-//            var brgInDb = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper() == brg.ToUpper()).FirstOrDefault();
-//            var marketplace = ErasoftDbContext.ARF01.Where(c => c.CUST.ToUpper() == cust.ToUpper()).FirstOrDefault();
-//            if (brgInDb == null || marketplace == null)
-//                return "invalid passing data";
-//            var detailBrg = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).FirstOrDefault();
-//            if (detailBrg == null)
-//                return "invalid passing data";
-
-//            long item_id = 0;
-//            string[] brg_mp = detailBrg.BRG_MP.Split(';');
-//            if (brg_mp.Count() == 2)
-//            {
-//                item_id = Convert.ToInt64(brg_mp[0]);
-//            }
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-//            {
-//                //REQUEST_ID = seconds.ToString(),
-//                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
-//                REQUEST_ACTION = "Update Product",
-//                REQUEST_DATETIME = milisBack,
-//                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
-//                REQUEST_STATUS = "Pending",
-//            };
-
-//            string urll = "https://partner.shopeemobile.com/api/v1/item/update";
-
-//            //add by calvin 21 desember 2018, default nya semua logistic enabled
-//            var ShopeeGetLogisticsResult = await GetLogistics(iden);
-
-//            foreach (var log in ShopeeGetLogisticsResult.logistics.Where(p => p.enabled == true && p.fee_type.ToUpper() != "CUSTOM_PRICE" && p.fee_type.ToUpper() != "SIZE_SELECTION"))
-//            {
-//                logistics.Add(new ShopeeLogisticsClass()
-//                {
-//                    enabled = log.enabled,
-//                    is_free = false,
-//                    logistic_id = log.logistic_id,
-//                });
-//            }
-//            //end add by calvin 21 desember 2018, default nya semua logistic enabled
-
-//            ShopeeUpdateProductData HttpBody = new ShopeeUpdateProductData
-//            {
-//                item_id = item_id,
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                item_sku = brg,
-//                category_id = Convert.ToInt64(detailBrg.CATEGORY_CODE),
-//                condition = "NEW",
-//                name = (brgInDb.NAMA + " " + brgInDb.NAMA2).Trim().Replace("’", "`"),
-//                description = brgInDb.Deskripsi.Replace("’", "`"),
-//                package_height = Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI),
-//                package_length = Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG),
-//                package_width = Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR),
-//                weight = brgInDb.BERAT / 1000,
-//                attributes = new List<ShopeeAttributeClass>(),
-//                logistics = logistics
-//            };
-
-//            //add by nurul 20/1/2020, handle <p> dan enter double di shopee
-//            HttpBody.description = new StokControllerJob().RemoveSpecialCharacters(HttpBody.description);
-
-//            HttpBody.description = HttpBody.description.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
-//            HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
-//            HttpBody.description = HttpBody.description.Replace("<ul>", "").Replace("</ul>", "\r\n");
-//            HttpBody.description = HttpBody.description.Replace("&nbsp;\r\n\r\n", "\n").Replace("&nbsp;<em>", " ");
-//            HttpBody.description = HttpBody.description.Replace("</em>&nbsp;", " ").Replace("&nbsp;", " ").Replace("</em>", "");
-//            HttpBody.description = HttpBody.description.Replace("<br />\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("\r\n", "");
-
-//            HttpBody.description = HttpBody.description.Replace("<h1>", "\r\n").Replace("</h1>", "\r\n");
-//            HttpBody.description = HttpBody.description.Replace("<h2>", "\r\n").Replace("</h2>", "\r\n");
-//            HttpBody.description = HttpBody.description.Replace("<h3>", "\r\n").Replace("</h3>", "\r\n");
-//            HttpBody.description = HttpBody.description.Replace("<p>", "\r\n").Replace("</p>", "\r\n");
-
-
-//            HttpBody.description = System.Text.RegularExpressions.Regex.Replace(HttpBody.description, "<.*?>", String.Empty);
-//            //end add by nurul 20/1/2020, handle <p> dan enter double di shopee
-
-//            try
-//            {
-//                string sSQL = "SELECT * FROM (";
-//                for (int i = 1; i <= 30; i++)
-//                {
-//                    sSQL += "SELECT A.ACODE_" + i.ToString() + " AS CATEGORY_CODE,A.ANAME_" + i.ToString() + " AS CATEGORY_NAME,B.ATYPE_" + i.ToString() + " AS CATEGORY_TYPE,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_SHOPEE B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + brg + "' AND A.IDMARKET = '" + marketplace.RecNum + "' " + System.Environment.NewLine;
-//                    if (i < 30)
-//                    {
-//                        sSQL += "UNION ALL " + System.Environment.NewLine;
-//                    }
-//                }
-
-//                DataSet dsFeature = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' ");
-
-//                for (int i = 0; i < dsFeature.Tables[0].Rows.Count; i++)
-//                {
-//                    HttpBody.attributes.Add(new ShopeeAttributeClass
-//                    {
-//                        attributes_id = Convert.ToInt64(dsFeature.Tables[0].Rows[i]["CATEGORY_CODE"]),
-//                        value = Convert.ToString(dsFeature.Tables[0].Rows[i]["VALUE"]).Trim()
-//                    });
-//                }
-
-//            }
-//            catch (Exception ex)
-//            {
-
-//            }
-
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-//            }
-//            catch (Exception ex)
-//            {
-//                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//            }
-
-//            if (responseFromServer != "")
-//            {
-//                try
-//                {
-//                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-//                    //var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCreateProdResponse)) as ShopeeCreateProdResponse;
-//                    //if (resServer != null)
-//                    //{
-//                    //    if (string.IsNullOrEmpty(resServer.error))
-//                    //    {
-//                    //        var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
-//                    //        if (item != null)
-//                    //        {
-//                    //            item.BRG_MP = resServer.item_id.ToString() + ";0";
-//                    //            ErasoftDbContext.SaveChanges();
-//                    //            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-//                    //        }
-//                    //        else
-//                    //        {
-//                    //            currentLog.REQUEST_EXCEPTION = "item not found";
-//                    //            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-//                    //        }
-//                    //    }
-//                    //    else
-//                    //    {
-//                    //        currentLog.REQUEST_EXCEPTION = resServer.error + ";" + resServer.msg;
-//                    //        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-//                    //    }
-//                    //}
-
-//                }
-//                catch (Exception ex2)
-//                {
-//                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-//                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//                }
-//            }
-//            return ret;
-//        }
-//        public async Task<string> UpdatePrice(ShopeeAPIData iden, string brg_mp, float price)
-//        {
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            string ret = "";
-//            string urll = "https://partner.shopeemobile.com/api/v1/items/update_price";
-//            if (!string.IsNullOrEmpty(iden.token))
-//            {
-//                MOPartnerID = MOPartnerIDV2;
-//                MOPartnerKey = MOPartnerKeyV2;
-//                urll = shopeeV2Url + "/api/v1/items/update_price";
-//            }
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-//            {
-//                //REQUEST_ID = seconds.ToString(),
-//                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-//                REQUEST_ACTION = "Update Price", //ganti
-//                REQUEST_DATETIME = milisBack,
-//                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
-//                REQUEST_STATUS = "Pending",
-//            };
-
-//            //string urll = "https://partner.shopeemobile.com/api/v1/items/update_price";
-
-//            string[] brg_mp_split = brg_mp.Split(';');
-//            ShopeeUpdatePriceData HttpBody = new ShopeeUpdatePriceData
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                item_id = Convert.ToInt64(brg_mp_split[0]),
-//                price = price
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-//            }
-//            catch (Exception ex)
-//            {
-//                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//            }
-
-//            if (responseFromServer != "")
-//            {
-//                try
-//                {
-//                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-//                }
-//                catch (Exception ex2)
-//                {
-//                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-//                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//                }
-//            }
-//            return ret;
-//        }
-//        public async Task<string> UpdateVariationPrice(ShopeeAPIData iden, string brg_mp, float price)
-//        {
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            string ret = "";
-//            string urll = "https://partner.shopeemobile.com/api/v1/items/update_variation_price";
-//            if (!string.IsNullOrEmpty(iden.token))
-//            {
-//                MOPartnerID = MOPartnerIDV2;
-//                MOPartnerKey = MOPartnerKeyV2;
-//                urll = shopeeV2Url + "/api/v1/items/update_variation_price";
-//            }
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-//            {
-//                //REQUEST_ID = seconds.ToString(),
-//                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
-//                REQUEST_ACTION = "Update Price",
-//                REQUEST_DATETIME = milisBack,
-//                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
-//                REQUEST_STATUS = "Pending",
-//            };
-
-//            //string urll = "https://partner.shopeemobile.com/api/v1/items/update_variation_price";
-
-//            string[] brg_mp_split = brg_mp.Split(';');
-//            ShopeeUpdateVariantionPriceData HttpBody = new ShopeeUpdateVariantionPriceData
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                item_id = Convert.ToInt64(brg_mp_split[0]),
-//                variation_id = Convert.ToInt64(brg_mp_split[1]),
-//                price = price
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-//            }
-//            catch (Exception ex)
-//            {
-//                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//            }
-
-//            if (responseFromServer != "")
-//            {
-//                try
-//                {
-//                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-//                }
-//                catch (Exception ex2)
-//                {
-//                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-//                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//                }
-//            }
-//            return ret;
-//        }
-
-
-//        public async Task<string> UpdateImage(ShopeeAPIData iden, string brg, string brg_mp)
-//        {
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            string ret = "";
-//            string urll = "https://partner.shopeemobile.com/api/v1/item/img/update";
-//            if (!string.IsNullOrEmpty(iden.token))
-//            {
-//                MOPartnerID = MOPartnerIDV2;
-//                MOPartnerKey = MOPartnerKeyV2;
-//                urll = shopeeV2Url + "/api/v1/item/img/update";
-//            }
-
-//            var brgInDb = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper() == brg.ToUpper()).FirstOrDefault();
-//            if (brgInDb == null)
-//                return "invalid passing data";
-//            //var detailBrg = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).FirstOrDefault();
-//            //if (detailBrg == null)
-//            //    return "invalid passing data";
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-//            {
-//                //REQUEST_ID = seconds.ToString(),
-//                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
-//                REQUEST_ACTION = "Update Product Image",
-//                REQUEST_DATETIME = milisBack,
-//                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
-//                REQUEST_STATUS = "Pending",
-//            };
-
-//            //string urll = "https://partner.shopeemobile.com/api/v1/item/img/update";
-
-//            List<string> imagess = new List<string>();
-
-//            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
-//                imagess.Add(brgInDb.LINK_GAMBAR_1);
-//            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
-//                imagess.Add(brgInDb.LINK_GAMBAR_2);
-//            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
-//                imagess.Add(brgInDb.LINK_GAMBAR_3);
-//            //add 25 jun 2020, ada 5 gambar
-//            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_4))
-//                imagess.Add(brgInDb.LINK_GAMBAR_4);
-//            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
-//                imagess.Add(brgInDb.LINK_GAMBAR_5);
-//            //end add 25 jun 2020, ada 5 gambar
-
-//            string[] brg_mp_split = brg_mp.Split(';');
-//            ShopeeUpdateImageData HttpBody = new ShopeeUpdateImageData
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                item_id = Convert.ToInt64(brg_mp_split[0]),
-//                images = imagess.ToArray()
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-//            }
-//            catch (Exception ex)
-//            {
-//                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//            }
-
-//            if (responseFromServer != null)
-//            {
-//                try
-//                {
-//                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-//                }
-//                catch (Exception ex2)
-//                {
-//                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-//                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//                }
-//            }
-//            return ret;
-//        }
-
-//        public async Task<string> AddDiscount(ShopeeAPIData iden, int recNumPromosi)
-//        {
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            string ret = "";
-//            string urll = "https://partner.shopeemobile.com/api/v1/discount/add";
-//            if (!string.IsNullOrEmpty(iden.token))
-//            {
-//                MOPartnerID = MOPartnerIDV2;
-//                MOPartnerKey = MOPartnerKeyV2;
-//                urll = shopeeV2Url + "/api/v1/discount/add";
-//            }
-//            double promoPrice;
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            var arf01 = ErasoftDbContext.ARF01.Where(p => p.Sort1_Cust == iden.merchant_code).FirstOrDefault();
-//            var varPromo = ErasoftDbContext.PROMOSI.Where(p => p.RecNum == recNumPromosi).FirstOrDefault();
-//            var varPromoDetail = ErasoftDbContext.DETAILPROMOSI.Where(p => p.RecNumPromosi == recNumPromosi).ToList();
-//            //long starttime = ((DateTimeOffset)varPromo.TGL_MULAI).ToUnixTimeSeconds();
-//            //long endtime = ((DateTimeOffset)varPromo.TGL_AKHIR).ToUnixTimeSeconds();
-//            long starttime = ((DateTimeOffset)varPromo.TGL_MULAI.Value.AddHours(-7)).ToUnixTimeSeconds();
-//            long endtime = ((DateTimeOffset)varPromo.TGL_AKHIR.Value.AddHours(-7)).ToUnixTimeSeconds();
-
-//            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-//            {
-//                //REQUEST_ID = seconds.ToString(),
-//                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
-//                REQUEST_ACTION = "Add Discount",
-//                REQUEST_DATETIME = milisBack,
-//                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
-//                REQUEST_ATTRIBUTE_2 = recNumPromosi.ToString(),
-//                REQUEST_STATUS = "Pending",
-//            };
-
-//            //string urll = "https://partner.shopeemobile.com/api/v1/discount/add";
-
-//            ShopeeAddDiscountData HttpBody = new ShopeeAddDiscountData
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                discount_name = varPromo.NAMA_PROMOSI,
-//                start_time = starttime,
-//                end_time = endtime,
-//                items = new List<ShopeeAddDiscountDataItems>()
-//            };
-//            try
-//            {
-//                foreach (var promoDetail in varPromoDetail)
-//                {
-//                    var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG.Equals(promoDetail.KODE_BRG) && t.IDMARKET == arf01.RecNum).FirstOrDefault();
-//                    if (brgInDB != null)
-//                    {
-//                        promoPrice = promoDetail.HARGA_PROMOSI;
-//                        if (promoPrice == 0)
-//                        {
-//                            promoPrice = brgInDB.HJUAL - (brgInDB.HJUAL * promoDetail.PERSEN_PROMOSI / 100);
-//                        }
-//                        string[] brg_mp = new string[1];
-//                        if (!string.IsNullOrEmpty(brgInDB.BRG_MP))
-//                            brg_mp = brgInDB.BRG_MP.Split(';');
-//                        if (brg_mp.Count() == 2)
-//                        {
-//                            if (brg_mp[1] == "0")
-//                            {
-//                                ShopeeAddDiscountDataItems item = new ShopeeAddDiscountDataItems()
-//                                {
-//                                    item_id = Convert.ToInt64(brg_mp[0]),
-//                                    item_promotion_price = (float)promoPrice,
-//                                    purchase_limit = (UInt32)(promoDetail.MAX_QTY == 0 ? 2 : promoDetail.MAX_QTY),
-//                                    variations = new List<ShopeeAddDiscountDataItemsVariation>()
-//                                };
-//                                //item.variations.Add(new ShopeeAddDiscountDataItemsVariation()
-//                                //{
-//                                //    variation_id = 0,
-//                                //    variation_promotion_price = (float)0.1
-//                                //});
-//                                HttpBody.items.Add(item);
-//                            }
-//                            else /*if (brg_mp[1] == "0")*/
-//                            {
-//                                ShopeeAddDiscountDataItems item = new ShopeeAddDiscountDataItems()
-//                                {
-//                                    item_id = Convert.ToInt64(brg_mp[0]),
-//                                    item_promotion_price = (float)promoPrice,
-//                                    //purchase_limit = 10,
-//                                    purchase_limit = (UInt32)(promoDetail.MAX_QTY == 0 ? 2 : promoDetail.MAX_QTY),
-//                                    variations = new List<ShopeeAddDiscountDataItemsVariation>()
-//                                };
-//                                item.variations.Add(new ShopeeAddDiscountDataItemsVariation()
-//                                {
-//                                    variation_id = Convert.ToInt64(brg_mp[1]),
-//                                    //variation_promotion_price = (float)promoDetail.HARGA_PROMOSI
-//                                    variation_promotion_price = (float)promoPrice,
-//                                });
-//                                HttpBody.items.Add(item);
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//            catch (Exception ex)
-//            {
-//                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//                ret = currentLog.REQUEST_EXCEPTION;
-//                return ret;
-//            }
-
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-//            }
-//            catch (Exception ex)
-//            {
-//                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//                ret = currentLog.REQUEST_EXCEPTION;
-//                return ret;
-//            }
-
-//            if (responseFromServer != null)
-//            {
-//                try
-//                {
-//                    var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCreatePromoRes)) as ShopeeCreatePromoRes;
-//                    if (resServer != null)
-//                    {
-//                        if (string.IsNullOrEmpty(resServer.error))
-//                        {
-//                            EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE PROMOSIS SET MP_PROMO_ID = '" + resServer.discount_id + "' WHERE RECNUM = " + recNumPromosi);
-//                            //if(resServer.errors.Count == 0)
-//                            if (resServer.errors == null)
-//                            {
-//                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-//                            }
-//                            else
-//                            {
-//                                foreach (var err in resServer.errors)
-//                                {
-//                                    currentLog.REQUEST_RESULT += "brg_mp:" + err.item_id + ";" + err.variation_id + ",error:" + err.error_msg + "\n";
-//                                }
-//                                ret = currentLog.REQUEST_RESULT;
-//                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-//                            }
-//                        }
-//                        else
-//                        {
-//                            currentLog.REQUEST_RESULT = resServer.error + " " + resServer.msg;
-//                            ret = currentLog.REQUEST_RESULT;
-//                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-//                        }
-//                    }
-//                }
-//                catch (Exception ex2)
-//                {
-//                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-//                    ret = currentLog.REQUEST_EXCEPTION;
-//                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//                }
-//            }
-//            return ret;
-//        }
-
-//        public async Task<string> AddDiscountItem(ShopeeAPIData iden, long discount_id, DetailPromosi detilPromosi)
-//        {
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            string ret = "";
-//            string urll = "https://partner.shopeemobile.com/api/v1/discount/items/add";
-//            if (!string.IsNullOrEmpty(iden.token))
-//            {
-//                MOPartnerID = MOPartnerIDV2;
-//                MOPartnerKey = MOPartnerKeyV2;
-//                urll = shopeeV2Url + "/api/v1/discount/items/add";
-//            }
-//            double promoPrice;
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            var arf01 = ErasoftDbContext.ARF01.Where(p => p.Sort1_Cust == iden.merchant_code).FirstOrDefault();
-
-//            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-//            {
-//                //REQUEST_ID = seconds.ToString(),
-//                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-//                REQUEST_ACTION = "Add Discount Item",
-//                REQUEST_DATETIME = milisBack,
-//                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
-//                REQUEST_ATTRIBUTE_2 = detilPromosi.KODE_BRG,
-//                REQUEST_STATUS = "Pending",
-//            };
-
-//            //string urll = "https://partner.shopeemobile.com/api/v1/discount/items/add";
-
-//            ShopeeAddDiscountItemData HttpBody = new ShopeeAddDiscountItemData
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                discount_id = discount_id,
-//                items = new List<ShopeeAddDiscountDataItems>()
-//            };
-
-//            var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG.Equals(detilPromosi.KODE_BRG) && t.IDMARKET == arf01.RecNum).FirstOrDefault();
-//            if (brgInDB != null)
-//            {
-//                promoPrice = detilPromosi.HARGA_PROMOSI;
-//                if (promoPrice == 0)
-//                {
-//                    promoPrice = brgInDB.HJUAL - (brgInDB.HJUAL * detilPromosi.PERSEN_PROMOSI / 100);
-//                }
-//                //string[] brg_mp = brgInDB.BRG_MP.Split(';');
-//                string[] brg_mp = new string[1];
-//                if (!string.IsNullOrEmpty(brgInDB.BRG_MP))
-//                    brg_mp = brgInDB.BRG_MP.Split(';');
-//                if (brg_mp.Count() == 2)
-//                {
-//                    if (brg_mp[1] == "0")
-//                    {
-//                        ShopeeAddDiscountDataItems item = new ShopeeAddDiscountDataItems()
-//                        {
-//                            item_id = Convert.ToInt64(brg_mp[0]),
-//                            //item_promotion_price = (float)detilPromosi.HARGA_PROMOSI,
-//                            item_promotion_price = (float)promoPrice,
-//                            //purchase_limit = 10,
-//                            purchase_limit = (UInt32)(detilPromosi.MAX_QTY == 0 ? 2 : detilPromosi.MAX_QTY),
-//                            variations = new List<ShopeeAddDiscountDataItemsVariation>()
-//                        };
-//                        //item.variations.Add(new ShopeeAddDiscountDataItemsVariation()
-//                        //{
-//                        //    variation_id = 0,
-//                        //    variation_promotion_price = 0
-//                        //});
-//                        HttpBody.items.Add(item);
-//                    }
-//                    else/* if (brg_mp[1] == "0")*/
-//                    {
-//                        ShopeeAddDiscountDataItems item = new ShopeeAddDiscountDataItems()
-//                        {
-//                            item_id = Convert.ToInt64(brg_mp[0]),
-//                            //item_promotion_price = (float)detilPromosi.HARGA_PROMOSI,
-//                            item_promotion_price = (float)promoPrice,
-//                            //purchase_limit = 10,
-//                            purchase_limit = (UInt32)(detilPromosi.MAX_QTY == 0 ? 2 : detilPromosi.MAX_QTY),
-//                            variations = new List<ShopeeAddDiscountDataItemsVariation>()
-//                        };
-//                        item.variations.Add(new ShopeeAddDiscountDataItemsVariation()
-//                        {
-//                            variation_id = Convert.ToInt64(brg_mp[1]),
-//                            //variation_promotion_price = (float)detilPromosi.HARGA_PROMOSI
-//                            variation_promotion_price = (float)promoPrice,
-//                        });
-//                        HttpBody.items.Add(item);
-//                    }
-//                }
-//            }
-
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-//            }
-//            catch (Exception ex)
-//            {
-//                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//                ret = currentLog.REQUEST_EXCEPTION;
-//            }
-
-//            if (responseFromServer != null)
-//            {
-//                try
-//                {
-//                    var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCreatePromoRes)) as ShopeeCreatePromoRes;
-//                    if (resServer != null)
-//                    {
-//                        if (string.IsNullOrEmpty(resServer.error))
-//                        {
-//                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-//                            //if (resServer.errors.Count == 0)
-//                            if (resServer.errors == null)
-//                            {
-//                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-//                            }
-//                            else
-//                            {
-//                                foreach (var err in resServer.errors)
-//                                {
-//                                    currentLog.REQUEST_RESULT += "brg_mp:" + err.item_id + ";" + err.variation_id + ",error:" + err.error_msg + "\n";
-//                                }
-//                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-//                                ret = currentLog.REQUEST_RESULT;
-//                            }
-//                        }
-//                        else
-//                        {
-//                            currentLog.REQUEST_RESULT = resServer.error + " " + resServer.msg;
-//                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-//                            ret = currentLog.REQUEST_RESULT;
-//                        }
-//                    }
-//                }
-//                catch (Exception ex2)
-//                {
-//                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-//                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//                    ret = currentLog.REQUEST_EXCEPTION;
-//                }
-//            }
-//            return ret;
-//        }
-//        public async Task<string> DeleteDiscount(ShopeeAPIData iden, long discount_id)
-//        {
-//            //Use this api to delete one discount activity BEFORE it starts.
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            string ret = "";
-//            string urll = "https://partner.shopeemobile.com/api/v1/discount/delete";
-//            if (!string.IsNullOrEmpty(iden.token))
-//            {
-//                MOPartnerID = MOPartnerIDV2;
-//                MOPartnerKey = MOPartnerKeyV2;
-//                urll = shopeeV2Url + "/api/v1/discount/delete";
-//            }
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            var arf01 = ErasoftDbContext.ARF01.Where(p => p.Sort1_Cust == iden.merchant_code).FirstOrDefault();
-
-//            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-//            {
-//                //REQUEST_ID = seconds.ToString(),
-//                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-//                REQUEST_ACTION = "Delete Discount",
-//                REQUEST_DATETIME = milisBack,
-//                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
-//                REQUEST_ATTRIBUTE_2 = discount_id.ToString(),
-//                REQUEST_STATUS = "Pending",
-//            };
-
-//            //string urll = "https://partner.shopeemobile.com/api/v1/discount/delete";
-
-//            ShopeeDeleteDiscountData HttpBody = new ShopeeDeleteDiscountData
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                discount_id = discount_id,
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-//            }
-//            catch (Exception ex)
-//            {
-//                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//                ret = currentLog.REQUEST_EXCEPTION;
-//            }
-
-//            if (responseFromServer != null)
-//            {
-//                try
-//                {
-//                    var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeDeleteDiscountData)) as ShopeeDeleteDiscountData;
-//                    if (resServer != null)
-//                    {
-//                        if (string.IsNullOrEmpty(resServer.error))
-//                        {
-//                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-//                            //if (resServer.errors.Count == 0)
-//                            if (resServer.errors == null)
-//                            {
-//                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-//                            }
-//                            else
-//                            {
-//                                foreach (var err in resServer.errors)
-//                                {
-//                                    currentLog.REQUEST_RESULT += "brg_mp:" + err.item_id + ";" + err.variation_id + ",error:" + err.error_msg + "\n";
-//                                }
-//                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-//                                ret = currentLog.REQUEST_RESULT;
-//                            }
-//                        }
-//                        else
-//                        {
-//                            currentLog.REQUEST_RESULT = resServer.error + " " + resServer.msg;
-//                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-//                            ret = currentLog.REQUEST_RESULT;
-//                        }
-//                    }
-//                }
-//                catch (Exception ex2)
-//                {
-//                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-//                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//                    ret = currentLog.REQUEST_EXCEPTION;
-//                }
-//            }
-//            return ret;
-//        }
-//        public async Task<string> DeleteDiscountItem(ShopeeAPIData iden, long discount_id, DetailPromosi detilPromosi)
-//        {
-//            //Use this api to delete items of the discount activity
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            string ret = "";
-//            string urll = "https://partner.shopeemobile.com/api/v1/discount/item/delete";
-//            if (!string.IsNullOrEmpty(iden.token))
-//            {
-//                MOPartnerID = MOPartnerIDV2;
-//                MOPartnerKey = MOPartnerKeyV2;
-//                urll = shopeeV2Url + "/api/v1/discount/item/delete";
-//            }
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            var arf01 = ErasoftDbContext.ARF01.Where(p => p.Sort1_Cust == iden.merchant_code).FirstOrDefault();
-
-//            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-//            {
-//                //REQUEST_ID = seconds.ToString(),
-//                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-//                REQUEST_ACTION = "Delete Discount Item",
-//                REQUEST_DATETIME = milisBack,
-//                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
-//                REQUEST_ATTRIBUTE_2 = detilPromosi.KODE_BRG,
-//                REQUEST_STATUS = "Pending",
-//            };
-
-//            //string urll = "https://partner.shopeemobile.com/api/v1/discount/item/delete";
-
-//            ShopeeDeleteDiscountItemData HttpBody = new ShopeeDeleteDiscountItemData
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                discount_id = discount_id,
-//            };
-
-//            var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG.Equals(detilPromosi.KODE_BRG) && t.IDMARKET == arf01.RecNum).FirstOrDefault();
-//            string[] brg_mp = new string[1];
-//            if (!string.IsNullOrEmpty(brgInDB.BRG_MP))
-//                brg_mp = brgInDB.BRG_MP.Split(';');
-//            //string[] brg_mp = brgInDB.BRG_MP.Split(';');
-//            if (brg_mp.Count() == 2)
-//            {
-//                //if(brg_mp[1] == "0")
-//                //{
-//                HttpBody.item_id = Convert.ToInt64(brg_mp[0]);
-//                //}
-//                //else
-//                //{
-//                HttpBody.variation_id = Convert.ToInt64(brg_mp[1]);
-//                //}
-//            }
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-//            }
-//            catch (Exception ex)
-//            {
-//                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//                ret = currentLog.REQUEST_EXCEPTION;
-//            }
-
-//            if (responseFromServer != null)
-//            {
-//                try
-//                {
-//                    var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeDeleteDiscountItemData)) as ShopeeDeleteDiscountItemData;
-//                    if (resServer != null)
-//                    {
-//                        if (string.IsNullOrEmpty(resServer.error))
-//                        {
-//                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-//                            //if (resServer.errors.Count == 0)
-//                            if (resServer.errors == null)
-//                            {
-//                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-//                            }
-//                            else
-//                            {
-//                                foreach (var err in resServer.errors)
-//                                {
-//                                    currentLog.REQUEST_RESULT += "brg_mp:" + err.item_id + ";" + err.variation_id + ",error:" + err.error_msg + "\n";
-//                                }
-//                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-//                                ret = currentLog.REQUEST_RESULT;
-//                            }
-//                        }
-//                        else
-//                        {
-//                            currentLog.REQUEST_RESULT = resServer.error + " " + resServer.msg;
-//                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-//                            ret = currentLog.REQUEST_RESULT;
-//                        }
-//                    }
-//                }
-//                catch (Exception ex2)
-//                {
-//                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-//                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//                    ret = currentLog.REQUEST_EXCEPTION;
-//                }
-//            }
-//            return ret;
-//        }
-
-//        public async Task<ShopeeGetAddressResult> GetAddress(ShopeeAPIData iden)
-//        {
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            var ret = new ShopeeGetAddressResult();
-//            string urll = "https://partner.shopeemobile.com/api/v1/logistics/address/get";
-//            if (!string.IsNullOrEmpty(iden.token))
-//            {
-//                MOPartnerID = MOPartnerIDV2;
-//                MOPartnerKey = MOPartnerKeyV2;
-//                urll = shopeeV2Url + "/api/v1/logistics/address/get";
-//            }
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            //string urll = "https://partner.shopeemobile.com/api/v1/logistics/address/get";
-
-//            ShopeeGetAddressData HttpBody = new ShopeeGetAddressData
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//            }
-//            catch (Exception ex)
-//            {
-//            }
-
-//            if (responseFromServer != null)
-//            {
-//                try
-//                {
-//                    ret = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetAddressResult)) as ShopeeGetAddressResult;
-
-//                }
-//                catch (Exception ex2)
-//                {
-//                }
-//            }
-//            return ret;
-//        }
-//        public async Task<ShopeeGetTimeSlotResult> GetLabel(ShopeeAPIData iden, bool is_batch, List<string> ordersn_list)
-//        {
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            var ret = new ShopeeGetTimeSlotResult();
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            string urll = "https://partner.shopeemobile.com/api/v1/logistics/airway_bill/get_mass";
-
-//            ShopeeGetAirwayBill HttpBody = new ShopeeGetAirwayBill
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                is_batch = is_batch,
-//                ordersn_list = ordersn_list
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            //try
-//            //{
-//            myReq.ContentLength = myData.Length;
-//            using (var dataStream = myReq.GetRequestStream())
-//            {
-//                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//            }
-//            using (WebResponse response = await myReq.GetResponseAsync())
-//            {
-//                using (Stream stream = response.GetResponseStream())
-//                {
-//                    StreamReader reader = new StreamReader(stream);
-//                    responseFromServer = reader.ReadToEnd();
-//                }
-//            }
-//            //}
-//            //catch (Exception ex)
-//            //{
-//            //}
-
-//            if (responseFromServer != "")
-//            {
-
-//            }
-//            return ret;
-//        }
-//        public async Task<ShopeeGetTimeSlotResult> GetTimeSlot(ShopeeAPIData iden, long address_id, string ordersn)
-//        {
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            var ret = new ShopeeGetTimeSlotResult();
-//            string urll = "https://partner.shopeemobile.com/api/v1/logistics/timeslot/get";
-//            if (!string.IsNullOrEmpty(iden.token))
-//            {
-//                MOPartnerID = MOPartnerIDV2;
-//                MOPartnerKey = MOPartnerKeyV2;
-//                urll = shopeeV2Url + "/api/v1/logistics/timeslot/get";
-//            }
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            //string urll = "https://partner.shopeemobile.com/api/v1/logistics/timeslot/get";
-
-//            ShopeeGetTimeSlotData HttpBody = new ShopeeGetTimeSlotData
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                address_id = address_id,
-//                ordersn = ordersn
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//            }
-//            catch (Exception ex)
-//            {
-//            }
-
-//            if (responseFromServer != null)
-//            {
-//                try
-//                {
-//                    ret = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetTimeSlotResult)) as ShopeeGetTimeSlotResult;
-//                    if (ret.pickup_time != null)
-//                    {
-//                        foreach (var item in ret.pickup_time)
-//                        {
-//                            System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
-//                            dtDateTime = dtDateTime.AddSeconds(item.date).ToLocalTime();
-//                            if (!string.IsNullOrWhiteSpace(item.time_text))
-//                            {
-//                                item.date_string = item.time_text;
-//                            }
-//                            else
-//                            {
-//                                item.date_string = dtDateTime.ToString("dd MMMM yyyy HH:mm:ss");
-//                            }
-//                        }
-//                    }
-//                    else
-//                    {
-//                        var err = JsonConvert.DeserializeObject(responseFromServer, typeof(GetPickupTimeSlotError)) as GetPickupTimeSlotError;
-//                        ShopeeGetTimeSlotResultPickup_Time errItem = new ShopeeGetTimeSlotResultPickup_Time()
-//                        {
-//                            pickup_time_id = "-1",
-//                            date_string = "Order sudah Expired."
-//                        };
-//                        ret.pickup_time = new ShopeeGetTimeSlotResultPickup_Time[1];
-//                        ret.pickup_time[0] = (errItem);
-//                    }
-//                }
-//                catch (Exception ex2)
-//                {
-//                }
-//            }
-//            return ret;
-//        }
-//        public async Task<string> GetBranch(ShopeeAPIData iden, string ordersn)
-//        {
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            string ret = "";
-//            string urll = "https://partner.shopeemobile.com/api/v1/logistics/branch/get";
-//            if (!string.IsNullOrEmpty(iden.token))
-//            {
-//                MOPartnerID = MOPartnerIDV2;
-//                MOPartnerKey = MOPartnerKeyV2;
-//                urll = shopeeV2Url + "/api/v1/logistics/branch/get";
-//            }
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            //string urll = "https://partner.shopeemobile.com/api/v1/logistics/branch/get";
-
-//            ShopeeGetBranchData HttpBody = new ShopeeGetBranchData
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                ordersn = ordersn
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//            }
-//            catch (Exception ex)
-//            {
-//            }
-
-//            if (responseFromServer != null)
-//            {
-//                try
-//                {
-//                    //var listBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetItemListResult)) as ShopeeGetItemListResult;
-
-//                }
-//                catch (Exception ex2)
-//                {
-//                }
-//            }
-//            return ret;
-//        }
-
-//        public async Task<string> Template(ShopeeAPIData iden)
-//        {
-//            int MOPartnerID = 841371;
-//            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-//            string ret = "";
-
-//            long seconds = CurrentTimeSecond();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-//            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-//            {
-//                REQUEST_ID = seconds.ToString(),
-//                REQUEST_ACTION = "Get Item List", //ganti
-//                REQUEST_DATETIME = milisBack,
-//                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
-//                REQUEST_STATUS = "Pending",
-//            };
-
-//            //ganti
-//            string urll = "https://partner.shopeemobile.com/api/v1/items/get";
-
-//            //ganti
-//            ShopeeGetItemListData HttpBody = new ShopeeGetItemListData
-//            {
-//                partner_id = MOPartnerID,
-//                shopid = Convert.ToInt32(iden.merchant_code),
-//                timestamp = seconds,
-//                pagination_offset = 0,
-//                pagination_entries_per_page = 100
-//            };
-
-//            string myData = JsonConvert.SerializeObject(HttpBody);
-
-//            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "POST";
-//            myReq.Headers.Add("Authorization", signature);
-//            myReq.Accept = "application/json";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                myReq.ContentLength = myData.Length;
-//                using (var dataStream = myReq.GetRequestStream())
-//                {
-//                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                }
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-//            }
-//            catch (Exception ex)
-//            {
-//                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-//                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//            }
-
-//            if (responseFromServer != null)
-//            {
-//                try
-//                {
-//                    //ganti
-//                    var listBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetItemListResult)) as ShopeeGetItemListResult;
-//                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-
-//                }
-//                catch (Exception ex2)
-//                {
-//                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-//                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-//                }
-//            }
-//            return ret;
-//        }
+        //        public async Task<string> GetCategoryShopee_V2(ShopeeAPIData dataAPI)
+        //        {
+        //            dataAPI = await RefreshTokenShopee_V2(dataAPI, false);
+        //            string ret = "";
+        //            DateTime dateNow = DateTime.UtcNow.AddHours(7);
+
+        //            {
+        //                int MOPartnerID = MOPartnerIDV2;
+        //                string MOPartnerKey = MOPartnerKeyV2;
+
+        //                long seconds = CurrentTimeSecond();
+        //                DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //                //ganti
+        //                string urll = shopeeV2Url;
+        //                string path = "/api/v2/product/get_category";
+
+        //                var baseString = MOPartnerID + path + seconds + dataAPI.token + dataAPI.merchant_code;
+        //                var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
+
+        //                string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds + "&access_token=" + dataAPI.token
+        //                    + "&shop_id=" + dataAPI.merchant_code + "&sign=" + sign + "&language=id";
+
+        //                //string myData = "{\"refresh_token\":\"" + dataAPI.refresh_token + "\",\"partner_id\":" + MOPartnerID + ",\"shop_id\":" + dataAPI.merchant_code + "}";
+
+        //                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
+        //                myReq.Method = "GET";
+        //                myReq.Accept = "application/json";
+        //                myReq.ContentType = "application/json";
+        //                string responseFromServer = "";
+        //                try
+        //                {
+        //                    //myReq.ContentLength = myData.Length;
+        //                    //using (var dataStream = myReq.GetRequestStream())
+        //                    //{
+        //                    //    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                    //}
+        //                    using (WebResponse response = await myReq.GetResponseAsync())
+        //                    {
+        //                        using (Stream stream = response.GetResponseStream())
+        //                        {
+        //                            StreamReader reader = new StreamReader(stream);
+        //                            responseFromServer = reader.ReadToEnd();
+        //                        }
+        //                    }
+        //                }
+        //                catch (WebException e)
+        //                {
+        //                    string err = "";
+        //                    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //                    if (e.Status == WebExceptionStatus.ProtocolError)
+        //                    {
+        //                        WebResponse resp = e.Response;
+        //                        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+        //                        {
+        //                            err = sr.ReadToEnd();
+        //                        }
+        //                    }
+        //                }
+
+        //                if (!string.IsNullOrEmpty(responseFromServer))
+        //                {
+        //                    try
+        //                    {
+        //                        var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetCategoryResult_V2)) as ShopeeGetCategoryResult_V2;
+        //#if AWS
+        //                string con = "Data Source=172.31.20.192;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+        //#elif Debug_AWS
+        //                        string con = "Data Source=54.151.175.62, 12354;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+        //#elif DEV
+        //                        string con = "Data Source=172.31.20.73;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+        //#else
+        //                        string con = "Data Source=54.151.175.62, 45650;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+        //#endif
+
+        //                        using (SqlConnection oConnection = new SqlConnection(con))
+        //                        {
+        //                            oConnection.Open();
+        //                            //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+        //                            //{
+        //                            using (SqlCommand oCommand = oConnection.CreateCommand())
+        //                            {
+        //                                oCommand.CommandText = "DELETE FROM [CATEGORY_SHOPEE_V2]";
+        //                                oCommand.ExecuteNonQuery();
+        //                                //oCommand.Transaction = oTransaction;
+        //                                oCommand.CommandType = CommandType.Text;
+        //                                oCommand.CommandText = "INSERT INTO [CATEGORY_SHOPEE_V2] ([CATEGORY_CODE], [CATEGORY_NAME], [PARENT_CODE], [IS_LAST_NODE], [MASTER_CATEGORY_CODE]) VALUES (@CATEGORY_CODE, @CATEGORY_NAME, @PARENT_CODE, @IS_LAST_NODE, @MASTER_CATEGORY_CODE)";
+        //                                //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
+        //                                oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
+        //                                oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
+        //                                oCommand.Parameters.Add(new SqlParameter("@PARENT_CODE", SqlDbType.NVarChar, 50));
+        //                                oCommand.Parameters.Add(new SqlParameter("@IS_LAST_NODE", SqlDbType.NVarChar, 1));
+        //                                oCommand.Parameters.Add(new SqlParameter("@MASTER_CATEGORY_CODE", SqlDbType.NVarChar, 50));
+
+        //                                try
+        //                                {
+        //                                    //foreach (var item in result.categories.Where(P => P.parent_id == 0)) //foreach parent level top
+        //                                    foreach (var item in result.response.category_list) //foreach parent level top
+        //                                    {
+        //                                        oCommand.Parameters[0].Value = item.category_id;
+        //                                        oCommand.Parameters[1].Value = item.display_category_name;
+        //                                        oCommand.Parameters[2].Value = item.parent_category_id == 0 ? "" : item.parent_category_id.ToString();
+        //                                        oCommand.Parameters[3].Value = item.has_children ? "0" : "1";
+        //                                        oCommand.Parameters[4].Value = "";
+        //                                        if (oCommand.ExecuteNonQuery() > 0)
+        //                                        {
+        //                                            //if (item.has_children)
+        //                                            //{
+        //                                            //    RecursiveInsertCategory(oCommand, result.categories, item.category_id, item.category_id);
+        //                                            //}
+        //                                        }
+        //                                        else
+        //                                        {
+
+        //                                        }
+        //                                    }
+        //                                    //oTransaction.Commit();
+        //                                }
+        //                                catch (Exception ex)
+        //                                {
+        //                                    //oTransaction.Rollback();
+        //                                }
+        //                            }
+        //                        }
+        //                    }
+        //                    catch (Exception ex2)
+        //                    {
+
+        //                    }
+        //                }
+        //            }
+        //            return ret;
+        //        }
+        //        public async Task<string> GetAttribute(ShopeeAPIData iden)
+        //        {
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            string ret = "";
+        //            var categories = MoDbContext.CategoryShopee.Where(p => p.IS_LAST_NODE.Equals("1")).ToList();
+        //            foreach (var category in categories)
+        //            {
+        //                long seconds = CurrentTimeSecond();
+        //                DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //                //ganti
+        //                string urll = "https://partner.shopeemobile.com/api/v1/item/attributes/get";
+
+        //                //ganti
+        //                ShopeeGetAttributeData HttpBody = new ShopeeGetAttributeData
+        //                {
+        //                    partner_id = MOPartnerID,
+        //                    shopid = Convert.ToInt32(iden.merchant_code),
+        //                    timestamp = seconds,
+        //                    language = "id",
+        //                    category_id = Convert.ToInt32(category.CATEGORY_CODE)
+        //                };
+
+        //                string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //                string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //                myReq.Method = "POST";
+        //                myReq.Headers.Add("Authorization", signature);
+        //                myReq.Accept = "application/json";
+        //                myReq.ContentType = "application/json";
+        //                string responseFromServer = "";
+        //                try
+        //                {
+        //                    myReq.ContentLength = myData.Length;
+        //                    using (var dataStream = myReq.GetRequestStream())
+        //                    {
+        //                        dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                    }
+        //                    using (WebResponse response = await myReq.GetResponseAsync())
+        //                    {
+        //                        using (Stream stream = response.GetResponseStream())
+        //                        {
+        //                            StreamReader reader = new StreamReader(stream);
+        //                            responseFromServer = reader.ReadToEnd();
+        //                        }
+        //                    }
+        //                }
+        //                catch (Exception ex)
+        //                {
+        //                }
+
+        //                if (responseFromServer != null)
+        //                {
+        //                    try
+        //                    {
+        //                        var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetAttributeResult)) as ShopeeGetAttributeResult;
+        //#if AWS
+        //                        string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+        //#elif Debug_AWS
+        //                        string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+        //#else
+        //                        string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+        //#endif
+        //                        using (SqlConnection oConnection = new SqlConnection(con))
+        //                        {
+        //                            oConnection.Open();
+        //                            //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+        //                            //{
+        //                            using (SqlCommand oCommand = oConnection.CreateCommand())
+        //                            {
+        //                                var AttributeInDb = MoDbContext.AttributeShopee.Where(p => p.CATEGORY_CODE.ToUpper().Equals(category.CATEGORY_CODE)).ToList();
+        //                                //cek jika belum ada di database, insert
+        //                                var cari = AttributeInDb;
+        //                                if (cari.Count() == 0)
+        //                                {
+        //                                    oCommand.CommandType = CommandType.Text;
+        //                                    oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
+        //                                    oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
+
+        //                                    string sSQL = "INSERT INTO [ATTRIBUTE_SHOPEE] ([CATEGORY_CODE], [CATEGORY_NAME],";
+        //                                    string sSQLValue = ") VALUES (@CATEGORY_CODE, @CATEGORY_NAME,";
+        //                                    string a = "";
+        //                                    int i = 0;
+        //                                    foreach (var attribs in result.attributes)
+        //                                    {
+        //                                        a = Convert.ToString(i + 1);
+        //                                        sSQL += "[ACODE_" + a + "],[ATYPE_" + a + "],[ANAME_" + a + "],[AOPTIONS_" + a + "],[AMANDATORY_" + a + "],";
+        //                                        sSQLValue += "@ACODE_" + a + ",@ATYPE_" + a + ",@ANAME_" + a + ",@AOPTIONS_" + a + ",@AMANDATORY_" + a + ",";
+        //                                        oCommand.Parameters.Add(new SqlParameter("@ACODE_" + a, SqlDbType.NVarChar, 50));
+        //                                        oCommand.Parameters.Add(new SqlParameter("@ATYPE_" + a, SqlDbType.NVarChar, 50));
+        //                                        oCommand.Parameters.Add(new SqlParameter("@ANAME_" + a, SqlDbType.NVarChar, 250));
+        //                                        oCommand.Parameters.Add(new SqlParameter("@AOPTIONS_" + a, SqlDbType.NVarChar, 1));
+        //                                        oCommand.Parameters.Add(new SqlParameter("@AMANDATORY_" + a, SqlDbType.NVarChar, 1));
+
+        //                                        a = Convert.ToString(i * 5 + 2);
+        //                                        oCommand.Parameters[(i * 5) + 2].Value = "";
+        //                                        oCommand.Parameters[(i * 5) + 3].Value = "";
+        //                                        oCommand.Parameters[(i * 5) + 4].Value = "";
+        //                                        oCommand.Parameters[(i * 5) + 5].Value = "";
+        //                                        oCommand.Parameters[(i * 5) + 6].Value = "";
+
+        //                                        oCommand.Parameters[(i * 5) + 2].Value = attribs.attribute_id;
+        //                                        oCommand.Parameters[(i * 5) + 3].Value = attribs.options.Count() > 0 ? "PREDEFINED_ATTRIBUTE" : "DESCRIPTIVE_ATTRIBUTE";
+        //                                        oCommand.Parameters[(i * 5) + 4].Value = attribs.attribute_name;
+        //                                        oCommand.Parameters[(i * 5) + 5].Value = attribs.options.Count() > 0 ? "1" : "0";
+        //                                        oCommand.Parameters[(i * 5) + 6].Value = attribs.is_mandatory ? "1" : "0";
+
+        //                                        if (attribs.options.Count() > 0)
+        //                                        {
+        //                                            var AttributeOptInDb = MoDbContext.AttributeOptShopee.AsNoTracking().ToList();
+        //                                            foreach (var option in attribs.options)
+        //                                            {
+        //                                                var cariOpt = AttributeOptInDb.Where(p => p.ACODE == Convert.ToString(attribs.attribute_id) && p.OPTION_VALUE == option);
+        //                                                if (cariOpt.Count() == 0)
+        //                                                {
+        //                                                    using (SqlCommand oCommand2 = oConnection.CreateCommand())
+        //                                                    {
+        //                                                        oCommand2.CommandType = CommandType.Text;
+        //                                                        oCommand2.CommandText = "INSERT INTO ATTRIBUTE_OPT_SHOPEE ([ACODE], [OPTION_VALUE]) VALUES (@ACODE, @OPTION_VALUE)";
+        //                                                        oCommand2.Parameters.Add(new SqlParameter("@ACODE", SqlDbType.NVarChar, 50));
+        //                                                        oCommand2.Parameters.Add(new SqlParameter("@OPTION_VALUE", SqlDbType.NVarChar, 250));
+        //                                                        oCommand2.Parameters[0].Value = attribs.attribute_id;
+        //                                                        oCommand2.Parameters[1].Value = option;
+        //                                                        oCommand2.ExecuteNonQuery();
+        //                                                    }
+        //                                                }
+        //                                            }
+        //                                        }
+        //                                        i = i + 1;
+        //                                    }
+        //                                    sSQL = sSQL.Substring(0, sSQL.Length - 1) + sSQLValue.Substring(0, sSQLValue.Length - 1) + ")";
+        //                                    oCommand.CommandText = sSQL;
+        //                                    oCommand.Parameters[0].Value = category.CATEGORY_CODE;
+        //                                    oCommand.Parameters[1].Value = "";
+        //                                    oCommand.ExecuteNonQuery();
+        //                                }
+        //                            }
+        //                        }
+        //                    }
+        //                    catch (Exception ex2)
+        //                    {
+
+        //                    }
+        //                }
+        //            }
+        //            return ret;
+        //        }
+        //        public async Task<string> GetOrderByStatus(ShopeeAPIData iden, StatusOrder stat, string connID, string CUST, string NAMA_CUST, int page)
+        //        {
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            string ret = "";
+
+        //            long seconds = CurrentTimeSecond();
+        //            long timestamp7Days = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
+
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            string urll = "https://partner.shopeemobile.com/api/v1/orders/get";
+
+        //            ShopeeGetOrderByStatusData HttpBody = new ShopeeGetOrderByStatusData
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                pagination_offset = page,
+        //                pagination_entries_per_page = 50,
+        //                create_time_from = timestamp7Days,
+        //                create_time_to = seconds,
+        //                order_status = stat.ToString()
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //            }
+
+        //            if (responseFromServer != null)
+        //            {
+        //                try
+        //                {
+
+        //                    var listOrder = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderByStatusResult)) as ShopeeGetOrderByStatusResult;
+        //                    if (stat == StatusOrder.READY_TO_SHIP)
+        //                    {
+        //                        string[] ordersn_list = listOrder.orders.Select(p => p.ordersn).ToArray();
+        //                        //add by calvin 4 maret 2019, filter
+        //                        var dariTgl = DateTimeOffset.UtcNow.AddDays(-30).DateTime;
+        //                        var SudahAdaDiMO = ErasoftDbContext.SOT01A.Where(p => p.USER_NAME == "Auto Shopee" && p.TGL >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
+        //                        //end add by calvin
+        //                        var filtered = ordersn_list.Where(p => !SudahAdaDiMO.Contains(p));
+        //                        if (filtered.Count() > 0)
+        //                        {
+        //                            await GetOrderDetails(iden, filtered.ToArray(), connID, CUST, NAMA_CUST);
+        //                        }
+        //                        if (listOrder.more)
+        //                        {
+        //                            await GetOrderByStatus(iden, stat, connID, CUST, NAMA_CUST, page + 50);
+        //                        }
+        //                    }
+
+        //                }
+        //                catch (Exception ex2)
+        //                {
+        //                }
+        //            }
+        //            return ret;
+        //        }
+        //        public async Task<string> GetOrderDetails(ShopeeAPIData iden, string[] ordersn_list, string connID, string CUST, string NAMA_CUST)
+        //        {
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            string ret = "";
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+        //            {
+        //                //REQUEST_ID = seconds.ToString(),
+        //                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+        //                REQUEST_ACTION = "Get Order List", //ganti
+        //                REQUEST_DATETIME = milisBack,
+        //                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+        //                REQUEST_STATUS = "Pending",
+        //            };
+
+        //            string urll = "https://partner.shopeemobile.com/api/v1/orders/detail";
+
+        //            GetOrderDetailsData HttpBody = new GetOrderDetailsData
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                ordersn_list = ordersn_list
+        //                //ordersn_list = ordersn_list_test.ToArray()
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //            }
+
+        //            if (responseFromServer != null)
+        //            {
+        //                try
+        //                {
+        //                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderDetailsResult)) as ShopeeGetOrderDetailsResult;
+        //                    var connIdARF01C = Guid.NewGuid().ToString();
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+        //                    TEMP_SHOPEE_ORDERS batchinsert = new TEMP_SHOPEE_ORDERS();
+        //                    List<TEMP_SHOPEE_ORDERS_ITEM> batchinsertItem = new List<TEMP_SHOPEE_ORDERS_ITEM>();
+        //                    string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+        //                    insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+        //                    insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
+        //                    var kabKot = "3174";
+        //                    var prov = "31";
+
+        //                    foreach (var order in result.orders)
+        //                    {
+        //                        //insertPembeli += "('" + order.recipient_address.name + "','" + order.recipient_address.full_address + "','" + order.recipient_address.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+        //                        //insertPembeli += "1, 'IDR', '01', '" + order.recipient_address.full_address + "', 0, 0, 0, 0, '1', 0, 0, ";
+        //                        //insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient_address.zipcode + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
+
+        //                        string nama = order.recipient_address.name.Length > 30 ? order.recipient_address.name.Substring(0, 30) : order.recipient_address.name;
+
+        //                        insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
+        //                            ((nama ?? "").Replace("'", "`")),
+        //                            ((order.recipient_address.full_address ?? "").Replace("'", "`")),
+        //                            ((order.recipient_address.phone ?? "").Replace("'", "`")),
+        //                            (NAMA_CUST.Replace(',', '.')),
+        //                            ((order.recipient_address.full_address ?? "").Replace("'", "`")),
+        //                            DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+        //                            (username),
+        //                            ((order.recipient_address.zipcode ?? "").Replace("'", "`")),
+        //                            kabKot,
+        //                            prov,
+        //                            connIdARF01C
+        //                            );
+        //                    }
+        //                    insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
+        //                    EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
+
+        //                    foreach (var order in result.orders)
+        //                    {
+        //                        try
+        //                        {
+        //                            ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_SHOPEE_ORDERS");
+        //                            ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_SHOPEE_ORDERS_ITEM");
+        //                            batchinsertItem = new List<TEMP_SHOPEE_ORDERS_ITEM>();
+        //                            TEMP_SHOPEE_ORDERS newOrder = new TEMP_SHOPEE_ORDERS()
+        //                            {
+        //                                actual_shipping_cost = order.actual_shipping_cost,
+        //                                buyer_username = order.buyer_username,
+        //                                cod = order.cod,
+        //                                country = order.country,
+        //                                create_time = DateTimeOffset.FromUnixTimeSeconds(order.create_time).UtcDateTime,
+        //                                currency = order.currency,
+        //                                days_to_ship = order.days_to_ship,
+        //                                dropshipper = order.dropshipper,
+        //                                escrow_amount = order.escrow_amount,
+        //                                estimated_shipping_fee = order.estimated_shipping_fee,
+        //                                goods_to_declare = order.goods_to_declare,
+        //                                message_to_seller = order.message_to_seller,
+        //                                note = order.note,
+        //                                note_update_time = DateTimeOffset.FromUnixTimeSeconds(order.note_update_time).UtcDateTime,
+        //                                ordersn = order.ordersn,
+        //                                order_status = order.order_status,
+        //                                payment_method = order.payment_method,
+        //                                pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
+        //                                Recipient_Address_country = order.recipient_address.country,
+        //                                Recipient_Address_state = order.recipient_address.state,
+        //                                Recipient_Address_city = order.recipient_address.city,
+        //                                Recipient_Address_town = order.recipient_address.town,
+        //                                Recipient_Address_district = order.recipient_address.district,
+        //                                Recipient_Address_full_address = order.recipient_address.full_address,
+        //                                Recipient_Address_name = order.recipient_address.name,
+        //                                Recipient_Address_phone = order.recipient_address.phone,
+        //                                Recipient_Address_zipcode = order.recipient_address.zipcode,
+        //                                service_code = order.service_code,
+        //                                shipping_carrier = order.shipping_carrier,
+        //                                total_amount = order.total_amount,
+        //                                tracking_no = order.tracking_no,
+        //                                update_time = DateTimeOffset.FromUnixTimeSeconds(order.update_time).UtcDateTime,
+        //                                CONN_ID = connID,
+        //                                CUST = CUST,
+        //                                NAMA_CUST = NAMA_CUST
+        //                            };
+        //                            foreach (var item in order.items)
+        //                            {
+        //                                TEMP_SHOPEE_ORDERS_ITEM newOrderItem = new TEMP_SHOPEE_ORDERS_ITEM()
+        //                                {
+        //                                    ordersn = order.ordersn,
+        //                                    is_wholesale = item.is_wholesale,
+        //                                    item_id = item.item_id,
+        //                                    item_name = item.item_name,
+        //                                    item_sku = item.item_sku,
+        //                                    variation_discounted_price = item.variation_discounted_price,
+        //                                    variation_id = item.variation_id,
+        //                                    variation_name = item.variation_name,
+        //                                    variation_original_price = item.variation_original_price,
+        //                                    variation_quantity_purchased = item.variation_quantity_purchased,
+        //                                    variation_sku = item.variation_sku,
+        //                                    weight = item.weight,
+        //                                    pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
+        //                                    CONN_ID = connID,
+        //                                    CUST = CUST,
+        //                                    NAMA_CUST = NAMA_CUST
+        //                                };
+        //                                batchinsertItem.Add(newOrderItem);
+        //                            }
+        //                            batchinsert = (newOrder);
+
+        //                            ErasoftDbContext.TEMP_SHOPEE_ORDERS.Add(batchinsert);
+        //                            ErasoftDbContext.TEMP_SHOPEE_ORDERS_ITEM.AddRange(batchinsertItem);
+        //                            ErasoftDbContext.SaveChanges();
+        //                            using (SqlCommand CommandSQL = new SqlCommand())
+        //                            {
+        //                                //call sp to insert buyer data
+        //                                CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+        //                                CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
+
+        //                                EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
+        //                            };
+        //                            using (SqlCommand CommandSQL = new SqlCommand())
+        //                            {
+        //                                CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+        //                                CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connID;
+        //                                CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
+        //                                CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        //                                CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
+        //                                CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+        //                                CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
+        //                                CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+        //                                CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
+        //                                CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 1;
+        //                                CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
+        //                                CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
+        //                                CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
+
+        //                                EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+        //                            }
+        //                        }
+        //                        catch (Exception ex3)
+        //                        {
+
+        //                        }
+        //                    }
+        //                }
+        //                catch (Exception ex2)
+        //                {
+        //                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //                }
+        //            }
+        //            return ret;
+        //        }
+        //        public async Task<ShopeeGetParameterForInitLogisticResult> GetParameterForInitLogistic(ShopeeAPIData iden, string ordersn)
+        //        {
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            string urll = "https://partner.shopeemobile.com/api/v1/logistics/init_parameter/get";
+        //            if (!string.IsNullOrEmpty(iden.token))
+        //            {
+        //                MOPartnerID = MOPartnerIDV2;
+        //                MOPartnerKey = MOPartnerKeyV2;
+        //                urll = shopeeV2Url + "/api/v1/logistics/init_parameter/get";
+        //            }
+        //            ShopeeGetParameterForInitLogisticResult ret = null;
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            //string urll = "https://partner.shopeemobile.com/api/v1/logistics/init_parameter/get";
+
+        //            ShopeeGetParameterForInitLogisticData HttpBody = new ShopeeGetParameterForInitLogisticData
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                ordersn = ordersn
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+
+        //            }
+        //            catch (Exception ex)
+        //            {
+
+        //            }
+
+        //            if (responseFromServer != "")
+        //            {
+        //                try
+        //                {
+        //                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetParameterForInitLogisticResult)) as ShopeeGetParameterForInitLogisticResult;
+        //                    ret = result;
+        //                }
+        //                catch (Exception ex2)
+        //                {
+
+        //                }
+        //            }
+        //            return ret;
+        //        }
+        //        public async Task<ShopeeGetParameterForInitLogisticResult> GetLogisticInfo(ShopeeAPIData iden, string ordersn)
+        //        {
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            ShopeeGetParameterForInitLogisticResult ret = null;
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            string urll = "https://partner.shopeemobile.com/api/v1/logistics/init_info/get";
+
+        //            ShopeeGetParameterForInitLogisticData HttpBody = new ShopeeGetParameterForInitLogisticData
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                ordersn = ordersn
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+
+        //            }
+        //            catch (Exception ex)
+        //            {
+
+        //            }
+
+        //            if (responseFromServer != null)
+        //            {
+        //                try
+        //                {
+        //                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetParameterForInitLogisticResult)) as ShopeeGetParameterForInitLogisticResult;
+        //                    ret = result;
+        //                }
+        //                catch (Exception ex2)
+        //                {
+
+        //                }
+        //            }
+        //            return ret;
+        //        }
+        //        public async Task<string> InitLogisticDropOff(ShopeeAPIData iden, string ordersn, ShopeeInitLogisticDropOffDetailData data, int recnum, string dBranch, string dSender, string dTrackNo)
+        //        {
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            string ret = "";
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+        //            {
+        //                //REQUEST_ID = seconds.ToString(),
+        //                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+        //                REQUEST_ACTION = "Update No Resi",
+        //                REQUEST_DATETIME = milisBack,
+        //                REQUEST_ATTRIBUTE_1 = ordersn,
+        //                REQUEST_ATTRIBUTE_2 = dTrackNo,
+        //                REQUEST_ATTRIBUTE_3 = "dropoff",
+        //                REQUEST_ATTRIBUTE_4 = dSender + "[;]" + dBranch,
+        //                REQUEST_STATUS = "Pending",
+        //            };
+
+        //            string urll = "https://partner.shopeemobile.com/api/v1/logistics/init";
+        //            ShopeeInitLogisticDropOffData HttpBody = new ShopeeInitLogisticDropOffData
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                ordersn = ordersn,
+        //                dropoff = data
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+        //            string responseFromServer = "";
+
+        //            //var client = new HttpClient();
+        //            //client.DefaultRequestHeaders.Add("Authorization", signature);
+        //            //var content = new FormUrlEncodedContent(ToKeyValue(HttpBody));
+
+        //            //HttpResponseMessage clientResponse = await client.PostAsync(
+        //            //    urll, content);
+
+        //            //using (HttpContent responseContent = clientResponse.Content)
+        //            //{
+        //            //    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+        //            //    {
+        //            //        responseFromServer = await reader.ReadToEndAsync();
+        //            //    }
+        //            //};
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //            }
+
+        //            if (responseFromServer != null)
+        //            {
+        //                try
+        //                {
+        //                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeInitLogisticResult)) as ShopeeInitLogisticResult;
+        //                    if ((result.error == null ? "" : result.error) == "")
+        //                    {
+        //                        if (!string.IsNullOrWhiteSpace(result.tracking_no) || !string.IsNullOrWhiteSpace(result.tracking_number))
+        //                        {
+        //                            var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
+        //                            if (pesananInDb != null)
+        //                            {
+        //                                if (dTrackNo == "")
+        //                                {
+        //                                    dTrackNo = ((result.tracking_no == null ? "" : result.tracking_no) == "") ? (result.tracking_number) : result.tracking_no;
+        //                                }
+        //                                string nilaiTRACKING_SHIPMENT = "D[;]" + dBranch + "[;]" + dSender + "[;]" + dTrackNo;
+        //                                pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+        //                                ErasoftDbContext.SaveChanges();
+        //                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+        //                            }
+        //                        }
+        //                    }
+        //                    else
+        //                    {
+        //                        currentLog.REQUEST_EXCEPTION = result.msg;
+        //                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+        //                    }
+        //                }
+        //                catch (Exception ex2)
+        //                {
+        //                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //                }
+        //            }
+        //            return ret;
+        //        }
+        //        public async Task<string> InitLogisticNonIntegrated(ShopeeAPIData iden, string ordersn, ShopeeInitLogisticNotIntegratedDetailData data, int recnum, string savedParam)
+        //        {
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            string ret = "";
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+        //            {
+        //                //REQUEST_ID = seconds.ToString(),
+        //                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+        //                REQUEST_ACTION = "Update No Resi",
+        //                REQUEST_DATETIME = milisBack,
+        //                REQUEST_ATTRIBUTE_1 = ordersn,
+        //                REQUEST_ATTRIBUTE_2 = "",
+        //                REQUEST_ATTRIBUTE_3 = "NonIntegrated",
+        //                REQUEST_ATTRIBUTE_4 = savedParam,
+        //                REQUEST_STATUS = "Pending",
+        //            };
+
+        //            string urll = "https://partner.shopeemobile.com/api/v1/logistics/init";
+        //            ShopeeInitLogisticNonIntegratedData HttpBody = new ShopeeInitLogisticNonIntegratedData
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                ordersn = ordersn,
+        //                non_integrated = data
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //            }
+
+        //            if (responseFromServer != null)
+        //            {
+        //                try
+        //                {
+        //                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeInitLogisticResult)) as ShopeeInitLogisticResult;
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+        //                }
+        //                catch (Exception ex2)
+        //                {
+        //                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //                }
+        //            }
+        //            return ret;
+        //        }
+        //        public async Task<string> InitLogisticPickup(ShopeeAPIData iden, string ordersn, ShopeeInitLogisticPickupDetailData data, int recnum, string savedParam)
+        //        {
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            string ret = "";
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+        //            {
+        //                //REQUEST_ID = seconds.ToString(),
+        //                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+        //                REQUEST_ACTION = "Update No Resi",
+        //                REQUEST_DATETIME = milisBack,
+        //                REQUEST_ATTRIBUTE_1 = ordersn,
+        //                REQUEST_ATTRIBUTE_2 = "",
+        //                REQUEST_ATTRIBUTE_3 = "Pickup",
+        //                REQUEST_ATTRIBUTE_4 = savedParam,
+        //                REQUEST_STATUS = "Pending",
+        //            };
+
+        //            string urll = "https://partner.shopeemobile.com/api/v1/logistics/init";
+        //            ShopeeInitLogisticPickupData HttpBody = new ShopeeInitLogisticPickupData
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                ordersn = ordersn,
+        //                pickup = data
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //            }
+
+        //            if (responseFromServer != null)
+        //            {
+        //                try
+        //                {
+        //                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeInitLogisticResult)) as ShopeeInitLogisticResult;
+        //                    if (result.error == null)
+        //                    {
+        //                        if (!string.IsNullOrWhiteSpace(result.tracking_no) || !string.IsNullOrWhiteSpace(result.tracking_number))
+        //                        {
+        //                            var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
+        //                            if (pesananInDb != null)
+        //                            {
+        //                                pesananInDb.TRACKING_SHIPMENT = savedParam;
+        //                                ErasoftDbContext.SaveChanges();
+        //                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+        //                            }
+        //                        }
+        //                    }
+        //                    else
+        //                    {
+        //                        currentLog.REQUEST_EXCEPTION = result.msg;
+        //                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+        //                    }
+        //                }
+        //                catch (Exception ex2)
+        //                {
+        //                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //                }
+        //            }
+        //            return ret;
+        //        }
+
+        //        public async Task<string> UpdateStock(ShopeeAPIData iden, string brg_mp, int qty)
+        //        {
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            string ret = "";
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+        //            {
+        //                //REQUEST_ID = seconds.ToString(),
+        //                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+        //                REQUEST_ACTION = "Update QOH",
+        //                REQUEST_DATETIME = milisBack,
+        //                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+        //                REQUEST_STATUS = "Pending",
+        //            };
+
+        //            string urll = "https://partner.shopeemobile.com/api/v1/items/update_stock";
+        //            string[] brg_mp_split = brg_mp.Split(';');
+        //            ShopeeUpdateStockData HttpBody = new ShopeeUpdateStockData
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                item_id = Convert.ToInt64(brg_mp_split[0]),
+        //                stock = qty
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //            }
+
+        //            if (responseFromServer != null)
+        //            {
+        //                try
+        //                {
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+        //                }
+        //                catch (Exception ex2)
+        //                {
+        //                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //                }
+        //            }
+        //            return ret;
+        //        }
+        //        public async Task<string> UpdateVariationStock(ShopeeAPIData iden, string brg_mp, int qty)
+        //        {
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            string ret = "";
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+        //            {
+        //                //REQUEST_ID = seconds.ToString(),
+        //                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+        //                REQUEST_ACTION = "Update QOH",
+        //                REQUEST_DATETIME = milisBack,
+        //                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+        //                REQUEST_STATUS = "Pending",
+        //            };
+
+        //            string urll = "https://partner.shopeemobile.com/api/v1/items/update_variation_stock";
+        //            string[] brg_mp_split = brg_mp.Split(';');
+        //            ShopeeUpdateVariationStockData HttpBody = new ShopeeUpdateVariationStockData
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                item_id = Convert.ToInt64(brg_mp_split[0]),
+        //                variation_id = Convert.ToInt64(brg_mp_split[1]),
+        //                stock = qty
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //            }
+
+        //            if (responseFromServer != null)
+        //            {
+        //                try
+        //                {
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+        //                }
+        //                catch (Exception ex2)
+        //                {
+        //                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //                }
+        //            }
+        //            return ret;
+        //        }
+
+        //        public async Task<ShopeeGetLogisticsResult> GetLogistics(ShopeeAPIData iden)
+        //        {
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            ShopeeGetLogisticsResult ret = null;
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            string urll = "https://partner.shopeemobile.com/api/v1/logistics/channel/get";
+
+        //            ShopeeGetLogisticsData HttpBody = new ShopeeGetLogisticsData
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //            }
+
+        //            if (responseFromServer != null)
+        //            {
+        //                try
+        //                {
+        //                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetLogisticsResult)) as ShopeeGetLogisticsResult;
+        //                    ret = result;
+        //                }
+        //                catch (Exception ex2)
+        //                {
+        //                }
+        //            }
+        //            return ret;
+        //        }
+        //        public async Task<string> AcceptBuyerCancellation(ShopeeAPIData iden, string ordersn)
+        //        {
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            string ret = "";
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+        //            {
+        //                //REQUEST_ID = seconds.ToString(),
+        //                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+        //                REQUEST_ACTION = "Accept Buyer Cancel", //ganti
+        //                REQUEST_DATETIME = milisBack,
+        //                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+        //                REQUEST_STATUS = "Pending",
+        //            };
+
+        //            string urll = "https://partner.shopeemobile.com/api/v1/orders/buyer_cancellation/accept";
+
+        //            ShopeeAcceptBuyerCancelOrderData HttpBody = new ShopeeAcceptBuyerCancelOrderData
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                ordersn = ordersn
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //            }
+
+        //            if (responseFromServer != null)
+        //            {
+        //                try
+        //                {
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+
+
+
+        //                }
+        //                catch (Exception ex2)
+        //                {
+        //                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //                }
+        //            }
+        //            return ret;
+        //        }
+        //        public async Task<string> CancelOrder(ShopeeAPIData iden, string ordersn)
+        //        {
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            string ret = "";
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+        //            {
+        //                //REQUEST_ID = seconds.ToString(),
+        //                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+        //                REQUEST_ACTION = "Cancel Order",
+        //                REQUEST_DATETIME = milisBack,
+        //                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+        //                REQUEST_STATUS = "Pending",
+        //            };
+
+        //            string urll = "https://partner.shopeemobile.com/api/v1/orders/cancel";
+
+        //            ShopeeCancelOrderData HttpBody = new ShopeeCancelOrderData
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                ordersn = ordersn,
+        //                cancel_reason = "CUSTOMER_REQUEST"
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //            }
+
+        //            if (responseFromServer != null)
+        //            {
+        //                try
+        //                {
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+        //                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCancelOrderResult)) as ShopeeCancelOrderResult;
+        //                    if (result.error != null)
+        //                    {
+        //                        if (result.error != "")
+        //                        {
+        //                            await AcceptBuyerCancellation(iden, ordersn);
+        //                        }
+        //                    }
+        //                }
+        //                catch (Exception ex2)
+        //                {
+        //                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //                }
+        //            }
+        //            return ret;
+        //        }
+        //        public async Task<string> CreateProduct(ShopeeAPIData iden, string brg, string cust, List<ShopeeLogisticsClass> logistics)
+        //        {
+        //            string ret = "";
+        //            var brgInDb = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper() == brg.ToUpper()).FirstOrDefault();
+        //            var marketplace = ErasoftDbContext.ARF01.Where(c => c.CUST.ToUpper() == cust.ToUpper()).FirstOrDefault();
+        //            if (brgInDb == null || marketplace == null)
+        //                return "invalid passing data";
+        //            var detailBrg = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).FirstOrDefault();
+        //            if (detailBrg == null)
+        //                return "invalid passing data";
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+        //            {
+        //                //REQUEST_ID = seconds.ToString(),
+        //                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+        //                REQUEST_ACTION = "Create Product",
+        //                REQUEST_DATETIME = milisBack,
+        //                REQUEST_ATTRIBUTE_1 = brg,
+        //                REQUEST_ATTRIBUTE_2 = brgInDb.NAMA,
+        //                REQUEST_STATUS = "Pending",
+        //            };
+
+        //            string urll = "https://partner.shopeemobile.com/api/v1/item/add";
+
+        //            //add by calvin 21 desember 2018, default nya semua logistic enabled
+        //            var ShopeeGetLogisticsResult = await GetLogistics(iden);
+
+        //            foreach (var log in ShopeeGetLogisticsResult.logistics.Where(p => p.enabled == true && p.fee_type.ToUpper() != "CUSTOM_PRICE" && p.fee_type.ToUpper() != "SIZE_SELECTION"))
+        //            {
+        //                bool lolosValidLogistic = true;
+        //                if (log.weight_limits != null)
+        //                {
+        //                    if (log.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
+        //                    {
+        //                        lolosValidLogistic = false;
+        //                    }
+        //                    if (log.weight_limits.item_min_weight > (brgInDb.BERAT / 1000))
+        //                    {
+        //                        lolosValidLogistic = false;
+        //                    }
+        //                }
+
+        //                if (log.item_max_dimension != null)
+        //                {
+        //                    if (log.item_max_dimension.length > 0)
+        //                    {
+        //                        if (log.item_max_dimension.length < (Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG)))
+        //                        {
+        //                            lolosValidLogistic = false;
+        //                        }
+        //                    }
+        //                    if (log.item_max_dimension.height > 0)
+        //                    {
+        //                        if (log.item_max_dimension.height < (Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI)))
+        //                        {
+        //                            lolosValidLogistic = false;
+        //                        }
+        //                    }
+        //                    if (log.item_max_dimension.width > 0)
+        //                    {
+        //                        if (log.item_max_dimension.width < (Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR)))
+        //                        {
+        //                            lolosValidLogistic = false;
+        //                        }
+        //                    }
+        //                }
+
+        //                if (lolosValidLogistic)
+        //                {
+        //                    logistics.Add(new ShopeeLogisticsClass()
+        //                    {
+        //                        enabled = log.enabled,
+        //                        is_free = false,
+        //                        logistic_id = log.logistic_id,
+        //                    });
+        //                }
+        //            }
+        //            //end add by calvin 21 desember 2018, default nya semua logistic enabled
+
+        //            ShopeeProductData HttpBody = new ShopeeProductData
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                item_sku = brg,
+        //                category_id = Convert.ToInt64(detailBrg.CATEGORY_CODE),
+        //                condition = "NEW",
+        //                name = (brgInDb.NAMA + " " + brgInDb.NAMA2).Trim().Replace("’", "`"),
+        //                description = brgInDb.Deskripsi.Replace("’", "`"),
+        //                package_height = Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI),
+        //                package_length = Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG),
+        //                package_width = Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR),
+        //                weight = brgInDb.BERAT / 1000,
+        //                price = detailBrg.HJUAL,
+        //                stock = 1,//create product min stock = 1
+        //                images = new List<ShopeeImageClass>(),
+        //                attributes = new List<ShopeeAttributeClass>(),
+        //                variations = new List<ShopeeVariationClass>(),
+        //                logistics = logistics
+        //            };
+
+        //            //add by calvin 10 mei 2019
+        //            HttpBody.description = new StokControllerJob().RemoveSpecialCharacters(HttpBody.description);
+        //            //end add by calvin 10 mei 2019
+
+        //            //add by nurul 20/1/2020, handle <p> dan enter double di shopee
+        //            HttpBody.description = HttpBody.description.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
+        //            HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
+        //            HttpBody.description = HttpBody.description.Replace("<ul>", "").Replace("</ul>", "\r\n");
+        //            HttpBody.description = HttpBody.description.Replace("&nbsp;\r\n\r\n", "\n").Replace("&nbsp;<em>", " ");
+        //            HttpBody.description = HttpBody.description.Replace("</em>&nbsp;", " ").Replace("&nbsp;", " ").Replace("</em>", "");
+        //            HttpBody.description = HttpBody.description.Replace("<br />\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("\r\n", "");
+
+        //            HttpBody.description = HttpBody.description.Replace("<h1>", "\r\n").Replace("</h1>", "\r\n");
+        //            HttpBody.description = HttpBody.description.Replace("<h2>", "\r\n").Replace("</h2>", "\r\n");
+        //            HttpBody.description = HttpBody.description.Replace("<h3>", "\r\n").Replace("</h3>", "\r\n");
+        //            HttpBody.description = HttpBody.description.Replace("<p>", "\r\n").Replace("</p>", "\r\n");
+
+        //            HttpBody.description = System.Text.RegularExpressions.Regex.Replace(HttpBody.description, "<.*?>", String.Empty);
+        //            //end add by nurul 20/1/2020, handle <p> dan enter double di shopee
+
+        //            //add by calvin 1 mei 2019
+        //            var qty_stock = new StokControllerJob(DatabasePathErasoft, username).GetQOHSTF08A(brg, "ALL");
+        //            if (qty_stock > 0)
+        //            {
+        //                HttpBody.stock = Convert.ToInt32(qty_stock);
+        //            }
+        //            //end add by calvin 1 mei 2019
+
+        //            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
+        //                HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_1 });
+        //            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
+        //                HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_2 });
+        //            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
+        //                HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_3 });
+        //            if (brgInDb.TYPE == "4")
+        //            {
+        //                var ListVariant = ErasoftDbContext.STF02.Where(p => p.PART == brg).ToList();
+        //                var ListSettingVariasi = ErasoftDbContext.STF02I.Where(p => p.BRG == brg).ToList();
+        //                //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
+        //                List<string> byteGambarUploaded = new List<string>();
+        //                //end add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
+        //                foreach (var item in ListVariant)
+        //                {
+        //                    List<string> Duplikat = HttpBody.variations.Select(p => p.name).ToList();
+        //                    //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
+        //                    if (!byteGambarUploaded.Contains(item.Sort5))
+        //                    {
+        //                        byteGambarUploaded.Add(item.Sort5);
+        //                        if (!string.IsNullOrEmpty(item.LINK_GAMBAR_1))
+        //                            HttpBody.images.Add(new ShopeeImageClass { url = item.LINK_GAMBAR_1 });
+        //                    }
+        //                    //end add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
+        //                }
+        //            }
+        //            try
+        //            {
+        //                for (int i = 1; i <= 30; i++)
+        //                {
+        //                    string attribute_id = Convert.ToString(detailBrg["ACODE_" + i.ToString()]);
+        //                    string value = Convert.ToString(detailBrg["AVALUE_" + i.ToString()]);
+        //                    if (!string.IsNullOrWhiteSpace(attribute_id))
+        //                    {
+
+        //                        HttpBody.attributes.Add(new ShopeeAttributeClass
+        //                        {
+        //                            attributes_id = Convert.ToInt64(attribute_id),
+        //                            value = value.Trim()
+        //                        });
+        //                    }
+        //                }
+
+        //            }
+        //            catch (Exception ex)
+        //            {
+
+        //            }
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            string responseFromServer = "";
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+
+        //            try
+        //            {
+        //                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //            }
+
+        //            //try
+        //            //{
+        //            //    var client = new HttpClient();
+
+        //            //    client.DefaultRequestHeaders.Add("Authorization", (signature));
+        //            //    var content = new StringContent(myData, Encoding.UTF8, "application/json");
+        //            //    content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
+        //            //    HttpResponseMessage clientResponse = await client.PostAsync(
+        //            //        urll, content);
+
+        //            //    using (HttpContent responseContent = clientResponse.Content)
+        //            //    {
+        //            //        using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+        //            //        {
+        //            //            responseFromServer = await reader.ReadToEndAsync();
+        //            //        }
+        //            //    };
+        //            //}
+        //            //catch (Exception ex)
+        //            //{
+        //            //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //            //}
+
+
+        //            if (responseFromServer != null)
+        //            {
+        //                try
+        //                {
+        //                    var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCreateProdResponse)) as ShopeeCreateProdResponse;
+        //                    if (resServer != null)
+        //                    {
+        //                        if (string.IsNullOrEmpty(resServer.error))
+        //                        {
+        //                            var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
+        //                            if (item != null)
+        //                            {
+        //                                item.BRG_MP = Convert.ToString(resServer.item_id) + ";0";
+        //                                ErasoftDbContext.SaveChanges();
+
+        //                                if (brgInDb.TYPE == "4")
+        //                                {
+        //                                    await InitTierVariation(iden, brgInDb, resServer.item_id, marketplace);
+        //                                }
+
+        //                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+        //                            }
+        //                            else
+        //                            {
+        //                                currentLog.REQUEST_EXCEPTION = "item not found";
+        //                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+        //                            }
+        //                        }
+        //                        else
+        //                        {
+        //                            currentLog.REQUEST_RESULT = resServer.msg;
+        //                            currentLog.REQUEST_EXCEPTION = resServer.error + ";" + resServer.msg;
+        //                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+        //                        }
+        //                    }
+
+        //                }
+        //                catch (Exception ex2)
+        //                {
+        //                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //                }
+        //            }
+        //            return ret;
+        //        }
+        //        public async Task<string> GetVariation(ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace, Dictionary<string, int> mapSTF02HRecnum_IndexVariasi, List<ShopeeVariation> MOVariation, List<ShopeeTierVariation> tier_variation)
+        //        {
+        //            var MOVariationNew = MOVariation.ToList();
+
+        //            string ret = "";
+        //            string brg = brgInDb.BRG;
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            string urll = "https://partner.shopeemobile.com/api/v1/item/tier_var/get";
+
+        //            ShopeeGetVariation HttpBody = new ShopeeGetVariation
+        //            {
+        //                partner_id = MOPartnerID,
+        //                item_id = item_id,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //            }
+
+
+        //            if (responseFromServer != null)
+        //            {
+        //                var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(GetVariationResult)) as GetVariationResult;
+        //                var new_tier_variation = new List<ShopeeUpdateVariation>();
+
+        //                foreach (var variasi in resServer.variations)
+        //                {
+        //                    string key_map_tier_index_recnum = "";
+        //                    foreach (var indexes in variasi.tier_index)
+        //                    {
+        //                        key_map_tier_index_recnum = key_map_tier_index_recnum + Convert.ToString(indexes) + ";";
+        //                    }
+        //                    int recnum_stf02h_var = mapSTF02HRecnum_IndexVariasi.Where(p => p.Key == key_map_tier_index_recnum).Select(p => p.Value).SingleOrDefault();
+
+        //                    //var var_item = ErasoftDbContext.STF02H.Where(b => b.RecNum == recnum_stf02h_var).SingleOrDefault();
+        //                    //var_item.BRG_MP = Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id);
+        //                    //ErasoftDbContext.SaveChanges();
+        //                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "' AND ISNULL(BRG_MP,'') = '' ");
+        //                    //tes remark by calvin 16 mei
+        //                    mapSTF02HRecnum_IndexVariasi.Remove(key_map_tier_index_recnum);
+        //                    foreach (var item in MOVariation)
+        //                    {
+        //                        var isiTier_Index = "";
+        //                        foreach (var indexes in item.tier_index)
+        //                        {
+        //                            isiTier_Index = isiTier_Index + Convert.ToString(indexes) + ";";
+        //                        }
+        //                        if (isiTier_Index == key_map_tier_index_recnum)
+        //                        {
+        //                            MOVariationNew.Remove(item);
+        //                            new_tier_variation.Add(new ShopeeUpdateVariation()
+        //                            {
+        //                                price = item.price,
+        //                                stock = item.stock,
+        //                                tier_index = item.tier_index,
+        //                                variation_sku = item.variation_sku,
+        //                                variation_id = variasi.variation_id
+        //                            });
+        //                        }
+        //                    }
+        //                    //end tes remark by calvin 16 mei
+        //                }
+        //                if (MOVariationNew.Count() > 0)
+        //                {
+        //                    //foreach (var variasi in mapSTF02HRecnum_IndexVariasi)
+        //                    //{
+        //                    //    await AddVariation(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew);
+        //                    //}
+        //                    //await UpdateTierVariationIndex(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation);
+        //                    await UpdateTierVariationList(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation);
+        //                }
+        //            }
+
+        //            return ret;
+        //        }
+        //        public async Task<string> UpdateTierVariationList(ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace, Dictionary<string, int> mapSTF02HRecnum_IndexVariasi, List<ShopeeVariation> MOVariationNew, List<ShopeeTierVariation> tier_variation, List<ShopeeUpdateVariation> new_tier_variation, List<ShopeeVariation> MOVariation)
+        //        {
+        //            //Use this api to update tier-variation list or upload variation image of a tier-variation item
+        //            string ret = "";
+        //            string brg = brgInDb.BRG;
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            string urll = "https://partner.shopeemobile.com/api/v1/item/tier_var/update_list";
+
+        //            ShopeeUpdateTierVariationList HttpBody = new ShopeeUpdateTierVariationList
+        //            {
+        //                partner_id = MOPartnerID,
+        //                item_id = item_id,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                tier_variation = tier_variation.ToArray(),
+        //                timestamp = seconds,
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //            }
+
+
+        //            if (responseFromServer != null)
+        //            {
+        //                //AddTierVariation
+        //                var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeUpdateTierVariationResult)) as ShopeeUpdateTierVariationResult;
+        //                if (resServer.item_id == item_id)
+        //                {
+        //                    //foreach (var variasi in mapSTF02HRecnum_IndexVariasi)
+        //                    //{
+        //                    //    await AddVariation(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew);
+        //                    //}
+        //                    await AddTierVariation(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew);
+        //                }
+        //            }
+
+        //            return ret;
+        //        }
+        //        public async Task<string> AddTierVariation(ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace, Dictionary<string, int> mapSTF02HRecnum_IndexVariasi, List<ShopeeVariation> MOVariation, List<ShopeeVariation> MOVariationNew)
+        //        {
+        //            string ret = "";
+        //            string brg = brgInDb.BRG;
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            string urll = "https://partner.shopeemobile.com/api/v1/item/tier_var/add";
+        //            ShopeeAddTierVariation HttpBody = new ShopeeAddTierVariation
+        //            {
+        //                partner_id = MOPartnerID,
+        //                item_id = item_id,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                variation = MOVariationNew.ToArray()
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //            }
+
+
+        //            if (responseFromServer != null)
+        //            {
+        //                var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(InitTierVariationResult)) as InitTierVariationResult;
+        //                if (resServer.variation_id_list != null)
+        //                {
+        //                    await GetVariation(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, null);
+
+        //                }
+        //            }
+
+        //            return ret;
+        //        }
+        //        public async Task<string> UpdateTierVariationIndex(ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace, Dictionary<string, int> mapSTF02HRecnum_IndexVariasi, List<ShopeeVariation> MOVariationNew, List<ShopeeTierVariation> tier_variation, List<ShopeeUpdateVariation> new_tier_variation)
+        //        {
+        //            List<object> variation = new List<object>();
+        //            string ret = "";
+        //            string brg = brgInDb.BRG;
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            string urll = "https://partner.shopeemobile.com/api/v1/item/tier_var/update";
+        //            foreach (var item in new_tier_variation)
+        //            {
+        //                variation.Add(new ShopeeUpdateVariation()
+        //                {
+        //                    price = item.price,
+        //                    stock = item.stock,
+        //                    tier_index = item.tier_index,
+        //                    variation_sku = item.variation_sku,
+        //                    variation_id = item.variation_id
+        //                });
+        //            }
+        //            //foreach (var item in MOVariationNew)
+        //            //{
+        //            //    variation.Add(new ShopeeVariation()
+        //            //    {
+        //            //        price = item.price,
+        //            //        stock = item.stock,
+        //            //        tier_index = item.tier_index,
+        //            //        variation_sku = item.variation_sku,
+
+        //            //    });
+        //            //}
+
+        //            ShopeeUpdateTierVariationIndex HttpBody = new ShopeeUpdateTierVariationIndex
+        //            {
+        //                partner_id = MOPartnerID,
+        //                item_id = item_id,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                tier_variation = tier_variation.ToArray(),
+        //                variation = variation.ToArray()
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //            }
+        //            return ret;
+        //        }
+        //        public async Task<string> InitTierVariation(ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace)
+        //        {
+        //            string ret = "";
+        //            string brg = brgInDb.BRG;
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+        //            //{
+        //            //    REQUEST_ID = seconds.ToString(),
+        //            //    REQUEST_ACTION = "Create Product",
+        //            //    REQUEST_DATETIME = milisBack,
+        //            //    REQUEST_ATTRIBUTE_1 = brg,
+        //            //    REQUEST_ATTRIBUTE_2 = brgInDb.NAMA,
+        //            //    REQUEST_STATUS = "Pending",
+        //            //};
+
+        //            string urll = "https://partner.shopeemobile.com/api/v1/item/tier_var/init";
+
+        //            ShopeeInitTierVariation HttpBody = new ShopeeInitTierVariation
+        //            {
+        //                partner_id = MOPartnerID,
+        //                item_id = item_id,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                tier_variation = new List<ShopeeTierVariation>().ToArray(),
+        //                variation = new List<ShopeeVariation>().ToArray(),
+        //                timestamp = seconds
+        //            };
+        //            List<ShopeeTierVariation> tier_variation = new List<ShopeeTierVariation>();
+        //            List<ShopeeVariation> variation = new List<ShopeeVariation>();
+        //            Dictionary<string, int> mapIndexVariasi1 = new Dictionary<string, int>();
+        //            Dictionary<string, int> mapIndexVariasi2 = new Dictionary<string, int>();
+        //            Dictionary<string, int> mapSTF02HRecnum_IndexVariasi = new Dictionary<string, int>();
+
+        //            if (brgInDb.TYPE == "4")//Barang Induk ( memiliki Variant )
+        //            {
+        //                var ListVariant = ErasoftDbContext.STF02.Where(p => p.PART == brg).ToList();
+        //                var ListSettingVariasi = ErasoftDbContext.STF02I.Where(p => p.BRG == brg).ToList();
+        //                var ListKodeBrgVariant = ListVariant.Select(p => p.BRG).ToList();
+        //                var ListStf02hVariasi = ErasoftDbContext.STF02H.Where(p => ListKodeBrgVariant.Contains(p.BRG) && p.IDMARKET == marketplace.RecNum).ToList();
+
+        //                int index_var_1 = 0;
+        //                int index_var_2 = 0;
+        //                ShopeeTierVariation tier1 = new ShopeeTierVariation();
+        //                ShopeeTierVariation tier2 = new ShopeeTierVariation();
+        //                List<string> tier1_options = new List<string>();
+        //                List<string> tier2_options = new List<string>();
+        //                foreach (var item in ListVariant.OrderBy(p => p.ID))
+        //                {
+        //                    var stf02h = ListStf02hVariasi.Where(p => p.BRG.ToUpper() == item.BRG.ToUpper() && p.IDMARKET == marketplace.RecNum).FirstOrDefault();
+        //                    if (stf02h != null)
+        //                    {
+        //                        string namaVariasiLV1 = "";
+        //                        if ((item.Sort8 == null ? "" : item.Sort8) != "")
+        //                        {
+        //                            var getNamaVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 1 && p.MARKET == "SHOPEE" && p.KODE_VAR == item.Sort8).FirstOrDefault();
+        //                            if (getNamaVar != null)
+        //                            {
+        //                                namaVariasiLV1 = getNamaVar.MP_JUDUL_VAR;
+        //                            }
+        //                        }
+
+        //                        string namaVariasiLV2 = "";
+        //                        if ((item.Sort9 == null ? "" : item.Sort9) != "")
+        //                        {
+        //                            var getNamaVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.MARKET == "SHOPEE" && p.KODE_VAR == item.Sort9).FirstOrDefault();
+        //                            if (getNamaVar != null)
+        //                            {
+        //                                namaVariasiLV2 = getNamaVar.MP_JUDUL_VAR;
+        //                            }
+        //                        }
+
+        //                        List<string> DuplikatNamaVariasi = tier_variation.Select(p => p.name).ToList();
+        //                        if (!DuplikatNamaVariasi.Contains(namaVariasiLV1))
+        //                        {
+        //                            if (namaVariasiLV1 != "")
+        //                            {
+        //                                tier1.name = namaVariasiLV1;
+        //                            }
+        //                        }
+        //                        if (!DuplikatNamaVariasi.Contains(namaVariasiLV2))
+        //                        {
+        //                            if (namaVariasiLV2 != "")
+        //                            {
+        //                                tier2.name = namaVariasiLV2;
+        //                            }
+        //                        }
+
+        //                        string nama_var1 = "";
+        //                        if ((item.Sort8 == null ? "" : item.Sort8) != "")
+        //                        {
+        //                            var getNamaVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 1 && p.MARKET == "SHOPEE" && p.KODE_VAR == item.Sort8).FirstOrDefault();
+        //                            if (getNamaVar != null)
+        //                            {
+        //                                nama_var1 = getNamaVar.MP_VALUE_VAR;
+        //                                if (!mapIndexVariasi1.ContainsKey(nama_var1))
+        //                                {
+        //                                    mapIndexVariasi1.Add(nama_var1, index_var_1);
+        //                                    tier1_options.Add(nama_var1);
+        //                                    index_var_1++;
+        //                                }
+        //                            }
+        //                        }
+        //                        string nama_var2 = "";
+        //                        if ((item.Sort9 == null ? "" : item.Sort9) != "")
+        //                        {
+        //                            var getNamaVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.MARKET == "SHOPEE" && p.KODE_VAR == item.Sort9).FirstOrDefault();
+        //                            if (getNamaVar != null)
+        //                            {
+        //                                nama_var2 = getNamaVar.MP_VALUE_VAR;
+        //                                if (!mapIndexVariasi2.ContainsKey(nama_var2))
+        //                                {
+        //                                    mapIndexVariasi2.Add(nama_var2, index_var_2);
+        //                                    tier2_options.Add(nama_var2);
+        //                                    index_var_2++;
+        //                                }
+        //                            }
+        //                        }
+        //                        int getIndexVar1 = 0;
+        //                        int getIndexVar2 = 0;
+        //                        List<int> ListTierIndex = new List<int>();
+        //                        if (mapIndexVariasi1.ContainsKey(nama_var1))
+        //                        {
+        //                            getIndexVar1 = mapIndexVariasi1[nama_var1];
+        //                            ListTierIndex.Add(getIndexVar1);
+        //                        }
+        //                        if (mapIndexVariasi2.ContainsKey(nama_var2))
+        //                        {
+        //                            getIndexVar2 = mapIndexVariasi2[nama_var2];
+        //                            ListTierIndex.Add(getIndexVar2);
+        //                        }
+
+        //                        ShopeeVariation adaVariant = new ShopeeVariation()
+        //                        {
+        //                            tier_index = ListTierIndex.ToArray(),
+        //                            price = (float)stf02h.HJUAL,
+        //                            stock = 1,//create product min stock = 1
+        //                            variation_sku = item.BRG
+        //                        };
+
+        //                        //add by calvin 1 mei 2019
+        //                        var qty_stock = new StokControllerJob(DatabasePathErasoft, username).GetQOHSTF08A(item.BRG, "ALL");
+        //                        if (qty_stock > 0)
+        //                        {
+        //                            adaVariant.stock = Convert.ToInt32(qty_stock);
+        //                        }
+        //                        //end add by calvin 1 mei 2019
+
+        //                        string key_map_tier_index_recnum = "";
+        //                        foreach (var indexes in ListTierIndex)
+        //                        {
+        //                            key_map_tier_index_recnum = key_map_tier_index_recnum + Convert.ToString(indexes) + ";";
+        //                        }
+        //                        mapSTF02HRecnum_IndexVariasi.Add(key_map_tier_index_recnum, stf02h.RecNum.Value);
+        //                        variation.Add(adaVariant);
+        //                    }
+        //                }
+        //                if (!string.IsNullOrWhiteSpace(tier1.name))
+        //                {
+        //                    tier1.options = tier1_options.ToArray();
+        //                    tier_variation.Add(tier1);
+        //                }
+        //                if (!string.IsNullOrWhiteSpace(tier2.name))
+        //                {
+        //                    tier2.options = tier2_options.ToArray();
+        //                    tier_variation.Add(tier2);
+        //                }
+        //            }
+        //            HttpBody.variation = variation.ToArray();
+        //            HttpBody.tier_variation = tier_variation.ToArray();
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //            }
+
+
+        //            if (responseFromServer != "")
+        //            {
+        //                var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(InitTierVariationResult)) as InitTierVariationResult;
+        //                if (resServer.variation_id_list != null)
+        //                {
+        //                    if (resServer.variation_id_list.Count() > 0)
+        //                    {
+        //                        foreach (var variasi in resServer.variation_id_list)
+        //                        {
+        //                            string key_map_tier_index_recnum = "";
+        //                            foreach (var indexes in variasi.tier_index)
+        //                            {
+        //                                key_map_tier_index_recnum = key_map_tier_index_recnum + Convert.ToString(indexes) + ";";
+        //                            }
+        //                            int recnum_stf02h_var = mapSTF02HRecnum_IndexVariasi.Where(p => p.Key == key_map_tier_index_recnum).Select(p => p.Value).SingleOrDefault();
+        //                            //var var_item = ErasoftDbContext.STF02H.Where(b => b.RecNum == recnum_stf02h_var).SingleOrDefault();
+        //                            //var_item.BRG_MP = Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id);
+        //                            //ErasoftDbContext.SaveChanges();
+        //                            var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "'");
+        //                        }
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    await GetVariation(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation, tier_variation);
+        //                }
+        //            }
+
+        //            return ret;
+        //        }
+        //        public async Task<string> UpdateProduct(ShopeeAPIData iden, string brg, string cust, List<ShopeeLogisticsClass> logistics)
+        //        {
+        //            string ret = "";
+        //            var brgInDb = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper() == brg.ToUpper()).FirstOrDefault();
+        //            var marketplace = ErasoftDbContext.ARF01.Where(c => c.CUST.ToUpper() == cust.ToUpper()).FirstOrDefault();
+        //            if (brgInDb == null || marketplace == null)
+        //                return "invalid passing data";
+        //            var detailBrg = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).FirstOrDefault();
+        //            if (detailBrg == null)
+        //                return "invalid passing data";
+
+        //            long item_id = 0;
+        //            string[] brg_mp = detailBrg.BRG_MP.Split(';');
+        //            if (brg_mp.Count() == 2)
+        //            {
+        //                item_id = Convert.ToInt64(brg_mp[0]);
+        //            }
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+        //            {
+        //                //REQUEST_ID = seconds.ToString(),
+        //                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+        //                REQUEST_ACTION = "Update Product",
+        //                REQUEST_DATETIME = milisBack,
+        //                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+        //                REQUEST_STATUS = "Pending",
+        //            };
+
+        //            string urll = "https://partner.shopeemobile.com/api/v1/item/update";
+
+        //            //add by calvin 21 desember 2018, default nya semua logistic enabled
+        //            var ShopeeGetLogisticsResult = await GetLogistics(iden);
+
+        //            foreach (var log in ShopeeGetLogisticsResult.logistics.Where(p => p.enabled == true && p.fee_type.ToUpper() != "CUSTOM_PRICE" && p.fee_type.ToUpper() != "SIZE_SELECTION"))
+        //            {
+        //                logistics.Add(new ShopeeLogisticsClass()
+        //                {
+        //                    enabled = log.enabled,
+        //                    is_free = false,
+        //                    logistic_id = log.logistic_id,
+        //                });
+        //            }
+        //            //end add by calvin 21 desember 2018, default nya semua logistic enabled
+
+        //            ShopeeUpdateProductData HttpBody = new ShopeeUpdateProductData
+        //            {
+        //                item_id = item_id,
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                item_sku = brg,
+        //                category_id = Convert.ToInt64(detailBrg.CATEGORY_CODE),
+        //                condition = "NEW",
+        //                name = (brgInDb.NAMA + " " + brgInDb.NAMA2).Trim().Replace("’", "`"),
+        //                description = brgInDb.Deskripsi.Replace("’", "`"),
+        //                package_height = Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI),
+        //                package_length = Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG),
+        //                package_width = Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR),
+        //                weight = brgInDb.BERAT / 1000,
+        //                attributes = new List<ShopeeAttributeClass>(),
+        //                logistics = logistics
+        //            };
+
+        //            //add by nurul 20/1/2020, handle <p> dan enter double di shopee
+        //            HttpBody.description = new StokControllerJob().RemoveSpecialCharacters(HttpBody.description);
+
+        //            HttpBody.description = HttpBody.description.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
+        //            HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
+        //            HttpBody.description = HttpBody.description.Replace("<ul>", "").Replace("</ul>", "\r\n");
+        //            HttpBody.description = HttpBody.description.Replace("&nbsp;\r\n\r\n", "\n").Replace("&nbsp;<em>", " ");
+        //            HttpBody.description = HttpBody.description.Replace("</em>&nbsp;", " ").Replace("&nbsp;", " ").Replace("</em>", "");
+        //            HttpBody.description = HttpBody.description.Replace("<br />\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("\r\n", "");
+
+        //            HttpBody.description = HttpBody.description.Replace("<h1>", "\r\n").Replace("</h1>", "\r\n");
+        //            HttpBody.description = HttpBody.description.Replace("<h2>", "\r\n").Replace("</h2>", "\r\n");
+        //            HttpBody.description = HttpBody.description.Replace("<h3>", "\r\n").Replace("</h3>", "\r\n");
+        //            HttpBody.description = HttpBody.description.Replace("<p>", "\r\n").Replace("</p>", "\r\n");
+
+
+        //            HttpBody.description = System.Text.RegularExpressions.Regex.Replace(HttpBody.description, "<.*?>", String.Empty);
+        //            //end add by nurul 20/1/2020, handle <p> dan enter double di shopee
+
+        //            try
+        //            {
+        //                string sSQL = "SELECT * FROM (";
+        //                for (int i = 1; i <= 30; i++)
+        //                {
+        //                    sSQL += "SELECT A.ACODE_" + i.ToString() + " AS CATEGORY_CODE,A.ANAME_" + i.ToString() + " AS CATEGORY_NAME,B.ATYPE_" + i.ToString() + " AS CATEGORY_TYPE,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_SHOPEE B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + brg + "' AND A.IDMARKET = '" + marketplace.RecNum + "' " + System.Environment.NewLine;
+        //                    if (i < 30)
+        //                    {
+        //                        sSQL += "UNION ALL " + System.Environment.NewLine;
+        //                    }
+        //                }
+
+        //                DataSet dsFeature = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' ");
+
+        //                for (int i = 0; i < dsFeature.Tables[0].Rows.Count; i++)
+        //                {
+        //                    HttpBody.attributes.Add(new ShopeeAttributeClass
+        //                    {
+        //                        attributes_id = Convert.ToInt64(dsFeature.Tables[0].Rows[i]["CATEGORY_CODE"]),
+        //                        value = Convert.ToString(dsFeature.Tables[0].Rows[i]["VALUE"]).Trim()
+        //                    });
+        //                }
+
+        //            }
+        //            catch (Exception ex)
+        //            {
+
+        //            }
+
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //            }
+
+        //            if (responseFromServer != "")
+        //            {
+        //                try
+        //                {
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+        //                    //var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCreateProdResponse)) as ShopeeCreateProdResponse;
+        //                    //if (resServer != null)
+        //                    //{
+        //                    //    if (string.IsNullOrEmpty(resServer.error))
+        //                    //    {
+        //                    //        var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
+        //                    //        if (item != null)
+        //                    //        {
+        //                    //            item.BRG_MP = resServer.item_id.ToString() + ";0";
+        //                    //            ErasoftDbContext.SaveChanges();
+        //                    //            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+        //                    //        }
+        //                    //        else
+        //                    //        {
+        //                    //            currentLog.REQUEST_EXCEPTION = "item not found";
+        //                    //            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+        //                    //        }
+        //                    //    }
+        //                    //    else
+        //                    //    {
+        //                    //        currentLog.REQUEST_EXCEPTION = resServer.error + ";" + resServer.msg;
+        //                    //        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+        //                    //    }
+        //                    //}
+
+        //                }
+        //                catch (Exception ex2)
+        //                {
+        //                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //                }
+        //            }
+        //            return ret;
+        //        }
+        //        public async Task<string> UpdatePrice(ShopeeAPIData iden, string brg_mp, float price)
+        //        {
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            string ret = "";
+        //            string urll = "https://partner.shopeemobile.com/api/v1/items/update_price";
+        //            if (!string.IsNullOrEmpty(iden.token))
+        //            {
+        //                MOPartnerID = MOPartnerIDV2;
+        //                MOPartnerKey = MOPartnerKeyV2;
+        //                urll = shopeeV2Url + "/api/v1/items/update_price";
+        //            }
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+        //            {
+        //                //REQUEST_ID = seconds.ToString(),
+        //                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+        //                REQUEST_ACTION = "Update Price", //ganti
+        //                REQUEST_DATETIME = milisBack,
+        //                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+        //                REQUEST_STATUS = "Pending",
+        //            };
+
+        //            //string urll = "https://partner.shopeemobile.com/api/v1/items/update_price";
+
+        //            string[] brg_mp_split = brg_mp.Split(';');
+        //            ShopeeUpdatePriceData HttpBody = new ShopeeUpdatePriceData
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                item_id = Convert.ToInt64(brg_mp_split[0]),
+        //                price = price
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //            }
+
+        //            if (responseFromServer != "")
+        //            {
+        //                try
+        //                {
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+        //                }
+        //                catch (Exception ex2)
+        //                {
+        //                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //                }
+        //            }
+        //            return ret;
+        //        }
+        //        public async Task<string> UpdateVariationPrice(ShopeeAPIData iden, string brg_mp, float price)
+        //        {
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            string ret = "";
+        //            string urll = "https://partner.shopeemobile.com/api/v1/items/update_variation_price";
+        //            if (!string.IsNullOrEmpty(iden.token))
+        //            {
+        //                MOPartnerID = MOPartnerIDV2;
+        //                MOPartnerKey = MOPartnerKeyV2;
+        //                urll = shopeeV2Url + "/api/v1/items/update_variation_price";
+        //            }
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+        //            {
+        //                //REQUEST_ID = seconds.ToString(),
+        //                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+        //                REQUEST_ACTION = "Update Price",
+        //                REQUEST_DATETIME = milisBack,
+        //                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+        //                REQUEST_STATUS = "Pending",
+        //            };
+
+        //            //string urll = "https://partner.shopeemobile.com/api/v1/items/update_variation_price";
+
+        //            string[] brg_mp_split = brg_mp.Split(';');
+        //            ShopeeUpdateVariantionPriceData HttpBody = new ShopeeUpdateVariantionPriceData
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                item_id = Convert.ToInt64(brg_mp_split[0]),
+        //                variation_id = Convert.ToInt64(brg_mp_split[1]),
+        //                price = price
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //            }
+
+        //            if (responseFromServer != "")
+        //            {
+        //                try
+        //                {
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+        //                }
+        //                catch (Exception ex2)
+        //                {
+        //                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //                }
+        //            }
+        //            return ret;
+        //        }
+
+
+        //        public async Task<string> UpdateImage(ShopeeAPIData iden, string brg, string brg_mp)
+        //        {
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            string ret = "";
+        //            string urll = "https://partner.shopeemobile.com/api/v1/item/img/update";
+        //            if (!string.IsNullOrEmpty(iden.token))
+        //            {
+        //                MOPartnerID = MOPartnerIDV2;
+        //                MOPartnerKey = MOPartnerKeyV2;
+        //                urll = shopeeV2Url + "/api/v1/item/img/update";
+        //            }
+
+        //            var brgInDb = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper() == brg.ToUpper()).FirstOrDefault();
+        //            if (brgInDb == null)
+        //                return "invalid passing data";
+        //            //var detailBrg = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).FirstOrDefault();
+        //            //if (detailBrg == null)
+        //            //    return "invalid passing data";
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+        //            {
+        //                //REQUEST_ID = seconds.ToString(),
+        //                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+        //                REQUEST_ACTION = "Update Product Image",
+        //                REQUEST_DATETIME = milisBack,
+        //                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+        //                REQUEST_STATUS = "Pending",
+        //            };
+
+        //            //string urll = "https://partner.shopeemobile.com/api/v1/item/img/update";
+
+        //            List<string> imagess = new List<string>();
+
+        //            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
+        //                imagess.Add(brgInDb.LINK_GAMBAR_1);
+        //            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
+        //                imagess.Add(brgInDb.LINK_GAMBAR_2);
+        //            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
+        //                imagess.Add(brgInDb.LINK_GAMBAR_3);
+        //            //add 25 jun 2020, ada 5 gambar
+        //            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_4))
+        //                imagess.Add(brgInDb.LINK_GAMBAR_4);
+        //            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
+        //                imagess.Add(brgInDb.LINK_GAMBAR_5);
+        //            //end add 25 jun 2020, ada 5 gambar
+
+        //            string[] brg_mp_split = brg_mp.Split(';');
+        //            ShopeeUpdateImageData HttpBody = new ShopeeUpdateImageData
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                item_id = Convert.ToInt64(brg_mp_split[0]),
+        //                images = imagess.ToArray()
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //            }
+
+        //            if (responseFromServer != null)
+        //            {
+        //                try
+        //                {
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+        //                }
+        //                catch (Exception ex2)
+        //                {
+        //                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //                }
+        //            }
+        //            return ret;
+        //        }
+
+        //        public async Task<string> AddDiscount(ShopeeAPIData iden, int recNumPromosi)
+        //        {
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            string ret = "";
+        //            string urll = "https://partner.shopeemobile.com/api/v1/discount/add";
+        //            if (!string.IsNullOrEmpty(iden.token))
+        //            {
+        //                MOPartnerID = MOPartnerIDV2;
+        //                MOPartnerKey = MOPartnerKeyV2;
+        //                urll = shopeeV2Url + "/api/v1/discount/add";
+        //            }
+        //            double promoPrice;
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            var arf01 = ErasoftDbContext.ARF01.Where(p => p.Sort1_Cust == iden.merchant_code).FirstOrDefault();
+        //            var varPromo = ErasoftDbContext.PROMOSI.Where(p => p.RecNum == recNumPromosi).FirstOrDefault();
+        //            var varPromoDetail = ErasoftDbContext.DETAILPROMOSI.Where(p => p.RecNumPromosi == recNumPromosi).ToList();
+        //            //long starttime = ((DateTimeOffset)varPromo.TGL_MULAI).ToUnixTimeSeconds();
+        //            //long endtime = ((DateTimeOffset)varPromo.TGL_AKHIR).ToUnixTimeSeconds();
+        //            long starttime = ((DateTimeOffset)varPromo.TGL_MULAI.Value.AddHours(-7)).ToUnixTimeSeconds();
+        //            long endtime = ((DateTimeOffset)varPromo.TGL_AKHIR.Value.AddHours(-7)).ToUnixTimeSeconds();
+
+        //            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+        //            {
+        //                //REQUEST_ID = seconds.ToString(),
+        //                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+        //                REQUEST_ACTION = "Add Discount",
+        //                REQUEST_DATETIME = milisBack,
+        //                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+        //                REQUEST_ATTRIBUTE_2 = recNumPromosi.ToString(),
+        //                REQUEST_STATUS = "Pending",
+        //            };
+
+        //            //string urll = "https://partner.shopeemobile.com/api/v1/discount/add";
+
+        //            ShopeeAddDiscountData HttpBody = new ShopeeAddDiscountData
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                discount_name = varPromo.NAMA_PROMOSI,
+        //                start_time = starttime,
+        //                end_time = endtime,
+        //                items = new List<ShopeeAddDiscountDataItems>()
+        //            };
+        //            try
+        //            {
+        //                foreach (var promoDetail in varPromoDetail)
+        //                {
+        //                    var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG.Equals(promoDetail.KODE_BRG) && t.IDMARKET == arf01.RecNum).FirstOrDefault();
+        //                    if (brgInDB != null)
+        //                    {
+        //                        promoPrice = promoDetail.HARGA_PROMOSI;
+        //                        if (promoPrice == 0)
+        //                        {
+        //                            promoPrice = brgInDB.HJUAL - (brgInDB.HJUAL * promoDetail.PERSEN_PROMOSI / 100);
+        //                        }
+        //                        string[] brg_mp = new string[1];
+        //                        if (!string.IsNullOrEmpty(brgInDB.BRG_MP))
+        //                            brg_mp = brgInDB.BRG_MP.Split(';');
+        //                        if (brg_mp.Count() == 2)
+        //                        {
+        //                            if (brg_mp[1] == "0")
+        //                            {
+        //                                ShopeeAddDiscountDataItems item = new ShopeeAddDiscountDataItems()
+        //                                {
+        //                                    item_id = Convert.ToInt64(brg_mp[0]),
+        //                                    item_promotion_price = (float)promoPrice,
+        //                                    purchase_limit = (UInt32)(promoDetail.MAX_QTY == 0 ? 2 : promoDetail.MAX_QTY),
+        //                                    variations = new List<ShopeeAddDiscountDataItemsVariation>()
+        //                                };
+        //                                //item.variations.Add(new ShopeeAddDiscountDataItemsVariation()
+        //                                //{
+        //                                //    variation_id = 0,
+        //                                //    variation_promotion_price = (float)0.1
+        //                                //});
+        //                                HttpBody.items.Add(item);
+        //                            }
+        //                            else /*if (brg_mp[1] == "0")*/
+        //                            {
+        //                                ShopeeAddDiscountDataItems item = new ShopeeAddDiscountDataItems()
+        //                                {
+        //                                    item_id = Convert.ToInt64(brg_mp[0]),
+        //                                    item_promotion_price = (float)promoPrice,
+        //                                    //purchase_limit = 10,
+        //                                    purchase_limit = (UInt32)(promoDetail.MAX_QTY == 0 ? 2 : promoDetail.MAX_QTY),
+        //                                    variations = new List<ShopeeAddDiscountDataItemsVariation>()
+        //                                };
+        //                                item.variations.Add(new ShopeeAddDiscountDataItemsVariation()
+        //                                {
+        //                                    variation_id = Convert.ToInt64(brg_mp[1]),
+        //                                    //variation_promotion_price = (float)promoDetail.HARGA_PROMOSI
+        //                                    variation_promotion_price = (float)promoPrice,
+        //                                });
+        //                                HttpBody.items.Add(item);
+        //                            }
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //                ret = currentLog.REQUEST_EXCEPTION;
+        //                return ret;
+        //            }
+
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //                ret = currentLog.REQUEST_EXCEPTION;
+        //                return ret;
+        //            }
+
+        //            if (responseFromServer != null)
+        //            {
+        //                try
+        //                {
+        //                    var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCreatePromoRes)) as ShopeeCreatePromoRes;
+        //                    if (resServer != null)
+        //                    {
+        //                        if (string.IsNullOrEmpty(resServer.error))
+        //                        {
+        //                            EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE PROMOSIS SET MP_PROMO_ID = '" + resServer.discount_id + "' WHERE RECNUM = " + recNumPromosi);
+        //                            //if(resServer.errors.Count == 0)
+        //                            if (resServer.errors == null)
+        //                            {
+        //                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+        //                            }
+        //                            else
+        //                            {
+        //                                foreach (var err in resServer.errors)
+        //                                {
+        //                                    currentLog.REQUEST_RESULT += "brg_mp:" + err.item_id + ";" + err.variation_id + ",error:" + err.error_msg + "\n";
+        //                                }
+        //                                ret = currentLog.REQUEST_RESULT;
+        //                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+        //                            }
+        //                        }
+        //                        else
+        //                        {
+        //                            currentLog.REQUEST_RESULT = resServer.error + " " + resServer.msg;
+        //                            ret = currentLog.REQUEST_RESULT;
+        //                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+        //                        }
+        //                    }
+        //                }
+        //                catch (Exception ex2)
+        //                {
+        //                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+        //                    ret = currentLog.REQUEST_EXCEPTION;
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //                }
+        //            }
+        //            return ret;
+        //        }
+
+        //        public async Task<string> AddDiscountItem(ShopeeAPIData iden, long discount_id, DetailPromosi detilPromosi)
+        //        {
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            string ret = "";
+        //            string urll = "https://partner.shopeemobile.com/api/v1/discount/items/add";
+        //            if (!string.IsNullOrEmpty(iden.token))
+        //            {
+        //                MOPartnerID = MOPartnerIDV2;
+        //                MOPartnerKey = MOPartnerKeyV2;
+        //                urll = shopeeV2Url + "/api/v1/discount/items/add";
+        //            }
+        //            double promoPrice;
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            var arf01 = ErasoftDbContext.ARF01.Where(p => p.Sort1_Cust == iden.merchant_code).FirstOrDefault();
+
+        //            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+        //            {
+        //                //REQUEST_ID = seconds.ToString(),
+        //                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+        //                REQUEST_ACTION = "Add Discount Item",
+        //                REQUEST_DATETIME = milisBack,
+        //                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+        //                REQUEST_ATTRIBUTE_2 = detilPromosi.KODE_BRG,
+        //                REQUEST_STATUS = "Pending",
+        //            };
+
+        //            //string urll = "https://partner.shopeemobile.com/api/v1/discount/items/add";
+
+        //            ShopeeAddDiscountItemData HttpBody = new ShopeeAddDiscountItemData
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                discount_id = discount_id,
+        //                items = new List<ShopeeAddDiscountDataItems>()
+        //            };
+
+        //            var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG.Equals(detilPromosi.KODE_BRG) && t.IDMARKET == arf01.RecNum).FirstOrDefault();
+        //            if (brgInDB != null)
+        //            {
+        //                promoPrice = detilPromosi.HARGA_PROMOSI;
+        //                if (promoPrice == 0)
+        //                {
+        //                    promoPrice = brgInDB.HJUAL - (brgInDB.HJUAL * detilPromosi.PERSEN_PROMOSI / 100);
+        //                }
+        //                //string[] brg_mp = brgInDB.BRG_MP.Split(';');
+        //                string[] brg_mp = new string[1];
+        //                if (!string.IsNullOrEmpty(brgInDB.BRG_MP))
+        //                    brg_mp = brgInDB.BRG_MP.Split(';');
+        //                if (brg_mp.Count() == 2)
+        //                {
+        //                    if (brg_mp[1] == "0")
+        //                    {
+        //                        ShopeeAddDiscountDataItems item = new ShopeeAddDiscountDataItems()
+        //                        {
+        //                            item_id = Convert.ToInt64(brg_mp[0]),
+        //                            //item_promotion_price = (float)detilPromosi.HARGA_PROMOSI,
+        //                            item_promotion_price = (float)promoPrice,
+        //                            //purchase_limit = 10,
+        //                            purchase_limit = (UInt32)(detilPromosi.MAX_QTY == 0 ? 2 : detilPromosi.MAX_QTY),
+        //                            variations = new List<ShopeeAddDiscountDataItemsVariation>()
+        //                        };
+        //                        //item.variations.Add(new ShopeeAddDiscountDataItemsVariation()
+        //                        //{
+        //                        //    variation_id = 0,
+        //                        //    variation_promotion_price = 0
+        //                        //});
+        //                        HttpBody.items.Add(item);
+        //                    }
+        //                    else/* if (brg_mp[1] == "0")*/
+        //                    {
+        //                        ShopeeAddDiscountDataItems item = new ShopeeAddDiscountDataItems()
+        //                        {
+        //                            item_id = Convert.ToInt64(brg_mp[0]),
+        //                            //item_promotion_price = (float)detilPromosi.HARGA_PROMOSI,
+        //                            item_promotion_price = (float)promoPrice,
+        //                            //purchase_limit = 10,
+        //                            purchase_limit = (UInt32)(detilPromosi.MAX_QTY == 0 ? 2 : detilPromosi.MAX_QTY),
+        //                            variations = new List<ShopeeAddDiscountDataItemsVariation>()
+        //                        };
+        //                        item.variations.Add(new ShopeeAddDiscountDataItemsVariation()
+        //                        {
+        //                            variation_id = Convert.ToInt64(brg_mp[1]),
+        //                            //variation_promotion_price = (float)detilPromosi.HARGA_PROMOSI
+        //                            variation_promotion_price = (float)promoPrice,
+        //                        });
+        //                        HttpBody.items.Add(item);
+        //                    }
+        //                }
+        //            }
+
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //                ret = currentLog.REQUEST_EXCEPTION;
+        //            }
+
+        //            if (responseFromServer != null)
+        //            {
+        //                try
+        //                {
+        //                    var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCreatePromoRes)) as ShopeeCreatePromoRes;
+        //                    if (resServer != null)
+        //                    {
+        //                        if (string.IsNullOrEmpty(resServer.error))
+        //                        {
+        //                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+        //                            //if (resServer.errors.Count == 0)
+        //                            if (resServer.errors == null)
+        //                            {
+        //                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+        //                            }
+        //                            else
+        //                            {
+        //                                foreach (var err in resServer.errors)
+        //                                {
+        //                                    currentLog.REQUEST_RESULT += "brg_mp:" + err.item_id + ";" + err.variation_id + ",error:" + err.error_msg + "\n";
+        //                                }
+        //                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+        //                                ret = currentLog.REQUEST_RESULT;
+        //                            }
+        //                        }
+        //                        else
+        //                        {
+        //                            currentLog.REQUEST_RESULT = resServer.error + " " + resServer.msg;
+        //                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+        //                            ret = currentLog.REQUEST_RESULT;
+        //                        }
+        //                    }
+        //                }
+        //                catch (Exception ex2)
+        //                {
+        //                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //                    ret = currentLog.REQUEST_EXCEPTION;
+        //                }
+        //            }
+        //            return ret;
+        //        }
+        //        public async Task<string> DeleteDiscount(ShopeeAPIData iden, long discount_id)
+        //        {
+        //            //Use this api to delete one discount activity BEFORE it starts.
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            string ret = "";
+        //            string urll = "https://partner.shopeemobile.com/api/v1/discount/delete";
+        //            if (!string.IsNullOrEmpty(iden.token))
+        //            {
+        //                MOPartnerID = MOPartnerIDV2;
+        //                MOPartnerKey = MOPartnerKeyV2;
+        //                urll = shopeeV2Url + "/api/v1/discount/delete";
+        //            }
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            var arf01 = ErasoftDbContext.ARF01.Where(p => p.Sort1_Cust == iden.merchant_code).FirstOrDefault();
+
+        //            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+        //            {
+        //                //REQUEST_ID = seconds.ToString(),
+        //                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+        //                REQUEST_ACTION = "Delete Discount",
+        //                REQUEST_DATETIME = milisBack,
+        //                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+        //                REQUEST_ATTRIBUTE_2 = discount_id.ToString(),
+        //                REQUEST_STATUS = "Pending",
+        //            };
+
+        //            //string urll = "https://partner.shopeemobile.com/api/v1/discount/delete";
+
+        //            ShopeeDeleteDiscountData HttpBody = new ShopeeDeleteDiscountData
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                discount_id = discount_id,
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //                ret = currentLog.REQUEST_EXCEPTION;
+        //            }
+
+        //            if (responseFromServer != null)
+        //            {
+        //                try
+        //                {
+        //                    var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeDeleteDiscountData)) as ShopeeDeleteDiscountData;
+        //                    if (resServer != null)
+        //                    {
+        //                        if (string.IsNullOrEmpty(resServer.error))
+        //                        {
+        //                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+        //                            //if (resServer.errors.Count == 0)
+        //                            if (resServer.errors == null)
+        //                            {
+        //                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+        //                            }
+        //                            else
+        //                            {
+        //                                foreach (var err in resServer.errors)
+        //                                {
+        //                                    currentLog.REQUEST_RESULT += "brg_mp:" + err.item_id + ";" + err.variation_id + ",error:" + err.error_msg + "\n";
+        //                                }
+        //                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+        //                                ret = currentLog.REQUEST_RESULT;
+        //                            }
+        //                        }
+        //                        else
+        //                        {
+        //                            currentLog.REQUEST_RESULT = resServer.error + " " + resServer.msg;
+        //                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+        //                            ret = currentLog.REQUEST_RESULT;
+        //                        }
+        //                    }
+        //                }
+        //                catch (Exception ex2)
+        //                {
+        //                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //                    ret = currentLog.REQUEST_EXCEPTION;
+        //                }
+        //            }
+        //            return ret;
+        //        }
+        //        public async Task<string> DeleteDiscountItem(ShopeeAPIData iden, long discount_id, DetailPromosi detilPromosi)
+        //        {
+        //            //Use this api to delete items of the discount activity
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            string ret = "";
+        //            string urll = "https://partner.shopeemobile.com/api/v1/discount/item/delete";
+        //            if (!string.IsNullOrEmpty(iden.token))
+        //            {
+        //                MOPartnerID = MOPartnerIDV2;
+        //                MOPartnerKey = MOPartnerKeyV2;
+        //                urll = shopeeV2Url + "/api/v1/discount/item/delete";
+        //            }
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            var arf01 = ErasoftDbContext.ARF01.Where(p => p.Sort1_Cust == iden.merchant_code).FirstOrDefault();
+
+        //            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+        //            {
+        //                //REQUEST_ID = seconds.ToString(),
+        //                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+        //                REQUEST_ACTION = "Delete Discount Item",
+        //                REQUEST_DATETIME = milisBack,
+        //                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+        //                REQUEST_ATTRIBUTE_2 = detilPromosi.KODE_BRG,
+        //                REQUEST_STATUS = "Pending",
+        //            };
+
+        //            //string urll = "https://partner.shopeemobile.com/api/v1/discount/item/delete";
+
+        //            ShopeeDeleteDiscountItemData HttpBody = new ShopeeDeleteDiscountItemData
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                discount_id = discount_id,
+        //            };
+
+        //            var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG.Equals(detilPromosi.KODE_BRG) && t.IDMARKET == arf01.RecNum).FirstOrDefault();
+        //            string[] brg_mp = new string[1];
+        //            if (!string.IsNullOrEmpty(brgInDB.BRG_MP))
+        //                brg_mp = brgInDB.BRG_MP.Split(';');
+        //            //string[] brg_mp = brgInDB.BRG_MP.Split(';');
+        //            if (brg_mp.Count() == 2)
+        //            {
+        //                //if(brg_mp[1] == "0")
+        //                //{
+        //                HttpBody.item_id = Convert.ToInt64(brg_mp[0]);
+        //                //}
+        //                //else
+        //                //{
+        //                HttpBody.variation_id = Convert.ToInt64(brg_mp[1]);
+        //                //}
+        //            }
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //                ret = currentLog.REQUEST_EXCEPTION;
+        //            }
+
+        //            if (responseFromServer != null)
+        //            {
+        //                try
+        //                {
+        //                    var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeDeleteDiscountItemData)) as ShopeeDeleteDiscountItemData;
+        //                    if (resServer != null)
+        //                    {
+        //                        if (string.IsNullOrEmpty(resServer.error))
+        //                        {
+        //                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+        //                            //if (resServer.errors.Count == 0)
+        //                            if (resServer.errors == null)
+        //                            {
+        //                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+        //                            }
+        //                            else
+        //                            {
+        //                                foreach (var err in resServer.errors)
+        //                                {
+        //                                    currentLog.REQUEST_RESULT += "brg_mp:" + err.item_id + ";" + err.variation_id + ",error:" + err.error_msg + "\n";
+        //                                }
+        //                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+        //                                ret = currentLog.REQUEST_RESULT;
+        //                            }
+        //                        }
+        //                        else
+        //                        {
+        //                            currentLog.REQUEST_RESULT = resServer.error + " " + resServer.msg;
+        //                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+        //                            ret = currentLog.REQUEST_RESULT;
+        //                        }
+        //                    }
+        //                }
+        //                catch (Exception ex2)
+        //                {
+        //                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //                    ret = currentLog.REQUEST_EXCEPTION;
+        //                }
+        //            }
+        //            return ret;
+        //        }
+
+        //        public async Task<ShopeeGetAddressResult> GetAddress(ShopeeAPIData iden)
+        //        {
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            var ret = new ShopeeGetAddressResult();
+        //            string urll = "https://partner.shopeemobile.com/api/v1/logistics/address/get";
+        //            if (!string.IsNullOrEmpty(iden.token))
+        //            {
+        //                MOPartnerID = MOPartnerIDV2;
+        //                MOPartnerKey = MOPartnerKeyV2;
+        //                urll = shopeeV2Url + "/api/v1/logistics/address/get";
+        //            }
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            //string urll = "https://partner.shopeemobile.com/api/v1/logistics/address/get";
+
+        //            ShopeeGetAddressData HttpBody = new ShopeeGetAddressData
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //            }
+
+        //            if (responseFromServer != null)
+        //            {
+        //                try
+        //                {
+        //                    ret = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetAddressResult)) as ShopeeGetAddressResult;
+
+        //                }
+        //                catch (Exception ex2)
+        //                {
+        //                }
+        //            }
+        //            return ret;
+        //        }
+        //        public async Task<ShopeeGetTimeSlotResult> GetLabel(ShopeeAPIData iden, bool is_batch, List<string> ordersn_list)
+        //        {
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            var ret = new ShopeeGetTimeSlotResult();
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            string urll = "https://partner.shopeemobile.com/api/v1/logistics/airway_bill/get_mass";
+
+        //            ShopeeGetAirwayBill HttpBody = new ShopeeGetAirwayBill
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                is_batch = is_batch,
+        //                ordersn_list = ordersn_list
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            //try
+        //            //{
+        //            myReq.ContentLength = myData.Length;
+        //            using (var dataStream = myReq.GetRequestStream())
+        //            {
+        //                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //            }
+        //            using (WebResponse response = await myReq.GetResponseAsync())
+        //            {
+        //                using (Stream stream = response.GetResponseStream())
+        //                {
+        //                    StreamReader reader = new StreamReader(stream);
+        //                    responseFromServer = reader.ReadToEnd();
+        //                }
+        //            }
+        //            //}
+        //            //catch (Exception ex)
+        //            //{
+        //            //}
+
+        //            if (responseFromServer != "")
+        //            {
+
+        //            }
+        //            return ret;
+        //        }
+        //        public async Task<ShopeeGetTimeSlotResult> GetTimeSlot(ShopeeAPIData iden, long address_id, string ordersn)
+        //        {
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            var ret = new ShopeeGetTimeSlotResult();
+        //            string urll = "https://partner.shopeemobile.com/api/v1/logistics/timeslot/get";
+        //            if (!string.IsNullOrEmpty(iden.token))
+        //            {
+        //                MOPartnerID = MOPartnerIDV2;
+        //                MOPartnerKey = MOPartnerKeyV2;
+        //                urll = shopeeV2Url + "/api/v1/logistics/timeslot/get";
+        //            }
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            //string urll = "https://partner.shopeemobile.com/api/v1/logistics/timeslot/get";
+
+        //            ShopeeGetTimeSlotData HttpBody = new ShopeeGetTimeSlotData
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                address_id = address_id,
+        //                ordersn = ordersn
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //            }
+
+        //            if (responseFromServer != null)
+        //            {
+        //                try
+        //                {
+        //                    ret = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetTimeSlotResult)) as ShopeeGetTimeSlotResult;
+        //                    if (ret.pickup_time != null)
+        //                    {
+        //                        foreach (var item in ret.pickup_time)
+        //                        {
+        //                            System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+        //                            dtDateTime = dtDateTime.AddSeconds(item.date).ToLocalTime();
+        //                            if (!string.IsNullOrWhiteSpace(item.time_text))
+        //                            {
+        //                                item.date_string = item.time_text;
+        //                            }
+        //                            else
+        //                            {
+        //                                item.date_string = dtDateTime.ToString("dd MMMM yyyy HH:mm:ss");
+        //                            }
+        //                        }
+        //                    }
+        //                    else
+        //                    {
+        //                        var err = JsonConvert.DeserializeObject(responseFromServer, typeof(GetPickupTimeSlotError)) as GetPickupTimeSlotError;
+        //                        ShopeeGetTimeSlotResultPickup_Time errItem = new ShopeeGetTimeSlotResultPickup_Time()
+        //                        {
+        //                            pickup_time_id = "-1",
+        //                            date_string = "Order sudah Expired."
+        //                        };
+        //                        ret.pickup_time = new ShopeeGetTimeSlotResultPickup_Time[1];
+        //                        ret.pickup_time[0] = (errItem);
+        //                    }
+        //                }
+        //                catch (Exception ex2)
+        //                {
+        //                }
+        //            }
+        //            return ret;
+        //        }
+        //        public async Task<string> GetBranch(ShopeeAPIData iden, string ordersn)
+        //        {
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            string ret = "";
+        //            string urll = "https://partner.shopeemobile.com/api/v1/logistics/branch/get";
+        //            if (!string.IsNullOrEmpty(iden.token))
+        //            {
+        //                MOPartnerID = MOPartnerIDV2;
+        //                MOPartnerKey = MOPartnerKeyV2;
+        //                urll = shopeeV2Url + "/api/v1/logistics/branch/get";
+        //            }
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            //string urll = "https://partner.shopeemobile.com/api/v1/logistics/branch/get";
+
+        //            ShopeeGetBranchData HttpBody = new ShopeeGetBranchData
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                ordersn = ordersn
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //            }
+
+        //            if (responseFromServer != null)
+        //            {
+        //                try
+        //                {
+        //                    //var listBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetItemListResult)) as ShopeeGetItemListResult;
+
+        //                }
+        //                catch (Exception ex2)
+        //                {
+        //                }
+        //            }
+        //            return ret;
+        //        }
+
+        //        public async Task<string> Template(ShopeeAPIData iden)
+        //        {
+        //            int MOPartnerID = 841371;
+        //            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+        //            string ret = "";
+
+        //            long seconds = CurrentTimeSecond();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+        //            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+        //            {
+        //                REQUEST_ID = seconds.ToString(),
+        //                REQUEST_ACTION = "Get Item List", //ganti
+        //                REQUEST_DATETIME = milisBack,
+        //                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+        //                REQUEST_STATUS = "Pending",
+        //            };
+
+        //            //ganti
+        //            string urll = "https://partner.shopeemobile.com/api/v1/items/get";
+
+        //            //ganti
+        //            ShopeeGetItemListData HttpBody = new ShopeeGetItemListData
+        //            {
+        //                partner_id = MOPartnerID,
+        //                shopid = Convert.ToInt32(iden.merchant_code),
+        //                timestamp = seconds,
+        //                pagination_offset = 0,
+        //                pagination_entries_per_page = 100
+        //            };
+
+        //            string myData = JsonConvert.SerializeObject(HttpBody);
+
+        //            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "POST";
+        //            myReq.Headers.Add("Authorization", signature);
+        //            myReq.Accept = "application/json";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                myReq.ContentLength = myData.Length;
+        //                using (var dataStream = myReq.GetRequestStream())
+        //                {
+        //                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                }
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //            }
+
+        //            if (responseFromServer != null)
+        //            {
+        //                try
+        //                {
+        //                    //ganti
+        //                    var listBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetItemListResult)) as ShopeeGetItemListResult;
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+
+        //                }
+        //                catch (Exception ex2)
+        //                {
+        //                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //                }
+        //            }
+        //            return ret;
+        //        }
 
         [HttpGet]
         public string ShopeeUrl(string cust)
@@ -7324,6 +7324,7 @@ namespace MasterOnline.Controllers
         //add by nurul 21/9/2021
         public async Task<Rootobject> GetConversationList(ShopeeAPIDataChat dataAPI, string direction, string type, string next_timestamp_nano)
         {
+            SetupContext(dataAPI);
             dataAPI = await RefreshTokenShopee_V2(dataAPI, false);
             int MOPartnerID = MOPartnerIDV2;
             string MOPartnerKey = MOPartnerKeyV2;
@@ -7397,20 +7398,22 @@ namespace MasterOnline.Controllers
                     {
                         ret = result;
 
-                        if (loop_page == 0)
-                        {
-                            var sSQL = "DELETE FROM SHOPEE_LISTCONVERSATION WHERE SHOP_ID ='" + dataAPI.merchant_code + "'";
-                            var resultquery = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                        //if (loop_page == 0)
+                        //{
+                        //    var sSQL = "DELETE FROM SHOPEE_LISTCONVERSATION WHERE SHOP_ID ='" + dataAPI.merchant_code + "'";
+                        //    var resultquery = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
 
-                            loop_page = 1;
-                        }
+                        //    loop_page = 1;
+                        //}
 
                         var listConversation = new List<SHOPEE_LISTCONVERSATION>() { };
                         if (result.response.conversations.Count() > 0)
                         {
+                            var listMessage = new List<SHOPEE_LISTCONVERSATION>() { };
                             var dateNow = DateTime.UtcNow.AddHours(7);
                             //var dateLast1Month = dateNow.AddMonths(-1);
                             var dateLast1Month = dateNow.AddDays(-14);
+                            var listConv = result.response.conversations.OrderByDescending(a => a.last_message_timestamp).ToList();
 
                             var cust = ErasoftDbContext.ARF01.Where(a => a.API_KEY == dataAPI.API_secret_key && a.Sort1_Cust == dataAPI.merchant_code).FirstOrDefault();
                             if (cust != null)
@@ -7420,13 +7423,14 @@ namespace MasterOnline.Controllers
 
                                 while (!lastGetMessage)
                                 {
-                                    foreach (var msg in result.response.conversations)
+                                    //foreach (var msg in result.response.conversations)
+                                    foreach (var msg in listConv)
                                     {
                                         var txtmsg = "";
-                                        if (msg.latest_message_type == "text")
-                                        {
+                                        //if (msg.latest_message_type == "text")
+                                        //{
                                             txtmsg = msg.latest_message_type;
-                                        }
+                                        //}
 
                                         //var date_last_message_timestamp = DateTime.UtcNow.AddHours(7).AddSeconds(msg.last_message_timestamp);
                                         //var date_last_message_timestamp = DateTimeOffset.FromUnixTimeSeconds(msg.last_message_timestamp).UtcDateTime.AddHours(7);
@@ -7435,13 +7439,22 @@ namespace MasterOnline.Controllers
                                         var date_last_message_timestamp = DateTimeOffset.FromUnixTimeSeconds((msg.last_message_timestamp) / 1000000000).UtcDateTime.AddHours(7);
                                         var last_message_timestamp = date_last_message_timestamp.ToString("yyyy-MM-dd HH:mm:ss");
 
+                                        var text = "";
+                                        if(msg.latest_message_content != null)
+                                        {
+                                            if (!string.IsNullOrEmpty(msg.latest_message_content.text))
+                                            {
+                                                text = msg.latest_message_content.text;
+                                            }
+                                        }
+
                                         var message = new SHOPEE_LISTCONVERSATION
                                         {
                                             conversation_id = msg.conversation_id,
                                             last_message_option = msg.last_message_option,
                                             last_message_timestamp = Convert.ToDateTime(last_message_timestamp),
                                             last_read_message_id = msg.last_read_message_id,
-                                            latest_message_content_text = msg.latest_message_content.text,
+                                            latest_message_content_text = text,
                                             latest_message_content_url = "",
                                             latest_message_from_id = msg.latest_message_from_id,
                                             latest_message_id = msg.latest_message_id,
@@ -7453,6 +7466,7 @@ namespace MasterOnline.Controllers
                                             to_id = msg.to_id,
                                             to_name = msg.to_name,
                                             unread_count = msg.unread_count,
+                                            cust = cust.CUST
                                         };
                                         //masukin sampe -1 bulan 
                                         if (Convert.ToDateTime(last_message_timestamp) < dateLast1Month)
@@ -7460,17 +7474,51 @@ namespace MasterOnline.Controllers
                                             lastGetMessage = true; break;
                                         }
 
-                                        //hanya masukin yg blm ada di list Conversation
+                                        ////hanya masukin yg blm ada di list Conversation
+                                        //if (!cekListMessage.Contains(message.conversation_id))
+                                        //{
+                                        //    listConversation.Add(message);
+                                        //    var cekListChat = ErasoftDbContext.SHOPEE_MESSAGE.AsNoTracking().Where(a => a.conversation_id == message.conversation_id).Count();
+                                        //    if (cekListChat == 0)
+                                        //    {
+                                        //        await GetGetMessage(dataAPI, message.conversation_id, "");
+                                        //    }
+                                        //}
+
+
+                                        var cekExistingDetail = ErasoftDbContext.SHOPEE_MESSAGE.Where(a => a.conversation_id == message.conversation_id && a.created_timestamp >= dateLast1Month).ToList();
+                                        if (cekExistingDetail.Count() > 0)
+                                        {
+                                            ErasoftDbContext.SHOPEE_MESSAGE.RemoveRange(cekExistingDetail);
+                                        }
                                         if (!cekListMessage.Contains(message.conversation_id))
                                         {
                                             listConversation.Add(message);
-                                            var cekListChat = ErasoftDbContext.SHOPEE_MESSAGE.AsNoTracking().Where(a => a.conversation_id == message.conversation_id).Count();
-                                            if (cekListChat == 0)
+                                            ErasoftDbContext.SaveChanges();
+                                            ////var cekListChat = ErasoftDbContext.TOKPED_LISTCHAT.AsNoTracking().Where(b => b.msg_id == message.msg_id && b.CUST == cust.CUST).Count();
+                                            ////if (cekListChat == 0)
+                                            ////{
+                                            ////await ListReply(iden, message.msg_id, 1);
+                                            //Task.Run(() => GetGetMessage(dataAPI, message.conversation_id, "")).Wait();
+                                            await GetGetMessage(dataAPI, message.conversation_id, "");
+                                            ////}
+                                        }
+                                        else
+                                        {
+                                            var getConversation = ErasoftDbContext.SHOPEE_LISTCONVERSATION.Where(a => a.conversation_id == message.conversation_id).FirstOrDefault();
+                                            if (getConversation != null)
                                             {
+                                                getConversation.last_message_timestamp = message.last_message_timestamp;
+                                                getConversation.unread_count = message.unread_count;
+                                                getConversation.latest_message_content_text = message.latest_message_content_text;
+                                                ErasoftDbContext.SaveChanges();
+                                                ////await ListReply(iden, message.msg_id, 1);
+                                                //Task.Run(() => GetGetMessage(dataAPI, message.conversation_id, "")).Wait();
                                                 await GetGetMessage(dataAPI, message.conversation_id, "");
                                             }
                                         }
                                     }
+                                    lastGetMessage = true; break;
                                 }
 
                                 if (listConversation.Count() > 0)
@@ -7478,20 +7526,25 @@ namespace MasterOnline.Controllers
                                     ErasoftDbContext.SHOPEE_LISTCONVERSATION.AddRange(listConversation);
                                     ErasoftDbContext.SaveChanges();
                                 }
-                            }
+                                //if (!lastGetMessage)
+                                //{
+                                //    var nextMessage = await GetConversationList(dataAPI, direction, type, next_timestamp_nano + 1);
+                                //    //ret.AddRange(nextOrders);
+                                //}
 
-                            if (string.IsNullOrEmpty(next_timestamp_nano)) //page 1
-                            {
-                                if (result.response.page_result.next_cursor.next_message_time_nano != "0") // has possibility the next page exist
+                                if (string.IsNullOrEmpty(next_timestamp_nano)) //page 1
                                 {
-                                    await GetConversationList(dataAPI, direction, type, result.response.page_result.next_cursor.next_message_time_nano);
+                                    if (result.response.page_result.next_cursor.next_message_time_nano != "0") // has possibility the next page exist
+                                    {
+                                        await GetConversationList(dataAPI, direction, type, result.response.page_result.next_cursor.next_message_time_nano);
+                                    }
                                 }
-                            }
-                            else
-                            {
-                                if (result.response.page_result.next_cursor.next_message_time_nano != "0")
+                                else
                                 {
-                                    await GetConversationList(dataAPI, direction, type, result.response.page_result.next_cursor.next_message_time_nano);
+                                    if (result.response.page_result.next_cursor.next_message_time_nano != "0")
+                                    {
+                                        await GetConversationList(dataAPI, direction, type, result.response.page_result.next_cursor.next_message_time_nano);
+                                    }
                                 }
                             }
                         }
@@ -7509,6 +7562,7 @@ namespace MasterOnline.Controllers
 
         public async Task<RootobjectGetMsg> GetGetMessage(ShopeeAPIDataChat dataAPI, string conversation_id, string offset)
         {
+            SetupContext(dataAPI);
             dataAPI = await RefreshTokenShopee_V2(dataAPI, false);
             int MOPartnerID = MOPartnerIDV2;
             string MOPartnerKey = MOPartnerKeyV2;
@@ -7591,7 +7645,7 @@ namespace MasterOnline.Controllers
                             var cust = ErasoftDbContext.ARF01.Where(a => a.API_KEY == dataAPI.API_secret_key && a.Sort1_Cust == dataAPI.merchant_code).FirstOrDefault();
                             if (cust != null)
                             {
-                                var cekListMessage = ErasoftDbContext.SHOPEE_MESSAGE.Select(a => a.message_id).ToList();
+                                //var cekListMessage = ErasoftDbContext.SHOPEE_MESSAGE.Select(a => a.message_id).ToList();
                                 var lastGetMessage = false;
                                 while (!lastGetMessage)
                                 {
@@ -7650,14 +7704,99 @@ namespace MasterOnline.Controllers
                                             url = msg.content.url;
                                         }
 
+                                        long t_height = 0;
+                                        long t_widht = 0;
+                                        long duration_s = 0;
+                                        var t_url = "";
                                         var text = "";
-                                        if (string.IsNullOrEmpty(msg.content.text))
+                                        if (msg.message_type == "text")
                                         {
-                                            text = "";
+                                            if (!string.IsNullOrEmpty(msg.content.text))
+                                            {
+                                                text = msg.content.text;
+                                            }
+                                            else
+                                            {
+                                                text = "*Ada pesan baru masuk dengan tipe " + msg.message_type + ".";
+                                            }
+                                        }else if(msg.message_type == "video")
+                                        {
+                                            if (!string.IsNullOrEmpty(msg.content.video_url))
+                                            {
+                                                //text = "https://cvf.shopee.co.id/file/" + msg.content.video_url;
+                                                var url_ = "https://cvf.shopee.co.id/file/" + msg.content.video_url;
+                                                text = "<u><a rel=\"nofollow\" target=\"_blank\" href=\"" + url_ + "\">Link Video</a></u>";
+                                                t_url = msg.content.thumb_url;
+                                                t_height = msg.content.thumb_height;
+                                                t_widht = msg.content.thumb_width;
+                                                duration_s = msg.content.duration_seconds;
+                                            }
+                                            else
+                                            {
+                                                text = "*Ada pesan baru masuk dengan tipe " + msg.message_type + ".";
+                                                t_url = msg.content.thumb_url;
+                                                t_height = msg.content.thumb_height;
+                                                t_widht = msg.content.thumb_width;
+                                                duration_s = msg.content.duration_seconds;
+                                            }
+                                        }else if(msg.message_type == "image")
+                                        {
+                                            if (!string.IsNullOrEmpty(msg.content.url))
+                                            {
+                                                //text = msg.content.url;
+                                                var url_ = msg.content.url;
+                                                text = "<u><a rel=\"nofollow\" target=\"_blank\" href=\"" + url_ + "\">Link Gambar</a></u>";
+                                                t_url = msg.content.thumb_url;
+                                                t_height = msg.content.thumb_height;
+                                                t_widht = msg.content.thumb_width;
+                                                file_server_id = msg.content.file_server_id;
+                                            }
+                                            else
+                                            {
+                                                text = "*Ada pesan baru masuk dengan tipe " + msg.message_type + ".";
+                                                t_url = msg.content.thumb_url;
+                                                t_height = msg.content.thumb_height;
+                                                t_widht = msg.content.thumb_width;
+                                                file_server_id = msg.content.file_server_id;
+                                            }
+                                        }else if(msg.message_type== "order")
+                                        {
+                                            if (!string.IsNullOrEmpty(msg.content.order_sn))
+                                            {
+                                                //text = "https://seller.shopee.co.id/portal/sale/order/?search=" + msg.content.order_sn;
+                                                var url_ = "https://seller.shopee.co.id/portal/sale/order/?search=" + msg.content.order_sn;
+                                                text = "<u><a rel=\"nofollow\" target=\"_blank\" href=\"" + url_ + "\">Link Pesanan " + msg.content.order_sn +  "</a></u>";
+                                            }
+                                            else
+                                            {
+                                                text = "*Ada pesan baru masuk dengan tipe " + msg.message_type + ".";
+                                            }
+                                        }else if(msg.message_type == "item")
+                                        {
+                                            if (!string.IsNullOrEmpty(msg.content.item_id.ToString()))
+                                            {
+                                                //text = "https://shopee.co.id/product/" + dataAPI.merchant_code + "/" + msg.content.item_id.ToString();
+                                                var url_ = "https://shopee.co.id/product/" + dataAPI.merchant_code + "/" + msg.content.item_id.ToString();
+                                                text = "<u><a rel=\"nofollow\" target=\"_blank\" href=\"" + url_ + "\">Link Produk " + msg.content.item_id.ToString() + "</a></u>";
+                                            }
+                                            else
+                                            {
+                                                text = "*Ada pesan baru masuk dengan tipe " + msg.message_type + ".";
+                                            }
+                                        }else if(msg.message_type== "sticker")
+                                        {
+                                            if (!string.IsNullOrEmpty(msg.content.sticker_id))
+                                            {
+                                                text = "Sticker id : " + msg.content.sticker_id + " " + msg.content.sticker_package_id;
+                                            }
+                                            else
+                                            {
+                                                text = "*Ada pesan baru masuk dengan tipe " + msg.message_type + ".";
+                                            }
                                         }
                                         else
                                         {
-                                            text = msg.content.text;
+                                            text = "*Ada pesan baru masuk dengan tipe " + msg.message_type + ".";
                                         }
 
                                         var source = "";
@@ -7702,6 +7841,12 @@ namespace MasterOnline.Controllers
                                             content_chat_product_infos_shop_id = 0,
                                             content_chat_product_infos_snap_shop_id = 0,
                                             content_chat_product_infos_thumb_url = "",
+                                            cust = cust.CUST,
+
+                                            thumb_url = t_url,
+                                            thumb_height = t_height,
+                                            thumb_width = t_widht,
+                                            duration_seconds = duration_s,
                                         };
                                         //masukin sampe -1 bulan 
                                         //if (message.last_reply_time < dateLast1Month)
@@ -7716,47 +7861,82 @@ namespace MasterOnline.Controllers
                                         //    listMsg.Add(message);
                                         //}
 
-                                        //masukin sampe -1 bulan 
+                                        ////masukin sampe -1 bulan 
+                                        //if (message.created_timestamp < dateLast1Month)
+                                        //{
+                                        //    if (!cekListMessage.Contains(message.message_id))
+                                        //    {
+                                        //        listMsg.Add(message);
+                                        //    }
+
+                                        //    firstReply = true;
+                                        //    lastGetMessage = true; break;
+                                        //}
+                                        //else
+                                        //{
+                                        //    if (!cekListMessage.Contains(message.message_id))
+                                        //    {
+                                        //        listMsg.Add(message);
+                                        //    }
+                                        //}
+
+                                        //if (firstReply) break;
+
+
+
+
                                         if (message.created_timestamp < dateLast1Month)
                                         {
-                                            if (!cekListMessage.Contains(message.message_id))
+                                            firstReply = true;
+                                            var cekExist = ErasoftDbContext.SHOPEE_MESSAGE.Where(a => a.conversation_id == message.conversation_id && a.content_text == message.content_text && a.message == message.message && a.message_id == a.message_id && a.content_voucher_id == message.content_voucher_id).Count();
+                                            if (cekExist == 0)
                                             {
                                                 listMsg.Add(message);
                                             }
-
-                                            firstReply = true;
                                             lastGetMessage = true; break;
                                         }
                                         else
                                         {
-                                            if (!cekListMessage.Contains(message.message_id))
-                                            {
-                                                listMsg.Add(message);
-                                            }
+                                            listMsg.Add(message);
                                         }
+                                        //listChat.Add(message);
 
-                                        if (firstReply) break;
+                                        if (firstReply)
+                                        {
+                                            lastGetMessage = true; break;
+                                        }
                                     }
+                                    lastGetMessage = true; break;
                                 }
                                 if (listMsg.Count() > 0)
                                 {
                                     ErasoftDbContext.SHOPEE_MESSAGE.AddRange(listMsg);
                                     ErasoftDbContext.SaveChanges();
                                 }
-                            }
 
-                            if (!firstReply)
-                            {
-                                if (string.IsNullOrEmpty(offset)) // page 1
+                                //if (listChat.Count() > 0)
+                                //{
+                                //    ErasoftDbContext.TOKPED_LISTCHAT.AddRange(listChat);
+                                //    ErasoftDbContext.SaveChanges();
+                                //}
+                                //if (!firstReply && result.data.Count() == 10)
+                                //{
+                                //    var nextReply = await ListReply(iden, msgId, page + 1);
+                                //}
+
+                                if (!firstReply)
                                 {
-                                    if (result.response.page_result.page_size == 25) // max show per page 25, must check with offset for another page
+                                    if (string.IsNullOrEmpty(offset)) // page 1
+                                    {
+                                        if (result.response.page_result.page_size == 25) // max show per page 25, must check with offset for another page
+                                        {
+                                            await GetGetMessage(dataAPI, conversation_id, result.response.page_result.next_offset);
+                                        }
+                                    }
+                                    else
                                     {
                                         await GetGetMessage(dataAPI, conversation_id, result.response.page_result.next_offset);
                                     }
-                                }
-                                else
-                                {
-                                    await GetGetMessage(dataAPI, conversation_id, result.response.page_result.next_offset);
                                 }
                             }
                         }
@@ -8946,6 +9126,17 @@ namespace MasterOnline.Controllers
             public string url { get; set; }
             public int file_server_id { get; set; }
             public string text { get; set; }
+
+
+            public string video_url { get; set; }
+            public string thumb_url { get; set; }
+            public int thumb_width { get; set; }
+            public int thumb_height { get; set; }
+            public int duration_seconds { get; set; }
+            public string order_sn { get; set; }
+            public long item_id { get; set; }
+            public string sticker_id { get; set; }
+            public string sticker_package_id { get; set; }
         }
 
         public class Chat_Product_InfosGetMsg

@@ -84,6 +84,13 @@ namespace MasterOnline.Models
 
         public string content_text { get; set; }
 
-        
+        [StringLength(50)]
+        public string cust { get; set; }
+
+
+        public string thumb_url { get; set; }
+        public long thumb_height { get; set; }
+        public long thumb_width { get; set; }
+        public long duration_seconds { get; set; }
     }
 }
