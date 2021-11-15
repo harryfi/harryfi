@@ -266,6 +266,22 @@ namespace MasterOnline.Controllers
                             }
                             else if (result.data.success_rows > 0)
                             {
+//                                if(result.data.success_rows_data != null)
+//                                {
+//                                    if (result.data.success_rows_data.Length > 0)
+//                                    {
+//#if (DEBUG || Debug_AWS)
+//                                        await new TokopediaControllerJob().getItemDetail(iden.DatabasePathErasoft, brg, log_CUST, "Barang", "Link Produk (Tahap 2 / 2) V2", iden, iden.idmarket, 1, result.data.success_rows_data[0].product_id);
+//#else
+//                                string EDBConnID = EDB.GetConnectionString("ConnId");
+//                                var sqlStorage = new SqlServerStorage(EDBConnID);
+
+//                                var Jobclient = new BackgroundJobClient(sqlStorage);
+//                                Jobclient.Enqueue<TokopediaControllerJob>(x => x.getItemDetail(iden.DatabasePathErasoft, brg, log_CUST, "Barang", "Link Produk (Tahap 2 / 2) V2", iden, iden.idmarket, 1, result.data.success_rows_data[0].product_id));                                
+//#endif
+//                                        return ret;
+//                                    }
+//                                }
 #if (DEBUG || Debug_AWS)
                                 await new TokopediaControllerJob().GetActiveItemListBySKU(iden.DatabasePathErasoft, brg, log_CUST, "Barang", "Link Produk (Tahap 2 / 2)", iden, 0, 50, iden.idmarket, brg, currentLog.REQUEST_ID);
 #else
@@ -307,6 +323,111 @@ namespace MasterOnline.Controllers
                 //}
             }
 
+            return ret;
+        }
+
+        public async Task<string> getItemDetail(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, int recnumArf01, int retry, long product_id)
+        {
+            var ret = "";
+
+            var token = SetupContext(iden);
+            iden.token = token;
+
+            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/info?product_id=" + Uri.EscapeDataString(product_id.ToString());
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                string err = e.Message;
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                    if (err.Contains("Too Many Request") && retry <= 3)
+                    {
+                        await Task.Delay(retry * 1000);
+                        await getItemDetail(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, recnumArf01, retry + 1, product_id);
+                        return "";
+                    }
+                    else
+                    {
+                        throw new Exception(err);
+                    }
+                }
+                else
+                {
+                    throw e;
+                }
+            }
+            if (!string.IsNullOrWhiteSpace(responseFromServer))
+            {
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaController.TokpedGetItemDetail)) as TokopediaController.TokpedGetItemDetail;
+                bool adaError = false;
+                if (result.data != null)
+                {
+                    if (result.data.Count() == 0)
+                    {
+                        adaError = true;
+                    }
+
+                }
+                if (!adaError)
+                {
+                    string urlBrg = "";
+                    //if(result.data[0].other != null)
+                    //{
+                    //    urlBrg = result.data[0].other.url;
+                    //}
+                    string sSQL = "UPDATE STF02H SET BRG_MP = '"+ product_id + "', AVALUE_34 = '"+ result.data[0].other.url 
+                        + "', LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")
+                        + "',LINK_ERROR = '0;;;' WHERE BRG = '" + result.data[0].other.sku + "' AND IDMARKET = '" + recnumArf01 + "'";
+                    EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                    if(result.data[0].variant != null)
+                    {
+                        if (result.data[0].variant.isParent)
+                        {
+                            if (result.data[0].variant.childrenID != null)
+                            {
+                                if (result.data[0].variant.childrenID.Length > 0)
+                                {
+                                    foreach (var varid in result.data[0].variant.childrenID)
+                                    {
+                                        await getItemDetail(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, recnumArf01, retry, varid);
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                    else
+                    {
+
+                    }
+                }
+            }
             return ret;
         }
 
@@ -489,7 +610,12 @@ namespace MasterOnline.Controllers
             public int success_rows { get; set; }
             public int failed_rows { get; set; }
             public CreateProductGetStatusResultFailed_Rows_Data[] failed_rows_data { get; set; }
+            public CreateProductGetStatusResultSuccess_Rows_Data[] success_rows_data { get; set; }
             public int processed { get; set; }
+        }
+        public class CreateProductGetStatusResultSuccess_Rows_Data
+        {
+            public long product_id { get; set; }
         }
 
         public class CreateProductGetStatusResultFailed_Rows_Data
@@ -5330,8 +5456,17 @@ namespace MasterOnline.Controllers
                                         }
                                         else
                                         {
+                                            var urlBrg = "";
+                                            if(item.other != null)
+                                            {
+                                                urlBrg = item.other.url;
+                                            }
                                             string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception
-                                            var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(item.basic.productID) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE BRG = '" + Convert.ToString(SKU) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                                            var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" 
+                                                + Convert.ToString(item.basic.productID) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" 
+                                                + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error 
+                                                + "', AVALUE_34 = '" + urlBrg
+                                                + "' WHERE BRG = '" + Convert.ToString(SKU) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
                                             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
                                             {
                                                 REQUEST_ID = log_request_id
@@ -5387,8 +5522,17 @@ namespace MasterOnline.Controllers
                                     }
                                     else
                                     {
+                                        var urlBrg = "";
+                                        if (item.other != null)
+                                        {
+                                            urlBrg = item.other.url;
+                                        }
                                         string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception
-                                        var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(item.basic.productID) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE BRG = '" + Convert.ToString(SKU) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                                        var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" 
+                                            + Convert.ToString(item.basic.productID) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" 
+                                            + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error
+                                            + "', AVALUE_34 = '" + urlBrg
+                                            + "' WHERE BRG = '" + Convert.ToString(SKU) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
                                         MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
                                         {
                                             REQUEST_ID = log_request_id
@@ -5715,7 +5859,13 @@ namespace MasterOnline.Controllers
                         //}
                         if (!string.IsNullOrWhiteSpace(item.sku))
                         {
-                            var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(item.product_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE BRG = '" + Convert.ToString(item.sku) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                            var urlBrg = item.url;
+
+                            var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" 
+                                + Convert.ToString(item.product_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" 
+                                + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error 
+                                + "' , AVALUE_34 = '" + urlBrg
+                                + "' WHERE BRG = '" + Convert.ToString(item.sku) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
                         }
                         //end change by Tri 3 nov 2020, selalu update brg mp tokped karena bisa berubah saat edit nama
                         //add by Tri 21 Jan 2019, update stok setelah create product sukses 
