@@ -37,8 +37,8 @@ namespace MasterOnline
             //Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("127.0.0.1:6379",
             //    new RedisStorageOptions { Prefix = "{hangfire-1}:" });
 
-            Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("127.0.0.1:6379", optionsPrefix);
-            //Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("mo-prod-redis.df2l2v.0001.apse1.cache.amazonaws.com:6379", optionsPrefix);
+            //Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("127.0.0.1:6379", optionsPrefix);
+            Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("mo-prod-redis.df2l2v.0001.apse1.cache.amazonaws.com:6379", optionsPrefix);
 
             // END SETTING HANGFIRE PRO REDIS
 
