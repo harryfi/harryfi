@@ -5439,6 +5439,18 @@ namespace MasterOnline.Controllers
                                     found = true;
                                     if (item.variant != null)
                                     {
+                                        var urlBrg = "";
+                                        if (item.other != null)
+                                        {
+                                            urlBrg = item.other.url;
+                                        }
+                                        string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception
+                                        var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '"
+                                            + Convert.ToString(item.basic.productID) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '"
+                                            + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error
+                                            + "', AVALUE_34 = '" + urlBrg
+                                            + "' WHERE BRG = '" + Convert.ToString(SKU) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+
                                         if (item.variant.isVariant)
                                         {
 #if (DEBUG || Debug_AWS)
@@ -5456,17 +5468,17 @@ namespace MasterOnline.Controllers
                                         }
                                         else
                                         {
-                                            var urlBrg = "";
-                                            if(item.other != null)
-                                            {
-                                                urlBrg = item.other.url;
-                                            }
-                                            string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception
-                                            var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" 
-                                                + Convert.ToString(item.basic.productID) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" 
-                                                + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error 
-                                                + "', AVALUE_34 = '" + urlBrg
-                                                + "' WHERE BRG = '" + Convert.ToString(SKU) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                                            //var urlBrg = "";
+                                            //if(item.other != null)
+                                            //{
+                                            //    urlBrg = item.other.url;
+                                            //}
+                                            //string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception
+                                            //var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" 
+                                            //    + Convert.ToString(item.basic.productID) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" 
+                                            //    + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error 
+                                            //    + "', AVALUE_34 = '" + urlBrg
+                                            //    + "' WHERE BRG = '" + Convert.ToString(SKU) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
                                             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
                                             {
                                                 REQUEST_ID = log_request_id

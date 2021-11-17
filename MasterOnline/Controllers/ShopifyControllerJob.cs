@@ -2046,7 +2046,7 @@ namespace MasterOnline.Controllers
                         listattributeIDGrouplv1 = variant_id_group.MP_JUDUL_VAR + ",";
                         listattributeIDItemslv1 = variant_id_group.MP_VALUE_VAR + ",";
                         optionvarlv1.name = variant_id_group.MP_JUDUL_VAR;
-                        if (!varlv1.Contains(variant_id_group.MP_VALUE_VAR))
+                        if (!varlv1.Contains(variant_id_group.MP_VALUE_VAR) && !string.IsNullOrEmpty(variant_id_group.MP_VALUE_VAR))
                         {
                             varlv1.Add(variant_id_group.MP_VALUE_VAR);
                         }
@@ -2062,7 +2062,7 @@ namespace MasterOnline.Controllers
                         listattributeIDGrouplv2 = variant_id_group.MP_JUDUL_VAR + ",";
                         listattributeIDItemslv2 = variant_id_group.MP_VALUE_VAR + ",";
                         optionvarlv2.name = variant_id_group.MP_JUDUL_VAR;
-                        if (!varlv2.Contains(variant_id_group.MP_VALUE_VAR))
+                        if (!varlv2.Contains(variant_id_group.MP_VALUE_VAR) && !string.IsNullOrEmpty(variant_id_group.MP_VALUE_VAR))
                         {
                             varlv2.Add(variant_id_group.MP_VALUE_VAR);
                         }

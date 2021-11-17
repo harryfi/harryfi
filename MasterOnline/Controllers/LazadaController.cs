@@ -4242,7 +4242,7 @@ namespace MasterOnline.Controllers
                         {
                             if(brg.skus != null)
                             {
-                                if (brg.skus[0].Url.Count > 0)
+                                if (brg.skus.Count > 0)
                                 {
                                     if (brg.skus[0].Url != null)
                                     {
