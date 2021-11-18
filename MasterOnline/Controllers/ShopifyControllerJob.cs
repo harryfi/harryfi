@@ -2091,6 +2091,11 @@ namespace MasterOnline.Controllers
                         weight_unit = "kg",
                         sku = itemData.BRG
                     };
+                    if (string.IsNullOrEmpty(itemData.Ket_Sort8))
+                    {
+                        variants.option1 = itemData.Ket_Sort9;
+                        variants.option2 = "";
+                    }
 
                     if (brgInDb.BERAT < 1000)
                     {
@@ -2273,7 +2278,7 @@ namespace MasterOnline.Controllers
                 var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopifyCreateResult)) as ShopifyCreateResult;
                 if (resServer != null)
                 {
-                    if (resServer != null)
+                    if (resServer.product != null)
                     {
                         if (brgInDb.TYPE == "4")
                         {
@@ -2488,7 +2493,7 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        throw new Exception("error");
+                        throw new Exception(responseFromServer);
                     }
                 }
                 //}
@@ -3090,7 +3095,7 @@ namespace MasterOnline.Controllers
                             }
                             else
                             {
-                                var msgError = "";
+                                var msgError = responseFromServer;
                                 //if (result != null)
                                 //{
                                 //    msgError = result;
