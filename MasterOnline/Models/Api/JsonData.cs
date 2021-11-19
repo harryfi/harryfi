@@ -25,5 +25,9 @@ namespace MasterOnline.Models.Api
         public string no_bukti { get; set; }
         public string status_pesanan { get; set; }
         // End 26 November 2020
+
+        //add by nurul 19/11/2021
+        public List<string> listBrg { get; set; }
+        //end add by nurul 19/11/2021
     }
 }
