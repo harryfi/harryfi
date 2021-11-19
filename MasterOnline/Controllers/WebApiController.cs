@@ -304,8 +304,21 @@ namespace MasterOnline.Controllers
                     var connID = "[UPDATESTOK_API_WH][" + milis.ToString() + "]";
                     //end change by nurul 19/11/2021
 
+                    //change by nurul 19/11/2021
+                    //EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES ('" + data.brg + "', '" + connID + "')");
                     var EDB = new DatabaseSQL(dbPathEra);
-                    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES ('" + data.brg + "', '" + connID + "')");
+                    if (data.listBrg.Count() > 0)
+                    {
+                        foreach (var barang in data.listBrg)
+                        {
+                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES ('" + barang + "', '" + connID + "')");
+                        }
+                    }
+                    else if (!string.IsNullOrEmpty(data.brg))
+                    {
+                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES ('" + data.brg + "', '" + connID + "')");
+                    }
+                    //end change by nurul 19/11/2021
                     
                     //add by nurul 10/11/2021, stok bundling
                     var sSQLInsertTempBundling = "INSERT INTO TEMP_ALL_MP_ORDER_ITEM_BUNDLING ([BRG],[CONN_ID],[TGL]) " +
@@ -319,7 +332,14 @@ namespace MasterOnline.Controllers
 
                     //add by nurul 19/11/2021
                     string sSQLInsert = "INSERT INTO API_LOG_MARKETPLACE(REQUEST_ID,REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_1,REQUEST_ATTRIBUTE_2) ";
-                    sSQLInsert += "SELECT '" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") + "' AS REQUEST_ID,'Update Stok Webhook MO' AS REQUEST_ACTION,DATEADD(HOUR, +7, GETUTCDATE()) AS REQUEST_DATETIME,'" + data.brg + "' AS REQUEST_ATTRIBUTE_1,'" + connID + "' AS REQUEST_ATTRIBUTE_2";
+                    if (data.listBrg.Count() > 0)
+                    {
+                        sSQLInsert += "SELECT '" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") + "' AS REQUEST_ID,'Update Stok Webhook MO' AS REQUEST_ACTION,DATEADD(HOUR, +7, GETUTCDATE()) AS REQUEST_DATETIME,'" + data.listBrg.ToArray().ToString() + "' AS REQUEST_ATTRIBUTE_1,'" + connID + "' AS REQUEST_ATTRIBUTE_2";
+                    }
+                    else if (!string.IsNullOrEmpty(data.brg))
+                    {
+                        sSQLInsert += "SELECT '" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") + "' AS REQUEST_ID,'Update Stok Webhook MO' AS REQUEST_ACTION,DATEADD(HOUR, +7, GETUTCDATE()) AS REQUEST_DATETIME,'" + data.brg + "' AS REQUEST_ATTRIBUTE_1,'" + connID + "' AS REQUEST_ATTRIBUTE_2";
+                    }
                     var resultInsert = EDB.ExecuteSQL("CString", System.Data.CommandType.Text, sSQLInsert);
                     //end add by nurul 19/11/2021
 
