@@ -298,7 +298,11 @@ namespace MasterOnline.Controllers
 
                 try
                 {
-                    var connID = "[UPDATESTOK_API_WH][" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddhhmmss") + "]";
+                    //change by nurul 19/11/2021
+                    //var connID = "[UPDATESTOK_API_WH][" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddhhmmss") + "]";
+                    long milis = CurrentTimeMillis();
+                    var connID = "[UPDATESTOK_API_WH][" + milis.ToString() + "]";
+                    //end change by nurul 19/11/2021
 
                     var EDB = new DatabaseSQL(dbPathEra);
                     EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES ('" + data.brg + "', '" + connID + "')");
@@ -345,6 +349,13 @@ namespace MasterOnline.Controllers
                 throw;
             }
         }
+
+        //add by nurul 19/11/2021
+        public static long CurrentTimeMillis()
+        {
+            return (long)DateTimeOffset.UtcNow.AddHours(7).ToUnixTimeMilliseconds();
+        }
+        //end add by nurul 19/11/2021
 
         [System.Web.Http.Route("api/updatestatusmp")]
         [System.Web.Http.AcceptVerbs("GET", "POST")]
