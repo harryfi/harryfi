@@ -312,6 +312,13 @@ namespace MasterOnline.Controllers
                                                  "WHERE ISNULL(A.CONN_ID,'') = '" + connID + "' " +
                                                  "AND ISNULL(B.BRG,'') = '' AND A.BRG <> 'NOT_FOUND'";
                     var execInsertTempBundling = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLInsertTempBundling);
+
+                    //add by nurul 19/11/2021
+                    string sSQLInsert = "INSERT INTO API_LOG_MARKETPLACE(REQUEST_ID,REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_1,REQUEST_ATTRIBUTE_2) ";
+                    sSQLInsert += "SELECT '" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") + "' AS REQUEST_ID,'Update Stok Webhook MO' AS REQUEST_ACTION,DATEADD(HOUR, +7, GETUTCDATE()) AS REQUEST_DATETIME,'" + data.brg + "' AS REQUEST_ATTRIBUTE_1,'" + connID + "' AS REQUEST_ATTRIBUTE_2";
+                    var resultInsert = EDB.ExecuteSQL("CString", System.Data.CommandType.Text, sSQLInsert);
+                    //end add by nurul 19/11/2021
+
                     if (execInsertTempBundling > 0)
                     {
                         new StokControllerJob().getQtyBundling(dbPathEra, userName, "'" + connID + "'");
