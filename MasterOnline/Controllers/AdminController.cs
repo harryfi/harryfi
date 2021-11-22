@@ -2952,7 +2952,7 @@ namespace MasterOnline.Controllers
                 string listkodeBRG = dataSplitToko[2];
                 string[] splitlistToko = listToko.Split(',');
                 string[] splitlistkodeBRG = listkodeBRG.Split('^');
-                
+                List<string> listBrg = new List<string>();
                 var sqlListKode = "";
                 var sqlListKodeNotFound = "";
 
@@ -2981,6 +2981,7 @@ namespace MasterOnline.Controllers
                             {
                                 sqlListKode += "'" + listKode + "',";
                                 resultUnlink = true;
+                                listBrg.Add(listKode);
                             }
                             else
                             {
@@ -2994,7 +2995,14 @@ namespace MasterOnline.Controllers
 
                         foreach (var dataToko in splitlistToko)
                         {
-                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET DISPLAY = 0, BRG_MP = '', LINK_STATUS = '', LINK_ERROR = '' WHERE UPPER(BRG) IN (" + sqlListKode + ") AND IDMARKET = '" + dataToko + "' ");
+                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET DISPLAY = 0, BRG_MP = '', AVALUE_34 = '', LINK_STATUS = '', LINK_ERROR = '' WHERE UPPER(BRG) IN (" + sqlListKode + ") AND IDMARKET = '" + dataToko + "' ");
+                            if(listBrg.Count > 0)
+                            {
+                                foreach (var item in listBrg)
+                                {
+                                    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TABEL_HISTORI_UNLINK (BRG, TGL, USERNAME, IDMARKET) VALUES ('"+item+"', '"+DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")+ "', 'SUPPORT_MO', " + dataToko + ")");
+                                }
+                            }
                         }
 
                     }
