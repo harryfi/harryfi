@@ -2046,7 +2046,7 @@ namespace MasterOnline.Controllers
                         listattributeIDGrouplv1 = variant_id_group.MP_JUDUL_VAR + ",";
                         listattributeIDItemslv1 = variant_id_group.MP_VALUE_VAR + ",";
                         optionvarlv1.name = variant_id_group.MP_JUDUL_VAR;
-                        if (!varlv1.Contains(variant_id_group.MP_VALUE_VAR))
+                        if (!varlv1.Contains(variant_id_group.MP_VALUE_VAR) && !string.IsNullOrEmpty(variant_id_group.MP_VALUE_VAR))
                         {
                             varlv1.Add(variant_id_group.MP_VALUE_VAR);
                         }
@@ -2062,7 +2062,7 @@ namespace MasterOnline.Controllers
                         listattributeIDGrouplv2 = variant_id_group.MP_JUDUL_VAR + ",";
                         listattributeIDItemslv2 = variant_id_group.MP_VALUE_VAR + ",";
                         optionvarlv2.name = variant_id_group.MP_JUDUL_VAR;
-                        if (!varlv2.Contains(variant_id_group.MP_VALUE_VAR))
+                        if (!varlv2.Contains(variant_id_group.MP_VALUE_VAR) && !string.IsNullOrEmpty(variant_id_group.MP_VALUE_VAR))
                         {
                             varlv2.Add(variant_id_group.MP_VALUE_VAR);
                         }
@@ -2091,6 +2091,11 @@ namespace MasterOnline.Controllers
                         weight_unit = "kg",
                         sku = itemData.BRG
                     };
+                    if (string.IsNullOrEmpty(itemData.Ket_Sort8))
+                    {
+                        variants.option1 = itemData.Ket_Sort9;
+                        variants.option2 = "";
+                    }
 
                     if (brgInDb.BERAT < 1000)
                     {
@@ -2187,13 +2192,40 @@ namespace MasterOnline.Controllers
             }
             //end add by calvin 1 mei 2019
 
+            //change image
+            //if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
+            //    HttpBody.product.images.Add(new ShopifyCreateProductImages { position = "1", src = brgInDb.LINK_GAMBAR_1, alt = brgInDb.NAMA.ToString() });
+            //if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
+            //    HttpBody.product.images.Add(new ShopifyCreateProductImages { position = "2", src = brgInDb.LINK_GAMBAR_2, alt = brgInDb.NAMA.ToString() });
+            //if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
+            //    HttpBody.product.images.Add(new ShopifyCreateProductImages { position = "3", src = brgInDb.LINK_GAMBAR_3, alt = brgInDb.NAMA.ToString() });
+            int imageIndex = 1;
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
-                HttpBody.product.images.Add(new ShopifyCreateProductImages { position = "1", src = brgInDb.LINK_GAMBAR_1, alt = brgInDb.NAMA.ToString() });
+            {
+                HttpBody.product.images.Add(new ShopifyCreateProductImages { position = imageIndex.ToString(), src = brgInDb.LINK_GAMBAR_1, alt = brgInDb.NAMA.ToString() });
+                imageIndex++;
+            }
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
-                HttpBody.product.images.Add(new ShopifyCreateProductImages { position = "2", src = brgInDb.LINK_GAMBAR_2, alt = brgInDb.NAMA.ToString() });
+            {
+                HttpBody.product.images.Add(new ShopifyCreateProductImages { position = imageIndex.ToString(), src = brgInDb.LINK_GAMBAR_2, alt = brgInDb.NAMA.ToString() });
+                imageIndex++;
+            }
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
-                HttpBody.product.images.Add(new ShopifyCreateProductImages { position = "3", src = brgInDb.LINK_GAMBAR_3, alt = brgInDb.NAMA.ToString() });
-
+            {
+                HttpBody.product.images.Add(new ShopifyCreateProductImages { position = imageIndex.ToString(), src = brgInDb.LINK_GAMBAR_3, alt = brgInDb.NAMA.ToString() });
+                imageIndex++;
+            }
+            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_4))
+            {
+                HttpBody.product.images.Add(new ShopifyCreateProductImages { position = imageIndex.ToString(), src = brgInDb.LINK_GAMBAR_4, alt = brgInDb.NAMA.ToString() });
+                imageIndex++;
+            }
+            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
+            {
+                HttpBody.product.images.Add(new ShopifyCreateProductImages { position = imageIndex.ToString(), src = brgInDb.LINK_GAMBAR_5, alt = brgInDb.NAMA.ToString() });
+                imageIndex++;
+            }
+            //end change image
 
             string myData = JsonConvert.SerializeObject(HttpBody);
 
@@ -2246,7 +2278,7 @@ namespace MasterOnline.Controllers
                 var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopifyCreateResult)) as ShopifyCreateResult;
                 if (resServer != null)
                 {
-                    if (resServer != null)
+                    if (resServer.product != null)
                     {
                         if (brgInDb.TYPE == "4")
                         {
@@ -2461,7 +2493,7 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        throw new Exception("error");
+                        throw new Exception(responseFromServer);
                     }
                 }
                 //}
@@ -2900,13 +2932,40 @@ namespace MasterOnline.Controllers
             }
             //end add by calvin 1 mei 2019
 
+            //change image
+            //if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
+            //    HttpBody.product.images.Add(new ImagesUpdateProduct { position = 1, src = brgInDb.LINK_GAMBAR_1, alt = brgInDb.NAMA.ToString() });
+            //if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
+            //    HttpBody.product.images.Add(new ImagesUpdateProduct { position = 2, src = brgInDb.LINK_GAMBAR_2, alt = brgInDb.NAMA.ToString() });
+            //if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
+            //    HttpBody.product.images.Add(new ImagesUpdateProduct { position = 3, src = brgInDb.LINK_GAMBAR_3, alt = brgInDb.NAMA.ToString() });
+            int imageIndex = 1;
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
-                HttpBody.product.images.Add(new ImagesUpdateProduct { position = 1, src = brgInDb.LINK_GAMBAR_1, alt = brgInDb.NAMA.ToString() });
+            {
+                HttpBody.product.images.Add(new ImagesUpdateProduct { position = imageIndex, src = brgInDb.LINK_GAMBAR_1, alt = brgInDb.NAMA.ToString() });
+                imageIndex++;
+            }
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
-                HttpBody.product.images.Add(new ImagesUpdateProduct { position = 2, src = brgInDb.LINK_GAMBAR_2, alt = brgInDb.NAMA.ToString() });
+            {
+                HttpBody.product.images.Add(new ImagesUpdateProduct { position = imageIndex, src = brgInDb.LINK_GAMBAR_2, alt = brgInDb.NAMA.ToString() });
+                imageIndex++;
+            }
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
-                HttpBody.product.images.Add(new ImagesUpdateProduct { position = 3, src = brgInDb.LINK_GAMBAR_3, alt = brgInDb.NAMA.ToString() });
-
+            {
+                HttpBody.product.images.Add(new ImagesUpdateProduct { position = imageIndex, src = brgInDb.LINK_GAMBAR_3, alt = brgInDb.NAMA.ToString() });
+                imageIndex++;
+            }
+            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_4))
+            {
+                HttpBody.product.images.Add(new ImagesUpdateProduct { position = imageIndex, src = brgInDb.LINK_GAMBAR_4, alt = brgInDb.NAMA.ToString() });
+                imageIndex++;
+            }
+            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
+            {
+                HttpBody.product.images.Add(new ImagesUpdateProduct { position = imageIndex, src = brgInDb.LINK_GAMBAR_5, alt = brgInDb.NAMA.ToString() });
+                imageIndex++;
+            }
+            //end change image
 
             string myData = JsonConvert.SerializeObject(HttpBody);
 
@@ -3036,7 +3095,7 @@ namespace MasterOnline.Controllers
                             }
                             else
                             {
-                                var msgError = "";
+                                var msgError = responseFromServer;
                                 //if (result != null)
                                 //{
                                 //    msgError = result;

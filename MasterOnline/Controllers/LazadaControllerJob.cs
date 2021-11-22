@@ -709,10 +709,14 @@ namespace MasterOnline.Controllers
                 ret.status = 1;
                 var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
                 //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
-                var result = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + res.data.item_id + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '0;Buat Produk;;' WHERE BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'");
+                if (Convert.ToString(stf02.TYPE) == "4")
+                    EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + res.data.item_id + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '0;Buat Produk;;' WHERE BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'");
                 foreach (var item in res.data.sku_list)
                 {
-                    EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + item.seller_sku + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '0;;;' WHERE BRG = '" + item.seller_sku + "' AND IDMARKET = '" + data.idMarket + "'");
+                    var urlBrg = GetProductUrl(item.seller_sku, 0, data.token);
+                    EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + item.seller_sku 
+                        + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") 
+                        + "', AVALUE_34 = '" + urlBrg + "',LINK_ERROR = '0;;;' WHERE BRG = '" + item.seller_sku + "' AND IDMARKET = '" + data.idMarket + "'");
                     if (tblCustomer.TIDAK_HIT_UANG_R)
                     {
                         
@@ -729,16 +733,16 @@ namespace MasterOnline.Controllers
                     }
                 }
 
-                if (result == 1)
-                {
-                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data.key, currentLog);
-                }
-                else
-                {
-                    currentLog.REQUEST_EXCEPTION = "failed to update brg_mp;execute result=" + result;
-                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.token, currentLog);
-                    throw new Exception("failed to update brg_mp;execute result=" + result);
-                }
+                //if (result == 1)
+                //{
+                //    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data.key, currentLog);
+                //}
+                //else
+                //{
+                //    currentLog.REQUEST_EXCEPTION = "failed to update brg_mp;execute result=" + result;
+                //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.token, currentLog);
+                //    throw new Exception("failed to update brg_mp;execute result=" + result);
+                //}
             }
             else
             {
@@ -792,7 +796,49 @@ namespace MasterOnline.Controllers
             //}
             return ret;
         }
+        public string GetProductUrl(string brgmp, int typeBrg, string token)
+        {
+            string ret = "";
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/product/item/get");
+            request.SetHttpMethod("GET");
+            if (typeBrg != 1)
+            {
+                request.AddApiParameter("seller_sku", brgmp);
+            }
+            else
+            {
+                request.AddApiParameter("item_id", brgmp);
+            }
 
+            //LazopResponse response = client.Execute(request, data.token);
+            try
+            {
+                LazopResponse response = client.Execute(request, token);
+                //var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaItemDetailResponse)) as LazadaItemDetailResponse;
+                dynamic resultItemDetail = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body);
+                if (response.Code.Equals("0"))
+                {
+                    var brg = resultItemDetail.data;
+                    if (brg.skus != null)
+                    {
+                        if (brg.skus.Count > 0)
+                        {
+                            if (brg.skus[0].Url != null)
+                            {
+                                ret = Convert.ToString(brg.skus[0].Url);
+                            }
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+            }
+            return ret;
+        }
         public static string XmlEscape(string unescaped)
         {
             XmlDocument doc = new XmlDocument();
