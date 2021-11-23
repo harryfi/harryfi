@@ -878,12 +878,11 @@ namespace MasterOnline.Controllers
                         responseFromServer = reader.ReadToEnd();
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-            }
+            //catch (Exception ex)
+            //{
+            //    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            //    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            //}
             if (!string.IsNullOrWhiteSpace(responseFromServer))
             {
                 var result = JsonConvert.DeserializeObject(responseFromServer, typeof(BlibliGetOrder)) as BlibliGetOrder;
@@ -991,7 +990,24 @@ namespace MasterOnline.Controllers
                     //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                 }
             }
-            //return count;
+                //return count;
+            }
+            catch (Exception ex)
+            {
+                if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
+                {
+                    var log = new TABEL_LOG_GETORDERS()
+                    {
+                        DBPATHERA = iden.DatabasePathErasoft,
+                        MARKETPLACE = "BLIBLI",
+                        TGL = DateTime.UtcNow.AddHours(7),
+                        FUNCTION = "GetOrderListWithPage "+stat.ToString()+" : " + CUST,
+                        ERRORMSG = ex.Message
+                    };
+                    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+                    MoDbContext.SaveChanges();
+                }
+            }
             ret.Count = count;
             return ret;
         }
