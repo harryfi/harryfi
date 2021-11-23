@@ -13,6 +13,9 @@
                 <th width="90">Marketplace</th>
                 <th width="120">Pembeli</th>
                 <th width="50">Tipe Pesanan</th>
+                @*add by nurul 23/11/2021*@
+                <th width="80">Gudang</th>
+                @*end add by nurul 23/11/2021*@
                 <th width="80">Status Kirim</th>
                 <th width="80">Status Print</th>
                 <th width="70">Scan Barcode</th>
@@ -96,6 +99,9 @@
                         @detPackinglist.PEMBELI
                     </td>
                     <td>@tipe_pesanan</td>
+                    @*add by nurul 23/11/2021*@
+                    <td>@detPackinglist.WAREHOUSE_ID</td>
+                    @*end add by nurul 23/11/2021*@
                     @*<td>
                     @detPackinglist.SO_TRACKING_NUMBER
                 </td>*@

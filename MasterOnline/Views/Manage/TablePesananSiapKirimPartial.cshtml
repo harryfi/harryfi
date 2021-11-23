@@ -52,6 +52,9 @@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 50px;">Marketplace</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 90px;">Pembeli</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 50px;">Tipe Pesanan</th>
+                @*add by nurul 23/11/2021*@
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 100px;">Gudang</th>
+                @*end add by nurul 23/11/2021*@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 100px;">Kurir</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 100px;">Keterangan</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 90px; ">Total</th>
@@ -177,13 +180,13 @@
 
                     @*//change by nurul 25/8/2021*@
                     @*@if (!string.IsNullOrEmpty(pesanan.TLP))
-        {
-            @(pesanan.PEMBELI + " (" + pesanan.TLP + ")")
-        }
-        else
-        {
-            @pesanan.PEMBELI
-        }*@
+            {
+                @(pesanan.PEMBELI + " (" + pesanan.TLP + ")")
+            }
+            else
+            {
+                @pesanan.PEMBELI
+            }*@
                     @if (!string.IsNullOrEmpty(tlp))
                     {
                         @(pembeli + " (" + tlp + ")")
@@ -196,6 +199,9 @@
                     @*//end change by nurul 17/6/2021*@
                 </td>
                 <td>@tipe_pesanan</td>
+                @*add by nurul 23/11/2021*@
+                <td>@pesanan.WAREHOUSE_ID</td>
+                @*end add by nurul 23/11/2021*@
                 <td>@pesanan.SHIPMENT</td>
                 <td>
                     @if (keterangan != "-")

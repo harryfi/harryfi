@@ -125,6 +125,10 @@ namespace MasterOnline
         public string NAMA_CUST { get; set; }
 
         public DateTime? confirm_shipping_deadline { get; set; }
+
+        //add by nurul 23/11/2021
+        public long? warehouse_id { get; set; } 
+        //end add by nurul 23/11/2021
     }
 
 }

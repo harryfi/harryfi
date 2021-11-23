@@ -3458,6 +3458,7 @@ namespace MasterOnline.Controllers
                                 {
                                     DateTime? expiredDate = null;
                                     DateTime? paymentDate = null;
+                                    long? warehouse_id = 0;
                                     //remark 13 nov 2020 tutup sementara
                                     var orderDetail = await GetOrderDetail(iden, order.invoice_ref_num);
                                     if (orderDetail != null)
@@ -3492,6 +3493,12 @@ namespace MasterOnline.Controllers
                                                     }
                                                 }
                                             }
+                                            //add by nurul 23/11/2021
+                                            if (orderDetail.data.order_warehouse != null)
+                                            {
+                                                warehouse_id = orderDetail.data.order_warehouse.warehouse_id;
+                                            }
+                                            //end add by nurul 23/11/2021
                                         }
                                     }
                                     //belum ada di temp
@@ -3581,6 +3588,12 @@ namespace MasterOnline.Controllers
                                         {
                                             newOrder.create_time = paymentDate.Value;
                                         }
+                                        //add by nurul 23/11/2021
+                                        if (warehouse_id != 0 && warehouse_id != null)
+                                        {
+                                            newOrder.warehouse_id = warehouse_id;
+                                        }
+                                        //end add by nurul 23/11/2021
                                         ListNewOrders.Add(newOrder);
                                     }
                                 }
@@ -3655,6 +3668,7 @@ namespace MasterOnline.Controllers
 
                                 DateTime? expiredDate = null;
                                 DateTime? paymentDate = null;
+                                long? warehouse_id = 0;
                                 //remark 13 nov 2020 tutup sementara
                                 //var orderDetail = await GetOrderDetail(iden, order.invoice_ref_num);
                                 //if (orderDetail != null)
@@ -3846,6 +3860,12 @@ namespace MasterOnline.Controllers
                                                     }
                                                 }
                                             }
+                                            //add by nurul 23/11/2021
+                                            if (orderDetail.data.order_warehouse != null)
+                                            {
+                                                warehouse_id = orderDetail.data.order_warehouse.warehouse_id;
+                                            }
+                                            //end add by nurul 23/11/2021
                                         }
                                     }
                                     //belum ada di temp
@@ -3935,6 +3955,12 @@ namespace MasterOnline.Controllers
                                         {
                                             newOrder.create_time = paymentDate.Value;
                                         }
+                                        //add by nurul 23/11/2021
+                                        if(warehouse_id != 0 && warehouse_id != null)
+                                        {
+                                            newOrder.warehouse_id = warehouse_id;
+                                        }
+                                        //end add by nurul 23/11/2021
                                         ListNewOrders.Add(newOrder);
                                     }
                                 }
@@ -8091,7 +8117,10 @@ namespace MasterOnline.Controllers
             public long payment_id { get; set; }
             public bool is_affiliate { get; set; }
             public bool is_fulfillment { get; set; }
+            //change by nurul 23/11/2021
             //public Order_Warehouse order_warehouse { get; set; }
+            public OrderWarehouse order_warehouse { get; set; }
+            //end change by nurul 23/11/2021
             public int order_status { get; set; }
             public string invoice_number { get; set; }
             public string invoice_pdf { get; set; }

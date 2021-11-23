@@ -15,6 +15,9 @@
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">No. Resi</th>
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 25%;">Pembeli</th>
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 10%;">Tipe Pesanan</th>
+                @*add by nurul 23/11/2021*@
+                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">Gudang</th>
+                @*end add by nurul 23/11/2021*@
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">Status Kirim</th>
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">Status Print</th>
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">Kurir</th>
@@ -92,6 +95,9 @@
                     <td>@order.tracking_no</td>
                     <td>@order.nama_pemesan</td>
                     <td>@tipe_pesanan</td>
+                    @*add by nurul 23/11/2021*@
+                    <td>@order.WAREHOUSE_ID</td>
+                    @*end add by nurul 23/11/2021*@
                     <td>@status_kirim</td>
                     <td>@st_print</td>
                     <td>@order.kurir</td>
