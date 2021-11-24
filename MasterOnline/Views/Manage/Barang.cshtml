@@ -4576,6 +4576,9 @@
                 },
                 error: function (xhr) {
                     console.log(xhr);
+                    $('#loading_attribute_' + listMarketRecNum).hide();
+                    $('#next_btn').attr("disabled", false);
+                    $('#simpan_btn').attr("disabled", false);
                 }
             });
         }
