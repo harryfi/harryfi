@@ -192,7 +192,90 @@
 
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="" role="tabpanel" data-example-id="togglable-tabs">
+            <ul id="myTab" class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#tab_content1" id="linkbarang-tab" role="tab" data-toggle="tab" aria-expanded="true">Link Barang</a>
+                </li>
+                <li role="presentation" class="active">
+                    <a href="#tab_content2" id="history-tab" role="tab" data-toggle="tab" aria-expanded="true">Histori Unlink Barang</a>
+                </li>
+            </ul>
+            <div id="myTabContent" class="tab-content" style="padding-top:10px">
+                <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="linkbarang-tab">
+                    <div class="row barang_table_section">
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="input-group">
+                                @*<input id="search_barang" type="text" class="form-control" placeholder="Pencarian">
+                                    <span class="input-group-btn">
+                                        <button type="button" id="search_barang_click" class="btn btn-primary">
+                                            <i class="fa fa-search"></i>
+                                        </button>
+                                    </span>*@
+                                <select id="cmbBarang" placeholder="Harap pilih"></select>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 col-sm-6">
+                            <div class="pull-right">
+                                <button class="btn btn-primary" id="btnClear">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top: 5px;">
+                        <div class="col-sm-12 barang_table_section" id="table-barang-1-partial">
+                        </div>
+                    </div>
+                </div>
 
+            </div>
+        </div>
     </div>
 
 </div>
+@section scripts{
+    <script src="~/Content/vendors/moment/min/moment.min.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.283.1.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            getListBarang();
+        });
+        function getListBarang() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetListBarangMatrix", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listMerk = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listMerk[i] = {
+                                id: item.id,
+                                text: item.NAMA
+                            };
+                        });
+
+                    var brgSelect = $('#cmbBarang').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listMerk,
+                        onChange: function (value) {
+                            //$('#Stf02_Sort2').val(value);
+                            //$('#Stf02_KET_SORT2').val($("#MERK option:selected").text());
+                            SelectProduct(value);
+                        }
+                    });
+
+                    //merkSelect[0].selectize.setValue($('#Stf02_Sort2').val());
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+    </script>
+}
