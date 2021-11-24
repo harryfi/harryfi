@@ -864,9 +864,11 @@
                                                 else
                                                 {
                                                     @*<div data-tip="Harga hanya bisa diubah melalui form Bundling">*@
-                                                    <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
-                                                        @(Model?.Stf02 != null ? Html.TextBoxFor(m => m.Stf02.HJUAL, new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.Stf02.HJUAL), required = "required", maxlength = "12", @readonly = "readonly" }) : Html.TextBoxFor(m => m.Stf02.HJUAL, new { @class = "form-control", Value = "0,00", required = "required", maxlength = "12", @style = "text-align:right", @readonly = "readonly" }))
-                                                    </div>
+                                                <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
+                                                    @*@(Model?.Stf02 != null ? Html.TextBoxFor(m => m.Stf02.HJUAL, new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.Stf02.HJUAL), required = "required", maxlength = "12", @readonly = "readonly" }) : Html.TextBoxFor(m => m.Stf02.HJUAL, new { @class = "form-control", Value = "0,00", required = "required", maxlength = "12", @style = "text-align:right", @readonly = "readonly" }))*@
+                                                    @(Model?.Stf02 != null ? Html.TextBoxFor(m => m.Stf02.HJUAL, new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.HjualBundling), required = "required", maxlength = "12", @readonly = "readonly" }) : Html.TextBoxFor(m => m.Stf02.HJUAL, new { @class = "form-control", Value = "0,00", required = "required", maxlength = "12", @style = "text-align:right", @readonly = "readonly" }))
+
+                                                </div>
                                                 }
                                                 @*//change by nurul 19/10/2020*@
                                             </div>
@@ -901,7 +903,8 @@
                                                                     else
                                                                     {
                                                                         <div data-tip="Harga Normal untuk Blibli. Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
-                                                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HARGA_NORMAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.HARGA_NORMAL ?? 0), @style = "text-align:right", @readonly = "readonly" })
+                                                                            @*@Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HARGA_NORMAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.HARGA_NORMAL ?? 0), @style = "text-align:right", @readonly = "readonly" })*@
+                                                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HARGA_NORMAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.HjualBundling), @style = "text-align:right", @readonly = "readonly" })
                                                                         </div>
                                                                     }
                                                                 }
@@ -916,7 +919,8 @@
                                                                     else
                                                                     {
                                                                         <div data-tip="Harga Normal untuk Blibli. Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
-                                                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HARGA_NORMAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", 0), @style = "text-align:right", @readonly = "readonly" })
+                                                                            @*@Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HARGA_NORMAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", 0), @style = "text-align:right", @readonly = "readonly" })*@
+                                                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HARGA_NORMAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.HjualBundling), @style = "text-align:right", @readonly = "readonly" })
                                                                         </div>
                                                                     }
                                                                 }
@@ -983,7 +987,8 @@
                                                                     else
                                                                     {
                                                                         <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
-                                                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.HJUAL ?? 0), @style = "text-align:right", @readonly = "readonly" })
+                                                                            @*@Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.HJUAL ?? 0), @style = "text-align:right", @readonly = "readonly" })*@
+                                                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.HjualBundling), @style = "text-align:right", @readonly = "readonly" })
                                                                         </div>
                                                                     }
                                                                     @*//end change by nurul 19/10/2020*@
@@ -999,7 +1004,8 @@
                                                                     else
                                                                     {
                                                                         <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
-                                                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.HJUAL ?? 0), @style = "text-align:right", @readonly = "readonly" })
+                                                                            @*@Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.HJUAL ?? 0), @style = "text-align:right", @readonly = "readonly" })*@
+                                                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.HjualBundling), @style = "text-align:right", @readonly = "readonly" })
                                                                         </div>
                                                                     }
                                                                     @*//end change by nurul 19/10/2020*@
@@ -1022,7 +1028,8 @@
                                                                     else
                                                                     {
                                                                         <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
-                                                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", 0), @style = "text-align:right", @readonly = "readonly" })
+                                                                            @*@Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", 0), @style = "text-align:right", @readonly = "readonly" })*@
+                                                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.HjualBundling), @style = "text-align:right", @readonly = "readonly" })
                                                                         </div>
                                                                     }
                                                                     @*//end change by nurul 19/10/2020*@
@@ -1038,7 +1045,8 @@
                                                                     else
                                                                     {
                                                                         <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
-                                                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", 0), @style = "text-align:right", @readonly = "readonly" })
+                                                                            @*@Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", 0), @style = "text-align:right", @readonly = "readonly" })*@
+                                                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.HjualBundling), @style = "text-align:right", @readonly = "readonly" })
                                                                         </div>
                                                                     }
                                                                     @*//end change by nurul 19/10/2020*@
