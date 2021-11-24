@@ -4192,22 +4192,22 @@
                 cache: false,
                 success: function (data) {
                     var listKategori = [];
-
-                    //generate category
-                    $.each(data,
-                        function (i, item) {
-                            if (i == 0) {
-                                var textbox = '<input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.CATEGORY_NAME +'">';
-                                $('#category_shopee_pertama_' + listMarketRecNum).append(textbox);
-                            }
-                            else {
-                                var textbox = '<div class="col-md-3 col-sm-3 col-xs-12"><input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.CATEGORY_NAME +'"></div>';
-                                $('#category_shopee_selanjutnya_' + listMarketRecNum).append(textbox);
-                            }
-                        });
-
+                    if (data != null) {
+                        //generate category
+                        $.each(data,
+                            function (i, item) {
+                                if (i == 0) {
+                                    var textbox = '<input type="text" data-val="true" disabled="disabled" class="form-control" value="' + item.CATEGORY_NAME + '">';
+                                    $('#category_shopee_pertama_' + listMarketRecNum).append(textbox);
+                                }
+                                else {
+                                    var textbox = '<div class="col-md-3 col-sm-3 col-xs-12"><input type="text" data-val="true" disabled="disabled" class="form-control" value="' + item.CATEGORY_NAME + '"></div>';
+                                    $('#category_shopee_selanjutnya_' + listMarketRecNum).append(textbox);
+                                }
+                            });
                     //generate attribute
-                    getAttributeShopee(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView);
+                        getAttributeShopee(fieldCategoryCodeValue, listMarketRecNum, fieldCategoryCode, ListHargaJualPermarketView);
+                    }
 
                 },
                 error: function (xhr) {
