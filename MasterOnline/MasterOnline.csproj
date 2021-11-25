@@ -1468,6 +1468,7 @@
     <Compile Include="ViewModels\AddonsCustomerViewModel.cs" />
     <Compile Include="ViewModels\AddonsViewModel.cs" />
     <Compile Include="ViewModels\BarcodeViewModels.cs" />
+    <Compile Include="ViewModels\BindingMatrixBarang.cs" />
     <Compile Include="ViewModels\CustomerChatViewModel.cs" />
     <Compile Include="ViewModels\HargaJualMassalViewModel.cs" />
     <Compile Include="ViewModels\LinkBankPartnerApiViewModel.cs" />
@@ -7008,6 +7009,7 @@
     <Content Include="Views\Manage\TableCustomerChatPartial.cshtml" />
     <Content Include="Views\ShopeeChat\ShopeeAuthChat.cshtml" />
     <Content Include="Views\Manage\MatrixLinkBarang.cshtml" />
+    <Content Include="Views\Manage\TabelMatrixLinkBarang.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

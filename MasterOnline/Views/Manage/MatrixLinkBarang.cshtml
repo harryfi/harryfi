@@ -204,8 +204,7 @@
             <div id="myTabContent" class="tab-content" style="padding-top:10px">
                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="linkbarang-tab">
                     <div class="row barang_table_section">
-                        <div class="col-lg-4 col-sm-6">
-                            <div class="input-group">
+                        <div class="col-lg-9 col-sm-9">
                                 @*<input id="search_barang" type="text" class="form-control" placeholder="Pencarian">
                                     <span class="input-group-btn">
                                         <button type="button" id="search_barang_click" class="btn btn-primary">
@@ -213,16 +212,17 @@
                                         </button>
                                     </span>*@
                                 <select id="cmbBarang" placeholder="Harap pilih"></select>
-                            </div>
+                                <input id="txtListBrg" style="display:none;"/>
+                            
                         </div>
-                        <div class="col-lg-8 col-sm-6">
+                        <div class="col-lg-3 col-sm-3">
                             <div class="pull-right">
                                 <button class="btn btn-primary" id="btnClear">Clear</button>
                             </div>
                         </div>
                     </div>
                     <div class="row" style="margin-top: 5px;">
-                        <div class="col-sm-12 barang_table_section" id="table-barang-1-partial">
+                        <div class="col-sm-12 barang_table_section" id="table-matrix-barang-partial">
                         </div>
                     </div>
                 </div>
@@ -255,7 +255,7 @@
                         function (i, item) {
                             listMerk[i] = {
                                 id: item.id,
-                                text: item.NAMA
+                                text: item.BRG + ' (' + item.NAMA + ')'
                             };
                         });
 
@@ -264,9 +264,13 @@
                         searchField: 'text',
                         options: listMerk,
                         onChange: function (value) {
-                            //$('#Stf02_Sort2').val(value);
+                            var current = $('#txtListBrg').val();
+                            if (current != "") {
+                                current += ","
+                            }
+                            $('#txtListBrg').val(current + value);
                             //$('#Stf02_KET_SORT2').val($("#MERK option:selected").text());
-                            SelectProduct(value);
+                            SelectProduct();
                         }
                     });
 
@@ -274,6 +278,28 @@
                 },
                 error: function (xhr) {
                     console.log(xhr);
+                }
+            });
+        }
+        function SelectProduct() {
+            var $link = '@Html.Raw(Url.Action("RefreshTableMatrixBarang", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#txtListBrg').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-matrix-barang-partial').hide();
+                    $('#loading_barang_tab').show();
+                },
+                success: function (response) {
+                    $('#table-matrix-barang-partial').html(response);
+                    $('#loading_barang_tab').hide();
+                    $('#table-matrix-barang-partial').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
                 }
             });
         }
