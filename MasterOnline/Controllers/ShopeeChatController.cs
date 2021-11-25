@@ -7414,7 +7414,7 @@ namespace MasterOnline.Controllers
                             //var dateLast1Month = dateNow.AddMonths(-1);
                             var dateLast1Month = dateNow.AddDays(-14);
                             var listConv = result.response.conversations.OrderByDescending(a => a.last_message_timestamp).ToList();
-
+                            bool sudah14hari = false;
                             var cust = ErasoftDbContext.ARF01.Where(a => a.API_KEY == dataAPI.API_secret_key && a.Sort1_Cust == dataAPI.merchant_code).FirstOrDefault();
                             if (cust != null)
                             {
@@ -7471,6 +7471,7 @@ namespace MasterOnline.Controllers
                                         //masukin sampe -1 bulan 
                                         if (Convert.ToDateTime(last_message_timestamp) < dateLast1Month)
                                         {
+                                            sudah14hari = true;
                                             lastGetMessage = true; break;
                                         }
 
@@ -7532,18 +7533,21 @@ namespace MasterOnline.Controllers
                                 //    //ret.AddRange(nextOrders);
                                 //}
 
-                                if (string.IsNullOrEmpty(next_timestamp_nano)) //page 1
+                                if (!sudah14hari)
                                 {
-                                    if (result.response.page_result.next_cursor.next_message_time_nano != "0") // has possibility the next page exist
+                                    if (string.IsNullOrEmpty(next_timestamp_nano)) //page 1
                                     {
-                                        await GetConversationList(dataAPI, direction, type, result.response.page_result.next_cursor.next_message_time_nano);
+                                        if (result.response.page_result.next_cursor.next_message_time_nano != "0") // has possibility the next page exist
+                                        {
+                                            await GetConversationList(dataAPI, direction, type, result.response.page_result.next_cursor.next_message_time_nano);
+                                        }
                                     }
-                                }
-                                else
-                                {
-                                    if (result.response.page_result.next_cursor.next_message_time_nano != "0")
+                                    else
                                     {
-                                        await GetConversationList(dataAPI, direction, type, result.response.page_result.next_cursor.next_message_time_nano);
+                                        if (result.response.page_result.next_cursor.next_message_time_nano != "0")
+                                        {
+                                            await GetConversationList(dataAPI, direction, type, result.response.page_result.next_cursor.next_message_time_nano);
+                                        }
                                     }
                                 }
                             }

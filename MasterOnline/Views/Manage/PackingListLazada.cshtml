@@ -739,9 +739,10 @@
                                             textareaValue += "Error Orders :</br>";
                                             textareaValue += errorValue;
 
-                                            if (response.listSuccess.length == 0 || response.listSuccess.length == response.listErrors.length) {
-                                                $('#modalPrintLabelOption__' + cust).modal('hide');
-                                            } else {
+                                            //if (response.listSuccess.length == 0 || response.listSuccess.length == response.listErrors.length) {
+                                            //    $('#modalPrintLabelOption__' + cust).modal('hide');
+                                            //} else {
+                                            if (response.listSuccess.length > 0) {
                                                 var rows_selected_new = [];
                                                 rows_selected.forEach(function (rec_select) {
                                                     var adaRec = false;
@@ -808,6 +809,8 @@
                                                 } else {
                                                     $('#modalPrintLabelOption__' + cust).modal('hide');
                                                 }
+                                            } else {
+                                                $('#modalPrintLabelOption__' + cust).modal('hide');
                                             }
                                         } else {
                                             $postdata2 = {
