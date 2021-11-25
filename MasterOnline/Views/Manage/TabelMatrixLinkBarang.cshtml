@@ -33,43 +33,64 @@
         border-width: 30px;
         border-radius: 50%;
     }
+
+    .tscroll {
+        overflow-x: scroll;
+    }
+
+        .tscroll table td:first-child {
+            position: sticky;
+            left: 0;
+        }
+
+        .tscroll td, .tscroll th {
+            border-bottom: dashed #888 1px;
+        }
+        .tscroll table tr th {
+            position: sticky;
+            top: 0;
+        }
 </style>
 <div id="loading_barang_tab">
     <div id="loading_barang_tab_image">
         <img src="~/Content/Images/spinner.gif" />
     </div>
 </div>
+<div class="hscroll table-responsive tscroll">
+    <table class="table table-striped table-bordered table-hover">
+        <thead>
+            <tr role="row">
+                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; align-self:flex-start;">
+                    <input type="checkbox" class="cbunlink" id="checkbox_all_brg" style="margin-top: 20px; align-self:flex-start; width:30px; height:28px;" />
+                </th>
+                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 90px;">Kode</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 150px;">Nama</th>
+                @foreach (var listCust in Model.akun)
+                {
+                    var idMarket = Convert.ToInt32(listCust.NAMA);
+                    var namaMP = listMarket.Where(m => m.IdMarket == idMarket).SingleOrDefault().NamaMarket;
+                    var namaAkun = namaMP + " (" + listCust.PERSO + ")";
 
-<table class="table table-striped table-bordered table-hover">
-    <thead>
-        <tr role="row">
-            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 90px;">Kode</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 150px;">Nama</th>
-            @foreach (var listCust in Model.akun)
-            {
-                var idMarket = Convert.ToInt32( listCust.NAMA);
-                var namaMP = listMarket.Where(m => m.IdMarket == idMarket).SingleOrDefault().NamaMarket;
-                var namaAkun = namaMP + " (" + listCust.PERSO + ")";
-
-                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 150px;">@namaAkun</th>
+                    <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 150px;">@namaAkun</th>
+                }
+                @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 45px;">Edit</th>*@
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                var currentBrg = "";
             }
-            @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 45px;">Edit</th>*@
-        </tr>
-    </thead>
-    <tbody>
-        @{
-            var currentBrg = "";
-        }
-        @foreach (var barang in Model.barang)
-        {
-            if (barang.BRG != currentBrg)
+            @foreach (var barang in Model.barang)
             {
-                currentBrg = barang.BRG;
-                <tr>
-                    <td>@barang.BRG</td>
-                    <td>@barang.NAMABRG</td>
-                    @foreach (var listCust in Model.akun)
-                    {
+                if (barang.BRG != currentBrg)
+                {
+                    currentBrg = barang.BRG;
+                    <tr>
+                        <td><input type="checkbox" class="cbunlink" id="cbb_@barang.BRG" onclick="checkAll('@barang.BRG')" /></td>
+                        <td>@barang.BRG</td>
+                        <td>@barang.NAMABRG</td>
+                        @foreach (var listCust in Model.akun)
+                        {
                             var cBrg = Model.barang.Where(m => m.BRG == currentBrg && m.IDMARKET == listCust.RecNum).FirstOrDefault();
                             var brgMP = "";
                             var link = "";
@@ -78,11 +99,33 @@
                                 link = cBrg.LINK;
                                 brgMP = cBrg.BRG_MP;
                             };
-                        <td>@brgMP</td>
+                            <td>
+                                @if (brgMP != "")
+                                {
+                                    <input id="cb_@cBrg.RECNUM" type="checkbox" class="cb_@barang.BRG cbunlink" data-idmarket="@cBrg.RECNUM" style="float: left;" />
+                                    <div style="margin-left: 25px;">
+                                        @brgMP
+                                    </div>
+                                    @*<label for="cb_@cBrg.RECNUM">@brgMP</label>*@
+                                }
 
-                    }
-                </tr>
+                            </td>
+
+                        }
+                    </tr>
+                }
             }
-        }
-    </tbody>
-</table>
+        </tbody>
+    </table>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#checkbox_all_brg").click(function () {
+            $(".cbunlink").prop('checked',
+                $(this).prop('checked'));
+        });
+    });
+    function checkAll(brg) {
+        $(".cb_" + brg).prop('checked', $("#cbb_" + brg).prop('checked'));
+    }
+</script>
