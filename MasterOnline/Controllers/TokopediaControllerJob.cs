@@ -2735,75 +2735,94 @@ namespace MasterOnline.Controllers
             var token = SetupContext(iden);
             iden.token = token;
             var list_ordersn = ErasoftDbContext.SOT01A.AsNoTracking().Where(a => (a.TRACKING_SHIPMENT == null || a.TRACKING_SHIPMENT == "-" || a.TRACKING_SHIPMENT == "") && a.CUST == cust && (a.NO_REFERENSI.Contains("INV")) && (a.STATUS_TRANSAKSI.Contains("02") || a.STATUS_TRANSAKSI.Contains("03") || a.STATUS_TRANSAKSI.Contains("04"))).ToList();
-            if (list_ordersn.Count() > 0)
+            try
             {
-                foreach (var pesanan in list_ordersn)
+                if (list_ordersn.Count() > 0)
                 {
-                    string[] splitNoRef = pesanan.NO_REFERENSI.Split(';');
-                    string urll = "https://fs.tokopedia.net/v2/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/order?invoice_num=" + Uri.EscapeDataString(splitNoRef.Last());
-                    long milis = CurrentTimeMillis();
-
-
-                    DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
-
-                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-                    myReq.Method = "GET";
-                    myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
-                    myReq.Accept = "application/x-www-form-urlencoded";
-                    myReq.ContentType = "application/json";
-                    string responseFromServer = "";
-                    //try
-                    //{
-                    using (WebResponse response = await myReq.GetResponseAsync())
+                    foreach (var pesanan in list_ordersn)
                     {
-                        using (Stream stream = response.GetResponseStream())
-                        {
-                            StreamReader reader = new StreamReader(stream);
-                            responseFromServer = reader.ReadToEnd();
-                        }
-                    }
-                    //using (WebResponse response = await myReq.GetResponse())
-                    //    {
-                    //        using (Stream stream = response.GetResponseStream())
-                    //        {
-                    //            StreamReader reader = new StreamReader(stream);
-                    //            responseFromServer = reader.ReadToEnd();
-                    //        }
-                    //    }
-                    //}
-                    //catch (WebException e)
-                    //{
-                    //    string err = "";
-                    //    if (e.Status == WebExceptionStatus.ProtocolError)
-                    //    {
-                    //        WebResponse resp = e.Response;
-                    //        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
-                    //        {
-                    //            err = sr.ReadToEnd();
-                    //        }
-                    //    }
-                    //    throw new Exception(err);
-                    //}
+                        string[] splitNoRef = pesanan.NO_REFERENSI.Split(';');
+                        string urll = "https://fs.tokopedia.net/v2/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/order?invoice_num=" + Uri.EscapeDataString(splitNoRef.Last());
+                        long milis = CurrentTimeMillis();
 
-                    if (responseFromServer != null)
-                    {
-                        TokpedSingleOrderResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedSingleOrderResult)) as TokpedSingleOrderResult;
-                        //if (result.header.error_code == "")
+
+                        DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+                        HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                        myReq.Method = "GET";
+                        myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+                        myReq.Accept = "application/x-www-form-urlencoded";
+                        myReq.ContentType = "application/json";
+                        string responseFromServer = "";
+                        //try
+                        //{
+                        using (WebResponse response = await myReq.GetResponseAsync())
                         {
-                            var tempAWB = result.data.order_info.shipping_info.awb;
-                            if (tempAWB != null && tempAWB != "")
+                            using (Stream stream = response.GetResponseStream())
                             {
-                                var pesananIndb = ErasoftDbContext.SOT01A.AsNoTracking().Where(a => a.NO_BUKTI == pesanan.NO_BUKTI).SingleOrDefault();
-                                if (pesananIndb != null)
+                                StreamReader reader = new StreamReader(stream);
+                                responseFromServer = reader.ReadToEnd();
+                            }
+                        }
+                        //using (WebResponse response = await myReq.GetResponse())
+                        //    {
+                        //        using (Stream stream = response.GetResponseStream())
+                        //        {
+                        //            StreamReader reader = new StreamReader(stream);
+                        //            responseFromServer = reader.ReadToEnd();
+                        //        }
+                        //    }
+                        //}
+                        //catch (WebException e)
+                        //{
+                        //    string err = "";
+                        //    if (e.Status == WebExceptionStatus.ProtocolError)
+                        //    {
+                        //        WebResponse resp = e.Response;
+                        //        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                        //        {
+                        //            err = sr.ReadToEnd();
+                        //        }
+                        //    }
+                        //    throw new Exception(err);
+                        //}
+
+                        if (responseFromServer != null)
+                        {
+                            TokpedSingleOrderResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedSingleOrderResult)) as TokpedSingleOrderResult;
+                            //if (result.header.error_code == "")
+                            {
+                                var tempAWB = result.data.order_info.shipping_info.awb;
+                                if (tempAWB != null && tempAWB != "")
                                 {
-                                    ret = ret + tempAWB;
-                                    //pesananIndb.TRACKING_SHIPMENT = tempAWB;
-                                    ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE SOT01A SET TRACKING_SHIPMENT = '" + tempAWB + "' where NO_BUKTI='" + pesanan.NO_BUKTI + "'");
-                                    ErasoftDbContext.SaveChanges();
+                                    var pesananIndb = ErasoftDbContext.SOT01A.AsNoTracking().Where(a => a.NO_BUKTI == pesanan.NO_BUKTI).SingleOrDefault();
+                                    if (pesananIndb != null)
+                                    {
+                                        ret = ret + tempAWB;
+                                        //pesananIndb.TRACKING_SHIPMENT = tempAWB;
+                                        ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE SOT01A SET TRACKING_SHIPMENT = '" + tempAWB + "' where NO_BUKTI='" + pesanan.NO_BUKTI + "'");
+                                        ErasoftDbContext.SaveChanges();
+                                    }
                                 }
                             }
                         }
                     }
+                }
+            }catch(Exception ex)
+            {
+                if(!ex.Message.ToLower().Contains("unauthorized"))
+                    if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
+                {
+                    var log = new TABEL_LOG_GETORDERS()
+                    {
+                        DBPATHERA = iden.DatabasePathErasoft,
+                        MARKETPLACE = "TOKPED",
+                        TGL = DateTime.UtcNow.AddHours(7),
+                        FUNCTION = "GetSingleOrder(get kode booking) : " + cust,
+                        ERRORMSG = ex.Message
+                    };
+                    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+                    MoDbContext.SaveChanges();
                 }
             }
             return ret;
@@ -3233,9 +3252,9 @@ namespace MasterOnline.Controllers
             //myReq.Headers.Add("sessionId", milis.ToString());
             //myReq.Headers.Add("username", userMTA);
             string responseFromServer = "";
-            //try
-            //{
-            using (WebResponse response = await myReq.GetResponseAsync())
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
             {
                 using (Stream stream = response.GetResponseStream())
                 {
@@ -4027,6 +4046,24 @@ namespace MasterOnline.Controllers
                 }
                 //end add by calvin 1 april 2019
             }
+            }
+            catch (Exception ex)
+            {
+                if(!ex.Message.ToLower().Contains("unauthorized"))
+                    if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
+                {
+                    var log = new TABEL_LOG_GETORDERS()
+                    {
+                        DBPATHERA = iden.DatabasePathErasoft,
+                        MARKETPLACE = "TOKPED",
+                        TGL = DateTime.UtcNow.AddHours(7),
+                        FUNCTION = "GetOrderList3days " + stat.ToString() + " : " + CUST,
+                        ERRORMSG = ex.Message
+                    };
+                    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+                    MoDbContext.SaveChanges();
+                }
+            }
             return ret;
         }
 
@@ -4174,9 +4211,9 @@ namespace MasterOnline.Controllers
             //myReq.Headers.Add("sessionId", milis.ToString());
             //myReq.Headers.Add("username", userMTA);
             string responseFromServer = "";
-            //try
-            //{
-            using (WebResponse response = await myReq.GetResponseAsync())
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
             {
                 using (Stream stream = response.GetResponseStream())
                 {
@@ -4246,7 +4283,25 @@ namespace MasterOnline.Controllers
                     }
                     //end add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
                 }
-                //end add by calvin 1 april 2019
+                    //end add by calvin 1 april 2019
+                }
+            }
+            catch (Exception ex)
+            {
+                if(!ex.Message.ToLower().Contains("unauthorized"))
+                    if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
+                {
+                    var log = new TABEL_LOG_GETORDERS()
+                    {
+                        DBPATHERA = iden.DatabasePathErasoft,
+                        MARKETPLACE = "TOKPED",
+                        TGL = DateTime.UtcNow.AddHours(7),
+                        FUNCTION = "GetOrderListCompleted3Days : " + CUST,
+                        ERRORMSG = ex.Message
+                    };
+                    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+                    MoDbContext.SaveChanges();
+                }
             }
             return ret;
         }
@@ -4321,6 +4376,7 @@ namespace MasterOnline.Controllers
             myReq.Accept = "application/x-www-form-urlencoded";
             myReq.ContentType = "application/json";
             string responseFromServer = "";
+            try { 
             using (WebResponse response = await myReq.GetResponseAsync())
             {
                 using (Stream stream = response.GetResponseStream())
@@ -4577,6 +4633,24 @@ namespace MasterOnline.Controllers
                 {
                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                     contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrder) + " Pesanan dari Tokopedia dibatalkan.");
+                }
+                }
+            }
+            catch (Exception ex)
+            {
+                if(!ex.Message.ToLower().Contains("unauthorized"))
+                    if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
+                {
+                    var log = new TABEL_LOG_GETORDERS()
+                    {
+                        DBPATHERA = iden.DatabasePathErasoft,
+                        MARKETPLACE = "TOKPED",
+                        TGL = DateTime.UtcNow.AddHours(7),
+                        FUNCTION = "GetOrderListCancel3days : " + CUST,
+                        ERRORMSG = ex.Message
+                    };
+                    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+                    MoDbContext.SaveChanges();
                 }
             }
             //return "";

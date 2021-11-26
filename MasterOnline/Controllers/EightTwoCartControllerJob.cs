@@ -1404,710 +1404,722 @@ namespace MasterOnline.Controllers
                 //}
                 IRestResponse response = client.Execute(request);
                 responseServer = response.Content;
-            }
-            catch (Exception ex)
-            {
-                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-                throw new Exception(msg);
-            }
-
-            //if (responseServer != null)
-            if (!string.IsNullOrEmpty(responseServer))
-            {
-                //try
+                //}
+                //catch (Exception ex)
                 //{
-                var listOrder = JsonConvert.DeserializeObject(responseServer, typeof(E2CartOrderResult)) as E2CartOrderResult;
-                if (listOrder != null)
+                //    string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                //    throw new Exception(msg);
+                //}
+
+                //if (responseServer != null)
+                if (!string.IsNullOrEmpty(responseServer))
                 {
-                    if (listOrder.data != null)
+                    //try
+                    //{
+                    var listOrder = JsonConvert.DeserializeObject(responseServer, typeof(E2CartOrderResult)) as E2CartOrderResult;
+                    if (listOrder != null)
                     {
-                        //string[] statusAwaiting = { "1", "3", "10", "11", "13", "14", "16", "17", "18", "19", "20", "21", "23", "25" };
-
-                        //string[] ordersn_list = listOrder.data.Select(p => p.id_order).ToArray();
-                        //var dariTgl = DateTimeOffset.UtcNow.AddDays(-10).DateTime;
-                        var dariTgl = DateTime.UtcNow.AddHours(7).AddDays(-14);
-                        //jmlhNewOrder = 0;
-                        var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && p.TGL.Value >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
-
-                        #region UNPAID
-                        if (stat == StatusOrder.UNPAID)
+                        if (listOrder.data != null)
                         {
-                            //check state order
-                            var resultStatusAwaiting = await E2Cart_GetOrdersState(iden);
-                            //end check state order
+                            //string[] statusAwaiting = { "1", "3", "10", "11", "13", "14", "16", "17", "18", "19", "20", "21", "23", "25" };
 
-                            if (resultStatusAwaiting.dataObject != null)
-                                if (resultStatusAwaiting.dataObject.Count() > 0)
-                                    foreach (var itemOrder in resultStatusAwaiting.dataObject)
-                                    {
-                                        if ((itemOrder.name.ToString().ToLower().Contains("awaiting") && itemOrder.name.ToString().ToLower().Contains("payment"))
-                                            || (itemOrder.name.ToString().ToLower().Contains("payment confirm")) || (itemOrder.name.ToString().ToLower().Contains("awaiting bank transfer")))
+                            //string[] ordersn_list = listOrder.data.Select(p => p.id_order).ToArray();
+                            //var dariTgl = DateTimeOffset.UtcNow.AddDays(-10).DateTime;
+                            var dariTgl = DateTime.UtcNow.AddHours(7).AddDays(-14);
+                            //jmlhNewOrder = 0;
+                            var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && p.TGL.Value >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
+
+                            #region UNPAID
+                            if (stat == StatusOrder.UNPAID)
+                            {
+                                //check state order
+                                var resultStatusAwaiting = await E2Cart_GetOrdersState(iden);
+                                //end check state order
+
+                                if (resultStatusAwaiting.dataObject != null)
+                                    if (resultStatusAwaiting.dataObject.Count() > 0)
+                                        foreach (var itemOrder in resultStatusAwaiting.dataObject)
                                         {
-                                            var orderFilter = listOrder.data.Where(p => p.current_state == itemOrder.id_order_state).ToList();
-                                            if (orderFilter.Count() > 0)
+                                            if ((itemOrder.name.ToString().ToLower().Contains("awaiting") && itemOrder.name.ToString().ToLower().Contains("payment"))
+                                                || (itemOrder.name.ToString().ToLower().Contains("payment confirm")) || (itemOrder.name.ToString().ToLower().Contains("awaiting bank transfer")))
                                             {
-                                                foreach (var order in orderFilter)
+                                                var orderFilter = listOrder.data.Where(p => p.current_state == itemOrder.id_order_state).ToList();
+                                                if (orderFilter.Count() > 0)
                                                 {
-                                                    try
+                                                    foreach (var order in orderFilter)
                                                     {
-                                                        if (!OrderNoInDb.Contains(order.id_order + ";" + order.reference))
+                                                        try
                                                         {
-                                                            jmlhNewOrder++;
-                                                            var connIdARF01C = Guid.NewGuid().ToString();
-                                                            TEMP_82CART_ORDERS batchinsert = new TEMP_82CART_ORDERS();
-                                                            List<TEMP_82CART_ORDERS_ITEM> batchinsertItem = new List<TEMP_82CART_ORDERS_ITEM>();
-                                                            string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
-                                                            insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
-                                                            insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
-                                                            var kabKot = "3174";
-                                                            var prov = "31";
+                                                            if (!OrderNoInDb.Contains(order.id_order + ";" + order.reference))
+                                                            {
+                                                                jmlhNewOrder++;
+                                                                var connIdARF01C = Guid.NewGuid().ToString();
+                                                                TEMP_82CART_ORDERS batchinsert = new TEMP_82CART_ORDERS();
+                                                                List<TEMP_82CART_ORDERS_ITEM> batchinsertItem = new List<TEMP_82CART_ORDERS_ITEM>();
+                                                                string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                                                                insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                                                                insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
+                                                                var kabKot = "3174";
+                                                                var prov = "31";
 
 
-                                                            string fullname = order.firstname.ToString() + " " + order.lastname.ToString();
-                                                            string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : order.firstname.ToString() + " " + order.lastname.ToString();
-                                                            
-                                                            string TLP = !string.IsNullOrEmpty(order.delivery_address[0].phone_mobile) ? order.delivery_address[0].phone_mobile.Replace('\'', '`') : "";
-                                                            if (TLP.Length > 30)
-                                                                TLP = TLP.Substring(0, 30);
-                                                            if (NAMA_CUST.Length > 30)
-                                                                NAMA_CUST = NAMA_CUST.Substring(0, 30);
-                                                            string AL_KIRIM1 = !string.IsNullOrEmpty(order.delivery_address[0].address1) ? order.delivery_address[0].address1.Replace('\'', '`') : "";
-                                                            if (AL_KIRIM1.Length > 30)
-                                                            {
-                                                                AL_KIRIM1 = AL_KIRIM1.Substring(0, 30);
-                                                            }
-                                                            string KODEPOS = !string.IsNullOrEmpty(order.delivery_address[0].postcode) ? order.delivery_address[0].postcode.Replace('\'', '`') : "";
-                                                            if (KODEPOS.Length > 7)
-                                                            {
-                                                                KODEPOS = KODEPOS.Substring(0, 7);
-                                                            }
+                                                                string fullname = order.firstname.ToString() + " " + order.lastname.ToString();
+                                                                string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : order.firstname.ToString() + " " + order.lastname.ToString();
 
-                                                            insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
-                                                                ((nama ?? "").Replace("'", "`")),
-                                                                ((order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + order.delivery_address[0].state),
-                                                                //((order.delivery_address[0].phone_mobile ?? "").Replace("'", "`")),
-                                                                TLP,
-                                                                (NAMA_CUST.Replace(',', '.')),
-                                                                //((order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + order.delivery_address[0].state),
-                                                                AL_KIRIM1,
-                                                                DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                                                                (username),
-                                                                //((order.delivery_address[0].postcode ?? "").Replace("'", "`")),
-                                                                KODEPOS,
-                                                                kabKot,
-                                                                prov,
-                                                                connIdARF01C
-                                                                );
-                                                            insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
-                                                            EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
+                                                                string TLP = !string.IsNullOrEmpty(order.delivery_address[0].phone_mobile) ? order.delivery_address[0].phone_mobile.Replace('\'', '`') : "";
+                                                                if (TLP.Length > 30)
+                                                                    TLP = TLP.Substring(0, 30);
+                                                                if (NAMA_CUST.Length > 30)
+                                                                    NAMA_CUST = NAMA_CUST.Substring(0, 30);
+                                                                string AL_KIRIM1 = !string.IsNullOrEmpty(order.delivery_address[0].address1) ? order.delivery_address[0].address1.Replace('\'', '`') : "";
+                                                                if (AL_KIRIM1.Length > 30)
+                                                                {
+                                                                    AL_KIRIM1 = AL_KIRIM1.Substring(0, 30);
+                                                                }
+                                                                string KODEPOS = !string.IsNullOrEmpty(order.delivery_address[0].postcode) ? order.delivery_address[0].postcode.Replace('\'', '`') : "";
+                                                                if (KODEPOS.Length > 7)
+                                                                {
+                                                                    KODEPOS = KODEPOS.Substring(0, 7);
+                                                                }
+
+                                                                insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
+                                                                    ((nama ?? "").Replace("'", "`")),
+                                                                    ((order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + order.delivery_address[0].state),
+                                                                    //((order.delivery_address[0].phone_mobile ?? "").Replace("'", "`")),
+                                                                    TLP,
+                                                                    (NAMA_CUST.Replace(',', '.')),
+                                                                    //((order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + order.delivery_address[0].state),
+                                                                    AL_KIRIM1,
+                                                                    DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                                                                    (username),
+                                                                    //((order.delivery_address[0].postcode ?? "").Replace("'", "`")),
+                                                                    KODEPOS,
+                                                                    kabKot,
+                                                                    prov,
+                                                                    connIdARF01C
+                                                                    );
+                                                                insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
+                                                                EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
 
 
-                                                            ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_82CART_ORDERS");
-                                                            ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_82CART_ORDERS_ITEM");
-                                                            batchinsertItem = new List<TEMP_82CART_ORDERS_ITEM>();
+                                                                ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_82CART_ORDERS");
+                                                                ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_82CART_ORDERS_ITEM");
+                                                                batchinsertItem = new List<TEMP_82CART_ORDERS_ITEM>();
 
-                                                            //2020-04-08T05:12:41
-                                                            var dateOrder = Convert.ToDateTime(order.date_add).ToString("yyyy-MM-dd HH:mm:ss");
-                                                            var datePay = dateOrder;
-                                                            if (order.invoice_date == "0000-00-00 00:00:00")
-                                                            {
-                                                                datePay = dateOrder;
-                                                            }
-                                                            else
-                                                            {
-                                                                datePay = Convert.ToDateTime(order.invoice_date).ToString("yyyy-MM-dd HH:mm:ss");
-                                                            }
-                                                            #region cut char
-                                                            string estimated_shipping_fee = !string.IsNullOrEmpty(order.total_shipping) ? order.total_shipping.Replace('\'', '`') : "";
-                                                            if (estimated_shipping_fee.Length > 100)
-                                                            {
-                                                                estimated_shipping_fee = estimated_shipping_fee.Substring(0, 100);
-                                                            }
-                                                            string payment_method = !string.IsNullOrEmpty(order.payment) ? order.payment.Replace('\'', '`') : "";
-                                                            if (payment_method.Length > 100)
-                                                            {
-                                                                payment_method = payment_method.Substring(0, 100);
-                                                            }
-                                                            string shipping_carrier = !string.IsNullOrEmpty(order.name_carrier) ? order.name_carrier.Replace('\'', '`') : "";
-                                                            if (shipping_carrier.Length > 50)
-                                                            {
-                                                                shipping_carrier = shipping_carrier.Substring(0, 50);
-                                                            }
-                                                            string currency = !string.IsNullOrEmpty(order.currency) ? order.currency.Replace('\'', '`') : "";
-                                                            if (currency.Length > 50)
-                                                            {
-                                                                currency = currency.Substring(0, 50);
-                                                            }
-                                                            string Recipient_Address_city = !string.IsNullOrEmpty(order.delivery_address[0].city) ? order.delivery_address[0].city.Replace('\'', '`') : "";
-                                                            if (Recipient_Address_city.Length > 50)
-                                                            {
-                                                                Recipient_Address_city = Recipient_Address_city.Substring(0, 50);
-                                                            }
-                                                            string Recipient_Address_country = !string.IsNullOrEmpty(order.delivery_address[0].id_country) ? order.delivery_address[0].id_country.Replace('\'', '`') : "ID";
-                                                            if (Recipient_Address_country.Length > 50)
-                                                            {
-                                                                Recipient_Address_country = Recipient_Address_country.Substring(0, 50);
-                                                            }
-                                                            string Recipient_Address_state = !string.IsNullOrEmpty(order.delivery_address[0].state) ? order.delivery_address[0].state.Replace('\'', '`') : "";
-                                                            if (Recipient_Address_state.Length > 50)
-                                                            {
-                                                                Recipient_Address_state = Recipient_Address_state.Substring(0, 50);
-                                                            }
-                                                            string tracking_no = !string.IsNullOrEmpty(order.shipping_number) ? order.shipping_number.Replace('\'', '`') : "";
-                                                            if (tracking_no.Length > 50)
-                                                            {
-                                                                tracking_no = tracking_no.Substring(0, 50);
-                                                            }
-                                                            string total_amount = !string.IsNullOrEmpty(order.total_paid) ? order.total_paid.Replace('\'', '`') : "";
-                                                            if (total_amount.Length > 100)
-                                                            {
-                                                                total_amount = total_amount.Substring(0, 100);
-                                                            }
-                                                            string service_code = !string.IsNullOrEmpty(order.id_carrier) ? order.id_carrier.Replace('\'', '`') : "";
-                                                            if (service_code.Length > 100)
-                                                            {
-                                                                service_code = service_code.Substring(0, 100);
-                                                            }
-                                                            string actual_shipping_cost = !string.IsNullOrEmpty(order.total_shipping) ? order.total_shipping.Replace('\'', '`') : "";
-                                                            if (actual_shipping_cost.Length > 100)
-                                                            {
-                                                                actual_shipping_cost = actual_shipping_cost.Substring(0, 100);
-                                                            }
-                                                            string u_ordersn = !string.IsNullOrEmpty(order.id_order + ";" + order.reference) ? (order.id_order + ";" + (order.reference ?? "")).Replace('\'', '`') : "";
-                                                            if (u_ordersn.Length > 70)
-                                                            {
-                                                                u_ordersn = u_ordersn.Substring(0, 70);
-                                                            }
-
-                                                            #endregion
-
-                                                            TEMP_82CART_ORDERS newOrder = new TEMP_82CART_ORDERS()
-                                                            {
-                                                                actual_shipping_cost = actual_shipping_cost,
-                                                                buyer_username = nama,
-                                                                cod = false,
-                                                                country = "",
-                                                                create_time = Convert.ToDateTime(dateOrder),
-                                                                currency = currency,
-                                                                days_to_ship = 0,
-                                                                dropshipper = "",
-                                                                escrow_amount = "",
-                                                                estimated_shipping_fee = estimated_shipping_fee,
-                                                                goods_to_declare = false,
-                                                                message_to_seller = "",
-                                                                note = "",
-                                                                note_update_time = Convert.ToDateTime(dateOrder),
-                                                                ordersn = u_ordersn,
-                                                                //order_status = order.current_state_name,
-                                                                order_status = "UNPAID",
-                                                                payment_method = order.payment,
-                                                                //change by nurul 5/12/2019, local time 
-                                                                //pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
-                                                                pay_time = Convert.ToDateTime(datePay),
-                                                                //end change by nurul 5/12/2019, local time 
-                                                                Recipient_Address_country = Recipient_Address_country,
-                                                                Recipient_Address_state = Recipient_Address_state,
-                                                                Recipient_Address_city = Recipient_Address_city,
-                                                                Recipient_Address_town = "",
-                                                                Recipient_Address_district = "",
-                                                                Recipient_Address_full_address = (order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + Recipient_Address_state,
-                                                                Recipient_Address_name = nama,
-                                                                Recipient_Address_phone = TLP,
-                                                                Recipient_Address_zipcode = KODEPOS,
-                                                                service_code = service_code,
-                                                                shipping_carrier = shipping_carrier,
-                                                                total_amount = total_amount,
-                                                                tracking_no = tracking_no,
-                                                                update_time = Convert.ToDateTime(dateOrder),
-                                                                CONN_ID = connID,
-                                                                CUST = CUST,
-                                                                NAMA_CUST = NAMA_CUST
-                                                            };
-                                                            foreach (var item in order.order_detail)
-                                                            {
-                                                                //var product_id = "";
-                                                                //var name_brg = "";
-
+                                                                //2020-04-08T05:12:41
+                                                                var dateOrder = Convert.ToDateTime(order.date_add).ToString("yyyy-MM-dd HH:mm:ss");
+                                                                var datePay = dateOrder;
+                                                                if (order.invoice_date == "0000-00-00 00:00:00")
+                                                                {
+                                                                    datePay = dateOrder;
+                                                                }
+                                                                else
+                                                                {
+                                                                    datePay = Convert.ToDateTime(order.invoice_date).ToString("yyyy-MM-dd HH:mm:ss");
+                                                                }
                                                                 #region cut char
-                                                                string item_name = !string.IsNullOrEmpty(item.product_name) ? item.product_name.Replace('\'', '`') : "";
-                                                                if (item_name.Length > 150)
+                                                                string estimated_shipping_fee = !string.IsNullOrEmpty(order.total_shipping) ? order.total_shipping.Replace('\'', '`') : "";
+                                                                if (estimated_shipping_fee.Length > 100)
                                                                 {
-                                                                    item_name = item_name.Substring(0, 150);
+                                                                    estimated_shipping_fee = estimated_shipping_fee.Substring(0, 100);
                                                                 }
-                                                                string item_sku = !string.IsNullOrEmpty(item.reference) ? item.reference.Replace('\'', '`') : "";
-                                                                if (item_sku.Length > 400)
+                                                                string payment_method = !string.IsNullOrEmpty(order.payment) ? order.payment.Replace('\'', '`') : "";
+                                                                if (payment_method.Length > 100)
                                                                 {
-                                                                    item_sku = item_sku.Substring(0, 400);
+                                                                    payment_method = payment_method.Substring(0, 100);
                                                                 }
-                                                                string item_id = !string.IsNullOrEmpty(item.product_id) ? item.product_id.Replace('\'', '`') : "";
-                                                                if (item_id.Length > 20)
+                                                                string shipping_carrier = !string.IsNullOrEmpty(order.name_carrier) ? order.name_carrier.Replace('\'', '`') : "";
+                                                                if (shipping_carrier.Length > 50)
                                                                 {
-                                                                    item_id = item_id.Substring(0, 20);
+                                                                    shipping_carrier = shipping_carrier.Substring(0, 50);
                                                                 }
-                                                                string variation_id = !string.IsNullOrEmpty(item.product_attribute_id) ? item.product_attribute_id.Replace('\'', '`') : "";
-                                                                if (variation_id.Length > 20)
+                                                                string currency = !string.IsNullOrEmpty(order.currency) ? order.currency.Replace('\'', '`') : "";
+                                                                if (currency.Length > 50)
                                                                 {
-                                                                    variation_id = variation_id.Substring(0, 20);
+                                                                    currency = currency.Substring(0, 50);
                                                                 }
-                                                                string variation_discounted_price = !string.IsNullOrEmpty(item.original_product_price) ? item.original_product_price.Replace('\'', '`') : "";
-                                                                if (variation_discounted_price.Length > 50)
+                                                                string Recipient_Address_city = !string.IsNullOrEmpty(order.delivery_address[0].city) ? order.delivery_address[0].city.Replace('\'', '`') : "";
+                                                                if (Recipient_Address_city.Length > 50)
                                                                 {
-                                                                    variation_discounted_price = variation_discounted_price.Substring(0, 50);
+                                                                    Recipient_Address_city = Recipient_Address_city.Substring(0, 50);
                                                                 }
+                                                                string Recipient_Address_country = !string.IsNullOrEmpty(order.delivery_address[0].id_country) ? order.delivery_address[0].id_country.Replace('\'', '`') : "ID";
+                                                                if (Recipient_Address_country.Length > 50)
+                                                                {
+                                                                    Recipient_Address_country = Recipient_Address_country.Substring(0, 50);
+                                                                }
+                                                                string Recipient_Address_state = !string.IsNullOrEmpty(order.delivery_address[0].state) ? order.delivery_address[0].state.Replace('\'', '`') : "";
+                                                                if (Recipient_Address_state.Length > 50)
+                                                                {
+                                                                    Recipient_Address_state = Recipient_Address_state.Substring(0, 50);
+                                                                }
+                                                                string tracking_no = !string.IsNullOrEmpty(order.shipping_number) ? order.shipping_number.Replace('\'', '`') : "";
+                                                                if (tracking_no.Length > 50)
+                                                                {
+                                                                    tracking_no = tracking_no.Substring(0, 50);
+                                                                }
+                                                                string total_amount = !string.IsNullOrEmpty(order.total_paid) ? order.total_paid.Replace('\'', '`') : "";
+                                                                if (total_amount.Length > 100)
+                                                                {
+                                                                    total_amount = total_amount.Substring(0, 100);
+                                                                }
+                                                                string service_code = !string.IsNullOrEmpty(order.id_carrier) ? order.id_carrier.Replace('\'', '`') : "";
+                                                                if (service_code.Length > 100)
+                                                                {
+                                                                    service_code = service_code.Substring(0, 100);
+                                                                }
+                                                                string actual_shipping_cost = !string.IsNullOrEmpty(order.total_shipping) ? order.total_shipping.Replace('\'', '`') : "";
+                                                                if (actual_shipping_cost.Length > 100)
+                                                                {
+                                                                    actual_shipping_cost = actual_shipping_cost.Substring(0, 100);
+                                                                }
+                                                                string u_ordersn = !string.IsNullOrEmpty(order.id_order + ";" + order.reference) ? (order.id_order + ";" + (order.reference ?? "")).Replace('\'', '`') : "";
+                                                                if (u_ordersn.Length > 70)
+                                                                {
+                                                                    u_ordersn = u_ordersn.Substring(0, 70);
+                                                                }
+
                                                                 #endregion
 
-                                                                var name_brg_variasi = "";
-                                                                //if (item.product_attribute_id == "0")
-                                                                //{
-                                                                //    //var kodeBrg = ErasoftDbContext.STF02.SingleOrDefault(p => p.NAMA.Contains(item.product_name) && p.PART == "");
-                                                                //    //product_id = kodeBrg.BRG;
-                                                                //    //product_id = item.product_id;
-                                                                //    //name_brg = item.product_name;
-                                                                //}
-                                                                //else
-                                                                //{
-                                                                //    //product_id = item.product_attribute_id;
-                                                                //    //name_brg_variasi = item.product_name;
-                                                                //    name_brg_variasi = item_name;
-                                                                //}
-                                                                TEMP_82CART_ORDERS_ITEM newOrderItem = new TEMP_82CART_ORDERS_ITEM()
+                                                                TEMP_82CART_ORDERS newOrder = new TEMP_82CART_ORDERS()
                                                                 {
+                                                                    actual_shipping_cost = actual_shipping_cost,
+                                                                    buyer_username = nama,
+                                                                    cod = false,
+                                                                    country = "",
+                                                                    create_time = Convert.ToDateTime(dateOrder),
+                                                                    currency = currency,
+                                                                    days_to_ship = 0,
+                                                                    dropshipper = "",
+                                                                    escrow_amount = "",
+                                                                    estimated_shipping_fee = estimated_shipping_fee,
+                                                                    goods_to_declare = false,
+                                                                    message_to_seller = "",
+                                                                    note = "",
+                                                                    note_update_time = Convert.ToDateTime(dateOrder),
                                                                     ordersn = u_ordersn,
-                                                                    is_wholesale = false,
-                                                                    item_id = item_id,
-                                                                    item_name = item_name,
-                                                                    item_sku = item_sku,
-                                                                    variation_discounted_price = variation_discounted_price,
-                                                                    variation_id = variation_id,
-                                                                    variation_name = name_brg_variasi,
-                                                                    variation_original_price = variation_discounted_price,
-                                                                    variation_quantity_purchased = Convert.ToInt32(item.product_quantity),
-                                                                    variation_sku = item_sku,
-                                                                    weight = 0,
+                                                                    //order_status = order.current_state_name,
+                                                                    order_status = "UNPAID",
+                                                                    payment_method = order.payment,
+                                                                    //change by nurul 5/12/2019, local time 
+                                                                    //pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
                                                                     pay_time = Convert.ToDateTime(datePay),
+                                                                    //end change by nurul 5/12/2019, local time 
+                                                                    Recipient_Address_country = Recipient_Address_country,
+                                                                    Recipient_Address_state = Recipient_Address_state,
+                                                                    Recipient_Address_city = Recipient_Address_city,
+                                                                    Recipient_Address_town = "",
+                                                                    Recipient_Address_district = "",
+                                                                    Recipient_Address_full_address = (order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + Recipient_Address_state,
+                                                                    Recipient_Address_name = nama,
+                                                                    Recipient_Address_phone = TLP,
+                                                                    Recipient_Address_zipcode = KODEPOS,
+                                                                    service_code = service_code,
+                                                                    shipping_carrier = shipping_carrier,
+                                                                    total_amount = total_amount,
+                                                                    tracking_no = tracking_no,
+                                                                    update_time = Convert.ToDateTime(dateOrder),
                                                                     CONN_ID = connID,
                                                                     CUST = CUST,
                                                                     NAMA_CUST = NAMA_CUST
                                                                 };
-                                                                //if (!string.IsNullOrEmpty(item.promotion_type))
-                                                                //{
-                                                                //    if (item.promotion_type == "bundle_deal")
-                                                                //    {
-                                                                //        var promoPrice = await GetEscrowDetail(iden, order.ordersn, item.item_id, item.variation_id);
-                                                                //        newOrderItem.variation_discounted_price = promoPrice;
-                                                                //    }
-                                                                //}
-                                                                batchinsertItem.Add(newOrderItem);
-                                                            }
-                                                            batchinsert = (newOrder);
+                                                                foreach (var item in order.order_detail)
+                                                                {
+                                                                    //var product_id = "";
+                                                                    //var name_brg = "";
 
-                                                            ErasoftDbContext.TEMP_82CART_ORDERS.Add(batchinsert);
-                                                            ErasoftDbContext.TEMP_82CART_ORDERS_ITEM.AddRange(batchinsertItem);
-                                                            ErasoftDbContext.SaveChanges();
-                                                            using (SqlCommand CommandSQL = new SqlCommand())
-                                                            {
-                                                                //call sp to insert buyer data
-                                                                CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                                                                CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
+                                                                    #region cut char
+                                                                    string item_name = !string.IsNullOrEmpty(item.product_name) ? item.product_name.Replace('\'', '`') : "";
+                                                                    if (item_name.Length > 150)
+                                                                    {
+                                                                        item_name = item_name.Substring(0, 150);
+                                                                    }
+                                                                    string item_sku = !string.IsNullOrEmpty(item.reference) ? item.reference.Replace('\'', '`') : "";
+                                                                    if (item_sku.Length > 400)
+                                                                    {
+                                                                        item_sku = item_sku.Substring(0, 400);
+                                                                    }
+                                                                    string item_id = !string.IsNullOrEmpty(item.product_id) ? item.product_id.Replace('\'', '`') : "";
+                                                                    if (item_id.Length > 20)
+                                                                    {
+                                                                        item_id = item_id.Substring(0, 20);
+                                                                    }
+                                                                    string variation_id = !string.IsNullOrEmpty(item.product_attribute_id) ? item.product_attribute_id.Replace('\'', '`') : "";
+                                                                    if (variation_id.Length > 20)
+                                                                    {
+                                                                        variation_id = variation_id.Substring(0, 20);
+                                                                    }
+                                                                    string variation_discounted_price = !string.IsNullOrEmpty(item.original_product_price) ? item.original_product_price.Replace('\'', '`') : "";
+                                                                    if (variation_discounted_price.Length > 50)
+                                                                    {
+                                                                        variation_discounted_price = variation_discounted_price.Substring(0, 50);
+                                                                    }
+                                                                    #endregion
 
-                                                                EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
-                                                            };
-                                                            using (SqlCommand CommandSQL = new SqlCommand())
-                                                            {
-                                                                CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                                                                CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connID;
-                                                                CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
-                                                                CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                                                                CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
-                                                                CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
-                                                                CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
-                                                                CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
-                                                                CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
-                                                                CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
-                                                                CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
-                                                                CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 1;
-                                                                CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
-                                                                CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
+                                                                    var name_brg_variasi = "";
+                                                                    //if (item.product_attribute_id == "0")
+                                                                    //{
+                                                                    //    //var kodeBrg = ErasoftDbContext.STF02.SingleOrDefault(p => p.NAMA.Contains(item.product_name) && p.PART == "");
+                                                                    //    //product_id = kodeBrg.BRG;
+                                                                    //    //product_id = item.product_id;
+                                                                    //    //name_brg = item.product_name;
+                                                                    //}
+                                                                    //else
+                                                                    //{
+                                                                    //    //product_id = item.product_attribute_id;
+                                                                    //    //name_brg_variasi = item.product_name;
+                                                                    //    name_brg_variasi = item_name;
+                                                                    //}
+                                                                    TEMP_82CART_ORDERS_ITEM newOrderItem = new TEMP_82CART_ORDERS_ITEM()
+                                                                    {
+                                                                        ordersn = u_ordersn,
+                                                                        is_wholesale = false,
+                                                                        item_id = item_id,
+                                                                        item_name = item_name,
+                                                                        item_sku = item_sku,
+                                                                        variation_discounted_price = variation_discounted_price,
+                                                                        variation_id = variation_id,
+                                                                        variation_name = name_brg_variasi,
+                                                                        variation_original_price = variation_discounted_price,
+                                                                        variation_quantity_purchased = Convert.ToInt32(item.product_quantity),
+                                                                        variation_sku = item_sku,
+                                                                        weight = 0,
+                                                                        pay_time = Convert.ToDateTime(datePay),
+                                                                        CONN_ID = connID,
+                                                                        CUST = CUST,
+                                                                        NAMA_CUST = NAMA_CUST
+                                                                    };
+                                                                    //if (!string.IsNullOrEmpty(item.promotion_type))
+                                                                    //{
+                                                                    //    if (item.promotion_type == "bundle_deal")
+                                                                    //    {
+                                                                    //        var promoPrice = await GetEscrowDetail(iden, order.ordersn, item.item_id, item.variation_id);
+                                                                    //        newOrderItem.variation_discounted_price = promoPrice;
+                                                                    //    }
+                                                                    //}
+                                                                    batchinsertItem.Add(newOrderItem);
+                                                                }
+                                                                batchinsert = (newOrder);
 
-                                                                EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                                                ErasoftDbContext.TEMP_82CART_ORDERS.Add(batchinsert);
+                                                                ErasoftDbContext.TEMP_82CART_ORDERS_ITEM.AddRange(batchinsertItem);
+                                                                ErasoftDbContext.SaveChanges();
+                                                                using (SqlCommand CommandSQL = new SqlCommand())
+                                                                {
+                                                                    //call sp to insert buyer data
+                                                                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                                                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
+
+                                                                    EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
+                                                                };
+                                                                using (SqlCommand CommandSQL = new SqlCommand())
+                                                                {
+                                                                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                                                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connID;
+                                                                    CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
+                                                                    CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                                                                    CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
+                                                                    CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+                                                                    CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
+                                                                    CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                                                                    CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
+                                                                    CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                                                                    CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
+                                                                    CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 1;
+                                                                    CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
+                                                                    CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
+
+                                                                    EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                                                }
                                                             }
                                                         }
-                                                    }
-                                                    catch (Exception ex3)
-                                                    {
+                                                        catch (Exception ex3)
+                                                        {
 
+                                                        }
                                                     }
                                                 }
                                             }
+
                                         }
 
-                                    }
-
-                            if (jmlhNewOrder > 0)
-                            {
-                                var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                                contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari 82Cart.");
-
-                                //add by nurul 25/1/2021, bundling
-                                //var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + connID + "')").ToList();
-                                //if (listBrgKomponen.Count() > 0)
-                                //{
-                                //    ret = "1";
-                                //}
-                                //end add by nurul 25/1/2021, bundling
-                                new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
-                            }
-                        }
-                        #endregion
-
-                        #region PAID
-                        if (stat == StatusOrder.PAID)
-                        {
-                            string[] statusCAP = { "2", "3" }; // CODE STATUS PESANAN PAYMENT ACCEPTED, DAN PREPARATION IN PROGRESS INSERT KE DB
-                            string ordersn = "";
-                            jmlhPesananDibayar = 0;
-
-                            string ordersn2 = "";
-
-                            for (int itemOrderExisting = 0; itemOrderExisting < statusCAP.Length; itemOrderExisting++)
-                            {
-                                var orderFilterExisting = listOrder.data.Where(p => p.current_state == statusCAP[itemOrderExisting]).ToList();
-                                if (orderFilterExisting != null)
+                                if (jmlhNewOrder > 0)
                                 {
-                                    foreach (var order in orderFilterExisting)
+                                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                    contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari 82Cart.");
+
+                                    //add by nurul 25/1/2021, bundling
+                                    //var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + connID + "')").ToList();
+                                    //if (listBrgKomponen.Count() > 0)
+                                    //{
+                                    //    ret = "1";
+                                    //}
+                                    //end add by nurul 25/1/2021, bundling
+                                    new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
+                                }
+                            }
+                            #endregion
+
+                            #region PAID
+                            if (stat == StatusOrder.PAID)
+                            {
+                                string[] statusCAP = { "2", "3" }; // CODE STATUS PESANAN PAYMENT ACCEPTED, DAN PREPARATION IN PROGRESS INSERT KE DB
+                                string ordersn = "";
+                                jmlhPesananDibayar = 0;
+
+                                string ordersn2 = "";
+
+                                for (int itemOrderExisting = 0; itemOrderExisting < statusCAP.Length; itemOrderExisting++)
+                                {
+                                    var orderFilterExisting = listOrder.data.Where(p => p.current_state == statusCAP[itemOrderExisting]).ToList();
+                                    if (orderFilterExisting != null)
                                     {
-                                        if (!OrderNoInDb.Contains(order.id_order + ";" + order.reference))
+                                        foreach (var order in orderFilterExisting)
                                         {
-                                            jmlhPesananDibayar++;
-                                            ordersn = ordersn + "'" + order.id_order + ";" + order.reference + "',";
-                                            var statusOrderSP = "";
-
-                                            if (statusCAP[itemOrderExisting].ToString() == "2")
+                                            if (!OrderNoInDb.Contains(order.id_order + ";" + order.reference))
                                             {
-                                                statusOrderSP = "PAID";
-                                            }
-                                            else if (statusCAP[itemOrderExisting].ToString() == "3")
-                                            {
-                                                //statusOrderSP = "PREPARATION IN PROGRESS";
-                                                statusOrderSP = "PAID";
-                                            }
+                                                jmlhPesananDibayar++;
+                                                ordersn = ordersn + "'" + order.id_order + ";" + order.reference + "',";
+                                                var statusOrderSP = "";
 
-                                            var connIdARF01C = Guid.NewGuid().ToString();
-                                            TEMP_82CART_ORDERS batchinsert = new TEMP_82CART_ORDERS();
-                                            List<TEMP_82CART_ORDERS_ITEM> batchinsertItem = new List<TEMP_82CART_ORDERS_ITEM>();
-                                            string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
-                                            insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
-                                            insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
-                                            var kabKot = "3174";
-                                            var prov = "31";
+                                                if (statusCAP[itemOrderExisting].ToString() == "2")
+                                                {
+                                                    statusOrderSP = "PAID";
+                                                }
+                                                else if (statusCAP[itemOrderExisting].ToString() == "3")
+                                                {
+                                                    //statusOrderSP = "PREPARATION IN PROGRESS";
+                                                    statusOrderSP = "PAID";
+                                                }
 
-
-                                            string fullname = order.firstname.ToString() + " " + order.lastname.ToString();
-                                            string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : order.firstname.ToString() + " " + order.lastname.ToString();
-
-                                            string TLP = !string.IsNullOrEmpty(order.delivery_address[0].phone_mobile) ? order.delivery_address[0].phone_mobile.Replace('\'', '`') : "";
-                                            if (TLP.Length > 30)
-                                                TLP = TLP.Substring(0, 30);
-                                            if (NAMA_CUST.Length > 30)
-                                                NAMA_CUST = NAMA_CUST.Substring(0, 30);
-                                            string AL_KIRIM1 = !string.IsNullOrEmpty(order.delivery_address[0].address1) ? order.delivery_address[0].address1.Replace('\'', '`') : "";
-                                            if (AL_KIRIM1.Length > 30)
-                                            {
-                                                AL_KIRIM1 = AL_KIRIM1.Substring(0, 30);
-                                            }
-                                            string KODEPOS = !string.IsNullOrEmpty(order.delivery_address[0].postcode) ? order.delivery_address[0].postcode.Replace('\'', '`') : "";
-                                            if (KODEPOS.Length > 7)
-                                            {
-                                                KODEPOS = KODEPOS.Substring(0, 7);
-                                            }
-
-                                            insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
-                                                ((nama ?? "").Replace("'", "`")),
-                                                ((order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + order.delivery_address[0].state),
-                                                TLP,
-                                                (NAMA_CUST.Replace(',', '.')),
-                                                AL_KIRIM1,
-                                                DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                                                (username),
-                                                KODEPOS,
-                                                kabKot,
-                                                prov,
-                                                connIdARF01C
-                                                );
-                                            insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
-                                            EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
+                                                var connIdARF01C = Guid.NewGuid().ToString();
+                                                TEMP_82CART_ORDERS batchinsert = new TEMP_82CART_ORDERS();
+                                                List<TEMP_82CART_ORDERS_ITEM> batchinsertItem = new List<TEMP_82CART_ORDERS_ITEM>();
+                                                string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                                                insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                                                insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
+                                                var kabKot = "3174";
+                                                var prov = "31";
 
 
-                                            ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_82CART_ORDERS");
-                                            ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_82CART_ORDERS_ITEM");
-                                            batchinsertItem = new List<TEMP_82CART_ORDERS_ITEM>();
+                                                string fullname = order.firstname.ToString() + " " + order.lastname.ToString();
+                                                string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : order.firstname.ToString() + " " + order.lastname.ToString();
 
-                                            //2020-04-08T05:12:41
-                                            var dateOrder = Convert.ToDateTime(order.date_add).ToString("yyyy-MM-dd HH:mm:ss");
-                                            var datePay = dateOrder;
-                                            if (order.invoice_date == "0000-00-00 00:00:00")
-                                            {
-                                                datePay = dateOrder;
-                                            }
-                                            else
-                                            {
-                                                datePay = Convert.ToDateTime(order.invoice_date).ToString("yyyy-MM-dd HH:mm:ss");
-                                            }
+                                                string TLP = !string.IsNullOrEmpty(order.delivery_address[0].phone_mobile) ? order.delivery_address[0].phone_mobile.Replace('\'', '`') : "";
+                                                if (TLP.Length > 30)
+                                                    TLP = TLP.Substring(0, 30);
+                                                if (NAMA_CUST.Length > 30)
+                                                    NAMA_CUST = NAMA_CUST.Substring(0, 30);
+                                                string AL_KIRIM1 = !string.IsNullOrEmpty(order.delivery_address[0].address1) ? order.delivery_address[0].address1.Replace('\'', '`') : "";
+                                                if (AL_KIRIM1.Length > 30)
+                                                {
+                                                    AL_KIRIM1 = AL_KIRIM1.Substring(0, 30);
+                                                }
+                                                string KODEPOS = !string.IsNullOrEmpty(order.delivery_address[0].postcode) ? order.delivery_address[0].postcode.Replace('\'', '`') : "";
+                                                if (KODEPOS.Length > 7)
+                                                {
+                                                    KODEPOS = KODEPOS.Substring(0, 7);
+                                                }
 
-                                            #region cut char
-                                            string p_estimated_shipping_fee = !string.IsNullOrEmpty(order.total_shipping) ? order.total_shipping.Replace('\'', '`') : "";
-                                            if (p_estimated_shipping_fee.Length > 100)
-                                            {
-                                                p_estimated_shipping_fee = p_estimated_shipping_fee.Substring(0, 100);
-                                            }
-                                            string p_payment_method = !string.IsNullOrEmpty(order.payment) ? order.payment.Replace('\'', '`') : "";
-                                            if (p_payment_method.Length > 100)
-                                            {
-                                                p_payment_method = p_payment_method.Substring(0, 100);
-                                            }
-                                            string p_shipping_carrier = !string.IsNullOrEmpty(order.name_carrier) ? order.name_carrier.Replace('\'', '`') : "";
-                                            if (p_shipping_carrier.Length > 50)
-                                            {
-                                                p_shipping_carrier = p_shipping_carrier.Substring(0, 50);
-                                            }
-                                            string p_currency = !string.IsNullOrEmpty(order.currency) ? order.currency.Replace('\'', '`') : "";
-                                            if (p_currency.Length > 50)
-                                            {
-                                                p_currency = p_currency.Substring(0, 50);
-                                            }
-                                            string p_Recipient_Address_city = !string.IsNullOrEmpty(order.delivery_address[0].city) ? order.delivery_address[0].city.Replace('\'', '`') : "";
-                                            if (p_Recipient_Address_city.Length > 50)
-                                            {
-                                                p_Recipient_Address_city = p_Recipient_Address_city.Substring(0, 50);
-                                            }
-                                            string p_Recipient_Address_country = !string.IsNullOrEmpty(order.delivery_address[0].id_country) ? order.delivery_address[0].id_country.Replace('\'', '`') : "ID";
-                                            if (p_Recipient_Address_country.Length > 50)
-                                            {
-                                                p_Recipient_Address_country = p_Recipient_Address_country.Substring(0, 50);
-                                            }
-                                            string p_Recipient_Address_state = !string.IsNullOrEmpty(order.delivery_address[0].state) ? order.delivery_address[0].state.Replace('\'', '`') : "";
-                                            if (p_Recipient_Address_state.Length > 50)
-                                            {
-                                                p_Recipient_Address_state = p_Recipient_Address_state.Substring(0, 50);
-                                            }
-                                            string p_tracking_no = !string.IsNullOrEmpty(order.shipping_number) ? order.shipping_number.Replace('\'', '`') : "";
-                                            if (p_tracking_no.Length > 50)
-                                            {
-                                                p_tracking_no = p_tracking_no.Substring(0, 50);
-                                            }
-                                            string p_total_amount = !string.IsNullOrEmpty(order.total_paid) ? order.total_paid.Replace('\'', '`') : "";
-                                            if (p_total_amount.Length > 100)
-                                            {
-                                                p_total_amount = p_total_amount.Substring(0, 100);
-                                            }
-                                            string p_service_code = !string.IsNullOrEmpty(order.id_carrier) ? order.id_carrier.Replace('\'', '`') : "";
-                                            if (p_service_code.Length > 100)
-                                            {
-                                                p_service_code = p_service_code.Substring(0, 100);
-                                            }
-                                            string p_actual_shipping_cost = !string.IsNullOrEmpty(order.total_shipping) ? order.total_shipping.Replace('\'', '`') : "";
-                                            if (p_actual_shipping_cost.Length > 100)
-                                            {
-                                                p_actual_shipping_cost = p_actual_shipping_cost.Substring(0, 100);
-                                            }
-                                            string p_ordersn = !string.IsNullOrEmpty(order.id_order + ";" + order.reference) ? (order.id_order + ";" + (order.reference ?? "")).Replace('\'', '`') : "";
-                                            if (p_ordersn.Length > 70)
-                                            {
-                                                p_ordersn = p_ordersn.Substring(0, 70);
-                                            }
+                                                insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
+                                                    ((nama ?? "").Replace("'", "`")),
+                                                    ((order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + order.delivery_address[0].state),
+                                                    TLP,
+                                                    (NAMA_CUST.Replace(',', '.')),
+                                                    AL_KIRIM1,
+                                                    DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                                                    (username),
+                                                    KODEPOS,
+                                                    kabKot,
+                                                    prov,
+                                                    connIdARF01C
+                                                    );
+                                                insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
+                                                EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
 
-                                            #endregion
 
-                                            TEMP_82CART_ORDERS newOrder = new TEMP_82CART_ORDERS()
-                                            {
-                                                actual_shipping_cost = p_actual_shipping_cost,
-                                                buyer_username = nama,
-                                                cod = false,
-                                                country = "",
-                                                create_time = Convert.ToDateTime(dateOrder),
-                                                currency = p_currency,
-                                                days_to_ship = 0,
-                                                dropshipper = "",
-                                                escrow_amount = "",
-                                                estimated_shipping_fee = p_actual_shipping_cost,
-                                                goods_to_declare = false,
-                                                message_to_seller = "",
-                                                note = "",
-                                                note_update_time = Convert.ToDateTime(dateOrder),
-                                                ordersn = order.id_order + ";" + order.reference ?? "",
-                                                //order_status = order.current_state_name,
-                                                order_status = statusOrderSP,
-                                                payment_method = p_payment_method,
-                                                //change by nurul 5/12/2019, local time 
-                                                //pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
-                                                pay_time = Convert.ToDateTime(datePay),
-                                                //end change by nurul 5/12/2019, local time 
-                                                Recipient_Address_country = p_Recipient_Address_country,
-                                                Recipient_Address_state = p_Recipient_Address_state,
-                                                Recipient_Address_city = p_Recipient_Address_city,
-                                                Recipient_Address_town = "",
-                                                Recipient_Address_district = "",
-                                                Recipient_Address_full_address = (order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + p_Recipient_Address_state,
-                                                Recipient_Address_name = nama,
-                                                Recipient_Address_phone = TLP,
-                                                Recipient_Address_zipcode = KODEPOS,
-                                                service_code = p_service_code,
-                                                shipping_carrier = p_shipping_carrier,
-                                                total_amount = p_total_amount,
-                                                tracking_no = p_tracking_no,
-                                                update_time = Convert.ToDateTime(dateOrder),
-                                                CONN_ID = connID,
-                                                CUST = CUST,
-                                                NAMA_CUST = NAMA_CUST
-                                            };
-                                            foreach (var item in order.order_detail)
-                                            {
-                                                //var product_id = "";
-                                                //var name_brg = "";
+                                                ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_82CART_ORDERS");
+                                                ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_82CART_ORDERS_ITEM");
+                                                batchinsertItem = new List<TEMP_82CART_ORDERS_ITEM>();
+
+                                                //2020-04-08T05:12:41
+                                                var dateOrder = Convert.ToDateTime(order.date_add).ToString("yyyy-MM-dd HH:mm:ss");
+                                                var datePay = dateOrder;
+                                                if (order.invoice_date == "0000-00-00 00:00:00")
+                                                {
+                                                    datePay = dateOrder;
+                                                }
+                                                else
+                                                {
+                                                    datePay = Convert.ToDateTime(order.invoice_date).ToString("yyyy-MM-dd HH:mm:ss");
+                                                }
 
                                                 #region cut char
-                                                string p_item_name = !string.IsNullOrEmpty(item.product_name) ? item.product_name.Replace('\'', '`') : "";
-                                                if (p_item_name.Length > 150)
+                                                string p_estimated_shipping_fee = !string.IsNullOrEmpty(order.total_shipping) ? order.total_shipping.Replace('\'', '`') : "";
+                                                if (p_estimated_shipping_fee.Length > 100)
                                                 {
-                                                    p_item_name = p_item_name.Substring(0, 150);
+                                                    p_estimated_shipping_fee = p_estimated_shipping_fee.Substring(0, 100);
                                                 }
-                                                string p_item_sku = !string.IsNullOrEmpty(item.reference) ? item.reference.Replace('\'', '`') : "";
-                                                if (p_item_sku.Length > 400)
+                                                string p_payment_method = !string.IsNullOrEmpty(order.payment) ? order.payment.Replace('\'', '`') : "";
+                                                if (p_payment_method.Length > 100)
                                                 {
-                                                    p_item_sku = p_item_sku.Substring(0, 400);
+                                                    p_payment_method = p_payment_method.Substring(0, 100);
                                                 }
-                                                string p_item_id = !string.IsNullOrEmpty(item.product_id) ? item.product_id.Replace('\'', '`') : "";
-                                                if (p_item_id.Length > 20)
+                                                string p_shipping_carrier = !string.IsNullOrEmpty(order.name_carrier) ? order.name_carrier.Replace('\'', '`') : "";
+                                                if (p_shipping_carrier.Length > 50)
                                                 {
-                                                    p_item_id = p_item_id.Substring(0, 20);
+                                                    p_shipping_carrier = p_shipping_carrier.Substring(0, 50);
                                                 }
-                                                string p_variation_id = !string.IsNullOrEmpty(item.product_attribute_id) ? item.product_attribute_id.Replace('\'', '`') : "";
-                                                if (p_variation_id.Length > 20)
+                                                string p_currency = !string.IsNullOrEmpty(order.currency) ? order.currency.Replace('\'', '`') : "";
+                                                if (p_currency.Length > 50)
                                                 {
-                                                    p_variation_id = p_variation_id.Substring(0, 20);
+                                                    p_currency = p_currency.Substring(0, 50);
                                                 }
-                                                string p_variation_discounted_price = !string.IsNullOrEmpty(item.original_product_price) ? item.original_product_price.Replace('\'', '`') : "";
-                                                if (p_variation_discounted_price.Length > 50)
+                                                string p_Recipient_Address_city = !string.IsNullOrEmpty(order.delivery_address[0].city) ? order.delivery_address[0].city.Replace('\'', '`') : "";
+                                                if (p_Recipient_Address_city.Length > 50)
                                                 {
-                                                    p_variation_discounted_price = p_variation_discounted_price.Substring(0, 50);
+                                                    p_Recipient_Address_city = p_Recipient_Address_city.Substring(0, 50);
                                                 }
+                                                string p_Recipient_Address_country = !string.IsNullOrEmpty(order.delivery_address[0].id_country) ? order.delivery_address[0].id_country.Replace('\'', '`') : "ID";
+                                                if (p_Recipient_Address_country.Length > 50)
+                                                {
+                                                    p_Recipient_Address_country = p_Recipient_Address_country.Substring(0, 50);
+                                                }
+                                                string p_Recipient_Address_state = !string.IsNullOrEmpty(order.delivery_address[0].state) ? order.delivery_address[0].state.Replace('\'', '`') : "";
+                                                if (p_Recipient_Address_state.Length > 50)
+                                                {
+                                                    p_Recipient_Address_state = p_Recipient_Address_state.Substring(0, 50);
+                                                }
+                                                string p_tracking_no = !string.IsNullOrEmpty(order.shipping_number) ? order.shipping_number.Replace('\'', '`') : "";
+                                                if (p_tracking_no.Length > 50)
+                                                {
+                                                    p_tracking_no = p_tracking_no.Substring(0, 50);
+                                                }
+                                                string p_total_amount = !string.IsNullOrEmpty(order.total_paid) ? order.total_paid.Replace('\'', '`') : "";
+                                                if (p_total_amount.Length > 100)
+                                                {
+                                                    p_total_amount = p_total_amount.Substring(0, 100);
+                                                }
+                                                string p_service_code = !string.IsNullOrEmpty(order.id_carrier) ? order.id_carrier.Replace('\'', '`') : "";
+                                                if (p_service_code.Length > 100)
+                                                {
+                                                    p_service_code = p_service_code.Substring(0, 100);
+                                                }
+                                                string p_actual_shipping_cost = !string.IsNullOrEmpty(order.total_shipping) ? order.total_shipping.Replace('\'', '`') : "";
+                                                if (p_actual_shipping_cost.Length > 100)
+                                                {
+                                                    p_actual_shipping_cost = p_actual_shipping_cost.Substring(0, 100);
+                                                }
+                                                string p_ordersn = !string.IsNullOrEmpty(order.id_order + ";" + order.reference) ? (order.id_order + ";" + (order.reference ?? "")).Replace('\'', '`') : "";
+                                                if (p_ordersn.Length > 70)
+                                                {
+                                                    p_ordersn = p_ordersn.Substring(0, 70);
+                                                }
+
                                                 #endregion
 
-                                                var name_brg_variasi = "";
-                                                //if (item.product_attribute_id == "0")
-                                                //{
-                                                //    //var kodeBrg = ErasoftDbContext.STF02.SingleOrDefault(p => p.NAMA.Contains(item.product_name) && p.PART == "");
-                                                //    //product_id = kodeBrg.BRG;
-                                                //    //product_id = item.product_id;
-                                                //    //name_brg = item.product_name;
-                                                //}
-                                                //else
-                                                //{
-                                                //    //product_id = item.product_attribute_id;
-                                                //    //name_brg_variasi = item.product_name;
-                                                //    name_brg_variasi = p_item_name;
-                                                //}
-
-                                                TEMP_82CART_ORDERS_ITEM newOrderItem = new TEMP_82CART_ORDERS_ITEM()
+                                                TEMP_82CART_ORDERS newOrder = new TEMP_82CART_ORDERS()
                                                 {
-                                                    ordersn = p_ordersn,
-                                                    is_wholesale = false,
-                                                    item_id = p_item_id,
-                                                    item_name = p_item_name,
-                                                    item_sku = p_item_sku,
-                                                    variation_discounted_price = p_variation_discounted_price,
-                                                    variation_id = p_variation_id,
-                                                    variation_name = name_brg_variasi,
-                                                    variation_original_price = p_variation_discounted_price,
-                                                    variation_quantity_purchased = Convert.ToInt32(item.product_quantity),
-                                                    variation_sku = p_item_sku,
-                                                    weight = 0,
+                                                    actual_shipping_cost = p_actual_shipping_cost,
+                                                    buyer_username = nama,
+                                                    cod = false,
+                                                    country = "",
+                                                    create_time = Convert.ToDateTime(dateOrder),
+                                                    currency = p_currency,
+                                                    days_to_ship = 0,
+                                                    dropshipper = "",
+                                                    escrow_amount = "",
+                                                    estimated_shipping_fee = p_actual_shipping_cost,
+                                                    goods_to_declare = false,
+                                                    message_to_seller = "",
+                                                    note = "",
+                                                    note_update_time = Convert.ToDateTime(dateOrder),
+                                                    ordersn = order.id_order + ";" + order.reference ?? "",
+                                                    //order_status = order.current_state_name,
+                                                    order_status = statusOrderSP,
+                                                    payment_method = p_payment_method,
+                                                    //change by nurul 5/12/2019, local time 
+                                                    //pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
                                                     pay_time = Convert.ToDateTime(datePay),
+                                                    //end change by nurul 5/12/2019, local time 
+                                                    Recipient_Address_country = p_Recipient_Address_country,
+                                                    Recipient_Address_state = p_Recipient_Address_state,
+                                                    Recipient_Address_city = p_Recipient_Address_city,
+                                                    Recipient_Address_town = "",
+                                                    Recipient_Address_district = "",
+                                                    Recipient_Address_full_address = (order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + p_Recipient_Address_state,
+                                                    Recipient_Address_name = nama,
+                                                    Recipient_Address_phone = TLP,
+                                                    Recipient_Address_zipcode = KODEPOS,
+                                                    service_code = p_service_code,
+                                                    shipping_carrier = p_shipping_carrier,
+                                                    total_amount = p_total_amount,
+                                                    tracking_no = p_tracking_no,
+                                                    update_time = Convert.ToDateTime(dateOrder),
                                                     CONN_ID = connID,
                                                     CUST = CUST,
                                                     NAMA_CUST = NAMA_CUST
                                                 };
+                                                foreach (var item in order.order_detail)
+                                                {
+                                                    //var product_id = "";
+                                                    //var name_brg = "";
 
-                                                batchinsertItem.Add(newOrderItem);
+                                                    #region cut char
+                                                    string p_item_name = !string.IsNullOrEmpty(item.product_name) ? item.product_name.Replace('\'', '`') : "";
+                                                    if (p_item_name.Length > 150)
+                                                    {
+                                                        p_item_name = p_item_name.Substring(0, 150);
+                                                    }
+                                                    string p_item_sku = !string.IsNullOrEmpty(item.reference) ? item.reference.Replace('\'', '`') : "";
+                                                    if (p_item_sku.Length > 400)
+                                                    {
+                                                        p_item_sku = p_item_sku.Substring(0, 400);
+                                                    }
+                                                    string p_item_id = !string.IsNullOrEmpty(item.product_id) ? item.product_id.Replace('\'', '`') : "";
+                                                    if (p_item_id.Length > 20)
+                                                    {
+                                                        p_item_id = p_item_id.Substring(0, 20);
+                                                    }
+                                                    string p_variation_id = !string.IsNullOrEmpty(item.product_attribute_id) ? item.product_attribute_id.Replace('\'', '`') : "";
+                                                    if (p_variation_id.Length > 20)
+                                                    {
+                                                        p_variation_id = p_variation_id.Substring(0, 20);
+                                                    }
+                                                    string p_variation_discounted_price = !string.IsNullOrEmpty(item.original_product_price) ? item.original_product_price.Replace('\'', '`') : "";
+                                                    if (p_variation_discounted_price.Length > 50)
+                                                    {
+                                                        p_variation_discounted_price = p_variation_discounted_price.Substring(0, 50);
+                                                    }
+                                                    #endregion
+
+                                                    var name_brg_variasi = "";
+                                                    //if (item.product_attribute_id == "0")
+                                                    //{
+                                                    //    //var kodeBrg = ErasoftDbContext.STF02.SingleOrDefault(p => p.NAMA.Contains(item.product_name) && p.PART == "");
+                                                    //    //product_id = kodeBrg.BRG;
+                                                    //    //product_id = item.product_id;
+                                                    //    //name_brg = item.product_name;
+                                                    //}
+                                                    //else
+                                                    //{
+                                                    //    //product_id = item.product_attribute_id;
+                                                    //    //name_brg_variasi = item.product_name;
+                                                    //    name_brg_variasi = p_item_name;
+                                                    //}
+
+                                                    TEMP_82CART_ORDERS_ITEM newOrderItem = new TEMP_82CART_ORDERS_ITEM()
+                                                    {
+                                                        ordersn = p_ordersn,
+                                                        is_wholesale = false,
+                                                        item_id = p_item_id,
+                                                        item_name = p_item_name,
+                                                        item_sku = p_item_sku,
+                                                        variation_discounted_price = p_variation_discounted_price,
+                                                        variation_id = p_variation_id,
+                                                        variation_name = name_brg_variasi,
+                                                        variation_original_price = p_variation_discounted_price,
+                                                        variation_quantity_purchased = Convert.ToInt32(item.product_quantity),
+                                                        variation_sku = p_item_sku,
+                                                        weight = 0,
+                                                        pay_time = Convert.ToDateTime(datePay),
+                                                        CONN_ID = connID,
+                                                        CUST = CUST,
+                                                        NAMA_CUST = NAMA_CUST
+                                                    };
+
+                                                    batchinsertItem.Add(newOrderItem);
+                                                }
+                                                batchinsert = (newOrder);
+
+                                                ErasoftDbContext.TEMP_82CART_ORDERS.Add(batchinsert);
+                                                ErasoftDbContext.TEMP_82CART_ORDERS_ITEM.AddRange(batchinsertItem);
+                                                ErasoftDbContext.SaveChanges();
+                                                using (SqlCommand CommandSQL = new SqlCommand())
+                                                {
+                                                    //call sp to insert buyer data
+                                                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
+
+                                                    EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
+                                                };
+                                                using (SqlCommand CommandSQL = new SqlCommand())
+                                                {
+                                                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connID;
+                                                    CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
+                                                    CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                                                    CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
+                                                    CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+                                                    CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
+                                                    CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                                                    CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
+                                                    CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                                                    CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
+                                                    CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 1;
+                                                    CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
+                                                    CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
+
+                                                    EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                                }
                                             }
-                                            batchinsert = (newOrder);
-
-                                            ErasoftDbContext.TEMP_82CART_ORDERS.Add(batchinsert);
-                                            ErasoftDbContext.TEMP_82CART_ORDERS_ITEM.AddRange(batchinsertItem);
-                                            ErasoftDbContext.SaveChanges();
-                                            using (SqlCommand CommandSQL = new SqlCommand())
+                                            else
                                             {
-                                                //call sp to insert buyer data
-                                                CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                                                CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
-
-                                                EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
-                                            };
-                                            using (SqlCommand CommandSQL = new SqlCommand())
-                                            {
-                                                CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                                                CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connID;
-                                                CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
-                                                CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                                                CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
-                                                CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
-                                                CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
-                                                CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
-                                                CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
-                                                CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
-                                                CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
-                                                CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 1;
-                                                CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
-                                                CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
-
-                                                EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                                ordersn2 = ordersn2 + "'" + order.id_order + ";" + order.reference + "',";
                                             }
-                                        }
-                                        else
-                                        {
-                                            ordersn2 = ordersn2 + "'" + order.id_order + ";" + order.reference + "',";
-                                        }
 
-                                    }
-                                    if (!string.IsNullOrEmpty(ordersn2))
-                                    {
-                                        ordersn2 = ordersn2.Substring(0, ordersn2.Length - 1);
-                                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn2 + ") AND STATUS_TRANSAKSI = '0'");
-                                        if (rowAffected > 0)
+                                        }
+                                        if (!string.IsNullOrEmpty(ordersn2))
                                         {
-                                            jmlhPesananUbahDibayar += rowAffected;
+                                            ordersn2 = ordersn2.Substring(0, ordersn2.Length - 1);
+                                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn2 + ") AND STATUS_TRANSAKSI = '0'");
+                                            if (rowAffected > 0)
+                                            {
+                                                jmlhPesananUbahDibayar += rowAffected;
+                                            }
                                         }
                                     }
                                 }
-                            }
 
-                            if (jmlhPesananUbahDibayar > 0)
-                            {
-                                var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                                contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhPesananUbahDibayar) + " Pesanan terbayar dari 82Cart.");
-                            }
+                                if (jmlhPesananUbahDibayar > 0)
+                                {
+                                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                    contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhPesananUbahDibayar) + " Pesanan terbayar dari 82Cart.");
+                                }
 
-                            if (jmlhPesananDibayar > 0)
-                            {
-                                var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                                contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhPesananDibayar) + " Pesanan terbayar dari 82Cart.");
+                                if (jmlhPesananDibayar > 0)
+                                {
+                                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                    contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhPesananDibayar) + " Pesanan terbayar dari 82Cart.");
 
-                                //add by nurul 25/1/2021, bundling
-                                //var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + connID + "')").ToList();
-                                //if (listBrgKomponen.Count() > 0)
-                                //{
-                                //    ret = "1";
-                                //}
-                                //end add by nurul 25/1/2021, bundling
-                                new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
+                                    //add by nurul 25/1/2021, bundling
+                                    //var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + connID + "')").ToList();
+                                    //if (listBrgKomponen.Count() > 0)
+                                    //{
+                                    //    ret = "1";
+                                    //}
+                                    //end add by nurul 25/1/2021, bundling
+                                    new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
+                                }
                             }
+                            #endregion
+
                         }
-                        #endregion
-
                     }
                 }
+            }catch(Exception ex)
+            {
+                var log = new TABEL_LOG_GETORDERS()
+                {
+                    DBPATHERA = iden.DatabasePathErasoft,
+                    MARKETPLACE = "82CART",
+                    TGL = DateTime.UtcNow.AddHours(7),
+                    FUNCTION = "E2Cart_GetOrderByStatusList3Days "+stat.ToString()+" : " + CUST,
+                    ERRORMSG = ex.Message
+                };
+                MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+                MoDbContext.SaveChanges();
             }
-
             return ret;
         }
 
@@ -2179,64 +2191,76 @@ namespace MasterOnline.Controllers
                 //}
                 IRestResponse response = client.Execute(request);
                 responseServer = response.Content;
-            }
-            catch (Exception ex)
-            {
-                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-                throw new Exception(msg);
-            }
-
-
-            //if (responseServer != null)
-            if (!string.IsNullOrEmpty(responseServer))
-            {
-                //try
+                //}
+                //catch (Exception ex)
                 //{
-                var listOrder = JsonConvert.DeserializeObject(responseServer, typeof(E2CartOrderResult)) as E2CartOrderResult;
-                if (listOrder != null)
+                //    string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                //    throw new Exception(msg);
+                //}
+
+
+                //if (responseServer != null)
+                if (!string.IsNullOrEmpty(responseServer))
                 {
-                    if (listOrder.data != null)
+                    //try
+                    //{
+                    var listOrder = JsonConvert.DeserializeObject(responseServer, typeof(E2CartOrderResult)) as E2CartOrderResult;
+                    if (listOrder != null)
                     {
-                        var statusCompleted = "5";
-                        var dariTgl = DateTime.UtcNow.AddHours(7).AddDays(-14);
-                        var orderFilterCompleted = listOrder.data.Where(p => p.current_state == statusCompleted).ToList();
-                        var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && p.TGL.Value >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
-                        string ordersn = "";
-                        jmlhOrderCompeleted = 0;
-                        if (orderFilterCompleted != null)
+                        if (listOrder.data != null)
                         {
-                            foreach (var item in orderFilterCompleted)
+                            var statusCompleted = "5";
+                            var dariTgl = DateTime.UtcNow.AddHours(7).AddDays(-14);
+                            var orderFilterCompleted = listOrder.data.Where(p => p.current_state == statusCompleted).ToList();
+                            var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && p.TGL.Value >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
+                            string ordersn = "";
+                            jmlhOrderCompeleted = 0;
+                            if (orderFilterCompleted != null)
                             {
-                                if (OrderNoInDb.Contains(item.id_order + ";" + item.reference))
+                                foreach (var item in orderFilterCompleted)
                                 {
-                                    ordersn = ordersn + "'" + item.id_order + ";" + item.reference + "',";
+                                    if (OrderNoInDb.Contains(item.id_order + ";" + item.reference))
+                                    {
+                                        ordersn = ordersn + "'" + item.id_order + ";" + item.reference + "',";
+                                    }
                                 }
                             }
-                        }
-                        if (orderFilterCompleted.Count() > 0 && !string.IsNullOrEmpty(ordersn))
-                        {
-                            ordersn = ordersn.Substring(0, ordersn.Length - 1);
-                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '03'");
-                            jmlhOrderCompeleted = jmlhOrderCompeleted + rowAffected;
-                            if (jmlhOrderCompeleted > 0)
+                            if (orderFilterCompleted.Count() > 0 && !string.IsNullOrEmpty(ordersn))
                             {
-                                var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                                contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrderCompeleted) + " Pesanan dari 82Cart sudah selesai.");
-
-                                //add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
-                                if (!string.IsNullOrEmpty(ordersn))
+                                ordersn = ordersn.Substring(0, ordersn.Length - 1);
+                                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '03'");
+                                jmlhOrderCompeleted = jmlhOrderCompeleted + rowAffected;
+                                if (jmlhOrderCompeleted > 0)
                                 {
-                                    var dateTimeNow = Convert.ToDateTime(DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd"));
-                                    string sSQLUpdateDatePesananSelesai = "UPDATE SIT01A SET TGL_KIRIM = '" + dateTimeNow + "' WHERE NO_REF IN (" + ordersn + ")";
-                                    var resultUpdateDatePesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdateDatePesananSelesai);
+                                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                    contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrderCompeleted) + " Pesanan dari 82Cart sudah selesai.");
+
+                                    //add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
+                                    if (!string.IsNullOrEmpty(ordersn))
+                                    {
+                                        var dateTimeNow = Convert.ToDateTime(DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd"));
+                                        string sSQLUpdateDatePesananSelesai = "UPDATE SIT01A SET TGL_KIRIM = '" + dateTimeNow + "' WHERE NO_REF IN (" + ordersn + ")";
+                                        var resultUpdateDatePesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdateDatePesananSelesai);
+                                    }
+                                    //end add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
                                 }
-                                //end add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
                             }
                         }
                     }
                 }
+            }catch(Exception ex)
+            {
+                var log = new TABEL_LOG_GETORDERS()
+                {
+                    DBPATHERA = iden.DatabasePathErasoft,
+                    MARKETPLACE = "82CART",
+                    TGL = DateTime.UtcNow.AddHours(7),
+                    FUNCTION = "E2Cart_GetOrderByStatusCompletedList3Days : " + CUST,
+                    ERRORMSG = ex.Message
+                };
+                MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+                MoDbContext.SaveChanges();
             }
-
             return ret;
         }
 
@@ -2349,126 +2373,138 @@ namespace MasterOnline.Controllers
                 //}
                 IRestResponse response = client.Execute(request);
                 responseServer = response.Content;
-            }
-            catch (Exception ex)
-            {
-                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-                throw new Exception(msg);
-            }
-
-            //if (responseServer != null)
-            if (!string.IsNullOrEmpty(responseServer))
-            {
-                //try
+                //}
+                //catch (Exception ex)
                 //{
-                var listOrder = JsonConvert.DeserializeObject(responseServer, typeof(E2CartOrderResult)) as E2CartOrderResult;
-                if (listOrder != null)
-                {
-                    if (listOrder.data != null)
-                    {
-                        var statusCancel = "6";
-                        var orderFilterCancel = listOrder.data.Where(p => p.current_state == statusCancel).ToList();
-                        var dariTgl = DateTime.UtcNow.AddHours(7).AddDays(-14);
-                        var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && p.TGL.Value >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
-                        string ordersn = "";
-                        jmlhOrderCancel = 0;
-                        if (orderFilterCancel != null)
-                        {
-                            foreach (var item in orderFilterCancel)
-                            {
-                                if (OrderNoInDb.Contains(item.id_order + ";" + item.reference))
-                                {
-                                    ordersn = ordersn + "'" + item.id_order + ";" + item.reference + "',";
-                                }
-                            }
-                        }
-                        if (orderFilterCancel.Count() > 0 && !string.IsNullOrEmpty(ordersn))
-                        {
-                            ordersn = ordersn.Substring(0, ordersn.Length - 1);
-                            var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connID + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "'");
-                            //change by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
-                            //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
-                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
-                            //change by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
-                            if (rowAffected > 0)
-                            {
-                                //add by Tri 1 sep 2020, hapus packing list
-                                //remark by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
-                                //var delPL = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03B WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN (" + ordersn + ")  AND STATUS_TRANSAKSI = '11' AND CUST = '" + CUST + "')");
-                                //var delPLDetail = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03C WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN (" + ordersn + ")  AND STATUS_TRANSAKSI = '11' AND CUST = '" + CUST + "')");
-                                //END remark by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
-                                //end add by Tri 1 sep 2020, hapus packing list
-                                //add by Tri 4 Des 2019, isi cancel reason
-                                var sSQL1 = "";
-                                var sSQL2 = "SELECT * INTO #TEMP FROM (";
-                                var listReason = new Dictionary<string, string>();
+                //    string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                //    throw new Exception(msg);
+                //}
 
-                                foreach (var order in listOrder.data)
+                //if (responseServer != null)
+                if (!string.IsNullOrEmpty(responseServer))
+                {
+                    //try
+                    //{
+                    var listOrder = JsonConvert.DeserializeObject(responseServer, typeof(E2CartOrderResult)) as E2CartOrderResult;
+                    if (listOrder != null)
+                    {
+                        if (listOrder.data != null)
+                        {
+                            var statusCancel = "6";
+                            var orderFilterCancel = listOrder.data.Where(p => p.current_state == statusCancel).ToList();
+                            var dariTgl = DateTime.UtcNow.AddHours(7).AddDays(-14);
+                            var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && p.TGL.Value >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
+                            string ordersn = "";
+                            jmlhOrderCancel = 0;
+                            if (orderFilterCancel != null)
+                            {
+                                foreach (var item in orderFilterCancel)
                                 {
-                                    string reasonValue;
-                                    if (listReason.TryGetValue(order.id_order + ";" + order.reference, out reasonValue))
+                                    if (OrderNoInDb.Contains(item.id_order + ";" + item.reference))
                                     {
-                                        if (!string.IsNullOrEmpty(sSQL1))
-                                        {
-                                            sSQL1 += " UNION ALL ";
-                                        }
-                                        sSQL1 += " SELECT '" + order.id_order + ";" + order.reference + "' NO_REFERENSI, '" + listReason[order.id_order + ";" + order.reference] + "' ALASAN ";
+                                        ordersn = ordersn + "'" + item.id_order + ";" + item.reference + "',";
                                     }
                                 }
-                                sSQL2 += sSQL1 + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
-                                sSQL2 += " SELECT A.NO_BUKTI, ALASAN, 'AUTO_82CART' FROM SOT01A A INNER JOIN #TEMP T ON A.NO_REFERENSI = T.NO_REFERENSI ";
-                                sSQL2 += " LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = ''";
-                                EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL2);
-                                //var nobuk = ErasoftDbContext.SOT01A.Where(m => m.NO_REFERENSI == ordersn && m.CUST == CUST).Select(m => m.NO_BUKTI).FirstOrDefault();
-                                //if (!string.IsNullOrEmpty(nobuk))
-                                //{
-                                //    var sot01d = ErasoftDbContext.SOT01D.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
-                                //    if (sot01d == null)
-                                //    {
-                                //        EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "INSERT INTO SOT01D(NO_BUKTI, CATATAN_1, USERNAME) VALUES ('" + nobuk + "','" + order.reason + "','AUTO LAZADA')");
-                                //    }
-                                //}
-                                //end add by Tri 4 Des 2019, isi cancel reason
-
-                                var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + ordersn + ") AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + CUST + "'");
-
-                                //add by nurul 25/1/2021, bundling
-                                //var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + connID + "')").ToList();
-                                //if (listBrgKomponen.Count() > 0)
-                                //{
-                                //    ret = "1";
-                                //}
-                                //end add by nurul 25/1/2021, bundling
-
-                                //add by nurul 14/4/2021, stok bundling
-                                var sSQLInsertTempBundling = "INSERT INTO TEMP_ALL_MP_ORDER_ITEM_BUNDLING ([BRG],[CONN_ID],[TGL]) " +
-                                                             "SELECT DISTINCT C.UNIT AS BRG, '" + connID + "' AS CONN_ID, DATEADD(HOUR, +7, GETUTCDATE()) AS TGL " +
-                                                             "FROM TEMP_ALL_MP_ORDER_ITEM A(NOLOCK) " +
-                                                             "LEFT JOIN TEMP_ALL_MP_ORDER_ITEM_BUNDLING B(NOLOCK) ON B.CONN_ID = '" + connID + "' AND A.BRG = B.BRG " +
-                                                             "INNER JOIN STF03 C(NOLOCK) ON A.BRG = C.BRG " +
-                                                             "WHERE ISNULL(A.CONN_ID,'') = '" + connID + "' " +
-                                                             "AND ISNULL(B.BRG,'') = '' AND A.BRG <> 'NOT_FOUND'";
-                                var execInsertTempBundling = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLInsertTempBundling);
-                                //end add by nurul 14/4/2021, stok bundling
-
-                                new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
                             }
-                            jmlhOrderCancel = jmlhOrderCancel + rowAffected;
-                            if (jmlhOrderCancel > 0)
+                            if (orderFilterCancel.Count() > 0 && !string.IsNullOrEmpty(ordersn))
                             {
-                                var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                                contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrderCancel) + " Pesanan dari 82Cart dibatalkan.");
+                                ordersn = ordersn.Substring(0, ordersn.Length - 1);
+                                var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connID + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "'");
+                                //change by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
+                                //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
+                                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
+                                //change by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
+                                if (rowAffected > 0)
+                                {
+                                    //add by Tri 1 sep 2020, hapus packing list
+                                    //remark by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
+                                    //var delPL = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03B WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN (" + ordersn + ")  AND STATUS_TRANSAKSI = '11' AND CUST = '" + CUST + "')");
+                                    //var delPLDetail = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03C WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN (" + ordersn + ")  AND STATUS_TRANSAKSI = '11' AND CUST = '" + CUST + "')");
+                                    //END remark by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
+                                    //end add by Tri 1 sep 2020, hapus packing list
+                                    //add by Tri 4 Des 2019, isi cancel reason
+                                    var sSQL1 = "";
+                                    var sSQL2 = "SELECT * INTO #TEMP FROM (";
+                                    var listReason = new Dictionary<string, string>();
+
+                                    foreach (var order in listOrder.data)
+                                    {
+                                        string reasonValue;
+                                        if (listReason.TryGetValue(order.id_order + ";" + order.reference, out reasonValue))
+                                        {
+                                            if (!string.IsNullOrEmpty(sSQL1))
+                                            {
+                                                sSQL1 += " UNION ALL ";
+                                            }
+                                            sSQL1 += " SELECT '" + order.id_order + ";" + order.reference + "' NO_REFERENSI, '" + listReason[order.id_order + ";" + order.reference] + "' ALASAN ";
+                                        }
+                                    }
+                                    sSQL2 += sSQL1 + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
+                                    sSQL2 += " SELECT A.NO_BUKTI, ALASAN, 'AUTO_82CART' FROM SOT01A A INNER JOIN #TEMP T ON A.NO_REFERENSI = T.NO_REFERENSI ";
+                                    sSQL2 += " LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = ''";
+                                    EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL2);
+                                    //var nobuk = ErasoftDbContext.SOT01A.Where(m => m.NO_REFERENSI == ordersn && m.CUST == CUST).Select(m => m.NO_BUKTI).FirstOrDefault();
+                                    //if (!string.IsNullOrEmpty(nobuk))
+                                    //{
+                                    //    var sot01d = ErasoftDbContext.SOT01D.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
+                                    //    if (sot01d == null)
+                                    //    {
+                                    //        EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "INSERT INTO SOT01D(NO_BUKTI, CATATAN_1, USERNAME) VALUES ('" + nobuk + "','" + order.reason + "','AUTO LAZADA')");
+                                    //    }
+                                    //}
+                                    //end add by Tri 4 Des 2019, isi cancel reason
+
+                                    var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + ordersn + ") AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + CUST + "'");
+
+                                    //add by nurul 25/1/2021, bundling
+                                    //var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + connID + "')").ToList();
+                                    //if (listBrgKomponen.Count() > 0)
+                                    //{
+                                    //    ret = "1";
+                                    //}
+                                    //end add by nurul 25/1/2021, bundling
+
+                                    //add by nurul 14/4/2021, stok bundling
+                                    var sSQLInsertTempBundling = "INSERT INTO TEMP_ALL_MP_ORDER_ITEM_BUNDLING ([BRG],[CONN_ID],[TGL]) " +
+                                                                 "SELECT DISTINCT C.UNIT AS BRG, '" + connID + "' AS CONN_ID, DATEADD(HOUR, +7, GETUTCDATE()) AS TGL " +
+                                                                 "FROM TEMP_ALL_MP_ORDER_ITEM A(NOLOCK) " +
+                                                                 "LEFT JOIN TEMP_ALL_MP_ORDER_ITEM_BUNDLING B(NOLOCK) ON B.CONN_ID = '" + connID + "' AND A.BRG = B.BRG " +
+                                                                 "INNER JOIN STF03 C(NOLOCK) ON A.BRG = C.BRG " +
+                                                                 "WHERE ISNULL(A.CONN_ID,'') = '" + connID + "' " +
+                                                                 "AND ISNULL(B.BRG,'') = '' AND A.BRG <> 'NOT_FOUND'";
+                                    var execInsertTempBundling = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLInsertTempBundling);
+                                    //end add by nurul 14/4/2021, stok bundling
+
+                                    new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
+                                }
+                                jmlhOrderCancel = jmlhOrderCancel + rowAffected;
+                                if (jmlhOrderCancel > 0)
+                                {
+                                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                    contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrderCancel) + " Pesanan dari 82Cart dibatalkan.");
+                                }
+                                //}
                             }
-                            //}
                         }
                     }
+                    //}
+                    //catch (Exception ex2)
+                    //{
+                    //}
                 }
-                //}
-                //catch (Exception ex2)
-                //{
-                //}
+            }catch(Exception ex)
+            {
+                var log = new TABEL_LOG_GETORDERS()
+                {
+                    DBPATHERA = iden.DatabasePathErasoft,
+                    MARKETPLACE = "82CART",
+                    TGL = DateTime.UtcNow.AddHours(7),
+                    FUNCTION = "E2Cart_GetOrderByStatusCancelledList3Days : " + CUST,
+                    ERRORMSG = ex.Message
+                };
+                MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+                MoDbContext.SaveChanges();
             }
-
             return ret;
         }
 
