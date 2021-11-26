@@ -1872,23 +1872,41 @@ namespace MasterOnline.Controllers
             #endregion
 
             #region Accurate
-            try { 
-#if AWS
-	        string idaddon = "7";
-#else
-            string idaddon = "1003";
-#endif
-            string emailUserAol = MoDbContext.Account.SingleOrDefault(a => a.DatabasePathErasoft == dbPathEra).Email;
-            var datenow = DateTime.UtcNow.AddHours(7);
-            var partnerApi = LocalErasoftDbContext.PARTNER_API.FirstOrDefault(p => p.PartnerId == 20007 && p.Status == true);
-            if (partnerApi != null)
+            try
             {
-                var checkAolAddons = MoDbContext.Addons_Customer.SingleOrDefault(a => a.Account == emailUserAol && datenow < a.TglSubscription && a.ID_ADDON == idaddon);
-                if (checkAolAddons == null)
+                string idaddon = "7";
+                string emailUserAol = MoDbContext.Account.SingleOrDefault(a => a.DatabasePathErasoft == dbPathEra).Email;
+                var datenow = DateTime.UtcNow.AddHours(7);
+                var partnerApi = LocalErasoftDbContext.PARTNER_API.FirstOrDefault(p => p.PartnerId == 20007 && p.Status == true);
+                if (partnerApi != null)
                 {
-                    LocalErasoftDbContext.Database.ExecuteSqlCommand("UPDATE PARTNER_API SET STATUS = 0 WHERE PartnerId = 20007");
+                    var checkAolAddons = MoDbContext.Addons_Customer.SingleOrDefault(a => a.Account == emailUserAol && datenow < a.TglSubscription && a.ID_ADDON == idaddon);
+                    if (checkAolAddons == null)
+                    {
+                        LocalErasoftDbContext.Database.ExecuteSqlCommand("UPDATE PARTNER_API SET STATUS = 0 WHERE PartnerId = 20007");
+                    }
                 }
             }
+            catch (Exception ex) { }
+            #endregion
+
+            #region TADA
+            try
+            {
+                string idaddontada = "8";
+                string emailUserTada = MoDbContext.Account.SingleOrDefault(a => a.DatabasePathErasoft == dbPathEra).Email;
+                var datenowTada = DateTime.UtcNow.AddHours(7);
+                var partnerApiTada = LocalErasoftDbContext.PARTNER_API.FirstOrDefault(p => p.PartnerId == 30007 && p.Status == true);
+                if (partnerApiTada != null)
+                {
+                    var checkAolAddons = MoDbContext.Addons_Customer.SingleOrDefault(a => a.Account == emailUserTada && datenowTada < a.TglSubscription && a.ID_ADDON == idaddontada);
+                    if (checkAolAddons == null)
+                    {
+                        LocalErasoftDbContext.Database.ExecuteSqlCommand("UPDATE PARTNER_API SET STATUS = 0 WHERE PartnerId = 30007");
+                        var connection_id_topup_by_phone = dbPathEra + "_job_tada_topup_by_phone";
+                        recurJobM.RemoveIfExists(connection_id_topup_by_phone);
+                    }
+                }
             }
             catch (Exception ex) { }
             #endregion

@@ -38,7 +38,6 @@
             border-radius: 50%;
         }
 
-
         [data-tip] {
             position: relative;
         }
@@ -126,7 +125,6 @@
             //searchTablePesananInvoicing();
             refreshTableApiLog("1");
         });
-
         $('#search_api_log').keypress(function (e) {
             var key = e.which;
             if (key == 13)// the enter key code
@@ -137,12 +135,10 @@
         });
         refreshTableApiLog();
     });
-
     function searchTableLog() {
         var $link = '@Html.Raw(Url.Action("RefreshTableApiLog", "Manage", new { take = "replaceLastTake", search = "replaceSearch" }))';
         $link = $link.replace("replaceSearch", encodeURIComponent($('#search_api_log').val()));
         $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordInvoicing').val()));
-
         $.ajax({
             type: "GET",
             url: $link,
@@ -155,8 +151,6 @@
                 $('#search_api_log_btn')[0].disabled = false;
                 $('#table-partner-api-log-error').html(response);
                 $('#loading_barang_tab').hide();
-
-
             },
             error: function (xhr, status, error) {
                 $('#search_api_log_btn')[0].disabled = false;
@@ -176,7 +170,6 @@
         $link = $link.replace("replaceSearch", encodeURIComponent($('#search_api_log').val()));
         //$link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
         $link = $link.replace("replaceLastPage", encodeURIComponent($setPage));
-
         $.ajax({
             type: "GET",
             url: $link,
@@ -189,7 +182,6 @@
                 $('#search_api_log_btn')[0].disabled = false;
                 $('#table-partner-api-log-error').html(response);
                 $('#loading_barang_tab').hide();
-
                 $("#checkbox_all_partnerapi").click(function () {
                     $(".checkbox_partnerapi").prop('checked', $(this).prop('checked'));
                     if ($("#checkbox_all_partnerapi").prop('checked') == true) {
@@ -215,7 +207,6 @@
                         }
                     });
                 });
-
             },
             error: function (xhr, status, error) {
                 $('#search_api_log_btn')[0].disabled = false;
@@ -223,7 +214,6 @@
             }
         });
     }
-
     function RetryAllFailedInvoice() {
         var rows_select = [];
         $('.checkbox_partnerapi').each(function (i, item) {
@@ -231,9 +221,7 @@
                 rows_select.push($(item).attr("data-recnum"));
             }
         });
-
         var link = '@Url.Action("PartnerApiLogRetryAll", "Manage")';
-
         $.ajax({
             type: "POST",
             url: link,
@@ -250,12 +238,12 @@
             }
         });
     }
-
 </script>
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="row">
             <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                <!--col-lg-4 col-md-4 col-sm-12 col-xs-12-->
                 <div class="input-group">
                     <input id="search_api_log" type="text" class="form-control" placeholder="Pencarian">
                     <span class="input-group-btn">
@@ -265,7 +253,14 @@
                     </span>
                 </div>
             </div>
-            <div class="col-lg-4 col-sm-4 col-sm-12 col-xs-12" style="text-align:right;">
+            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                @*<button class="btn btn-primary" type="button" style="height:34px; border:1px;padding:2px 8px 2px 8px;margin:0px"
+                            onclick="RetryAllFailedInvoice()">
+                        <span>Coba Lagi Semua</span>
+                    </button>*@
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-12 col-xs-12 pull-right">
+                <!--col-lg-4 col-sm-4 col-sm-12 col-xs-12 pull-right-->
                 <div class="input-group text">
                     <select class="form-control" id="TakeRecordInvoicing" name="TakeRecordInvoicing" required="required">
                         <option value="10">10</option>
@@ -274,12 +269,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12 pull-right" style="text-align:right;">
-                <button class="btn btn-primary" type="button" style="height:34px; border:1px;padding:2px 8px 2px 8px;margin:0px"
-                        onclick="RetryAllFailedInvoice()">
-                    <span>Coba Lagi Semua</span>
-                </button>
-            </div>
+
         </div>
     </div>
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">

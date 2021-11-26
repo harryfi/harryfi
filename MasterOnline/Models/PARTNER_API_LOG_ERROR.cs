@@ -31,6 +31,7 @@
     public partial class PARTNER_API_LOG_ERROR_VIEW
     {
         public int log_id { get; set; }
+        public int? fs_id { get; set; }
         public string Nama_Partner { get; set; }
         public string Modul { get; set; }
         public string No_Bukti { get; set; }

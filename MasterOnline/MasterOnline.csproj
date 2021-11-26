@@ -683,6 +683,8 @@
     <Compile Include="Controllers\JDIDControllerJob.cs" />
     <Compile Include="Controllers\ExcelControllerJob.cs" />
     <Compile Include="Controllers\MasterOnlineController.cs" />
+    <Compile Include="Controllers\PartnerApiController.cs" />
+    <Compile Include="Controllers\PartnerApiControllerJob.cs" />
     <Compile Include="Controllers\ShopeeChatController.cs" />
     <Compile Include="Controllers\ShopifyController.cs" />
     <Compile Include="Controllers\ShopifyControllerJob.cs" />
@@ -7016,6 +7018,8 @@
     <Folder Include="Views\Blibli\" />
     <Folder Include="Views\Elevenia\" />
     <Folder Include="Views\MasterOnline\" />
+    <Folder Include="Views\PartnerApiControllerJob\" />
+    <Folder Include="Views\PartnerApi\" />
     <Folder Include="Views\StokOpnameViewModel\" />
   </ItemGroup>
   <ItemGroup>

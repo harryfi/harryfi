@@ -53,15 +53,15 @@
         [StringLength(100)]
         public string OAuthCallbackCode { get; set; }
         public int? PartnerId { get; set; }
-        //[StringLength(50)]
-        //public string Username { get; set; }
-        //[StringLength(50)]
-        //public string Password { get; set; }
-        //public TimeSpan? Schedule1 { get; set; }
-        //[StringLength(50)]
-        //public string ProgramId { get; set; }
-        //[StringLength(50)]
-        //public string WalletId { get; set; }
+        [StringLength(50)]
+        public string Username { get; set; }
+        [StringLength(50)]
+        public string Password { get; set; }
+        public TimeSpan? Schedule1 { get; set; }
+        [StringLength(50)]
+        public string ProgramId { get; set; }
+        [StringLength(50)]
+        public string WalletId { get; set; }
         public bool? isFaktur { get; set; }
     }
 }
