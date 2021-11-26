@@ -1057,8 +1057,116 @@
                                                             if (child.Show && !child.HaveChild)
                                                             {
                                                                 <li>
+                                                                    @if (child.ScrId == 1101) //chat
+                                                                    {
+                                                                        if (statusAktifSubAddonChat == 1)
+                                                                        {
+                                                                            @*<a target="_blank" @(!child.HaveChild ? "href=" + child.Url + sessionAccountDatabasePathErasoft : "")>*@
+                                                                            <a target="_blank" @(!child.HaveChild ? "href=" + child.Url + emailLogin : "")>
+                                                                                @if (!string.IsNullOrEmpty(child.Icon))
+                                                                                {
+                                                                                    <i class="fa @child.Icon"></i>
+                                                                                }
+                                                                                @child.NamaForm
+                                                                                @if (child.HaveChild)
+                                                                                {
+                                                                                    <span class="fa fa-chevron-down"></span>
+                                                                                }
+                                                                            </a>
+                                                                        }
+                                                                        else if (statusAktifSubAddonChat == 2)
+                                                                        {
+                                                                            <a href="javascript:alert('Masa subscription anda sudah berakhir, untuk ketentuan lebih lanjut silahkan hubungi tim support.');">
+                                                                                @if (!string.IsNullOrEmpty(child.Icon))
+                                                                                {
+                                                                                    <i class="fa @child.Icon"></i>
+                                                                                }
+                                                                                @child.NamaForm
+                                                                                @if (child.HaveChild)
+                                                                                {
+                                                                                    <span class="fa fa-chevron-down"></span>
+                                                                                }
+                                                                            </a>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <a href="javascript:alert('Fitur ini termasuk fitur ADD ON, untuk ketentuan lebih lanjut silahkan hubungi tim support.');">
+                                                                                @if (!string.IsNullOrEmpty(child.Icon))
+                                                                                {
+                                                                                    <i class="fa @child.Icon"></i>
+                                                                                }
+                                                                                @child.NamaForm
+                                                                                @if (child.HaveChild)
+                                                                                {
+                                                                                    <span class="fa fa-chevron-down"></span>
+                                                                                }
+                                                                            </a>
+                                                                        }
+                                                                    }
+                                                                    else if (child.ScrId == 1102) //chat
+                                                                    {
+                                                                        if (statusAktifSubAddonChat == 1)
+                                                                        {
+                                                                            <a @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                                @if (!string.IsNullOrEmpty(child.Icon))
+                                                                                {
+                                                                                    <i class="fa @child.Icon"></i>
+                                                                                }
+                                                                                @child.NamaForm
+                                                                                @if (child.HaveChild)
+                                                                                {
+                                                                                    <span class="fa fa-chevron-down"></span>
+                                                                                }
+                                                                            </a>
+                                                                        }
+                                                                        else if (statusAktifSubAddonChat == 2)
+                                                                        {
+                                                                            <a href="javascript:alert('Masa subscription anda sudah berakhir, untuk ketentuan lebih lanjut silahkan hubungi tim support.');">
+                                                                                @if (!string.IsNullOrEmpty(child.Icon))
+                                                                                {
+                                                                                    <i class="fa @child.Icon"></i>
+                                                                                }
+                                                                                @child.NamaForm
+                                                                                @if (child.HaveChild)
+                                                                                {
+                                                                                    <span class="fa fa-chevron-down"></span>
+                                                                                }
+                                                                            </a>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <a href="javascript:alert('Fitur ini termasuk fitur ADD ON, untuk ketentuan lebih lanjut silahkan hubungi tim support.');">
+                                                                                @if (!string.IsNullOrEmpty(child.Icon))
+                                                                                {
+                                                                                    <i class="fa @child.Icon"></i>
+                                                                                }
+                                                                                @child.NamaForm
+                                                                                @if (child.HaveChild)
+                                                                                {
+                                                                                    <span class="fa fa-chevron-down"></span>
+                                                                                }
+                                                                            </a>
+                                                                        }
+                                                                    }
+                                                                    @*//add by nurul 28/9/2021*@
+                                                                    else
+                                                                    {
+                                                                        <a @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                            @if (!string.IsNullOrEmpty(child.Icon))
+                                                                            {
+                                                                                <i class="fa @child.Icon"></i>
+                                                                            }
+                                                                            @child.NamaForm
+                                                                            @if (child.HaveChild)
+                                                                            {
+                                                                                <span class="fa fa-chevron-down"></span>
+                                                                            }
+                                                                        </a>
+                                                                    }
+                                                                </li>
+
+                                                                @*<li>
                                                                     <a @(!child.HaveChild ? "href=" + child.Url : "")>
-                                                                        @* @if (child.Icon != null)*@
                                                                         @if (!string.IsNullOrEmpty(child.Icon))
                                                                         {
                                                                             <i class="fa @child.Icon"></i>
@@ -1069,7 +1177,7 @@
                                                                             <span class="fa fa-chevron-down"></span>
                                                                         }
                                                                     </a>
-                                                                </li>
+                                                                </li>*@
                                                             }
                                                             else
                                                             {
