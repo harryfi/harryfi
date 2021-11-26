@@ -1007,7 +1007,8 @@ namespace MasterOnline.Controllers
                     };
                     MoDbContext.TABEL_LOG_GETORDERS.Add(log);
                     MoDbContext.SaveChanges();
-                }
+                    }
+                throw ex;
             }
             ret.Count = count;
             return ret;

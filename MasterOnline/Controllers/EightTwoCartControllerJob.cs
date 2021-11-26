@@ -2109,16 +2109,20 @@ namespace MasterOnline.Controllers
                 }
             }catch(Exception ex)
             {
-                var log = new TABEL_LOG_GETORDERS()
+                if (!ex.Message.ToLower().Contains("unexpected character"))
                 {
-                    DBPATHERA = iden.DatabasePathErasoft,
-                    MARKETPLACE = "82CART",
-                    TGL = DateTime.UtcNow.AddHours(7),
-                    FUNCTION = "E2Cart_GetOrderByStatusList3Days "+stat.ToString()+" : " + CUST,
-                    ERRORMSG = ex.Message
-                };
-                MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                MoDbContext.SaveChanges();
+                    var log = new TABEL_LOG_GETORDERS()
+                    {
+                        DBPATHERA = iden.DatabasePathErasoft,
+                        MARKETPLACE = "82CART",
+                        TGL = DateTime.UtcNow.AddHours(7),
+                        FUNCTION = "E2Cart_GetOrderByStatusList3Days " + stat.ToString() + " : " + CUST,
+                        ERRORMSG = ex.Message
+                    };
+                    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+                    MoDbContext.SaveChanges();
+                }
+                throw ex;
             }
             return ret;
         }
@@ -2250,16 +2254,20 @@ namespace MasterOnline.Controllers
                 }
             }catch(Exception ex)
             {
-                var log = new TABEL_LOG_GETORDERS()
+                if (!ex.Message.ToLower().Contains("unexpected character"))
                 {
-                    DBPATHERA = iden.DatabasePathErasoft,
-                    MARKETPLACE = "82CART",
-                    TGL = DateTime.UtcNow.AddHours(7),
-                    FUNCTION = "E2Cart_GetOrderByStatusCompletedList3Days : " + CUST,
-                    ERRORMSG = ex.Message
-                };
-                MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                MoDbContext.SaveChanges();
+                    var log = new TABEL_LOG_GETORDERS()
+                    {
+                        DBPATHERA = iden.DatabasePathErasoft,
+                        MARKETPLACE = "82CART",
+                        TGL = DateTime.UtcNow.AddHours(7),
+                        FUNCTION = "E2Cart_GetOrderByStatusCompletedList3Days : " + CUST,
+                        ERRORMSG = ex.Message
+                    };
+                    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+                    MoDbContext.SaveChanges();
+                }
+                throw ex;
             }
             return ret;
         }
@@ -2494,16 +2502,20 @@ namespace MasterOnline.Controllers
                 }
             }catch(Exception ex)
             {
-                var log = new TABEL_LOG_GETORDERS()
+                if (!ex.Message.ToLower().Contains("unexpected character"))
                 {
-                    DBPATHERA = iden.DatabasePathErasoft,
-                    MARKETPLACE = "82CART",
-                    TGL = DateTime.UtcNow.AddHours(7),
-                    FUNCTION = "E2Cart_GetOrderByStatusCancelledList3Days : " + CUST,
-                    ERRORMSG = ex.Message
-                };
-                MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                MoDbContext.SaveChanges();
+                    var log = new TABEL_LOG_GETORDERS()
+                    {
+                        DBPATHERA = iden.DatabasePathErasoft,
+                        MARKETPLACE = "82CART",
+                        TGL = DateTime.UtcNow.AddHours(7),
+                        FUNCTION = "E2Cart_GetOrderByStatusCancelledList3Days : " + CUST,
+                        ERRORMSG = ex.Message
+                    };
+                    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+                    MoDbContext.SaveChanges();
+                }
+                throw ex;
             }
             return ret;
         }
