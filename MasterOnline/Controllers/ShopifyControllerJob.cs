@@ -579,6 +579,7 @@ namespace MasterOnline.Controllers
                 };
                 MoDbContext.TABEL_LOG_GETORDERS.Add(log);
                 MoDbContext.SaveChanges();
+                throw ex;
             }
             return ret;
         }
@@ -1064,6 +1065,7 @@ namespace MasterOnline.Controllers
                 };
                 MoDbContext.TABEL_LOG_GETORDERS.Add(log);
                 MoDbContext.SaveChanges();
+                throw ex;
             }
             return ret;
         }
@@ -1396,6 +1398,7 @@ namespace MasterOnline.Controllers
                 };
                 MoDbContext.TABEL_LOG_GETORDERS.Add(log);
                 MoDbContext.SaveChanges();
+                throw ex;
             }
             return ret;
         }

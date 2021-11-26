@@ -2888,6 +2888,7 @@ namespace MasterOnline.Controllers
                 };
                 MoDbContext.TABEL_LOG_GETORDERS.Add(log);
                 MoDbContext.SaveChanges();
+                throw ex;
             }
 
 
@@ -3646,6 +3647,8 @@ namespace MasterOnline.Controllers
                 };
                 MoDbContext.TABEL_LOG_GETORDERS.Add(log);
                 MoDbContext.SaveChanges();
+
+                throw ex; 
             }
             return ret;
         }
@@ -4307,6 +4310,7 @@ namespace MasterOnline.Controllers
                 };
                 MoDbContext.TABEL_LOG_GETORDERS.Add(log);
                 MoDbContext.SaveChanges();
+                throw ex;
             }
             return ret;
         }
@@ -4695,6 +4699,7 @@ namespace MasterOnline.Controllers
                 };
                 MoDbContext.TABEL_LOG_GETORDERS.Add(log);
                 MoDbContext.SaveChanges();
+                throw ex;
             }
             return ret;
         }
@@ -4819,6 +4824,7 @@ namespace MasterOnline.Controllers
                 };
                 MoDbContext.TABEL_LOG_GETORDERS.Add(log);
                 MoDbContext.SaveChanges();
+                throw ex;
             }
             //add by nurul 14/4/2021, bundling
             return connIDStok;

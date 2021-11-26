@@ -1159,16 +1159,20 @@ namespace MasterOnline.Controllers
             }
             }
             catch (Exception ex) {
-                var log = new TABEL_LOG_GETORDERS()
+                if (!ex.Message.ToLower().Contains("invalid oauth token"))
                 {
-                    DBPATHERA = data.dbPathEra,
-                    MARKETPLACE = "BUKALAPAK",
-                    TGL = DateTime.UtcNow.AddHours(7),
-                    FUNCTION = "GetOrdersLoop : " + CUST,
-                    ERRORMSG = ex.Message
-                };
-                MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                MoDbContext.SaveChanges();
+                    var log = new TABEL_LOG_GETORDERS()
+                    {
+                        DBPATHERA = data.dbPathEra,
+                        MARKETPLACE = "BUKALAPAK",
+                        TGL = DateTime.UtcNow.AddHours(7),
+                        FUNCTION = "GetOrdersLoop : " + CUST,
+                        ERRORMSG = ex.Message
+                    };
+                    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+                    MoDbContext.SaveChanges();
+                }
+                throw ex;
             }
             return ret;
         }
@@ -1354,16 +1358,20 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                var log = new TABEL_LOG_GETORDERS()
+                if (!ex.Message.ToLower().Contains("invalid oauth token"))
                 {
-                    DBPATHERA = data.dbPathEra,
-                    MARKETPLACE = "BUKALAPAK",
-                    TGL = DateTime.UtcNow.AddHours(7),
-                    FUNCTION = "GetOrdersCompletedLoop : " + CUST,
-                    ERRORMSG = ex.Message
-                };
-                MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                MoDbContext.SaveChanges();
+                    var log = new TABEL_LOG_GETORDERS()
+                    {
+                        DBPATHERA = data.dbPathEra,
+                        MARKETPLACE = "BUKALAPAK",
+                        TGL = DateTime.UtcNow.AddHours(7),
+                        FUNCTION = "GetOrdersCompletedLoop : " + CUST,
+                        ERRORMSG = ex.Message
+                    };
+                    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+                    MoDbContext.SaveChanges();
+                }
+                throw ex;
             }
             return ret;
         }
@@ -1664,16 +1672,20 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                var log = new TABEL_LOG_GETORDERS()
+                if (!ex.Message.ToLower().Contains("invalid oauth token"))
                 {
-                    DBPATHERA = data.dbPathEra,
-                    MARKETPLACE = "BUKALAPAK",
-                    TGL = DateTime.UtcNow.AddHours(7),
-                    FUNCTION = "GetOrdersCanceledLoop : " + CUST,
-                    ERRORMSG = ex.Message
-                };
-                MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                MoDbContext.SaveChanges();
+                    var log = new TABEL_LOG_GETORDERS()
+                    {
+                        DBPATHERA = data.dbPathEra,
+                        MARKETPLACE = "BUKALAPAK",
+                        TGL = DateTime.UtcNow.AddHours(7),
+                        FUNCTION = "GetOrdersCanceledLoop : " + CUST,
+                        ERRORMSG = ex.Message
+                    };
+                    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+                    MoDbContext.SaveChanges();
+                }
+                throw ex;
             }
             return ret;
         }
