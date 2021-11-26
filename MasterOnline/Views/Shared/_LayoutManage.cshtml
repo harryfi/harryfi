@@ -60,6 +60,9 @@
     //add by nurul 11/10/2021
     var emailAccount = "";
     //end add by nurul 11/10/2021
+    //add by nurul 26/11/2021
+    var emailLogin = "";
+    //end add by nurul 26/11/2021
 
     var sessionAccount = HttpContext.Current.Session["SessionAccount"];
     var sessionAccountUserID = HttpContext.Current.Session["SessionAccountUserID"];
@@ -75,6 +78,10 @@
     var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
     var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
     var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+    //add by nurul 26/11/2021
+    var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+    //end add by nurul 26/11/2021
 
     if (sessionAccount != null)
     {
@@ -98,6 +105,11 @@
         //add by nurul 11/10/2021
         emailAccount = sessionAccountEmail.ToString();
         //end add by nurul 11/10/2021
+
+        //add by nurul 26/11/2021
+        var email = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(sessionAccountEmail.ToString()));
+        emailLogin = email;
+        //end add by nurul 26/11/2021
     }
     else
     {
@@ -122,6 +134,11 @@
         //add by nurul 11/10/2021
         emailAccount = accFromUser.Email.ToString();
         //end add by nurul 11/10/2021
+
+        //add by nurul 26/11/2021
+        var email = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(sessionUserEmail.ToString()));
+        emailLogin = email;
+        //end add by nurul 26/11/2021
     }
 
     var listParent = context.FormMoses.Where(m => m.ParentId == 0).OrderBy(m => m.ScrId).ToList();
@@ -514,7 +531,8 @@
                                                                         {
                                                                             if (statusAktifSubAddonChat == 1)
                                                                             {
-                                                                                <a target="_blank" @(!child.HaveChild ? "href=" + child.Url + sessionAccountDatabasePathErasoft : "")>
+                                                                                @*<a target="_blank" @(!child.HaveChild ? "href=" + child.Url + sessionAccountDatabasePathErasoft : "")>*@
+                                                                                <a target="_blank" @(!child.HaveChild ? "href=" + child.Url + emailLogin : "")>
                                                                                     @if (!string.IsNullOrEmpty(child.Icon))
                                                                                     {
                                                                                         <i class="fa @child.Icon"></i>
@@ -726,75 +744,184 @@
                                                             }
                                                         </a>
                                                     }
-                                                    <ul class="nav child_menu">
-                                                        @foreach (var child in listChild)
-                                                        {
-                                                            var childOfSecMenu = listChildOfSecMenu?.FirstOrDefault(c => c.FormId == child.ScrId);
-
-                                                            if (childOfSecMenu != null)
+                                                        <ul class="nav child_menu">
+                                                            @foreach (var child in listChild)
                                                             {
-                                                                if (child.Show && !child.HaveChild)
-                                                                {
-                                                                    <li>
-                                                                        <a @(!child.HaveChild ? "href=" + child.Url : "")>
-                                                                            @if (!string.IsNullOrEmpty(child.Icon))
-                                                                            {
-                                                                                <i class="fa @child.Icon"></i>
-                                                                            }
-                                                                            @child.NamaForm
-                                                                            @if (child.HaveChild)
-                                                                            {
-                                                                                <span class="fa fa-chevron-down"></span>
-                                                                            }
-                                                                        </a>
-                                                                    </li>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <li id="@child.ScrId">
-                                                                        <a id="a_@child.ScrId" @(!child.HaveChild ? "href=" + child.Url : "")>
-                                                                            @if (!string.IsNullOrEmpty(child.Icon))
-                                                                            {
-                                                                                <i class="fa @child.Icon"></i>
-                                                                            }
-                                                                            @child.NamaForm
-                                                                            @if (child.HaveChild)
-                                                                            {
-                                                                                <span class="fa fa-chevron-down"></span>
-                                                                            }
-                                                                        </a>
-                                                                        <ul class="nav child_menu">
-                                                                            @foreach (var childFromChild in listChildFromChild)
-                                                                            {
-                                                                                if (listSec.Count > 0)
-                                                                                {
-                                                                                    var secUserMenu = listSec.FirstOrDefault(s => s.FormId == childFromChild.ScrId);
+                                                                var childOfSecMenu = listChildOfSecMenu?.FirstOrDefault(c => c.FormId == child.ScrId);
 
-                                                                                    if (childFromChild.ParentId == child.ScrId && secUserMenu != null)
+                                                                if (childOfSecMenu != null)
+                                                                {
+                                                                    if (child.Show && !child.HaveChild)
+                                                                    {
+                                                                        <li>
+                                                                        @if (child.ScrId == 1101) //chat
+                                                                        {
+                                                                            if (statusAktifSubAddonChat == 1)
+                                                                            {
+                                                                                @*<a target="_blank" @(!child.HaveChild ? "href=" + child.Url + sessionAccountDatabasePathErasoft : "")>*@
+                                                                                <a target="_blank" @(!child.HaveChild ? "href=" + child.Url + emailLogin : "")>
+                                                                                    @if (!string.IsNullOrEmpty(child.Icon))
                                                                                     {
-                                                                                        if (childFromChild.Show)
-                                                                                        {
-                                                                                            <li><a href="@childFromChild.Url">@childFromChild.NamaForm</a></li>
-                                                                                        }
+                                                                                        <i class="fa @child.Icon"></i>
                                                                                     }
-                                                                                }
-                                                                                else
-                                                                                {
-                                                                                    if (childFromChild.ParentId == child.ScrId)
+                                                                                    @child.NamaForm
+                                                                                    @if (child.HaveChild)
                                                                                     {
-                                                                                        if (childFromChild.Show)
-                                                                                        {
-                                                                                            <li><a href="@childFromChild.Url">@childFromChild.NamaForm</a></li>
-                                                                                        }
+                                                                                        <span class="fa fa-chevron-down"></span>
                                                                                     }
-                                                                                }
+                                                                                </a>
                                                                             }
-                                                                        </ul>
-                                                                    </li>
+                                                                            else if (statusAktifSubAddonChat == 2)
+                                                                            {
+                                                                                <a href="javascript:alert('Masa subscription anda sudah berakhir, untuk ketentuan lebih lanjut silahkan hubungi tim support.');">
+                                                                                    @if (!string.IsNullOrEmpty(child.Icon))
+                                                                                    {
+                                                                                        <i class="fa @child.Icon"></i>
+                                                                                    }
+                                                                                    @child.NamaForm
+                                                                                    @if (child.HaveChild)
+                                                                                    {
+                                                                                        <span class="fa fa-chevron-down"></span>
+                                                                                    }
+                                                                                </a>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <a href="javascript:alert('Fitur ini termasuk fitur ADD ON, untuk ketentuan lebih lanjut silahkan hubungi tim support.');">
+                                                                                    @if (!string.IsNullOrEmpty(child.Icon))
+                                                                                    {
+                                                                                        <i class="fa @child.Icon"></i>
+                                                                                    }
+                                                                                    @child.NamaForm
+                                                                                    @if (child.HaveChild)
+                                                                                    {
+                                                                                        <span class="fa fa-chevron-down"></span>
+                                                                                    }
+                                                                                </a>
+                                                                            }
+                                                                        }
+                                                                        else if (child.ScrId == 1102) //chat
+                                                                        {
+                                                                            if (statusAktifSubAddonChat == 1)
+                                                                            {
+                                                                                <a @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                                    @if (!string.IsNullOrEmpty(child.Icon))
+                                                                                    {
+                                                                                        <i class="fa @child.Icon"></i>
+                                                                                    }
+                                                                                    @child.NamaForm
+                                                                                    @if (child.HaveChild)
+                                                                                    {
+                                                                                        <span class="fa fa-chevron-down"></span>
+                                                                                    }
+                                                                                </a>
+                                                                            }
+                                                                            else if (statusAktifSubAddonChat == 2)
+                                                                            {
+                                                                                <a href="javascript:alert('Masa subscription anda sudah berakhir, untuk ketentuan lebih lanjut silahkan hubungi tim support.');">
+                                                                                    @if (!string.IsNullOrEmpty(child.Icon))
+                                                                                    {
+                                                                                        <i class="fa @child.Icon"></i>
+                                                                                    }
+                                                                                    @child.NamaForm
+                                                                                    @if (child.HaveChild)
+                                                                                    {
+                                                                                        <span class="fa fa-chevron-down"></span>
+                                                                                    }
+                                                                                </a>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <a href="javascript:alert('Fitur ini termasuk fitur ADD ON, untuk ketentuan lebih lanjut silahkan hubungi tim support.');">
+                                                                                    @if (!string.IsNullOrEmpty(child.Icon))
+                                                                                    {
+                                                                                        <i class="fa @child.Icon"></i>
+                                                                                    }
+                                                                                    @child.NamaForm
+                                                                                    @if (child.HaveChild)
+                                                                                    {
+                                                                                        <span class="fa fa-chevron-down"></span>
+                                                                                    }
+                                                                                </a>
+                                                                            }
+                                                                        }
+                                                                        @*//add by nurul 28/9/2021*@
+                                                                        else
+                                                                        {
+                                                                            <a @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                                @if (!string.IsNullOrEmpty(child.Icon))
+                                                                                {
+                                                                                    <i class="fa @child.Icon"></i>
+                                                                                }
+                                                                                @child.NamaForm
+                                                                                @if (child.HaveChild)
+                                                                                {
+                                                                                    <span class="fa fa-chevron-down"></span>
+                                                                                }
+                                                                            </a>
+                                                                        }
+                                                                        </li>
+
+                                                                        @*<li>
+                                                                            <a @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                                @if (!string.IsNullOrEmpty(child.Icon))
+                                                                                {
+                                                                                    <i class="fa @child.Icon"></i>
+                                                                                }
+                                                                                @child.NamaForm
+                                                                                @if (child.HaveChild)
+                                                                                {
+                                                                                    <span class="fa fa-chevron-down"></span>
+                                                                                }
+                                                                            </a>
+                                                                        </li>*@
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <li id="@child.ScrId">
+                                                                            <a id="a_@child.ScrId" @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                                @if (!string.IsNullOrEmpty(child.Icon))
+                                                                                {
+                                                                                    <i class="fa @child.Icon"></i>
+                                                                                }
+                                                                                @child.NamaForm
+                                                                                @if (child.HaveChild)
+                                                                                {
+                                                                                    <span class="fa fa-chevron-down"></span>
+                                                                                }
+                                                                            </a>
+                                                                            <ul class="nav child_menu">
+                                                                                @foreach (var childFromChild in listChildFromChild)
+                                                                                {
+                                                                                    if (listSec.Count > 0)
+                                                                                    {
+                                                                                        var secUserMenu = listSec.FirstOrDefault(s => s.FormId == childFromChild.ScrId);
+
+                                                                                        if (childFromChild.ParentId == child.ScrId && secUserMenu != null)
+                                                                                        {
+                                                                                            if (childFromChild.Show)
+                                                                                            {
+                                                                                                <li><a href="@childFromChild.Url">@childFromChild.NamaForm</a></li>
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        if (childFromChild.ParentId == child.ScrId)
+                                                                                        {
+                                                                                            if (childFromChild.Show)
+                                                                                            {
+                                                                                                <li><a href="@childFromChild.Url">@childFromChild.NamaForm</a></li>
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            </ul>
+                                                                        </li>
+                                                                    }
                                                                 }
                                                             }
-                                                        }
-                                                    </ul>
+                                                        </ul>
                                                 </li>
                                             }
                                         }
