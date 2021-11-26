@@ -20,5 +20,7 @@
 
         public DateTime? Tgl { get; set; }
         public string LUNAS { get; set; }
+        [StringLength(1)]
+        public string PARTNER { get; set; }
     }
 }

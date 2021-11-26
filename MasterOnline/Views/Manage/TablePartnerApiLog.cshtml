@@ -17,15 +17,14 @@
 </style>
 
 <script type="text/javascript">
-
-    function retryInvoice(nobukti) {
+    function retryInvoice(nobukti, fs_id) {
         //var retryid = $('#btnRetryJob' + nobukti);
         //retryid.attr("disabled", true);
-
-        var link = '@Url.Action("RetryInvoiceApi", "Manage", new { nobukti = "replaceNoNobuk" })';
+        debugger;
+        var link = '@Url.Action("RetryInvoiceApi", "Manage", new { nobukti = "replaceNoNobuk", fs_id = "replaceFsId" })';
         link = link.replace("replaceNoNobuk", encodeURIComponent(nobukti));
-
-        //debugger;
+        link = link.replace("replaceFsId", encodeURIComponent(fs_id));
+        link = link.replace("&amp;", "&");
         $.ajax({
             type: "POST",
             url: link,
@@ -35,15 +34,18 @@
                 $('#loading_barang_tab').show();
             },
             success: function (response) {
+                $('#loading_barang_tab').hide();
                 refreshTableApiLog();
             },
             error: function (response) {
                 //retryid.attr("disabled", false);
+                if (response == "Failed") {
+                    $('#loading_barang_tab').hide();
+                    alert("Partner tidak ada");
+                }
             }
         });
-
     }
-
     var $tempLog = "";
 </script>
 <div id="loading_barang_tab" class="loading_barang_tab_class">
@@ -77,7 +79,12 @@
                 @*<td style="text-align:center">@aktivitas.JSON_String</td>*@
                 <td style="text-align:center">
                     <button class="btn btn-default retry-api" type="button" style="border:1px;padding:2px 8px 2px 8px;margin:0px" title="Coba Lagi"
-                            onclick="retryInvoice('@aktivitas.No_Bukti')">
+                            onclick="retryInvoice('@aktivitas.No_Bukti', '@aktivitas.fs_id.ToString()')"
+                            disabled="@(aktivitas.Keterangan.Contains("Batch") ||
+                                        aktivitas.Keterangan.Contains("connection was closed") ||
+                                        aktivitas.Keterangan.Contains("timed out") ||
+                                        aktivitas.Modul.Contains("Webhook Update Stok")
+                                                )">
                         <span class="glyphicon glyphicon-repeat"></span>
                     </button>
                 </td>
@@ -116,7 +123,6 @@
                 link += "&take=replaceTake&page=replaceLastPage";
                 link = link.replace("replaceTake", encodeURIComponent($('#TakeRecordInvoicing').val()));
                 link = link.replace("replaceSearch", encodeURIComponent($('#search_api_log').val()));
-
                 $.ajax({
                     url: link,
                     type: 'GET',
@@ -130,6 +136,9 @@
                         $('#loading_barang_tab').hide();
                         $page = @Model.PageNumber;
                         $GetPage = @Model.PageCount;
+                    },
+                    error: function (response) {
+                        //retryid.attr("disabled", false);
                     }
                 });
                 return false;

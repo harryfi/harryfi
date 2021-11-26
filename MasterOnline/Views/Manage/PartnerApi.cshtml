@@ -16,7 +16,7 @@
 
     var context = new MoDbContext("");
 
-    var statusAddOnsAol = Model?.statusAddonsAol;
+    //var statusAddOnsAol = Model?.statusAddonsAol;
     var timeText = Model?.timeSchedule1;
     //var dataSession = Session["SessionInfo"] as AccountUserViewModel;
 
@@ -49,6 +49,18 @@
             background: white;
             padding: 20px;
         }
+
+        .disabled-tab {
+            cursor: not-allowed;
+            background-color: #999 !important;
+            color: #fff;
+        }
+
+            .disabled-tab:hover,
+            .disabled-tab:active,
+            .disabled-tab:visited {
+                color: #fff;
+            }
     </style>
 }
 
@@ -101,7 +113,8 @@
                     <thead>
                         <tr role="row">
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 30px;">Nama Partner</th>
-                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Host</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px;">Host</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 30px;">Link Partner</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Edit</th>
                             @*<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Hapus</th>*@
                         </tr>
@@ -114,6 +127,16 @@
                                 <tr>
                                     <td>@partnerapi.Nama_Partner</td>
                                     <td>@partnerapi.Host</td>
+                                    <td>
+                                        @if (partnerapi.Status == true)
+                                        {
+                                            <text><center>Aktif</center></text>
+                                        }
+                                        else
+                                        {
+                                            <text><center>Tidak Aktif</center></text>
+                                        }
+                                    </td>
                                     <td class="edit-hapus-col">
                                         <button class="btn btn-primary" onclick="editPartnerApi(@partnerapi.fs_id)">
                                             <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
@@ -214,7 +237,7 @@
 
                                                                 <div class="form-group">
                                                                     <div id="divSchedule"></div>
-                                                                    @*@Html.HiddenFor(m => m.partner_api.Schedule1)*@
+                                                                    @Html.HiddenFor(m => m.partner_api.Schedule1)
                                                                 </div>
 
                                                                 <hr />
@@ -271,7 +294,7 @@
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
     <script src="~/Content/selectize.js" type="text/javascript"></script>
     <script type="text/javascript">
-        var statusAddOns = @Html.Raw(Json.Encode(statusAddOnsAol));
+        //var statusAddOns = @*@Html.Raw(Json.Encode(statusAddOnsAol))*@;
         var timeSch = @Html.Raw(Json.Encode(timeText));
 
         $addonsId = 0;
@@ -298,12 +321,21 @@
                 //$('.partner_api_table_section').hide();
                 //$('.partner_api_editor_section').show();
                 //refreshTableApiLog();
+
+                $('#pengaturan-tab').removeAttr('data-toggle');
+                $('#pengaturan-tab').addClass('disabled-tab');
+
+                //$('#pengaturan-tab').attr('data-toggle', 'tab');
+                //$('#pengaturan-tab').removeClass('disabled-tab');
+
                 editPartnerApi(0);
             });
 
             $('#partner-api-close-editor').on('click', function () {
                 $('.partner_api_table_section').show();
                 $('.partner_api_editor_section').hide();
+                $('#pengaturan-tab').attr('data-toggle', 'tab');
+                $('#pengaturan-tab').removeClass('disabled-tab');
                 $('#partner_api_PartnerId, #partner_api_Nama_Partner, #partner_api_Status, #partner_api_Status, #partner_api_isPaid, #partner_api_Schedule1').val('');
                 removeLabelTextbox();
                 var ddlPartner = $('#Partner').selectize();
@@ -420,6 +452,8 @@
                             getSyncInvCb();
                         }
                         else if (response.partner_api.PartnerId == "30007") {
+                            $('#pengaturan-tab').removeAttr('data-toggle');
+                            $('#pengaturan-tab').addClass('disabled-tab');
                             getUsernameTb(response.partner_api.Username);
                             getPasswordTb(response.partner_api.Password);
                             getProgramIdTb(response.partner_api.ProgramId);
@@ -441,6 +475,8 @@
             $('#hd_partner_api_Status').remove();
             $('#lbl_partner_api_isPaid').remove();
             $('#hd_partner_api_isPaid').remove();
+            $('#lbl_partner_api_isFaktur').remove();
+            $('#hd_partner_api_isFaktur').remove();
             $('#lbl_partner_api_Username').remove();
             $('#tb_partner_api_Username').remove();
             $('#lbl_partner_api_Password').remove();
@@ -471,7 +507,7 @@
             var opendiv = '<div class="form-group" id="fg_partner_api_Password">';
             var closediv = '</div>';
             var labelPassword = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="partner_api_Password" id="lbl_partner_api_Password">Password</label>';
-            var txtPassword = '<div id="tb_partner_api_Password" class="col-md-6 col-sm-6 col-xs-12"><input class="form-control" id="partner_api_Password" name="partner_api.Password" type="text" required="required" ' + valuetxtPassword + '></div>'; //value = "' + valuetxtPassword + '"
+            var txtPassword = '<div id="tb_partner_api_Password" class="col-md-6 col-sm-6 col-xs-12"><input class="form-control" id="partner_api_Password" name="partner_api.Password" type="password" required="required" ' + valuetxtPassword + '></div>'; //value = "' + valuetxtPassword + '"
             $('#divPassword').append(opendiv + labelPassword + txtPassword + closediv);
         }
 
@@ -495,33 +531,58 @@
             $('#divWalletId').append(opendiv + labelWalletId + txtWalletId + closediv);
         }
 
+        //function removeLabelTextbox() {
+        //    $('#lbl_partner_api_Status').remove();
+        //    $('#hd_partner_api_Status').remove();
+        //    $('#lbl_partner_api_isPaid').remove();
+        //    $('#hd_partner_api_isPaid').remove();
+        //    $('#lbl_partner_api_Username').remove();
+        //    $('#tb_partner_api_Username').remove();
+        //    $('#lbl_partner_api_Password').remove();
+        //    $('#tb_partner_api_Password').remove();
+        //    $('#lbl_partner_api_ProgramId').remove();
+        //    $('#tb_partner_api_ProgramId').remove();
+        //    $('#lbl_partner_api_WalletId').remove();
+        //    $('#tb_partner_api_WalletId').remove();
+        //    $('#lbl_partner_api_Schedule1').remove();
+        //    $('#cb_partner_api_Schedule1').remove();
+        //}
         function getScheduleCb() {
 
             $('#lbl_partner_api_Schedule1').remove();
             $('#cb_partner_api_Schedule1').remove();
 
             var labelSchedule = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="partner_api_Status" id="lbl_partner_api_Schedule1">Schedule</label>';
-            var txtSchedule = '<div id="cb_partner_api_Schedule1" class="col-md-6 col-sm-6 col-xs-12"><select id="api_schedule" placeholder="Harap Pilih" name="api_schedule" required="required"></div>';
+            var txtSchedule = '<div id="cb_partner_api_Schedule1" class="col-md-6 col-sm-6 col-xs-12"><input class="form-control" id="partner_api_Schedule1" name="partner_api.Schedule1" type="text" value="02:00:00" disabled></div>'; //<select id="api_schedule" name="api_schedule" placeholder="02:00:00" disabled> //<option value="19:00:00">02:00:00</option></select>
             $('#divSchedule').append(labelSchedule + txtSchedule);
 
-            var listTime = [];
-            for (let i = 0; i <= 23; i++) {
-                //let j = i + 1;
-                if (i <= 9) {
-                    listTime.push({ id: "0" + i, text: "0" + i + ":00:00" });
-                } else {
-                    listTime.push({ id: "" + i, text: i + ":00:00" });
-                }
-            }
+            //var listTime = [];
+            //for (let i = 0; i <= 23; i++) {
+            //    //let j = i + 1;
+            //    if (i <= 9) {
+            //        listTime.push({ id: "0" + i, text: "0" + i + ":00:00" });
+            //    } else {
+            //        listTime.push({ id: "" + i, text: i + ":00:00" });
+            //    }
+            //}
+            //var listTime = [];
+            //listTime[0] = {
+            //    id: "02",
+            //    text: "02:00:00"
+            //};
+            //listTime[1] = {
+            //    id: "19",
+            //    text: "19:00:00"
+            //};
             var selectize1 = $('#api_schedule').selectize({
                 valueField: 'text',
                 searchField: 'text',
-                options: listTime,
-                onChange: function (value) {
-                    $('#partner_api_Schedule1').val(value);
-                }
+                //options: listTime,
+                //onChange: function (value) {
+                //    $('#partner_api_Schedule1').val("19:00:00");
+                //}
             });
-            selectize1[0].selectize.setValue($('#partner_api_Schedule1').val(), true);
+            selectize1[0].selectize.setValue($('#partner_api_Schedule1').val("19:00:00"), true);
         }
 
         function getTadaTb() {
@@ -567,99 +628,14 @@
                 opendiv + labelWalletId + txtWalletId + closediv + opendiv + labelSchedule + txtSchedule + closediv);
 
             var listTime = [];
-            listTime[0] = {
-                id: "01",
-                text: "01:00:00"
-            };
-            listTime[1] = {
-                id: "02",
-                text: "02:00:00"
-            };
-            listTime[2] = {
-                id: "03",
-                text: "03:00:00"
-            };
-            listTime[3] = {
-                id: "04",
-                text: "04:00:00"
-            };
-            listTime[4] = {
-                id: "05",
-                text: "05:00:00"
-            };
-            listTime[5] = {
-                id: "06",
-                text: "06:00:00"
-            };
-            listTime[6] = {
-                id: "07",
-                text: "07:00:00"
-            };
-            listTime[7] = {
-                id: "08",
-                text: "08:00:00"
-            };
-            listTime[8] = {
-                id: "09",
-                text: "09:00:00"
-            };
-            listTime[9] = {
-                id: "10",
-                text: "10:00:00"
-            };
-            listTime[10] = {
-                id: "11",
-                text: "11:00:00"
-            };
-            listTime[11] = {
-                id: "12",
-                text: "12:00:00"
-            };
-            listTime[12] = {
-                id: "13",
-                text: "13:00:00"
-            };
-            listTime[13] = {
-                id: "14",
-                text: "14:00:00"
-            };
-            listTime[14] = {
-                id: "15",
-                text: "15:00:00"
-            };
-            listTime[15] = {
-                id: "16",
-                text: "16:00:00"
-            };
-            listTime[16] = {
-                id: "17",
-                text: "17:00:00"
-            };
-            listTime[17] = {
-                id: "18",
-                text: "18:00:00"
-            };
-            listTime[18] = {
-                id: "19",
-                text: "19:00:00"
-            };
-            listTime[19] = {
-                id: "20",
-                text: "20:00:00"
-            };
-            listTime[20] = {
-                id: "21",
-                text: "21:00:00"
-            };
-            listTime[21] = {
-                id: "22",
-                text: "22:00:00"
-            };
-            listTime[22] = {
-                id: "23",
-                text: "23:00:00"
-            };
-
+            for (let i = 0; i <= 23; i++) {
+                //let j = i + 1;
+                if (i <= 9) {
+                    listTime.push({ id: "0" + i, text: "0" + i + ":00:00" });
+                } else {
+                    listTime.push({ id: "" + i, text: i + ":00:00" });
+                }
+            }
             var selectize1 = $('#api_schedule').selectize({
                 valueField: 'text',
                 searchField: 'text',
@@ -836,6 +812,11 @@
                                                     getWebhookCb();
                                                     getSyncInvCb();
                                                     getInvoiceCb();
+
+                                                    //$('#partnerApiTab li a').each(function (index) {
+                                                    //    $(this).attr('data-toggle', 'tab');
+                                                    //    $(this).removeClass('disabled-tab');
+                                                    //});
                                                 }
                                                 else if (value == "30007") {
                                                     getWebhookCb();
@@ -845,6 +826,12 @@
                                                     getWalletIdTb(null);
                                                     getScheduleCb();
                                                     //getTadaTb();
+
+                                                    //$('#partnerApiTab li a').each(function (index) {
+                                                    //    $(this).removeAttr('data-toggle');
+                                                    //    if ($(this).attr('id') === 'pengaturan-tab') return;
+                                                    //    $(this).addClass('disabled-tab');
+                                                    //});
                                                 }
                                             }
                                         }
