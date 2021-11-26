@@ -994,6 +994,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                if(!ex.Message.ToLower().Contains("unauthorized"))
                 if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
                 {
                     var log = new TABEL_LOG_GETORDERS()
