@@ -204,24 +204,48 @@
             <div id="myTabContent" class="tab-content" style="padding-top:10px">
                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="linkbarang-tab">
                     <div class="row barang_table_section">
-                        <div class="col-lg-9 col-sm-9">
-                                @*<input id="search_barang" type="text" class="form-control" placeholder="Pencarian">
-                                    <span class="input-group-btn">
-                                        <button type="button" id="search_barang_click" class="btn btn-primary">
-                                            <i class="fa fa-search"></i>
-                                        </button>
-                                    </span>*@
-                                <select id="cmbBarang" placeholder="Harap pilih"></select>
-                                <input id="txtListBrg" style="display:none;"/>
-                            
+                        <div class="col-lg-7 col-sm-7">
+                            @*<input id="search_barang" type="text" class="form-control" placeholder="Pencarian">
+                <span class="input-group-btn">
+                    <button type="button" id="search_barang_click" class="btn btn-primary">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </span>*@
+                            <select id="cmbBarang" placeholder="Pilih Max 5 Barang"></select>
+                            <input id="txtListBrg" style="display:none;" />
+
                         </div>
-                        <div class="col-lg-3 col-sm-3">
+                        <div class="col-lg-5 col-sm-5">
                             <div class="pull-right">
                                 <button class="btn btn-primary" id="btnClear">Clear</button>
                             </div>
                         </div>
                     </div>
-                    <div class="row" style="margin-top: 5px;">
+                    <div class="row col-lg-12 col-sm-12" style="padding-bottom:5px;">
+                        <div class="row col-lg-2 col-sm-2" style="display:none; border: 1px solid #ccc" id="divBrg1">
+                            <div style="display:table-cell;">
+                                <input disabled id="txtBrg1" style="border:none;width:100%;" />
+                            </div>
+                            <button id="btnDel1" class="fa fa-times" style=""></button>
+                        </div>
+                        <div class="row col-lg-2 col-sm-2" style="display:none; border: 1px solid #ccc" id="divBrg2">
+                            <input disabled id="txtBrg2" style="display:none" />
+
+                        </div>
+                        <div class="row col-lg-2 col-sm-2" style="display:none; border: 1px solid #ccc" id="divBrg3">
+                            <input disabled id="txtBrg3" style="display:none" />
+
+                        </div>
+                        <div class="row col-lg-2 col-sm-2" style="display:none; border: 1px solid #ccc" id="divBrg4">
+                            <input disabled id="txtBrg4" style="display:none" />
+
+                        </div>
+                        <div class="row col-lg-2 col-sm-2" style="display:none; border: 1px solid #ccc" id="divBrg5">
+                            <input disabled id="txtBrg5" style="display:none" />
+
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top: 15px;">
                         <div class="col-sm-12 barang_table_section" id="table-matrix-barang-partial">
                         </div>
                     </div>
@@ -264,13 +288,22 @@
                         searchField: 'text',
                         options: listMerk,
                         onChange: function (value) {
-                            var current = $('#txtListBrg').val();
-                            if (current != "") {
-                                current += ","
+                            if (value != "") {
+                                if (setTextBrg($("#cmbBarang option:selected").text())) {
+                                    var current = $('#txtListBrg').val();
+                                    if (current != "") {
+                                        current += ","
+                                    }
+                                    $('#txtListBrg').val(current + value);
+                                    //$('#Stf02_KET_SORT2').val($("#MERK option:selected").text());
+                                    $("#cmbBarang")[0].selectize.clear();
+                                    SelectProduct();
+                                }
+                                else {
+                                    alert('Maksimum jumlah barang untuk dicek adalah 5.');
+                                    $("#cmbBarang")[0].selectize.clear();
+                                }
                             }
-                            $('#txtListBrg').val(current + value);
-                            //$('#Stf02_KET_SORT2').val($("#MERK option:selected").text());
-                            SelectProduct();
                         }
                     });
 
@@ -302,6 +335,35 @@
                     console.log(error);
                 }
             });
+        }
+
+        function setTextBrg(value) {
+            if ($('#txtBrg1').val() == "") {
+                $('#txtBrg1').val(value);
+                $('#divBrg1').show();
+                return true;
+            }
+            if ($('#txtBrg2').val() == "") {
+                $('#txtBrg2').val(value);
+                $('#txtBrg2').show();
+                return true;
+            }
+            if ($('#txtBrg3').val() == "") {
+                $('#txtBrg3').val(value);
+                $('#txtBrg3').show();
+                return true;
+            }
+            if ($('#txtBrg4').val() == "") {
+                $('#txtBrg4').val(value);
+                $('#txtBrg4').show();
+                return true;
+            }
+            if ($('#txtBrg5').val() == "") {
+                $('#txtBrg5').val(value);
+                $('#txtBrg5').show();
+                return true;
+            }
+            return false;
         }
     </script>
 }
