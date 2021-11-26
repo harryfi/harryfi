@@ -180,7 +180,7 @@ namespace MasterOnline.Controllers
                     {
                         phonenumber = "+" + a.PHONE.Remove(2, 1);
                     }
-                    else if (initialnumber == "628")
+                    else if (a.PHONE.Substring(0, 3) == "628")
                     {
                         phonenumber = "+" + a.PHONE;
                     }
