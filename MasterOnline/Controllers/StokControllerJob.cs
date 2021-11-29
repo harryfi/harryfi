@@ -4133,6 +4133,16 @@ namespace MasterOnline.Controllers
                         client.Schedule<StokControllerJob>(x => x.ShopeeUnlinkProduct(DatabasePathErasoft, stf02_brg, log_CUST, uname, iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(0), qty), TimeSpan.FromMinutes(1));
 #endif
                     }
+                    else if(msg.Contains("promotion"))
+                    {
+                        var sSQL = "INSERT INTO API_LOG_MARKETPLACE (REQUEST_STATUS,CUST_ATTRIBUTE_1,CUST_ATTRIBUTE_2,CUST,MARKETPLACE,REQUEST_ID,";
+                        sSQL += "REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_3, REQUEST_ATTRIBUTE_4,REQUEST_ATTRIBUTE_5, ";
+                        sSQL += "REQUEST_RESULT,REQUEST_EXCEPTION) VALUES (";
+                        sSQL += "'FAILED', '" + stf02_brg + "', '" + brg_mp + "', '" + log_CUST + "', 'Shopee', 'SUPPORT_UPDATE_STOK_SHOPEE_"+ stf02_brg + "_" + log_CUST + "_"+ DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff") + "', ";
+                        sSQL += "'Update Stok', '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', 'Stock', '" + stf02_brg + "',";
+                        sSQL += "'HANGFIRE', 'Update Stok " + stf02_brg + " ke Shopee gagal.', '" + msg + "')";
+                        EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                    }
                     else
                     {
                         throw new Exception(msg);
@@ -4287,6 +4297,16 @@ namespace MasterOnline.Controllers
                         var client = new BackgroundJobClient(sqlStorage);
                         client.Schedule<StokControllerJob>(x => x.ShopeeUnlinkProduct(DatabasePathErasoft, stf02_brg, log_CUST, uname, iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(brg_mp_split[1]), qty), TimeSpan.FromMinutes(1));
 #endif
+                    }
+                    else if (msg.Contains("promotion"))
+                    {
+                        var sSQL = "INSERT INTO API_LOG_MARKETPLACE (REQUEST_STATUS,CUST_ATTRIBUTE_1,CUST_ATTRIBUTE_2,CUST,MARKETPLACE,REQUEST_ID,";
+                        sSQL += "REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_3, REQUEST_ATTRIBUTE_4,REQUEST_ATTRIBUTE_5, ";
+                        sSQL += "REQUEST_RESULT,REQUEST_EXCEPTION) VALUES (";
+                        sSQL += "'FAILED', '" + stf02_brg + "', '" + brg_mp + "', '" + log_CUST + "', 'Shopee', 'SUPPORT_UPDATE_STOK_SHOPEE_" + stf02_brg + "_" + log_CUST + "_" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff") + "', ";
+                        sSQL += "'Update Stok', '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', 'Stock', '" + stf02_brg + "',";
+                        sSQL += "'HANGFIRE', 'Update Stok " + stf02_brg + " ke Shopee gagal.', '" + msg + "')";
+                        EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
                     }
                     else
                     {
