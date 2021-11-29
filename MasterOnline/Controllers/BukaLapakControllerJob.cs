@@ -794,7 +794,7 @@ namespace MasterOnline.Controllers
             //add by nurul 19/1/2021, bundling 
             ret.ConnId = conn_id;
             //end add by nurul 19/1/2021, bundling
-            try { 
+            //try { 
             string urll = "https://api.bukalapak.com/transactions?limit=50&offset=" + (page * 50) + "&context=sale"
                 + "&start_time=" + Uri.EscapeDataString(fromDt) + "&end_time=" + Uri.EscapeDataString(toDt) 
                 + "&states[]=pending&states[]=paid&states[]=accepted";
@@ -1157,23 +1157,23 @@ namespace MasterOnline.Controllers
                 }
 
             }
-            }
-            catch (Exception ex) {
-                if (!ex.Message.ToLower().Contains("invalid oauth token"))
-                {
-                    var log = new TABEL_LOG_GETORDERS()
-                    {
-                        DBPATHERA = data.dbPathEra,
-                        MARKETPLACE = "BUKALAPAK",
-                        TGL = DateTime.UtcNow.AddHours(7),
-                        FUNCTION = "GetOrdersLoop : " + CUST,
-                        ERRORMSG = ex.Message
-                    };
-                    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                    MoDbContext.SaveChanges();
-                }
-                throw ex;
-            }
+            //}
+            //catch (Exception ex) {
+            //    if (!ex.Message.ToLower().Contains("invalid oauth token"))
+            //    {
+            //        var log = new TABEL_LOG_GETORDERS()
+            //        {
+            //            DBPATHERA = data.dbPathEra,
+            //            MARKETPLACE = "BUKALAPAK",
+            //            TGL = DateTime.UtcNow.AddHours(7),
+            //            FUNCTION = "GetOrdersLoop : " + CUST,
+            //            ERRORMSG = ex.Message
+            //        };
+            //        MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //        MoDbContext.SaveChanges();
+            //    }
+            //    throw ex;
+            //}
             return ret;
         }
 
@@ -1214,7 +1214,7 @@ namespace MasterOnline.Controllers
             //int jmlhNewOrder = 0;
             //data = RefreshToken(data);
             var list_04 = new List<string>();
-            try { 
+            //try { 
             string urll = "https://api.bukalapak.com/transactions?limit=50&offset=" + (page * 50) + "&context=sale"
                 + "&start_time=" + Uri.EscapeDataString(fromDt) + "&end_time=" + Uri.EscapeDataString(toDt)
                 + "&states[]=received&states[]=remitted";
@@ -1355,24 +1355,24 @@ namespace MasterOnline.Controllers
                 }
             }
 
-            }
-            catch (Exception ex)
-            {
-                if (!ex.Message.ToLower().Contains("invalid oauth token"))
-                {
-                    var log = new TABEL_LOG_GETORDERS()
-                    {
-                        DBPATHERA = data.dbPathEra,
-                        MARKETPLACE = "BUKALAPAK",
-                        TGL = DateTime.UtcNow.AddHours(7),
-                        FUNCTION = "GetOrdersCompletedLoop : " + CUST,
-                        ERRORMSG = ex.Message
-                    };
-                    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                    MoDbContext.SaveChanges();
-                }
-                throw ex;
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    if (!ex.Message.ToLower().Contains("invalid oauth token"))
+            //    {
+            //        var log = new TABEL_LOG_GETORDERS()
+            //        {
+            //            DBPATHERA = data.dbPathEra,
+            //            MARKETPLACE = "BUKALAPAK",
+            //            TGL = DateTime.UtcNow.AddHours(7),
+            //            FUNCTION = "GetOrdersCompletedLoop : " + CUST,
+            //            ERRORMSG = ex.Message
+            //        };
+            //        MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //        MoDbContext.SaveChanges();
+            //    }
+            //    throw ex;
+            //}
             return ret;
         }
 
@@ -1440,7 +1440,7 @@ namespace MasterOnline.Controllers
             int jmlhOrder = 0;
             //data = RefreshToken(data);
             var brgCancelled = new List<TEMP_ALL_MP_ORDER_ITEM>();
-            try { 
+            //try { 
             string urll = "https://api.bukalapak.com/transactions?limit=50&offset=" + (page * 50) + "&context=sale"
                 + "&start_time=" + Uri.EscapeDataString(fromDt) + "&end_time=" + Uri.EscapeDataString(toDt)
                 + "&states[]=cancelled&states[]=expired";
@@ -1669,24 +1669,24 @@ namespace MasterOnline.Controllers
                 new StokControllerJob().updateStockMarketPlace(conn_id, data.dbPathEra, username);
             }
 
-            }
-            catch (Exception ex)
-            {
-                if (!ex.Message.ToLower().Contains("invalid oauth token"))
-                {
-                    var log = new TABEL_LOG_GETORDERS()
-                    {
-                        DBPATHERA = data.dbPathEra,
-                        MARKETPLACE = "BUKALAPAK",
-                        TGL = DateTime.UtcNow.AddHours(7),
-                        FUNCTION = "GetOrdersCanceledLoop : " + CUST,
-                        ERRORMSG = ex.Message
-                    };
-                    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                    MoDbContext.SaveChanges();
-                }
-                throw ex;
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    if (!ex.Message.ToLower().Contains("invalid oauth token"))
+            //    {
+            //        var log = new TABEL_LOG_GETORDERS()
+            //        {
+            //            DBPATHERA = data.dbPathEra,
+            //            MARKETPLACE = "BUKALAPAK",
+            //            TGL = DateTime.UtcNow.AddHours(7),
+            //            FUNCTION = "GetOrdersCanceledLoop : " + CUST,
+            //            ERRORMSG = ex.Message
+            //        };
+            //        MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //        MoDbContext.SaveChanges();
+            //    }
+            //    throw ex;
+            //}
             return ret;
         }
         public void InsertPembeli(GetOrdersDatum order, string conn_id, string dbPathEra, string username)

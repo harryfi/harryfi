@@ -2526,8 +2526,8 @@ namespace MasterOnline.Controllers
             myReq.Accept = "application/json";
             myReq.ContentType = "application/json";
             string responseFromServer = "";
-            try
-            {
+            //try
+            //{
                 myReq.ContentLength = myData.Length;
             using (var dataStream = myReq.GetRequestStream())
             {
@@ -2660,24 +2660,24 @@ namespace MasterOnline.Controllers
                 //}
             }
 
-            }
-            catch (Exception ex)
-            {
-                if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
-                {
-                    var log = new TABEL_LOG_GETORDERS()
-                    {
-                        DBPATHERA = iden.DatabasePathErasoft,
-                        MARKETPLACE = "SHOPEE",
-                        TGL = DateTime.UtcNow.AddHours(7),
-                        FUNCTION = "GetOrderByStatusWithDay " + stat.ToString() + " : " + CUST,
-                        ERRORMSG = ex.Message
-                    };
-                    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                    MoDbContext.SaveChanges();
-                }
-                throw ex;
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
+            //    {
+            //        var log = new TABEL_LOG_GETORDERS()
+            //        {
+            //            DBPATHERA = iden.DatabasePathErasoft,
+            //            MARKETPLACE = "SHOPEE",
+            //            TGL = DateTime.UtcNow.AddHours(7),
+            //            FUNCTION = "GetOrderByStatusWithDay " + stat.ToString() + " : " + CUST,
+            //            ERRORMSG = ex.Message
+            //        };
+            //        MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //        MoDbContext.SaveChanges();
+            //    }
+            //    throw ex;
+            //}
 
             //// tunning untuk tidak duplicate
             //var queryStatus = "";
@@ -2828,8 +2828,8 @@ namespace MasterOnline.Controllers
             myReq.Accept = "application/json";
             myReq.ContentType = "application/json";
             string responseFromServer = "";
-            try
-            {
+            //try
+            //{
                 myReq.ContentLength = myData.Length;
                 using (var dataStream = myReq.GetRequestStream())
                 {
@@ -3174,23 +3174,23 @@ namespace MasterOnline.Controllers
                 //var queryStatus = "\\\"}\"" + "," + "\"2\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","2","\"000003\""
                 //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.no_cust + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
                 //// end tunning untuk tidak duplicate
-            }catch(Exception ex)
-            {
-                if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
-                {
-                    var log = new TABEL_LOG_GETORDERS()
-                    {
-                        DBPATHERA = iden.DatabasePathErasoft,
-                        MARKETPLACE = "SHOPEE",
-                        TGL = DateTime.UtcNow.AddHours(7),
-                        FUNCTION = "GetOrderByStatusCancelledAPI : " + CUST,
-                        ERRORMSG = ex.Message
-                    };
-                    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                    MoDbContext.SaveChanges();
-                }
-                throw ex;
-            }
+            //}catch(Exception ex)
+            //{
+            //    if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
+            //    {
+            //        var log = new TABEL_LOG_GETORDERS()
+            //        {
+            //            DBPATHERA = iden.DatabasePathErasoft,
+            //            MARKETPLACE = "SHOPEE",
+            //            TGL = DateTime.UtcNow.AddHours(7),
+            //            FUNCTION = "GetOrderByStatusCancelledAPI : " + CUST,
+            //            ERRORMSG = ex.Message
+            //        };
+            //        MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //        MoDbContext.SaveChanges();
+            //    }
+            //    throw ex;
+            //}
             //return ret;
             return ret1;
         }
@@ -3281,8 +3281,8 @@ namespace MasterOnline.Controllers
             myReq.Accept = "application/json";
             myReq.ContentType = "application/json";
             string responseFromServer = "";
-            try
-            {
+            //try
+            //{
                 myReq.ContentLength = myData.Length;
                 using (var dataStream = myReq.GetRequestStream())
                 {
@@ -3520,23 +3520,23 @@ namespace MasterOnline.Controllers
                     }
 
                 }
-            }catch(Exception ex)
-            {
-                if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
-                {
-                    var log = new TABEL_LOG_GETORDERS()
-                    {
-                        DBPATHERA = iden.DatabasePathErasoft,
-                        MARKETPLACE = "SHOPEE",
-                        TGL = DateTime.UtcNow.AddHours(7),
-                        FUNCTION = "GetOrderDetailsCekUnpaid : " + CUST,
-                        ERRORMSG = ex.Message
-                    };
-                    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                    MoDbContext.SaveChanges();
-                }
-                throw ex;
-            }
+            //}catch(Exception ex)
+            //{
+            //    if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
+            //    {
+            //        var log = new TABEL_LOG_GETORDERS()
+            //        {
+            //            DBPATHERA = iden.DatabasePathErasoft,
+            //            MARKETPLACE = "SHOPEE",
+            //            TGL = DateTime.UtcNow.AddHours(7),
+            //            FUNCTION = "GetOrderDetailsCekUnpaid : " + CUST,
+            //            ERRORMSG = ex.Message
+            //        };
+            //        MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //        MoDbContext.SaveChanges();
+            //    }
+            //    throw ex;
+            //}
             return ret;
         }
 
@@ -3615,8 +3615,8 @@ namespace MasterOnline.Controllers
             myReq.Accept = "application/json";
             myReq.ContentType = "application/json";
             string responseFromServer = "";
-            try
-            {
+            //try
+            //{
                 myReq.ContentLength = myData.Length;
                 using (var dataStream = myReq.GetRequestStream())
                 {
@@ -3667,23 +3667,23 @@ namespace MasterOnline.Controllers
                     }
 
                 }
-            }catch(Exception ex)
-            {
-                if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
-                {
-                    var log = new TABEL_LOG_GETORDERS()
-                    {
-                        DBPATHERA = iden.DatabasePathErasoft,
-                        MARKETPLACE = "SHOPEE",
-                        TGL = DateTime.UtcNow.AddHours(7),
-                        FUNCTION = "GetOrderByStatusCompletedAPI : " + cust,
-                        ERRORMSG = ex.Message
-                    };
-                    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                    MoDbContext.SaveChanges();
-                }
-                throw ex;
-            }
+            //}catch(Exception ex)
+            //{
+            //    if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
+            //    {
+            //        var log = new TABEL_LOG_GETORDERS()
+            //        {
+            //            DBPATHERA = iden.DatabasePathErasoft,
+            //            MARKETPLACE = "SHOPEE",
+            //            TGL = DateTime.UtcNow.AddHours(7),
+            //            FUNCTION = "GetOrderByStatusCompletedAPI : " + cust,
+            //            ERRORMSG = ex.Message
+            //        };
+            //        MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //        MoDbContext.SaveChanges();
+            //    }
+            //    throw ex;
+            //}
             return "";
         }
         public async Task<string> GetOrderByStatusCompletedOld(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
@@ -4128,8 +4128,8 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             //end add by nurul 16/6/2020
             var list_ordersn = ErasoftDbContext.SOT01A.Where(a => (a.TRACKING_SHIPMENT == null || a.TRACKING_SHIPMENT == "-" || a.TRACKING_SHIPMENT == "") && a.NO_PO_CUST.Contains("SH") && a.CUST == CUST && (a.STATUS_TRANSAKSI.Contains("03") || a.STATUS_TRANSAKSI.Contains("04"))).Select(a => a.NO_REFERENSI).ToList();
-            try
-            {
+            //try
+            //{
                 if (list_ordersn.Count() > 0)
                 {
                     //add by nurul 16/6/2020
@@ -4322,23 +4322,23 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-            }catch(Exception ex)
-            {
-                if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
-                {
-                    var log = new TABEL_LOG_GETORDERS()
-                    {
-                        DBPATHERA = iden.DatabasePathErasoft,
-                        MARKETPLACE = "SHOPEE",
-                        TGL = DateTime.UtcNow.AddHours(7),
-                        FUNCTION = "GetOrderDetailsForUpdateResiJOB : " + CUST,
-                        ERRORMSG = ex.Message
-                    };
-                    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                    MoDbContext.SaveChanges();
-                }
-                throw ex;
-            }
+            //}catch(Exception ex)
+            //{
+            //    if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
+            //    {
+            //        var log = new TABEL_LOG_GETORDERS()
+            //        {
+            //            DBPATHERA = iden.DatabasePathErasoft,
+            //            MARKETPLACE = "SHOPEE",
+            //            TGL = DateTime.UtcNow.AddHours(7),
+            //            FUNCTION = "GetOrderDetailsForUpdateResiJOB : " + CUST,
+            //            ERRORMSG = ex.Message
+            //        };
+            //        MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //        MoDbContext.SaveChanges();
+            //    }
+            //    throw ex;
+            //}
             return ret;
         }
         //end add by nurul, hangfire update resi job 
