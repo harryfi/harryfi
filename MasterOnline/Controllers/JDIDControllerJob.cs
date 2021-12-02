@@ -6001,19 +6001,37 @@ namespace MasterOnline.Controllers
                 {
                     data = RefreshToken(data);
                     var sysParams = new Dictionary<string, string>();
-                    this.ParamJson = "{\"salePrice\":\"" + price + "\",\"skuId\":\"" + brgMp + "\"}";
-                    sysParams.Add("360buy_param_json", this.ParamJson);
+                        var gettimestamp = getCurrentTimeFormatted();
+                    if (true)
+                    {
+                        this.ParamJson = "{\"salePrice\":\"" + price + "\",\"skuId\":\"" + brgMp + "\"}";
+                        sysParams.Add("360buy_param_json", this.ParamJson);
 
-                    sysParams.Add("access_token", data.accessToken);
-                    sysParams.Add("app_key", data.appKey);
-                    this.Method = "jingdong.seller.price.updatePriceBySkuIds"; //update skus prices
-                    sysParams.Add("method", this.Method);
-                    var gettimestamp = getCurrentTimeFormatted();
-                    sysParams.Add("timestamp", gettimestamp);
-                    sysParams.Add("v", this.Version2);
-                    sysParams.Add("format", this.Format);
-                    sysParams.Add("sign_method", this.SignMethod);
+                        sysParams.Add("access_token", data.accessToken);
+                        sysParams.Add("app_key", data.appKey);
+                        this.Method = "jingdong.seller.price.updatePriceBySkuIds"; //update skus prices
+                        sysParams.Add("method", this.Method);
+                        //var gettimestamp = getCurrentTimeFormatted();
+                        sysParams.Add("timestamp", gettimestamp);
+                        sysParams.Add("v", this.Version2);
+                        sysParams.Add("format", this.Format);
+                        sysParams.Add("sign_method", this.SignMethod);
+                    }
+                    else
+                    {
+                        this.ParamJson = "{\"jdPrice\":\"" + price + "\",\"skuId\":\"" + brgMp + "\",\"spuId\":\"" + id.Split(';')[0] + "\"}";
+                        sysParams.Add("360buy_param_json", this.ParamJson);
 
+                        sysParams.Add("access_token", data.accessToken);
+                        sysParams.Add("app_key", data.appKey);
+                        this.Method = "jingdong.seller.price.updateSkuInfo"; //update skus prices
+                        sysParams.Add("method", this.Method);
+                        //var gettimestamp = getCurrentTimeFormatted();
+                        sysParams.Add("timestamp", gettimestamp);
+                        sysParams.Add("v", this.Version2);
+                        sysParams.Add("format", this.Format);
+                        sysParams.Add("sign_method", this.SignMethod);
+                    }
                     var signature = this.generateSign(sysParams, data.appSecret);
 
                     string urll = ServerUrlV2 + "?v=" + Uri.EscapeDataString(Version2) + "&method=" + this.Method + "&app_key=" + Uri.EscapeDataString(data.appKey) + "&access_token=" + Uri.EscapeDataString(data.accessToken) + "&360buy_param_json=" + Uri.EscapeDataString(this.ParamJson) + "&timestamp=" + Uri.EscapeDataString(gettimestamp) + "&sign=" + Uri.EscapeDataString(signature);
