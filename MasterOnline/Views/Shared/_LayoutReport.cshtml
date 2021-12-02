@@ -51,7 +51,7 @@
     var emailAccount = "";
     //end add by nurul 11/10/2021
     //add by nurul 26/11/2021
-    var emailLogin = "";
+    //var emailLogin = "";
     //end add by nurul 26/11/2021
 
     var sessionAccount = HttpContext.Current.Session["SessionAccount"];
@@ -94,8 +94,8 @@
         //end add by nurul 11/10/2021
 
         //add by nurul 26/11/2021
-        var email = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(sessionAccountEmail.ToString()));
-        emailLogin = email;
+        //var email = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(sessionAccountEmail.ToString()));
+        //emailLogin = email;
         //end add by nurul 26/11/2021
     }
     else
@@ -121,8 +121,8 @@
         //end add by nurul 11/10/2021
 
         //add by nurul 26/11/2021
-        var email = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(sessionUserEmail.ToString()));
-        emailLogin = email;
+        //var email = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(sessionUserEmail.ToString()));
+        //emailLogin = email;
         //end add by nurul 26/11/2021
     }
 
@@ -839,8 +839,8 @@
                                                                     {
                                                                         if (statusAktifSubAddonChat == 1)
                                                                         {
-                                                                            @*<a target="_blank" @(!child.HaveChild ? "href=" + child.Url + sessionAccountDatabasePathErasoft : "")>*@
-                                                                            <a target="_blank" @(!child.HaveChild ? "href=" + child.Url + emailLogin : "")>
+                                                                            <a target="_blank" @(!child.HaveChild ? "href=" + child.Url + sessionAccountDatabasePathErasoft : "")>
+                                                                            @*<a target="_blank" @(!child.HaveChild ? "href=" + child.Url + emailLogin : "")>*@
                                                                                 @if (!string.IsNullOrEmpty(child.Icon))
                                                                                 {
                                                                                     <i class="fa @child.Icon"></i>
@@ -1061,8 +1061,8 @@
                                                                     {
                                                                         if (statusAktifSubAddonChat == 1)
                                                                         {
-                                                                            @*<a target="_blank" @(!child.HaveChild ? "href=" + child.Url + sessionAccountDatabasePathErasoft : "")>*@
-                                                                            <a target="_blank" @(!child.HaveChild ? "href=" + child.Url + emailLogin : "")>
+                                                                            <a target="_blank" @(!child.HaveChild ? "href=" + child.Url + sessionAccountDatabasePathErasoft : "")>
+                                                                            @*<a target="_blank" @(!child.HaveChild ? "href=" + child.Url + emailLogin : "")>*@
                                                                                 @if (!string.IsNullOrEmpty(child.Icon))
                                                                                 {
                                                                                     <i class="fa @child.Icon"></i>
