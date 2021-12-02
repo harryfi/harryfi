@@ -4608,8 +4608,8 @@ namespace MasterOnline.Controllers
                 + addDays + ", \"bookTimeEnd\": " + addDays2 + " }";
             //string sParamJson = "{\"orderStatus\":" + status + ", \"startRow\": " + page * 20 + "}";
 
-            try
-            {
+            //try
+            //{
                 var response = Call(data.appKey, data.accessToken, data.appSecret, sMethod, sParamJson);
                 var retData = JsonConvert.DeserializeObject(response, typeof(JDID_RESJob)) as JDID_RESJob;
                 if (retData.openapi_code == 0)
@@ -4625,21 +4625,21 @@ namespace MasterOnline.Controllers
                         //}
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                var log = new TABEL_LOG_GETORDERS()
-                {
-                    DBPATHERA = data.DatabasePathErasoft,
-                    MARKETPLACE = "JDID",
-                    TGL = DateTime.UtcNow.AddHours(7),
-                    FUNCTION = "GetOrderList " + status + " : " + data.no_cust,
-                    ERRORMSG = ex.Message
-                };
-                MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                MoDbContext.SaveChanges();
-                throw ex;
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    var log = new TABEL_LOG_GETORDERS()
+            //    {
+            //        DBPATHERA = data.DatabasePathErasoft,
+            //        MARKETPLACE = "JDID",
+            //        TGL = DateTime.UtcNow.AddHours(7),
+            //        FUNCTION = "GetOrderList " + status + " : " + data.no_cust,
+            //        ERRORMSG = ex.Message
+            //    };
+            //    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //    MoDbContext.SaveChanges();
+            //    throw ex;
+            //}
             return ret;
         }
 
@@ -4864,8 +4864,8 @@ namespace MasterOnline.Controllers
             string sParamJson = "[" + listOrderIds + "]";
 
             var jmlhNewOrder = 0;
-            try
-            {
+            //try
+            //{
                 var response = Call(data.appKey, data.accessToken, data.appSecret, sMethod, sParamJson);
                 var retData = JsonConvert.DeserializeObject(response, typeof(JDID_RESJob)) as JDID_RESJob;
                 if (retData.openapi_code == 0)
@@ -5288,21 +5288,21 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                var log = new TABEL_LOG_GETORDERS()
-                {
-                    DBPATHERA = data.DatabasePathErasoft,
-                    MARKETPLACE = "JDID",
-                    TGL = DateTime.UtcNow.AddHours(7),
-                    FUNCTION = "GetOrderDetail : " + cust,
-                    ERRORMSG = ex.Message
-                };
-                MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                MoDbContext.SaveChanges();
-                throw ex;
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    var log = new TABEL_LOG_GETORDERS()
+            //    {
+            //        DBPATHERA = data.DatabasePathErasoft,
+            //        MARKETPLACE = "JDID",
+            //        TGL = DateTime.UtcNow.AddHours(7),
+            //        FUNCTION = "GetOrderDetail : " + cust,
+            //        ERRORMSG = ex.Message
+            //    };
+            //    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //    MoDbContext.SaveChanges();
+            //    throw ex;
+            //}
             //return adaInsert;
             ret.recordCount = jmlhNewOrder;
             return ret;
@@ -5316,8 +5316,8 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             bool responseApi = false;
             int retry = 0;
-            try
-            {
+            //try
+            //{
                 while (!responseApi && retry <= 3)
                 {
                     data = RefreshToken(data);
@@ -5423,20 +5423,20 @@ namespace MasterOnline.Controllers
                         string msg = ex2.InnerException != null ? ex2.InnerException.Message : ex2.Message;
                     }
                 }
-            }catch(Exception ex)
-            {
-                var log = new TABEL_LOG_GETORDERS()
-                {
-                    DBPATHERA = data.DatabasePathErasoft,
-                    MARKETPLACE = "JDID",
-                    TGL = DateTime.UtcNow.AddHours(7),
-                    FUNCTION = "GetOrderListV2 "+status+" : " + data.no_cust,
-                    ERRORMSG = ex.Message
-                };
-                MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                MoDbContext.SaveChanges();
-                throw ex;
-            }
+            //}catch(Exception ex)
+            //{
+            //    var log = new TABEL_LOG_GETORDERS()
+            //    {
+            //        DBPATHERA = data.DatabasePathErasoft,
+            //        MARKETPLACE = "JDID",
+            //        TGL = DateTime.UtcNow.AddHours(7),
+            //        FUNCTION = "GetOrderListV2 "+status+" : " + data.no_cust,
+            //        ERRORMSG = ex.Message
+            //    };
+            //    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //    MoDbContext.SaveChanges();
+            //    throw ex;
+            //}
             return ret;
         }
 
@@ -5454,8 +5454,8 @@ namespace MasterOnline.Controllers
             bool responseApi = false;
             int retry = 0;
             var jmlhNewOrder = 0;
-            try
-            {
+            //try
+            //{
                 while (!responseApi && retry <= 3)
                 {
                     data = RefreshToken(data);
@@ -5951,20 +5951,20 @@ namespace MasterOnline.Controllers
 
                     }
                 }
-            }catch(Exception ex)
-            {
-                var log = new TABEL_LOG_GETORDERS()
-                {
-                    DBPATHERA = data.DatabasePathErasoft,
-                    MARKETPLACE = "JDID",
-                    TGL = DateTime.UtcNow.AddHours(7),
-                    FUNCTION = "GetOrderDetailV2 : " + cust,
-                    ERRORMSG = ex.Message
-                };
-                MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                MoDbContext.SaveChanges();
-                throw ex;
-            }
+            //}catch(Exception ex)
+            //{
+            //    var log = new TABEL_LOG_GETORDERS()
+            //    {
+            //        DBPATHERA = data.DatabasePathErasoft,
+            //        MARKETPLACE = "JDID",
+            //        TGL = DateTime.UtcNow.AddHours(7),
+            //        FUNCTION = "GetOrderDetailV2 : " + cust,
+            //        ERRORMSG = ex.Message
+            //    };
+            //    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //    MoDbContext.SaveChanges();
+            //    throw ex;
+            //}
             //return adaInsert;
             ret.recordCount = jmlhNewOrder;
             return ret;

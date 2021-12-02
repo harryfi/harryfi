@@ -178,8 +178,8 @@ namespace MasterOnline.Controllers
             myReq.ContentType = "application/json";
             string responseServer = "";
 
-            try
-            {
+            //try
+            //{
                 using (WebResponse response = myReq.GetResponse())
                 {
                     using (Stream stream = response.GetResponseStream())
@@ -567,20 +567,20 @@ namespace MasterOnline.Controllers
                             }
                         }
                 }
-            }catch(Exception ex)
-            {
-                var log = new TABEL_LOG_GETORDERS()
-                {
-                    DBPATHERA = iden.DatabasePathErasoft,
-                    MARKETPLACE = "SHOPIFY",
-                    TGL = DateTime.UtcNow.AddHours(7),
-                    FUNCTION = "Shopify_GetOrderByStatusUnpaid_List3Days : " + CUST,
-                    ERRORMSG = ex.Message
-                };
-                MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                MoDbContext.SaveChanges();
-                throw ex;
-            }
+            //}catch(Exception ex)
+            //{
+            //    var log = new TABEL_LOG_GETORDERS()
+            //    {
+            //        DBPATHERA = iden.DatabasePathErasoft,
+            //        MARKETPLACE = "SHOPIFY",
+            //        TGL = DateTime.UtcNow.AddHours(7),
+            //        FUNCTION = "Shopify_GetOrderByStatusUnpaid_List3Days : " + CUST,
+            //        ERRORMSG = ex.Message
+            //    };
+            //    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //    MoDbContext.SaveChanges();
+            //    throw ex;
+            //}
             return ret;
         }
 
@@ -676,8 +676,8 @@ namespace MasterOnline.Controllers
             myReq.ContentType = "application/json";
             string responseServer = "";
 
-            try
-            {
+            //try
+            //{
                 using (WebResponse response = myReq.GetResponse())
                 {
                     using (Stream stream = response.GetResponseStream())
@@ -1053,20 +1053,20 @@ namespace MasterOnline.Controllers
                             }
                         }
                 }
-            }catch(Exception ex)
-            {
-                var log = new TABEL_LOG_GETORDERS()
-                {
-                    DBPATHERA = iden.DatabasePathErasoft,
-                    MARKETPLACE = "SHOPIFY",
-                    TGL = DateTime.UtcNow.AddHours(7),
-                    FUNCTION = "Shopify_GetOrderByStatusPaid_List3Days : " + CUST,
-                    ERRORMSG = ex.Message
-                };
-                MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                MoDbContext.SaveChanges();
-                throw ex;
-            }
+            //}catch(Exception ex)
+            //{
+            //    var log = new TABEL_LOG_GETORDERS()
+            //    {
+            //        DBPATHERA = iden.DatabasePathErasoft,
+            //        MARKETPLACE = "SHOPIFY",
+            //        TGL = DateTime.UtcNow.AddHours(7),
+            //        FUNCTION = "Shopify_GetOrderByStatusPaid_List3Days : " + CUST,
+            //        ERRORMSG = ex.Message
+            //    };
+            //    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //    MoDbContext.SaveChanges();
+            //    throw ex;
+            //}
             return ret;
         }
 
@@ -1264,8 +1264,8 @@ namespace MasterOnline.Controllers
             myReq.Accept = "application/x-www-form-urlencoded";
             myReq.ContentType = "application/json";
             string responseServer = "";
-            try
-            {
+            //try
+            //{
                 using (WebResponse response = myReq.GetResponse())
                 {
                     using (Stream stream = response.GetResponseStream())
@@ -1386,20 +1386,20 @@ namespace MasterOnline.Controllers
                     //{
                     //}
                 }
-            }catch(Exception ex)
-            {
-                var log = new TABEL_LOG_GETORDERS()
-                {
-                    DBPATHERA = iden.DatabasePathErasoft,
-                    MARKETPLACE = "SHOPIFY",
-                    TGL = DateTime.UtcNow.AddHours(7),
-                    FUNCTION = "Shopify_GetOrderByStatusCancelledList3Days : " + CUST,
-                    ERRORMSG = ex.Message
-                };
-                MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                MoDbContext.SaveChanges();
-                throw ex;
-            }
+            //}catch(Exception ex)
+            //{
+            //    var log = new TABEL_LOG_GETORDERS()
+            //    {
+            //        DBPATHERA = iden.DatabasePathErasoft,
+            //        MARKETPLACE = "SHOPIFY",
+            //        TGL = DateTime.UtcNow.AddHours(7),
+            //        FUNCTION = "Shopify_GetOrderByStatusCancelledList3Days : " + CUST,
+            //        ERRORMSG = ex.Message
+            //    };
+            //    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //    MoDbContext.SaveChanges();
+            //    throw ex;
+            //}
             return ret;
         }
 

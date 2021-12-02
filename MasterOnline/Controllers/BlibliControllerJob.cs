@@ -868,8 +868,8 @@ namespace MasterOnline.Controllers
             //end change by nurul 13/7/2020
 
             string responseFromServer = "";
-            try
-            {
+            //try
+            //{
                 using (WebResponse response = await myReq.GetResponseAsync())
                 {
                     using (Stream stream = response.GetResponseStream())
@@ -991,25 +991,25 @@ namespace MasterOnline.Controllers
                 }
             }
                 //return count;
-            }
-            catch (Exception ex)
-            {
-                if(!ex.Message.ToLower().Contains("unauthorized"))
-                if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
-                {
-                    var log = new TABEL_LOG_GETORDERS()
-                    {
-                        DBPATHERA = iden.DatabasePathErasoft,
-                        MARKETPLACE = "BLIBLI",
-                        TGL = DateTime.UtcNow.AddHours(7),
-                        FUNCTION = "GetOrderListWithPage "+stat.ToString()+" : " + CUST,
-                        ERRORMSG = ex.Message
-                    };
-                    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                    MoDbContext.SaveChanges();
-                    }
-                throw ex;
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    if(!ex.Message.ToLower().Contains("unauthorized"))
+            //    if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
+            //    {
+            //        var log = new TABEL_LOG_GETORDERS()
+            //        {
+            //            DBPATHERA = iden.DatabasePathErasoft,
+            //            MARKETPLACE = "BLIBLI",
+            //            TGL = DateTime.UtcNow.AddHours(7),
+            //            FUNCTION = "GetOrderListWithPage "+stat.ToString()+" : " + CUST,
+            //            ERRORMSG = ex.Message
+            //        };
+            //        MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //        MoDbContext.SaveChanges();
+            //        }
+            //    throw ex;
+            //}
             ret.Count = count;
             return ret;
         }

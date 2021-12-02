@@ -2769,8 +2769,8 @@ namespace MasterOnline.Controllers
 
 
             string sSQL_Value = "";
-            try
-            {
+            //try
+            //{
                 foreach (var listOrderIds in listID)
                 {
                     ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
@@ -2876,20 +2876,20 @@ namespace MasterOnline.Controllers
                         ret.message = "failed to call lazada api";
                     }
                 }
-            } catch(Exception ex)
-            {
-                var log = new TABEL_LOG_GETORDERS()
-                {
-                    DBPATHERA = dbPathEra,
-                    MARKETPLACE = "LAZADA",
-                    TGL = DateTime.UtcNow.AddHours(7),
-                    FUNCTION = "GetOrderDetailsCekUnpaid : " + cust,
-                    ERRORMSG = ex.Message
-                };
-                MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                MoDbContext.SaveChanges();
-                throw ex;
-            }
+            //} catch(Exception ex)
+            //{
+            //    var log = new TABEL_LOG_GETORDERS()
+            //    {
+            //        DBPATHERA = dbPathEra,
+            //        MARKETPLACE = "LAZADA",
+            //        TGL = DateTime.UtcNow.AddHours(7),
+            //        FUNCTION = "GetOrderDetailsCekUnpaid : " + cust,
+            //        ERRORMSG = ex.Message
+            //    };
+            //    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //    MoDbContext.SaveChanges();
+            //    throw ex;
+            //}
 
 
             return ret;
@@ -2968,8 +2968,8 @@ namespace MasterOnline.Controllers
             //end add by Tri 4 Nov 2019, ambil pesanan baru saja
             //end change by Tri 12 Maret, ambil pesanan sesuai status dari param
             request.AddApiParameter("sort_by", "created_at");
-            try
-            {
+            //try
+            //{
                 LazopResponse response = client.Execute(request, accessToken);
                 var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(NewLzdOrders)) as NewLzdOrders;
                 if (bindOrder != null)
@@ -3631,25 +3631,25 @@ namespace MasterOnline.Controllers
                 {
                     ret.message = "failed to call lazada api";
                 }
-            }
-            catch (Exception ex)
-            {
-                ret.message = ex.ToString();
-                //currentLog.REQUEST_EXCEPTION = ex.Message;
-                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
-                var log = new TABEL_LOG_GETORDERS()
-                {
-                    DBPATHERA = dbPathEra,
-                    MARKETPLACE = "LAZADA",
-                    TGL = DateTime.UtcNow.AddHours(7),
-                    FUNCTION = "GetOrdersWithPage "+statusLzd+" : " + cust,
-                    ERRORMSG = ex.Message
-                };
-                MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                MoDbContext.SaveChanges();
+            //}
+            //catch (Exception ex)
+            //{
+            //    ret.message = ex.ToString();
+            //    //currentLog.REQUEST_EXCEPTION = ex.Message;
+            //    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
+            //    var log = new TABEL_LOG_GETORDERS()
+            //    {
+            //        DBPATHERA = dbPathEra,
+            //        MARKETPLACE = "LAZADA",
+            //        TGL = DateTime.UtcNow.AddHours(7),
+            //        FUNCTION = "GetOrdersWithPage "+statusLzd+" : " + cust,
+            //        ERRORMSG = ex.Message
+            //    };
+            //    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //    MoDbContext.SaveChanges();
 
-                throw ex; 
-            }
+            //    throw ex; 
+            //}
             return ret;
         }
         private void InsertPembeli(Order order, string connIDARF01C, string dbPathEra, string username)
@@ -3867,8 +3867,8 @@ namespace MasterOnline.Controllers
             request.AddApiParameter("limit", "100");
             request.AddApiParameter("sort_by", "created_at");
             request.AddApiParameter("status", "unpaid");
-            try
-            {
+            //try
+            //{
                 LazopResponse response = client.Execute(request, accessToken);
                 var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(NewLzdOrders)) as NewLzdOrders;
                 if (bindOrder != null)
@@ -4294,24 +4294,24 @@ namespace MasterOnline.Controllers
                 {
                     ret.message = "failed to call lazada api";
                 }
-            }
-            catch (Exception ex)
-            {
-                ret.message = ex.ToString();
-                //currentLog.REQUEST_EXCEPTION = ex.Message;
-                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
-                var log = new TABEL_LOG_GETORDERS()
-                {
-                    DBPATHERA = dbPathEra,
-                    MARKETPLACE = "LAZADA",
-                    TGL = DateTime.UtcNow.AddHours(7),
-                    FUNCTION = "GetOrdersUnpaidWithPage : " + cust,
-                    ERRORMSG = ex.Message
-                };
-                MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                MoDbContext.SaveChanges();
-                throw ex;
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    ret.message = ex.ToString();
+            //    //currentLog.REQUEST_EXCEPTION = ex.Message;
+            //    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
+            //    var log = new TABEL_LOG_GETORDERS()
+            //    {
+            //        DBPATHERA = dbPathEra,
+            //        MARKETPLACE = "LAZADA",
+            //        TGL = DateTime.UtcNow.AddHours(7),
+            //        FUNCTION = "GetOrdersUnpaidWithPage : " + cust,
+            //        ERRORMSG = ex.Message
+            //    };
+            //    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //    MoDbContext.SaveChanges();
+            //    throw ex;
+            //}
             return ret;
         }
 
@@ -4416,8 +4416,8 @@ namespace MasterOnline.Controllers
             //                       //end change by nurul 10/10/2019, cari semua status kecuali cancel (11)
             //                       //select new { a.NO_REFERENSI }).ToList();
             //                       select  a.NO_REFERENSI ).ToList();
-            try
-            {
+            //try
+            //{
                 var connIDStok = Guid.NewGuid().ToString();
                 ret.ConnId = connIDStok;
                 ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
@@ -4686,21 +4686,21 @@ namespace MasterOnline.Controllers
 
                     new StokControllerJob().updateStockMarketPlace(connIDStok, dbPathEra, uname);
                 }
-            }
-            catch(Exception ex)
-            {
-                var log = new TABEL_LOG_GETORDERS()
-                {
-                    DBPATHERA = dbPathEra,
-                    MARKETPLACE = "LAZADA",
-                    TGL = DateTime.UtcNow.AddHours(7),
-                    FUNCTION = "GetOrdersCancelledWithPage : " + cust,
-                    ERRORMSG = ex.Message
-                };
-                MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                MoDbContext.SaveChanges();
-                throw ex;
-            }
+            //}
+            //catch(Exception ex)
+            //{
+            //    var log = new TABEL_LOG_GETORDERS()
+            //    {
+            //        DBPATHERA = dbPathEra,
+            //        MARKETPLACE = "LAZADA",
+            //        TGL = DateTime.UtcNow.AddHours(7),
+            //        FUNCTION = "GetOrdersCancelledWithPage : " + cust,
+            //        ERRORMSG = ex.Message
+            //    };
+            //    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //    MoDbContext.SaveChanges();
+            //    throw ex;
+            //}
             return ret;
         }
 
@@ -4721,8 +4721,8 @@ namespace MasterOnline.Controllers
 
             var brgCancelled = new List<TEMP_ALL_MP_ORDER_ITEM>();
             var connIDStok = Guid.NewGuid().ToString();
-            try
-            {
+            //try
+            //{
                 var listOrderUnpaid = ErasoftDbContext.SOT01A.Where(m => m.CUST == cust && m.TGL < dmin2 && m.STATUS_TRANSAKSI == "0").Select(m => new { nobuk = m.NO_BUKTI, noref = m.NO_REFERENSI }).ToList();
                 if (listOrderUnpaid.Count > 0)
                 {
@@ -4811,21 +4811,21 @@ namespace MasterOnline.Controllers
                         new StokControllerJob().updateStockMarketPlace(connIDStok, dbPathEra, uname);
                     }
                 }
-            }
-            catch(Exception ex)
-            {
-                var log = new TABEL_LOG_GETORDERS()
-                {
-                    DBPATHERA = dbPathEra,
-                    MARKETPLACE = "LAZADA",
-                    TGL = DateTime.UtcNow.AddHours(7),
-                    FUNCTION = "UpdateOrderUnpaidToCancel : " + cust,
-                    ERRORMSG = ex.Message
-                };
-                MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                MoDbContext.SaveChanges();
-                throw ex;
-            }
+            //}
+            //catch(Exception ex)
+            //{
+            //    var log = new TABEL_LOG_GETORDERS()
+            //    {
+            //        DBPATHERA = dbPathEra,
+            //        MARKETPLACE = "LAZADA",
+            //        TGL = DateTime.UtcNow.AddHours(7),
+            //        FUNCTION = "UpdateOrderUnpaidToCancel : " + cust,
+            //        ERRORMSG = ex.Message
+            //    };
+            //    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //    MoDbContext.SaveChanges();
+            //    throw ex;
+            //}
             //add by nurul 14/4/2021, bundling
             return connIDStok;
             //end add by nurul 14/4/2021, bundling

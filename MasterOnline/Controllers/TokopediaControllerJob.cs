@@ -2735,8 +2735,8 @@ namespace MasterOnline.Controllers
             var token = SetupContext(iden);
             iden.token = token;
             var list_ordersn = ErasoftDbContext.SOT01A.AsNoTracking().Where(a => (a.TRACKING_SHIPMENT == null || a.TRACKING_SHIPMENT == "-" || a.TRACKING_SHIPMENT == "") && a.CUST == cust && (a.NO_REFERENSI.Contains("INV")) && (a.STATUS_TRANSAKSI.Contains("02") || a.STATUS_TRANSAKSI.Contains("03") || a.STATUS_TRANSAKSI.Contains("04"))).ToList();
-            try
-            {
+            //try
+            //{
                 if (list_ordersn.Count() > 0)
                 {
                     foreach (var pesanan in list_ordersn)
@@ -2808,24 +2808,24 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-            }catch(Exception ex)
-            {
-                if(!ex.Message.ToLower().Contains("unauthorized"))
-                    if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
-                {
-                    var log = new TABEL_LOG_GETORDERS()
-                    {
-                        DBPATHERA = iden.DatabasePathErasoft,
-                        MARKETPLACE = "TOKPED",
-                        TGL = DateTime.UtcNow.AddHours(7),
-                        FUNCTION = "GetSingleOrder(get kode booking) : " + cust,
-                        ERRORMSG = ex.Message
-                    };
-                    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                    MoDbContext.SaveChanges();
-                }
-                throw ex;
-            }
+            //}catch(Exception ex)
+            //{
+            //    if(!ex.Message.ToLower().Contains("unauthorized"))
+            //        if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
+            //    {
+            //        var log = new TABEL_LOG_GETORDERS()
+            //        {
+            //            DBPATHERA = iden.DatabasePathErasoft,
+            //            MARKETPLACE = "TOKPED",
+            //            TGL = DateTime.UtcNow.AddHours(7),
+            //            FUNCTION = "GetSingleOrder(get kode booking) : " + cust,
+            //            ERRORMSG = ex.Message
+            //        };
+            //        MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //        MoDbContext.SaveChanges();
+            //    }
+            //    throw ex;
+            //}
             return ret;
         }
 
@@ -3253,8 +3253,8 @@ namespace MasterOnline.Controllers
             //myReq.Headers.Add("sessionId", milis.ToString());
             //myReq.Headers.Add("username", userMTA);
             string responseFromServer = "";
-            try
-            {
+            //try
+            //{
                 using (WebResponse response = await myReq.GetResponseAsync())
             {
                 using (Stream stream = response.GetResponseStream())
@@ -4047,25 +4047,25 @@ namespace MasterOnline.Controllers
                 }
                 //end add by calvin 1 april 2019
             }
-            }
-            catch (Exception ex)
-            {
-                if(!ex.Message.ToLower().Contains("unauthorized"))
-                    if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
-                {
-                    var log = new TABEL_LOG_GETORDERS()
-                    {
-                        DBPATHERA = iden.DatabasePathErasoft,
-                        MARKETPLACE = "TOKPED",
-                        TGL = DateTime.UtcNow.AddHours(7),
-                        FUNCTION = "GetOrderList3days " + stat.ToString() + " : " + CUST,
-                        ERRORMSG = ex.Message
-                    };
-                    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                    MoDbContext.SaveChanges();
-                }
-                throw ex;
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    if(!ex.Message.ToLower().Contains("unauthorized"))
+            //        if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
+            //    {
+            //        var log = new TABEL_LOG_GETORDERS()
+            //        {
+            //            DBPATHERA = iden.DatabasePathErasoft,
+            //            MARKETPLACE = "TOKPED",
+            //            TGL = DateTime.UtcNow.AddHours(7),
+            //            FUNCTION = "GetOrderList3days " + stat.ToString() + " : " + CUST,
+            //            ERRORMSG = ex.Message
+            //        };
+            //        MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //        MoDbContext.SaveChanges();
+            //    }
+            //    throw ex;
+            //}
             return ret;
         }
 
@@ -4213,8 +4213,8 @@ namespace MasterOnline.Controllers
             //myReq.Headers.Add("sessionId", milis.ToString());
             //myReq.Headers.Add("username", userMTA);
             string responseFromServer = "";
-            try
-            {
+            //try
+            //{
                 using (WebResponse response = await myReq.GetResponseAsync())
             {
                 using (Stream stream = response.GetResponseStream())
@@ -4287,25 +4287,25 @@ namespace MasterOnline.Controllers
                 }
                     //end add by calvin 1 april 2019
                 }
-            }
-            catch (Exception ex)
-            {
-                if(!ex.Message.ToLower().Contains("unauthorized"))
-                    if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
-                {
-                    var log = new TABEL_LOG_GETORDERS()
-                    {
-                        DBPATHERA = iden.DatabasePathErasoft,
-                        MARKETPLACE = "TOKPED",
-                        TGL = DateTime.UtcNow.AddHours(7),
-                        FUNCTION = "GetOrderListCompleted3Days : " + CUST,
-                        ERRORMSG = ex.Message
-                    };
-                    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                    MoDbContext.SaveChanges();
-                }
-                throw ex;
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    if(!ex.Message.ToLower().Contains("unauthorized"))
+            //        if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
+            //    {
+            //        var log = new TABEL_LOG_GETORDERS()
+            //        {
+            //            DBPATHERA = iden.DatabasePathErasoft,
+            //            MARKETPLACE = "TOKPED",
+            //            TGL = DateTime.UtcNow.AddHours(7),
+            //            FUNCTION = "GetOrderListCompleted3Days : " + CUST,
+            //            ERRORMSG = ex.Message
+            //        };
+            //        MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //        MoDbContext.SaveChanges();
+            //    }
+            //    throw ex;
+            //}
             return ret;
         }
 
@@ -4379,7 +4379,7 @@ namespace MasterOnline.Controllers
             myReq.Accept = "application/x-www-form-urlencoded";
             myReq.ContentType = "application/json";
             string responseFromServer = "";
-            try { 
+            //try { 
             using (WebResponse response = await myReq.GetResponseAsync())
             {
                 using (Stream stream = response.GetResponseStream())
@@ -4638,25 +4638,25 @@ namespace MasterOnline.Controllers
                     contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrder) + " Pesanan dari Tokopedia dibatalkan.");
                 }
                 }
-            }
-            catch (Exception ex)
-            {
-                if(!ex.Message.ToLower().Contains("unauthorized"))
-                    if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
-                {
-                    var log = new TABEL_LOG_GETORDERS()
-                    {
-                        DBPATHERA = iden.DatabasePathErasoft,
-                        MARKETPLACE = "TOKPED",
-                        TGL = DateTime.UtcNow.AddHours(7),
-                        FUNCTION = "GetOrderListCancel3days : " + CUST,
-                        ERRORMSG = ex.Message
-                    };
-                    MoDbContext.TABEL_LOG_GETORDERS.Add(log);
-                    MoDbContext.SaveChanges();
-                }
-                throw ex;
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    if(!ex.Message.ToLower().Contains("unauthorized"))
+            //        if (!ex.Message.ToLower().Contains("many") && !ex.Message.ToLower().Contains("request"))
+            //    {
+            //        var log = new TABEL_LOG_GETORDERS()
+            //        {
+            //            DBPATHERA = iden.DatabasePathErasoft,
+            //            MARKETPLACE = "TOKPED",
+            //            TGL = DateTime.UtcNow.AddHours(7),
+            //            FUNCTION = "GetOrderListCancel3days : " + CUST,
+            //            ERRORMSG = ex.Message
+            //        };
+            //        MoDbContext.TABEL_LOG_GETORDERS.Add(log);
+            //        MoDbContext.SaveChanges();
+            //    }
+            //    throw ex;
+            //}
             //return "";
             return ret; 
         }
