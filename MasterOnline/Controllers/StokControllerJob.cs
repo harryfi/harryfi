@@ -4133,15 +4133,32 @@ namespace MasterOnline.Controllers
                         client.Schedule<StokControllerJob>(x => x.ShopeeUnlinkProduct(DatabasePathErasoft, stf02_brg, log_CUST, uname, iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(0), qty), TimeSpan.FromMinutes(1));
 #endif
                     }
-                    else if(msg.Contains("promotion"))
+                    else if(msg.ToLower().Contains("promotion"))
                     {
-                        var sSQL = "INSERT INTO API_LOG_MARKETPLACE (REQUEST_STATUS,CUST_ATTRIBUTE_1,CUST_ATTRIBUTE_2,CUST,MARKETPLACE,REQUEST_ID,";
+                        var reqID = "SUPPORT_UPDATE_STOK_SHOPEE_" + stf02_brg + "_" + log_CUST + "_" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff");
+                        var sSQL = "INSERT INTO API_LOG_MARKETPLACE (REQUEST_STATUS,CUST_ATTRIBUTE_1,CUST_ATTRIBUTE_2,CUST_ATTRIBUTE_3,CUST,MARKETPLACE,REQUEST_ID,";
                         sSQL += "REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_3, REQUEST_ATTRIBUTE_4,REQUEST_ATTRIBUTE_5, ";
-                        sSQL += "REQUEST_RESULT,REQUEST_EXCEPTION) VALUES (";
-                        sSQL += "'FAILED', '" + stf02_brg + "', '" + brg_mp + "', '" + log_CUST + "', 'Shopee', 'SUPPORT_UPDATE_STOK_SHOPEE_"+ stf02_brg + "_" + log_CUST + "_"+ DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff") + "', ";
-                        sSQL += "'Update Stok', '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', 'Stock', '" + stf02_brg + "',";
-                        sSQL += "'HANGFIRE', 'Update Stok " + stf02_brg + " ke Shopee gagal.', '" + msg + "')";
-                        EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                        sSQL += "REQUEST_RESULT,REQUEST_EXCEPTION) ";
+                        sSQL += "SELECT 'FAILED',A.CUST_ATTRIBUTE_1, A.CUST_ATTRIBUTE_2,A.CUST_ATTRIBUTE_3, A.CUST,A.MARKETPLACE,A.REQUEST_ID, A.REQUEST_ACTION,A.REQUEST_DATETIME,A.REQUEST_ATTRIBUTE_3,A.REQUEST_ATTRIBUTE_4,A.REQUEST_ATTRIBUTE_5,A.REQUEST_RESULT,A.REQUEST_EXCEPTION FROM ( SELECT ";
+                        sSQL += "'FAILED' REQUEST_STATUS, '" + stf02_brg.Replace("'", "`") + "' CUST_ATTRIBUTE_1, '1' CUST_ATTRIBUTE_2,'" + brg_mp + "' CUST_ATTRIBUTE_3, '" + log_CUST + "' CUST, 'Shopee' MARKETPLACE, '" + reqID + "' REQUEST_ID, ";
+                        sSQL += "'Update Stok' REQUEST_ACTION, '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "' REQUEST_DATETIME, 'Stock' REQUEST_ATTRIBUTE_3, '" + stf02_brg + "' REQUEST_ATTRIBUTE_4,";
+                        sSQL += "'HANGFIRE' REQUEST_ATTRIBUTE_5, 'Update Stok " + stf02_brg + " ke Shopee gagal.' REQUEST_RESULT, '" + msg + "' REQUEST_EXCEPTION";
+                        sSQL += ") A LEFT JOIN API_LOG_MARKETPLACE B ON B.REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND A.REQUEST_ACTION = B.REQUEST_ACTION AND A.CUST = B.CUST AND A.CUST_ATTRIBUTE_1 = B.CUST_ATTRIBUTE_1 WHERE ISNULL(B.RECNUM,0) = 0";
+                        var insertLog = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                        if(insertLog == 0)
+                        {
+                            //update JOBID MENJADI JOBID BARU JIKA TIDAK SEDANG RETRY,STATUS,DATE,FAIL COUNT
+                            sSQL = "UPDATE B SET REQUEST_STATUS = 'FAILED', REQUEST_ID = '" + reqID + "', REQUEST_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', CUST_ATTRIBUTE_2 = CONVERT(INT,CUST_ATTRIBUTE_2) + 1 ";
+                            sSQL += ", REQUEST_RESULT = 'Update Stok " + stf02_brg.Replace("'", "`") + " ke Shopee gagal.', REQUEST_EXCEPTION = '" + msg.Replace("'", "`") + "' ";
+                            sSQL += ",CUST_ATTRIBUTE_3 = '" + brg_mp + "' FROM API_LOG_MARKETPLACE B INNER JOIN ";
+                            sSQL += "( SELECT '" + stf02_brg.Replace("'", "`") + "' CUST_ATTRIBUTE_1,'" + log_CUST + "' CUST,'SHOPEE' MARKETPLACE, '" + reqID + "' REQUEST_ID, ";
+                            sSQL += "'Update Stok' REQUEST_ACTION, '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "' REQUEST_DATETIME, ";
+                            sSQL += "'Stock' REQUEST_ATTRIBUTE_3,'" + stf02_brg + "' REQUEST_ATTRIBUTE_4, 'HANGFIRE' REQUEST_ATTRIBUTE_5, ";
+                            sSQL += "'Update Stok " + stf02_brg.Replace("'", "`") + " ke Shopee gagal.' REQUEST_RESULT, '" + msg.Replace("'", "`") + "' REQUEST_EXCEPTION ) A ";
+                            sSQL += "ON B.REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND A.REQUEST_ACTION = B.REQUEST_ACTION AND A.CUST = B.CUST AND A.CUST_ATTRIBUTE_1 = B.CUST_ATTRIBUTE_1 AND B.REQUEST_STATUS IN ('FAILED','RETRYING')";
+                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+                        }
+
                     }
                     else
                     {
@@ -4298,15 +4315,31 @@ namespace MasterOnline.Controllers
                         client.Schedule<StokControllerJob>(x => x.ShopeeUnlinkProduct(DatabasePathErasoft, stf02_brg, log_CUST, uname, iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(brg_mp_split[1]), qty), TimeSpan.FromMinutes(1));
 #endif
                     }
-                    else if (msg.Contains("promotion"))
+                    else if (msg.ToLower().Contains("promotion"))
                     {
-                        var sSQL = "INSERT INTO API_LOG_MARKETPLACE (REQUEST_STATUS,CUST_ATTRIBUTE_1,CUST_ATTRIBUTE_2,CUST,MARKETPLACE,REQUEST_ID,";
+                        var reqID = "SUPPORT_UPDATE_STOK_SHOPEE_" + stf02_brg + "_" + log_CUST + "_" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff");
+                        var sSQL = "INSERT INTO API_LOG_MARKETPLACE (REQUEST_STATUS,CUST_ATTRIBUTE_1,CUST_ATTRIBUTE_2,CUST_ATTRIBUTE_3,CUST,MARKETPLACE,REQUEST_ID,";
                         sSQL += "REQUEST_ACTION,REQUEST_DATETIME,REQUEST_ATTRIBUTE_3, REQUEST_ATTRIBUTE_4,REQUEST_ATTRIBUTE_5, ";
-                        sSQL += "REQUEST_RESULT,REQUEST_EXCEPTION) VALUES (";
-                        sSQL += "'FAILED', '" + stf02_brg + "', '" + brg_mp + "', '" + log_CUST + "', 'Shopee', 'SUPPORT_UPDATE_STOK_SHOPEE_" + stf02_brg + "_" + log_CUST + "_" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff") + "', ";
-                        sSQL += "'Update Stok', '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', 'Stock', '" + stf02_brg + "',";
-                        sSQL += "'HANGFIRE', 'Update Stok " + stf02_brg + " ke Shopee gagal.', '" + msg + "')";
-                        EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                        sSQL += "REQUEST_RESULT,REQUEST_EXCEPTION) ";
+                        sSQL += "SELECT 'FAILED',A.CUST_ATTRIBUTE_1, A.CUST_ATTRIBUTE_2,A.CUST_ATTRIBUTE_3, A.CUST,A.MARKETPLACE,A.REQUEST_ID, A.REQUEST_ACTION,A.REQUEST_DATETIME,A.REQUEST_ATTRIBUTE_3,A.REQUEST_ATTRIBUTE_4,A.REQUEST_ATTRIBUTE_5,A.REQUEST_RESULT,A.REQUEST_EXCEPTION FROM ( SELECT ";
+                        sSQL += "'FAILED' REQUEST_STATUS, '" + stf02_brg.Replace("'", "`") + "' CUST_ATTRIBUTE_1, '1' CUST_ATTRIBUTE_2,'" + brg_mp + "' CUST_ATTRIBUTE_3, '" + log_CUST + "' CUST, 'Shopee' MARKETPLACE, '" + reqID + "' REQUEST_ID, ";
+                        sSQL += "'Update Stok' REQUEST_ACTION, '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "' REQUEST_DATETIME, 'Stock' REQUEST_ATTRIBUTE_3, '" + stf02_brg + "' REQUEST_ATTRIBUTE_4,";
+                        sSQL += "'HANGFIRE' REQUEST_ATTRIBUTE_5, 'Update Stok " + stf02_brg + " ke Shopee gagal.' REQUEST_RESULT, '" + msg + "' REQUEST_EXCEPTION";
+                        sSQL += ") A LEFT JOIN API_LOG_MARKETPLACE B ON B.REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND A.REQUEST_ACTION = B.REQUEST_ACTION AND A.CUST = B.CUST AND A.CUST_ATTRIBUTE_1 = B.CUST_ATTRIBUTE_1 WHERE ISNULL(B.RECNUM,0) = 0";
+                        var insertLog = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                        if (insertLog == 0)
+                        {
+                            //update JOBID MENJADI JOBID BARU JIKA TIDAK SEDANG RETRY,STATUS,DATE,FAIL COUNT
+                            sSQL = "UPDATE B SET REQUEST_STATUS = 'FAILED', REQUEST_ID = '" + reqID + "', REQUEST_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', CUST_ATTRIBUTE_2 = CONVERT(INT,CUST_ATTRIBUTE_2) + 1 ";
+                            sSQL += ", REQUEST_RESULT = 'Update Stok " + stf02_brg.Replace("'", "`") + " ke Shopee gagal.', REQUEST_EXCEPTION = '" + msg.Replace("'", "`") + "' ";
+                            sSQL += ",CUST_ATTRIBUTE_3 = '" + brg_mp + "' FROM API_LOG_MARKETPLACE B INNER JOIN ";
+                            sSQL += "( SELECT '" + stf02_brg.Replace("'", "`") + "' CUST_ATTRIBUTE_1,'" + log_CUST + "' CUST,'SHOPEE' MARKETPLACE, '" + reqID + "' REQUEST_ID, ";
+                            sSQL += "'Update Stok' REQUEST_ACTION, '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "' REQUEST_DATETIME, ";
+                            sSQL += "'Stock' REQUEST_ATTRIBUTE_3,'" + stf02_brg + "' REQUEST_ATTRIBUTE_4, 'HANGFIRE' REQUEST_ATTRIBUTE_5, ";
+                            sSQL += "'Update Stok " + stf02_brg.Replace("'", "`") + " ke Shopee gagal.' REQUEST_RESULT, '" + msg.Replace("'", "`") + "' REQUEST_EXCEPTION ) A ";
+                            sSQL += "ON B.REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND A.REQUEST_ACTION = B.REQUEST_ACTION AND A.CUST = B.CUST AND A.CUST_ATTRIBUTE_1 = B.CUST_ATTRIBUTE_1 AND B.REQUEST_STATUS IN ('FAILED','RETRYING')";
+                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+                        }
                     }
                     else
                     {
