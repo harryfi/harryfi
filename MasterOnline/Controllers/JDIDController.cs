@@ -3063,7 +3063,7 @@ namespace MasterOnline.Controllers
                 myReq.Method = "GET";
                 try
                 {
-                    using (WebResponse response = await myReq.GetResponseAsync())
+                    using (WebResponse response = myReq.GetResponse())
                     {
                         using (Stream stream = response.GetResponseStream())
                         {
@@ -3237,7 +3237,7 @@ namespace MasterOnline.Controllers
                     myReq.Method = "GET";
                     try
                     {
-                        using (WebResponse response = await myReq.GetResponseAsync())
+                        using (WebResponse response = myReq.GetResponse())
                         {
                             using (Stream stream = response.GetResponseStream())
                             {

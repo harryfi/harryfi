@@ -302,7 +302,7 @@ namespace MasterOnline.Controllers
 
             try
             {
-                using (WebResponse response = await myReq.GetResponseAsync())
+                using (WebResponse response = myReq.GetResponse())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {
