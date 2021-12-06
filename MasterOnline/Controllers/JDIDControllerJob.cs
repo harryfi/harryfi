@@ -6001,18 +6001,27 @@ namespace MasterOnline.Controllers
                 {
                     data = RefreshToken(data);
                     var sysParams = new Dictionary<string, string>();
-                    this.ParamJson = "{\"salePrice\":\"" + price + "\",\"skuId\":\"" + brgMp + "\"}";
+                    var gettimestamp = getCurrentTimeFormatted();
+                  
+                    //change by Tri, ubah api untuk update harga, ikutin saran jdid
+                    //this.ParamJson = "{\"salePrice\":\"" + price + "\",\"skuId\":\"" + brgMp + "\"}";
+                    this.ParamJson = "{\"jdPrice\":\"" + price + "\",\"skuId\":\"" + brgMp + "\",\"spuId\":\"" + id.Split(';')[0] + "\"}";
+                    //end change by Tri, ubah api untuk update harga, ikutin saran jdid
                     sysParams.Add("360buy_param_json", this.ParamJson);
 
                     sysParams.Add("access_token", data.accessToken);
                     sysParams.Add("app_key", data.appKey);
-                    this.Method = "jingdong.seller.price.updatePriceBySkuIds"; //update skus prices
+                    //change by Tri, ubah api untuk update harga, ikutin saran jdid
+                    //this.Method = "jingdong.seller.price.updatePriceBySkuIds"; //update skus prices
+                    this.Method = "jingdong.seller.product.sku.write.updateSkuList"; //update skus prices
+                    //end change by Tri, ubah api untuk update harga, ikutin saran jdid
                     sysParams.Add("method", this.Method);
-                    var gettimestamp = getCurrentTimeFormatted();
+                    //var gettimestamp = getCurrentTimeFormatted();
                     sysParams.Add("timestamp", gettimestamp);
                     sysParams.Add("v", this.Version2);
                     sysParams.Add("format", this.Format);
                     sysParams.Add("sign_method", this.SignMethod);
+                    
 
                     var signature = this.generateSign(sysParams, data.appSecret);
 
@@ -6070,9 +6079,9 @@ namespace MasterOnline.Controllers
                     try
                     {
                         var retPrice = JsonConvert.DeserializeObject(responseFromServer, typeof(JDIDUpdatePriceV2)) as JDIDUpdatePriceV2;
-                        if (retPrice.jingdong_seller_price_updatePriceBySkuIds_response.returnType != null)
+                        if (retPrice.jingdong_seller_product_sku_write_updateSkuList_response.returnType != null)
                         {
-                            if (retPrice.jingdong_seller_price_updatePriceBySkuIds_response.returnType.success)
+                            if (retPrice.jingdong_seller_product_sku_write_updateSkuList_response.returnType.success)
                             {
                                 if (log_ActionName.Contains("UPDATE_MASSAL"))
                                 {
@@ -6096,7 +6105,7 @@ namespace MasterOnline.Controllers
                             }
                             else
                             {
-                                throw new Exception(retPrice.jingdong_seller_price_updatePriceBySkuIds_response.returnType.message.ToString());
+                                throw new Exception(retPrice.jingdong_seller_product_sku_write_updateSkuList_response.returnType.message.ToString());
                             }
                         }
                         else
@@ -9842,7 +9851,8 @@ namespace MasterOnline.Controllers
 
         public class JDIDUpdatePriceV2
         {
-            public Jingdong_Seller_Price_Updatepricebyskuids_Response jingdong_seller_price_updatePriceBySkuIds_response { get; set; }
+            //public Jingdong_Seller_Price_Updatepricebyskuids_Response jingdong_seller_price_updatePriceBySkuIds_response { get; set; }
+            public Jingdong_Seller_Price_Updatepricebyskuids_Response jingdong_seller_product_sku_write_updateSkuList_response { get; set; }
         }
 
         public class Jingdong_Seller_Price_Updatepricebyskuids_Response
