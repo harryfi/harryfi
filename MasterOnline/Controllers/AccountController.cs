@@ -1365,8 +1365,11 @@ namespace MasterOnline.Controllers
                                 if (tblCustomer != null)
                                 {
                                     connId_JobId = dbPathEra + "_tokopedia_update_resi_job_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                    recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetSingleOrder(data, tblCustomer.CUST, tblCustomer.PERSO)), Cron.MinuteInterval(30), recurJobOpt);
-                                }
+                                        //change by nurul 6/12/2021
+                                        //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetSingleOrder(data, tblCustomer.CUST, tblCustomer.PERSO)), Cron.MinuteInterval(30), recurJobOpt);
+                                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetSingleOrder(data, tblCustomer.CUST, tblCustomer.PERSO)), "33 * * * *", recurJobOpt);
+                                        //end change by nurul 6/12/2021
+                                    }
                                 //end add by nurul 1/4/2020
                             }
                             else

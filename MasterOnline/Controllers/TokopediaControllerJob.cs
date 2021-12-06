@@ -2621,7 +2621,8 @@ namespace MasterOnline.Controllers
 
             //}
 
-            if (responseFromServer != null)
+            //if (responseFromServer != null)
+            if (!string.IsNullOrEmpty(responseFromServer))
             {
                 try
                 {
@@ -2734,28 +2735,32 @@ namespace MasterOnline.Controllers
             string connId = Guid.NewGuid().ToString();
             var token = SetupContext(iden);
             iden.token = token;
-            var list_ordersn = ErasoftDbContext.SOT01A.AsNoTracking().Where(a => (a.TRACKING_SHIPMENT == null || a.TRACKING_SHIPMENT == "-" || a.TRACKING_SHIPMENT == "") && a.CUST == cust && (a.NO_REFERENSI.Contains("INV")) && (a.STATUS_TRANSAKSI.Contains("02") || a.STATUS_TRANSAKSI.Contains("03") || a.STATUS_TRANSAKSI.Contains("04"))).ToList();
+            //change by nurul 6/12/2021
+            //var list_ordersn = ErasoftDbContext.SOT01A.AsNoTracking().Where(a => (a.TRACKING_SHIPMENT == null || a.TRACKING_SHIPMENT == "-" || a.TRACKING_SHIPMENT == "") && a.CUST == cust && (a.NO_REFERENSI.Contains("INV")) && (a.STATUS_TRANSAKSI.Contains("02") || a.STATUS_TRANSAKSI.Contains("03") || a.STATUS_TRANSAKSI.Contains("04"))).ToList();
+            var getHMin2 = DateTime.UtcNow.AddHours(7).AddDays(-2);
+            var list_ordersn = ErasoftDbContext.SOT01A.AsNoTracking().Where(a => (a.TRACKING_SHIPMENT == null || a.TRACKING_SHIPMENT == "-" || a.TRACKING_SHIPMENT == "") && a.CUST == cust && (a.NO_REFERENSI.Contains("INV")) && a.STATUS_TRANSAKSI.Contains("03") && a.TGL >= getHMin2).ToList();
+            //end change by nurul 6/12/2021
             //try
             //{
-                if (list_ordersn.Count() > 0)
+            if (list_ordersn.Count() > 0)
+            {
+                foreach (var pesanan in list_ordersn)
                 {
-                    foreach (var pesanan in list_ordersn)
+                    string[] splitNoRef = pesanan.NO_REFERENSI.Split(';');
+                    string urll = "https://fs.tokopedia.net/v2/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/order?invoice_num=" + Uri.EscapeDataString(splitNoRef.Last());
+                    long milis = CurrentTimeMillis();
+
+
+                    DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                    myReq.Method = "GET";
+                    myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+                    myReq.Accept = "application/x-www-form-urlencoded";
+                    myReq.ContentType = "application/json";
+                    string responseFromServer = "";
+                    try
                     {
-                        string[] splitNoRef = pesanan.NO_REFERENSI.Split(';');
-                        string urll = "https://fs.tokopedia.net/v2/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/order?invoice_num=" + Uri.EscapeDataString(splitNoRef.Last());
-                        long milis = CurrentTimeMillis();
-
-
-                        DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
-
-                        HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-                        myReq.Method = "GET";
-                        myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
-                        myReq.Accept = "application/x-www-form-urlencoded";
-                        myReq.ContentType = "application/json";
-                        string responseFromServer = "";
-                        //try
-                        //{
                         using (WebResponse response = await myReq.GetResponseAsync())
                         {
                             using (Stream stream = response.GetResponseStream())
@@ -2764,50 +2769,64 @@ namespace MasterOnline.Controllers
                                 responseFromServer = reader.ReadToEnd();
                             }
                         }
-                        //using (WebResponse response = await myReq.GetResponse())
-                        //    {
-                        //        using (Stream stream = response.GetResponseStream())
-                        //        {
-                        //            StreamReader reader = new StreamReader(stream);
-                        //            responseFromServer = reader.ReadToEnd();
-                        //        }
-                        //    }
-                        //}
-                        //catch (WebException e)
-                        //{
-                        //    string err = "";
-                        //    if (e.Status == WebExceptionStatus.ProtocolError)
-                        //    {
-                        //        WebResponse resp = e.Response;
-                        //        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
-                        //        {
-                        //            err = sr.ReadToEnd();
-                        //        }
-                        //    }
-                        //    throw new Exception(err);
-                        //}
-
-                        if (responseFromServer != null)
+                    }
+                    catch (WebException e)
+                    {
+                        string err = "";
+                        if (e.Status == WebExceptionStatus.ProtocolError)
                         {
-                            TokpedSingleOrderResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedSingleOrderResult)) as TokpedSingleOrderResult;
-                            //if (result.header.error_code == "")
+                            WebResponse resp = e.Response;
+                            using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
                             {
-                                var tempAWB = result.data.order_info.shipping_info.awb;
-                                if (tempAWB != null && tempAWB != "")
+                                err = sr.ReadToEnd();
+                            }
+                        }
+                    }
+                    //using (WebResponse response = await myReq.GetResponse())
+                    //    {
+                    //        using (Stream stream = response.GetResponseStream())
+                    //        {
+                    //            StreamReader reader = new StreamReader(stream);
+                    //            responseFromServer = reader.ReadToEnd();
+                    //        }
+                    //    }
+                    //}
+                    //catch (WebException e)
+                    //{
+                    //    string err = "";
+                    //    if (e.Status == WebExceptionStatus.ProtocolError)
+                    //    {
+                    //        WebResponse resp = e.Response;
+                    //        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    //        {
+                    //            err = sr.ReadToEnd();
+                    //        }
+                    //    }
+                    //    throw new Exception(err);
+                    //}
+
+                    //if (responseFromServer != null)
+                    if (!string.IsNullOrEmpty(responseFromServer))
+                    {
+                        TokpedSingleOrderResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedSingleOrderResult)) as TokpedSingleOrderResult;
+                        //if (result.header.error_code == "")
+                        {
+                            var tempAWB = result.data.order_info.shipping_info.awb;
+                            if (tempAWB != null && tempAWB != "")
+                            {
+                                var pesananIndb = ErasoftDbContext.SOT01A.AsNoTracking().Where(a => a.NO_BUKTI == pesanan.NO_BUKTI).SingleOrDefault();
+                                if (pesananIndb != null)
                                 {
-                                    var pesananIndb = ErasoftDbContext.SOT01A.AsNoTracking().Where(a => a.NO_BUKTI == pesanan.NO_BUKTI).SingleOrDefault();
-                                    if (pesananIndb != null)
-                                    {
-                                        ret = ret + tempAWB;
-                                        //pesananIndb.TRACKING_SHIPMENT = tempAWB;
-                                        ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE SOT01A SET TRACKING_SHIPMENT = '" + tempAWB + "' where NO_BUKTI='" + pesanan.NO_BUKTI + "'");
-                                        ErasoftDbContext.SaveChanges();
-                                    }
+                                    ret = ret + tempAWB;
+                                    //pesananIndb.TRACKING_SHIPMENT = tempAWB;
+                                    ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE SOT01A SET TRACKING_SHIPMENT = '" + tempAWB + "' where NO_BUKTI='" + pesanan.NO_BUKTI + "'");
+                                    ErasoftDbContext.SaveChanges();
                                 }
                             }
                         }
                     }
                 }
+            }
             //}catch(Exception ex)
             //{
             //    if(!ex.Message.ToLower().Contains("unauthorized"))
@@ -2885,7 +2904,8 @@ namespace MasterOnline.Controllers
                     }
                 }
 
-                if (responseFromServer != null)
+                //if (responseFromServer != null)
+                if (!string.IsNullOrEmpty(responseFromServer))
                 {
                     TokpedSingleOrderResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedSingleOrderResult)) as TokpedSingleOrderResult;
                     //if (result.header.error_code == "")
@@ -2949,8 +2969,9 @@ namespace MasterOnline.Controllers
             //        }
             //    }
             //}
-
-            if (responseFromServer != null)
+            
+            //if (responseFromServer != null)
+            if (!string.IsNullOrEmpty(responseFromServer))
             {
                 JOBCODResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(JOBCODResult)) as JOBCODResult;
                 var pesananIndb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo).SingleOrDefault();
@@ -3012,8 +3033,9 @@ namespace MasterOnline.Controllers
                     responseFromServer = reader.ReadToEnd();
                 }
             }
-
-            if (responseFromServer != null)
+            
+            //if (responseFromServer != null)
+            if (!string.IsNullOrEmpty(responseFromServer))
             {
                 JOBCODResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(JOBCODResult)) as JOBCODResult;
                 var pesananIndb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo).SingleOrDefault();
@@ -3063,8 +3085,9 @@ namespace MasterOnline.Controllers
                     responseFromServer = reader.ReadToEnd();
                 }
             }
-
-            if (responseFromServer != null)
+            
+            //if (responseFromServer != null)
+            if (!string.IsNullOrEmpty(responseFromServer))
             {
                 JOBCODResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(JOBCODResult)) as JOBCODResult;
                 var pesananIndb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo).SingleOrDefault();
@@ -3156,7 +3179,8 @@ namespace MasterOnline.Controllers
             //    //throw new Exception(err);
             //}
 
-            if (responseFromServer != null)
+            //if (responseFromServer != null)
+            if (!string.IsNullOrEmpty(responseFromServer))
             {
                 try
                 {
@@ -6307,7 +6331,8 @@ namespace MasterOnline.Controllers
 
             }
 
-            if (responseFromServer != null)
+            //if (responseFromServer != null)
+            if (!string.IsNullOrEmpty(responseFromServer))
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(categoryAPIResult)) as categoryAPIResult;
                 if (string.IsNullOrEmpty(result.header.reason))
@@ -6444,7 +6469,8 @@ namespace MasterOnline.Controllers
 
                 }
 
-                if (responseFromServer != null)
+                //if (responseFromServer != null)
+                if (!string.IsNullOrEmpty(responseFromServer))
                 {
                     var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(GetVariantResult)) as GetVariantResult;
                     if (string.IsNullOrEmpty(result.header.reason))
@@ -6617,7 +6643,8 @@ namespace MasterOnline.Controllers
 
             }
 
-            if (responseFromServer != null)
+            //if (responseFromServer != null)
+            if (!string.IsNullOrEmpty(responseFromServer))
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(GetVariantResult)) as GetVariantResult;
                 //if (string.IsNullOrEmpty(result.header.reason))
@@ -6840,7 +6867,8 @@ namespace MasterOnline.Controllers
 
             }
 
-            if (responseFromServer != null)
+            //if (responseFromServer != null)
+            if (!string.IsNullOrEmpty(responseFromServer))
             {
                 try
                 {
@@ -6978,7 +7006,8 @@ namespace MasterOnline.Controllers
 
             }
 
-            if (responseFromServer != null)
+            //if (responseFromServer != null)
+            if (!string.IsNullOrEmpty(responseFromServer))
             {
                 ResultListReply result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ResultListReply)) as ResultListReply;
                 if (result.header.error_code == 0)
