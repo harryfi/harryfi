@@ -1745,7 +1745,7 @@ namespace MasterOnline.Controllers
                                     prog[1] = "0";
                                 }
                                 var prosesinsertAwal = false;
-                                var checkTemp = eraDB.TEMP_SALDOAWAL.ToList();
+                                var checkTemp = eraDB.TEMP_SALDOAWAL.OrderBy(a => a.RecNum).ToList();
 
                                 if (prosesinsertAwal == true)
                                 {
