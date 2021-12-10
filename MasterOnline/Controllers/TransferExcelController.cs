@@ -3461,7 +3461,7 @@ namespace MasterOnline.Controllers
                             //initialize log txt
                             #region Logging
                             string messageErrorLog = "";
-                            string filename = "Log_Upload_InvoicePembelian_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
+                            string filename = "Log_Upload_InvoicePembelian_" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
                             var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), filename);
                             #endregion
 
@@ -4420,7 +4420,7 @@ namespace MasterOnline.Controllers
                                         (""),
                                         (connID),
                                         ("Upload Excel Invoice Pembelian"),
-                                        (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                        (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                         ("FAILED"),
                                         (iCountProcessInsertTemp + " / " + Convert.ToInt32(ret.countAll)),
                                         (username),
@@ -4489,7 +4489,7 @@ namespace MasterOnline.Controllers
                                                 (refCheck),
                                                 (connID),
                                                 ("Upload Excel Invoice Pembelian"),
-                                                (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                 ("FAILED"),
                                                 (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                 (username),
@@ -4662,8 +4662,8 @@ namespace MasterOnline.Controllers
                                                                                                         NETTO = 0,
                                                                                                         //USERNAME = username,
                                                                                                         USERNAME = "UPLOAD_EXCEL_PEMBELIAN",
-                                                                                                        TGLINPUT = DateTime.Now.AddHours(7),
-                                                                                                        TGJT = DateTime.Now.AddHours(7).AddDays(Convert.ToInt32(top)),
+                                                                                                        TGLINPUT = DateTime.UtcNow.AddHours(7),
+                                                                                                        TGJT = DateTime.UtcNow.AddHours(7).AddDays(Convert.ToInt32(top)),
                                                                                                         KET = "-",
                                                                                                         APP = "-",
                                                                                                         REF = "-",
@@ -4694,7 +4694,7 @@ namespace MasterOnline.Controllers
                                                                                                         (kode_supplier),
                                                                                                         (connID),
                                                                                                         ("Upload Excel Invoice Pembelian"),
-                                                                                                        (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                                        (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                                         ("FAILED"),
                                                                                                         (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                                                                         (username),
@@ -4773,7 +4773,7 @@ namespace MasterOnline.Controllers
                                                                                                         (kode_supplier),
                                                                                                         (connID),
                                                                                                         ("Upload Excel Invoice Pembelian"),
-                                                                                                        (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                                        (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                                         ("FAILED"),
                                                                                                         (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                                                                         (username),
@@ -4878,7 +4878,7 @@ namespace MasterOnline.Controllers
                                                                                                      (kode_supplier),
                                                                                                      (connID),
                                                                                                      ("Upload Excel Invoice Pembelian"),
-                                                                                                     (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                                     (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                                      ("FAILED"),
                                                                                                      (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                                                                      (username),
@@ -4917,7 +4917,7 @@ namespace MasterOnline.Controllers
                                                                                                 (kode_supplier),
                                                                                                 (idRequest),
                                                                                                 ("Upload Excel Invoice Pembelian"),
-                                                                                                (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                                (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                                 ("FAILED"),
                                                                                                 (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                                                                 (username),
@@ -4964,7 +4964,7 @@ namespace MasterOnline.Controllers
                                                                                             (kode_supplier),
                                                                                             (idRequest),
                                                                                             ("Upload Excel Invoice Pembelian"),
-                                                                                            (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                            (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                             ("FAILED"),
                                                                                             (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                                                             (username),
@@ -5002,7 +5002,7 @@ namespace MasterOnline.Controllers
                                                                                         (kode_supplier),
                                                                                         (idRequest),
                                                                                         ("Upload Excel Invoice Pembelian"),
-                                                                                        (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                        (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                         ("FAILED"),
                                                                                         (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                                                         (username),
@@ -5040,7 +5040,7 @@ namespace MasterOnline.Controllers
                                                                                     (kode_supplier),
                                                                                     (idRequest),
                                                                                     ("Upload Excel Invoice Pembelian"),
-                                                                                    (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                    (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                     ("FAILED"),
                                                                                     (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                                                     (username),
@@ -5078,7 +5078,7 @@ namespace MasterOnline.Controllers
                                                                                 (kode_supplier),
                                                                                 (idRequest),
                                                                                 ("Upload Excel Invoice Pembelian"),
-                                                                                (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                 ("FAILED"),
                                                                                 (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                                                 (username),
@@ -5119,7 +5119,7 @@ namespace MasterOnline.Controllers
                                                                             (kode_supplier),
                                                                             (idRequest),
                                                                             ("Upload Excel Invoice Pembelian"),
-                                                                            (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                            (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                             ("FAILED"),
                                                                             (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                                             (username),
@@ -5158,7 +5158,7 @@ namespace MasterOnline.Controllers
                                                                     (kode_supplier),
                                                                     (idRequest),
                                                                     ("Upload Excel Invoice Pembelian"),
-                                                                    (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                    (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                     ("FAILED"),
                                                                     (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                                     (username),
@@ -5186,7 +5186,7 @@ namespace MasterOnline.Controllers
                                                                 (kode_supplier),
                                                                 (idRequest),
                                                                 ("Upload Excel Invoice Pembelian"),
-                                                                (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                 ("FAILED"),
                                                                 (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                                 (username),
@@ -5214,7 +5214,7 @@ namespace MasterOnline.Controllers
                                                             (kode_supplier),
                                                             (idRequest),
                                                             ("Upload Excel Invoice Pembelian"),
-                                                            (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                            (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                             ("FAILED"),
                                                             (iCountProcessInsertDB + " / " + iCountProcessInsertTemp),
                                                             (username),
@@ -5289,7 +5289,7 @@ namespace MasterOnline.Controllers
                                 (""),
                                 (connID),
                                 ("Upload Excel Invoice Pembelian"),
-                                (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                 ("SUCCESS"),
                                 //(iCountProcessInsertTemp + " / " + Convert.ToInt32(ret.countAll)),
                                 (suksesAkhir + " / " + Convert.ToInt32(ret.countAll)),
@@ -5297,6 +5297,11 @@ namespace MasterOnline.Controllers
                                 (filename));
                                     var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
                                     // error log terjadi error pada insert header pesanan
+                                }
+                                else
+                                {
+                                    cekLog2.REQUEST_RESULT = suksesAkhir + " / " + Convert.ToInt32(ret.countAll);
+                                    eraDB.SaveChanges();
                                 }
                             }
                             catch (Exception ex)
