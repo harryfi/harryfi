@@ -3364,6 +3364,7 @@ namespace MasterOnline.Controllers
             byte[] dataByte = null;
             //bool statusLoop = false;
             //bool statusComplete = false;
+            int suksesAkhir = 0;
 
             string[] status = statusLoopSuccess.Split(';');
             string[] prog = percentDanprogress.Split(';');
@@ -3507,6 +3508,7 @@ namespace MasterOnline.Controllers
 
                                 int iProcess = 0;
                                 int success = 0;
+                                int gagal = 0;
 
                                 #region PROSES_UPLOAD_EXCEL_PEMBELIAN_VERSI1
                                 //// START PROSES UPLOAD EXCEL INVOICE PEMBELIAN VERSI 1 04/03/2021 by Fauzi
@@ -4702,7 +4704,7 @@ namespace MasterOnline.Controllers
                                                                                                         }
 
                                                                                                         //checkDuplicateHeader = eraDB.PBT01A.Where(p => p.TGL == dttgl && p.SUPP == kode_supplier).FirstOrDefault();
-                                                                                                        checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck).FirstOrDefault();
+                                                                                                        checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck && p.INV != noBuktiPB).FirstOrDefault();
                                                                                                         if (checkDuplicateHeader != null)
                                                                                                         {
                                                                                                             //transaction.Rollback();
@@ -4761,6 +4763,7 @@ namespace MasterOnline.Controllers
                                                                                                 }
                                                                                                 catch (Exception ex)
                                                                                                 {
+                                                                                                    gagal = gagal + 1;
                                                                                                     messageErrorLog = "terjadi error pada insert detail invoice pembelian pada row " + iCountProcessInsertDB;
                                                                                                     tw.WriteLine(messageErrorLog);
                                                                                                     var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Invoice Pembelian" && p.REQUEST_ID == connID).FirstOrDefault();
@@ -4779,7 +4782,7 @@ namespace MasterOnline.Controllers
                                                                                                         // error log terjadi error pada insert detail pesanan
                                                                                                     }
                                                                                                     //checkDuplicateHeader = eraDB.PBT01A.Where(p => p.TGL == dttgl && p.SUPP == kode_supplier).FirstOrDefault();
-                                                                                                    checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck).FirstOrDefault();
+                                                                                                    checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck && p.INV != noBuktiPB).FirstOrDefault();
                                                                                                     if (checkDuplicateHeader != null)
                                                                                                     {
                                                                                                         //transaction.Rollback();
@@ -4800,16 +4803,20 @@ namespace MasterOnline.Controllers
                                                                                                 //}
                                                                                                 //iProcess = iProcess + 1;
                                                                                                 success = success + 1;
-                                                                                                if(iCountProcessInsertDB == iCountProcessInsertTemp)
+                                                                                                suksesAkhir = iCountProcessInsertDB - gagal;
+                                                                                                if (iCountProcessInsertDB == iCountProcessInsertTemp)
                                                                                                 {
-                                                                                                    messageErrorLog = "Proses upload excel Invoice Pembelian sudah selesai. Sukses : " + iCountProcessInsertDB + " / " + iCountProcessInsertTemp + ".";
+                                                                                                    //messageErrorLog = "Proses upload excel Invoice Pembelian sudah selesai. Sukses : " + iCountProcessInsertDB + " / " + iCountProcessInsertTemp + ".";
+                                                                                                    messageErrorLog = "Proses upload excel Invoice Pembelian sudah selesai. Sukses : " + suksesAkhir + " / " + iCountProcessInsertTemp + ".";
                                                                                                     tw.WriteLine(messageErrorLog);
                                                                                                     ret.Errors.Add(messageErrorLog);
-                                                                                                    Functions.SendProgress("Process Upload Complete !", iCountProcessInsertDB, iCountProcessInsertTemp);
+                                                                                                    //Functions.SendProgress("Process Upload Complete !", iCountProcessInsertDB, iCountProcessInsertTemp);
+                                                                                                    Functions.SendProgress("Process Upload Complete !", suksesAkhir, iCountProcessInsertTemp);
                                                                                                 }
                                                                                                 else
                                                                                                 {
-                                                                                                    Functions.SendProgress("Process in progress...", iCountProcessInsertDB, iCountProcessInsertTemp);
+                                                                                                    //Functions.SendProgress("Process in progress...", iCountProcessInsertDB, iCountProcessInsertTemp);
+                                                                                                    Functions.SendProgress("Process in progress...", suksesAkhir, iCountProcessInsertTemp);
                                                                                                 }
 
                                                                                                 if (cekPer10 > 1000)
@@ -4861,7 +4868,7 @@ namespace MasterOnline.Controllers
                                                                                                 //transaction.Commit();
                                                                                                 iProcess = iProcess + 1;
                                                                                                 Functions.SendProgress("Process in progress...", iCountProcessInsertDB, iCountProcessInsertTemp);
-
+                                                                                                gagal = gagal + 1;
                                                                                                 messageErrorLog = "Kode Barang " + kode_brg + " tidak ditemukan.";
                                                                                                 tw.WriteLine(messageErrorLog);
                                                                                                 var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Invoice Pembelian" && p.REQUEST_ID == connID).FirstOrDefault();
@@ -4880,7 +4887,7 @@ namespace MasterOnline.Controllers
                                                                                                     //log error masukan log tidak ada barang di DB
                                                                                                 }
                                                                                                 //var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.TGL == dttgl && p.SUPP == kode_supplier).FirstOrDefault();
-                                                                                                var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck).FirstOrDefault();
+                                                                                                var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck && p.INV != noBuktiPB).FirstOrDefault();
                                                                                                 if (checkDuplicateHeader != null)
                                                                                                 {
                                                                                                     //transaction.Rollback();
@@ -4900,7 +4907,7 @@ namespace MasterOnline.Controllers
                                                                                             //transaction.Commit();
                                                                                             iProcess = iProcess + 1;
                                                                                             Functions.SendProgress("Process in progress...", iCountProcessInsertDB, iCountProcessInsertTemp);
-
+                                                                                            gagal = gagal + 1;
                                                                                             messageErrorLog = "kode barang lebih dari 20 karakter pada row " + iCountProcessInsertDB;
                                                                                             tw.WriteLine(messageErrorLog);
                                                                                             var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Invoice Pembelian" && p.REQUEST_ID == connID).FirstOrDefault();
@@ -4919,7 +4926,7 @@ namespace MasterOnline.Controllers
                                                                                                 //log error masukan log kode barang lebih dari 20 karakter
                                                                                             }
                                                                                             //var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.TGL == dttgl && p.SUPP == kode_supplier).FirstOrDefault();
-                                                                                            var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck).FirstOrDefault();
+                                                                                            var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck && p.INV != noBuktiPB).FirstOrDefault();
                                                                                             if (checkDuplicateHeader != null)
                                                                                             {
                                                                                                 //transaction.Rollback();
@@ -4938,7 +4945,7 @@ namespace MasterOnline.Controllers
                                                                                         //transaction.Commit();
                                                                                         iProcess = iProcess + 1;
                                                                                         Functions.SendProgress("Process in progress...", iCountProcessInsertDB, iCountProcessInsertTemp);
-
+                                                                                        gagal = gagal + 1;
                                                                                         var errorMessage = "";
                                                                                         if (string.IsNullOrEmpty(qty))
                                                                                         {
@@ -4966,7 +4973,7 @@ namespace MasterOnline.Controllers
                                                                                             //log error masukan log harga satuan kosong
                                                                                         }
                                                                                         //var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.TGL == dttgl && p.SUPP == kode_supplier).FirstOrDefault();
-                                                                                        var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck).FirstOrDefault();
+                                                                                        var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck && p.INV != noBuktiPB).FirstOrDefault();
                                                                                         if (checkDuplicateHeader != null)
                                                                                         {
                                                                                             //transaction.Rollback();
@@ -4985,7 +4992,7 @@ namespace MasterOnline.Controllers
                                                                                     //transaction.Commit();
                                                                                     iProcess = iProcess + 1;
                                                                                     Functions.SendProgress("Process in progress...", iCountProcessInsertDB, iCountProcessInsertTemp);
-
+                                                                                    gagal = gagal + 1;
                                                                                     messageErrorLog = "kode barang kosong pada row " + iCountProcessInsertDB;
                                                                                     tw.WriteLine(messageErrorLog);
                                                                                     var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Invoice Pembelian" && p.REQUEST_ID == connID).FirstOrDefault();
@@ -5004,7 +5011,7 @@ namespace MasterOnline.Controllers
                                                                                         //log error masukan log kode barang kosong
                                                                                     }
                                                                                     //var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.TGL == dttgl && p.SUPP == kode_supplier).FirstOrDefault();
-                                                                                    var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck).FirstOrDefault();
+                                                                                    var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck && p.INV != noBuktiPB).FirstOrDefault();
                                                                                     if (checkDuplicateHeader != null)
                                                                                     {
                                                                                         //transaction.Rollback();
@@ -5023,7 +5030,7 @@ namespace MasterOnline.Controllers
                                                                                 //transaction.Commit();
                                                                                 iProcess = iProcess + 1;
                                                                                 Functions.SendProgress("Process in progress...", iCountProcessInsertDB, iCountProcessInsertTemp);
-
+                                                                                gagal = gagal + 1;
                                                                                 messageErrorLog = "terdapat karakter koma pada kolom pengisian angka di row " + iCountProcessInsertDB;
                                                                                 tw.WriteLine(messageErrorLog);
                                                                                 var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Invoice Pembelian" && p.REQUEST_ID == connID).FirstOrDefault();
@@ -5042,7 +5049,7 @@ namespace MasterOnline.Controllers
                                                                                     //log error masukan log ada koma
                                                                                 }
                                                                                 //var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.TGL == dttgl && p.SUPP == kode_supplier).FirstOrDefault();
-                                                                                var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck).FirstOrDefault();
+                                                                                var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck && p.INV != noBuktiPB).FirstOrDefault();
                                                                                 if (checkDuplicateHeader != null)
                                                                                 {
                                                                                     //transaction.Rollback();
@@ -5061,7 +5068,7 @@ namespace MasterOnline.Controllers
                                                                             //transaction.Commit();
                                                                             iProcess = iProcess + 1;
                                                                             Functions.SendProgress("Process in progress...", iCountProcessInsertDB, iCountProcessInsertTemp);
-
+                                                                            gagal = gagal + 1;
                                                                             messageErrorLog = "terdapat karakter titik pada kolom pengisian angka di row " + iCountProcessInsertDB;
                                                                             tw.WriteLine(messageErrorLog);
                                                                             var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Invoice Pembelian" && p.REQUEST_ID == connID).FirstOrDefault();
@@ -5080,7 +5087,7 @@ namespace MasterOnline.Controllers
                                                                                 //log error masukan log ada titik
                                                                             }
                                                                             //var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.TGL == dttgl && p.SUPP == kode_supplier).FirstOrDefault();
-                                                                            var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck).FirstOrDefault();
+                                                                            var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck && p.INV != noBuktiPB).FirstOrDefault();
                                                                             if (checkDuplicateHeader != null)
                                                                             {
                                                                                 //transaction.Rollback();
@@ -5100,7 +5107,7 @@ namespace MasterOnline.Controllers
                                                                         //transaction.Commit();
                                                                         iProcess = iProcess + 1;
                                                                         Functions.SendProgress("Process in progress...", iCountProcessInsertDB, iCountProcessInsertTemp);
-
+                                                                        gagal = gagal + 1;
                                                                         messageErrorLog = "kode gudang kosong pada row " + iCountProcessInsertDB;
                                                                         tw.WriteLine(messageErrorLog);
                                                                         string[] codeSup = kode_supplier.Split(';');
@@ -5121,7 +5128,7 @@ namespace MasterOnline.Controllers
                                                                             //log error masukan log kode kurir kosong
                                                                         }
                                                                         //var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.INV == no_bukti && p.SUPP == codeSupplier).FirstOrDefault();
-                                                                        var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck).FirstOrDefault();
+                                                                        var checkDuplicateHeader = eraDB.PBT01A.Where(p => p.NO_INVOICE_SUPP == refCheck && p.INV != noBuktiPB).FirstOrDefault();
                                                                         if (checkDuplicateHeader != null)
                                                                         {
                                                                             //transaction.Rollback();
@@ -5139,7 +5146,7 @@ namespace MasterOnline.Controllers
                                                             {
                                                                 iProcess = iProcess + 1;
                                                                 Functions.SendProgress("Process in progress...", iCountProcessInsertDB, iCountProcessInsertTemp);
-
+                                                                gagal = gagal + 1;
                                                                 messageErrorLog = "kode supplier kosong pada row " + iCountProcessInsertDB;
                                                                 tw.WriteLine(messageErrorLog);
                                                                 string[] no_cust2 = kode_supplier.Split(';');
@@ -5165,7 +5172,7 @@ namespace MasterOnline.Controllers
                                                         {
                                                             iProcess = iProcess + 1;
                                                             Functions.SendProgress("Process in progress...", iCountProcessInsertDB, iCountProcessInsertTemp);
-
+                                                            gagal = gagal + 1;
                                                             if (string.IsNullOrEmpty(kode_brg))
                                                             {
                                                                 messageErrorLog = "kode barang kosong pada row " + iCountProcessInsertDB;
@@ -5193,7 +5200,7 @@ namespace MasterOnline.Controllers
                                                     {
                                                         //iProcess = iProcess + 1;
                                                         Functions.SendProgress("Process in progress...", iCountProcessInsertDB, iCountProcessInsertTemp);
-
+                                                        gagal = gagal + 1;
                                                         if (string.IsNullOrEmpty(kode_brg))
                                                         {
                                                             messageErrorLog = "tanggal kosong pada row " + iCountProcessInsertDB;
@@ -5284,7 +5291,8 @@ namespace MasterOnline.Controllers
                                 ("Upload Excel Invoice Pembelian"),
                                 (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                 ("SUCCESS"),
-                                (iCountProcessInsertTemp + " / " + Convert.ToInt32(ret.countAll)),
+                                //(iCountProcessInsertTemp + " / " + Convert.ToInt32(ret.countAll)),
+                                (suksesAkhir + " / " + Convert.ToInt32(ret.countAll)),
                                 (username),
                                 (filename));
                                     var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
