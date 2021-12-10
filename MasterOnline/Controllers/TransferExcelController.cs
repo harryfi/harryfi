@@ -5301,7 +5301,8 @@ namespace MasterOnline.Controllers
                                 else
                                 {
                                     cekLog2.REQUEST_RESULT = suksesAkhir + " / " + Convert.ToInt32(ret.countAll);
-                                    eraDB.SaveChanges();
+                                    var sSQL = "update API_LOG_MARKETPLACE set REQUEST_RESULT = '" + cekLog2.REQUEST_RESULT + "' where recnum = '" + cekLog2.RECNUM + "'";
+                                    var result = EDB.ExecuteSQL("Constring", CommandType.Text, sSQL);
                                 }
                             }
                             catch (Exception ex)
