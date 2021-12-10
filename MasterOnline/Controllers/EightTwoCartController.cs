@@ -388,7 +388,7 @@ namespace MasterOnline.Controllers
                                                 DISPLAY = true,
                                                 HJUAL = Convert.ToDouble(item.price),
                                                 HJUAL_MP = Convert.ToDouble(item.price),
-                                                Deskripsi = item.description.Replace("\r\n", "<br />").Replace("\n", "<br />"),
+                                                Deskripsi = (item.description ?? "").Replace("\r\n", "<br />").Replace("\n", "<br />"),
                                                 MEREK = item.id_manufacturer,
                                                 CUST = iden.no_cust,
                                             };
@@ -697,7 +697,7 @@ namespace MasterOnline.Controllers
                 DISPLAY = true,
                 HJUAL = hargaJual,
                 HJUAL_MP = hargaJual,
-                Deskripsi = product_induk.description.Replace("\r\n", "<br />").Replace("\n", "<br />"),
+                Deskripsi = (product_induk.description ?? "").Replace("\r\n", "<br />").Replace("\n", "<br />"),
                 MEREK = product_induk.id_manufacturer,
                 CUST = CUST,
             };
