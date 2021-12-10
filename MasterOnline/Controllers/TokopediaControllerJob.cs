@@ -6839,7 +6839,7 @@ namespace MasterOnline.Controllers
             var token = SetupContext(iden);
             iden.token = token;
             //filter: “all”, “read”, or “unread”.
-            string urll = "https://fs.tokopedia.net/v1/chat/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/messages?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&page=" + page + "&per_page=10&order=desc&filter=" + Uri.EscapeDataString(filter);
+            string urll = "https://fs.tokopedia.net/v1/chat/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/messages?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&page=" + page + "&per_page=15&order=desc&filter=" + Uri.EscapeDataString(filter);
 
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
@@ -6981,7 +6981,7 @@ namespace MasterOnline.Controllers
             string connId = Guid.NewGuid().ToString();
             var token = SetupContext(iden);
             iden.token = token;
-            string urll = "https://fs.tokopedia.net/v1/chat/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/messages/" + Uri.EscapeDataString(msgId) + "/replies?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&page=" + page + "&per_page=10&order=desc";
+            string urll = "https://fs.tokopedia.net/v1/chat/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/messages/" + Uri.EscapeDataString(msgId) + "/replies?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&page=" + page + "&per_page=15&order=desc";
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
@@ -7226,7 +7226,7 @@ namespace MasterOnline.Controllers
                                 ErasoftDbContext.TOKPED_LISTCHAT.AddRange(listChat);
                                 ErasoftDbContext.SaveChanges();
                             }
-                            if (!firstReply && result.data.Count() == 10)
+                            if (!firstReply && result.data.Count() == 15)
                             {
                                 var nextReply = await ListReply(iden, msgId, page + 1);
                             }
