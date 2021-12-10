@@ -15,8 +15,8 @@
         [StringLength(25)]
         public string Nama_Partner { get; set; }
 
-        //[StringLength(100)]
-        [Column(TypeName = "nvarchar(max)")]
+        [StringLength(100)]
+        //[Column(TypeName = "nvarchar(max)")]
         public string Access_Token { get; set; }
 
         [StringLength(100)]
