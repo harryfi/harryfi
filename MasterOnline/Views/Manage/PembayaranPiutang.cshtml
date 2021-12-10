@@ -2330,53 +2330,53 @@
 
         //add by nurul 21/10/2019
         function validasiUpload() {
+            alert("Mohon maaf, untuk sementara upload pembayaran tidak bisa dilakukan.");
+            //if ($('#Piutang_TGL').val() == null ||
+            //    $('#Piutang_CUST').val() == '') {
+            //    alert('Silahkan pilih nama marketplace terlebih dulu !');
+            //} else if ($tempMP1.toUpperCase() != "SHOPEE" && $tempMP1.toUpperCase() != "TOKOPEDIA" && $tempMP1.toUpperCase() != "LAZADA" && $tempMP1.toUpperCase() != "BUKALAPAK" && $tempMP1.toUpperCase() != "BLIBLI") {
+            //    alert('Maaf, upload ini baru bisa menghandle Shopee, Tokopedia, Lazada, Bukalapak dan Blibli.');
+            //}
+            //else {
 
-            if ($('#Piutang_TGL').val() == null ||
-                $('#Piutang_CUST').val() == '') {
-                alert('Silahkan pilih nama marketplace terlebih dulu !');
-            } else if ($tempMP1.toUpperCase() != "SHOPEE" && $tempMP1.toUpperCase() != "TOKOPEDIA" && $tempMP1.toUpperCase() != "LAZADA" && $tempMP1.toUpperCase() != "BUKALAPAK" && $tempMP1.toUpperCase() != "BLIBLI") {
-                alert('Maaf, upload ini baru bisa menghandle Shopee, Tokopedia, Lazada, Bukalapak dan Blibli.');
-            }
-            else {
 
+            //    $("#konfUpload").on('show.bs.modal', function (e) {
 
-                $("#konfUpload").on('show.bs.modal', function (e) {
-
-                    if ($tempMP1.toUpperCase() == "SHOPEE") {
-                        $('#note_shopee').show();
-                        $('#note_tokopedia').hide();
-                        $('#note_lazada').hide();
-                        $('#note_bukalapak').hide();
-                        $('#note_blibli').hide();
-                    } else if ($tempMP1.toUpperCase() == "TOKOPEDIA") {
-                        $('#note_shopee').hide();
-                        $('#note_tokopedia').show();
-                        $('#note_lazada').hide();
-                        $('#note_bukalapak').hide();
-                        $('#note_blibli').hide();
-                    } else if ($tempMP1.toUpperCase() == "LAZADA") {
-                        $('#note_shopee').hide();
-                        $('#note_tokopedia').hide();
-                        $('#note_lazada').show();
-                        $('#note_bukalapak').hide();
-                        $('#note_blibli').hide();
-                    } else if ($tempMP1.toUpperCase() == "BUKALAPAK") {
-                        $('#note_shopee').hide();
-                        $('#note_tokopedia').hide();
-                        $('#note_lazada').hide();
-                        $('#note_bukalapak').show();
-                        $('#note_blibli').hide();
-                    } else if ($tempMP1.toUpperCase() == "BLIBLI") {
-                        $('#note_shopee').hide();
-                        $('#note_tokopedia').hide();
-                        $('#note_lazada').hide();
-                        $('#note_bukalapak').hide();
-                        $('#note_blibli').show();
-                    }
-                });
-                $("#konfUpload").modal('show');
-                document.getElementById("file_upload_excel").value = "";
-            }
+            //        if ($tempMP1.toUpperCase() == "SHOPEE") {
+            //            $('#note_shopee').show();
+            //            $('#note_tokopedia').hide();
+            //            $('#note_lazada').hide();
+            //            $('#note_bukalapak').hide();
+            //            $('#note_blibli').hide();
+            //        } else if ($tempMP1.toUpperCase() == "TOKOPEDIA") {
+            //            $('#note_shopee').hide();
+            //            $('#note_tokopedia').show();
+            //            $('#note_lazada').hide();
+            //            $('#note_bukalapak').hide();
+            //            $('#note_blibli').hide();
+            //        } else if ($tempMP1.toUpperCase() == "LAZADA") {
+            //            $('#note_shopee').hide();
+            //            $('#note_tokopedia').hide();
+            //            $('#note_lazada').show();
+            //            $('#note_bukalapak').hide();
+            //            $('#note_blibli').hide();
+            //        } else if ($tempMP1.toUpperCase() == "BUKALAPAK") {
+            //            $('#note_shopee').hide();
+            //            $('#note_tokopedia').hide();
+            //            $('#note_lazada').hide();
+            //            $('#note_bukalapak').show();
+            //            $('#note_blibli').hide();
+            //        } else if ($tempMP1.toUpperCase() == "BLIBLI") {
+            //            $('#note_shopee').hide();
+            //            $('#note_tokopedia').hide();
+            //            $('#note_lazada').hide();
+            //            $('#note_bukalapak').hide();
+            //            $('#note_blibli').show();
+            //        }
+            //    });
+            //    $("#konfUpload").modal('show');
+            //    document.getElementById("file_upload_excel").value = "";
+            //}
         }
 
         function validasiCreatePot() {
