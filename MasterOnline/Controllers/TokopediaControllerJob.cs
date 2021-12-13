@@ -3290,8 +3290,8 @@ namespace MasterOnline.Controllers
             //}
             //catch (Exception ex)
             //{
-            //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-            //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            //    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            //    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             //}
             int rowCount = 0;
             if (!string.IsNullOrWhiteSpace(responseFromServer))
@@ -3500,6 +3500,7 @@ namespace MasterOnline.Controllers
                                 #endregion
                                 if (orderTokpedInDb.Where(p => p.order_id == order_order_id).Count() == 0)
                                 {
+                                    var skipInsert = false;
                                     DateTime? expiredDate = null;
                                     DateTime? paymentDate = null;
                                     //remark 13 nov 2020 tutup sementara
@@ -3540,8 +3541,19 @@ namespace MasterOnline.Controllers
                                     }
                                     //belum ada di temp
                                     //end remark 13 nov 2020 tutup sementara
+                                    var listBRG = new List<string>();
                                     foreach (var product in order.products)
                                     {
+                                        if (!listBRG.Contains(product.id.ToString()))
+                                        {
+                                            listBRG.Add(product.id.ToString());
+                                        }
+                                        else
+                                        {
+                                            //ada barang yg duplikat
+                                            skipInsert = true;
+                                            break;
+                                        }
                                         #region cut max length dan ubah '
                                         string currency = !string.IsNullOrEmpty(product.currency) ? product.currency.Replace('\'', '`') : "";
                                         if (currency.Length > 50)
@@ -3613,7 +3625,7 @@ namespace MasterOnline.Controllers
                                             CUST = CUST,
                                             NAMA_CUST = NAMA_CUST
                                         };
-                                        var product_fulfilled = order.products_fulfilled.SingleOrDefault(p => p.product_id == product.id);
+                                        var product_fulfilled = order.products_fulfilled.Where(p => p.product_id == product.id).FirstOrDefault();
                                         if (product_fulfilled != null)
                                         {
                                             newOrder.products_fulfilled_product_id = product_fulfilled.product_id;
@@ -3626,6 +3638,10 @@ namespace MasterOnline.Controllers
                                             newOrder.create_time = paymentDate.Value;
                                         }
                                         ListNewOrders.Add(newOrder);
+                                    }
+                                    if (skipInsert)
+                                    {
+                                        continue;
                                     }
                                 }
 
@@ -3749,6 +3765,7 @@ namespace MasterOnline.Controllers
                                 var order_order_id = Convert.ToString(order.order_id);
                                 if (orderTokpedInDb.Where(p => p.order_id == order_order_id).Count() == 0)
                                 {
+                                    var skipInsert2 = false;
                                     #region cut max length dan ubah '
                                     string a_fs_id = !string.IsNullOrEmpty(order.fs_id) ? order.fs_id.Replace('\'', '`') : "";
                                     if (a_fs_id.Length > 50)
@@ -3893,8 +3910,19 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                     //belum ada di temp
+                                    var listBRG2 = new List<string>();
                                     foreach (var product in order.products)
                                     {
+                                        if (!listBRG2.Contains(product.id.ToString()))
+                                        {
+                                            listBRG2.Add(product.id.ToString());
+                                        }
+                                        else
+                                        {
+                                            //ada barang yg duplikat
+                                            skipInsert2 = true;
+                                            break;
+                                        }
                                         #region cut max length dan ubah '
                                         string a_currency = !string.IsNullOrEmpty(product.currency) ? product.currency.Replace('\'', '`') : "";
                                         if (a_currency.Length > 50)
@@ -3967,7 +3995,7 @@ namespace MasterOnline.Controllers
                                             CUST = CUST,
                                             NAMA_CUST = NAMA_CUST
                                         };
-                                        var product_fulfilled = order.products_fulfilled.SingleOrDefault(p => p.product_id == product.id);
+                                        var product_fulfilled = order.products_fulfilled.Where(p => p.product_id == product.id).FirstOrDefault();
                                         if (product_fulfilled != null)
                                         {
                                             newOrder.products_fulfilled_product_id = product_fulfilled.product_id;
@@ -3980,6 +4008,10 @@ namespace MasterOnline.Controllers
                                             newOrder.create_time = paymentDate.Value;
                                         }
                                         ListNewOrders.Add(newOrder);
+                                    }
+                                    if (skipInsert2)
+                                    {
+                                        continue;
                                     }
                                 }
 
