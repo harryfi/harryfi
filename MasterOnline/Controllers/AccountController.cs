@@ -1313,7 +1313,8 @@ namespace MasterOnline.Controllers
                                 API_secret_key = tblCustomer.API_KEY, //Shop ID 
                                 idmarket = tblCustomer.RecNum.Value,
                                 DatabasePathErasoft = dbPathEra,
-                                username = username
+                                username = username,
+                                token = tblCustomer.TOKEN
                             };
                             //tokopediaApi.GetToken(iden);
                             var parentid = client.Enqueue<TokopediaControllerJob>(x => x.GetToken(data));
