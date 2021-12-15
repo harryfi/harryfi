@@ -81,8 +81,8 @@
                     <button class="btn btn-default retry-api" type="button" style="border:1px;padding:2px 8px 2px 8px;margin:0px" title="Coba Lagi"
                             onclick="retryInvoice('@aktivitas.No_Bukti', '@aktivitas.fs_id.ToString()')"
                             disabled="@(aktivitas.Keterangan.Contains("Batch") ||
-                                        aktivitas.Keterangan.Contains("connection was closed") ||
-                                        aktivitas.Keterangan.Contains("timed out") ||
+                                        //aktivitas.Keterangan.Contains("connection was closed") ||
+                                        //aktivitas.Keterangan.Contains("timed out") ||
                                         aktivitas.Modul.Contains("Webhook Update Stok")
                                                 )">
                         <span class="glyphicon glyphicon-repeat"></span>
