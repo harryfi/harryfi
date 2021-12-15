@@ -12,16 +12,16 @@ namespace MasterOnline
     {
         public string fs_id { get; set; }
 
-        [Key]
-        [Column(Order = 0)]
+        //[Key]
+        //[Column(Order = 0)]
         public string order_id { get; set; }
 
         public bool? accept_partial { get; set; }
 
         public string invoice_ref_num { get; set; }
 
-        [Key]
-        [Column(Order = 1)]
+        //[Key]
+        //[Column(Order = 1)]
         public long product_id { get; set; }
 
         public string product_name { get; set; }
@@ -125,6 +125,10 @@ namespace MasterOnline
         public string NAMA_CUST { get; set; }
 
         public DateTime? confirm_shipping_deadline { get; set; }
+
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long RECNUM { get; set; }
     }
 
 }
