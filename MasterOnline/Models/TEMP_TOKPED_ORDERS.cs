@@ -118,8 +118,8 @@ namespace MasterOnline
 
         public string custom_fields_awb { get; set; }
 
-        [Key]
-        [Column(Order = 2)]
+        //[Key]
+        //[Column(Order = 2)]
         public string conn_id { get; set; }
         public string CUST { get; set; }
         public string NAMA_CUST { get; set; }
