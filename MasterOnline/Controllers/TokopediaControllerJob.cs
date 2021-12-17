@@ -2406,7 +2406,10 @@ namespace MasterOnline.Controllers
                 shop_id = Convert.ToInt32(iden.API_secret_key),
                 //change by nurul 17/2/2020
                 //request_time = DateTime.UtcNow.AddMinutes(-5).ToString("yyyy-MM-dd HH:mm:ss")
-                request_time = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")
+                //change by nurul 17/12/2021
+                //request_time = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")
+                request_time = DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")
+                //end change by nurul 17/12/2021
                 //end change by nurul 17/2/2020
             };
             List<RequestPickup> newDataList = new List<RequestPickup>();
