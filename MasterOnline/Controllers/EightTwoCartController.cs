@@ -354,7 +354,7 @@ namespace MasterOnline.Controllers
                                         var CekbrgInDB = brgInDB.Where(t => (t.BRG_MP.ToUpper() == brgMp.ToUpper())).FirstOrDefault();
                                         if (CektempbrginDB == null && CekbrgInDB == null)
                                         {
-                                            string namaBrg = item.name;
+                                            string namaBrg = item.name ?? "";
                                             string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
                                             nama = "";
                                             nama2 = "";
@@ -637,7 +637,7 @@ namespace MasterOnline.Controllers
             List<TEMP_BRG_MP> listNewRecord = new List<TEMP_BRG_MP>();
             ret.totalData++;
 
-            string namaBrg = product_induk.name;
+            string namaBrg = product_induk.name ?? "";
             string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
             urlImage = "";
             urlImage2 = "";
