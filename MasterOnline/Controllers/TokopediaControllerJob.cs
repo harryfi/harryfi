@@ -3542,8 +3542,10 @@ namespace MasterOnline.Controllers
                                     //belum ada di temp
                                     //end remark 13 nov 2020 tutup sementara
                                     var listBRG = new List<string>();
+                                    int indexProduct = 0;
                                     foreach (var product in order.products)
                                     {
+                                        indexProduct++;
                                         if (!listBRG.Contains(product.id.ToString()))
                                         {
                                             listBRG.Add(product.id.ToString());
@@ -3632,6 +3634,7 @@ namespace MasterOnline.Controllers
                                             newOrder.products_fulfilled_quantity_deliver = product_fulfilled.quantity_deliver;
                                             newOrder.products_fulfilled_quantity_reject = product_fulfilled.quantity_reject;
                                         }
+                                        newOrder.product_currency = product.id + "_" + indexProduct;
                                         newOrder.confirm_shipping_deadline = expiredDate;
                                         if (paymentDate != null)
                                         {
@@ -3929,8 +3932,10 @@ namespace MasterOnline.Controllers
                                     }
                                     //belum ada di temp
                                     var listBRG2 = new List<string>();
+                                    int indexProduct2 = 0;
                                     foreach (var product in order.products)
                                     {
+                                        indexProduct2++;
                                         if (!listBRG2.Contains(product.id.ToString()))
                                         {
                                             listBRG2.Add(product.id.ToString());
@@ -4020,6 +4025,7 @@ namespace MasterOnline.Controllers
                                             newOrder.products_fulfilled_quantity_deliver = product_fulfilled.quantity_deliver;
                                             newOrder.products_fulfilled_quantity_reject = product_fulfilled.quantity_reject;
                                         }
+                                        newOrder.product_currency = product.id + "_" + indexProduct2;
                                         newOrder.confirm_shipping_deadline = expiredDate;
                                         if (paymentDate != null)
                                         {
