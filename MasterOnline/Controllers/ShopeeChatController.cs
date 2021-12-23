@@ -66,8 +66,8 @@ namespace MasterOnline.Controllers
 
         public ShopeeChatController()
         {
-            //            MoDbContext = new MoDbContext("");
-            //            username = "";
+            MoDbContext = new MoDbContext("");
+            username = "";
             //            //            var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             //            //            if (sessionData?.Account != null)
             //            //            {
@@ -2806,7 +2806,7 @@ namespace MasterOnline.Controllers
             //{
             //    TokenExpired = true;
             //}
-
+            SetupContext(dataAPI);
             //if (TokenExpired || bForceRefresh)
             {
                 int MOPartnerID = MOPartnerIDV2;
