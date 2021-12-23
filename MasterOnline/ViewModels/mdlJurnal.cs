@@ -52,6 +52,10 @@ namespace MasterOnline
         //end add by nurul 22/7/2020
         public double? TIPE_KIRIM { get; set; }
         public string N_UCAPAN { get; set; }
+
+        //ADD BY NURUL 23/11/2021
+        public string WAREHOUSE_ID { get; set; }
+        //END ADD BY NURUL 23/11/2021
     }
 
     public class tempBarcodeLazada

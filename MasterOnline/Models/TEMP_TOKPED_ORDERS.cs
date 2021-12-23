@@ -126,6 +126,10 @@ namespace MasterOnline
 
         public DateTime? confirm_shipping_deadline { get; set; }
 
+        //add by nurul 23/11/2021
+        public long? warehouse_id { get; set; } 
+        //end add by nurul 23/11/2021
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long RECNUM { get; set; }

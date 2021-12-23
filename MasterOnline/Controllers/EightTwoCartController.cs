@@ -302,7 +302,7 @@ namespace MasterOnline.Controllers
 
             try
             {
-                using (WebResponse response = await myReq.GetResponseAsync())
+                using (WebResponse response = myReq.GetResponse())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {
@@ -354,7 +354,7 @@ namespace MasterOnline.Controllers
                                         var CekbrgInDB = brgInDB.Where(t => (t.BRG_MP.ToUpper() == brgMp.ToUpper())).FirstOrDefault();
                                         if (CektempbrginDB == null && CekbrgInDB == null)
                                         {
-                                            string namaBrg = item.name;
+                                            string namaBrg = item.name ?? "";
                                             string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
                                             nama = "";
                                             nama2 = "";
@@ -388,7 +388,7 @@ namespace MasterOnline.Controllers
                                                 DISPLAY = true,
                                                 HJUAL = Convert.ToDouble(item.price),
                                                 HJUAL_MP = Convert.ToDouble(item.price),
-                                                Deskripsi = item.description.Replace("\r\n", "<br />").Replace("\n", "<br />"),
+                                                Deskripsi = (item.description ?? "").Replace("\r\n", "<br />").Replace("\n", "<br />"),
                                                 MEREK = item.id_manufacturer,
                                                 CUST = iden.no_cust,
                                             };
@@ -637,7 +637,7 @@ namespace MasterOnline.Controllers
             List<TEMP_BRG_MP> listNewRecord = new List<TEMP_BRG_MP>();
             ret.totalData++;
 
-            string namaBrg = product_induk.name;
+            string namaBrg = product_induk.name ?? "";
             string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
             urlImage = "";
             urlImage2 = "";
@@ -697,7 +697,7 @@ namespace MasterOnline.Controllers
                 DISPLAY = true,
                 HJUAL = hargaJual,
                 HJUAL_MP = hargaJual,
-                Deskripsi = product_induk.description.Replace("\r\n", "<br />").Replace("\n", "<br />"),
+                Deskripsi = (product_induk.description ?? "").Replace("\r\n", "<br />").Replace("\n", "<br />"),
                 MEREK = product_induk.id_manufacturer,
                 CUST = CUST,
             };

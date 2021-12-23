@@ -191,6 +191,10 @@ namespace MasterOnline
         public DateTime? ORDER_EXPIRED_DATE { get; set; }
         public DateTime? ORDER_CANCEL_DATE { get; set; }
 
+        //add by nurul 23/11/2021
+        public string WAREHOUSE_ID { get; set; }
+        //end add by nurul 23/11/2021
+
         [JsonIgnore]
         public virtual SOT01D SOT01D { get; set; }
 
