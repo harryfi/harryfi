@@ -3501,9 +3501,9 @@ namespace MasterOnline.Controllers
                                     custom_fields_awb = custom_fields_awb.Substring(0, 150);
                                 }
                                 #endregion
+                                var skipInsert = false;
                                 if (orderTokpedInDb.Where(p => p.order_id == order_order_id).Count() == 0)
                                 {
-                                    var skipInsert = false;
                                     DateTime? expiredDate = null;
                                     DateTime? paymentDate = null;
                                     long? warehouse_id = 0;
@@ -3552,8 +3552,10 @@ namespace MasterOnline.Controllers
                                     //belum ada di temp
                                     //end remark 13 nov 2020 tutup sementara
                                     var listBRG = new List<string>();
+                                    int indexProduct = 0;
                                     foreach (var product in order.products)
                                     {
+                                        indexProduct++;
                                         if (!listBRG.Contains(product.id.ToString()))
                                         {
                                             listBRG.Add(product.id.ToString());
@@ -3562,7 +3564,7 @@ namespace MasterOnline.Controllers
                                         {
                                             //ada barang yg duplikat
                                             skipInsert = true;
-                                            break;
+                                            //break; //remark 15 des 2021, handle brg double dengan sp baru
                                         }
                                         #region cut max length dan ubah '
                                         string currency = !string.IsNullOrEmpty(product.currency) ? product.currency.Replace('\'', '`') : "";
@@ -3642,6 +3644,7 @@ namespace MasterOnline.Controllers
                                             newOrder.products_fulfilled_quantity_deliver = product_fulfilled.quantity_deliver;
                                             newOrder.products_fulfilled_quantity_reject = product_fulfilled.quantity_reject;
                                         }
+                                        newOrder.product_currency = product.id + "_" + indexProduct;
                                         newOrder.confirm_shipping_deadline = expiredDate;
                                         if (paymentDate != null)
                                         {
@@ -3655,10 +3658,10 @@ namespace MasterOnline.Controllers
                                         //end add by nurul 23/11/2021
                                         ListNewOrders.Add(newOrder);
                                     }
-                                    if (skipInsert)
-                                    {
-                                        continue;
-                                    }
+                                    //if (skipInsert)
+                                    //{
+                                    //    continue;
+                                    //}
                                 }
 
                                 insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
@@ -3675,25 +3678,43 @@ namespace MasterOnline.Controllers
 
                                     EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
                                 };
-                                using (SqlCommand CommandSQL = new SqlCommand())
+                                if (skipInsert)
                                 {
-                                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connId;
-                                    CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss");
-                                    CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                                    CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 1;
-                                    CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
+                                    using (SqlCommand CommandSQL = new SqlCommand())
+                                    {
+                                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connId;
+                                        CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss");
+                                        CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                                        CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "TOKPED";
+                                        CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
 
-                                    EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
-                                    jmlhNewOrder++;
+                                        EDB.ExecuteSQL("Con", "MoveOrderFromTempTableNew", CommandSQL);
+                                        jmlhNewOrder++;
+                                    }
+                                }
+                                else
+                                {
+                                    using (SqlCommand CommandSQL = new SqlCommand())
+                                    {
+                                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connId;
+                                        CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss");
+                                        CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                                        CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 1;
+                                        CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
+
+                                        EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                        jmlhNewOrder++;
+                                    }
                                 }
                             }
                         }
@@ -3780,9 +3801,9 @@ namespace MasterOnline.Controllers
                                 insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + aKODEPOS + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
 
                                 var order_order_id = Convert.ToString(order.order_id);
+                                var skipInsert2 = false;
                                 if (orderTokpedInDb.Where(p => p.order_id == order_order_id).Count() == 0)
                                 {
-                                    var skipInsert2 = false;
                                     #region cut max length dan ubah '
                                     string a_fs_id = !string.IsNullOrEmpty(order.fs_id) ? order.fs_id.Replace('\'', '`') : "";
                                     if (a_fs_id.Length > 50)
@@ -3934,8 +3955,10 @@ namespace MasterOnline.Controllers
                                     }
                                     //belum ada di temp
                                     var listBRG2 = new List<string>();
+                                    int indexProduct2 = 0;
                                     foreach (var product in order.products)
                                     {
+                                        indexProduct2++;
                                         if (!listBRG2.Contains(product.id.ToString()))
                                         {
                                             listBRG2.Add(product.id.ToString());
@@ -3944,7 +3967,7 @@ namespace MasterOnline.Controllers
                                         {
                                             //ada barang yg duplikat
                                             skipInsert2 = true;
-                                            break;
+                                            //break; //remark 15 des 2021, handle brg double dengan sp baru
                                         }
                                         #region cut max length dan ubah '
                                         string a_currency = !string.IsNullOrEmpty(product.currency) ? product.currency.Replace('\'', '`') : "";
@@ -4025,6 +4048,7 @@ namespace MasterOnline.Controllers
                                             newOrder.products_fulfilled_quantity_deliver = product_fulfilled.quantity_deliver;
                                             newOrder.products_fulfilled_quantity_reject = product_fulfilled.quantity_reject;
                                         }
+                                        newOrder.product_currency = product.id + "_" + indexProduct2;
                                         newOrder.confirm_shipping_deadline = expiredDate;
                                         if (paymentDate != null)
                                         {
@@ -4038,10 +4062,10 @@ namespace MasterOnline.Controllers
                                         //end add by nurul 23/11/2021
                                         ListNewOrders.Add(newOrder);
                                     }
-                                    if (skipInsert2)
-                                    {
-                                        continue;
-                                    }
+                                    //if (skipInsert2)
+                                    //{
+                                    //    continue;
+                                    //}
                                 }
 
                                 insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
@@ -4058,25 +4082,43 @@ namespace MasterOnline.Controllers
 
                                     EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
                                 };
-                                using (SqlCommand CommandSQL = new SqlCommand())
+                                if (skipInsert2)
                                 {
-                                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connId;
-                                    CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss");
-                                    CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                                    CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 1;
-                                    CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
+                                    using (SqlCommand CommandSQL = new SqlCommand())
+                                    {
+                                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connId;
+                                        CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss");
+                                        CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                                        CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "TOKPED";
+                                        CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
 
-                                    EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
-                                    jmlhNewOrder++;
+                                        EDB.ExecuteSQL("Con", "MoveOrderFromTempTableNew", CommandSQL);
+                                        jmlhNewOrder++;
+                                    }
+                                }
+                                else
+                                {
+                                    using (SqlCommand CommandSQL = new SqlCommand())
+                                    {
+                                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connId;
+                                        CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss");
+                                        CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                                        CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 1;
+                                        CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
+
+                                        EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                        jmlhNewOrder++;
+                                    }
                                 }
                             }
                         }
