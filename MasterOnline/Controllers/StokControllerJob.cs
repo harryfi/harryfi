@@ -3469,6 +3469,28 @@ namespace MasterOnline.Controllers
                         {
                             try
                             {
+                                if (dbPathEra.ToUpper() == "ERASOFT_RAHMAMK" || dbPathEra.ToUpper() == "ERASOFT_1761944")
+                                {
+                                    MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                    {
+                                        REQUEST_ID = "SS_" + DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                                        REQUEST_ACTION = "Selisih Stok B",
+                                        REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
+                                        REQUEST_ATTRIBUTE_1 = stf02_brg,
+                                        REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(stok), //updating to stock
+                                        REQUEST_STATUS = "Pending"
+                                    };
+                                    var ErasoftDbContext2 = new ErasoftContext(EraServerName, dbPathEra);
+                                    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext2, log_CUST, currentLog, "Tokped");
+
+                                    EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ACTION = 'Selisih Stok B' AND REQUEST_DATETIME <= '" + DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "'");
+                                }
+                            }
+                            catch (Exception ex2)
+                            {
+                            }
+                            try
+                            {
                                 //if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069" || dbPathEra.ToUpper() == "ERASOFT_1000390")
                                 if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToUpper() == "ERASOFT_1310644" || dbPathEra.ToUpper() == "ERASOFT_1000390")
                                 {
@@ -4086,6 +4108,28 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
+                        try
+                        {
+                            if (dbPathEra.ToUpper() == "ERASOFT_RAHMAMK" || dbPathEra.ToUpper() == "ERASOFT_1761944")
+                            {
+                                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                {
+                                    REQUEST_ID = "SS_" + DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                                    REQUEST_ACTION = "Selisih Stok B",
+                                    REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
+                                    REQUEST_ATTRIBUTE_1 = stf02_brg,
+                                    REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(qty), //updating to stock
+                                    REQUEST_STATUS = "Pending"
+                                };
+                                var ErasoftDbContext2 = new ErasoftContext(EraServerName, dbPathEra);
+                                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext2, log_CUST, currentLog, "Shopee");
+
+                                EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ACTION = 'Selisih Stok B' AND REQUEST_DATETIME <= '"+ DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "'");
+                            }
+                        }
+                        catch (Exception ex2)
+                        {
+                        }
                         //add by calvin 28 oktober 2019
                         try
                         {
@@ -4268,6 +4312,28 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
+                        try
+                        {
+                            if (dbPathEra.ToUpper() == "ERASOFT_RAHMAMK" || dbPathEra.ToUpper() == "ERASOFT_1761944")
+                            {
+                                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                {
+                                    REQUEST_ID = "SS_" + DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                                    REQUEST_ACTION = "Selisih Stok B",
+                                    REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
+                                    REQUEST_ATTRIBUTE_1 = stf02_brg,
+                                    REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(qty), //updating to stock
+                                    REQUEST_STATUS = "Pending"
+                                };
+                                var ErasoftDbContext2 = new ErasoftContext(EraServerName, dbPathEra);
+                                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext2, log_CUST, currentLog, "Shopee");
+
+                                EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ACTION = 'Selisih Stok B' AND REQUEST_DATETIME <= '" + DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "'");
+                            }
+                        }
+                        catch (Exception ex2)
+                        {
+                        }
                         //add by calvin 28 oktober 2019
                         try
                         {
