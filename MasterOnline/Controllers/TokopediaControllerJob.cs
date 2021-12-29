@@ -725,6 +725,12 @@ namespace MasterOnline.Controllers
                     pictures = new List<CreateProduct_Images>(),
                     price_currency = "IDR"
                 };
+                newDataProduct.dimension = new CreateProduct_Dimension
+                {
+                    height = brg_stf02.TINGGI,
+                    width = brg_stf02.LEBAR,
+                    length = brg_stf02.PANJANG
+                };
                 if (!string.IsNullOrEmpty(brg_stf02h.NAMA_BARANG_MP))
                 {
                     newDataProduct.name = brg_stf02h.NAMA_BARANG_MP.Trim().Replace("’", "`");
@@ -1560,6 +1566,12 @@ namespace MasterOnline.Controllers
                         videos = null,
                         pictures = new List<CreateProduct_Images>(),
                         price_currency = "IDR"
+                    };
+                    newDataProduct.dimension = new CreateProduct_Dimension
+                    {
+                        height = brg_stf02.TINGGI,
+                        width = brg_stf02.LEBAR,
+                        length = brg_stf02.PANJANG
                     };
                     if (!string.IsNullOrEmpty(brg_stf02h.NAMA_BARANG_MP))
                     {
@@ -8084,6 +8096,7 @@ namespace MasterOnline.Controllers
             public List<CreateProduct_Images> pictures { get; set; }
             public CreateProduct_Product_Video[] videos { get; set; }
             public CreateProduct_Product_Variant variant { get; set; }
+            public CreateProduct_Dimension dimension { get; set; }
         }
 
         public class CreateProductTokpedData
@@ -8111,6 +8124,7 @@ namespace MasterOnline.Controllers
             public string sku { get; set; }
             public int stock { get; set; }
             public CreateProduct_Etalase etalase { get; set; }
+            public CreateProduct_Dimension dimension { get; set; }
             //public CreateProduct_Product_Wholesale_Price[] product_wholesale_price { get; set; }
             //public CreateProduct_Product_Preorder product_preorder { get; set; }
             //public List<CreateProduct_Images> images { get; set; }
@@ -8121,6 +8135,13 @@ namespace MasterOnline.Controllers
             public List<CreateProduct_Images> pictures { get; set; }//api v2
             public CreateProduct_Product_Video[] videos { get; set; }//api v2
             public CreateProduct_Product_Variant variant { get; set; }//api v2
+        }
+
+        public class CreateProduct_Dimension
+        {
+            public double height { get; set; }
+            public double width { get; set; }
+            public double length { get; set; }
         }
 
         public class CreateProduct_Etalase
