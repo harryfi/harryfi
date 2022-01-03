@@ -2013,6 +2013,12 @@ namespace MasterOnline.Controllers
                                         //}
                                         ////end add by Tri 16 Jan 2020, get item detail
                                         #endregion
+                                        if(item.volume != null)
+                                        {
+                                            newrecord.PANJANG = item.volume.length;
+                                            newrecord.LEBAR = item.volume.width;
+                                            newrecord.TINGGI = item.volume.height;
+                                        }
                                         listNewRecord.Add(newrecord);
                                         ret.recordCount = ret.recordCount + 1;
                                     }
@@ -2315,6 +2321,12 @@ namespace MasterOnline.Controllers
                                         newrecord.MIN_ORDER = item.extraAttribute.minOrder;
                                     }
 
+                                    if (item.volume != null)
+                                    {
+                                        newrecord.PANJANG = item.volume.length;
+                                        newrecord.LEBAR = item.volume.width;
+                                        newrecord.TINGGI = item.volume.height;
+                                    }
                                     listNewRecord.Add(newrecord);
                                     ret.recordCount = ret.recordCount + 1;
                                 }
@@ -4563,6 +4575,7 @@ namespace MasterOnline.Controllers
             public Other other { get; set; }
             public Campaign campaign { get; set; }
             public Warehouse[] warehouses { get; set; }
+            public TokopediaControllerJob.CreateProduct_Dimension volume { get; set; }
         }
 
         //public class Basic
@@ -4708,6 +4721,7 @@ namespace MasterOnline.Controllers
             public Campaign campaign { get; set; }
             public Warehouse[] warehouses { get; set; }
             public Wholesale[] wholesale { get; set; }
+            public TokopediaControllerJob.CreateProduct_Dimension volume { get; set; }
         }
         public class Wholesale
         {
