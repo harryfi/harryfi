@@ -51,25 +51,59 @@
                 top: 0;
             }*/
     table {
-        border-collapse: collapse;
+        border-collapse: separate;
         width: 100%;
+        overflow-y: scroll;
+        height: 500px;
+        display: block;
     }
     td, th {
         border: 1px solid #dddddd;
         padding: 8px;
     }
-        th:first-child, td:first-child {
+        td:first-child, th:first-child {
             position: sticky;
             left: 0px;
         }
-        td:first-child {
+         .fixed-header-1, .fixed-column-1 {
+            position: sticky;
+            left: 48px;
+        }
+         .fixed-header-2, .fixed-column-2 {
+            position: sticky;
+            left: 125px;
+        }
+        td:first-child, .fixed-column-1, .fixed-column-2 {
             background-color: white;
         }
-        th:first-child {
-            background-color: #ffe8e8;
+    th {
+        position: sticky;
+        top: 0px;
+        z-index: 1;
+        background-color: #ffe8e8;
+    }
+        th:first-child, .fixed-header-1, .fixed-header-2 {
+            /*background-color: #ffe8e8;*/
+            z-index: 2;
         }
-    
 
+    /*div {
+        max-width: 100%;
+        max-height: 500px;
+        overflow: scroll;
+        position: relative;
+    }
+    thead th {
+        position: -webkit-sticky;*/ /* for Safari */
+        /*position: sticky;
+        top: 0;
+        background: #ffe8e8;*/
+        /*color: #FFF;*/
+    /*}
+        thead th:first-child {
+            left: 0;
+            z-index: 1;
+        }*/
 </style>
 
 <div id="loading_barang_tab">
@@ -77,15 +111,15 @@
         <img src="~/Content/Images/spinner.gif" />
     </div>
 </div>
-<div class="table-responsive">
-<table class="table table-striped table-bordered table-hover table-condensed">
+<div class="table-responsive" id="divTable">
+<table class="table table-striped table-bordered table-hover">
     <thead>
         <tr role="row">
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; align-self: flex-start; ">
                 <input type="checkbox" class="cbunlink" id="checkbox_all_brg" style="margin-top: 20px; align-self:flex-start; width:30px; height:28px;" />
             </th>
-            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 90px;">Kode</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 150px">Nama</th>
+            <th class="sorting_asc fixed-header-1" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 90px;">Kode</th>
+            <th class="sorting fixed-header-2" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 150px">Nama</th>
             @foreach (var listCust in Model.akun)
             {
                 var idMarket = Convert.ToInt32(listCust.NAMA);
@@ -108,8 +142,8 @@
                 currentBrg = barang.BRG;
                 <tr>
                     <td><input type="checkbox" class="cbunlink" id="cbb_@barang.BRG" onclick="checkAll('@barang.BRG')" /></td>
-                    <td>@barang.BRG</td>
-                    <td>@barang.NAMABRG</td>
+                    <td class=" fixed-column-1">@barang.BRG</td>
+                    <td class=" fixed-column-2">@barang.NAMABRG</td>
                     @foreach (var listCust in Model.akun)
                     {
                         var cBrg = Model.barang.Where(m => m.BRG == currentBrg && m.IDMARKET == listCust.RecNum).FirstOrDefault();

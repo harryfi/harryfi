@@ -221,28 +221,29 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row col-lg-12 col-sm-12" style="padding-bottom:5px;">
-                        <div class="row col-lg-2 col-sm-2" style="display:none; border: 1px solid #ccc" id="divBrg1">
-                            <div style="display:table-cell;">
+                    <div class="col-lg-12 col-sm-12" style="padding-bottom: 5px;padding-left:0px;">
+                        <div class="" style="display:none; border: 1px solid #ccc" id="divBrg1">
+                            @*<div style="display:table-cell;">
                                 <input disabled id="txtBrg1" style="border:none;width:100%;" />
-                            </div>
-                            <button id="btnDel1" class="fa fa-times" style=""></button>
+                            </div>*@
+                            <span id="txtBrg1"></span>
+                            <button id="btnDel1" class="fa fa-times" style="" current-id="" onclick="removeSearch(1)"></button>
                         </div>
-                        <div class="row col-lg-2 col-sm-2" style="display:none; border: 1px solid #ccc" id="divBrg2">
-                            <input disabled id="txtBrg2" style="display:none" />
-
+                        <div class="" style="display:none; border: 1px solid #ccc" id="divBrg2">
+                            <span id="txtBrg2"></span>
+                            <button id="btnDel2" class="fa fa-times" style="" current-id="" onclick="removeSearch(2)"></button>
                         </div>
-                        <div class="row col-lg-2 col-sm-2" style="display:none; border: 1px solid #ccc" id="divBrg3">
-                            <input disabled id="txtBrg3" style="display:none" />
-
+                        <div class="" style="display:none; border: 1px solid #ccc" id="divBrg3">
+                            <span id="txtBrg3"></span>
+                            <button id="btnDel3" class="fa fa-times" style="" current-id="" onclick="removeSearch(3)"></button>
                         </div>
-                        <div class="row col-lg-2 col-sm-2" style="display:none; border: 1px solid #ccc" id="divBrg4">
-                            <input disabled id="txtBrg4" style="display:none" />
-
+                        <div class="" style="display:none; border: 1px solid #ccc" id="divBrg4">
+                            <span id="txtBrg4"></span>
+                            <button id="btnDel4" class="fa fa-times" style="" current-id="" onclick="removeSearch(4)"></button>
                         </div>
-                        <div class="row col-lg-2 col-sm-2" style="display:none; border: 1px solid #ccc" id="divBrg5">
-                            <input disabled id="txtBrg5" style="display:none" />
-
+                        <div class="" style="display:none; border: 1px solid #ccc" id="divBrg5">
+                            <span id="txtBrg5"></span>
+                            <button id="btnDel5" class="fa fa-times" style="" current-id="" onclick="removeSearch(5)"></button>
                         </div>
                     </div>
                     <div class="row" style="margin-top: 15px;">
@@ -289,7 +290,7 @@
                         options: listMerk,
                         onChange: function (value) {
                             if (value != "") {
-                                if (setTextBrg($("#cmbBarang option:selected").text())) {
+                                if (setTextBrg($("#cmbBarang option:selected").text(), value)) {
                                     var current = $('#txtListBrg').val();
                                     if (current != "") {
                                         current += ","
@@ -336,31 +337,53 @@
                 }
             });
         }
-
-        function setTextBrg(value) {
-            if ($('#txtBrg1').val() == "") {
-                $('#txtBrg1').val(value);
-                $('#divBrg1').show();
+        function removeSearch(value) {
+            var removedValue = $('#txtBrg' + value).val();
+            $('#txtBrg' + value).text('');
+            $('#txtBrg' + value).val('');
+            $('#divBrg' + value).hide();
+            var listData = $('#txtListBrg').val().split(',');
+            var current = "";
+            for (i = 0; i < listData.length; i++) {
+                if (removedValue != listData[i]) {
+                    if (current != "") {
+                        current += ",";
+                    }
+                    current += listData[i];
+                }
+            }
+            $('#txtListBrg').val(current);
+            SelectProduct();
+        }
+        function setTextBrg(value, idBrg) {
+            if ($('#txtBrg1').text() == "") {
+                $('#txtBrg1').val(idBrg);
+                $('#txtBrg1').text(value);
+                $('#divBrg1').css("display", "inline-block");
                 return true;
             }
-            if ($('#txtBrg2').val() == "") {
-                $('#txtBrg2').val(value);
-                $('#txtBrg2').show();
+            if ($('#txtBrg2').text() == "") {
+                $('#txtBrg2').val(idBrg);
+                $('#txtBrg2').text(value);
+                $('#divBrg2').css("display", "inline-block");
                 return true;
             }
-            if ($('#txtBrg3').val() == "") {
-                $('#txtBrg3').val(value);
-                $('#txtBrg3').show();
+            if ($('#txtBrg3').text() == "") {
+                $('#txtBrg3').val(idBrg);
+                $('#txtBrg3').text(value);
+                $('#divBrg3').css("display", "inline-block");
                 return true;
             }
-            if ($('#txtBrg4').val() == "") {
-                $('#txtBrg4').val(value);
-                $('#txtBrg4').show();
+            if ($('#txtBrg4').text() == "") {
+                $('#txtBrg4').val(idBrg);
+                $('#txtBrg4').text(value);
+                $('#divBrg4').css("display", "inline-block");
                 return true;
             }
-            if ($('#txtBrg5').val() == "") {
-                $('#txtBrg5').val(value);
-                $('#txtBrg5').show();
+            if ($('#txtBrg5').text() == "") {
+                $('#txtBrg5').val(idBrg);
+                $('#txtBrg5').text(value);
+                $('#divBrg5').css("display", "inline-block");
                 return true;
             }
             return false;
