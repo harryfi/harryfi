@@ -290,19 +290,22 @@
                         options: listMerk,
                         onChange: function (value) {
                             if (value != "") {
-                                if (setTextBrg($("#cmbBarang option:selected").text(), value)) {
-                                    var current = $('#txtListBrg').val();
-                                    if (current != "") {
-                                        current += ","
+                                var current = $('#txtListBrg').val();
+                                if (!current.split(',').includes(value)) {
+                                    if (setTextBrg($("#cmbBarang option:selected").text(), value)) {
+                                        //var current = $('#txtListBrg').val();
+                                        if (current != "") {
+                                            current += ","
+                                        }
+                                        $('#txtListBrg').val(current + value);
+                                        //$('#Stf02_KET_SORT2').val($("#MERK option:selected").text());
+                                        $("#cmbBarang")[0].selectize.clear();
+                                        SelectProduct();
                                     }
-                                    $('#txtListBrg').val(current + value);
-                                    //$('#Stf02_KET_SORT2').val($("#MERK option:selected").text());
-                                    $("#cmbBarang")[0].selectize.clear();
-                                    SelectProduct();
-                                }
-                                else {
-                                    alert('Maksimum jumlah barang untuk dicek adalah 5.');
-                                    $("#cmbBarang")[0].selectize.clear();
+                                    else {
+                                        alert('Maksimum jumlah barang untuk dicek adalah 5.');
+                                        $("#cmbBarang")[0].selectize.clear();
+                                    }
                                 }
                             }
                         }

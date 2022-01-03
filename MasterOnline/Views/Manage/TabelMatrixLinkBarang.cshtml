@@ -56,23 +56,28 @@
         overflow-y: scroll;
         height: 500px;
         display: block;
+        table-layout: fixed;
     }
     td, th {
         border: 1px solid #dddddd;
         padding: 8px;
+        overflow: hidden;
     }
         td:first-child, th:first-child {
             position: sticky;
             left: 0px;
+            /*width: 45px;*/
         }
-         .fixed-header-1, .fixed-column-1 {
-            position: sticky;
-            left: 48px;
-        }
-         .fixed-header-2, .fixed-column-2 {
-            position: sticky;
-            left: 125px;
-        }
+    .fixed-header-1, .fixed-column-1 {
+        position: sticky;
+        left: 45px;
+        /*width: 90px;*/
+    }
+    .fixed-header-2, .fixed-column-2 {
+        position: sticky;
+        left: 165px;
+        /*width: 120px;*/
+    }
         td:first-child, .fixed-column-1, .fixed-column-2 {
             background-color: white;
         }
@@ -116,10 +121,22 @@
     <thead>
         <tr role="row">
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; align-self: flex-start; ">
-                <input type="checkbox" class="cbunlink" id="checkbox_all_brg" style="margin-top: 20px; align-self:flex-start; width:30px; height:28px;" />
+                <div style="width: 29px">
+                    <input type="checkbox" class="cbunlink" id="checkbox_all_brg" style="margin-top: 20px; align-self:flex-start; width:30px; height:28px;" />
+                </div>
             </th>
-            <th class="sorting_asc fixed-header-1" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 90px;">Kode</th>
-            <th class="sorting fixed-header-2" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 150px">Nama</th>
+            <th class="sorting_asc fixed-header-1" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 90px;">
+                
+                <div style="width: 104px">
+                    Kode
+                </div>
+            </th>
+            <th class="sorting fixed-header-2" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 150px">
+                
+                <div style="width: 150px">
+                    Nama
+                </div>
+            </th>
             @foreach (var listCust in Model.akun)
             {
                 var idMarket = Convert.ToInt32(listCust.NAMA);
@@ -141,7 +158,7 @@
             {
                 currentBrg = barang.BRG;
                 <tr>
-                    <td><input type="checkbox" class="cbunlink" id="cbb_@barang.BRG" onclick="checkAll('@barang.BRG')" /></td>
+                    <td><input type="checkbox" class="cbunlink" id="cbb_@barang.RECNUM" onclick="checkAll('@barang.RECNUM')" /></td>
                     <td class=" fixed-column-1">@barang.BRG</td>
                     <td class=" fixed-column-2">@barang.NAMABRG</td>
                     @foreach (var listCust in Model.akun)
@@ -157,7 +174,7 @@
                         <td>
                             @if (brgMP != "")
                             {
-                                <input id="cb_@cBrg.RECNUM" type="checkbox" class="cb_@barang.BRG cbunlink" data-idmarket="@cBrg.RECNUM" style="float: left;" />
+                                <input id="cb_@cBrg.RECNUM" type="checkbox" class="cb_@barang.RECNUM cbunlink cbunlink-detail" data-brg="@cBrg.RECNUM" style="float: left;" />
                                 <div style="margin-left: 25px;">
                                     @brgMP
                                 </div>
@@ -172,6 +189,10 @@
         }
     </tbody>
 </table>
+</div>
+<div>
+    <input type="button" class="btn btn-primary pull-right" id="btnUnlink" value="Unlink Barang" onclick="UnlinkSelectedBrg()" />
+
 </div>
 <script type="text/javascript">
     $(document).ready(function () {
@@ -192,4 +213,27 @@
     function checkAll(brg) {
         $(".cb_" + brg).prop('checked', $("#cbb_" + brg).prop('checked'));
     }
+    function UnlinkSelectedBrg() {
+        if (CheckBrgToUnlink()) {
+            alert('start unlink : ' + rows_selected);
+
+        }
+        else {
+            alert('Anda belum memilih barang yang akan diunlink.');
+        }
+    }
+    var rows_selected = [];
+    function CheckBrgToUnlink() {
+        $(".cbunlink-detail").each(function (i, item) {
+            if ($(item).is(":checked")) {
+                /*return true;*/
+                rows_selected.push($(item).attr("data-brg"));
+            }
+        });
+        if (rows_selected.length > 0) {
+            return true;
+        }
+        return false;
+    }
+
 </script>
