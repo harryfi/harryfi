@@ -3356,6 +3356,7 @@ namespace MasterOnline.Controllers
         //add by nurul 4/1/2022
         public class tempBrgAkhirTahun
         {
+            public string supp { get; set; }
             public int tahun { get; set; }
             public string brg { get; set; }
         }
@@ -4773,7 +4774,8 @@ namespace MasterOnline.Controllers
                                                                                                         var barang = new tempBrgAkhirTahun()
                                                                                                         {
                                                                                                             brg = kode_brg,
-                                                                                                            tahun = Convert.ToDateTime(tgl).Year
+                                                                                                            tahun = Convert.ToDateTime(tgl).Year,
+                                                                                                            supp = kode_supplier
                                                                                                         };
                                                                                                         listProsesAKhirTahunPerBarang.Add(barang);
                                                                                                     }
@@ -5263,7 +5265,7 @@ namespace MasterOnline.Controllers
                                                 {
                                                     foreach (var barangProses in listProsesAKhirTahunPerBarang)
                                                     {
-                                                        new ManageController().ProsesAkhirTahunPerBarang(barangProses.brg, "", "", Convert.ToString(barangProses.tahun));
+                                                        new ManageController().ProsesAkhirTahunPerBarang(barangProses.brg, barangProses.supp, "", Convert.ToString(barangProses.tahun));
                                                     }
                                                 }
                                                 //end add by nurul 4/1/2022
