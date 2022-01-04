@@ -9223,10 +9223,12 @@ namespace MasterOnline.Controllers
                 sSQL += "LINK_ERROR = '" + Link_Error + "' FROM STF02H S INNER JOIN ARF01 A ON S.IDMARKET = A.RECNUM AND A.CUST = '" + log_CUST + "' WHERE S.BRG = '" + kodeProduk + "' ";
                 EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 
-                myReq.ContentLength = myData.Length;
+                var byteData = Encoding.UTF8.GetBytes(myData);
+                myReq.ContentLength = byteData.Length;
                 using (var dataStream = myReq.GetRequestStream())
                 {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                    dataStream.Write(byteData, 0, byteData.Length);
+                    //dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
                 }
                 using (WebResponse response = await myReq.GetResponseAsync())
                 {
@@ -10777,10 +10779,12 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             try
             {
-                myReq.ContentLength = myData.Length;
+                var byteData = Encoding.UTF8.GetBytes(myData);
+                myReq.ContentLength = byteData.Length;
                 using (var dataStream = myReq.GetRequestStream())
                 {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                    dataStream.Write(byteData, 0, byteData.Length);
+                    //dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
                 }
                 using (WebResponse response = await myReq.GetResponseAsync())
                 {
@@ -11028,10 +11032,12 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             try
             {
-                myReq.ContentLength = myData.Length;
+                var byteData = Encoding.UTF8.GetBytes(myData);
+                myReq.ContentLength = byteData.Length;
                 using (var dataStream = myReq.GetRequestStream())
                 {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                    dataStream.Write(byteData, 0, byteData.Length);
+                    //dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
                 }
                 using (WebResponse response = await myReq.GetResponseAsync())
                 {
@@ -11160,10 +11166,12 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             try
             {
-                myReq.ContentLength = myData.Length;
+                var byteData = Encoding.UTF8.GetBytes(myData);
+                myReq.ContentLength = byteData.Length;
                 using (var dataStream = myReq.GetRequestStream())
                 {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                    dataStream.Write(byteData, 0, byteData.Length);
+                    //dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
                 }
                 using (WebResponse response = await myReq.GetResponseAsync())
                 {
@@ -12110,11 +12118,13 @@ namespace MasterOnline.Controllers
             try
             {
                 manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+                var byteData = Encoding.UTF8.GetBytes(myData);
 
-                myReq.ContentLength = myData.Length;
+                myReq.ContentLength = byteData.Length;
                 using (var dataStream = myReq.GetRequestStream())
                 {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                    dataStream.Write(byteData, 0, byteData.Length);
+                    //dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
                 }
                 using (WebResponse response = await myReq.GetResponseAsync())
                 {
