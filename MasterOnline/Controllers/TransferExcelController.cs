@@ -3353,6 +3353,13 @@ namespace MasterOnline.Controllers
         }
         #endregion
 
+        //add by nurul 4/1/2022
+        public class tempBrgAkhirTahun
+        {
+            public int tahun { get; set; }
+            public string brg { get; set; }
+        }
+        //end add by nurul 4/1/2022
         #region Upload Excel Pesanan
         public async Task<ActionResult> UploadXcelInvoicePembelian(string nobuk, int countAll, string percentDanprogress, string statusLoopSuccess)
         {
@@ -4461,6 +4468,7 @@ namespace MasterOnline.Controllers
                                         int iCountProcessInsertDB = 0;
                                         int iPercentase = 0;
 
+                                        var listProsesAKhirTahunPerBarang = new List<tempBrgAkhirTahun>();
                                         string sSQLValues = "";
 
                                         foreach (var refCheck in dataFilterRef)
@@ -4759,7 +4767,17 @@ namespace MasterOnline.Controllers
                                                                                                     await eraDB.SaveChangesAsync();
 
                                                                                                     sSQLValues = sSQLValues + "('" + kode_brg + "', '" + connID + "'),";
-                                                                                                    
+                                                                                                    //add by nurul 4/1/2022
+                                                                                                    if (Convert.ToDateTime(tgl).Year == DateTime.UtcNow.AddHours(7).Year - 1)
+                                                                                                    {
+                                                                                                        var barang = new tempBrgAkhirTahun()
+                                                                                                        {
+                                                                                                            brg = kode_brg,
+                                                                                                            tahun = Convert.ToDateTime(tgl).Year
+                                                                                                        };
+                                                                                                        listProsesAKhirTahunPerBarang.Add(barang);
+                                                                                                    }
+                                                                                                    //end add by nurul 4/1/2022
                                                                                                 }
                                                                                                 catch (Exception ex)
                                                                                                 {
@@ -5240,6 +5258,15 @@ namespace MasterOnline.Controllers
                                             {
                                                 sSQLValues = sSQLValues.Substring(0, sSQLValues.Length - 1);
                                                 EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + sSQLValues);
+                                                //add by nurul 4/1/2022
+                                                if(listProsesAKhirTahunPerBarang.Count() > 0)
+                                                {
+                                                    foreach (var barangProses in listProsesAKhirTahunPerBarang)
+                                                    {
+                                                        new ManageController().ProsesAkhirTahunPerBarang(barangProses.brg, "", "", Convert.ToString(barangProses.tahun));
+                                                    }
+                                                }
+                                                //end add by nurul 4/1/2022
                                                 sSQLValues = "";
                                                 new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                             }
