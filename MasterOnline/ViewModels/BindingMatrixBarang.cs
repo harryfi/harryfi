@@ -19,4 +19,19 @@ namespace MasterOnline.ViewModels
         public int IDMARKET { get; set; }
         public int RECNUM { get; set; }
     }
+    public class BindingUnlinkBarang
+    {
+        public List<DataUnlinkBarang> barang { get; set; }
+    }
+    public class DataUnlinkBarang
+    {
+        public string BRG { get; set; }
+        public string NAMABRG { get; set; }
+        public string BRG_MP { get; set; }
+        public string LINK { get; set; }
+        public string NAMAMARKET { get; set; }
+        public string PERSO { get; set; }
+        public int IDMARKET { get; set; }
+    }
+
 }

@@ -7010,6 +7010,7 @@
     <Content Include="Views\ShopeeChat\ShopeeAuthChat.cshtml" />
     <Content Include="Views\Manage\MatrixLinkBarang.cshtml" />
     <Content Include="Views\Manage\TabelMatrixLinkBarang.cshtml" />
+    <Content Include="Views\Manage\ListBrgToUnlinkPartialView.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

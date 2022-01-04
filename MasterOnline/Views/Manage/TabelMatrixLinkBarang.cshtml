@@ -177,6 +177,11 @@
                                 <input id="cb_@cBrg.RECNUM" type="checkbox" class="cb_@barang.RECNUM cbunlink cbunlink-detail" data-brg="@cBrg.RECNUM" style="float: left;" />
                                 <div style="margin-left: 25px;">
                                     @brgMP
+                                    @if (link != "")
+                                    {
+                                        <br />
+                                        @link
+                                    }
                                 </div>
                                 @*<label for="cb_@cBrg.RECNUM">@brgMP</label>*@
                             }
@@ -192,7 +197,34 @@
 </div>
 <div>
     <input type="button" class="btn btn-primary pull-right" id="btnUnlink" value="Unlink Barang" onclick="UnlinkSelectedBrg()" />
+</div>
+<div class="modal fade" id="ModalListBrgUnlink" tabindex="-1" role="dialog" aria-labelledby="labelModalListBrgUnlink">
+    <div class="modal-dialog" role="document" style="width:60%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="labelModalListBrgUnlink">Unlink Barang</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>
+                            Apakah Anda yakin akan melakukan unlink untuk barang berikut:
+                        </label>
+                    </div>
+                    <div class="col-md-12">
+                        <div id="ModalListBrgUnlinkdiv">
+                        </div>
+                    </div>
+                </div>
+            </div>
 
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="closeListUnlinkBrg()">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="ProcessUnlinkBrg()">Ya</button>
+            </div>
+        </div>
+    </div>
 </div>
 <script type="text/javascript">
     $(document).ready(function () {
@@ -210,13 +242,16 @@
         //    $(this).height($table.find('tr:eq(' + i + ')').height());
         //});
     });
+    function closeListUnlinkBrg() {
+        $('#ModalListBrgUnlink').modal('hide');
+    }
     function checkAll(brg) {
         $(".cb_" + brg).prop('checked', $("#cbb_" + brg).prop('checked'));
     }
     function UnlinkSelectedBrg() {
         if (CheckBrgToUnlink()) {
-            alert('start unlink : ' + rows_selected);
-
+            //alert('start unlink : ' + rows_selected);
+            ConfirmUnlinkBrg(rows_selected);
         }
         else {
             alert('Anda belum memilih barang yang akan diunlink.');
@@ -235,5 +270,20 @@
         }
         return false;
     }
+    function ConfirmUnlinkBrg(listBrg) {
+        $('#ModalListBrgUnlink').modal('show');
 
+        var link = '@Url.Action("ListBrgToUnlink", "Manage")';
+        link += '?listbrg=' + encodeURIComponent(listBrg);
+        $.ajax({
+            cache: false,
+            url: link,
+            success: function (response) {
+                $('#ModalListBrgUnlinkdiv').html(response);
+            }
+        });
+    }
+    function ProcessUnlinkBrg() {
+        alert('start unlink : ' + rows_selected);
+    }
 </script>
