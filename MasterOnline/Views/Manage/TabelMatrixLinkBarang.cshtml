@@ -122,7 +122,7 @@
         <tr role="row">
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; align-self: flex-start; ">
                 <div style="width: 29px">
-                    <input type="checkbox" class="cbunlink" id="checkbox_all_brg" style="margin-top: 20px; align-self:flex-start; width:30px; height:28px;" />
+                    <input type="checkbox" class="cbunlink" id="checkbox_all_brg" style="align-self:flex-start; width:30px; height:28px;" />
                 </div>
             </th>
             <th class="sorting_asc fixed-header-1" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 90px;">
@@ -158,7 +158,7 @@
             {
                 currentBrg = barang.BRG;
                 <tr>
-                    <td><input type="checkbox" class="cbunlink" id="cbb_@barang.RECNUM" onclick="checkAll('@barang.RECNUM')" /></td>
+                    <td><input type="checkbox" class="cbunlink" id="cbb_@barang.RECNUM" style="margin-top: 20px; align-self:flex-start; width:30px; height:28px;" onclick="checkAll('@barang.RECNUM')" /></td>
                     <td class=" fixed-column-1">@barang.BRG</td>
                     <td class=" fixed-column-2">@barang.NAMABRG</td>
                     @foreach (var listCust in Model.akun)
@@ -174,13 +174,13 @@
                         <td>
                             @if (brgMP != "")
                             {
-                                <input id="cb_@cBrg.RECNUM" type="checkbox" class="cb_@barang.RECNUM cbunlink cbunlink-detail" data-brg="@cBrg.RECNUM" style="float: left;" />
-                                <div style="margin-left: 25px;">
+                                <input id="cb_@cBrg.RECNUM" type="checkbox" class="cb_@barang.RECNUM cbunlink cbunlink-detail" data-brg="@cBrg.RECNUM" style="float: left; width: 30px; height: 28px;" />
+                                <div style="margin-left: 35px;">
                                     @brgMP
                                     @if (link != "")
                                     {
                                         <br />
-                                        @link
+                                        <a href="@link" target="_blank" rel="noopener noreferrer"> @(link.Length > 30 ? link.Substring(0,27) + "..." : link)</a>
                                     }
                                 </div>
                                 @*<label for="cb_@cBrg.RECNUM">@brgMP</label>*@
@@ -195,9 +195,9 @@
     </tbody>
 </table>
 </div>
-<div>
+@*<div>
     <input type="button" class="btn btn-primary pull-right" id="btnUnlink" value="Unlink Barang" onclick="UnlinkSelectedBrg()" />
-</div>
+</div>*@
 <div class="modal fade" id="ModalListBrgUnlink" tabindex="-1" role="dialog" aria-labelledby="labelModalListBrgUnlink">
     <div class="modal-dialog" role="document" style="width:60%;">
         <div class="modal-content">
@@ -222,6 +222,25 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" onclick="closeListUnlinkBrg()">Tidak</button>
                 <button type="button" class="btn btn-success" onclick="ProcessUnlinkBrg()">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="konfUnlinkBrg" tabindex="-1" role="dialog" aria-labelledby="konfUnlinkBrgLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus barang bundling ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="">Ya</button>
             </div>
         </div>
     </div>

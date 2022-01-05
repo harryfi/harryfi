@@ -206,11 +206,11 @@
                     <div class="row barang_table_section">
                         <div class="col-lg-7 col-sm-7">
                             @*<input id="search_barang" type="text" class="form-control" placeholder="Pencarian">
-                <span class="input-group-btn">
-                    <button type="button" id="search_barang_click" class="btn btn-primary">
-                        <i class="fa fa-search"></i>
-                    </button>
-                </span>*@
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_barang_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>*@
                             <select id="cmbBarang" placeholder="Pilih Max 5 Barang"></select>
                             <input id="txtListBrg" style="display:none;" />
 
@@ -221,29 +221,36 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-12 col-sm-12" style="padding-bottom: 5px;padding-left:0px;">
-                        <div class="" style="display:none; border: 1px solid #ccc" id="divBrg1">
-                            @*<div style="display:table-cell;">
-                                <input disabled id="txtBrg1" style="border:none;width:100%;" />
-                            </div>*@
-                            <span id="txtBrg1"></span>
-                            <button id="btnDel1" class="fa fa-times" style="" current-id="" onclick="removeSearch(1)"></button>
+                    <div class="row barang_table_section" style="padding-bottom: 5px;padding-left:0px;">
+                        <div class="col-lg-8 col-sm-8">
+                            <div class="" style="display:none; border: 1px solid #ccc" id="divBrg1">
+                                @*<div style="display:table-cell;">
+                                        <input disabled id="txtBrg1" style="border:none;width:100%;" />
+                                    </div>*@
+                                <span id="txtBrg1"></span>
+                                <button id="btnDel1" class="fa fa-times" style="" current-id="" onclick="removeSearch(1)"></button>
+                            </div>
+                            <div class="" style="display:none; border: 1px solid #ccc" id="divBrg2">
+                                <span id="txtBrg2"></span>
+                                <button id="btnDel2" class="fa fa-times" style="" current-id="" onclick="removeSearch(2)"></button>
+                            </div>
+                            <div class="" style="display:none; border: 1px solid #ccc" id="divBrg3">
+                                <span id="txtBrg3"></span>
+                                <button id="btnDel3" class="fa fa-times" style="" current-id="" onclick="removeSearch(3)"></button>
+                            </div>
+                            <div class="" style="display:none; border: 1px solid #ccc" id="divBrg4">
+                                <span id="txtBrg4"></span>
+                                <button id="btnDel4" class="fa fa-times" style="" current-id="" onclick="removeSearch(4)"></button>
+                            </div>
+                            <div class="" style="display:none; border: 1px solid #ccc" id="divBrg5">
+                                <span id="txtBrg5"></span>
+                                <button id="btnDel5" class="fa fa-times" style="" current-id="" onclick="removeSearch(5)"></button>
+                            </div>
                         </div>
-                        <div class="" style="display:none; border: 1px solid #ccc" id="divBrg2">
-                            <span id="txtBrg2"></span>
-                            <button id="btnDel2" class="fa fa-times" style="" current-id="" onclick="removeSearch(2)"></button>
-                        </div>
-                        <div class="" style="display:none; border: 1px solid #ccc" id="divBrg3">
-                            <span id="txtBrg3"></span>
-                            <button id="btnDel3" class="fa fa-times" style="" current-id="" onclick="removeSearch(3)"></button>
-                        </div>
-                        <div class="" style="display:none; border: 1px solid #ccc" id="divBrg4">
-                            <span id="txtBrg4"></span>
-                            <button id="btnDel4" class="fa fa-times" style="" current-id="" onclick="removeSearch(4)"></button>
-                        </div>
-                        <div class="" style="display:none; border: 1px solid #ccc" id="divBrg5">
-                            <span id="txtBrg5"></span>
-                            <button id="btnDel5" class="fa fa-times" style="" current-id="" onclick="removeSearch(5)"></button>
+                        <div class="col-lg-4 col-sm-4">
+                            <input type="button" class="btn btn-primary pull-right" id="btnUnlink" value="Unlink Barang" onclick="UnlinkSelectedBrg()" />
+                            <input type="button" class="btn btn-primary pull-right" id="btnExcelLinkBrg" value="Excel Link Barang" onclick="" />
+
                         </div>
                     </div>
                     <div class="row" style="margin-top: 15px;">
