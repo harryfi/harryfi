@@ -141,9 +141,9 @@ namespace MasterOnline.Controllers
             if (TokenExpired || bForceRefresh)
             {
                 #region dynamodb
-                if (dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_RAHMAMK" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_710298"
-                    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_930355" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_750320"
-                    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_1521519" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_770308")
+                //if (dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_RAHMAMK" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_710298"
+                //    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_930355" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_750320"
+                //    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_1521519" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_770308")
                 {
                     try { 
                     var dataInDDB = Services.UploadImageService.selectToDB("shopeev2_token", "db_name", dataAPI.DatabasePathErasoft);
@@ -272,9 +272,9 @@ namespace MasterOnline.Controllers
                                 var dateExpired = dataAPI.token_expired.Value.ToString("yyyy-MM-dd HH:mm:ss");
 
                                 #region insert to dynamo db
-                                if (dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_RAHMAMK" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_710298"
-                                    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_930355" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_750320"
-                                    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_1521519" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_770308")
+                                //if (dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_RAHMAMK" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_710298"
+                                //    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_930355" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_750320"
+                                //    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_1521519" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_770308")
                                 { 
                                     try
                                     {
