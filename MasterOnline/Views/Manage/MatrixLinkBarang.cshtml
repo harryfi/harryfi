@@ -218,11 +218,11 @@
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="" role="tabpanel" data-example-id="togglable-tabs">
             <ul id="myTab" class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="active">
+                <li class="active">
                     <a href="#tab_content1" id="linkbarang-tab" role="tab" data-toggle="tab" aria-expanded="true">Link Barang</a>
                 </li>
-                <li role="presentation" class="active">
-                    <a href="#tab_content2" id="history-tab" role="tab" data-toggle="tab" aria-expanded="true">Histori Unlink Barang</a>
+                <li>
+                    <a href="#tab_content2" id="history-tab" role="tab" data-toggle="tab" aria-expanded="false">Histori Unlink Barang</a>
                 </li>
             </ul>
             <div id="myTabContent" class="tab-content" style="padding-top:10px">
@@ -287,7 +287,7 @@
                         </div>
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="nunggu-tab">
+                <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="history-tab">
                     <div class="row history_unlink_section">
                         <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
                             <div class="input-group">
@@ -299,10 +299,18 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-lg-6 col-sm-12" style="text-align:left">
+                        <div class="col-lg-8 col-sm-12">
+                            <div class="input-group text pull-right" style="padding-top:13px">
+                                <select class="form-control" id="TakeRecordHistory" name="TakeRecordHistory" required="required">
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                    <div class="row history_unlink_section">
+                    @*<div class="row history_unlink_section">
                         <div class="col-lg-1 col-sm-1">
                             <div class="input-group text" style="padding-top:13px">
                                 <select class="form-control" id="TakeRecordHistory" name="TakeRecordHistory" required="required">
@@ -313,7 +321,7 @@
                                 </select>
                             </div>
                         </div>
-                    </div>
+                    </div>*@
                     <div class="row history_unlink_section" style="margin-top: 5px;">
                         <div class="col-sm-12" id="table-history-unlink-barang-partial">
                         </div>
@@ -334,10 +342,20 @@
     <script type="text/javascript">
         var $page = window.text;
         var $GetPage = window.text;
+        var $TabAktif = 0;
         $(document).ready(function () {
             $page = 0;
             getListBarang();
 
+            $('#linkbarang-tab').click(function () {
+                $TabAktif = 0;
+                getListBarang();
+            });
+
+            $('#history-tab').click(function () {
+                $TabAktif = 1;
+                searchTableHistoryUnlinkBrg();
+            });
             $('#search_history').keypress(function (e) {
                 var key = e.which;
                 if (key == 13)// the enter key code
@@ -482,7 +500,7 @@
             return false;
         }
 
-        function searchTablePesananSudahDibayar(){
+        function searchTableHistoryUnlinkBrg(){
             var $link = '@Html.Raw(Url.Action("RefreshTableHistoryUnlink", "Manage", new { take = "replaceLastTake", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_history').val()));
             $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordHistory').val()));
@@ -497,13 +515,12 @@
                 },
                 success: function (response) {
                     $('#search_history_click')[0].disabled = false;
-                    $('#table-pesanan-sudah-dibayar-partial').html(response);
+                    $('#table-history-unlink-barang-partial').html(response);
 
-                    cekJumlahPesananBulanIni();
                     $('#loading_history_barang_tab').hide();
                 },
                 error: function (xhr, status, error) {
-                    $('#search_nunggu_click')[0].disabled = false;
+                    $('#search_history_click')[0].disabled = false;
                     console.log(error);
                 }
             });
