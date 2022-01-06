@@ -403,17 +403,17 @@
                                                                 //var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail);
 
                                                                 var tempBrgBaru = fakturDetail.BRG_MULTISKU != null && fakturDetail.BRG_MULTISKU != "" ? fakturDetail.BRG_MULTISKU : fakturDetail.BRG;
-                                                                var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA;
-                                                                var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA2;
+                                                                var namaBarang1 = labelList?.ListBarang?.FirstOrDefault(b => b.BRG == tempBrgBaru)?.NAMA;
+                                                                var namaBarang2 = labelList?.ListBarang?.FirstOrDefault(b => b.BRG == tempBrgBaru)?.NAMA2;
                                                                 var discTotal = fakturDetail.NILAI_DISC ?? 0;
-                                                                var merk = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.Sort2;
-                                                                var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.STN2;
-                                                                var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail);
+                                                                var merk = labelList?.ListBarang?.FirstOrDefault(b => b.BRG == tempBrgBaru)?.Sort2;
+                                                                var satuan = labelList?.ListBarang?.FirstOrDefault(b => b.BRG == tempBrgBaru)?.STN2;
+                                                                var ketTokped = (labelList?.listKetTokped.FirstOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == null || labelList?.listKetTokped.FirstOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == "" ? "-" : labelList?.listKetTokped.FirstOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail);
                                                                 //end change by nurul 15/9/2020
                                                                 fakturNo = fakturNo + 1;
 
                                                                 //add by nurul 5/2/2021
-                                                                var rak = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.LKS;
+                                                                var rak = labelList?.ListBarang?.FirstOrDefault(b => b.BRG == tempBrgBaru)?.LKS;
                                                                 //end add by nurul 5/2/2021
                                                                 <tr>
                                                                     <td>@fakturNo</td>
@@ -697,17 +697,17 @@
                                                                     //var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail);
 
                                                                     var tempBrgBaru = fakturDetail.BRG_MULTISKU != null && fakturDetail.BRG_MULTISKU != "" ? fakturDetail.BRG_MULTISKU : fakturDetail.BRG;
-                                                                    var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA;
-                                                                    var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA2;
+                                                                    var namaBarang1 = labelList?.ListBarang?.FirstOrDefault(b => b.BRG == tempBrgBaru)?.NAMA;
+                                                                    var namaBarang2 = labelList?.ListBarang?.FirstOrDefault(b => b.BRG == tempBrgBaru)?.NAMA2;
                                                                     var discTotal = fakturDetail.NILAI_DISC ?? 0;
-                                                                    var merk = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.Sort2;
-                                                                    var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.STN2;
-                                                                    var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail);
+                                                                    var merk = labelList?.ListBarang?.FirstOrDefault(b => b.BRG == tempBrgBaru)?.Sort2;
+                                                                    var satuan = labelList?.ListBarang?.FirstOrDefault(b => b.BRG == tempBrgBaru)?.STN2;
+                                                                    var ketTokped = (labelList?.listKetTokped.FirstOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == null || labelList?.listKetTokped.FirstOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == "" ? "-" : labelList?.listKetTokped.FirstOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail);
                                                                     //end change by nurul 15/9/2020
                                                                     fakturNo = fakturNo + 1;
 
                                                                     //add by nurul 5/2/2021
-                                                                    var rak = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.LKS;
+                                                                    var rak = labelList?.ListBarang?.FirstOrDefault(b => b.BRG == tempBrgBaru)?.LKS;
                                                                     //end add by nurul 5/2/2021
                                                                     <tr>
                                                                         <td>@fakturNo</td>
@@ -979,17 +979,17 @@
                                                                     //var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail);
 
                                                                     var tempBrgBaru = fakturDetail.BRG_MULTISKU != null && fakturDetail.BRG_MULTISKU != "" ? fakturDetail.BRG_MULTISKU : fakturDetail.BRG;
-                                                                    var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA;
-                                                                    var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA2;
+                                                                    var namaBarang1 = labelList?.ListBarang?.FirstOrDefault(b => b.BRG == tempBrgBaru)?.NAMA;
+                                                                    var namaBarang2 = labelList?.ListBarang?.FirstOrDefault(b => b.BRG == tempBrgBaru)?.NAMA2;
                                                                     var discTotal = fakturDetail.NILAI_DISC ?? 0;
-                                                                    var merk = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.Sort2;
-                                                                    var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.STN2;
-                                                                    var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail);
+                                                                    var merk = labelList?.ListBarang?.FirstOrDefault(b => b.BRG == tempBrgBaru)?.Sort2;
+                                                                    var satuan = labelList?.ListBarang?.FirstOrDefault(b => b.BRG == tempBrgBaru)?.STN2;
+                                                                    var ketTokped = (labelList?.listKetTokped.FirstOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == null || labelList?.listKetTokped.FirstOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == "" ? "-" : labelList?.listKetTokped.FirstOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail);
                                                                     //end change by nurul 15/9/2020
                                                                     fakturNo = fakturNo + 1;
 
                                                                     //add by nurul 5/2/2021
-                                                                    var rak = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.LKS;
+                                                                    var rak = labelList?.ListBarang?.FirstOrDefault(b => b.BRG == tempBrgBaru)?.LKS;
                                                                     //end add by nurul 5/2/2021
                                                                     <tr>
                                                                         <td>@fakturNo</td>
@@ -1520,16 +1520,16 @@
                                                                 //var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail);
 
                                                                 var tempBrgBaru = fakturDetail.BRG_MULTISKU != null && fakturDetail.BRG_MULTISKU != "" ? fakturDetail.BRG_MULTISKU : fakturDetail.BRG;
-                                                                var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA;
-                                                                var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA2;
-                                                                var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.STN2;
-                                                                var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail);
+                                                                var namaBarang1 = labelList?.ListBarang?.FirstOrDefault(b => b.BRG == tempBrgBaru)?.NAMA;
+                                                                var namaBarang2 = labelList?.ListBarang?.FirstOrDefault(b => b.BRG == tempBrgBaru)?.NAMA2;
+                                                                var satuan = labelList?.ListBarang?.FirstOrDefault(b => b.BRG == tempBrgBaru)?.STN2;
+                                                                var ketTokped = (labelList?.listKetTokped.FirstOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == null || labelList?.listKetTokped.FirstOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == "" ? "-" : labelList?.listKetTokped.FirstOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail);
                                                                 //end change by nurul 15/9/2020
 
                                                                 labelNo = labelNo + 1;
 
                                                                 //add by nurul 5/2/2021
-                                                                var rak = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.LKS;
+                                                                var rak = labelList?.ListBarang?.FirstOrDefault(b => b.BRG == tempBrgBaru)?.LKS;
                                                                 //end add by nurul 5/2/2021
                                                                 <tr>
                                                                     <td>@labelNo</td>
@@ -1931,15 +1931,15 @@
                                                                 //var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail);
 
                                                                 var tempBrgBaru = fakturDetail.BRG_MULTISKU != null && fakturDetail.BRG_MULTISKU != "" ? fakturDetail.BRG_MULTISKU : fakturDetail.BRG;
-                                                                var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA;
-                                                                var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA2;
-                                                                var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.STN2;
-                                                                var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail);
+                                                                var namaBarang1 = labelList?.ListBarang?.FirstOrDefault(b => b.BRG == tempBrgBaru)?.NAMA;
+                                                                var namaBarang2 = labelList?.ListBarang?.FirstOrDefault(b => b.BRG == tempBrgBaru)?.NAMA2;
+                                                                var satuan = labelList?.ListBarang?.FirstOrDefault(b => b.BRG == tempBrgBaru)?.STN2;
+                                                                var ketTokped = (labelList?.listKetTokped.FirstOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == null || labelList?.listKetTokped.FirstOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == "" ? "-" : labelList?.listKetTokped.FirstOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail);
                                                                 //end change by nurul 15/9/2020
 
                                                                 labelNo = labelNo + 1;
                                                                 //add by nurul 5/2/2021
-                                                                var rak = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.LKS;
+                                                                var rak = labelList?.ListBarang?.FirstOrDefault(b => b.BRG == tempBrgBaru)?.LKS;
                                                                 //end add by nurul 5/2/2021
                                                                 <tr>
                                                                     <td>@labelNo</td>
