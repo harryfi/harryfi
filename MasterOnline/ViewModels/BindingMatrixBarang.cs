@@ -33,5 +33,15 @@ namespace MasterOnline.ViewModels
         public string PERSO { get; set; }
         public int IDMARKET { get; set; }
     }
+    public class DataHistoryUnlinkBarang
+    {
+        public string BRG { get; set; }
+        public string NAMABRG { get; set; }
+        public string NAMAMARKET { get; set; }
+        public string PERSO { get; set; }
+        public int IDMARKET { get; set; }
+        public DateTime TGL { get; set; }
+        public string USERNAME { get; set; }
+    }
 
 }

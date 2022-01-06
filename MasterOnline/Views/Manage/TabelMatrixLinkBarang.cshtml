@@ -111,11 +111,11 @@
         }*/
 </style>
 
-<div id="loading_barang_tab">
+@*<div id="loading_barang_tab">
     <div id="loading_barang_tab_image">
         <img src="~/Content/Images/spinner.gif" />
     </div>
-</div>
+</div>*@
 <div class="table-responsive" id="divTable">
 <table class="table table-striped table-bordered table-hover">
     <thead>
@@ -241,7 +241,7 @@
                         </label>
                     </div>
                     <div class="col-md-12">
-                        <input id="txtConfirmUnlink" class="form-control" />
+                        <input id="txtConfirmUnlink" class="form-control" autofocus/>
                     </div>
                 </div>
             </div>
@@ -267,6 +267,11 @@
         //$fixedColumn.find('tr').each(function (i, elem) {
         //    $(this).height($table.find('tr:eq(' + i + ')').height());
         //});
+        $(function () {
+            $('#konfUnlinkBrg').on('shown.bs.modal', function () {
+                $('#txtConfirmUnlink').focus()
+            });
+        });
     });
     function closeListUnlinkBrg() {
         $('#ModalListBrgUnlink').modal('hide');
@@ -285,6 +290,7 @@
     }
     var rows_selected = [];
     function CheckBrgToUnlink() {
+        rows_selected = [];
         $(".cbunlink-detail").each(function (i, item) {
             if ($(item).is(":checked")) {
                 /*return true;*/
@@ -312,12 +318,35 @@
     function ProcessUnlinkBrg() {
         /* alert('start unlink : ' + rows_selected);*/
         $('#konfUnlinkBrg').modal('show');
+        document.getElementById("txtConfirmUnlink").focus();
     }
     function CekTextConfirm() {
         var text = $('#txtConfirmUnlink').val();
         if (text != undefined) {
-            text = text.replace('"', '');
-            alert(text);
+            text = text.replace('"', '').toUpperCase();
+            if (text == "UNLINK") {
+                var link = '@Url.Action("ProcessUnlinkByUser", "Manage")';
+                link += '?listbrg=' + encodeURIComponent(rows_selected);
+                $.ajax({
+                    cache: false,
+                    url: link,
+                    success: function (response) {
+                        $('#konfUnlinkBrg').modal('hide');
+                        $('#ModalListBrgUnlink').modal('hide');
+                        SelectProduct();
+                    },
+                    error: function (xhr, status, error) {
+                        debugger;
+                        console.log(error);
+                    }
+                });
+            }
+            else {
+                alert('Untuk Konfirmasi Unlink Barang, Silahkan ketik "UNLINK" pada teks box.');
+            }
+        }
+        else {
+            alert('Untuk Konfirmasi Unlink Barang, Silahkan ketik "UNLINK" pada teks box.');
         }
     }
 </script>
