@@ -476,6 +476,7 @@
                                                         if (parent.ScrId == 38) //Expired Akun Marketplace
                                                         {
                                                             <img id="new_expired_mp_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
+                                                            <img id="new_order_icon_bundling" alt="logo" style="width: 42px; height: 43px; margin-left: 20px;" src="~/Content/Images/ICON_NEW_5.png">
                                                         }
                                                         @*//add by nurul 28/9/2021*@
                                                         if (parent.ScrId == 1100) //chat
@@ -483,6 +484,10 @@
                                                             <img id="new_order_icon_bundling" alt="logo" style="width: 42px; height: 43px; margin-left: 60px;" src="~/Content/Images/ICON_NEW_5.png">
                                                         }
                                                         @*//end add by nurul 28/9/2021*@
+                                                        @*if (parent.ScrId == 44) //link ke mp
+                                                        {
+                                                            <img id="new_order_icon_bundling" alt="logo" style="width: 42px; height: 43px; margin-left: 60px;" src="~/Content/Images/ICON_NEW_5.png">
+                                                        }*@
                                                         <span class="fa fa-chevron-down"></span>
                                                     }
                                                     //add by calvin 5 april 2019
@@ -501,6 +506,10 @@
                                                         {
                                                             @*<img id="new_order_icon_bundling" alt="logo" style="width: 42px; height: 43px;" src="~/Content/Images/ICON_NEW_5.png">*@
                                                         }
+                                                        @*if (parent.NamaForm == "Unlink Barang") //link ke mp
+                                                        {
+                                                            <img id="new_order_icon_bundling" alt="logo" style="width: 42px; height: 43px; margin-left: 60px;" src="~/Content/Images/ICON_NEW_5.png">
+                                                        }*@
                                                         @*//end add by nurul 22/1/2021*@
                                                     }
                                                 </a>
@@ -645,21 +654,21 @@
                                                                         @*//add by nurul 28/9/2021*@
                                                                         else
                                                                         {
-                                                                            <a @(!child.HaveChild ? "href=" + child.Url : "")>
-                                                                                @if (!string.IsNullOrEmpty(child.Icon))
-                                                                                {
-                                                                                    <i class="fa @child.Icon"></i>
-                                                                                }
-                                                                                @child.NamaForm
-                                                                                @if (parent.ScrId == 38 && child.ParentId == 38) //Expired Akun Marketplace
-                                                                                {
-                                                                                    <img id="new_expired_mp_sub_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
-                                                                                }
-                                                                                @if (child.HaveChild)
-                                                                                {
-                                                                                    <span class="fa fa-chevron-down"></span>
-                                                                                }
-                                                                            </a>
+                                                                    <a @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                        @if (!string.IsNullOrEmpty(child.Icon))
+                                                                        {
+                                                                            <i class="fa @child.Icon"></i>
+                                                                        }
+                                                                        @child.NamaForm
+                                                                        @if (parent.ScrId == 38 && child.ParentId == 38) //Expired Akun Marketplace
+                                                                        {
+                                                                            <img id="new_expired_mp_sub_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
+                                                                        }
+                                                                        @if (child.HaveChild)
+                                                                        {
+                                                                            <span class="fa fa-chevron-down"></span>
+                                                                        }
+                                                                    </a>
                                                                         }
                                                                     </li>
                                                                 }
@@ -672,6 +681,10 @@
                                                                                 <i class="fa @child.Icon"></i>
                                                                             }
                                                                             @child.NamaForm
+                                                                            @if (child.ScrId == 45) //sinkro
+                                                                            {
+                                                                                <img id="new_order_icon_bundling" alt="logo" style="width: 42px; height: 43px;" src="~/Content/Images/ICON_NEW_5.png">
+                                                                            }
                                                                             @if (child.HaveChild)
                                                                             {
                                                                                 <span class="fa fa-chevron-down"></span>
@@ -703,10 +716,14 @@
                                                                                                     @childFromChild.NamaForm
                                                                                                     @*//add by nurul 22/1/2021*@
                                                                                                     @*@if (childFromChild.ScrId == 51) //Barang Bundling
-                                                                                                    {
-                                                                                                    <img id="new_order_icon_bundling" alt="logo" style="width: 42px; height: 43px;" src="~/Content/Images/ICON_NEW_5.png">
-                                                                                                    }*@
+        {
+        <img id="new_order_icon_bundling" alt="logo" style="width: 42px; height: 43px;" src="~/Content/Images/ICON_NEW_5.png">
+        }*@
                                                                                                     @*//end add by nurul 22/1/2021*@
+                                                                                                    @if (childFromChild.ScrId == 3000) //link ke mp
+                                                                                                    {
+                                                                                                        <img id="new_order_icon_bundling" alt="logo" style="width: 42px; height: 43px;" src="~/Content/Images/ICON_NEW_5.png">
+                                                                                                    }
                                                                                                 </a>
                                                                                             </li>
                                                                                         }

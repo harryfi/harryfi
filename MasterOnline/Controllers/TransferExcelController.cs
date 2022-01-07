@@ -713,6 +713,113 @@ namespace MasterOnline.Controllers
             return result;
         }
 
+        public ActionResult DownloadExcelLinkBarang(string cust)
+        {
+            var ret = new BindDownloadExcel
+            {
+                Errors = new List<string>()
+            };
+            try
+            {
+                using (var package = new OfficeOpenXml.ExcelPackage())
+                {
+                    ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Link Barang");
+
+                    //var listCust = cust.Split(',');
+                    //var qCust = "";
+                    //foreach(var customer in listCust)
+                    //{
+                    //    if (!string.IsNullOrEmpty(qCust))
+                    //    {
+                    //        qCust += ",";
+                    //    }
+                    //    qCust += "'" + customer + "'";
+                    //}
+                    var listCustomer = ErasoftDbContext.Database.SqlQuery<DataListCustomer>("SELECT CUST, PERSO, NAMAMARKET, A.RECNUM FROM ARF01 (NOLOCK) A INNER JOIN MO..MARKETPLACE M ON A.NAMA = M.IDMARKET WHERE NAMA <> '18' AND CUST IN ("+ cust + ") ORDER BY IDMARKET, PERSO").ToList();
+
+                    string sSQL = "SELECT S.BRG, ";
+                    sSQL += "replace(replace(S.NAMA, char(10), ''), char(13), '') + ISNULL(replace(replace(S.NAMA2, char(10), ''), char(13), ''), '') AS NAMABRG ";
+                    foreach (var c1 in listCustomer)
+                    {
+                        //sSQL += ", '" + c1.NAMAMARKET + "' + '(' + replace(replace('"+ c1.NAMAMARKET + "', char(10), ''), char(13), '') + ')' AS AKUN_"+c1.RECNUM+", ";
+                        sSQL += ",ISNULL(H" + c1.RECNUM + ".BRG_MP, '') BRG_MP_" + c1.RECNUM + ", ISNULL(H" + c1.RECNUM + ".AVALUE_34, '') LINK_" + c1.RECNUM + "";
+                    }
+                    sSQL += " FROM STF02 (NOLOCK) S ";
+                    foreach (var c2 in listCustomer)
+                    {
+                        sSQL += " LEFT JOIN STF02H (NOLOCK) H" + c2.RECNUM + " ON S.BRG = H" + c2.RECNUM + ".BRG and H" + c2.RECNUM + ".idmarket = " + c2.RECNUM;
+                    }
+                    sSQL += " ORDER BY NAMABRG,S.BRG ";
+                    var dsBarang = EDB.GetDataSet("CString", "STF02", sSQL);
+
+                    if (dsBarang.Tables[0].Rows.Count > 0)
+                    {
+                        for (int i = 0; i < dsBarang.Tables[0].Rows.Count; i++)
+                        {
+                            worksheet.Cells[2 + i, 1].Value = dsBarang.Tables[0].Rows[i]["BRG"].ToString();
+                            worksheet.Cells[2 + i, 2].Value = dsBarang.Tables[0].Rows[i]["NAMABRG"].ToString();
+                            var indexColumn = 3;
+                            foreach (var c3 in listCustomer)
+                            {
+                                //worksheet.Cells[2 + i, indexColumn].Value = dsBarang.Tables[0].Rows[i]["AKUN_" + c3.RECNUM + ""].ToString();
+                                //indexColumn++;
+
+                                var linkBrg = dsBarang.Tables[0].Rows[i]["BRG_MP_" + c3.RECNUM + ""].ToString();
+                                if(!string.IsNullOrEmpty(dsBarang.Tables[0].Rows[i]["LINK_" + c3.RECNUM + ""].ToString()))
+                                {
+                                    if(dsBarang.Tables[0].Rows[i]["LINK_" + c3.RECNUM + ""].ToString().ToLower().Contains("http"))
+                                    {
+                                        linkBrg = dsBarang.Tables[0].Rows[i]["LINK_" + c3.RECNUM + ""].ToString();
+                                    }
+                                }
+
+                                worksheet.Cells[2 + i, indexColumn].Value = linkBrg;
+                                indexColumn++;
+                            }
+
+                        }
+                        ExcelRange rg0 = worksheet.Cells[1, 1, worksheet.Dimension.End.Row, 2 + listCustomer.Count];
+                        string tableName0 = "TableBarang";
+                        ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
+                        table0.Columns[0].Name = "KODE BARANG";
+                        table0.Columns[1].Name = "NAMA BARANG";
+                        var indexColumn2 = 2;
+                        foreach (var c4 in listCustomer)
+                        {
+                            table0.Columns[indexColumn2].Name = c4.NAMAMARKET + " (" + c4.PERSO + ")";
+                            indexColumn2++;
+                        }
+
+                        table0.ShowHeader = true;
+                        table0.ShowFilter = true;
+                        table0.ShowRowStripes = false;
+                        worksheet.Cells.AutoFitColumns(0);
+
+                        //return File(package.GetAsByteArray(), System.Net.Mime.MediaTypeNames.Application.Octet, username + "_hargaJual" + ".xlsx");
+                        ret.byteExcel = package.GetAsByteArray();
+                        ret.namaFile = username + "_listlinkbrg" + ".xlsx";
+                    }
+                    else
+                    {
+                        ret.Errors.Add("Tidak ada data barang.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+            }
+
+            //return Json(ret, JsonRequestBehavior.AllowGet);
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(ret),
+                ContentType = "application/json"
+            };
+            return result;
+        }
         public FileResult DownloadFileExcel(/*byte[] file, string fileName*//*BindDownloadExcel data*/ string data)
         {
             return File(/*data.byteExcel*/ new byte[1], /*System.Net.Mime.MediaTypeNames.Application.Octet,*/ /*data.namaFile +*/ ".xlsx");
