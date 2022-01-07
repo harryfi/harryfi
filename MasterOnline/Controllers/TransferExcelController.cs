@@ -735,7 +735,7 @@ namespace MasterOnline.Controllers
                     //    }
                     //    qCust += "'" + customer + "'";
                     //}
-                    var listCustomer = ErasoftDbContext.Database.SqlQuery<DataListCustomer>("SELECT CUST, PERSO, NAMAMARKET, A.RECNUM FROM ARF01 A INNER JOIN MO..MARKETPLACE M ON A.NAMA = M.IDMARKET WHERE NAMA <> '18' AND CUST IN ("+ cust + ") ORDER BY IDMARKET, PERSO").ToList();
+                    var listCustomer = ErasoftDbContext.Database.SqlQuery<DataListCustomer>("SELECT CUST, PERSO, NAMAMARKET, A.RECNUM FROM ARF01 (NOLOCK) A INNER JOIN MO..MARKETPLACE M ON A.NAMA = M.IDMARKET WHERE NAMA <> '18' AND CUST IN ("+ cust + ") ORDER BY IDMARKET, PERSO").ToList();
 
                     string sSQL = "SELECT S.BRG, ";
                     sSQL += "replace(replace(S.NAMA, char(10), ''), char(13), '') + ISNULL(replace(replace(S.NAMA2, char(10), ''), char(13), ''), '') AS NAMABRG ";
@@ -744,10 +744,10 @@ namespace MasterOnline.Controllers
                         //sSQL += ", '" + c1.NAMAMARKET + "' + '(' + replace(replace('"+ c1.NAMAMARKET + "', char(10), ''), char(13), '') + ')' AS AKUN_"+c1.RECNUM+", ";
                         sSQL += ",ISNULL(H" + c1.RECNUM + ".BRG_MP, '') BRG_MP_" + c1.RECNUM + ", ISNULL(H" + c1.RECNUM + ".AVALUE_34, '') LINK_" + c1.RECNUM + "";
                     }
-                    sSQL += " FROM STF02 S ";
+                    sSQL += " FROM STF02 (NOLOCK) S ";
                     foreach (var c2 in listCustomer)
                     {
-                        sSQL += " LEFT JOIN STF02H H" + c2.RECNUM + " ON S.BRG = H" + c2.RECNUM + ".BRG and H" + c2.RECNUM + ".idmarket = " + c2.RECNUM;
+                        sSQL += " LEFT JOIN STF02H (NOLOCK) H" + c2.RECNUM + " ON S.BRG = H" + c2.RECNUM + ".BRG and H" + c2.RECNUM + ".idmarket = " + c2.RECNUM;
                     }
                     sSQL += " ORDER BY NAMABRG,S.BRG ";
                     var dsBarang = EDB.GetDataSet("CString", "STF02", sSQL);

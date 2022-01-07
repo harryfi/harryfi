@@ -341,6 +341,9 @@
                 <h4 class="modal-title" id="ModalExcelLinkBarangLabel">Excel Link Barang</h4>
             </div>
             <div class="modal-body">
+                <div id="loading_excel_link" class="text-center">
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>
                 <div class="row">
                     <div class="col-md-12">
                         <label>
@@ -348,7 +351,7 @@
                         </label>
                     </div>
                     <div class="col-md-12" id="list-customer-partial">
-                        
+
                     </div>
                 </div>
             </div>
@@ -490,7 +493,7 @@
         }
         function RemoveAllBrg() {
             $('.filter-brg-div').text('');
-            $('#filter-brg-div').val('');
+            $('.filter-brg-div').val('');
             $('.filter-brg-div').hide();
             $('#txtListBrg').val('');
             SelectProduct();
@@ -561,12 +564,17 @@
             $.ajax({
                 type: "GET",
                 url: $link,
+                beforeSend: function () {
+                    $('#loading_excel_link').show();
+                },
                 success: function (response) {
                     $('#list-customer-partial').html(response);
+                    $('#loading_excel_link').hide();
 
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
+                    $('#loading_excel_link').hide();
                 }
             });
         }
@@ -607,9 +615,10 @@
                 async: false,
                 beforeSend: function () {
                     //$('#loading_spinner_btn').show();
+                    $('#loading_excel_link').show();
                 },
                 success: function (response) {
-                    $('#loading_spinner_btn').hide();
+                    $('#loading_excel_link').hide();
                     if (response.Errors.length == 0) {
                         var bytes = new Uint8Array(response.byteExcel);
                         saveByteArray(response.namaFile, bytes);
@@ -618,6 +627,7 @@
                     }
                 },
                 error: function (xhr) {
+                    $('#loading_excel_link').hide();
                     console.log(xhr);
                 }
             });

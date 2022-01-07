@@ -45,16 +45,17 @@
             @Html.PagedListPager(Model, page => Url.Action("RefreshTableHistoryUnlink", new
        {
            page,
-           search = ViewData["searchParam"]
+           search = ViewData["searchParam"],
+           take = ViewData["takeRecord"],
        }),
                  new PagedListRenderOptions
                  {
                      LinkToFirstPageFormat = "<<",
-                LinkToPreviousPageFormat = "prev",
-                LinkToNextPageFormat = "next",
-                LinkToLastPageFormat = ">>",
-                DisplayEllipsesWhenNotShowingAllPageNumbers = false
-            })
+                     LinkToPreviousPageFormat = "prev",
+                     LinkToNextPageFormat = "next",
+                     LinkToLastPageFormat = ">>",
+                     DisplayEllipsesWhenNotShowingAllPageNumbers = false
+                 })
             Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
         </div>
     }

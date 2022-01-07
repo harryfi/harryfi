@@ -333,10 +333,12 @@
                     success: function (response) {
                         $('#konfUnlinkBrg').modal('hide');
                         $('#ModalListBrgUnlink').modal('hide');
+
+                        $('.modal-backdrop').remove();
                         SelectProduct();
                     },
                     error: function (xhr, status, error) {
-                        debugger;
+                        //debugger;
                         console.log(error);
                     }
                 });
