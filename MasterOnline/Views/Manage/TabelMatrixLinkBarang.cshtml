@@ -50,7 +50,7 @@
                 position: sticky;
                 top: 0;
             }*/
-    table {
+    .table-fixed-column {
         border-collapse: separate;
         width: 100%;
         overflow-y: scroll;
@@ -63,11 +63,11 @@
         padding: 8px;
         overflow: hidden;
     }
-        td:first-child, th:first-child {
-            position: sticky;
-            left: 0px;
-            /*width: 45px;*/
-        }
+    .fixed-header-0, .fixed-column-0 {
+        position: sticky;
+        left: 0px;
+        /*width: 45px;*/
+    }
     .fixed-header-1, .fixed-column-1 {
         position: sticky;
         left: 45px;
@@ -78,19 +78,19 @@
         left: 165px;
         /*width: 120px;*/
     }
-        td:first-child, .fixed-column-1, .fixed-column-2 {
-            background-color: white;
-        }
+    .fixed-column-0, .fixed-column-1, .fixed-column-2 {
+        background-color: white;
+    }
     th {
         position: sticky;
         top: 0px;
         z-index: 1;
         background-color: #ffe8e8;
     }
-        th:first-child, .fixed-header-1, .fixed-header-2 {
-            /*background-color: #ffe8e8;*/
-            z-index: 2;
-        }
+    .fixed-header-0, .fixed-header-1, .fixed-header-2 {
+        /*background-color: #ffe8e8;*/
+        z-index: 2;
+    }
 
     /*div {
         max-width: 100%;
@@ -117,10 +117,10 @@
     </div>
 </div>*@
 <div class="table-responsive" id="divTable">
-<table class="table table-striped table-bordered table-hover">
+<table class="table table-striped table-bordered table-hover table-fixed-column">
     <thead>
         <tr role="row">
-            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; align-self: flex-start; ">
+            <th class="sorting text-center fixed-header-0" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; align-self: flex-start; ">
                 <div style="width: 29px">
                     <input type="checkbox" class="cbunlink" id="checkbox_all_brg" style="align-self:flex-start; width:30px; height:28px;" />
                 </div>
@@ -158,7 +158,7 @@
             {
                 currentBrg = barang.BRG;
                 <tr>
-                    <td><input type="checkbox" class="cbunlink" id="cbb_@barang.RECNUM" style="margin-top: 20px; align-self:flex-start; width:30px; height:28px;" onclick="checkAll('@barang.RECNUM')" /></td>
+                    <td class=" fixed-column-0"><input type="checkbox" class="cbunlink" id="cbb_@barang.RECNUM" style="margin-top: 20px; align-self:flex-start; width:30px; height:28px;" onclick="checkAll('@barang.RECNUM')" /></td>
                     <td class=" fixed-column-1">@barang.BRG</td>
                     <td class=" fixed-column-2">@barang.NAMABRG</td>
                     @foreach (var listCust in Model.akun)
@@ -174,7 +174,7 @@
                         <td>
                             @if (brgMP != "")
                             {
-                                <input id="cb_@cBrg.RECNUM" type="checkbox" class="cb_@barang.RECNUM cbunlink cbunlink-detail" data-brg="@cBrg.RECNUM" style="float: left; width: 30px; height: 28px;" />
+                                <input id="cb_@cBrg.RECNUM" type="checkbox" class="cb_@barang.RECNUM cbunlink cbunlink-detail" data-brg="@cBrg.RECNUM" style="float: left; width: 27px; height: 24px;" />
                                 <div style="margin-left: 35px;">
                                     @brgMP
                                     @if (link != "")

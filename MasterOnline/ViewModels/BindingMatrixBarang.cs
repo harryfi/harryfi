@@ -44,4 +44,15 @@ namespace MasterOnline.ViewModels
         public string USERNAME { get; set; }
     }
 
+    public class BindingListCustomer
+    {
+        public List<DataListCustomer> customer { get; set; }
+    }
+    public class DataListCustomer
+    {
+        public string CUST { get; set; }
+        public string NAMAMARKET { get; set; }
+        public string PERSO { get; set; }
+        public int RECNUM { get; set; }
+    }
 }

@@ -7012,6 +7012,7 @@
     <Content Include="Views\Manage\TabelMatrixLinkBarang.cshtml" />
     <Content Include="Views\Manage\ListBrgToUnlinkPartialView.cshtml" />
     <Content Include="Views\Manage\TableHistoryUnlinkBrg.cshtml" />
+    <Content Include="Views\Manage\ListCustomerPartialView.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
