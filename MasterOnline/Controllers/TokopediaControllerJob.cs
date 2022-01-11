@@ -4791,6 +4791,36 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public async Task<string> GetOrderList_update_webhook(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
+        {
+            string ret = "";
+            var token = SetupContext(iden);
+            var daysNow = DateTime.UtcNow.AddHours(7).AddDays(-14);
+
+            //var dsNewOrder = EDB.GetDataSet("CString", "SO", "SELECT T.* FROM TABEL_WEBHOOK_TOKPED (NOLOCK) T INNER JOIN SOT01A (NOLOCK) S ON (CONVERT(NVARCHAR(50),T.ORDERID) + ';%') LIKE S.NO_REFERENSI AND T.CUST = S.CUST WHERE T.TGL >= '" 
+            //    + daysNow.ToString("yyyy-MM-dd HH:mm:ss") + "' AND ORDER_STATUS IN ('700') AND T.CUST = '" + CUST + "'");
+
+            var dsNewOrder = EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE S SET STATUS_TRANSAKSI = '04' FROM TABEL_WEBHOOK_TOKPED (NOLOCK) T INNER JOIN SOT01A (NOLOCK) S ON (CONVERT(NVARCHAR(50),T.ORDERID) + ';%') LIKE S.NO_REFERENSI AND T.CUST = S.CUST WHERE T.TGL >= '"
+                + daysNow.ToString("yyyy-MM-dd HH:mm:ss") + "' AND ORDER_STATUS IN ('700', '701') AND T.CUST = '" + CUST + "' AND STATUS_TRANSAKSI = '03'");
+            if(dsNewOrder > 0)
+            {
+                var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(dsNewOrder) + " Pesanan dari Tokopedia sudah selesai.");
+
+                var dateTimeNow = Convert.ToDateTime(DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd"));
+                string sSQLUpdateDatePesananSelesai = "UPDATE S SET TGL_KIRIM = '" + dateTimeNow 
+                    + "' FROM TABEL_WEBHOOK_TOKPED (NOLOCK) T INNER JOIN SIT01A (NOLOCK) S ON (CONVERT(NVARCHAR(50),T.ORDERID) + ';%') LIKE S.NO_REFERENSI AND T.CUST = S.CUST WHERE T.TGL >= '"
+                    + daysNow.ToString("yyyy-MM-dd HH:mm:ss") + "' AND T.CUST = '" + CUST + "' AND ORDER_STATUS IN ('700', '701') ";
+                var resultUpdateDatePesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdateDatePesananSelesai);
+            }
+
+            var queryStatus = "\\\"}\"" + "," + "\"2\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","2","\"000003\""
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.API_secret_key + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderList_update_webhook%' and statename like '%Enque%' ");
+
+            return ret;
+        }
         public async Task<string> GetOrderListCompleted3Days(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderComplete, long daysFrom, long daysTo)
         {
             string ret = "";
