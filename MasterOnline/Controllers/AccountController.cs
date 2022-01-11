@@ -1317,7 +1317,6 @@ namespace MasterOnline.Controllers
                                 token = tblCustomer.TOKEN
                             };
                                 //tokopediaApi.GetToken(iden);
-                                await new TokopediaControllerJob().GetOrderList_webhook(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
                             var parentid = client.Enqueue<TokopediaControllerJob>(x => x.GetToken(data));
 
                             //add by calvin 2 april 2019
@@ -1407,11 +1406,17 @@ namespace MasterOnline.Controllers
 
                                 connId_JobId = dbPathEra + "_tokopedia_update_resi_job_" + Convert.ToString(tblCustomer.RecNum.Value);
                                 recurJobM.RemoveIfExists(connId_JobId);
+
+                                    connId_JobId = dbPathEra + "_tokopedia_webhook_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                    //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(5), recurJobOpt);
+                                    recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderList_webhook(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), "1/5 * * * *", recurJobOpt);
+                                    //await new TokopediaControllerJob().GetOrderList_webhook(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
+
+                                }
+                                //end add by calvin 2 april 2019
+                                //new TokopediaControllerJob().GetToken(data);
+                                //await new TokopediaControllerJob().GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
                             }
-                            //end add by calvin 2 april 2019
-                            //new TokopediaControllerJob().GetToken(data);
-                            //await new TokopediaControllerJob().GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
-                        }
                     }
                 }
             }
