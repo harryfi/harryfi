@@ -4273,12 +4273,911 @@ namespace MasterOnline.Controllers
 
             // tunning untuk tidak duplicate
             var queryStatus = "\\\"}\"" + "," + "\"2\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","2","\"000003\""
-            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.API_secret_key + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderList%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%GetOrderListCompleted%' and invocationdata not like '%GetOrderListCancel%' and invocationdata not like '%GetSingleOrder%' and invocationdata not like '%CheckPendings%'");
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.API_secret_key + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderList%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%GetOrderListCompleted%' and invocationdata not like '%GetOrderListCancel%' and invocationdata not like '%GetSingleOrder%' and invocationdata not like '%CheckPendings%' and invocationdata not like '%GetOrderList_webhook%'");
             // end tunning untuk tidak duplicate
             
 
             return ret;
         }
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public async Task<string> GetOrderList_webhook(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
+        {
+            string ret = "";
+            var token = SetupContext(iden);
+            var daysNow = DateTime.UtcNow.AddHours(7).AddDays(-3);
+
+            var dsNewOrder = EDB.GetDataSet("CString", "SO", "SELECT T.* FROM TABEL_WEBHOOK_TOKPED (NOLOCK) T LEFT JOIN SOT01A (NOLOCK) S ON S.NO_REFERENSI = (CONVERT(NVARCHAR(50),T.ORDERID) + ';' + T.NO_INV) AND T.CUST = S.CUST WHERE T.TGL >= '"+ daysNow.ToString("yyyy-MM-dd HH:mm:ss") + "' AND ORDER_STATUS = '220' AND T.CUST = '" + CUST + "' AND ISNULL(S.NO_BUKTI, '') = ''");
+            
+            var connIdProses = "";
+            var dataJsonOrder = new TokopediaOrders();
+            var listData = new List<TokopediaOrder>();
+            if (dsNewOrder.Tables[0].Rows.Count > 0)
+            {
+                for(int i=0;i < dsNewOrder.Tables[0].Rows.Count; i++)
+                {
+                    var insertData = dsNewOrder.Tables[0].Rows[i]["JSON"].ToString();
+                    var cJson = JsonConvert.DeserializeObject(insertData, typeof(TokopediaOrder)) as TokopediaOrder;
+                    listData.Add(cJson);
+                    if (listData.Count >= 10 || i == dsNewOrder.Tables[0].Rows.Count - 1)
+                    {
+                        dataJsonOrder.data = listData.ToArray();
+                        var returnGetOrder = await InsertOrderFromWebhook(iden, stat, CUST, NAMA_CUST, 1, 0, daysNow, dataJsonOrder);
+                        if (!string.IsNullOrEmpty(returnGetOrder))
+                        {
+                            connIdProses += returnGetOrder;
+                        }
+                        listData = new List<TokopediaOrder>();
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(connIdProses))
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username, connIdProses.Substring(0, connIdProses.Length - 3));
+            }
+            
+
+            var queryStatus = "\\\"}\"" + "," + "\"2\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","2","\"000003\""
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.API_secret_key + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderList_webhook%' and statename like '%Enque%' ");
+            
+            return ret;
+        }
+        public async Task<string> InsertOrderFromWebhook(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, DateTime daysNow, TokopediaOrders result)
+        {
+            string ret = "";
+            string connId = Guid.NewGuid().ToString();
+            var token = SetupContext(iden);
+            iden.token = token;
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+            string status = "";
+
+            //add by nurul 20/1/2021, bundling
+            //ret = connId;
+            ret += "'" + connId + "' , ";
+            //end add by nurul 20/1/2021, bundling
+
+            int rowCount = 0;
+            //if (!string.IsNullOrWhiteSpace(responseFromServer))
+            {
+                //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                //TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
+                if (result.data != null)
+                {
+                    var orderPaid = result.data.Where(p => p.order_status == 220).ToList();
+                    var orderAccepted = result.data.Where(p => p.order_status == 400).ToList();
+                    //add by Tri 17 mar 2020, insert pesanan dengan status 450
+                    var orderWaitingPickUp = result.data.Where(p => p.order_status == 450).ToList();
+                    if (orderWaitingPickUp != null)
+                    {
+                        if (orderWaitingPickUp.Count > 0)
+                            orderAccepted.AddRange(orderWaitingPickUp);
+
+                    }
+                    //end add by Tri 17 mar 2020, insert pesanan dengan status 450
+                    var orderTokpedInDb = ErasoftDbContext.TEMP_TOKPED_ORDERS.Where(p => p.fs_id == iden.merchant_code);
+
+                    //var last21days = DateTimeOffset.UtcNow.AddHours(7).AddDays(-21).DateTime;
+                    //System.DateTime datetimeisnull = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+                    //var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && (p.TGL ?? datetimeisnull) > last21days).Select(p => p.NO_REFERENSI).ToList();
+
+                    //var last21days = DateTimeOffset.UtcNow.AddHours(7).AddDays(daysFrom - 1).DateTime;
+                    //var last21days2 = DateTimeOffset.UtcNow.AddHours(7).AddDays(daysTo + 1).DateTime;
+                    //var last21days = DateTimeOffset.FromUnixTimeMilliseconds(daysFrom * 1000).UtcDateTime.AddHours(7).AddDays(-1);
+                    //var last21days2 = DateTimeOffset.FromUnixTimeMilliseconds(daysTo * 1000).UtcDateTime.AddHours(7).AddDays(1);
+                    System.DateTime datetimeisnull = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+                    //var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && (p.TGL ?? datetimeisnull) >= last21days && (p.TGL ?? datetimeisnull) <= last21days2).Select(p => p.NO_REFERENSI).ToList();
+                    var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && (p.TGL ?? datetimeisnull) >= daysNow).Select(p => p.NO_REFERENSI).ToList();
+
+                    var connIdARF01C = Guid.NewGuid().ToString();
+                    rowCount = result.data.Count();
+
+                    var decryptF = new EncryptTokped();//add 28 NOv 2020, decrypt tokped
+                    if (orderPaid != null)
+                    {
+                        foreach (var order in orderPaid)
+                        {
+                            if (!OrderNoInDb.Contains(order.order_id + ";" + order.invoice_ref_num))
+                            {
+                                //add 28 NOv 2020, decrypt tokped
+                                if (order.encryption != null)
+                                {
+                                    if (!string.IsNullOrEmpty(order.encryption.secret) && !string.IsNullOrEmpty(order.encryption.content))
+                                    {
+                                        var decryptedOrder = decryptF.DecryptOrderTokped(order.encryption.secret, order.encryption.content);
+                                        if (!string.IsNullOrEmpty(decryptedOrder))
+                                        {
+                                            DecryptedOrderList decryptedOrderData = Newtonsoft.Json.JsonConvert.DeserializeObject(decryptedOrder, typeof(DecryptedOrderList)) as DecryptedOrderList;
+                                            if (!string.IsNullOrEmpty(decryptedOrderData.buyer.name))
+                                                order.buyer.name = decryptedOrderData.buyer.name;
+                                            if (!string.IsNullOrEmpty(decryptedOrderData.buyer.phone))
+                                                order.buyer.phone = decryptedOrderData.buyer.phone;
+                                            if (!string.IsNullOrEmpty(decryptedOrderData.recipient.name))
+                                                order.recipient.name = decryptedOrderData.recipient.name;
+                                            if (!string.IsNullOrEmpty(decryptedOrderData.recipient.phone))
+                                                order.recipient.phone = decryptedOrderData.recipient.phone;
+                                            if (!string.IsNullOrEmpty(decryptedOrderData.recipient.address.address_full))
+                                                order.recipient.address.address_full = decryptedOrderData.recipient.address.address_full;
+                                        }
+                                    }
+                                }
+                                //end add 28 NOv 2020, decrypt tokped
+
+                                List<TEMP_TOKPED_ORDERS> ListNewOrders = new List<TEMP_TOKPED_ORDERS>();
+                                ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_TOKPED_ORDERS");
+
+                                string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                                insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                                insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
+                                var kabKot = "3174";
+                                var prov = "31";
+                                var nama = order.recipient.name.Replace("'", "`");
+                                if (nama.Length > 30)
+                                    nama = nama.Substring(0, 30);
+                                string TLP = !string.IsNullOrEmpty(order.recipient.phone) ? order.recipient.phone : "";
+                                if (TLP.Length > 30)
+                                    TLP = TLP.Substring(0, 30);
+                                if (NAMA_CUST.Length > 30)
+                                    NAMA_CUST = NAMA_CUST.Substring(0, 30);
+                                string AL_KIRIM1 = !string.IsNullOrEmpty(order.recipient.address.address_full) ? order.recipient.address.address_full.Replace('\'', '`') : "";
+                                if (AL_KIRIM1.Length > 30)
+                                {
+                                    AL_KIRIM1 = AL_KIRIM1.Substring(0, 30);
+                                }
+                                string KODEPOS = !string.IsNullOrEmpty(order.recipient.address.postal_code) ? order.recipient.address.postal_code.Replace('\'', '`') : "";
+                                if (KODEPOS.Length > 7)
+                                {
+                                    KODEPOS = KODEPOS.Substring(0, 7);
+                                }
+                                //insertPembeli += "('" + order.recipient.name.Replace("'", "`") + "','" + order.recipient.address.address_full.Replace("'", "`") + "','" + order.recipient.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                                insertPembeli += "('" + nama + "','" + order.recipient.address.address_full.Replace("'", "`") + "','" + TLP + "','" + NAMA_CUST + "',0,0,'0','01',";
+                                insertPembeli += "1, 'IDR', '01', '" + AL_KIRIM1 + "', 0, 0, 0, 0, '1', 0, 0, ";
+                                insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + KODEPOS + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
+
+                                var order_order_id = Convert.ToString(order.order_id);
+                                #region cut max length dan ubah '
+                                string fs_id = !string.IsNullOrEmpty(order.fs_id) ? order.fs_id.Replace('\'', '`') : "";
+                                if (fs_id.Length > 50)
+                                {
+                                    fs_id = fs_id.Substring(0, 50);
+                                }
+                                string order_id = !string.IsNullOrEmpty(Convert.ToString(order.order_id)) ? Convert.ToString(order.order_id).Replace('\'', '`') : "";
+                                if (order_id.Length > 50)
+                                {
+                                    order_id = order_id.Substring(0, 50);
+                                }
+                                string invoice_ref_num = !string.IsNullOrEmpty(order.invoice_ref_num) ? order.invoice_ref_num.Replace('\'', '`') : "";
+                                if (invoice_ref_num.Length > 50)
+                                {
+                                    invoice_ref_num = invoice_ref_num.Substring(0, 50);
+                                }
+                                string device_type = !string.IsNullOrEmpty(order.device_type) ? order.device_type.Replace('\'', '`') : "";
+                                if (device_type.Length > 50)
+                                {
+                                    device_type = device_type.Substring(0, 50);
+                                }
+                                string buyer_name = !string.IsNullOrEmpty(order.buyer.name) ? order.buyer.name.Replace('\'', '`') : "";
+                                if (buyer_name.Length > 250)
+                                {
+                                    buyer_name = buyer_name.Substring(0, 250);
+                                }
+                                string buyer_phone = !string.IsNullOrEmpty(order.buyer.phone) ? order.buyer.phone.Replace('\'', '`') : "";
+                                if (buyer_phone.Length > 50)
+                                {
+                                    buyer_phone = buyer_phone.Substring(0, 50);
+                                }
+                                string buyer_email = !string.IsNullOrEmpty(order.buyer.email) ? order.buyer.email.Replace('\'', '`') : "";
+                                if (buyer_email.Length > 250)
+                                {
+                                    buyer_email = buyer_email.Substring(0, 250);
+                                }
+                                string recipient_name = !string.IsNullOrEmpty(order.recipient.name) ? order.recipient.name.Replace('\'', '`') : "";
+                                if (recipient_name.Length > 250)
+                                {
+                                    recipient_name = recipient_name.Substring(0, 250);
+                                }
+                                string recipient_address_district = !string.IsNullOrEmpty(order.recipient.address.district) ? order.recipient.address.district.Replace('\'', '`') : "";
+                                if (recipient_address_district.Length > 150)
+                                {
+                                    recipient_address_district = recipient_address_district.Substring(0, 150);
+                                }
+                                string recipient_address_city = !string.IsNullOrEmpty(order.recipient.address.city) ? order.recipient.address.city.Replace('\'', '`') : "";
+                                if (recipient_address_city.Length > 150)
+                                {
+                                    recipient_address_city = recipient_address_city.Substring(0, 150);
+                                }
+                                string recipient_address_province = !string.IsNullOrEmpty(order.recipient.address.province) ? order.recipient.address.province.Replace('\'', '`') : "";
+                                if (recipient_address_province.Length > 150)
+                                {
+                                    recipient_address_province = recipient_address_province.Substring(0, 150);
+                                }
+                                string recipient_address_country = !string.IsNullOrEmpty(order.recipient.address.country) ? order.recipient.address.country.Replace('\'', '`') : "";
+                                if (recipient_address_country.Length > 150)
+                                {
+                                    recipient_address_country = recipient_address_country.Substring(0, 150);
+                                }
+                                string recipient_address_postal_code = !string.IsNullOrEmpty(order.recipient.address.postal_code) ? order.recipient.address.postal_code.Replace('\'', '`') : "";
+                                if (recipient_address_postal_code.Length > 10)
+                                {
+                                    recipient_address_postal_code = recipient_address_postal_code.Substring(0, 10);
+                                }
+                                //string recipient_address_geo = !string.IsNullOrEmpty(order.recipient.address.geo) ? order.recipient.address.geo.Replace('\'', '`') : "";
+                                //if (recipient_address_geo.Length > 150)
+                                //{
+                                //    recipient_address_geo = recipient_address_geo.Substring(0, 150);
+                                //}
+                                string recipient_address_geo = "";
+                                string recipient_phone = !string.IsNullOrEmpty(order.recipient.phone) ? order.recipient.phone.Replace('\'', '`') : "";
+                                if (recipient_phone.Length > 50)
+                                {
+                                    recipient_phone = recipient_phone.Substring(0, 50);
+                                }
+                                string logistics_shipping_agency = !string.IsNullOrEmpty(order.logistics.shipping_agency) ? order.logistics.shipping_agency.Replace('\'', '`') : "";
+                                if (logistics_shipping_agency.Length > 150)
+                                {
+                                    logistics_shipping_agency = logistics_shipping_agency.Substring(0, 150);
+                                }
+                                string logistics_service_type = !string.IsNullOrEmpty(order.logistics.service_type) ? order.logistics.service_type.Replace('\'', '`') : "";
+                                if (logistics_service_type.Length > 150)
+                                {
+                                    logistics_service_type = logistics_service_type.Substring(0, 150);
+                                }
+                                string dropshipper_info_name = !string.IsNullOrEmpty(order.dropshipper_info.name) ? order.dropshipper_info.name.Replace('\'', '`') : "";
+                                if (dropshipper_info_name.Length > 250)
+                                {
+                                    dropshipper_info_name = dropshipper_info_name.Substring(0, 250);
+                                }
+                                string dropshipper_info_phone = !string.IsNullOrEmpty(order.dropshipper_info.phone) ? order.dropshipper_info.phone.Replace('\'', '`') : "";
+                                if (dropshipper_info_phone.Length > 50)
+                                {
+                                    dropshipper_info_phone = dropshipper_info_phone.Substring(0, 50);
+                                }
+                                string voucher_info_voucher_code = !string.IsNullOrEmpty(order.voucher_info.voucher_code) ? order.voucher_info.voucher_code.Replace('\'', '`') : "";
+                                if (voucher_info_voucher_code.Length > 150)
+                                {
+                                    voucher_info_voucher_code = voucher_info_voucher_code.Substring(0, 150);
+                                }
+                                string custom_fields_awb = !string.IsNullOrEmpty(order.custom_fields.awb) ? order.custom_fields.awb.Replace('\'', '`') : "";
+                                if (custom_fields_awb.Length > 150)
+                                {
+                                    custom_fields_awb = custom_fields_awb.Substring(0, 150);
+                                }
+                                #endregion
+                                var skipInsert = false;
+                                if (orderTokpedInDb.Where(p => p.order_id == order_order_id).Count() == 0)
+                                {
+                                    DateTime? expiredDate = null;
+                                    DateTime? paymentDate = null;
+                                    long? warehouse_id = 0;
+                                    //remark 13 nov 2020 tutup sementara
+                                    var orderDetail = await GetOrderDetail(iden, order.invoice_ref_num);
+                                    if (orderDetail != null)
+                                    {
+                                        if (orderDetail.data != null)
+                                        {
+                                            if (orderDetail.data.shipment_fulfillment != null)
+                                            {
+                                                expiredDate = orderDetail.data.shipment_fulfillment.confirm_shipping_deadline;
+                                            }
+                                            paymentDate = orderDetail.data.payment_date;
+                                            if (orderDetail.data.payment_info != null)
+                                            {
+                                                var payment_info = !string.IsNullOrEmpty(orderDetail.data.payment_info.gateway_name) ? orderDetail.data.payment_info.gateway_name.Replace('\'', '`') : "";
+                                                if (payment_info.Length > 50)
+                                                {
+                                                    payment_info = payment_info.Substring(0, 50);
+                                                }
+                                                device_type = payment_info;
+                                            }
+                                            if (orderDetail.data.preorder != null)
+                                            {
+                                                if (orderDetail.data.preorder.order_id.HasValue)
+                                                {
+                                                    if (orderDetail.data.preorder.order_id.Value > 0)
+                                                    {
+                                                        recipient_address_geo = "Preorder";
+                                                    }
+                                                    else
+                                                    {
+                                                        recipient_address_geo = "";
+                                                    }
+                                                }
+                                            }
+                                            //add by nurul 23/11/2021
+                                            if (orderDetail.data.order_warehouse != null)
+                                            {
+                                                warehouse_id = orderDetail.data.order_warehouse.warehouse_id;
+                                            }
+                                            //end add by nurul 23/11/2021
+                                        }
+                                    }
+                                    //belum ada di temp
+                                    //end remark 13 nov 2020 tutup sementara
+                                    var listBRG = new List<string>();
+                                    int indexProduct = 0;
+                                    foreach (var product in order.products)
+                                    {
+                                        indexProduct++;
+                                        if (!listBRG.Contains(product.id.ToString()))
+                                        {
+                                            listBRG.Add(product.id.ToString());
+                                        }
+                                        else
+                                        {
+                                            //ada barang yg duplikat
+                                            skipInsert = true;
+                                            //break; //remark 15 des 2021, handle brg double dengan sp baru
+                                        }
+                                        #region cut max length dan ubah '
+                                        string currency = !string.IsNullOrEmpty(product.currency) ? product.currency.Replace('\'', '`') : "";
+                                        if (currency.Length > 50)
+                                        {
+                                            currency = currency.Substring(0, 50);
+                                        }
+                                        string product_sku = !string.IsNullOrEmpty(product.sku) ? product.sku.Replace('\'', '`') : "";
+                                        if (product_sku.Length > 50)
+                                        {
+                                            product_sku = product_sku.Substring(0, 50);
+                                        }
+                                        #endregion
+                                        TEMP_TOKPED_ORDERS newOrder = new TEMP_TOKPED_ORDERS()
+                                        {
+                                            fs_id = fs_id,
+                                            order_id = order_id,
+                                            accept_partial = order.accept_partial,
+                                            invoice_ref_num = invoice_ref_num,
+                                            product_id = product.id,
+                                            product_name = string.IsNullOrEmpty(product.name) ? "" : product.name.Replace("'", "`"),
+                                            product_quantity = product.quantity,
+                                            product_notes = string.IsNullOrEmpty(product.notes) ? "" : product.notes.Replace("'", "`"),
+                                            product_weight = product.weight,
+                                            product_total_weight = product.total_weight,
+                                            product_price = product.price,
+                                            product_total_price = product.total_price,
+                                            product_currency = currency,
+                                            product_sku = product_sku,
+                                            products_fulfilled_product_id = 0,
+                                            products_fulfilled_quantity_deliver = 0,
+                                            products_fulfilled_quantity_reject = 0,
+                                            device_type = device_type,
+                                            buyer_id = order.buyer.id,
+                                            buyer_name = buyer_name,
+                                            buyer_email = buyer_email,
+                                            buyer_phone = buyer_phone,
+                                            shop_id = order.shop_id,
+                                            payment_id = order.payment_id,
+                                            //recipient_name = order.recipient.name,
+                                            recipient_name = nama,
+                                            recipient_address_address_full = string.IsNullOrEmpty(order.recipient.address.address_full) ? "" : order.recipient.address.address_full.Replace("'", "`"),
+                                            recipient_address_district = recipient_address_district,
+                                            recipient_address_district_id = order.recipient.address.district_id,
+                                            recipient_address_city = recipient_address_city,
+                                            recipient_address_city_id = order.recipient.address.city_id,
+                                            recipient_address_province = recipient_address_province,
+                                            recipient_address_province_id = order.recipient.address.province_id,
+                                            recipient_address_country = recipient_address_country,
+                                            recipient_address_geo = recipient_address_geo,
+                                            recipient_address_postal_code = recipient_address_postal_code,
+                                            recipient_phone = recipient_phone,
+                                            logistics_shipping_id = order.logistics.shipping_id,
+                                            logistics_shipping_agency = logistics_shipping_agency,
+                                            logistics_service_type = logistics_service_type,
+                                            amt_ttl_product_price = order.amt.ttl_product_price,
+                                            amt_shipping_cost = order.amt.shipping_cost,
+                                            amt_insurance_cost = order.amt.insurance_cost,
+                                            amt_ttl_amount = order.amt.ttl_amount,
+                                            amt_voucher_amount = order.amt.voucher_amount,
+                                            amt_toppoints_amount = order.amt.toppoints_amount,
+                                            dropshipper_info_name = dropshipper_info_name,
+                                            dropshipper_info_phone = dropshipper_info_phone,
+                                            voucher_info_voucher_code = voucher_info_voucher_code,
+                                            voucher_info_voucher_type = order.voucher_info.voucher_type,
+                                            order_status = order.order_status,
+                                            create_time = DateTimeOffset.FromUnixTimeSeconds(order.create_time).UtcDateTime,
+                                            custom_fields_awb = custom_fields_awb,
+                                            conn_id = connId,
+                                            CUST = CUST,
+                                            NAMA_CUST = NAMA_CUST
+                                        };
+                                        var product_fulfilled = order.products_fulfilled.Where(p => p.product_id == product.id).FirstOrDefault();
+                                        if (product_fulfilled != null)
+                                        {
+                                            newOrder.products_fulfilled_product_id = product_fulfilled.product_id;
+                                            newOrder.products_fulfilled_quantity_deliver = product_fulfilled.quantity_deliver;
+                                            newOrder.products_fulfilled_quantity_reject = product_fulfilled.quantity_reject;
+                                        }
+                                        newOrder.product_currency = product.id + "_" + indexProduct;
+                                        newOrder.confirm_shipping_deadline = expiredDate;
+                                        if (paymentDate != null)
+                                        {
+                                            newOrder.create_time = paymentDate.Value;
+                                        }
+                                        //add by nurul 23/11/2021
+                                        if (warehouse_id != 0 && warehouse_id != null)
+                                        {
+                                            newOrder.warehouse_id = warehouse_id;
+                                        }
+                                        //end add by nurul 23/11/2021
+                                        ListNewOrders.Add(newOrder);
+                                    }
+                                    //if (skipInsert)
+                                    //{
+                                    //    continue;
+                                    //}
+                                }
+
+                                insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
+                                EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
+
+                                ErasoftDbContext.TEMP_TOKPED_ORDERS.AddRange(ListNewOrders);
+                                ErasoftDbContext.SaveChanges();
+
+                                using (SqlCommand CommandSQL = new SqlCommand())
+                                {
+                                    //call sp to insert buyer data
+                                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
+
+                                    EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
+                                };
+                                if (skipInsert)
+                                {
+                                    using (SqlCommand CommandSQL = new SqlCommand())
+                                    {
+                                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connId;
+                                        CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss");
+                                        CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                                        CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "TOKPED";
+                                        CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
+
+                                        EDB.ExecuteSQL("Con", "MoveOrderFromTempTableNew", CommandSQL);
+                                        jmlhNewOrder++;
+                                    }
+                                }
+                                else
+                                {
+                                    using (SqlCommand CommandSQL = new SqlCommand())
+                                    {
+                                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connId;
+                                        CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss");
+                                        CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                                        CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 1;
+                                        CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
+
+                                        EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                        jmlhNewOrder++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (orderAccepted != null)
+                    {
+                        foreach (var order in orderAccepted)
+                        {
+                            if (!OrderNoInDb.Contains(order.order_id + ";" + order.invoice_ref_num))
+                            {
+                                //add 28 NOv 2020, decrypt tokped
+                                if (order.encryption != null)
+                                {
+                                    if (!string.IsNullOrEmpty(order.encryption.secret) && !string.IsNullOrEmpty(order.encryption.content))
+                                    {
+                                        var decryptedOrder = decryptF.DecryptOrderTokped(order.encryption.secret, order.encryption.content);
+                                        if (!string.IsNullOrEmpty(decryptedOrder))
+                                        {
+                                            DecryptedOrderList decryptedOrderData = Newtonsoft.Json.JsonConvert.DeserializeObject(decryptedOrder, typeof(DecryptedOrderList)) as DecryptedOrderList;
+                                            if (!string.IsNullOrEmpty(decryptedOrderData.buyer.name))
+                                                order.buyer.name = decryptedOrderData.buyer.name;
+                                            if (!string.IsNullOrEmpty(decryptedOrderData.buyer.phone))
+                                                order.buyer.phone = decryptedOrderData.buyer.phone;
+                                            if (!string.IsNullOrEmpty(decryptedOrderData.recipient.name))
+                                                order.recipient.name = decryptedOrderData.recipient.name;
+                                            if (!string.IsNullOrEmpty(decryptedOrderData.recipient.phone))
+                                                order.recipient.phone = decryptedOrderData.recipient.phone;
+                                            if (!string.IsNullOrEmpty(decryptedOrderData.recipient.address.address_full))
+                                                order.recipient.address.address_full = decryptedOrderData.recipient.address.address_full;
+                                        }
+                                    }
+                                }
+                                //end add 28 NOv 2020, decrypt tokped
+
+                                DateTime? expiredDate = null;
+                                DateTime? paymentDate = null;
+                                long? warehouse_id = 0;
+
+                                List<TEMP_TOKPED_ORDERS> ListNewOrders = new List<TEMP_TOKPED_ORDERS>();
+
+                                ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_TOKPED_ORDERS");
+
+                                var nama2 = order.recipient.name.Replace("'", "`");
+                                if (nama2.Length > 30)
+                                    nama2 = nama2.Substring(0, 30);
+                                string aTLP = !string.IsNullOrEmpty(order.recipient.phone) ? order.recipient.phone : "";
+                                if (aTLP.Length > 30)
+                                    aTLP = aTLP.Substring(0, 30);
+                                if (NAMA_CUST.Length > 30)
+                                    NAMA_CUST = NAMA_CUST.Substring(0, 30);
+                                string aAL_KIRIM1 = !string.IsNullOrEmpty(order.recipient.address.address_full) ? order.recipient.address.address_full.Replace('\'', '`') : "";
+                                if (aAL_KIRIM1.Length > 30)
+                                {
+                                    aAL_KIRIM1 = aAL_KIRIM1.Substring(0, 30);
+                                }
+                                string aKODEPOS = !string.IsNullOrEmpty(order.recipient.address.postal_code) ? order.recipient.address.postal_code.Replace('\'', '`') : "";
+                                if (aKODEPOS.Length > 7)
+                                {
+                                    aKODEPOS = aKODEPOS.Substring(0, 7);
+                                }
+
+                                string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                                insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                                insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
+                                var kabKot = "3174";
+                                var prov = "31";
+                                //insertPembeli += "('" + order.recipient.name + "','" + order.recipient.address.address_full + "','" + order.recipient.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                                insertPembeli += "('" + nama2 + "','" + order.recipient.address.address_full.Replace("'", "`") + "','" + aTLP + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                                insertPembeli += "1, 'IDR', '01', '" + aAL_KIRIM1 + "', 0, 0, 0, 0, '1', 0, 0, ";
+                                insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + aKODEPOS + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
+
+                                var order_order_id = Convert.ToString(order.order_id);
+                                var skipInsert2 = false;
+                                if (orderTokpedInDb.Where(p => p.order_id == order_order_id).Count() == 0)
+                                {
+                                    #region cut max length dan ubah '
+                                    string a_fs_id = !string.IsNullOrEmpty(order.fs_id) ? order.fs_id.Replace('\'', '`') : "";
+                                    if (a_fs_id.Length > 50)
+                                    {
+                                        a_fs_id = a_fs_id.Substring(0, 50);
+                                    }
+                                    string a_order_id = !string.IsNullOrEmpty(Convert.ToString(order.order_id)) ? Convert.ToString(order.order_id).Replace('\'', '`') : "";
+                                    if (a_order_id.Length > 50)
+                                    {
+                                        a_order_id = a_order_id.Substring(0, 50);
+                                    }
+                                    string a_invoice_ref_num = !string.IsNullOrEmpty(order.invoice_ref_num) ? order.invoice_ref_num.Replace('\'', '`') : "";
+                                    if (a_invoice_ref_num.Length > 50)
+                                    {
+                                        a_invoice_ref_num = a_invoice_ref_num.Substring(0, 50);
+                                    }
+                                    string a_device_type = !string.IsNullOrEmpty(order.device_type) ? order.device_type.Replace('\'', '`') : "";
+                                    if (a_device_type.Length > 50)
+                                    {
+                                        a_device_type = a_device_type.Substring(0, 50);
+                                    }
+                                    string a_buyer_name = !string.IsNullOrEmpty(order.buyer.name) ? order.buyer.name.Replace('\'', '`') : "";
+                                    if (a_buyer_name.Length > 250)
+                                    {
+                                        a_buyer_name = a_buyer_name.Substring(0, 250);
+                                    }
+                                    string a_buyer_phone = !string.IsNullOrEmpty(order.buyer.phone) ? order.buyer.phone.Replace('\'', '`') : "";
+                                    if (a_buyer_phone.Length > 50)
+                                    {
+                                        a_buyer_phone = a_buyer_phone.Substring(0, 50);
+                                    }
+                                    string a_buyer_email = !string.IsNullOrEmpty(order.buyer.email) ? order.buyer.email.Replace('\'', '`') : "";
+                                    if (a_buyer_email.Length > 250)
+                                    {
+                                        a_buyer_email = a_buyer_email.Substring(0, 250);
+                                    }
+                                    string a_recipient_name = !string.IsNullOrEmpty(order.recipient.name) ? order.recipient.name.Replace('\'', '`') : "";
+                                    if (a_recipient_name.Length > 250)
+                                    {
+                                        a_recipient_name = a_recipient_name.Substring(0, 250);
+                                    }
+                                    string a_recipient_address_district = !string.IsNullOrEmpty(order.recipient.address.district) ? order.recipient.address.district.Replace('\'', '`') : "";
+                                    if (a_recipient_address_district.Length > 150)
+                                    {
+                                        a_recipient_address_district = a_recipient_address_district.Substring(0, 150);
+                                    }
+                                    string a_recipient_address_city = !string.IsNullOrEmpty(order.recipient.address.city) ? order.recipient.address.city.Replace('\'', '`') : "";
+                                    if (a_recipient_address_city.Length > 150)
+                                    {
+                                        a_recipient_address_city = a_recipient_address_city.Substring(0, 150);
+                                    }
+                                    string a_recipient_address_province = !string.IsNullOrEmpty(order.recipient.address.province) ? order.recipient.address.province.Replace('\'', '`') : "";
+                                    if (a_recipient_address_province.Length > 150)
+                                    {
+                                        a_recipient_address_province = a_recipient_address_province.Substring(0, 150);
+                                    }
+                                    string a_recipient_address_country = !string.IsNullOrEmpty(order.recipient.address.country) ? order.recipient.address.country.Replace('\'', '`') : "";
+                                    if (a_recipient_address_country.Length > 150)
+                                    {
+                                        a_recipient_address_country = a_recipient_address_country.Substring(0, 150);
+                                    }
+                                    string a_recipient_address_postal_code = !string.IsNullOrEmpty(order.recipient.address.postal_code) ? order.recipient.address.postal_code.Replace('\'', '`') : "";
+                                    if (a_recipient_address_postal_code.Length > 10)
+                                    {
+                                        a_recipient_address_postal_code = a_recipient_address_postal_code.Substring(0, 10);
+                                    }
+                                    //string a_recipient_address_geo = !string.IsNullOrEmpty(order.recipient.address.geo) ? order.recipient.address.geo.Replace('\'', '`') : "";
+                                    //if (a_recipient_address_geo.Length > 150)
+                                    //{
+                                    //    a_recipient_address_geo = a_recipient_address_geo.Substring(0, 150);
+                                    //}
+                                    string a_recipient_address_geo = "";
+                                    string a_recipient_phone = !string.IsNullOrEmpty(order.recipient.phone) ? order.recipient.phone.Replace('\'', '`') : "";
+                                    if (a_recipient_phone.Length > 50)
+                                    {
+                                        a_recipient_phone = a_recipient_phone.Substring(0, 50);
+                                    }
+                                    string a_logistics_shipping_agency = !string.IsNullOrEmpty(order.logistics.shipping_agency) ? order.logistics.shipping_agency.Replace('\'', '`') : "";
+                                    if (a_logistics_shipping_agency.Length > 150)
+                                    {
+                                        a_logistics_shipping_agency = a_logistics_shipping_agency.Substring(0, 150);
+                                    }
+                                    string a_logistics_service_type = !string.IsNullOrEmpty(order.logistics.service_type) ? order.logistics.service_type.Replace('\'', '`') : "";
+                                    if (a_logistics_service_type.Length > 150)
+                                    {
+                                        a_logistics_service_type = a_logistics_service_type.Substring(0, 150);
+                                    }
+                                    string a_dropshipper_info_name = !string.IsNullOrEmpty(order.dropshipper_info.name) ? order.dropshipper_info.name.Replace('\'', '`') : "";
+                                    if (a_dropshipper_info_name.Length > 250)
+                                    {
+                                        a_dropshipper_info_name = a_dropshipper_info_name.Substring(0, 250);
+                                    }
+                                    string a_dropshipper_info_phone = !string.IsNullOrEmpty(order.dropshipper_info.phone) ? order.dropshipper_info.phone.Replace('\'', '`') : "";
+                                    if (a_dropshipper_info_phone.Length > 50)
+                                    {
+                                        a_dropshipper_info_phone = a_dropshipper_info_phone.Substring(0, 50);
+                                    }
+                                    string a_voucher_info_voucher_code = !string.IsNullOrEmpty(order.voucher_info.voucher_code) ? order.voucher_info.voucher_code.Replace('\'', '`') : "";
+                                    if (a_voucher_info_voucher_code.Length > 150)
+                                    {
+                                        a_voucher_info_voucher_code = a_voucher_info_voucher_code.Substring(0, 150);
+                                    }
+                                    string a_custom_fields_awb = !string.IsNullOrEmpty(order.custom_fields.awb) ? order.custom_fields.awb.Replace('\'', '`') : "";
+                                    if (a_custom_fields_awb.Length > 150)
+                                    {
+                                        a_custom_fields_awb = a_custom_fields_awb.Substring(0, 150);
+                                    }
+                                    #endregion
+                                    var orderDetail = await GetOrderDetail(iden, order.invoice_ref_num);
+                                    if (orderDetail != null)
+                                    {
+                                        if (orderDetail.data != null)
+                                        {
+                                            if (orderDetail.data.shipment_fulfillment != null)
+                                            {
+                                                expiredDate = orderDetail.data.shipment_fulfillment.confirm_shipping_deadline;
+                                            }
+                                            paymentDate = orderDetail.data.payment_date;
+                                            if (orderDetail.data.payment_info != null)
+                                            {
+                                                var payment_info = !string.IsNullOrEmpty(orderDetail.data.payment_info.gateway_name) ? orderDetail.data.payment_info.gateway_name.Replace('\'', '`') : "";
+                                                if (payment_info.Length > 50)
+                                                {
+                                                    payment_info = payment_info.Substring(0, 50);
+                                                }
+                                                a_device_type = payment_info;
+                                            }
+                                            if (orderDetail.data.preorder != null)
+                                            {
+                                                if (orderDetail.data.preorder.order_id.HasValue)
+                                                {
+                                                    if (orderDetail.data.preorder.order_id.Value > 0)
+                                                    {
+                                                        a_recipient_address_geo = "Preorder";
+                                                    }
+                                                    else
+                                                    {
+                                                        a_recipient_address_geo = "";
+                                                    }
+                                                }
+                                            }
+                                            //add by nurul 23/11/2021
+                                            if (orderDetail.data.order_warehouse != null)
+                                            {
+                                                warehouse_id = orderDetail.data.order_warehouse.warehouse_id;
+                                            }
+                                            //end add by nurul 23/11/2021
+                                        }
+                                    }
+                                    //belum ada di temp
+                                    var listBRG2 = new List<string>();
+                                    int indexProduct2 = 0;
+                                    foreach (var product in order.products)
+                                    {
+                                        indexProduct2++;
+                                        if (!listBRG2.Contains(product.id.ToString()))
+                                        {
+                                            listBRG2.Add(product.id.ToString());
+                                        }
+                                        else
+                                        {
+                                            //ada barang yg duplikat
+                                            skipInsert2 = true;
+                                            //break; //remark 15 des 2021, handle brg double dengan sp baru
+                                        }
+                                        #region cut max length dan ubah '
+                                        string a_currency = !string.IsNullOrEmpty(product.currency) ? product.currency.Replace('\'', '`') : "";
+                                        if (a_currency.Length > 50)
+                                        {
+                                            a_currency = a_currency.Substring(0, 50);
+                                        }
+                                        string a_product_sku = !string.IsNullOrEmpty(product.sku) ? product.sku.Replace('\'', '`') : "";
+                                        if (a_product_sku.Length > 50)
+                                        {
+                                            a_product_sku = a_product_sku.Substring(0, 50);
+                                        }
+                                        #endregion
+                                        TEMP_TOKPED_ORDERS newOrder = new TEMP_TOKPED_ORDERS()
+                                        {
+                                            fs_id = a_fs_id,
+                                            order_id = a_order_id,
+                                            accept_partial = order.accept_partial,
+                                            invoice_ref_num = a_invoice_ref_num,
+                                            product_id = product.id,
+                                            product_name = string.IsNullOrEmpty(product.name) ? "" : product.name.Replace("'", "`"),
+                                            product_quantity = product.quantity,
+                                            product_notes = string.IsNullOrEmpty(product.notes) ? "" : product.notes.Replace("'", "`"),
+                                            product_weight = product.weight,
+                                            product_total_weight = product.total_weight,
+                                            product_price = product.price,
+                                            product_total_price = product.total_price,
+                                            product_currency = a_currency,
+                                            product_sku = a_product_sku,
+                                            products_fulfilled_product_id = 0,
+                                            products_fulfilled_quantity_deliver = 0,
+                                            products_fulfilled_quantity_reject = 0,
+                                            device_type = a_device_type,
+                                            buyer_id = order.buyer.id,
+                                            buyer_name = a_buyer_name,
+                                            buyer_email = a_buyer_email,
+                                            buyer_phone = a_buyer_phone,
+                                            shop_id = order.shop_id,
+                                            payment_id = order.payment_id,
+                                            //recipient_name = order.recipient.name,
+                                            recipient_name = nama2,
+                                            recipient_address_address_full = string.IsNullOrEmpty(order.recipient.address.address_full) ? "" : order.recipient.address.address_full.Replace("'", "`"),
+                                            recipient_address_district = a_recipient_address_district,
+                                            recipient_address_district_id = order.recipient.address.district_id,
+                                            recipient_address_city = a_recipient_address_city,
+                                            recipient_address_city_id = order.recipient.address.city_id,
+                                            recipient_address_province = a_recipient_address_province,
+                                            recipient_address_province_id = order.recipient.address.province_id,
+                                            recipient_address_country = a_recipient_address_country,
+                                            recipient_address_geo = a_recipient_address_geo,
+                                            recipient_address_postal_code = a_recipient_address_postal_code,
+                                            //recipient_phone = a_buyer_phone,
+                                            recipient_phone = a_recipient_phone,
+                                            logistics_shipping_id = order.logistics.shipping_id,
+                                            logistics_shipping_agency = a_logistics_shipping_agency,
+                                            logistics_service_type = a_logistics_service_type,
+                                            amt_ttl_product_price = order.amt.ttl_product_price,
+                                            amt_shipping_cost = order.amt.shipping_cost,
+                                            amt_insurance_cost = order.amt.insurance_cost,
+                                            amt_ttl_amount = order.amt.ttl_amount,
+                                            amt_voucher_amount = order.amt.voucher_amount,
+                                            amt_toppoints_amount = order.amt.toppoints_amount,
+                                            dropshipper_info_name = a_dropshipper_info_name,
+                                            dropshipper_info_phone = a_dropshipper_info_phone,
+                                            voucher_info_voucher_code = a_voucher_info_voucher_code,
+                                            voucher_info_voucher_type = order.voucher_info.voucher_type,
+                                            order_status = order.order_status,
+                                            create_time = DateTimeOffset.FromUnixTimeSeconds(order.create_time).UtcDateTime,
+                                            custom_fields_awb = a_custom_fields_awb,
+                                            conn_id = connId,
+                                            CUST = CUST,
+                                            NAMA_CUST = NAMA_CUST
+                                        };
+                                        var product_fulfilled = order.products_fulfilled.Where(p => p.product_id == product.id).FirstOrDefault();
+                                        if (product_fulfilled != null)
+                                        {
+                                            newOrder.products_fulfilled_product_id = product_fulfilled.product_id;
+                                            newOrder.products_fulfilled_quantity_deliver = product_fulfilled.quantity_deliver;
+                                            newOrder.products_fulfilled_quantity_reject = product_fulfilled.quantity_reject;
+                                        }
+                                        newOrder.product_currency = product.id + "_" + indexProduct2;
+                                        newOrder.confirm_shipping_deadline = expiredDate;
+                                        if (paymentDate != null)
+                                        {
+                                            newOrder.create_time = paymentDate.Value;
+                                        }
+                                        //add by nurul 23/11/2021
+                                        if (warehouse_id != 0 && warehouse_id != null)
+                                        {
+                                            newOrder.warehouse_id = warehouse_id;
+                                        }
+                                        //end add by nurul 23/11/2021
+                                        ListNewOrders.Add(newOrder);
+                                    }
+                                    //if (skipInsert2)
+                                    //{
+                                    //    continue;
+                                    //}
+                                }
+
+                                insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
+                                EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
+
+                                ErasoftDbContext.TEMP_TOKPED_ORDERS.AddRange(ListNewOrders);
+                                ErasoftDbContext.SaveChanges();
+
+                                using (SqlCommand CommandSQL = new SqlCommand())
+                                {
+                                    //call sp to insert buyer data
+                                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
+
+                                    EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
+                                };
+                                if (skipInsert2)
+                                {
+                                    using (SqlCommand CommandSQL = new SqlCommand())
+                                    {
+                                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connId;
+                                        CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss");
+                                        CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                                        CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "TOKPED";
+                                        CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
+
+                                        EDB.ExecuteSQL("Con", "MoveOrderFromTempTableNew", CommandSQL);
+                                        jmlhNewOrder++;
+                                    }
+                                }
+                                else
+                                {
+                                    using (SqlCommand CommandSQL = new SqlCommand())
+                                    {
+                                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connId;
+                                        CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss");
+                                        CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                                        CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 1;
+                                        CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
+
+                                        EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                        jmlhNewOrder++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (rowCount > 99)
+            {
+                new StokControllerJob().updateStockMarketPlace(connId, iden.DatabasePathErasoft, iden.username);
+                
+            }
+            else
+            {
+                //add by calvin 1 april 2019
+                //notify user
+                if (jmlhNewOrder > 0)
+                {
+                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                    contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari Tokopedia.");
+
+
+                    new StokControllerJob().updateStockMarketPlace(connId, iden.DatabasePathErasoft, iden.username);
+                }
+                //end add by calvin 1 april 2019
+            }
+            return ret;
+        }
+
         public async Task<string> GetOrderListCompleted3Days(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderComplete, long daysFrom, long daysTo)
         {
             string ret = "";

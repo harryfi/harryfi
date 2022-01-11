@@ -1287,8 +1287,8 @@ namespace MasterOnline.Controllers
             #endregion
 
             #region Tokopedia
-            try { 
             var kdTokped = 15;
+            try { 
             //var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
             var TokpedShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.ToString());
             if (id_single_account.HasValue)
@@ -1316,7 +1316,8 @@ namespace MasterOnline.Controllers
                                 username = username,
                                 token = tblCustomer.TOKEN
                             };
-                            //tokopediaApi.GetToken(iden);
+                                //tokopediaApi.GetToken(iden);
+                                await new TokopediaControllerJob().GetOrderList_webhook(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
                             var parentid = client.Enqueue<TokopediaControllerJob>(x => x.GetToken(data));
 
                             //add by calvin 2 april 2019
