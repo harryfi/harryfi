@@ -254,6 +254,18 @@
         var tanggalcutoff = "";
         function previewing() {
             //if (selisihValid()) {
+
+            //add by nurul 13/1/2022
+            var cekSdTgl = new Date(formatDateToYYYYmmDD(2));
+            var sdBulan = cekSdTgl.getMonth() + 1;
+            var getDiffDay = (sdBulan - formatDateToYYYYmmDD(1))
+            if (getDiffDay > 2) {
+                alert('Periode maksimal 3 bulan!');
+                $('#loading_spinner').hide();
+                return false;
+            }
+            //end add by nurul 13/1/2022
+
                 $.ajax({
                     type: "POST",
                     url: '@Url.Action("Preview3", "Report")',
