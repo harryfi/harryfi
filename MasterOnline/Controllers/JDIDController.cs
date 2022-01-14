@@ -3999,7 +3999,7 @@ namespace MasterOnline.Controllers
                 urlImage4 = "";
                 urlImage5 = "";
                 var categoryCode = itemFromList.fullCategoryId.Split('/');
-                var categoryName = itemFromList.fullCategoryName.Split('/');
+                var categoryName = itemFromList.fullCategoryName.Replace('\'', '`').Split('/');
                 double price = Convert.ToDouble(item.jdPrice);
                 //var statusBrg = detItem != null ? detItem.status : 1;
                 //var statusBrg = detItem.status; //display 
@@ -4277,7 +4277,7 @@ namespace MasterOnline.Controllers
                 {
                     kd_brg_induk = kdBrgInduk;
                 }
-                sSQL_Value += brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "' , '" + (typeBrg == 2 ? kd_brg_induk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
+                sSQL_Value += brand.Replace('\'', '`') + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "' , '" + (typeBrg == 2 ? kd_brg_induk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
                 //end change by nurul 9/6/2021
                 int i;
                 if (!string.IsNullOrEmpty(detItem.saleAttributeIds) && detItem.saleAttributeIds != "null")

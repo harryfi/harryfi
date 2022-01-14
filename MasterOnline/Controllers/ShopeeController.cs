@@ -2378,7 +2378,11 @@ namespace MasterOnline.Controllers
             int MOPartnerID = MOPartnerIDV2;
             string MOPartnerKey = MOPartnerKeyV2;
             var ret = new ATTRIBUTE_SHOPEE_AND_OPT_v2();
-
+            if(category == null)
+            {
+                ret.attributes = new List<ATTRIBUTE_SHOPEE_V2>();
+                return ret;
+            }
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
