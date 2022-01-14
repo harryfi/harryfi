@@ -373,6 +373,15 @@
             //    sdSupp = $('#ToSupp2').val();
             //}
 
+            //add by nurul 13/1/2022
+            var getDiffDay = (new Date(formatDateToYYYYmmDD(2)) - new Date(formatDateToYYYYmmDD(1))) / (1000 * 60 * 60 * 24);
+            if (getDiffDay > 93) {
+                alert('Periode Maksimal 90 hari!');
+                $('#loading_spinner').hide();
+                return false;
+            }
+            //end add by nurul 13/1/2022
+
             if ($('#Order').val() == 1) {
                 drSupp = $('#FromSupp').val();
                 sdSupp = $('#ToSupp').val();
