@@ -39,8 +39,8 @@ namespace MasterOnline.Controllers
             //string ret = "";
             MoDbContext = new MoDbContext("");
             EDB = new DatabaseSQL(dbPathEra);
-            //string EraServerName = EDB.GetServerName("sConn");
-            ErasoftDbContext = new ErasoftContext(dbSourceEra, dbPathEra);
+            string EraServerName = EDB.GetServerName("sConn");
+            ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
             //username = user_name;
             //return ret;
         }
