@@ -3469,7 +3469,7 @@ namespace MasterOnline.Controllers
                         {
                             try
                             {
-                                if (dbPathEra.ToUpper() == "ERASOFT_RAHMAMK" || dbPathEra.ToUpper() == "ERASOFT_1761944")
+                                if (dbPathEra.ToUpper() == "ERASOFT_RAHMAMK" || dbPathEra.ToUpper() == "ERASOFT_1761944" || dbPathEra.ToUpper() == "ERASOFT_1320768")
                                 {
                                     MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
                                     {
@@ -4110,7 +4110,7 @@ namespace MasterOnline.Controllers
                     {
                         try
                         {
-                            if (dbPathEra.ToUpper() == "ERASOFT_RAHMAMK" || dbPathEra.ToUpper() == "ERASOFT_1761944")
+                            if (dbPathEra.ToUpper() == "ERASOFT_RAHMAMK" || dbPathEra.ToUpper() == "ERASOFT_1761944" || dbPathEra.ToUpper() == "ERASOFT_1320768")
                             {
                                 MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
                                 {
@@ -4314,7 +4314,7 @@ namespace MasterOnline.Controllers
                     {
                         try
                         {
-                            if (dbPathEra.ToUpper() == "ERASOFT_RAHMAMK" || dbPathEra.ToUpper() == "ERASOFT_1761944")
+                            if (dbPathEra.ToUpper() == "ERASOFT_RAHMAMK" || dbPathEra.ToUpper() == "ERASOFT_1761944" || dbPathEra.ToUpper() == "ERASOFT_1320768")
                             {
                                 MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
                                 {
