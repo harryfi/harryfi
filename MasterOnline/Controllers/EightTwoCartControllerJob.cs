@@ -1563,6 +1563,11 @@ namespace MasterOnline.Controllers
                                                                 {
                                                                     total_amount = total_amount.Substring(0, 100);
                                                                 }
+                                                                string total_discounts = !string.IsNullOrEmpty(order.total_discounts) ? order.total_discounts.Replace('\'', '`') : "";
+                                                                if (total_discounts.Length > 100)
+                                                                {
+                                                                    total_discounts = total_discounts.Substring(0, 100);
+                                                                }
                                                                 string service_code = !string.IsNullOrEmpty(order.id_carrier) ? order.id_carrier.Replace('\'', '`') : "";
                                                                 if (service_code.Length > 100)
                                                                 {
@@ -1591,7 +1596,7 @@ namespace MasterOnline.Controllers
                                                                     currency = currency,
                                                                     days_to_ship = 0,
                                                                     dropshipper = "",
-                                                                    escrow_amount = "",
+                                                                    escrow_amount = total_discounts,
                                                                     estimated_shipping_fee = estimated_shipping_fee,
                                                                     goods_to_declare = false,
                                                                     message_to_seller = "",
@@ -1900,6 +1905,11 @@ namespace MasterOnline.Controllers
                                                 {
                                                     p_total_amount = p_total_amount.Substring(0, 100);
                                                 }
+                                                string p_total_discounts = !string.IsNullOrEmpty(order.total_discounts) ? order.total_discounts.Replace('\'', '`') : "";
+                                                if (p_total_discounts.Length > 100)
+                                                {
+                                                    p_total_discounts = p_total_discounts.Substring(0, 100);
+                                                }
                                                 string p_service_code = !string.IsNullOrEmpty(order.id_carrier) ? order.id_carrier.Replace('\'', '`') : "";
                                                 if (p_service_code.Length > 100)
                                                 {
@@ -1928,7 +1938,7 @@ namespace MasterOnline.Controllers
                                                     currency = p_currency,
                                                     days_to_ship = 0,
                                                     dropshipper = "",
-                                                    escrow_amount = "",
+                                                    escrow_amount = p_total_discounts,
                                                     estimated_shipping_fee = p_actual_shipping_cost,
                                                     goods_to_declare = false,
                                                     message_to_seller = "",
