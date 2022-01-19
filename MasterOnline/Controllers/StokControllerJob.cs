@@ -5308,7 +5308,7 @@ namespace MasterOnline.Controllers
                             {
                                 try
                                 {
-                                    var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) and gd<>'" + default_gudang + "' and tahun='" + Tahun + "'";
+                                    var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03 (nolock)) and gd<>'" + default_gudang + "' and tahun='" + Tahun + "'";
                                     //var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) ";
                                     var axy = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL3);
                                     ErasoftDbContext.SaveChanges();
@@ -5483,10 +5483,22 @@ namespace MasterOnline.Controllers
                         }
                     }
                     var Tahun = Convert.ToInt16(DateTime.UtcNow.AddHours(7).ToString("yyyy"));
-                    var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) and gd<>'" + default_gudang + "' and tahun='" + Tahun + "'";
-                    //var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) ";
-                    var axy = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL3);
-                    ErasoftDbContext.SaveChanges();
+                    var cekStokSelainGudangBundling = ErasoftDbContext.Database.SqlQuery<int>("select count(*) from stf08a (nolock) where brg in (select distinct unit from stf03 (nolock)) and gd<>'GB' and tahun='2022'").FirstOrDefault();
+                    if (cekStokSelainGudangBundling > 0)
+                    {
+                        try
+                        {
+                            var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03 (nolock)) and gd<>'" + default_gudang + "' and tahun='" + Tahun + "'";
+                            //var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) ";
+                            var axy = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL3);
+                            ErasoftDbContext.SaveChanges();
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                    }
+
                     //var sSQL1 = "select a.brg, isnull(qoh - qoo, 0) as qty_sales, case when (qoh-qoo)/a.qty > 0 then convert(float,convert(int,round((qoh-qoo)/a.qty,2))) else 0 end as qty_komp from ( " +
                     //            "select (select SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg ) qoh, " +
                     //            "(select SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg )qoo,a.brg,a.qty " +
@@ -5494,17 +5506,17 @@ namespace MasterOnline.Controllers
                     //            ")a";
                     //var getListBrgKomponen = ErasoftDbContext.Database.SqlQuery<mdlQtyBrgBundling>(sSQL1).ToList();
 
-                    var sSQL2 = "update a set a.QTY_SIAPJUAL = b.qty_sales, a.QTY_KOMPONEN=b.qty_komp from stf03 a inner join ( " +
+                    var sSQL2 = "update a set a.QTY_SIAPJUAL = b.qty_sales, a.QTY_KOMPONEN=b.qty_komp from stf03 a(nolock) inner join ( " +
                                 "select a.brg,a.qty, isnull(qoh - qoo, 0) as qty_sales, case when (qoh-qoo)/a.qty > 0 then convert(float,convert(int,round((qoh-qoo)/a.qty,2))) else 0 end as qty_komp from ( " +
-                                "select (select SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg ) qoh, " +
-                                "(select SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg )qoo,a.brg,a.qty from stf03 a " +
+                                "select (select SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] (nolock) where brg=a.brg ) qoh, " +
+                                "(select SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] (nolock) where brg=a.brg )qoo,a.brg,a.qty from stf03 a " +
                                 ")a )b on a.brg=b.brg and a.qty=b.qty ";
                     ErasoftDbContext.Database.ExecuteSqlCommand(sSQL2);
                     ErasoftDbContext.SaveChanges();
 
                     var cekListBrgBundling = ErasoftDbContext.Database.SqlQuery<string>("select distinct unit from stf03").ToList();
-                    var cekListBrgBundlingSudahAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) inner join stf08a b (nolock) on a.unit=b.brg where b.tahun='" + Tahun + "' and b.gd ='" + default_gudang + "'").ToList();
-                    var cekListBrgBundlingBelumAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) left join stf08a b (nolock) on a.unit=b.brg where isnull(b.brg,'')=''").ToList();
+                    var cekListBrgBundlingSudahAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c(nolock) where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) inner join stf08a b (nolock) on a.unit=b.brg where b.tahun='" + Tahun + "' and b.gd ='" + default_gudang + "'").ToList();
+                    var cekListBrgBundlingBelumAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c(nolock) where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) left join stf08a b (nolock) on a.unit=b.brg where isnull(b.brg,'')=''").ToList();
 
                     if (cekListBrgBundlingBelumAdaStok.Count() > 0)
                     {
