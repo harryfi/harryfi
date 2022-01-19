@@ -4301,7 +4301,7 @@ namespace MasterOnline.Controllers
                     var insertData = dsNewOrder.Tables[0].Rows[i]["JSON"].ToString();
                     var cJson = JsonConvert.DeserializeObject(insertData, typeof(TokopediaOrder)) as TokopediaOrder;
                     listData.Add(cJson);
-                    if (listData.Count >= 10 || i == dsNewOrder.Tables[0].Rows.Count - 1)
+                    if (listData.Count >= 1 || i == dsNewOrder.Tables[0].Rows.Count - 1)
                     {
                         dataJsonOrder.data = listData.ToArray();
                         var returnGetOrder = await InsertOrderFromWebhook(iden, stat, CUST, NAMA_CUST, 1, 0, daysNow.AddDays(-1), dataJsonOrder);
