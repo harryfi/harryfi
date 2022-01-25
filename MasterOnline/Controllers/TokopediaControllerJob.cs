@@ -4808,16 +4808,15 @@ namespace MasterOnline.Controllers
             //sSQL += "WHERE T.TGL >= '" + daysNow.ToString("yyyy-MM-dd HH:mm:ss") + "' AND ORDER_STATUS IN ('700', '701') AND T.CUST = '" + CUST + "'; DROP TABLE #TEMP_ORDER_UPDATE;";
 
             var dsNewOrder = EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE S SET STATUS_TRANSAKSI = '04' FROM TABEL_WEBHOOK_TOKPED (NOLOCK) T INNER JOIN SOT01A (NOLOCK) S ON S.NO_REFERENSI LIKE (CONVERT(NVARCHAR(50),T.ORDERID) + ';%') AND T.CUST = S.CUST WHERE T.TGL >= '"
-                + daysNow.ToString("yyyy-MM-dd HH:mm:ss") + "' AND ORDER_STATUS IN ('700', '701') AND T.CUST = '" + CUST + "' AND STATUS_TRANSAKSI = '03' AND S.TGL <  '" 
-                + daysNow.AddDays(-13).ToString("yyyy-MM-dd HH:mm:ss") + "'");
+                + daysNow.ToString("yyyy-MM-dd HH:mm:ss") + "' AND ORDER_STATUS IN ('700', '701') AND T.CUST = '" + CUST + "' AND STATUS_TRANSAKSI = '03'");
             if(dsNewOrder > 0)
             {
                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                 contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(dsNewOrder) + " Pesanan dari Tokopedia sudah selesai.");
 
-                var dateTimeNow = Convert.ToDateTime(DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd"));
+                var dateTimeNow = DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd");
                 string sSQLUpdateDatePesananSelesai = "UPDATE S SET TGL_KIRIM = '" + dateTimeNow 
-                    + "' FROM TABEL_WEBHOOK_TOKPED (NOLOCK) T INNER JOIN SIT01A (NOLOCK) S ON (CONVERT(NVARCHAR(50),T.ORDERID) + ';%') LIKE S.NO_REFERENSI AND T.CUST = S.CUST WHERE T.TGL >= '"
+                    + "' FROM TABEL_WEBHOOK_TOKPED (NOLOCK) T INNER JOIN SIT01A (NOLOCK) S ON S.NO_REF LIKE (CONVERT(NVARCHAR(50),T.ORDERID) + ';%')  AND T.CUST = S.CUST WHERE T.TGL >= '"
                     + daysNow.ToString("yyyy-MM-dd HH:mm:ss") + "' AND T.CUST = '" + CUST + "' AND ORDER_STATUS IN ('700', '701') ";
                 var resultUpdateDatePesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdateDatePesananSelesai);
             }
