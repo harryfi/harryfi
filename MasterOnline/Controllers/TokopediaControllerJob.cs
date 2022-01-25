@@ -4834,12 +4834,12 @@ namespace MasterOnline.Controllers
         {
             string ret = "";
             var token = SetupContext(iden);
-            var daysNow = DateTime.UtcNow.AddHours(7).AddDays(-1);
+            var daysNow = DateTime.UtcNow.AddHours(7).AddDays(-3);
             EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM TABEL_WEBHOOK_TOKPED WHERE CUST = '" + CUST
                 + "' AND TGL <  '" + daysNow.AddDays(-2).ToString("yyyy-MM-dd HH:mm:ss") + "'");
             string sSQL = "SELECT NO_REFERENSI INTO #TEMP_ORDER_CANCEL FROM SOT01A (NOLOCK) WHERE STATUS_TRANSAKSI not in ('11', '12') AND TGL >= '"
                 + daysNow.AddDays(-13).ToString("yyyy-MM-dd HH:mm:ss") + "' AND CUST = '" + CUST + "';";
-            sSQL += "SELECT T.* FROM TABEL_WEBHOOK_TOKPED (NOLOCK) T INNER JOIN #TEMP_ORDER_CANCEL S ON S.NO_REFERENSI LIKE (CONVERT(NVARCHAR(50),T.ORDERID) + ';%') ";
+            sSQL += "SELECT T.*,S.NO_REFERENSI FROM TABEL_WEBHOOK_TOKPED (NOLOCK) T INNER JOIN #TEMP_ORDER_CANCEL S ON S.NO_REFERENSI LIKE (CONVERT(NVARCHAR(50),T.ORDERID) + ';%') ";
             sSQL += "WHERE T.TGL >= '" + daysNow.ToString("yyyy-MM-dd HH:mm:ss") + "' AND ORDER_STATUS IN ('0', '800', '801', '10', '15') AND T.CUST = '" + CUST + "'; DROP TABLE #TEMP_ORDER_CANCEL;";
             var dsNewOrder = EDB.GetDataSet("CString", "SO", sSQL);
 
@@ -4860,6 +4860,8 @@ namespace MasterOnline.Controllers
                 {
                     var insertData = dsNewOrder.Tables[0].Rows[i]["JSON"].ToString();
                     var cJson = JsonConvert.DeserializeObject(insertData, typeof(TokopediaOrder)) as TokopediaOrder;
+                    var noref = dsNewOrder.Tables[0].Rows[i]["NO_REFERENSI"].ToString();
+                    cJson.invoice_ref_num = noref.Split(';')[1];
                     listData.Add(cJson);
                     if (listData.Count >= 10 || i == dsNewOrder.Tables[0].Rows.Count - 1)
                     {
