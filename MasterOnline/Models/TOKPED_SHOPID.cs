@@ -29,6 +29,10 @@ namespace MasterOnline.Models
         public int RecNum { get; set; }
         
         public int IDMARKET { get; set; }
+
+        //add by nurul 26/1/2022
+        public DateTime? tgl_sync { get; set; }
+        //end add by nurul 26/1/2022
     }
 
 }
