@@ -1380,6 +1380,16 @@ namespace MasterOnline.Controllers
                                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderListCancel(data, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), cronTime, recurJobOpt);
                                         //await new TokopediaControllerJob().GetOrderListCompleted(data, TokopediaControllerJob.StatusOrder.Completed, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
                                         //await new TokopediaControllerJob().GetOrderListCancel(data, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
+
+                                        //remove webhook job untuk yg non aktifkan
+                                        connId_JobId = dbPathEra + "_tokopedia_webhook_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                        recurJobM.RemoveIfExists(connId_JobId);
+
+                                        connId_JobId = dbPathEra + "_tokopedia_webhook_pesanan_update_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                        recurJobM.RemoveIfExists(connId_JobId);
+
+                                        connId_JobId = dbPathEra + "_tokopedia_webhook_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                        recurJobM.RemoveIfExists(connId_JobId);
                                     }
                                     else// aktifkan webhook tokped
                                     {
@@ -1452,20 +1462,28 @@ namespace MasterOnline.Controllers
                                 connId_JobId = dbPathEra + "_tokopedia_update_resi_job_" + Convert.ToString(tblCustomer.RecNum.Value);
                                 recurJobM.RemoveIfExists(connId_JobId);
 
-                                    connId_JobId = dbPathEra + "_tokopedia_webhook_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                    //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(5), recurJobOpt);
-                                    recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderList_webhook(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), "1/5 * * * *", recurJobOpt);
-                                    //await new TokopediaControllerJob().GetOrderList_webhook(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
+                                    //connId_JobId = dbPathEra + "_tokopedia_webhook_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                    ////recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(5), recurJobOpt);
+                                    //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderList_webhook(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), "1/5 * * * *", recurJobOpt);
+                                    ////await new TokopediaControllerJob().GetOrderList_webhook(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
 
-                                    connId_JobId = dbPathEra + "_tokopedia_webhook_pesanan_update_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                    recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderList_update_webhook(data, TokopediaControllerJob.StatusOrder.Completed, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(30), recurJobOpt);
+                                    //connId_JobId = dbPathEra + "_tokopedia_webhook_pesanan_update_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                    //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderList_update_webhook(data, TokopediaControllerJob.StatusOrder.Completed, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(30), recurJobOpt);
 
-                                    connId_JobId = dbPathEra + "_tokopedia_webhook_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                    recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderList_cancel_webhook(data, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), "1/5 * * * *", recurJobOpt);
+                                    //connId_JobId = dbPathEra + "_tokopedia_webhook_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                    //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderList_cancel_webhook(data, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), "1/5 * * * *", recurJobOpt);
 
                                     //await new TokopediaControllerJob().GetOrderList_cancel_webhook(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
                                     //await new TokopediaControllerJob().GetOrderList_update_webhook(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
 
+                                    connId_JobId = dbPathEra + "_tokopedia_webhook_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                    recurJobM.RemoveIfExists(connId_JobId);
+
+                                    connId_JobId = dbPathEra + "_tokopedia_webhook_pesanan_update_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                    recurJobM.RemoveIfExists(connId_JobId);
+
+                                    connId_JobId = dbPathEra + "_tokopedia_webhook_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                    recurJobM.RemoveIfExists(connId_JobId);
                                 }
                                 //end add by calvin 2 april 2019
                                 //new TokopediaControllerJob().GetToken(data);

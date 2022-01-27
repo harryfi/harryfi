@@ -3215,7 +3215,7 @@ namespace MasterOnline.Controllers
         }
         //end add by nurul 1/4/2020
 
-        public async Task<string> GetOrderList3days(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, long daysFrom, long daysTo)
+        public async Task<string> GetOrderList3days(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, long daysFrom, long daysTo, string ord_stat)
         {
             //if merchant code diisi. barulah GetOrderList
             string ret = "";
@@ -3270,7 +3270,10 @@ namespace MasterOnline.Controllers
             string urll = "https://fs.tokopedia.net/v2/order/list?fs_id=" + Uri.EscapeDataString(iden.merchant_code) + "&from_date=" 
                 + Convert.ToString(unixTimestampFrom) + "&to_date=" + Convert.ToString(unixTimestampTo) + "&page=" + Convert.ToString(page) 
                 + "&per_page=100&shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&encrypt=1";
-
+            if (!string.IsNullOrEmpty(ord_stat))
+            {
+                urll += "&status=" + ord_stat;
+            }
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             //{
             //    REQUEST_ID = milis.ToString(),
@@ -3315,6 +3318,14 @@ namespace MasterOnline.Controllers
                 TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
                 if (result.data != null)
                 {
+                    if (!string.IsNullOrEmpty(ord_stat))
+                    {
+                        result.data = result.data.Where(p => p.fulfill_by == 0).ToArray();
+                        if(result.data.Length == 0)
+                        {
+                            return ret;
+                        }
+                    }
                     var orderPaid = result.data.Where(p => p.order_status == 220).ToList();
                     var orderAccepted = result.data.Where(p => p.order_status == 400).ToList();
                     //add by Tri 17 mar 2020, insert pesanan dengan status 450
@@ -4153,7 +4164,7 @@ namespace MasterOnline.Controllers
 
                 //change by nurul 25/1/2021, bundling
                 //await GetOrderList3days(iden, stat, CUST, NAMA_CUST, (page + 1), jmlhNewOrder, daysFrom, daysTo);
-                var returnGetOrder = await GetOrderList3days(iden, stat, CUST, NAMA_CUST, (page + 1), jmlhNewOrder, daysFrom, daysTo);
+                var returnGetOrder = await GetOrderList3days(iden, stat, CUST, NAMA_CUST, (page + 1), jmlhNewOrder, daysFrom, daysTo, ord_stat);
                 //if(returnGetOrder == "1")
                 //{
                 //    ret = "1";
@@ -4240,7 +4251,7 @@ namespace MasterOnline.Controllers
 
                     //change by nurul 20/1/2021, bundling 
                     //await GetOrderList3days(iden, stat, CUST, NAMA_CUST, 1, 0, fromDt, toDt);
-                    var returnGetOrder = await GetOrderList3days(iden, stat, CUST, NAMA_CUST, 1, 0, fromDt, toDt);
+                    var returnGetOrder = await GetOrderList3days(iden, stat, CUST, NAMA_CUST, 1, 0, fromDt, toDt, "");
                     //change by nurul 20/1/2021, bundling 
                     //daysFrom -= 3;
                     //daysTo -= 3;
@@ -4275,7 +4286,7 @@ namespace MasterOnline.Controllers
             }
             else
             {
-
+                await GetOrderList_webhookON( iden,  stat,  CUST,  NAMA_CUST,  page,  jmlhNewOrder);
             }
             // tunning untuk tidak duplicate
             var queryStatus = "\\\"}\"" + "," + "\"2\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","2","\"000003\""
@@ -4284,6 +4295,52 @@ namespace MasterOnline.Controllers
             
 
             return ret;
+        }
+        public async Task<string> GetOrderList_webhookON(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
+        {
+            var daysFrom = -1;
+            var daysTo = 1;
+            var daysNow = DateTime.UtcNow.AddHours(7);
+            var connIdProses = "";
+            List<string> tempConnId = new List<string>() { };
+
+            while (daysFrom >= -3)//pesanan sudah dibayar ambil -3 hari saja
+            {
+                var fromDt = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+                var toDt = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+
+                var returnGetOrder = await GetOrderList3days(iden, stat, CUST, NAMA_CUST, 1, 0, fromDt, toDt, "220");
+
+                if (!string.IsNullOrEmpty(returnGetOrder))
+                {
+                    connIdProses += returnGetOrder;
+                }
+
+                returnGetOrder = await GetOrderList3days(iden, stat, CUST, NAMA_CUST, 1, 0, fromDt, toDt, "400");
+
+                if (!string.IsNullOrEmpty(returnGetOrder))
+                {
+                    connIdProses += returnGetOrder;
+                }
+
+                returnGetOrder = await GetOrderList3days(iden, stat, CUST, NAMA_CUST, 1, 0, fromDt, toDt, "450");
+
+                if (!string.IsNullOrEmpty(returnGetOrder))
+                {
+                    connIdProses += returnGetOrder;
+                }
+
+                daysFrom -= 2;
+                daysTo -= 2;
+
+            }
+
+            if (!string.IsNullOrEmpty(connIdProses))
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username, connIdProses.Substring(0, connIdProses.Length - 3));
+            }
+
+            return "";
         }
 
         [AutomaticRetry(Attempts = 2)]
@@ -5124,7 +5181,7 @@ namespace MasterOnline.Controllers
         }
 
 
-        public async Task<string> GetOrderListCompleted3Days(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderComplete, long daysFrom, long daysTo)
+        public async Task<string> GetOrderListCompleted3Days(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderComplete, long daysFrom, long daysTo, string ord_stat)
         {
             string ret = "";
             string connId = Guid.NewGuid().ToString();
@@ -5175,7 +5232,10 @@ namespace MasterOnline.Controllers
             //unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-106).ToUnixTimeSeconds();
 
             string urll = "https://fs.tokopedia.net/v1/order/list?fs_id=" + Uri.EscapeDataString(iden.merchant_code) + "&from_date=" + Convert.ToString(unixTimestampFrom) + "&to_date=" + Convert.ToString(unixTimestampTo) + "&page=" + Convert.ToString(page) + "&per_page=100&shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
-
+            if (!string.IsNullOrEmpty(ord_stat))
+            {
+                urll += "&status=" + ord_stat;
+            }
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             //{
             //    REQUEST_ID = milis.ToString(),
@@ -5249,7 +5309,7 @@ namespace MasterOnline.Controllers
             }
             if (rowCount > 99)
             {
-                await GetOrderListCompleted3Days(iden, stat, CUST, NAMA_CUST, (page + 1), jmlhOrderComplete, daysFrom, daysTo);
+                await GetOrderListCompleted3Days(iden, stat, CUST, NAMA_CUST, (page + 1), jmlhOrderComplete, daysFrom, daysTo, ord_stat);
             }
             else
             {
@@ -5304,23 +5364,29 @@ namespace MasterOnline.Controllers
             var daysFrom = -1;
             var daysTo = 1;
             var daysNow = DateTime.UtcNow.AddHours(7);
-            while (daysFrom >= -13)
+            if (iden.webhook != "1")
             {
-                //add 16 des 2020, fixed date
-                //var fromDt = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
-                //var toDt = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
-                var fromDt = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
-                var toDt = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
-                //end add 16 des 2020, fixed date
+                while (daysFrom >= -13)
+                {
+                    //add 16 des 2020, fixed date
+                    //var fromDt = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
+                    //var toDt = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
+                    var fromDt = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+                    var toDt = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+                    //end add 16 des 2020, fixed date
 
-                await GetOrderListCompleted3Days(iden, stat, CUST, NAMA_CUST, 1, 0, fromDt, toDt);
+                    await GetOrderListCompleted3Days(iden, stat, CUST, NAMA_CUST, 1, 0, fromDt, toDt, "");
 
-                //daysFrom -= 3;
-                //daysTo -= 3;
-                daysFrom -= 2;
-                daysTo -= 2;
+                    //daysFrom -= 3;
+                    //daysTo -= 3;
+                    daysFrom -= 2;
+                    daysTo -= 2;
+                }
             }
-
+            else
+            {
+                await GetOrderListCompleted_webhookON(iden, stat, CUST, NAMA_CUST, page, jmlhOrderComplete);
+            }
             // tunning untuk tidak duplicate
             var queryStatus = "\\\"}\"" + "," + "\"5\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","5","\"000003\""
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.API_secret_key + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderListCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%'");
@@ -5329,7 +5395,28 @@ namespace MasterOnline.Controllers
             return ret;
 
         }
-        public async Task<string> GetOrderListCancel3days(TokopediaAPIData iden, string CUST, string NAMA_CUST, int page, int jmlhOrder, long daysFrom, long daysTo)
+        public async Task<string> GetOrderListCompleted_webhookON(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderComplete)
+        {
+            var daysFrom = -1;
+            var daysTo = 1;
+            var daysNow = DateTime.UtcNow.AddHours(7);
+
+            while (daysFrom >= -13)
+            {
+                var fromDt = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+                var toDt = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+                
+                await GetOrderListCompleted3Days(iden, stat, CUST, NAMA_CUST, 1, 0, fromDt, toDt, "700");
+
+                await GetOrderListCompleted3Days(iden, stat, CUST, NAMA_CUST, 1, 0, fromDt, toDt, "701");
+
+                daysFrom -= 2;
+                daysTo -= 2;
+            }
+
+            return "";
+        }
+        public async Task<string> GetOrderListCancel3days(TokopediaAPIData iden, string CUST, string NAMA_CUST, int page, int jmlhOrder, long daysFrom, long daysTo, string ord_stat)
         {
             ////request by Pak Richard, cek pesanan cancel tokped mulai dari tgl publish agar tidak menumpuk antrian hangfire
             //var fixedDate = new DateTime(2020, 3, 20);
@@ -5356,7 +5443,10 @@ namespace MasterOnline.Controllers
             
 
             string urll = "https://fs.tokopedia.net/v1/order/list?fs_id=" + Uri.EscapeDataString(iden.merchant_code) + "&from_date=" + Convert.ToString(unixTimestampFrom) + "&to_date=" + Convert.ToString(unixTimestampTo) + "&page=" + Convert.ToString(page) + "&per_page=100&shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
-
+            if (!string.IsNullOrEmpty(ord_stat))
+            {
+                urll += "&status=" + ord_stat;
+            }
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
             myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
@@ -5603,7 +5693,7 @@ namespace MasterOnline.Controllers
             {
                 //change by nurul 25/1/2021, bundling
                 //await GetOrderListCancel3days(iden, CUST, NAMA_CUST, (page + 1), jmlhOrder, daysFrom, daysTo);
-                var returnGetOrder = await GetOrderListCancel3days(iden, CUST, NAMA_CUST, (page + 1), jmlhOrder, daysFrom, daysTo);
+                var returnGetOrder = await GetOrderListCancel3days(iden, CUST, NAMA_CUST, (page + 1), jmlhOrder, daysFrom, daysTo, ord_stat);
                 //if(returnGetOrder == "1")
                 //{
                 //    ret = "1";
@@ -5661,56 +5751,115 @@ namespace MasterOnline.Controllers
             //end add by nurul 20/1/2021, bundling 
 
             //while (daysFrom > -13)
-            while (daysFrom >= -7)
+            if (iden.webhook != "1")
             {
-                //add 16 des 2020, fixed date
-                //var fromDt = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
-                //var toDt = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
-                var fromDt = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
-                var toDt = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
-                //end add 16 des 2020, fixed date
-
-                //change by nurul 20/1/2021, bundling 
-                //await GetOrderListCancel3days(iden, CUST, NAMA_CUST, 1, 0, fromDt, toDt);
-                var returnGetOrder = await GetOrderListCancel3days(iden, CUST, NAMA_CUST, 1, 0, fromDt, toDt);
-                //end change by nurul 20/1/2021, bundling
-                //daysFrom -= 3;
-                //daysTo -= 3;
-                daysFrom -= 2;
-                daysTo -= 2;
-
-                //add by nurul 20/1/2021, bundling 
-                //if (returnGetOrder == "1")
-                //{
-                //    AdaKomponen = true;
-                //    //tempConnId.Add(returnGetOrder);
-                //    //connIdProses += "'" + returnGetOrder + "' , ";
-                //}
-                if (!string.IsNullOrEmpty(returnGetOrder))
+                while (daysFrom >= -7)
                 {
-                    connIdProses += returnGetOrder;
+                    //add 16 des 2020, fixed date
+                    //var fromDt = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
+                    //var toDt = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
+                    var fromDt = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+                    var toDt = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+                    //end add 16 des 2020, fixed date
+
+                    //change by nurul 20/1/2021, bundling 
+                    //await GetOrderListCancel3days(iden, CUST, NAMA_CUST, 1, 0, fromDt, toDt);
+                    var returnGetOrder = await GetOrderListCancel3days(iden, CUST, NAMA_CUST, 1, 0, fromDt, toDt, "");
+                    //end change by nurul 20/1/2021, bundling
+                    //daysFrom -= 3;
+                    //daysTo -= 3;
+                    daysFrom -= 2;
+                    daysTo -= 2;
+
+                    //add by nurul 20/1/2021, bundling 
+                    //if (returnGetOrder == "1")
+                    //{
+                    //    AdaKomponen = true;
+                    //    //tempConnId.Add(returnGetOrder);
+                    //    //connIdProses += "'" + returnGetOrder + "' , ";
+                    //}
+                    if (!string.IsNullOrEmpty(returnGetOrder))
+                    {
+                        connIdProses += returnGetOrder;
+                    }
+                    //end add by nurul 20/1/2021, bundling 
+                }
+                //add by nurul 20/1/2021, bundling 
+                //List<string> listBrgKomponen = new List<string>();
+                //if (tempConnId.Count() > 0)
+                //{
+                //    listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+                //}
+                //if (listBrgKomponen.Count() > 0)
+                if (!string.IsNullOrEmpty(connIdProses))
+                {
+                    new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username, connIdProses.Substring(0, connIdProses.Length - 3));
                 }
                 //end add by nurul 20/1/2021, bundling 
             }
-            //add by nurul 20/1/2021, bundling 
-            //List<string> listBrgKomponen = new List<string>();
-            //if (tempConnId.Count() > 0)
-            //{
-            //    listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
-            //}
-            //if (listBrgKomponen.Count() > 0)
-            if (!string.IsNullOrEmpty(connIdProses))
+            else
             {
-                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username, connIdProses.Substring(0, connIdProses.Length - 3));
+                await GetOrderListCancel_webhookON(iden, CUST, NAMA_CUST, page, jmlhOrder);
             }
-            //end add by nurul 20/1/2021, bundling 
-
             // add tuning no duplicate hangfire job get order
             var queryStatus = "\\\"}\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","\"000003\""
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.API_secret_key + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderListCancel%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             // end add tuning no duplicate hangfire job get order
             
             return ret;
+        }
+        public async Task<string> GetOrderListCancel_webhookON(TokopediaAPIData iden, string CUST, string NAMA_CUST, int page, int jmlhOrder)
+        {
+            var daysFrom = -1;
+            var daysTo = 1;
+            var daysNow = DateTime.UtcNow.AddHours(7);
+            var connIdProses = "";
+
+            while (daysFrom >= -7)
+            {
+                var fromDt = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+                var toDt = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+                
+                var returnGetOrder = await GetOrderListCancel3days(iden, CUST, NAMA_CUST, 1, 0, fromDt, toDt, "0");
+                if (!string.IsNullOrEmpty(returnGetOrder))
+                {
+                    connIdProses += returnGetOrder;
+                }
+
+                returnGetOrder = await GetOrderListCancel3days(iden, CUST, NAMA_CUST, 1, 0, fromDt, toDt, "800");
+                if (!string.IsNullOrEmpty(returnGetOrder))
+                {
+                    connIdProses += returnGetOrder;
+                }
+
+                returnGetOrder = await GetOrderListCancel3days(iden, CUST, NAMA_CUST, 1, 0, fromDt, toDt, "801");
+                if (!string.IsNullOrEmpty(returnGetOrder))
+                {
+                    connIdProses += returnGetOrder;
+                }
+
+                returnGetOrder = await GetOrderListCancel3days(iden, CUST, NAMA_CUST, 1, 0, fromDt, toDt, "10");
+                if (!string.IsNullOrEmpty(returnGetOrder))
+                {
+                    connIdProses += returnGetOrder;
+                }
+
+                returnGetOrder = await GetOrderListCancel3days(iden, CUST, NAMA_CUST, 1, 0, fromDt, toDt, "15");
+                if (!string.IsNullOrEmpty(returnGetOrder))
+                {
+                    connIdProses += returnGetOrder;
+                }
+
+                daysFrom -= 2;
+                daysTo -= 2;
+
+            }
+            if (!string.IsNullOrEmpty(connIdProses))
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username, connIdProses.Substring(0, connIdProses.Length - 3));
+            }
+
+            return "";
         }
 
         //add by Tri 22 Jan 2020, cancel reason
@@ -8438,6 +8587,7 @@ namespace MasterOnline.Controllers
             public int create_time { get; set; }
             public Custom_Fields custom_fields { get; set; }
             public EncryptionTokped encryption { get; set; }
+            public int fulfill_by { get; set; }
         }
         public class EncryptionTokped
         {
