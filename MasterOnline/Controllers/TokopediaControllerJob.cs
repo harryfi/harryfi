@@ -4226,51 +4226,57 @@ namespace MasterOnline.Controllers
             //end add by nurul 20/1/2021, bundling 
 
             //while (daysFrom > -13)
-            while (daysFrom >= -3)//pesanan sudah dibayar ambil -3 hari saja
+            if (iden.webhook != "1")
             {
-                //add 16 des 2020, fixed date
-                //var fromDt = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
-                //var toDt = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
-                var fromDt = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
-                var toDt = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
-
-                //end add 16 des 2020, fixed date
-
-                //change by nurul 20/1/2021, bundling 
-                //await GetOrderList3days(iden, stat, CUST, NAMA_CUST, 1, 0, fromDt, toDt);
-                var returnGetOrder = await GetOrderList3days(iden, stat, CUST, NAMA_CUST, 1, 0, fromDt, toDt);
-                //change by nurul 20/1/2021, bundling 
-                //daysFrom -= 3;
-                //daysTo -= 3;
-                daysFrom -= 2;
-                daysTo -= 2;
-
-                //add by nurul 20/1/2021, bundling 
-                //if (returnGetOrder == "1")
-                //{
-                //    AdaKomponen = true;
-                //    //tempConnId.Add(returnGetOrder);
-                //    //connIdProses += "'" + returnGetOrder + "' , ";
-                //}
-                if (!string.IsNullOrEmpty(returnGetOrder))
+                while (daysFrom >= -3)//pesanan sudah dibayar ambil -3 hari saja
                 {
-                    connIdProses += returnGetOrder;
+                    //add 16 des 2020, fixed date
+                    //var fromDt = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
+                    //var toDt = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
+                    var fromDt = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+                    var toDt = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+
+                    //end add 16 des 2020, fixed date
+
+                    //change by nurul 20/1/2021, bundling 
+                    //await GetOrderList3days(iden, stat, CUST, NAMA_CUST, 1, 0, fromDt, toDt);
+                    var returnGetOrder = await GetOrderList3days(iden, stat, CUST, NAMA_CUST, 1, 0, fromDt, toDt);
+                    //change by nurul 20/1/2021, bundling 
+                    //daysFrom -= 3;
+                    //daysTo -= 3;
+                    daysFrom -= 2;
+                    daysTo -= 2;
+
+                    //add by nurul 20/1/2021, bundling 
+                    //if (returnGetOrder == "1")
+                    //{
+                    //    AdaKomponen = true;
+                    //    //tempConnId.Add(returnGetOrder);
+                    //    //connIdProses += "'" + returnGetOrder + "' , ";
+                    //}
+                    if (!string.IsNullOrEmpty(returnGetOrder))
+                    {
+                        connIdProses += returnGetOrder;
+                    }
+                    //end add by nurul 20/1/2021, bundling 
+                }
+                //add by nurul 20/1/2021, bundling 
+                //List<string> listBrgKomponen = new List<string>();
+                //if (tempConnId.Count() > 0)
+                //{
+                //    listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+                //}
+                //if (listBrgKomponen.Count() > 0)
+                if (!string.IsNullOrEmpty(connIdProses))
+                {
+                    new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username, connIdProses.Substring(0, connIdProses.Length - 3));
                 }
                 //end add by nurul 20/1/2021, bundling 
             }
-            //add by nurul 20/1/2021, bundling 
-            //List<string> listBrgKomponen = new List<string>();
-            //if (tempConnId.Count() > 0)
-            //{
-            //    listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
-            //}
-            //if (listBrgKomponen.Count() > 0)
-            if (!string.IsNullOrEmpty(connIdProses))
+            else
             {
-                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username, connIdProses.Substring(0, connIdProses.Length - 3));
-            }
-            //end add by nurul 20/1/2021, bundling 
 
+            }
             // tunning untuk tidak duplicate
             var queryStatus = "\\\"}\"" + "," + "\"2\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","2","\"000003\""
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.API_secret_key + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderList%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%GetOrderListCompleted%' and invocationdata not like '%GetOrderListCancel%' and invocationdata not like '%GetSingleOrder%' and invocationdata not like '%CheckPendings%' and invocationdata not like '%GetOrderList_webhook%'");
@@ -4833,7 +4839,7 @@ namespace MasterOnline.Controllers
         {
             string ret = "";
             var token = SetupContext(iden);
-            var daysNow = DateTime.UtcNow.AddHours(7).AddDays(-3);
+            var daysNow = DateTime.UtcNow.AddHours(7).AddDays(-1);
             EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM TABEL_WEBHOOK_TOKPED WHERE CUST = '" + CUST
                 + "' AND TGL <  '" + daysNow.AddDays(-2).ToString("yyyy-MM-dd HH:mm:ss") + "'");
             string sSQL = "SELECT NO_REFERENSI INTO #TEMP_ORDER_CANCEL FROM SOT01A (NOLOCK) WHERE STATUS_TRANSAKSI not in ('11', '12') AND TGL >= '"
@@ -8329,6 +8335,7 @@ namespace MasterOnline.Controllers
             public int idmarket { get; set; }
             public string DatabasePathErasoft { get; set; }
             public string username { get; set; }
+            public string webhook { get; set; }
         }
         public class TokopediaToken
         {
