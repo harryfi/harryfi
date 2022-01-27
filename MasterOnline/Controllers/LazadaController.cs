@@ -3053,7 +3053,12 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public BindingBase GetBrgLazada(string cust, string accessToken, int page, int recordCount, int totalData)
+        public async Task<BindingBase> GetBrgLazada(string cust, string accessToken, int page, int recordCount, int totalData)
+        {
+            var ret = await GetBrgLazadaLoop( cust,  accessToken,  page,  recordCount,  totalData, 1);
+            return ret;
+        }
+        public async Task<BindingBase> GetBrgLazadaLoop(string cust, string accessToken, int page, int recordCount, int totalData, int retry)
         {
             var ret = new BindingBase();
             ret.status = 0;
@@ -4119,9 +4124,19 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    ret.message = response.Message;
-                    currentLog.REQUEST_EXCEPTION = ret.message;
-                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
+                    if (response.Message.Contains("access frequency exceeds the limit") && retry < 4)
+                    {
+                        await Task.Delay(retry * 1000);
+                        ret = await GetBrgLazadaLoop(cust, accessToken, page, recordCount, totalData, retry + 1);
+                    }
+                    else
+                    {
+                        ret.message = response.Message;
+                        currentLog.REQUEST_EXCEPTION = ret.message;
+                        ret.exception = 1;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
+
+                    }
                 }
             }
             catch (Exception ex)
