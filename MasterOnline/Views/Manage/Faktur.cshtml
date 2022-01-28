@@ -2506,9 +2506,9 @@
                     var xhr = $.ajaxSettings.xhr();
                     xhr.onprogress = function (evt) {
                         if (evt.lengthComputable) {
-                            $('#loading_spinner').hide();
+                            //$('#loading_spinner').hide();
                         }
-                        $('#loading_spinner').hide();
+                        //$('#loading_spinner').hide();
                     };
                     return xhr;
                 },
@@ -2517,16 +2517,17 @@
                 contentType: 'application/json',
                 cache: false,
                 success: function (response) {
-                    $('#loading_spinner').hide();
+                    
                     if (response.Errors.length == 0) {
                         var bytes = new Uint8Array(response.byteExcel);
                         saveByteArray(response.namaFile, bytes);
                     } else {
                         alert(response.Errors[0]);
                     }
-
+                    $('#loading_spinner').hide();
                 },
                 error: function (xhr) {
+                    $('#loading_spinner').hide();
                     console.log(xhr);
                 }
             });
