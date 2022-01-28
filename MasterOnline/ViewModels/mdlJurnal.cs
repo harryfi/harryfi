@@ -111,6 +111,9 @@ namespace MasterOnline
         public string Insurance { get; set; }
         public string Address { get; set; }
         public string Product { get; set; }
+        //add by nurul 26/1/2022
+        public string COD { get; set; }
+        //end add by nurul 26/1/2022
     }
     //end add by nurul 2/6/2020
 
