@@ -2506,9 +2506,9 @@
                     var xhr = $.ajaxSettings.xhr();
                     xhr.onprogress = function (evt) {
                         if (evt.lengthComputable) {
-                            $('#loading_spinner').hide();
+                            //$('#loading_spinner').hide();
                         }
-                        $('#loading_spinner').hide();
+                        //$('#loading_spinner').hide();
                     };
                     return xhr;
                 },
@@ -2527,6 +2527,7 @@
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr) {
+                    $('#loading_spinner').hide();
                     console.log(xhr);
                 }
             });
