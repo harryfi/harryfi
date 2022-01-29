@@ -6603,7 +6603,7 @@ namespace MasterOnline.Controllers
                     string sSQL = "";
                     sSQL += "SELECT ISNULL(A.NO_BUKTI,'') AS NO_FAKTUR, A.TGL AS TGL_FAKTUR, CASE WHEN A.STATUS ='1' THEN 'SELESAI' WHEN A.STATUS='2' THEN 'BATAL' ELSE '' END AS STATUS_FAKTUR, ISNULL(D.NO_BUKTI,'') AS NO_PESANAN, ISNULL(A.NO_REF, '') AS NO_REFERENSI, ";
                     sSQL += "ISNULL(D.TGL, '') AS TGL_PESANAN, A.CUST AS CUST, ";
-                    sSQL += "ISNULL((SELECT top 1 NAMAMARKET + ' (' + PERSO + ')' FROM ARF01 X(NOLOCK) INNER JOIN MO..MARKETPLACE Y(NOLOCK) ON X.NAMA = Y.IDMARKET WHERE XCUST = A.CUST),'') AS MARKETPLACE, ";
+                    sSQL += "ISNULL((SELECT top 1 NAMAMARKET + ' (' + PERSO + ')' FROM ARF01 X(NOLOCK) INNER JOIN MO..MARKETPLACE Y(NOLOCK) ON X.NAMA = Y.IDMARKET WHERE X.CUST = A.CUST),'') AS MARKETPLACE, ";
                     sSQL += "ISNULL(A.PEMESAN, '') AS KODE_PEMBELI, ISNULL(A.NAMAPEMESAN, '') AS PEMBELI, ";
                     sSQL += "(select isnull(tlp, '') from arf01c x(nolock) where x.buyer_code = a.PEMESAN) as TLP,  ";
                     sSQL += "ISNULL(A.AL, '') AS ALAMAT_KIRIM, ISNULL(A.TERM, '') AS[TOP],  ";
