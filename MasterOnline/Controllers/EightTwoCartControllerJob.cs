@@ -1773,7 +1773,7 @@ namespace MasterOnline.Controllers
                             #region PAID
                             if (stat == StatusOrder.PAID)
                             {
-                                string[] statusCAP = { "2", "3", "4" }; // CODE STATUS PESANAN PAYMENT ACCEPTED, DAN PREPARATION IN PROGRESS INSERT KE DB
+                                string[] statusCAP = { "2", "3"}; // CODE STATUS PESANAN PAYMENT ACCEPTED, DAN PREPARATION IN PROGRESS INSERT KE DB
                                 string ordersn = "";
                                 jmlhPesananDibayar = 0;
 
@@ -1786,7 +1786,7 @@ namespace MasterOnline.Controllers
                                     {
                                         foreach (var order in orderFilterExisting)
                                         {
-                                            if (!OrderNoInDb.Contains(order.id_order + ";" + order.reference) || order.reference == "JEDRBBEMY")
+                                            if (!OrderNoInDb.Contains(order.id_order + ";" + order.reference))
                                             {
                                                 jmlhPesananDibayar++;
                                                 ordersn = ordersn + "'" + order.id_order + ";" + order.reference + "',";
