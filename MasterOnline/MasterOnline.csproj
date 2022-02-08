@@ -682,6 +682,7 @@
     <Compile Include="Controllers\EightTwoCartControllerJob.cs" />
     <Compile Include="Controllers\JDIDControllerJob.cs" />
     <Compile Include="Controllers\ExcelControllerJob.cs" />
+    <Compile Include="Controllers\LazadaChatController.cs" />
     <Compile Include="Controllers\MasterOnlineController.cs" />
     <Compile Include="Controllers\PartnerApiController.cs" />
     <Compile Include="Controllers\PartnerApiControllerJob.cs" />
@@ -1090,6 +1091,8 @@
     <Compile Include="Models\CATEGORY_82CART.cs" />
     <Compile Include="Models\CATEGORY_SHOPIFY.cs" />
     <Compile Include="Models\FAKTUR_API.cs" />
+    <Compile Include="Models\LAZADA_MESSAGES.cs" />
+    <Compile Include="Models\LAZADA_SESSIONLIST.cs" />
     <Compile Include="Models\LINKFTP.cs" />
     <Compile Include="Models\LOG_HARGAJUAL.cs" />
     <Compile Include="Models\SHOPEE_LISTCONVERSATION.cs" />
@@ -7016,6 +7019,7 @@
     <Content Include="Views\Manage\ListBrgToUnlinkPartialView.cshtml" />
     <Content Include="Views\Manage\TableHistoryUnlinkBrg.cshtml" />
     <Content Include="Views\Manage\ListCustomerPartialView.cshtml" />
+    <Content Include="Views\LazadaChat\LazadaAuthChat.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

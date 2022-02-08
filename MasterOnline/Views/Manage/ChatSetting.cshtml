@@ -2153,6 +2153,15 @@
                             else {
                                 alert("Chat Shopee hanya bisa digunakan pada akun dengan versi 2.");
                             }
+                        } else if ($('#Customers_NAMA').val() == "7") //shopee
+                        {
+                            if ($('#Customers_CUST').val() != null && $('#Customers_CUST').val() != "" && $('#Customers_CUST').val() != undefined && $('#Customers_CUST').val() != "[AUTO]") {
+                                if (confirm("Generate New API Key?")) {
+                                    GenerateLazadaCode($('#Customers_CUST').val());
+                                }
+                            } else {
+                                alert("Proses Gagal. Tidak ditemukan kode customer.");
+                            }
                         } else {
                             alert("Proses Gagal.");
                         }
@@ -3117,7 +3126,7 @@
                     }
                     if (@tokped == response.Customers.NAMA) {
                         $('#simpan_btn_chat').hide();
-                    } else if (@shopee == response.Customers.NAMA) {
+                    } else if (@shopee == response.Customers.NAMA || @lzd == response.Customers.NAMA) {
                         $('#simpan_btn_chat').show();
                         $('#simpan_btn_chat').removeAttr('disabled');
                     }
@@ -3468,7 +3477,7 @@
         //add by Tri, get link to generate lazada code
         function GenerateLazadaCode(kdCust) {
             //alert(kdCust);
-            var link = '@Url.Action("LazadaUrl", "Lazada", new { cust = "replaceCust" })';
+            var link = '@Url.Action("LazadaUrlChat", "LazadaChat", new { cust = "replaceCust" })';
             link = link.replace("replaceCust", encodeURIComponent(kdCust));
 
             $.ajax({

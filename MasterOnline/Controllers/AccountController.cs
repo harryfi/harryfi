@@ -1006,19 +1006,24 @@ namespace MasterOnline.Controllers
                 {
                     if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
                     {
-                        #region refresh token lazada
-                        //change by calvin 4 april 2019
-                        //lzdApi.GetShipment(tblCustomer.CUST, tblCustomer.TOKEN);
-                        //end change by calvin 4 april 2019
+                            #region refresh token lazada
+                            //change by calvin 4 april 2019
+                            //lzdApi.GetShipment(tblCustomer.CUST, tblCustomer.TOKEN);
+                            //end change by calvin 4 april 2019
 
 #if (AWS || DEV)
-                                client.Enqueue<LazadaControllerJob>(x => x.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username, tblCustomer.TGL_EXPIRED, false));
+                            client.Enqueue<LazadaControllerJob>(x => x.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username, tblCustomer.TGL_EXPIRED, false));
+                            if (!string.IsNullOrEmpty(tblCustomer.TOKEN_CHAT))
+                            {
+                                client.Enqueue<LazadaControllerJob>(x => x.GetRefTokenChat(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN_CHAT, dbPathEra, username, tblCustomer.TGL_EXPIRED_CHAT, false));
+                            }
+                            
 #else
-                        //lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username, tblCustomer.TGL_EXPIRED, false);
+                            //lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username, tblCustomer.TGL_EXPIRED, false);
 #endif
 
-                        //add by fauzi 20 Februari 2020
-                        if (!string.IsNullOrWhiteSpace(tblCustomer.TGL_EXPIRED.ToString()))
+                            //add by fauzi 20 Februari 2020
+                            if (!string.IsNullOrWhiteSpace(tblCustomer.TGL_EXPIRED.ToString()))
                         {
                             var accFromMoDB = MoDbContext.Account.Single(a => a.DatabasePathErasoft == dbPathEra);
                             //add by fauzi 20 Februari 2020 untuk declare connection id hangfire job check token expired.
