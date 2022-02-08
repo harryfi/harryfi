@@ -151,7 +151,7 @@ namespace MasterOnline.Controllers
 
                 GetToken(param[0], param[1], code);
             }
-            return View("LazadaAuth");
+            return View("LazadaAuthChat");
         }
 
         [HttpGet]
@@ -428,6 +428,7 @@ namespace MasterOnline.Controllers
                         var listConversation = new List<LAZADA_SESSIONLIST>() { };
                         if (result.data.session_list.Count() > 0)
                         {
+                            var sudah14hari = false;
                             var dateNow = DateTime.UtcNow.AddHours(7);
                             var dateLast1Month = dateNow.AddMonths(-1);
                             var dateLast14Days = dateNow.AddDays(-14);
@@ -486,6 +487,7 @@ namespace MasterOnline.Controllers
                                     //masukin sampe -1 bulan 
                                     if (Convert.ToDateTime(last_message_time) < dateLast14Days)
                                     {
+                                        sudah14hari = true;
                                         lastGetMessage = true; break;
                                     }
                                     //hanya masukin yg blm ada di list Conversation
@@ -494,33 +496,33 @@ namespace MasterOnline.Controllers
                                         listConversation.Add(message);
                                         session_list.Add(message.session_id);
                                         //cust_getmsg = CUST;
-
-                                        lastGetMessage = true; break;
                                     }
 
                                 }
-
-                                if (listConversation.Count() > 0)
-                                {
-                                    ErasoftDbContext.LAZADA_SESSIONLIST.AddRange(listConversation);
-                                    ErasoftDbContext.SaveChanges();
-                                }
-                                if (session_list.Count() > 0)
-                                {
-                                    foreach (var session in session_list)
-                                    {
-                                        GetGetMessage(session, CUST, accessToken, milis, "").Start();
-                                    }
-                                }
-
+                                lastGetMessage = true; break;
 
                             }
 
-                            if (!string.IsNullOrEmpty(result.data.last_session_id))
+                            if (listConversation.Count() > 0)
                             {
-                                if (!string.IsNullOrEmpty(result.data.next_start_time.ToString()))
+                                ErasoftDbContext.LAZADA_SESSIONLIST.AddRange(listConversation);
+                                ErasoftDbContext.SaveChanges();
+                            }
+                            if (session_list.Count() > 0)
+                            {
+                                foreach (var session in session_list)
                                 {
-                                    await GetConversationList(CUST, accessToken, Convert.ToInt64(result.data.next_start_time), result.data.last_session_id);
+                                    GetGetMessage(session, CUST, accessToken, milis, "").Start();
+                                }
+                            }
+                            if (!sudah14hari)
+                            {
+                                if (!string.IsNullOrEmpty(result.data.last_session_id))
+                                {
+                                    if (!string.IsNullOrEmpty(result.data.next_start_time.ToString()))
+                                    {
+                                        await GetConversationList(CUST, accessToken, Convert.ToInt64(result.data.next_start_time), result.data.last_session_id);
+                                    }
                                 }
                             }
 
@@ -586,6 +588,7 @@ namespace MasterOnline.Controllers
                         var listMsg = new List<LAZADA_MESSAGES>() { };
                         if (result.data.message_list.Count() > 0)
                         {
+                            var sudah14hari = false;
                             var dateNow = DateTime.UtcNow.AddHours(7);
                             var dateLast1Month = dateNow.AddMonths(-1);
                             var dateLast14Days = dateNow.AddDays(-14);
@@ -866,6 +869,7 @@ namespace MasterOnline.Controllers
                                         //masukin sampe -1 bulan 
                                         if (created_sendtime < dateLast14Days)
                                         {
+                                            sudah14hari = true;
                                             lastGetMessage = true; break;
                                         }
                                         //hanya masukin yg blm ada di list Conversation
@@ -877,29 +881,33 @@ namespace MasterOnline.Controllers
 
 
 
-                                    if (listMsg.Count() > 0)
-                                    {
-                                        try
-                                        {
-                                            ErasoftDbContext.LAZADA_MESSAGES.AddRange(listMsg).OrderByDescending(a => a.send_time);
-                                            ErasoftDbContext.SaveChanges();
-                                        }
-                                        catch (Exception ex)
-                                        {
 
-                                        }
-                                    }
                                     lastGetMessage = true; break;
                                 }
-                            }
-
-                            if (!string.IsNullOrEmpty(result.data.last_message_id))
-                            {
-                                if (!string.IsNullOrEmpty(result.data.next_start_time.ToString()))
+                                if (listMsg.Count() > 0)
                                 {
-                                    await GetGetMessage(session, cust_getmsg, accessToken, result.data.next_start_time, result.data.last_message_id);
+                                    try
+                                    {
+                                        ErasoftDbContext.LAZADA_MESSAGES.AddRange(listMsg).OrderByDescending(a => a.send_time);
+                                        ErasoftDbContext.SaveChanges();
+                                    }
+                                    catch (Exception ex)
+                                    {
+
+                                    }
+                                }
+                                if (!sudah14hari)
+                                {
+                                    if (!string.IsNullOrEmpty(result.data.last_message_id))
+                                    {
+                                        if (!string.IsNullOrEmpty(result.data.next_start_time.ToString()))
+                                        {
+                                            await GetGetMessage(session, cust_getmsg, accessToken, result.data.next_start_time, result.data.last_message_id);
+                                        }
+                                    }
                                 }
                             }
+
                             //if (string.IsNullOrEmpty(offset)) // page 1
                             //{
                             //    if (result.response.page_result.page_size == 25) // max show per page 25, must check with offset for another page
