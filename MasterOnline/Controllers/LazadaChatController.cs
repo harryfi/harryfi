@@ -50,6 +50,7 @@ namespace MasterOnline.Controllers
         ErasoftContext ErasoftDbContext;
         string DatabasePathErasoft;
         string dbSourceEra = "";
+        string username;
 
         public LazadaChatController()
         {
@@ -91,54 +92,71 @@ namespace MasterOnline.Controllers
             //                }
             //            }
 
-            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
-            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
-            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
-            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
-            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
-            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+//            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+//            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+//            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+//            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+//            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+//            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
 
-            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
-            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
-            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+//            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+//            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+//            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
 
-            if (sessionAccount != null)
-            {
-                if (sessionAccountUserID.ToString() == "admin_manage")
-                {
-                    ErasoftDbContext = new ErasoftContext();
-                }
-                else
-                {
-#if (Debug_AWS || DEBUG)
-                    dbSourceEra = sessionAccountDataSourcePathDebug.ToString();
-#else
-                    dbSourceEra = sessionAccountDataSourcePath.ToString();
-#endif
-                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionAccountDatabasePathErasoft.ToString());
-                }
+//            if (sessionAccount != null)
+//            {
+//                if (sessionAccountUserID.ToString() == "admin_manage")
+//                {
+//                    ErasoftDbContext = new ErasoftContext();
+//                }
+//                else
+//                {
+//#if (Debug_AWS || DEBUG)
+//                    dbSourceEra = sessionAccountDataSourcePathDebug.ToString();
+//#else
+//                    dbSourceEra = sessionAccountDataSourcePath.ToString();
+//#endif
+//                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionAccountDatabasePathErasoft.ToString());
+//                }
 
-                EDB = new DatabaseSQL(sessionAccountDatabasePathErasoft.ToString());
-                DatabasePathErasoft = sessionAccountDatabasePathErasoft.ToString();
-            }
-            else
-            {
-                if (sessionUser != null)
-                {
-                    var userAccID = Convert.ToInt64(sessionUserAccountID);
-                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == userAccID);
-                    EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
-#if (Debug_AWS || DEBUG)
-                    dbSourceEra = accFromUser.DataSourcePathDebug;
-#else
-                    dbSourceEra = accFromUser.DataSourcePath;
-#endif
-                    //ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
-                    ErasoftDbContext = new ErasoftContext(dbSourceEra, accFromUser.DatabasePathErasoft);
-                    DatabasePathErasoft = accFromUser.DatabasePathErasoft;
-                }
-            }
+//                EDB = new DatabaseSQL(sessionAccountDatabasePathErasoft.ToString());
+//                DatabasePathErasoft = sessionAccountDatabasePathErasoft.ToString();
+//            }
+//            else
+//            {
+//                if (sessionUser != null)
+//                {
+//                    var userAccID = Convert.ToInt64(sessionUserAccountID);
+//                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == userAccID);
+//                    EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
+//#if (Debug_AWS || DEBUG)
+//                    dbSourceEra = accFromUser.DataSourcePathDebug;
+//#else
+//                    dbSourceEra = accFromUser.DataSourcePath;
+//#endif
+//                    //ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
+//                    ErasoftDbContext = new ErasoftContext(dbSourceEra, accFromUser.DatabasePathErasoft);
+//                    DatabasePathErasoft = accFromUser.DatabasePathErasoft;
+//                }
+//            }
         }
+
+        protected void SetupContext(string DatabasePathErasoft, string Username)
+        {
+            //string ret = "";
+            MoDbContext = new MoDbContext("");
+            EDB = new DatabaseSQL(DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+            ErasoftDbContext = new ErasoftContext(EraServerName, DatabasePathErasoft);
+            username = Username;
+            //var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.RecNum == data.idmarket).SingleOrDefault();
+            //if (arf01inDB != null)
+            //{
+            //    ret = arf01inDB.TOKEN;
+            //}
+            //return ret;
+        }
+
         [Route("lzdchat/code")]
         [HttpGet]
         public ActionResult LazadaCode(string user, string code)
@@ -388,8 +406,9 @@ namespace MasterOnline.Controllers
         }
 
         [Route("SessionList")]
-        public async Task<RootobjectSessionList> GetConversationList(string CUST, string accessToken, long milis, string last_sessionid)
+        public async Task<RootobjectSessionList> GetConversationList(string dbpath, string uname, string CUST, string accessToken, long milis, string last_sessionid)
         {
+            SetupContext(dbpath, uname);
             DateTime date0 = DateTime.UtcNow;
             DateTime datenow = date0.AddHours(7);
             string datetimeDelete = datenow.AddDays(-3).ToString("yyyy-MM-dd HH:mm:ss");
@@ -497,6 +516,19 @@ namespace MasterOnline.Controllers
                                         session_list.Add(message.session_id);
                                         //cust_getmsg = CUST;
                                     }
+                                    else
+                                    {
+                                        var getConversation = ErasoftDbContext.LAZADA_SESSIONLIST.Where(a => a.session_id == message.session_id).FirstOrDefault();
+                                        if (getConversation != null)
+                                        {
+                                            getConversation.last_message_time = message.last_message_time;
+                                            getConversation.unread_count = message.unread_count;
+                                            getConversation.summary = message.summary;
+                                            getConversation.last_message_id = message.last_message_id;
+                                            ErasoftDbContext.SaveChanges();
+                                            session_list.Add(message.session_id);
+                                        }
+                                    }
 
                                 }
                                 lastGetMessage = true; break;
@@ -512,7 +544,7 @@ namespace MasterOnline.Controllers
                             {
                                 foreach (var session in session_list)
                                 {
-                                    GetGetMessage(session, CUST, accessToken, milis, "").Start();
+                                    GetGetMessage(dbpath, uname, session, CUST, accessToken, milis, "").Start();
                                 }
                             }
                             if (!sudah14hari)
@@ -521,7 +553,7 @@ namespace MasterOnline.Controllers
                                 {
                                     if (!string.IsNullOrEmpty(result.data.next_start_time.ToString()))
                                     {
-                                        await GetConversationList(CUST, accessToken, Convert.ToInt64(result.data.next_start_time), result.data.last_session_id);
+                                        await GetConversationList(dbpath, uname, CUST, accessToken, Convert.ToInt64(result.data.next_start_time), result.data.last_session_id);
                                     }
                                 }
                             }
@@ -541,8 +573,9 @@ namespace MasterOnline.Controllers
         }
 
         [Route("GetMessage")]
-        public async Task<RootobjectGetMsg> GetGetMessage(string session, string cust_getmsg, string accessToken, long milis, string last_msg_id)
+        public async Task<RootobjectGetMsg> GetGetMessage(string dbpath, string uname, string session, string cust_getmsg, string accessToken, long milis, string last_msg_id)
         {
+            SetupContext(dbpath, uname);
             var ret = new RootobjectGetMsg();
             //long ml = (long)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
@@ -902,7 +935,7 @@ namespace MasterOnline.Controllers
                                     {
                                         if (!string.IsNullOrEmpty(result.data.next_start_time.ToString()))
                                         {
-                                            await GetGetMessage(session, cust_getmsg, accessToken, result.data.next_start_time, result.data.last_message_id);
+                                            await GetGetMessage(dbpath, uname, session, cust_getmsg, accessToken, result.data.next_start_time, result.data.last_message_id);
                                         }
                                     }
                                 }
