@@ -256,7 +256,7 @@ namespace MasterOnline.Controllers
                     {
                         manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, "", currentLog);
                         //GetShipment(cust, bindAuth.access_token);
-                        GetSellerId(cust);
+                        GetSellerId(user, cust);
                     }
                     else
                     {
@@ -282,10 +282,13 @@ namespace MasterOnline.Controllers
 
         }
 
-        public BindingBase GetSellerId(string cust)
+        public BindingBase GetSellerId(string dbpath, string cust)
         {
+            SetupContext(dbpath, "");
             var ret = new BindingBase();
             ret.status = 0;
+            var eraAppKeyMO = "101775";
+            var eraAppSecretMO = "QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu";
             var accessToken = ErasoftDbContext.Database.SqlQuery<string>("SELECT TOP 1 ISNULL(TOKEN,'') FROM ARF01 (NOLOCK) WHERE CUST='" + cust + "'").FirstOrDefault();
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
@@ -297,7 +300,7 @@ namespace MasterOnline.Controllers
             };
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
 
-            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            ILazopClient client = new LazopClient(urlLazada, eraAppKeyMO, eraAppSecretMO);
             LazopRequest request = new LazopRequest();
             request.SetApiName("/seller/get");
             request.SetHttpMethod("GET");
