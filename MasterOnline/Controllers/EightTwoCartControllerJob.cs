@@ -1582,11 +1582,10 @@ namespace MasterOnline.Controllers
                                                                 if (u_ordersn.Length > 70)
                                                                 {
                                                                     u_ordersn = u_ordersn.Substring(0, 70);
-                                                                }
+                                                            }
+                                                            #endregion
 
-                                                                #endregion
-
-                                                                TEMP_82CART_ORDERS newOrder = new TEMP_82CART_ORDERS()
+                                                            TEMP_82CART_ORDERS newOrder = new TEMP_82CART_ORDERS()
                                                                 {
                                                                     actual_shipping_cost = actual_shipping_cost,
                                                                     buyer_username = nama,
@@ -1654,14 +1653,20 @@ namespace MasterOnline.Controllers
                                                                     {
                                                                         variation_id = variation_id.Substring(0, 20);
                                                                     }
-                                                                    string variation_discounted_price = !string.IsNullOrEmpty(item.original_product_price) ? item.original_product_price.Replace('\'', '`') : "";
+                                                                    string variation_discounted_price = !string.IsNullOrEmpty(item.unit_price) ? item.unit_price.Replace('\'', '`') : "";
                                                                     if (variation_discounted_price.Length > 50)
                                                                     {
                                                                         variation_discounted_price = variation_discounted_price.Substring(0, 50);
-                                                                    }
-                                                                    #endregion
+                                                                }
+                                                                string variation_original_price = !string.IsNullOrEmpty(item.original_product_price) ? item.original_product_price.Replace('\'', '`') : "";
+                                                                if (variation_original_price.Length > 50)
+                                                                {
+                                                                    variation_original_price = variation_original_price.Substring(0, 50);
+                                                                }
 
-                                                                    var name_brg_variasi = "";
+                                                                #endregion
+
+                                                                var name_brg_variasi = "";
                                                                     //if (item.product_attribute_id == "0")
                                                                     //{
                                                                     //    //var kodeBrg = ErasoftDbContext.STF02.SingleOrDefault(p => p.NAMA.Contains(item.product_name) && p.PART == "");
@@ -1685,7 +1690,7 @@ namespace MasterOnline.Controllers
                                                                         variation_discounted_price = variation_discounted_price,
                                                                         variation_id = variation_id,
                                                                         variation_name = name_brg_variasi,
-                                                                        variation_original_price = variation_discounted_price,
+                                                                        variation_original_price = variation_original_price,
                                                                         variation_quantity_purchased = Convert.ToInt32(item.product_quantity),
                                                                         variation_sku = item_sku,
                                                                         weight = 0,
@@ -1768,7 +1773,7 @@ namespace MasterOnline.Controllers
                             #region PAID
                             if (stat == StatusOrder.PAID)
                             {
-                                string[] statusCAP = { "2", "3" }; // CODE STATUS PESANAN PAYMENT ACCEPTED, DAN PREPARATION IN PROGRESS INSERT KE DB
+                                string[] statusCAP = { "2", "3"}; // CODE STATUS PESANAN PAYMENT ACCEPTED, DAN PREPARATION IN PROGRESS INSERT KE DB
                                 string ordersn = "";
                                 jmlhPesananDibayar = 0;
 
@@ -1996,14 +2001,19 @@ namespace MasterOnline.Controllers
                                                     {
                                                         p_variation_id = p_variation_id.Substring(0, 20);
                                                     }
-                                                    string p_variation_discounted_price = !string.IsNullOrEmpty(item.original_product_price) ? item.original_product_price.Replace('\'', '`') : "";
+                                                    string p_variation_discounted_price = !string.IsNullOrEmpty(item.unit_price) ? item.unit_price.Replace('\'', '`') : "";
                                                     if (p_variation_discounted_price.Length > 50)
                                                     {
                                                         p_variation_discounted_price = p_variation_discounted_price.Substring(0, 50);
-                                                    }
-                                                    #endregion
+                                                }
+                                                string p_variation_original_price = !string.IsNullOrEmpty(item.original_product_price) ? item.original_product_price.Replace('\'', '`') : "";
+                                                if (p_variation_original_price.Length > 50)
+                                                {
+                                                    p_variation_original_price = p_variation_original_price.Substring(0, 50);
+                                                }
+                                                #endregion
 
-                                                    var name_brg_variasi = "";
+                                                var name_brg_variasi = "";
                                                     //if (item.product_attribute_id == "0")
                                                     //{
                                                     //    //var kodeBrg = ErasoftDbContext.STF02.SingleOrDefault(p => p.NAMA.Contains(item.product_name) && p.PART == "");
@@ -2028,7 +2038,7 @@ namespace MasterOnline.Controllers
                                                         variation_discounted_price = p_variation_discounted_price,
                                                         variation_id = p_variation_id,
                                                         variation_name = name_brg_variasi,
-                                                        variation_original_price = p_variation_discounted_price,
+                                                        variation_original_price = p_variation_original_price,
                                                         variation_quantity_purchased = Convert.ToInt32(item.product_quantity),
                                                         variation_sku = p_item_sku,
                                                         weight = 0,

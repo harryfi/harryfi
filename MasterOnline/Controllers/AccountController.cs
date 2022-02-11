@@ -1737,8 +1737,8 @@ namespace MasterOnline.Controllers
             #endregion
 
             #region 82Cart
-            try { 
             var kd82Cart = 20;
+            try { 
 
             var v82CartShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kd82Cart.ToString());
             if (id_single_account.HasValue)
