@@ -15,5 +15,11 @@ namespace MasterOnline.ViewModels
         //add by Tri
         public string kodeCust { get; set; }
         public string marketplace { get; set; }
+
+        //add by nurul 2/1/2022
+        public List<MAPPING_GUDANG> ListMappingGudang { get; set; } = new List<MAPPING_GUDANG>();
+        public List<STF18> ListGudang { get; set; } = new List<STF18>();
+        public MAPPING_GUDANG MappingGudang { get; set; }
+        public string MULTILOKASI { get; set; }
     }
 }

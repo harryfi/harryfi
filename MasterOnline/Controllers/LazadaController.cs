@@ -1164,20 +1164,23 @@ namespace MasterOnline.Controllers
                             var brgInDB = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == tblCustomer.RecNum && m.BRG_MP == item.seller_sku).FirstOrDefault();
                             if(brgInDB != null)
                             {
+                                    //add by nurul 19/1/2022
+                                    var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then 0 else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                                    //end add by nurul 19/1/2022
 
 #if (DEBUG || Debug_AWS)
-                            StokControllerJob stokAPI = new StokControllerJob(dbSourceEra, username);
-                            Task.Run(() => stokAPI.Lazada_updateStock(dbSourceEra, brgInDB.BRG, tblCustomer.CUST, "Stock", "Update Stok", item.seller_sku, "", "", data.token, username, null)).Wait();
+                                    StokControllerJob stokAPI = new StokControllerJob(dbSourceEra, username);
+                            Task.Run(() => stokAPI.Lazada_updateStock(dbSourceEra, brgInDB.BRG, tblCustomer.CUST, "Stock", "Update Stok", item.seller_sku, "", "", data.token, username, null, Convert.ToInt32(multilokasi))).Wait();
 #else
                                                         string EDBConnID = EDB.GetConnectionString("ConnId");
                                                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                                         var Jobclient = new BackgroundJobClient(sqlStorage);
-                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(dbSourceEra, brgInDB.BRG, tblCustomer.CUST, "Stock", "Update Stok", item.seller_sku, "", "", data.token, username, null));
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(dbSourceEra, brgInDB.BRG, tblCustomer.CUST, "Stock", "Update Stok", item.seller_sku, "", "", data.token, username, null, Convert.ToInt32(multilokasi)));
 #endif
 
+                                }
                             }
-                        }
                     }
                 }
                 else

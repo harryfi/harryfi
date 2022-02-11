@@ -54,6 +54,8 @@
 
 @section styles
 {
+    <link href="~/Content/selectize.css" rel="stylesheet" />
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
     <style>
         #gudang-section {
             background-color: #fff;
@@ -99,8 +101,8 @@
                 <div class="col-lg-8 col-sm-6">
                     <div class="pull-right">
                         @*<button type="button" class=" btn btn-default" data-style="expand-right">
-                            <span>Refresh</span>
-                        </button>*@
+                                <span>Refresh</span>
+                            </button>*@
                         <button class="btn btn-primary btn_tambah_data" id="tambah_gudang">Tambah Baru</button>
                     </div>
                 </div>
@@ -170,6 +172,17 @@
                                                     @Html.TextBoxFor(m => m.Gudang.Nama_Gudang, new { @class = "form-control", required = "required" })
                                                 </div>
                                             </div>
+                                            //add by nurul 23/12/2021
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Gudang.PROVINSI, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.HiddenFor(m => m.Gudang.PROVINSI, new { @class = "form-control" })
+                                                    @Html.HiddenFor(m => m.Gudang.NAMAPROVINSI, new { @class = "form-control" })
+                                                    @*<div id="KODEPROV" class="selectivity-input" tabindex="0"></div>*@
+                                                    <select id="KODEPROV" placeholder="Harap Pilih" required="required"></select>
+                                                </div>
+                                            </div>
+                                            //add by nurul 23/12/2021
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.Gudang.KD_HARGA_JUAL, "Link Qty ke Marketplace", new { @class = "control-label control-label-bold col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-5 col-sm-5 col-xs-12">
@@ -190,6 +203,18 @@
                                                     @Html.CheckBox("linkMP", new { value = Model?.Gudang?.KD_HARGA_JUAL, @checked = true, @style = "width:30px; height:28px;" })
                                                 </div>
                                             </div>
+                                            //add by nurul 23/12/2021
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Gudang.DIKELOLA, "Gudang Dikelola Oleh", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.HiddenFor(m => m.Gudang.DIKELOLA)
+                                                    <select class="form-control" id="GD_DIKELOLA" placeholder="Harap Pilih" name="GD_DIKELOLA" required="required">
+                                                        <option value="0">Sendiri</option>
+                                                        <option value="1">Pihak Ketiga</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            //end add by nurul 23/12/2021
                                             <input type="button" class="btn btn-primary pull-right" id="simpan_btn" value="Simpan" onclick="simpanGudang(this)" />
                                         }
                                     </div>
@@ -225,6 +250,8 @@
 
 @section scripts
 {
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
     <script type="text/javascript">
         $gudangId = "";
         //add by nurul 12/2/2019
@@ -250,12 +277,12 @@
                     //end add by nurul 12/2/2019
 
             //add by nurul 26/4/2019
-            
+
             //end add by nurul 26/4/2019
         });
 
         function Initialize() {
-            
+
             //change by nurul 7/5/2019
             //$('#search_gudang').keyup(function () {
             //    table.search($(this).val()).draw();
@@ -292,8 +319,14 @@
             $('#close-editor').on('click', function () {
                 $('.gudang_table_section').show();
                 $('.gudang_editor_section').hide();
-                $('#Gudang_Kode_Gudang, #Gudang_Nama_Gudang, #Gudang_ID').val("");
+                $('#Gudang_Kode_Gudang, #Gudang_Nama_Gudang, #Gudang_ID, #Gudang_PROVINSI, #Gudang_DIKELOLA, #Gudang_NAMAPROVINSI').val("");
                 $('#Gudang_Kode_Gudang').removeAttr('disabled');
+                //ADD BY NURUL 23/12/2021
+                //$('#KODEPROV').selectivity('value', null);
+                var MP = $('#KODEPROV').selectize();
+                MP[0].selectize.setValue(null, true);
+                //$('#KODEPROV')[0].selectize.enable();
+                //END ADD BY NURUL 23/12/2021
                 resetError();
                 //add by nurul 12/2/2019
                 //$('#datatable').on('page.dt', function () {
@@ -346,13 +379,120 @@
             $(".checkbox_linkMP").attr('disabled', 'disabled');
             //end add by nurul 26/4/2019
 
+            //add by nurul 23/12/2021
+            getProvinsi();
+            $('#GD_DIKELOLA').change(function () {
+                $("#Gudang_DIKELOLA").val($('#GD_DIKELOLA').val())
+            });
+            $("#GD_DIKELOLA").change(
+                function () {
+                    if ($("#GD_DIKELOLA").val() == "1") {
+                        $("#Gudang_DIKELOLA").val('1');
+                    } else {
+                        $("#Gudang_DIKELOLA").val('0');
+                    }
+                });
+            $("#GD_DIKELOLA").change();
+            //$('#GD_DIKELOLA').val(tempType);
+
+            //$('#Gudang_PROVINSI, #KODEPROV').keydown(
+            //    function () {
+            //        if ($('#Gudang_PROVINSI').val() == "" && $('#Gudang_PROVINSI').val() == "") {
+            //            addError($('#Gudang_PROVINSI').parent(), "Kolom ini tidak boleh kosong!");
+            //        }
+            //    });
+            //end add by nurul 23/12/2021
+
             refreshTableGudang();
         }
+
+        //add by nurul 23/12/2021
+        function getProvinsi() {
+            $.ajax({
+                type: "GET",
+                /**/
+                url: '@Url.Action("GetProvinsi", "Manage")',
+                /**/
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var provList = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            provList[i] = {
+                                id: item.KodeProv,
+                                text: item.NamaProv
+                            };
+                        });
+
+                    //$('#KODEPROV').selectivity({
+                    //    allowClear: true,
+                    //    items: provList,
+                    //    placeholder: 'Harap pilih'
+                    //});
+
+                    //var $kdProv = $('#Gudang_PROVINSI').val();
+
+                    //$('#KODEPROV').change(function () {
+                    //    var $val = $(this).selectivity('value');
+
+                    //    if ($val === null) {
+                    //        $("#Gudang_PROVINSI").val(null);
+                    //        $("#Gudang_NAMAPROVINSI").val(null);
+                    //        //resetKabKot();
+                    //    } else {
+                    //        $("#Gudang_PROVINSI").val($val);
+                    //        $("#Gudang_NAMAPROVINSI").val(null);
+                    //    }
+                    //});
+
+                    //if ($kdProv !== null) {
+                    //    $('#KODEPROV').selectivity('value', $kdProv);
+                    //}
+
+                    var ProvSelect = $('#KODEPROV').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: provList,
+                        placeholder: 'Harap pilih',
+                        onChange: function (value) {
+                            var $objSup = $.grep(provList, function (data) { return data.id == value });
+
+                            if (value == null) {
+                                $("#Gudang_PROVINSI").val(null);
+                                $("#Gudang_NAMAPROVINSI").val(null);
+                            } else {
+                                $("#Gudang_PROVINSI").val(value).trigger('change');
+                                $("#Gudang_NAMAPROVINSI").val($objSup[0].text);
+                            }
+                        }
+                    });
+
+                    ProvSelect[0].selectize.setValue($('#Gudang_PROVINSI').val());
+                    //if ($('#Gudang_PROVINSI').val() != "") {
+                    //    $('#KODEPROV')[0].selectize.disable();
+                    //}
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        //end add by nurul 23/12/2021
 
         function simpanGudang(btnClicked) {
             if (!validateForm()) return false;
 
-            //add by nurul 19/1/2020, bundling 
+            //add by nurul 23/12/2021
+            //if ($("#Gudang_PROVINSI").val() == "") {
+            //    alert('Silakan isi semua field terlebih dahulu!');
+            //    addError($("#Gudang_PROVINSI").parent(), "Kolom ini tidak boleh kosong!");
+            //    return false;
+            //}
+            //end add by nurul 23/12/2021
+
+            //add by nurul 19/1/2020, bundling
             if ($('#Gudang_Kode_Gudang').val() == "GB" && $('#Gudang_Nama_Gudang').val() == "Gudang Bundling") {
                 alert("Gudang Bundling tidak bisa diedit");
                 return false;
@@ -369,6 +509,7 @@
                 $('#linkMP').val("1");
             }
             //end add by nurul 26/4/2019
+            //$('#Gudang_Kode_Gudang').removeAttr('disabled');
             $.ajax({
                 type: "POST",
                 url: $form.attr('action'),
@@ -386,11 +527,12 @@
                     if (response.Errors == null) {
                         $('#close-editor').click();
                         $("html, body").animate({ scrolltop: 0 }, "slow");
+                        //$('#Gudang_Kode_Gudang').attr('disabled', 'disabled');
                         $('#loading_spinner').hide();
                         refreshTableGudang();
                     } else {
                         alert(response.Errors);
-                        
+                        //$('#Gudang_Kode_Gudang').attr('disabled', 'disabled');
                         $('#loading_spinner').hide();
                     }
                 },
@@ -412,6 +554,7 @@
                 url: link,
                 success: function (response) {
                     $('#tambah_gudang').click();
+                    getProvinsi();
                     $('#Gudang_AL1').val(response.Gudang.AL1);
                     $('#Gudang_AL2').val(response.Gudang.AL2);
                     $('#Gudang_AL3').val(response.Gudang.AL3);
@@ -422,6 +565,11 @@
                     $('#Gudang_USERNAME').val(response.Gudang.USERNAME);
                     $('#Gudang_Kode_Gudang').val(response.Gudang.Kode_Gudang).attr('disabled', 'disabled');
                     $('#Gudang_Nama_Gudang').val(response.Gudang.Nama_Gudang);
+                    //ADD BY NURUL 23/12/2021
+                    $('#Gudang_PROVINSI').val(response.Gudang.PROVINSI);
+                    $('#Gudang_NAMAPROVINSI').val(response.Gudang.NAMAPROVINSI);
+                    $('#Gudang_DIKELOLA').val(response.Gudang.DIKELOLA);
+                    //END ADD BY NURUL 23/12/2021
                     //add by nurul 26/4/2019
                     if (response.Gudang.KD_HARGA_JUAL == "0" || response.Gudang.KD_HARGA_JUAL == "" || response.Gudang.KD_HARGA_JUAL == " " || response.Gudang.KD_HARGA_JUAL == null) {
                         //$('#linkMP').attr('checked', true);
@@ -437,7 +585,7 @@
                         $("#linkMP").removeAttr('disabled');
                     }
                     //end add by nurul 26/4/2019
-                    
+
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

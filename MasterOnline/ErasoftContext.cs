@@ -535,6 +535,10 @@ namespace MasterOnline
         public virtual DbSet<SHOPEE_MESSAGE> SHOPEE_MESSAGE { get; set; }
         //end add by nurul 20/9/2021
 
+        //add by nurul 2/1/2022
+        public virtual DbSet<MAPPING_GUDANG> MAPPING_GUDANG { get; set; }
+        //add by nurul 2/1/2022
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
 

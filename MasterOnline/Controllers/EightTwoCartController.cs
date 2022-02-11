@@ -945,8 +945,22 @@ namespace MasterOnline.Controllers
             //end handle image
 
             //start handle stock
+
+            //change by nurul 19/1/2022
+            //double qty_stock = 1;
+            //qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(kodeProduk, "ALL");
+            var multilokasi = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().MULTILOKASI;
             double qty_stock = 1;
-            qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(kodeProduk, "ALL");
+            if (multilokasi == "1")
+            {
+                qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A_MultiLokasi(kodeProduk, "ALL", log_CUST);
+            }
+            else
+            {
+                qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(kodeProduk, "ALL");
+            }
+            //end change by nurul 19/1/2022
+
             if (qty_stock > 0)
             {
                 postData += "&quantity=" + Uri.EscapeDataString(qty_stock.ToString());

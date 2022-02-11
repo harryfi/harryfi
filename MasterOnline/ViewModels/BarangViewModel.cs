@@ -79,6 +79,7 @@ namespace MasterOnline.ViewModels
         //add by nurul 24/11/2021
         public double HjualBundling { get; set; }
         //end add by nurul 24/11/2021
+        public string multilokasi { get; set; }
     }
     
 }

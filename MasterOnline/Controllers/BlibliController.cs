@@ -1843,8 +1843,21 @@ namespace MasterOnline.Controllers
             string ret = "";
             //var qtyOnHand = new ManageController().GetQOHSTF08A(data.kode, "ALL");
             StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
-
-            var qtyOnHand = stokAPI.GetQOHSTF08A(data.kode, "ALL");
+            
+            //change by nurul 19/1/2022
+            //var qtyOnHand = stokAPI.GetQOHSTF08A(data.kode, "ALL");
+            var multilokasi = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().MULTILOKASI;
+            var cust = ErasoftDbContext.ARF01.Where(a => a.Sort1_Cust == iden.merchant_code).FirstOrDefault().CUST;
+            double qtyOnHand = 0;
+            if (multilokasi == "1")
+            {
+                qtyOnHand = stokAPI.GetQOHSTF08A_MultiLokasi(data.kode, "ALL", cust);
+            }
+            else
+            {
+                qtyOnHand = stokAPI.GetQOHSTF08A(data.kode, "ALL");
+            }
+            //end change by nurul 19/1/2022
 
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);

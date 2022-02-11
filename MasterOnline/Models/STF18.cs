@@ -41,5 +41,11 @@ namespace MasterOnline
 
         [StringLength(30)]
         public string USERNAME { get; set; }
+
+        //add by nurul 23/12/2021
+        public string PROVINSI { get; set; }
+        public string NAMAPROVINSI { get; set; }
+        public string DIKELOLA { get; set; }
+        //end add by nurul 23/12/2021
     }
 }

@@ -2755,8 +2755,20 @@ namespace MasterOnline.Controllers
             //if merchant code diisi. barulah upload produk
             string ret = "";
             StokControllerJob stokAPI = new StokControllerJob(dbPathEra, iden.username);
-
-            var qtyOnHand = stokAPI.GetQOHSTF08A(data.kode, "ALL");
+            
+            //change by nurul 19/1/2022
+            //var qtyOnHand = stokAPI.GetQOHSTF08A(data.kode, "ALL");
+            var multilokasi = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().MULTILOKASI;
+            double qtyOnHand = 0;
+            if (multilokasi == "1")
+            {
+                qtyOnHand = stokAPI.GetQOHSTF08A_MultiLokasi(data.kode, "ALL", log_CUST);
+            }
+            else
+            {
+                qtyOnHand = stokAPI.GetQOHSTF08A(data.kode, "ALL");
+            }
+            //end change by nurul 19/1/2022
 
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -8543,7 +8555,21 @@ namespace MasterOnline.Controllers
                 //end add by Tri, 1 july 2021
 
                 //add by calvin 15 agustus 2019
-                var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(data.dataBarangInDb.BRG, "ALL");
+
+                //change by nurul 19/1/2022
+                //var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(data.dataBarangInDb.BRG, "ALL");
+                var multilokasi = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().MULTILOKASI;
+                double qty_stock = 1;
+                if (multilokasi == "1")
+                {
+                    qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A_MultiLokasi(data.dataBarangInDb.BRG, "ALL", log_CUST);
+                }
+                else
+                {
+                    qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(data.dataBarangInDb.BRG, "ALL");
+                }
+                //end change by nurul 19/1/2022
+
                 if (qty_stock > 0)
                 {
                     newVarItem.stock = Convert.ToInt32(qty_stock);
@@ -8891,7 +8917,21 @@ namespace MasterOnline.Controllers
                     //end add by Tri, 1 july 2021
 
                     //add by calvin 15 agustus 2019
-                    var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(var_item.BRG, "ALL");
+
+                    //change by nurul 19/1/2022
+                    //var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(var_item.BRG, "ALL");
+                    var multilokasi = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().MULTILOKASI;
+                    double qty_stock = 1;
+                    if (multilokasi == "1")
+                    {
+                        qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A_MultiLokasi(var_item.BRG, "ALL", log_CUST);
+                    }
+                    else
+                    {
+                        qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(var_item.BRG, "ALL");
+                    }
+                    //end change by nurul 19/1/2022
+
                     if (qty_stock > 0)
                     {
                         newVarItem.stock = Convert.ToInt32(qty_stock);
@@ -10241,7 +10281,21 @@ namespace MasterOnline.Controllers
                     sale = Convert.ToInt32(stf02h.HJUAL),
                 };
                 //add by calvin 15 agustus 2019
-                var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(data.dataBarangInDb.BRG, "ALL");
+
+                //change by nurul 19/1/2022
+                //var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(data.dataBarangInDb.BRG, "ALL");
+                var multilokasi = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().MULTILOKASI;
+                double qty_stock = 1;
+                if (multilokasi == "1")
+                {
+                    qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A_MultiLokasi(data.dataBarangInDb.BRG, "ALL", log_CUST);
+                }
+                else
+                {
+                    qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(data.dataBarangInDb.BRG, "ALL");
+                }
+                //end change by nurul 19/1/2022
+
                 if (qty_stock > 0)
                 {
                     newVarItem.stock = Convert.ToInt32(qty_stock);
@@ -10591,7 +10645,21 @@ namespace MasterOnline.Controllers
                         sale = Convert.ToInt32(var_stf02h_item.HJUAL),
                     };
                     //add by calvin 15 agustus 2019
-                    var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(var_item.BRG, "ALL");
+
+                    //change by nurul 19/1/2022
+                    //var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(var_item.BRG, "ALL");
+                    var multilokasi = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().MULTILOKASI;
+                    double qty_stock = 1;
+                    if (multilokasi == "1")
+                    {
+                        qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A_MultiLokasi(var_item.BRG, "ALL", log_CUST);
+                    }
+                    else
+                    {
+                        qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(var_item.BRG, "ALL");
+                    }
+                    //end change by nurul 19/1/2022
+
                     if (qty_stock > 0)
                     {
                         newVarItem.stock = Convert.ToInt32(qty_stock);
