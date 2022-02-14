@@ -1923,6 +1923,7 @@ namespace MasterOnline.Controllers
             return ret;
 
         }
+
         public LazadaGetLabel GetLabel(List<string> orderItemId, string accessToken)
         {
             string ordItems = "";
@@ -1951,6 +1952,38 @@ namespace MasterOnline.Controllers
 
             return Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaGetLabel)) as LazadaGetLabel; ;
         }
+
+        //add by nurul 14/2/2022
+        public LazadaGetLabel GetLabelPDF(List<string> orderItemId, string accessToken)
+        {
+            string ordItems = "";
+            if (orderItemId.Count > 1)
+            {
+                foreach (var id in orderItemId)
+                {
+                    ordItems += id;
+                    ordItems += ",";
+                }
+                ordItems = ordItems.Substring(0, ordItems.Length - 1);
+            }
+            else
+            {
+                if (orderItemId.Count == 1)
+                    ordItems = orderItemId[0];
+            }
+
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/order/document/awb/pdf/get");
+            request.SetHttpMethod("GET");
+            //request.AddApiParameter("doc_type", "shippingLabel");
+            request.AddApiParameter("order_item_ids", "[" + ordItems + "]");
+            LazopResponse response = client.Execute(request, accessToken);
+
+            return Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaGetLabel)) as LazadaGetLabel; ;
+        }
+        //end add by nurul 14/2/2022
+
         public BindingBase UploadImage(string imagePath, string accessToken)
         {
             var ret = new BindingBase();
