@@ -100,6 +100,10 @@ namespace MasterOnline
         //add by nurul 15/5/2020
         public string ket { get; set; }
         //end add by nurul 15/5/2020
+
+        //end add by nurul 14/2/2022
+        public DateTime? so_tgl { get; set; }
+        //end add by nurul 14/2/2022
     }
 
     //add by nurul 2/6/2020
