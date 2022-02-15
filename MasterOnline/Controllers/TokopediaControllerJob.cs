@@ -3321,7 +3321,7 @@ namespace MasterOnline.Controllers
         }
         //end add by nurul 23/12/2021
 
-        public async Task<string> GetOrderList3days(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, long daysFrom, long daysTo)
+        public async Task<string> GetOrderList3days(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, long daysFrom, long daysTo, string ord_stat)
         {
             //if merchant code diisi. barulah GetOrderList
             string ret = "";
