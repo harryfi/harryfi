@@ -2235,7 +2235,8 @@
                                 getTanggal();
                                 $('#loading_spinner').hide();
                             } else {
-                                alert('Ada data yang tidak valid!');
+                                //alert('Ada data yang tidak valid!');
+                                alert(response.Errors);
                                 console.log(response.Errors);
                                 $('#loading_spinner').hide();
                             }

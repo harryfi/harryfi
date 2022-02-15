@@ -1419,6 +1419,7 @@ namespace MasterOnline.Controllers
                     loop = false;
                 }
             }
+
             if (!string.IsNullOrEmpty(connIdProses))
             {
                 new StokControllerJob().getQtyBundling(data.dbPathEra, username, connIdProses.Substring(0, connIdProses.Length - 3));
@@ -1443,7 +1444,7 @@ namespace MasterOnline.Controllers
             //try { 
             string urll = "https://api.bukalapak.com/transactions?limit=50&offset=" + (page * 50) + "&context=sale"
                 + "&start_time=" + Uri.EscapeDataString(fromDt) + "&end_time=" + Uri.EscapeDataString(toDt)
-                + "&states[]=cancelled&states[]=expired";
+                + "&states[]=cancelled&states[]=expired&states[]=refunded";
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
             myReq.Headers.Add("Authorization", "Bearer " + data.token);
@@ -1504,6 +1505,7 @@ namespace MasterOnline.Controllers
                     {
                         if (retObj.data != null)
                         {
+                            retObj.data = retObj.data.Where(m => (m.received_at ?? "") == "").ToArray();
                             if (retObj.data.Length > 0)
                             {
                                 ret.status = retObj.data.Length;
@@ -2853,6 +2855,7 @@ namespace MasterOnline.Controllers
         //public DateTime last_printed_at { get; set; }
         public DateTime created_at { get; set; }
         public DateTime updated_at { get; set; }
+        public string received_at { get; set; }
         //public GetOrdersPromotion promotion { get; set; }
         //public string virtual_transaction_serial_number { get; set; }
         public bool? can_claim_assurance { get; set; }

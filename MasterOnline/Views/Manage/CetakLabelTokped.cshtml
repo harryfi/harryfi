@@ -224,6 +224,21 @@
                                             </tbody>
                                         </table>*@
 
+                                    @*//add by nurul 26/1/2022*@
+                                    <div class="row cod-label" id="cod" style="font-size: x-small;"></div>
+
+                                    @*<table class="cod" cellspacing="0" cellpadding="0">
+                                        <tbody>
+                                            <tr>
+                                                <td class="cod_wrapper_left">
+                                                    Total yang harus dibayarkan secara tunai oleh
+                                                    pembeli ke kurir:
+                                                </td>
+                                                <td class="cod_wrapper_right">Rp 107.100</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>*@
+                                    @*//end add by nurul 26/1/2022*@
 
                                     <div class="row product-label" id="product" style="font-size: 12px;"></div>
                                     @*<table class="products" cellspacing="0" cellpadding="0">
@@ -302,6 +317,11 @@
             $('.product-label').each(function (i, item) {
                 $(item).html(label[i].Product);
             });
+            //add by nurul 26/1/2022
+            $('.cod-label').each(function (i, item) {
+                $(item).html(label[i].COD);
+            });
+            //end add by nurul 26/1/2022
         });
     </script>
 </body>

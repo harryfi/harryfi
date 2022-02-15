@@ -434,6 +434,20 @@
             //    sdCust = $('#ToCust2').val();
             //}
 
+            //add by nurul 13/1/2022
+            //var getDiffDay = (new Date(formatDateToYYYYmmDD(2)) - new Date(formatDateToYYYYmmDD(1))) / (1000 * 60 * 60 * 24);
+            //if (getDiffDay > 93) {
+                //alert('Periode maksimal 90 hari!');
+            var cekDrTgl = new Date(formatDateToYYYYmmDD(1));
+            var cekSdTgl = new Date(formatDateToYYYYmmDD(2));
+            var cekSdTglKurang3 = cekSdTgl.addMonths(-3);
+            if (cekDrTgl < cekSdTglKurang3) {
+                alert('Periode maksimal 3 bulan!');
+                $('#loading_spinner').hide();
+                return false;
+            }
+            //end add by nurul 13/1/2022
+
             if ($('#Order').val() == 1) {
                 drCust = $('#FromCust').val();
                 sdCust = $('#ToCust').val();

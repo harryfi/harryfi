@@ -12,16 +12,16 @@ namespace MasterOnline
     {
         public string fs_id { get; set; }
 
-        [Key]
-        [Column(Order = 0)]
+        //[Key]
+        //[Column(Order = 0)]
         public string order_id { get; set; }
 
         public bool? accept_partial { get; set; }
 
         public string invoice_ref_num { get; set; }
 
-        [Key]
-        [Column(Order = 1)]
+        //[Key]
+        //[Column(Order = 1)]
         public long product_id { get; set; }
 
         public string product_name { get; set; }
@@ -118,8 +118,8 @@ namespace MasterOnline
 
         public string custom_fields_awb { get; set; }
 
-        [Key]
-        [Column(Order = 2)]
+        //[Key]
+        //[Column(Order = 2)]
         public string conn_id { get; set; }
         public string CUST { get; set; }
         public string NAMA_CUST { get; set; }
@@ -129,6 +129,10 @@ namespace MasterOnline
         //add by nurul 23/11/2021
         public long? warehouse_id { get; set; } 
         //end add by nurul 23/11/2021
+
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long RECNUM { get; set; }
     }
 
 }

@@ -1472,6 +1472,7 @@
     <Compile Include="ViewModels\AddonsCustomerViewModel.cs" />
     <Compile Include="ViewModels\AddonsViewModel.cs" />
     <Compile Include="ViewModels\BarcodeViewModels.cs" />
+    <Compile Include="ViewModels\BindingMatrixBarang.cs" />
     <Compile Include="ViewModels\CustomerChatViewModel.cs" />
     <Compile Include="ViewModels\HargaJualMassalViewModel.cs" />
     <Compile Include="ViewModels\LinkBankPartnerApiViewModel.cs" />
@@ -7025,6 +7026,11 @@
     <Content Include="Views\Manage\TableBarangPalingLakuPartial2.cshtml" />
     <Content Include="Views\Manage\TableBarangTidakLakuPartial2.cshtml" />
     <Content Include="Views\Manage\TableBarangDibawahMinimumStokPartial2.cshtml" />
+    <Content Include="Views\Manage\MatrixLinkBarang.cshtml" />
+    <Content Include="Views\Manage\TabelMatrixLinkBarang.cshtml" />
+    <Content Include="Views\Manage\ListBrgToUnlinkPartialView.cshtml" />
+    <Content Include="Views\Manage\TableHistoryUnlinkBrg.cshtml" />
+    <Content Include="Views\Manage\ListCustomerPartialView.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

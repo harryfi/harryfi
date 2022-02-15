@@ -2378,7 +2378,11 @@ namespace MasterOnline.Controllers
             int MOPartnerID = MOPartnerIDV2;
             string MOPartnerKey = MOPartnerKeyV2;
             var ret = new ATTRIBUTE_SHOPEE_AND_OPT_v2();
-
+            if(category == null)
+            {
+                ret.attributes = new List<ATTRIBUTE_SHOPEE_V2>();
+                return ret;
+            }
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
@@ -2981,9 +2985,9 @@ namespace MasterOnline.Controllers
             if (TokenExpired || bForceRefresh)
             {
                 #region dynamodb
-                if (dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_RAHMAMK" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_710298"
-                    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_930355" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_750320"
-                    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_1521519" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_770308")
+                //if (dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_RAHMAMK" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_710298"
+                //    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_930355" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_750320"
+                //    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_1521519" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_770308")
                 {
                     try
                     {
@@ -3134,9 +3138,9 @@ namespace MasterOnline.Controllers
                                 var dateExpired = dataAPI.token_expired.Value.ToString("yyyy-MM-dd HH:mm:ss");
 
                                 #region insert to dynamo db
-                                if (dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_RAHMAMK" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_710298"
-                                    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_930355" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_750320"
-                                    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_1521519" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_770308")
+                                //if (dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_RAHMAMK" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_710298"
+                                //    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_930355" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_750320"
+                                //    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_1521519" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_770308")
                                 {
                                     try
                                     {

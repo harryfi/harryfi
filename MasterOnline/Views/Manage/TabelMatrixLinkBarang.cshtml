@@ -1,0 +1,354 @@
+﻿@using System.Globalization
+@using MasterOnline.Models
+@using MasterOnline.ViewModels
+@model BindingMatrixBarang
+@{
+    //ViewBag.Title = "Matrix Barang";
+    //Layout = "~/Views/Shared/_LayoutManage.cshtml";
+    var context = new MoDbContext();
+    var listMarket = context.Marketplaces.ToList();
+}
+<style>
+    #loading_barang_tab {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        z-index: 100;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0,0,0,0);
+    }
+
+    #loading_barang_tab_image {
+        width: 20px;
+        height: 20px;
+        margin-top: -90px;
+        margin-left: -90px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        border-width: 30px;
+        border-radius: 50%;
+    }
+
+    /*  .tscroll {
+            overflow-x: scroll;
+        }
+    */
+    /* .tscroll table td:first-child {
+                position: sticky;
+                left: 0;
+            }
+
+            .tscroll td, .tscroll th {
+                border-bottom: dashed #888 1px;
+            }
+            .tscroll table tr th {
+                position: sticky;
+                top: 0;
+            }*/
+    .table-fixed-column {
+        border-collapse: separate;
+        width: 100%;
+        overflow-y: scroll;
+        height: 500px;
+        display: block;
+        table-layout: fixed;
+    }
+    td, th {
+        border: 1px solid #dddddd;
+        padding: 8px;
+        overflow: hidden;
+    }
+    .fixed-header-0, .fixed-column-0 {
+        position: sticky;
+        left: 0px;
+        /*width: 45px;*/
+    }
+    .fixed-header-1, .fixed-column-1 {
+        position: sticky;
+        left: 45px;
+        /*width: 90px;*/
+    }
+    .fixed-header-2, .fixed-column-2 {
+        position: sticky;
+        left: 165px;
+        /*width: 120px;*/
+    }
+    .fixed-column-0, .fixed-column-1, .fixed-column-2 {
+        background-color: white;
+    }
+    th {
+        position: sticky;
+        top: 0px;
+        z-index: 1;
+        background-color: #ffe8e8;
+    }
+    .fixed-header-0, .fixed-header-1, .fixed-header-2 {
+        /*background-color: #ffe8e8;*/
+        z-index: 2;
+    }
+
+    /*div {
+        max-width: 100%;
+        max-height: 500px;
+        overflow: scroll;
+        position: relative;
+    }
+    thead th {
+        position: -webkit-sticky;*/ /* for Safari */
+        /*position: sticky;
+        top: 0;
+        background: #ffe8e8;*/
+        /*color: #FFF;*/
+    /*}
+        thead th:first-child {
+            left: 0;
+            z-index: 1;
+        }*/
+</style>
+
+@*<div id="loading_barang_tab">
+    <div id="loading_barang_tab_image">
+        <img src="~/Content/Images/spinner.gif" />
+    </div>
+</div>*@
+<div class="table-responsive" id="divTable">
+<table class="table table-striped table-bordered table-hover table-fixed-column">
+    <thead>
+        <tr role="row">
+            <th class="sorting text-center fixed-header-0" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; align-self: flex-start; ">
+                <div style="width: 29px">
+                    <input type="checkbox" class="cbunlink" id="checkbox_all_brg" style="align-self:flex-start; width:30px; height:28px;" />
+                </div>
+            </th>
+            <th class="sorting_asc fixed-header-1" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 90px;">
+                
+                <div style="width: 104px">
+                    Kode
+                </div>
+            </th>
+            <th class="sorting fixed-header-2" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 150px">
+                
+                <div style="width: 150px">
+                    Nama
+                </div>
+            </th>
+            @foreach (var listCust in Model.akun)
+            {
+                var idMarket = Convert.ToInt32(listCust.NAMA);
+                var namaMP = listMarket.Where(m => m.IdMarket == idMarket).SingleOrDefault().NamaMarket;
+                var namaAkun = namaMP + " (" + listCust.PERSO + ")";
+
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 150px;">@namaAkun</th>
+            }
+            @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 45px;">Edit</th>*@
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            var currentBrg = "";
+        }
+        @foreach (var barang in Model.barang)
+        {
+            if (barang.BRG != currentBrg)
+            {
+                currentBrg = barang.BRG;
+                <tr>
+                    <td class=" fixed-column-0"><input type="checkbox" class="cbunlink" id="cbb_@barang.RECNUM" style="margin-top: 20px; align-self:flex-start; width:30px; height:28px;" onclick="checkAll('@barang.RECNUM')" /></td>
+                    <td class=" fixed-column-1">@barang.BRG</td>
+                    <td class=" fixed-column-2">@barang.NAMABRG</td>
+                    @foreach (var listCust in Model.akun)
+                    {
+                        var cBrg = Model.barang.Where(m => m.BRG == currentBrg && m.IDMARKET == listCust.RecNum).FirstOrDefault();
+                        var brgMP = "";
+                        var link = "";
+                        if (cBrg != null)
+                        {
+                            link = cBrg.LINK;
+                            brgMP = cBrg.BRG_MP;
+                        };
+                        <td>
+                            @if (brgMP != "")
+                            {
+                                <input id="cb_@cBrg.RECNUM" type="checkbox" class="cb_@barang.RECNUM cbunlink cbunlink-detail" data-brg="@cBrg.RECNUM" style="float: left; width: 27px; height: 24px;" />
+                                <div style="margin-left: 35px;">
+                                    @brgMP
+                                    @if (link != "")
+                                    {
+                                        <br />
+                                        <a href="@link" target="_blank" rel="noopener noreferrer"> @(link.Length > 30 ? link.Substring(0,27) + "..." : link)</a>
+                                    }
+                                </div>
+                                @*<label for="cb_@cBrg.RECNUM">@brgMP</label>*@
+                            }
+
+                        </td>
+
+                    }
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+</div>
+@*<div>
+    <input type="button" class="btn btn-primary pull-right" id="btnUnlink" value="Unlink Barang" onclick="UnlinkSelectedBrg()" />
+</div>*@
+<div class="modal fade" id="ModalListBrgUnlink" tabindex="-1" role="dialog" aria-labelledby="labelModalListBrgUnlink">
+    <div class="modal-dialog" role="document" style="width:60%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="labelModalListBrgUnlink">Unlink Barang</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>
+                            Apakah Anda yakin akan melakukan unlink untuk barang berikut:
+                        </label>
+                    </div>
+                    <div class="col-md-12">
+                        <div id="ModalListBrgUnlinkdiv">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="closeListUnlinkBrg()">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="ProcessUnlinkBrg()">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="konfUnlinkBrg" tabindex="-1" role="dialog" aria-labelledby="konfUnlinkBrgLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfUnlinkLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>
+                            Untuk Konfirmasi Unlink Barang, Silahkan ketik "UNLINK" pada teks box berikut :
+                        </label>
+                    </div>
+                    <div class="col-md-12">
+                        <input id="txtConfirmUnlink" class="form-control" autofocus/>
+                    </div>
+                </div>
+            </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                    <button type="button" class="btn btn-success" onclick="CekTextConfirm()">Ya</button>
+                </div>
+            </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#checkbox_all_brg").click(function () {
+            $(".cbunlink").prop('checked',
+                $(this).prop('checked'));
+        });
+        //alert('test');
+        //var $table = $('.table');
+        //var $fixedColumn = $table.clone().insertBefore($table).addClass('fixed-column');
+
+        //$fixedColumn.find('th:not(:first-child),td:not(:first-child)').remove();
+
+        //$fixedColumn.find('tr').each(function (i, elem) {
+        //    $(this).height($table.find('tr:eq(' + i + ')').height());
+        //});
+        $(function () {
+            $('#konfUnlinkBrg').on('shown.bs.modal', function () {
+                $('#txtConfirmUnlink').focus()
+            });
+        });
+    });
+    function closeListUnlinkBrg() {
+        $('#ModalListBrgUnlink').modal('hide');
+    }
+    function checkAll(brg) {
+        $(".cb_" + brg).prop('checked', $("#cbb_" + brg).prop('checked'));
+    }
+    function UnlinkSelectedBrg() {
+        if (CheckBrgToUnlink()) {
+            //alert('start unlink : ' + rows_selected);
+            ConfirmUnlinkBrg(rows_selected);
+        }
+        else {
+            alert('Anda belum memilih barang yang akan diunlink.');
+        }
+    }
+    var rows_selected = [];
+    function CheckBrgToUnlink() {
+        rows_selected = [];
+        $(".cbunlink-detail").each(function (i, item) {
+            if ($(item).is(":checked")) {
+                /*return true;*/
+                rows_selected.push($(item).attr("data-brg"));
+            }
+        });
+        if (rows_selected.length > 0) {
+            return true;
+        }
+        return false;
+    }
+    function ConfirmUnlinkBrg(listBrg) {
+        $('#ModalListBrgUnlink').modal('show');
+
+        var link = '@Url.Action("ListBrgToUnlink", "Manage")';
+        link += '?listbrg=' + encodeURIComponent(listBrg);
+        $.ajax({
+            cache: false,
+            url: link,
+            success: function (response) {
+                $('#ModalListBrgUnlinkdiv').html(response);
+            }
+        });
+    }
+    function ProcessUnlinkBrg() {
+        /* alert('start unlink : ' + rows_selected);*/
+        $('#konfUnlinkBrg').modal('show');
+        document.getElementById("txtConfirmUnlink").focus();
+    }
+    function CekTextConfirm() {
+        var text = $('#txtConfirmUnlink').val();
+        if (text != undefined) {
+            text = text.replace('"', '').toUpperCase();
+            if (text == "UNLINK") {
+                var link = '@Url.Action("ProcessUnlinkByUser", "Manage")';
+                link += '?listbrg=' + encodeURIComponent(rows_selected);
+                $.ajax({
+                    cache: false,
+                    url: link,
+                    success: function (response) {
+                        $('#konfUnlinkBrg').modal('hide');
+                        $('#ModalListBrgUnlink').modal('hide');
+
+                        $('.modal-backdrop').remove();
+                        SelectProduct();
+                    },
+                    error: function (xhr, status, error) {
+                        //debugger;
+                        console.log(error);
+                    }
+                });
+            }
+            else {
+                alert('Untuk Konfirmasi Unlink Barang, Silahkan ketik "UNLINK" pada teks box.');
+            }
+        }
+        else {
+            alert('Untuk Konfirmasi Unlink Barang, Silahkan ketik "UNLINK" pada teks box.');
+        }
+    }
+</script>

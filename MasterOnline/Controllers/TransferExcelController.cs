@@ -713,6 +713,113 @@ namespace MasterOnline.Controllers
             return result;
         }
 
+        public ActionResult DownloadExcelLinkBarang(string cust)
+        {
+            var ret = new BindDownloadExcel
+            {
+                Errors = new List<string>()
+            };
+            try
+            {
+                using (var package = new OfficeOpenXml.ExcelPackage())
+                {
+                    ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Link Barang");
+
+                    //var listCust = cust.Split(',');
+                    //var qCust = "";
+                    //foreach(var customer in listCust)
+                    //{
+                    //    if (!string.IsNullOrEmpty(qCust))
+                    //    {
+                    //        qCust += ",";
+                    //    }
+                    //    qCust += "'" + customer + "'";
+                    //}
+                    var listCustomer = ErasoftDbContext.Database.SqlQuery<DataListCustomer>("SELECT CUST, PERSO, NAMAMARKET, A.RECNUM FROM ARF01 (NOLOCK) A INNER JOIN MO..MARKETPLACE M ON A.NAMA = M.IDMARKET WHERE NAMA <> '18' AND CUST IN ("+ cust + ") ORDER BY IDMARKET, PERSO").ToList();
+
+                    string sSQL = "SELECT S.BRG, ";
+                    sSQL += "replace(replace(S.NAMA, char(10), ''), char(13), '') + ISNULL(replace(replace(S.NAMA2, char(10), ''), char(13), ''), '') AS NAMABRG ";
+                    foreach (var c1 in listCustomer)
+                    {
+                        //sSQL += ", '" + c1.NAMAMARKET + "' + '(' + replace(replace('"+ c1.NAMAMARKET + "', char(10), ''), char(13), '') + ')' AS AKUN_"+c1.RECNUM+", ";
+                        sSQL += ",ISNULL(H" + c1.RECNUM + ".BRG_MP, '') BRG_MP_" + c1.RECNUM + ", ISNULL(H" + c1.RECNUM + ".AVALUE_34, '') LINK_" + c1.RECNUM + "";
+                    }
+                    sSQL += " FROM STF02 (NOLOCK) S ";
+                    foreach (var c2 in listCustomer)
+                    {
+                        sSQL += " LEFT JOIN STF02H (NOLOCK) H" + c2.RECNUM + " ON S.BRG = H" + c2.RECNUM + ".BRG and H" + c2.RECNUM + ".idmarket = " + c2.RECNUM;
+                    }
+                    sSQL += " ORDER BY NAMABRG,S.BRG ";
+                    var dsBarang = EDB.GetDataSet("CString", "STF02", sSQL);
+
+                    if (dsBarang.Tables[0].Rows.Count > 0)
+                    {
+                        for (int i = 0; i < dsBarang.Tables[0].Rows.Count; i++)
+                        {
+                            worksheet.Cells[2 + i, 1].Value = dsBarang.Tables[0].Rows[i]["BRG"].ToString();
+                            worksheet.Cells[2 + i, 2].Value = dsBarang.Tables[0].Rows[i]["NAMABRG"].ToString();
+                            var indexColumn = 3;
+                            foreach (var c3 in listCustomer)
+                            {
+                                //worksheet.Cells[2 + i, indexColumn].Value = dsBarang.Tables[0].Rows[i]["AKUN_" + c3.RECNUM + ""].ToString();
+                                //indexColumn++;
+
+                                var linkBrg = dsBarang.Tables[0].Rows[i]["BRG_MP_" + c3.RECNUM + ""].ToString();
+                                if(!string.IsNullOrEmpty(dsBarang.Tables[0].Rows[i]["LINK_" + c3.RECNUM + ""].ToString()))
+                                {
+                                    if(dsBarang.Tables[0].Rows[i]["LINK_" + c3.RECNUM + ""].ToString().ToLower().Contains("http"))
+                                    {
+                                        linkBrg = dsBarang.Tables[0].Rows[i]["LINK_" + c3.RECNUM + ""].ToString();
+                                    }
+                                }
+
+                                worksheet.Cells[2 + i, indexColumn].Value = linkBrg;
+                                indexColumn++;
+                            }
+
+                        }
+                        ExcelRange rg0 = worksheet.Cells[1, 1, worksheet.Dimension.End.Row, 2 + listCustomer.Count];
+                        string tableName0 = "TableBarang";
+                        ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
+                        table0.Columns[0].Name = "KODE BARANG";
+                        table0.Columns[1].Name = "NAMA BARANG";
+                        var indexColumn2 = 2;
+                        foreach (var c4 in listCustomer)
+                        {
+                            table0.Columns[indexColumn2].Name = c4.NAMAMARKET + " (" + c4.PERSO + ")";
+                            indexColumn2++;
+                        }
+
+                        table0.ShowHeader = true;
+                        table0.ShowFilter = true;
+                        table0.ShowRowStripes = false;
+                        worksheet.Cells.AutoFitColumns(0);
+
+                        //return File(package.GetAsByteArray(), System.Net.Mime.MediaTypeNames.Application.Octet, username + "_hargaJual" + ".xlsx");
+                        ret.byteExcel = package.GetAsByteArray();
+                        ret.namaFile = username + "_listlinkbrg" + ".xlsx";
+                    }
+                    else
+                    {
+                        ret.Errors.Add("Tidak ada data barang.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+            }
+
+            //return Json(ret, JsonRequestBehavior.AllowGet);
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(ret),
+                ContentType = "application/json"
+            };
+            return result;
+        }
         public FileResult DownloadFileExcel(/*byte[] file, string fileName*//*BindDownloadExcel data*/ string data)
         {
             return File(/*data.byteExcel*/ new byte[1], /*System.Net.Mime.MediaTypeNames.Application.Octet,*/ /*data.namaFile +*/ ".xlsx");
@@ -2082,7 +2189,7 @@ namespace MasterOnline.Controllers
                             //initialize log txt
                             #region Logging
                             string messageErrorLog = "";
-                            string filename = "Log_Upload_Pesanan_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
+                            string filename = "Log_Upload_Pesanan_" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddhhmmss") + ".txt";
                             var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), filename);
                             #endregion
 
@@ -2180,7 +2287,7 @@ namespace MasterOnline.Controllers
                                                 (resNocust),
                                                 (connID),
                                                 ("Upload Excel Pesanan"),
-                                                (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                 ("FAILED"),
                                                 //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                 (success + " / " + Convert.ToInt32(ret.countAll)),
@@ -2826,7 +2933,7 @@ namespace MasterOnline.Controllers
                                                                                                 (dataToko.CUST),
                                                                                                 (connID),
                                                                                                 ("Upload Excel Pesanan"),
-                                                                                                (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                                (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                                 ("FAILED"),
                                                                                                 //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                                 (success + " / " + Convert.ToInt32(ret.countAll)),
@@ -2866,7 +2973,7 @@ namespace MasterOnline.Controllers
                                                                                             (no_cust[0]),
                                                                                             (connID),
                                                                                             ("Upload Excel Pesanan"),
-                                                                                            (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                            (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                             ("FAILED"),
                                                                                             //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                             (success + " / " + Convert.ToInt32(ret.countAll)),
@@ -2906,7 +3013,7 @@ namespace MasterOnline.Controllers
                                                                                         (noCust),
                                                                                         (connID),
                                                                                         ("Upload Excel Pesanan"),
-                                                                                        (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                        (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                         ("FAILED"),
                                                                                         //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                         (success + " / " + Convert.ToInt32(ret.countAll)),
@@ -2946,7 +3053,7 @@ namespace MasterOnline.Controllers
                                                                                      (noCust),
                                                                                      (connID),
                                                                                      ("Upload Excel Pesanan"),
-                                                                                     (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                     (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                      ("FAILED"),
                                                                                      //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                      (success + " / " + Convert.ToInt32(ret.countAll)),
@@ -2987,7 +3094,7 @@ namespace MasterOnline.Controllers
                                                                                 (noCust),
                                                                                 (idRequest),
                                                                                 ("Upload Excel Pesanan"),
-                                                                                (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                 ("FAILED"),
                                                                                 //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                 (success + " / " + Convert.ToInt32(ret.countAll)),
@@ -3036,7 +3143,7 @@ namespace MasterOnline.Controllers
                                                                             (noCust),
                                                                             (idRequest),
                                                                             ("Upload Excel Pesanan"),
-                                                                            (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                            (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                             ("FAILED"),
                                                                             //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                             (success + " / " + Convert.ToInt32(ret.countAll)),
@@ -3076,7 +3183,7 @@ namespace MasterOnline.Controllers
                                                                         (noCust),
                                                                         (idRequest),
                                                                         ("Upload Excel Pesanan"),
-                                                                        (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                        (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                         ("FAILED"),
                                                                         //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                         (success + " / " + Convert.ToInt32(ret.countAll)),
@@ -3116,7 +3223,7 @@ namespace MasterOnline.Controllers
                                                                     (noCust),
                                                                     (idRequest),
                                                                     ("Upload Excel Pesanan"),
-                                                                    (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                    (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                     ("FAILED"),
                                                                     //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                     (success + " / " + Convert.ToInt32(ret.countAll)),
@@ -3156,7 +3263,7 @@ namespace MasterOnline.Controllers
                                                                 (noCust),
                                                                 (idRequest),
                                                                 ("Upload Excel Pesanan"),
-                                                                (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                                 ("FAILED"),
                                                                 //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                 (success + " / " + Convert.ToInt32(ret.countAll)),
@@ -3196,7 +3303,7 @@ namespace MasterOnline.Controllers
                                                             (""),
                                                             (idRequest),
                                                             ("Upload Excel Pesanan"),
-                                                            (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                            (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                             ("FAILED"),
                                                             //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                             (success + " / " + Convert.ToInt32(ret.countAll)),
@@ -3238,7 +3345,7 @@ namespace MasterOnline.Controllers
                                                         (noCust),
                                                         (idRequest),
                                                         ("Upload Excel Pesanan"),
-                                                        (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                        (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                         ("FAILED"),
                                                         //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                         (success + " / " + Convert.ToInt32(ret.countAll)),
@@ -3278,7 +3385,7 @@ namespace MasterOnline.Controllers
                                                     (noCust),
                                                     (idRequest),
                                                     ("Upload Excel Pesanan"),
-                                                    (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                    (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                     ("FAILED"),
                                                     //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                     (success + " / " + Convert.ToInt32(ret.countAll)),
@@ -3310,7 +3417,7 @@ namespace MasterOnline.Controllers
                                                 (""),
                                                 (idRequest),
                                                 ("Upload Excel Pesanan"),
-                                                (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                                 ("FAILED"),
                                                 //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                 (success + " / " + Convert.ToInt32(ret.countAll)),
@@ -3350,7 +3457,7 @@ namespace MasterOnline.Controllers
                                             (""),
                                             (idRequest),
                                             ("Upload Excel Pesanan"),
-                                            (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                            (DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")),
                                             ("FAILED"),
                                             //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                             (success + " / " + Convert.ToInt32(ret.countAll)),
@@ -3398,6 +3505,14 @@ namespace MasterOnline.Controllers
         }
         #endregion
 
+        //add by nurul 4/1/2022
+        public class tempBrgAkhirTahun
+        {
+            public string supp { get; set; }
+            public int tahun { get; set; }
+            public string brg { get; set; }
+        }
+        //end add by nurul 4/1/2022
         #region Upload Excel Pesanan
         public async Task<ActionResult> UploadXcelInvoicePembelian(string nobuk, int countAll, string percentDanprogress, string statusLoopSuccess)
         {
@@ -4506,6 +4621,7 @@ namespace MasterOnline.Controllers
                                         int iCountProcessInsertDB = 0;
                                         int iPercentase = 0;
 
+                                        var listProsesAKhirTahunPerBarang = new List<tempBrgAkhirTahun>();
                                         string sSQLValues = "";
 
                                         foreach (var refCheck in dataFilterRef)
@@ -4804,7 +4920,18 @@ namespace MasterOnline.Controllers
                                                                                                     await eraDB.SaveChangesAsync();
 
                                                                                                     sSQLValues = sSQLValues + "('" + kode_brg + "', '" + connID + "'),";
-                                                                                                    
+                                                                                                    //add by nurul 4/1/2022
+                                                                                                    if (Convert.ToDateTime(tgl).Year == DateTime.UtcNow.AddHours(7).Year - 1)
+                                                                                                    {
+                                                                                                        var barang = new tempBrgAkhirTahun()
+                                                                                                        {
+                                                                                                            brg = kode_brg,
+                                                                                                            tahun = Convert.ToDateTime(tgl).Year,
+                                                                                                            supp = kode_supplier
+                                                                                                        };
+                                                                                                        listProsesAKhirTahunPerBarang.Add(barang);
+                                                                                                    }
+                                                                                                    //end add by nurul 4/1/2022
                                                                                                 }
                                                                                                 catch (Exception ex)
                                                                                                 {
@@ -5285,6 +5412,15 @@ namespace MasterOnline.Controllers
                                             {
                                                 sSQLValues = sSQLValues.Substring(0, sSQLValues.Length - 1);
                                                 EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + sSQLValues);
+                                                //add by nurul 4/1/2022
+                                                if(listProsesAKhirTahunPerBarang.Count() > 0)
+                                                {
+                                                    foreach (var barangProses in listProsesAKhirTahunPerBarang)
+                                                    {
+                                                        new ManageController().ProsesAkhirTahunPerBarang(barangProses.brg, barangProses.supp, "", Convert.ToString(barangProses.tahun));
+                                                    }
+                                                }
+                                                //end add by nurul 4/1/2022
                                                 sSQLValues = "";
                                                 new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                             }
@@ -6465,43 +6601,74 @@ namespace MasterOnline.Controllers
                     string dt1 = DateTime.ParseExact(drtgl, "dd'/'MM'/'yyyy", CultureInfo.InvariantCulture).ToString("yyyy'-'MM'-'dd 00:00:00.000");
                     string dt2 = DateTime.ParseExact(sdtgl, "dd'/'MM'/'yyyy", CultureInfo.InvariantCulture).ToString("yyyy'-'MM'-'dd 23:59:59.999");
 
-                    string sSQL = "SELECT ISNULL(A.NO_BUKTI,'') AS NO_FAKTUR, A.TGL AS TGL_FAKTUR, A.STATUS AS STATUS_FAKTUR, " +
-                        "ISNULL(D.NO_BUKTI,'') AS NO_PESANAN, ISNULL(A.NO_REF, '') AS NO_REFERENSI, ISNULL(D.TGL, '') AS TGL_PESANAN, " +
-                        //add by nurul 22/6/2021
-                        "A.CUST AS CUST, " +
-                        //end add by nurul 22/6/2021
-                        //change by nurul 17/6/2021
-                        //"C.NAMAMARKET + '(' + B.PERSO + ')' MARKETPLACE, ISNULL(A.CUST, '') AS KODE_PEMBELI, ISNULL(A.NAMAPEMESAN, '') AS PEMBELI, " +
-                        "C.NAMAMARKET + '(' + B.PERSO + ')' MARKETPLACE, ISNULL(A.PEMESAN, '') AS KODE_PEMBELI, ISNULL(A.NAMAPEMESAN, '') AS PEMBELI, " +
-                        "(select isnull(tlp,'') from arf01c x(nolock) where x.buyer_code=a.PEMESAN) as TLP, " +
-                        //end change by nurul 17/6/2021
-                        "ISNULL(A.AL, '') AS ALAMAT_KIRIM, ISNULL(A.TERM, '') AS [TOP], ISNULL(A.NAMAPENGIRIM, '') AS KURIR, ISNULL(A.TGL_JT_TEMPO, '') AS TGL_JATUH_TEMPO, " +
-                        //"ISNULL(D.KET, '') AS KETERANGAN, ISNULL(A.BRUTO, '') AS BRUTO, ISNULL(A.DISCOUNT,'') AS DISC, ISNULL(A.PPN, '') AS PPN, ISNULL(A.NILAI_PPN, '') AS NILAI_PPN, " +
-                        //"ISNULL(D.ONGKOS_KIRIM, '') AS ONGKOS_KIRIM, ISNULL(A.NETTO, '') AS NETTO, ISNULL(D.STATUS_TRANSAKSI, '') AS STATUS_PESANAN, " +
-                        "ISNULL(D.KET, '') AS KETERANGAN, ISNULL(A.BRUTO, '') AS BRUTO, ISNULL(A.NILAI_DISC, '') AS DISC, ISNULL(A.PPN, '') AS PPN, ISNULL(A.NILAI_PPN, '') AS NILAI_PPN, " +
-                        "ISNULL(A.MATERAI, '') AS ONGKOS_KIRIM, ISNULL(A.NETTO, '') AS NETTO, ISNULL(D.STATUS_TRANSAKSI, '') AS STATUS_PESANAN, " +
-                        "ISNULL(G.BRG, '') AS KODE_BRG, ISNULL(H.NAMA,'') + ' ' + ISNULL(H.NAMA2, '') AS NAMA_BARANG, ISNULL(QTY, '') AS QTY, " +
-                        "ISNULL(H_SATUAN, '') AS HARGA_SATUAN, ISNULL(G.DISCOUNT, '') AS DISC1, ISNULL(G.NILAI_DISC_1, '') AS NDISC1, " +
-                        "ISNULL(G.DISCOUNT_2, '') AS DISC2, ISNULL(G.NILAI_DISC_2, '') AS NDISC2, ISNULL(HARGA, '') AS TOTAL " +
-                        //ADD BY NURUL 25/8/2021
-                        //",ISNULL(Z.NAMA,'') AS TEMP_PEMBELI, ISNULL(Z.TLP,'') AS TEMP_TLP, ISNULL(Z.ALAMAT,'') AS TEMP_ALAMAT_KIRIM, ISNULL(Z.PEMBELI,'') AS TEMP_KODE_PEMBELI " +
-                        //END ADD BY NURUL 25/8/2021
-                        "FROM SIT01A A LEFT JOIN ARF01 B ON A.CUST = B.CUST " +
-                        "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket " +
-                        "LEFT JOIN SOT01A D ON A.NO_SO = D.NO_BUKTI " +
-                        "LEFT JOIN SIT01B G ON A.NO_BUKTI = G.NO_BUKTI " +
-                        "LEFT JOIN STF02 H ON G.BRG = H.BRG " +
-                        "LEFT JOIN (SELECT DISTINCT NO_BUKTI FROM SIT01A A INNER JOIN ART03B B ON A.NO_BUKTI = B.NFAKTUR)E ON A.NO_BUKTI = E.NO_BUKTI " +
-                        "LEFT JOIN (select ret.jenis_form,ret.no_bukti as bukti_ret,ret.no_ref as no_si,fkt.no_bukti as bukti_faktur from sit01a ret inner join sit01a fkt on fkt.no_bukti=ret.no_ref where ret.jenis_form='3') F ON A.NO_BUKTI=F.BUKTI_FAKTUR " +
-                        //ADD BY NURUL 25/8/2021
-                        //"LEFT JOIN PEMBELI_FAKTUR_SHOPEE Z(NOLOCK) ON Z.FAKTUR=A.NO_BUKTI " +
-                        //END ADD BY NURUL 25/8/2021
-                        "WHERE A.TGL BETWEEN '" + dt1 + "' AND '" + dt2 + "' " +
-                        "AND A.JENIS_FORM = '2' " +
-                        "ORDER BY A.TGL DESC, A.NO_BUKTI DESC";
+                    //CHANGE BY NURUL 25/1/2022
+                    //string sSQL = "SELECT ISNULL(A.NO_BUKTI,'') AS NO_FAKTUR, A.TGL AS TGL_FAKTUR, A.STATUS AS STATUS_FAKTUR, " +
+                    //    "ISNULL(D.NO_BUKTI,'') AS NO_PESANAN, ISNULL(A.NO_REF, '') AS NO_REFERENSI, ISNULL(D.TGL, '') AS TGL_PESANAN, " +
+                    //    //add by nurul 22/6/2021
+                    //    "A.CUST AS CUST, " +
+                    //    //end add by nurul 22/6/2021
+                    //    //change by nurul 17/6/2021
+                    //    //"C.NAMAMARKET + '(' + B.PERSO + ')' MARKETPLACE, ISNULL(A.CUST, '') AS KODE_PEMBELI, ISNULL(A.NAMAPEMESAN, '') AS PEMBELI, " +
+                    //    "C.NAMAMARKET + '(' + B.PERSO + ')' MARKETPLACE, ISNULL(A.PEMESAN, '') AS KODE_PEMBELI, ISNULL(A.NAMAPEMESAN, '') AS PEMBELI, " +
+                    //    "(select isnull(tlp,'') from arf01c x(nolock) where x.buyer_code=a.PEMESAN) as TLP, " +
+                    //    //end change by nurul 17/6/2021
+                    //    "ISNULL(A.AL, '') AS ALAMAT_KIRIM, ISNULL(A.TERM, '') AS [TOP], ISNULL(A.NAMAPENGIRIM, '') AS KURIR, ISNULL(A.TGL_JT_TEMPO, '') AS TGL_JATUH_TEMPO, " +
+                    //    //"ISNULL(D.KET, '') AS KETERANGAN, ISNULL(A.BRUTO, '') AS BRUTO, ISNULL(A.DISCOUNT,'') AS DISC, ISNULL(A.PPN, '') AS PPN, ISNULL(A.NILAI_PPN, '') AS NILAI_PPN, " +
+                    //    //"ISNULL(D.ONGKOS_KIRIM, '') AS ONGKOS_KIRIM, ISNULL(A.NETTO, '') AS NETTO, ISNULL(D.STATUS_TRANSAKSI, '') AS STATUS_PESANAN, " +
+                    //    "ISNULL(D.KET, '') AS KETERANGAN, ISNULL(A.BRUTO, '') AS BRUTO, ISNULL(A.NILAI_DISC, '') AS DISC, ISNULL(A.PPN, '') AS PPN, ISNULL(A.NILAI_PPN, '') AS NILAI_PPN, " +
+                    //    "ISNULL(A.MATERAI, '') AS ONGKOS_KIRIM, ISNULL(A.NETTO, '') AS NETTO, ISNULL(D.STATUS_TRANSAKSI, '') AS STATUS_PESANAN, " +
+                    //    "ISNULL(G.BRG, '') AS KODE_BRG, ISNULL(H.NAMA,'') + ' ' + ISNULL(H.NAMA2, '') AS NAMA_BARANG, ISNULL(QTY, '') AS QTY, " +
+                    //    "ISNULL(H_SATUAN, '') AS HARGA_SATUAN, ISNULL(G.DISCOUNT, '') AS DISC1, ISNULL(G.NILAI_DISC_1, '') AS NDISC1, " +
+                    //    "ISNULL(G.DISCOUNT_2, '') AS DISC2, ISNULL(G.NILAI_DISC_2, '') AS NDISC2, ISNULL(HARGA, '') AS TOTAL " +
+                    //    //ADD BY NURUL 25/8/2021
+                    //    //",ISNULL(Z.NAMA,'') AS TEMP_PEMBELI, ISNULL(Z.TLP,'') AS TEMP_TLP, ISNULL(Z.ALAMAT,'') AS TEMP_ALAMAT_KIRIM, ISNULL(Z.PEMBELI,'') AS TEMP_KODE_PEMBELI " +
+                    //    //END ADD BY NURUL 25/8/2021
+                    //    "FROM SIT01A A LEFT JOIN ARF01 B ON A.CUST = B.CUST " +
+                    //    "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket " +
+                    //    "LEFT JOIN SOT01A D ON A.NO_SO = D.NO_BUKTI " +
+                    //    "LEFT JOIN SIT01B G ON A.NO_BUKTI = G.NO_BUKTI " +
+                    //    "LEFT JOIN STF02 H ON G.BRG = H.BRG " +
+                    //    "LEFT JOIN (SELECT DISTINCT NO_BUKTI FROM SIT01A A INNER JOIN ART03B B ON A.NO_BUKTI = B.NFAKTUR)E ON A.NO_BUKTI = E.NO_BUKTI " +
+                    //    "LEFT JOIN (select ret.jenis_form,ret.no_bukti as bukti_ret,ret.no_ref as no_si,fkt.no_bukti as bukti_faktur from sit01a ret inner join sit01a fkt on fkt.no_bukti=ret.no_ref where ret.jenis_form='3') F ON A.NO_BUKTI=F.BUKTI_FAKTUR " +
+                    //    //ADD BY NURUL 25/8/2021
+                    //    //"LEFT JOIN PEMBELI_FAKTUR_SHOPEE Z(NOLOCK) ON Z.FAKTUR=A.NO_BUKTI " +
+                    //    //END ADD BY NURUL 25/8/2021
+                    //    "WHERE A.TGL BETWEEN '" + dt1 + "' AND '" + dt2 + "' " +
+                    //    "AND A.JENIS_FORM = '2' " +
+                    //    "ORDER BY A.TGL DESC, A.NO_BUKTI DESC";
+                    var delTemp = EDB.ExecuteSQL("CString", System.Data.CommandType.Text, "DROP TABLE #temp_FAKTUR_DESEMBER");
+                    if (delTemp > 0)
+                    {
+
+                    }
+                    string sSQL = "";
+                    sSQL += "SELECT ISNULL(A.NO_BUKTI,'') AS NO_FAKTUR, A.TGL AS TGL_FAKTUR, CASE WHEN A.STATUS ='1' THEN 'SELESAI' WHEN A.STATUS='2' THEN 'BATAL' ELSE '' END AS STATUS_FAKTUR, ISNULL(D.NO_BUKTI,'') AS NO_PESANAN, ISNULL(A.NO_REF, '') AS NO_REFERENSI, ";
+                    sSQL += "ISNULL(D.TGL, '') AS TGL_PESANAN, A.CUST AS CUST, ";
+                    sSQL += "ISNULL((SELECT top 1 NAMAMARKET + ' (' + PERSO + ')' FROM ARF01 X(NOLOCK) INNER JOIN MO..MARKETPLACE Y(NOLOCK) ON X.NAMA = Y.IDMARKET WHERE X.CUST = A.CUST),'') AS MARKETPLACE, ";
+                    sSQL += "ISNULL(A.PEMESAN, '') AS KODE_PEMBELI, ISNULL(A.NAMAPEMESAN, '') AS PEMBELI, ";
+                    sSQL += "(select isnull(tlp, '') from arf01c x(nolock) where x.buyer_code = a.PEMESAN) as TLP,  ";
+                    sSQL += "ISNULL(A.AL, '') AS ALAMAT_KIRIM, ISNULL(A.TERM, '') AS[TOP],  ";
+                    sSQL += "ISNULL(A.NAMAPENGIRIM, '') AS KURIR, ISNULL(A.TGL_JT_TEMPO, '') AS TGL_JATUH_TEMPO, ISNULL(D.KET, '') AS KETERANGAN, ISNULL(A.BRUTO, '') AS BRUTO, ISNULL(A.NILAI_DISC, '') AS DISC, ";
+                    sSQL += "ISNULL(A.PPN, '') AS PPN, ISNULL(A.NILAI_PPN, '') AS NILAI_PPN, ISNULL(A.MATERAI, '') AS ONGKOS_KIRIM, ISNULL(A.NETTO, '') AS NETTO, ";
+                    sSQL += "CASE WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '0' THEN 'BELUM BAYAR' WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '01' THEN 'SUDAH BAYAR' WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '02' THEN 'PACKING' WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '03' THEN 'FAKTUR' WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '04' THEN 'SELESAI' WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '11' THEN 'BATAL' WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '12' THEN 'BATAL COD' ELSE '' END AS STATUS_PESANAN,  ";
+                    sSQL += "ISNULL(G.BRG, '') AS KODE_BRG, ";
+                    sSQL += "ISNULL((SELECT ISNULL(NAMA + ' ' + ISNULL(NAMA2, ''), '') FROM STF02 WHERE BRG = G.BRG),'') AS NAMA_BARANG, ";
+                    sSQL += "ISNULL(QTY, '') AS QTY, ";
+                    sSQL += "ISNULL(H_SATUAN, '') AS HARGA_SATUAN, ISNULL(G.DISCOUNT, '') AS DISC1, ISNULL(G.NILAI_DISC_1, '') AS NDISC1, ISNULL(G.DISCOUNT_2, '') AS DISC2, ";
+                    sSQL += "ISNULL(G.NILAI_DISC_2, '') AS NDISC2, ISNULL(HARGA, '') AS TOTAL ";
+                    sSQL += "into #temp_FAKTUR_DESEMBER ";
+                    sSQL += "FROM SIT01A A(NOLOCK) INNER JOIN SIT01B G(NOLOCK) ON A.NO_BUKTI = G.NO_BUKTI ";
+                    sSQL += "LEFT JOIN(SELECT NO_BUKTI, TGL, KET, STATUS_TRANSAKSI FROM SOT01A (NOLOCK))D ON D.NO_BUKTI = A.NO_SO ";
+                    sSQL += "WHERE A.TGL >= '" + dt1 + "' AND A.TGL <= '" + dt2 + "' AND A.JENIS_FORM = '2' ORDER BY A.TGL DESC, A.NO_BUKTI DESC; " + System.Environment.NewLine;
+
+                    sSQL += "SELECT NO_FAKTUR, TGL_FAKTUR, STATUS_FAKTUR, NO_PESANAN, NO_REFERENSI, TGL_PESANAN, CUST, MARKETPLACE, KODE_PEMBELI, PEMBELI, TLP, REPLACE(REPLACE(ALAMAT_KIRIM, CHAR(13), ' '), CHAR(10), ' ') AS ALAMAT_KIRIM, ";
+                    sSQL += "[TOP], KURIR, TGL_JATUH_TEMPO, REPLACE(REPLACE(convert(nvarchar, KETERANGAN), CHAR(13), ' '), CHAR(10), ' ') AS KETERANGAN, BRUTO, DISC, PPN, NILAI_PPN, ONGKOS_KIRIM, NETTO, STATUS_PESANAN, KODE_BRG, NAMA_BARANG, QTY, HARGA_SATUAN, DISC1, NDISC1, DISC2, NDISC2, TOTAL ";
+                    sSQL += "FROM #temp_FAKTUR_DESEMBER; " + System.Environment.NewLine;
+                    sSQL += "DROP TABLE #temp_FAKTUR_DESEMBER; " + System.Environment.NewLine;
+                    //END CHANGE BY NURUL 25/1/2022
 
                     var lsFaktur = EDB.GetDataSet("CString", "SIT01A", sSQL);
-
+                    
                     if (lsFaktur.Tables[0].Rows.Count > 0)
                     {
 
@@ -6512,13 +6679,14 @@ namespace MasterOnline.Controllers
                         {
                             worksheet.Cells[5 + i, 1].Value = lsFaktur.Tables[0].Rows[i]["NO_FAKTUR"];
                             worksheet.Cells[5 + i, 2].Value = Convert.ToDateTime(lsFaktur.Tables[0].Rows[i]["TGL_FAKTUR"]).ToString("yyyy-MM-dd HH:mm:ss");
-                            var status1 = "";
-                            switch (lsFaktur.Tables[0].Rows[i]["STATUS_FAKTUR"])
-                            {
-                                case "1": status1 = "SELESAI"; break;
-                                case "2": status1 = "BATAL"; break;
-                            }
-                            worksheet.Cells[5 + i, 3].Value = status1;
+                            //var status1 = "";
+                            //switch (lsFaktur.Tables[0].Rows[i]["STATUS_FAKTUR"])
+                            //{
+                            //    case "1": status1 = "SELESAI"; break;
+                            //    case "2": status1 = "BATAL"; break;
+                            //}
+                            //worksheet.Cells[5 + i, 3].Value = status1;
+                            worksheet.Cells[5 + i, 3].Value = lsFaktur.Tables[0].Rows[i]["STATUS_FAKTUR"];
                             worksheet.Cells[5 + i, 4].Value = lsFaktur.Tables[0].Rows[i]["NO_PESANAN"];
                             worksheet.Cells[5 + i, 5].Value = lsFaktur.Tables[0].Rows[i]["NO_REFERENSI"];
                             worksheet.Cells[5 + i, 6].Value = Convert.ToDateTime(lsFaktur.Tables[0].Rows[i]["TGL_PESANAN"]).ToString("yyyy-MM-dd HH:mm:ss");
@@ -6588,17 +6756,18 @@ namespace MasterOnline.Controllers
                             worksheet.Cells[5 + i, 20].Value = lsFaktur.Tables[0].Rows[i]["NILAI_PPN"];
                             worksheet.Cells[5 + i, 21].Value = lsFaktur.Tables[0].Rows[i]["ONGKOS_KIRIM"];
                             worksheet.Cells[5 + i, 22].Value = lsFaktur.Tables[0].Rows[i]["NETTO"];
-                            var pesanan1 = "";
-                            switch (lsFaktur.Tables[0].Rows[i]["STATUS_PESANAN"])
-                            {
-                                case "0": pesanan1 = "BELUM BAYAR"; break;
-                                case "01": pesanan1 = "SUDAH BAYAR"; break;
-                                case "02": pesanan1 = "PACKING"; break;
-                                case "03": pesanan1 = "FAKTUR"; break;
-                                case "04": pesanan1 = "SELESAI"; break;
-                                case "11": pesanan1 = "BATAL"; break;
-                            }
-                            worksheet.Cells[5 + i, 23].Value = pesanan1;
+                            //var pesanan1 = "";
+                            //switch (lsFaktur.Tables[0].Rows[i]["STATUS_PESANAN"])
+                            //{
+                            //    case "0": pesanan1 = "BELUM BAYAR"; break;
+                            //    case "01": pesanan1 = "SUDAH BAYAR"; break;
+                            //    case "02": pesanan1 = "PACKING"; break;
+                            //    case "03": pesanan1 = "FAKTUR"; break;
+                            //    case "04": pesanan1 = "SELESAI"; break;
+                            //    case "11": pesanan1 = "BATAL"; break;
+                            //}
+                            //worksheet.Cells[5 + i, 23].Value = pesanan1;
+                            worksheet.Cells[5 + i, 23].Value = lsFaktur.Tables[0].Rows[i]["STATUS_PESANAN"];
                             worksheet.Cells[5 + i, 24].Value = lsFaktur.Tables[0].Rows[i]["KODE_BRG"];
                             worksheet.Cells[5 + i, 25].Value = lsFaktur.Tables[0].Rows[i]["NAMA_BARANG"];
                             worksheet.Cells[5 + i, 26].Value = lsFaktur.Tables[0].Rows[i]["QTY"];

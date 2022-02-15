@@ -1,0 +1,54 @@
+﻿@using MasterOnline.ViewModels
+@model BindingUnlinkBarang
+@{
+    //ViewBag.Title = "Matrix Barang";
+    //Layout = "~/Views/Shared/_LayoutManage.cshtml";
+    //var context = new MoDbContext();
+    //var listMarket = context.Marketplaces.ToList();
+}
+
+<div class="row">
+    @{var prevBrg = ""; }
+    @foreach (var barang in Model.barang)
+    {
+        if (prevBrg != barang.BRG)
+        {
+            if (prevBrg != "")
+            {
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+            }
+            <div class="col-md-12">
+                <div class="col-md-3"><strong>Kode Barang</strong></div>
+                <div class="col-md-1" style="text-align:end;"><strong>:</strong></div>
+                <div class="col-md-8"><strong> @barang.BRG </strong></div>
+            </div>
+            <div class="col-md-12">
+                <div class="col-md-3"><strong>Nama Barang</strong></div>
+                <div class="col-md-1" style="text-align:end;"><strong>:</strong></div>
+                <div class="col-md-8"><strong> @barang.NAMABRG </strong></div>
+            </div>
+        }
+        <div class="col-md-12">
+            <div class="col-md-3">@barang.NAMAMARKET (@barang.PERSO)</div>
+            <div class="col-md-1" style="text-align:end;"><strong>:</strong></div>
+            <div class="col-md-8">
+                @barang.BRG_MP
+                @if (!string.IsNullOrEmpty(barang.LINK))
+                {
+                    var linkBrg = barang.LINK;
+                    if (linkBrg.Contains("http"))
+                    {
+                        <br />
+                        <a href="@linkBrg" target="_blank" rel="noopener noreferrer"> @linkBrg</a>
+                    }
+                }
+            </div>
+        </div>
+        prevBrg = barang.BRG;
+    }
+</div>

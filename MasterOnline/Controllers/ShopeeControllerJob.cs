@@ -141,9 +141,9 @@ namespace MasterOnline.Controllers
             if (TokenExpired || bForceRefresh)
             {
                 #region dynamodb
-                if (dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_RAHMAMK" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_710298"
-                    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_930355" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_750320"
-                    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_1521519" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_770308")
+                //if (dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_RAHMAMK" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_710298"
+                //    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_930355" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_750320"
+                //    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_1521519" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_770308")
                 {
                     try { 
                     var dataInDDB = Services.UploadImageService.selectToDB("shopeev2_token", "db_name", dataAPI.DatabasePathErasoft);
@@ -272,9 +272,9 @@ namespace MasterOnline.Controllers
                                 var dateExpired = dataAPI.token_expired.Value.ToString("yyyy-MM-dd HH:mm:ss");
 
                                 #region insert to dynamo db
-                                if (dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_RAHMAMK" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_710298"
-                                    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_930355" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_750320"
-                                    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_1521519" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_770308")
+                                //if (dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_RAHMAMK" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_710298"
+                                //    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_930355" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_750320"
+                                //    || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_1521519" || dataAPI.DatabasePathErasoft.ToUpper() == "ERASOFT_770308")
                                 { 
                                     try
                                     {
@@ -9226,10 +9226,12 @@ namespace MasterOnline.Controllers
                 sSQL += "LINK_ERROR = '" + Link_Error + "' FROM STF02H S INNER JOIN ARF01 A ON S.IDMARKET = A.RECNUM AND A.CUST = '" + log_CUST + "' WHERE S.BRG = '" + kodeProduk + "' ";
                 EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 
-                myReq.ContentLength = myData.Length;
+                var byteData = Encoding.UTF8.GetBytes(myData);
+                myReq.ContentLength = byteData.Length;
                 using (var dataStream = myReq.GetRequestStream())
                 {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                    dataStream.Write(byteData, 0, byteData.Length);
+                    //dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
                 }
                 using (WebResponse response = await myReq.GetResponseAsync())
                 {
@@ -10789,10 +10791,12 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             try
             {
-                myReq.ContentLength = myData.Length;
+                var byteData = Encoding.UTF8.GetBytes(myData);
+                myReq.ContentLength = byteData.Length;
                 using (var dataStream = myReq.GetRequestStream())
                 {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                    dataStream.Write(byteData, 0, byteData.Length);
+                    //dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
                 }
                 using (WebResponse response = await myReq.GetResponseAsync())
                 {
@@ -11043,10 +11047,12 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             try
             {
-                myReq.ContentLength = myData.Length;
+                var byteData = Encoding.UTF8.GetBytes(myData);
+                myReq.ContentLength = byteData.Length;
                 using (var dataStream = myReq.GetRequestStream())
                 {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                    dataStream.Write(byteData, 0, byteData.Length);
+                    //dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
                 }
                 using (WebResponse response = await myReq.GetResponseAsync())
                 {
@@ -11177,10 +11183,12 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             try
             {
-                myReq.ContentLength = myData.Length;
+                var byteData = Encoding.UTF8.GetBytes(myData);
+                myReq.ContentLength = byteData.Length;
                 using (var dataStream = myReq.GetRequestStream())
                 {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                    dataStream.Write(byteData, 0, byteData.Length);
+                    //dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
                 }
                 using (WebResponse response = await myReq.GetResponseAsync())
                 {
@@ -12130,11 +12138,13 @@ namespace MasterOnline.Controllers
             try
             {
                 manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+                var byteData = Encoding.UTF8.GetBytes(myData);
 
-                myReq.ContentLength = myData.Length;
+                myReq.ContentLength = byteData.Length;
                 using (var dataStream = myReq.GetRequestStream())
                 {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                    dataStream.Write(byteData, 0, byteData.Length);
+                    //dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
                 }
                 using (WebResponse response = await myReq.GetResponseAsync())
                 {

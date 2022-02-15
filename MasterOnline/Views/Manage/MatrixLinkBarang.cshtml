@@ -1,0 +1,647 @@
+﻿@{
+    ViewBag.Title = "Barang";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+}
+
+@section styles
+{
+    <link href="~/Content/selectize.css" rel="stylesheet" />
+    <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+    <style>
+        #loading_barang_tab {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            z-index: 100;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0,0,0,0);
+        }
+
+        #loading_barang_tab_image {
+            width: 20px;
+            height: 20px;
+            margin-top: -90px;
+            margin-left: -90px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-width: 30px;
+            border-radius: 50%;
+        }
+
+        .disabled-tab {
+            cursor: not-allowed;
+            background-color: #999 !important;
+            color: #fff;
+        }
+
+            .disabled-tab:hover,
+            .disabled-tab:active,
+            .disabled-tab:visited {
+                color: #fff;
+            }
+
+        [data-tip] {
+            position: relative;
+        }
+
+            [data-tip]:before {
+                content: '';
+                /* hides the tooltip when not hovered */
+                display: none;
+                content: '';
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-bottom: 5px solid #1a1a1a;
+                position: absolute;
+                top: 30px;
+                left: 35px;
+                z-index: 8;
+                font-size: 0;
+                line-height: 0;
+                width: 0;
+                height: 0;
+            }
+
+            [data-tip]:after {
+                display: none;
+                content: attr(data-tip);
+                position: absolute;
+                top: 35px;
+                left: 0px;
+                padding: 2px 5px;
+                background: #1a1a1a;
+                color: #fff;
+                z-index: 9;
+                font-size: 0.85em;
+                height: auto;
+                line-break: normal;
+                max-width: 200px;
+                line-height: 18px;
+                -webkit-border-radius: 3px;
+                -moz-border-radius: 3px;
+                border-radius: 3px;
+                white-space: normal;
+                word-wrap: normal;
+            }
+
+            [data-tip]:hover:before,
+            [data-tip]:hover:after {
+                display: block;
+            }
+
+        #Stf02_Deskripsi {
+            resize: vertical;
+            height: 100px;
+            max-height: 150px;
+        }
+
+        .satuan {
+            text-align: left !important;
+            font-size: 10px;
+        }
+
+        #hapus_label {
+            color: orange;
+            font-weight: bold;
+        }
+
+        .foto_produk_section {
+            padding: 10px;
+        }
+
+            .foto_produk_section > .box_upload {
+                width: 250px;
+                height: 250px;
+                border: dashed 1.5px #bbb;
+                border-radius: 10px;
+                background-color: #f7f7f7;
+                background-image: url('');
+                text-align: center;
+                display: table;
+                margin: 0 auto;
+                cursor: pointer;
+            }
+
+        .box_upload > .box_upload_placeholder {
+            color: #ccc;
+            font-size: 20px;
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+        .btn_hapus_foto_produk {
+            position: absolute;
+            bottom: 15px;
+            left: 48px;
+        }
+
+        /* =============== Checkbox ================ */
+
+        /* Customize the label (the container) */
+        .checkbox-container {
+            display: block;
+            position: relative;
+            /*padding-left: 35px;*/
+            margin-top: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+            /* Hide the browser's default checkbox */
+            .checkbox-container input {
+                position: relative;
+                opacity: 100;
+                cursor: pointer;
+                display: none;
+            }
+
+        /* Create a custom checkbox */
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 18px;
+            height: 25px;
+            width: 25px;
+            background-color: #eee;
+            border: solid 1px #ccc;
+        }
+
+        /* On mouse-over, add a grey background color */
+        .checkbox-container:hover input ~ .checkmark {
+            background-color: #ccc;
+        }
+
+        /* When the checkbox is checked, add a blue background */
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: #2196F3;
+        }
+
+        /* Create the checkmark/indicator (hidden when not checked) */
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        /* Show the checkmark when checked */
+        .checkbox-container input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        /* Style the checkmark/indicator */
+        .checkbox-container .checkmark:after {
+            left: 9px;
+            top: 5px;
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            -webkit-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
+        }
+    </style>
+}
+<!DOCTYPE html>
+
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="" role="tabpanel" data-example-id="togglable-tabs">
+            <ul id="myTab" class="nav nav-tabs" role="tablist">
+                <li class="active">
+                    <a href="#tab_content1" id="linkbarang-tab" role="tab" data-toggle="tab" aria-expanded="true">Link Barang</a>
+                </li>
+                <li>
+                    <a href="#tab_content2" id="history-tab" role="tab" data-toggle="tab" aria-expanded="false">History Unlink Barang</a>
+                </li>
+            </ul>
+            <div id="myTabContent" class="tab-content" style="padding-top:10px">
+                <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="linkbarang-tab">
+                    <div class="row barang_table_section">
+                        <div class="col-lg-7 col-sm-7">
+                            @*<input id="search_barang" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_barang_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>*@
+                            <select id="cmbBarang" placeholder="Pilih Max 5 Barang"></select>
+                            <input id="txtListBrg" style="display:none;" />
+
+                        </div>
+                        <div class="col-lg-5 col-sm-5">
+                            <div class="pull-right">
+                                <button class="btn btn-primary" id="btnClear" onclick="RemoveAllBrg()">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row barang_table_section" style="padding-bottom: 5px;padding-left:0px;">
+                        <div class="col-lg-8 col-sm-8">
+                            <div class="filter-brg-div" style="display:none; border: 1px solid #ccc" id="divBrg1">
+                                @*<div style="display:table-cell;">
+                                        <input disabled id="txtBrg1" style="border:none;width:100%;" />
+                                    </div>*@
+                                <span id="txtBrg1" class="filter-brg"></span>
+                                <button id="btnDel1" class="fa fa-times" style="" current-id="" onclick="removeSearch(1)"></button>
+                            </div>
+                            <div class="filter-brg-div" style="display:none; border: 1px solid #ccc" id="divBrg2">
+                                <span id="txtBrg2" class="filter-brg"></span>
+                                <button id="btnDel2" class="fa fa-times" style="" current-id="" onclick="removeSearch(2)"></button>
+                            </div>
+                            <div class="filter-brg-div" style="display:none; border: 1px solid #ccc" id="divBrg3">
+                                <span id="txtBrg3" class="filter-brg"></span>
+                                <button id="btnDel3" class="fa fa-times" style="" current-id="" onclick="removeSearch(3)"></button>
+                            </div>
+                            <div class="filter-brg-div" style="display:none; border: 1px solid #ccc" id="divBrg4">
+                                <span id="txtBrg4" class="filter-brg"></span>
+                                <button id="btnDel4" class="fa fa-times" style="" current-id="" onclick="removeSearch(4)"></button>
+                            </div>
+                            <div class="filter-brg-div" style="display:none; border: 1px solid #ccc" id="divBrg5">
+                                <span id="txtBrg5" class="filter-brg"></span>
+                                <button id="btnDel5" class="fa fa-times" style="" current-id="" onclick="removeSearch(5)"></button>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-sm-4">
+                            <input type="button" class="btn btn-primary pull-right" id="btnUnlink" value="Unlink Barang" onclick="UnlinkSelectedBrg()" />
+                            <input type="button" class="btn btn-primary pull-right" id="btnExcelLinkBrg" value="Excel Link Barang" onclick="popupModalDownloadExcel();" />
+
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top: 15px;">
+                        <div id="loading_barang_tab" style="display:none;">
+                            <div id="loading_barang_tab_image">
+                                <img src="~/Content/Images/spinner.gif" />
+                            </div>
+                        </div>
+                        <div class="col-sm-12 barang_table_section" id="table-matrix-barang-partial">
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="history-tab">
+                    <div class="row history_unlink_section">
+                        <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
+                            <div class="input-group">
+                                <input id="search_history" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_history_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 col-sm-12">
+                            <div class="input-group text pull-right" style="padding-top:13px">
+                                <select class="form-control" id="TakeRecordHistory" name="TakeRecordHistory" required="required">
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    @*<div class="row history_unlink_section">
+                            <div class="col-lg-1 col-sm-1">
+                                <div class="input-group text" style="padding-top:13px">
+                                    <select class="form-control" id="TakeRecordHistory" name="TakeRecordHistory" required="required">
+                                        <option value="10">10</option>
+                                        <option value="20">20</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>*@
+                    <div class="row history_unlink_section" style="margin-top: 5px;">
+                        <div class="col-sm-12" id="table-history-unlink-barang-partial">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="modal fade" id="ModalExcelLinkBarang" tabindex="-1" role="dialog" aria-labelledby="ModalExcelLinkBarangLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="ModalExcelLinkBarangLabel">Excel Link Barang</h4>
+            </div>
+            <div class="modal-body">
+                <div id="loading_excel_link" class="text-center">
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>
+                            Silahkan Pilih Akun Marketplace :
+                        </label>
+                    </div>
+                    <div class="col-md-12" id="list-customer-partial">
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="DownloadExcelLinkBarang()">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script src="~/Content/vendors/moment/min/moment.min.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.283.1.min.js"></script>
+    <script type="text/javascript">
+        var $page = window.text;
+        var $GetPage = window.text;
+        var $TabAktif = 0;
+        $(document).ready(function () {
+            $page = 0;
+            getListBarang();
+
+            $('#linkbarang-tab').click(function () {
+                $TabAktif = 0;
+                getListBarang();
+            });
+            $('#TakeRecordHistory').change(function () {
+                searchTableHistoryUnlinkBrg();
+            });
+
+            $('#history-tab').click(function () {
+                $TabAktif = 1;
+                searchTableHistoryUnlinkBrg();
+            });
+            $('#search_history').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableHistoryUnlinkBrg();
+                    return false;
+                }
+            });
+            $('#search_history_click').click(function () {
+                searchTableHistoryUnlinkBrg();
+            });
+        });
+        function getListBarang() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetListBarangMatrix", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listMerk = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listMerk[i] = {
+                                id: item.id,
+                                text: item.BRG + ' (' + item.NAMA + ')'
+                            };
+                        });
+
+                    var brgSelect = $('#cmbBarang').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listMerk,
+                        onChange: function (value) {
+                            if (value != "") {
+                                var current = $('#txtListBrg').val();
+                                if (!current.split(',').includes(value)) {
+                                    if (setTextBrg($("#cmbBarang option:selected").text(), value)) {
+                                        //var current = $('#txtListBrg').val();
+                                        if (current != "") {
+                                            current += ","
+                                        }
+                                        $('#txtListBrg').val(current + value);
+                                        //$('#Stf02_KET_SORT2').val($("#MERK option:selected").text());
+                                        $("#cmbBarang")[0].selectize.clear();
+                                        SelectProduct();
+                                    }
+                                    else {
+                                        alert('Maksimum jumlah barang untuk dicek adalah 5.');
+                                        $("#cmbBarang")[0].selectize.clear();
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    //merkSelect[0].selectize.setValue($('#Stf02_Sort2').val());
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        function SelectProduct() {
+            var $link = '@Html.Raw(Url.Action("RefreshTableMatrixBarang", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#txtListBrg').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-matrix-barang-partial').hide();
+                    $('#loading_barang_tab').show();
+                },
+                success: function (response) {
+                    $('#table-matrix-barang-partial').html(response);
+                    $('#loading_barang_tab').hide();
+                    $('#table-matrix-barang-partial').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function removeSearch(value) {
+            var removedValue = $('#txtBrg' + value).val();
+            $('#txtBrg' + value).text('');
+            $('#txtBrg' + value).val('');
+            $('#divBrg' + value).hide();
+            var listData = $('#txtListBrg').val().split(',');
+            var current = "";
+            for (i = 0; i < listData.length; i++) {
+                if (removedValue != listData[i]) {
+                    if (current != "") {
+                        current += ",";
+                    }
+                    current += listData[i];
+                }
+            }
+            $('#txtListBrg').val(current);
+            SelectProduct();
+        }
+        function RemoveAllBrg() {
+            $('.filter-brg-div').text('');
+            $('.filter-brg-div').val('');
+            $('.filter-brg-div').hide();
+            $('#txtListBrg').val('');
+            SelectProduct();
+        }
+        function setTextBrg(value, idBrg) {
+            if ($('#txtBrg1').text() == "") {
+                $('#txtBrg1').val(idBrg);
+                $('#txtBrg1').text(value);
+                $('#divBrg1').css("display", "inline-block");
+                return true;
+            }
+            if ($('#txtBrg2').text() == "") {
+                $('#txtBrg2').val(idBrg);
+                $('#txtBrg2').text(value);
+                $('#divBrg2').css("display", "inline-block");
+                return true;
+            }
+            if ($('#txtBrg3').text() == "") {
+                $('#txtBrg3').val(idBrg);
+                $('#txtBrg3').text(value);
+                $('#divBrg3').css("display", "inline-block");
+                return true;
+            }
+            if ($('#txtBrg4').text() == "") {
+                $('#txtBrg4').val(idBrg);
+                $('#txtBrg4').text(value);
+                $('#divBrg4').css("display", "inline-block");
+                return true;
+            }
+            if ($('#txtBrg5').text() == "") {
+                $('#txtBrg5').val(idBrg);
+                $('#txtBrg5').text(value);
+                $('#divBrg5').css("display", "inline-block");
+                return true;
+            }
+            return false;
+        }
+
+        function searchTableHistoryUnlinkBrg(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableHistoryUnlink", "Manage", new { take = "replaceLastTake", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_history').val()));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordHistory').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_history_click')[0].disabled = true;
+                    $('#loading_history_barang_tab').show();
+                    //$('#text-check-dibayar').text('');
+                },
+                success: function (response) {
+                    $('#search_history_click')[0].disabled = false;
+                    $('#table-history-unlink-barang-partial').html(response);
+
+                    $('#loading_history_barang_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_history_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+        function popupModalDownloadExcel() {
+            $('#ModalExcelLinkBarang').modal('show');
+            var $link = '@Html.Raw(Url.Action("GetListCustomer", "Manage"))';
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#loading_excel_link').show();
+                },
+                success: function (response) {
+                    $('#list-customer-partial').html(response);
+                    $('#loading_excel_link').hide();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    $('#loading_excel_link').hide();
+                }
+            });
+        }
+
+        function DownloadExcelLinkBarang() {
+            if (CheckCust()) {
+                if (confirm("Apakah anda ingin mendownload file list link barang?")) {
+                    exportExcelLinkBrg();
+                }
+            }
+            else {
+                alert('Anda belum memilih akun marketplace.');
+            }
+        }
+        var cust_selected = [];
+        function CheckCust() {
+            cust_selected = [];
+            $(".cbcust").each(function (i, item) {
+                if ($(item).is(":checked")) {
+                    /*return true;*/
+                    cust_selected.push($(item).attr("data-cust"));
+                }
+            });
+            if (cust_selected.length > 0) {
+                return true;
+            }
+            return false;
+        }
+        function exportExcelLinkBrg() {
+            var link = '@Html.Raw(Url.Action("DownloadExcelLinkBarang", "TransferExcel"))';
+            link += "?cust=" + encodeURIComponent(cust_selected);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                async: false,
+                beforeSend: function () {
+                    //$('#loading_spinner_btn').show();
+                    $('#loading_excel_link').show();
+                },
+                success: function (response) {
+                    $('#loading_excel_link').hide();
+                    if (response.Errors.length == 0) {
+                        var bytes = new Uint8Array(response.byteExcel);
+                        saveByteArray(response.namaFile, bytes);
+                    } else {
+                        alert(response.Errors[0]);
+                    }
+                },
+                error: function (xhr) {
+                    $('#loading_excel_link').hide();
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function saveByteArray(reportName, byte) {
+            var blob = new Blob([byte], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            var fileName = reportName;
+            link.download = fileName;
+            //document.body.appendChild(link);
+            link.click();
+            //document.body.removeChild(link);
+        };
+    </script>
+}

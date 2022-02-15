@@ -4512,6 +4512,28 @@ namespace MasterOnline.Controllers
                         {
                             try
                             {
+                                if (dbPathEra.ToUpper() == "ERASOFT_RAHMAMK" || dbPathEra.ToUpper() == "ERASOFT_1761944" || dbPathEra.ToUpper() == "ERASOFT_1320768")
+                                {
+                                    MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                    {
+                                        REQUEST_ID = "SS_" + DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                                        REQUEST_ACTION = "Selisih Stok B",
+                                        REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
+                                        REQUEST_ATTRIBUTE_1 = stf02_brg,
+                                        REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(stok), //updating to stock
+                                        REQUEST_STATUS = "Pending"
+                                    };
+                                    var ErasoftDbContext2 = new ErasoftContext(EraServerName, dbPathEra);
+                                    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext2, log_CUST, currentLog, "Tokped");
+
+                                    EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ACTION = 'Selisih Stok B' AND REQUEST_DATETIME <= '" + DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "'");
+                                }
+                            }
+                            catch (Exception ex2)
+                            {
+                            }
+                            try
+                            {
                                 //if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069" || dbPathEra.ToUpper() == "ERASOFT_1000390")
                                 if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToUpper() == "ERASOFT_1310644" || dbPathEra.ToUpper() == "ERASOFT_1000390")
                                 {
@@ -5165,6 +5187,28 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
+                        try
+                        {
+                            if (dbPathEra.ToUpper() == "ERASOFT_RAHMAMK" || dbPathEra.ToUpper() == "ERASOFT_1761944" || dbPathEra.ToUpper() == "ERASOFT_1320768")
+                            {
+                                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                {
+                                    REQUEST_ID = "SS_" + DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                                    REQUEST_ACTION = "Selisih Stok B",
+                                    REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
+                                    REQUEST_ATTRIBUTE_1 = stf02_brg,
+                                    REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(qty), //updating to stock
+                                    REQUEST_STATUS = "Pending"
+                                };
+                                var ErasoftDbContext2 = new ErasoftContext(EraServerName, dbPathEra);
+                                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext2, log_CUST, currentLog, "Shopee");
+
+                                EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ACTION = 'Selisih Stok B' AND REQUEST_DATETIME <= '"+ DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "'");
+                            }
+                        }
+                        catch (Exception ex2)
+                        {
+                        }
                         //add by calvin 28 oktober 2019
                         try
                         {
@@ -5359,6 +5403,28 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
+                        try
+                        {
+                            if (dbPathEra.ToUpper() == "ERASOFT_RAHMAMK" || dbPathEra.ToUpper() == "ERASOFT_1761944" || dbPathEra.ToUpper() == "ERASOFT_1320768")
+                            {
+                                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                {
+                                    REQUEST_ID = "SS_" + DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                                    REQUEST_ACTION = "Selisih Stok B",
+                                    REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
+                                    REQUEST_ATTRIBUTE_1 = stf02_brg,
+                                    REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(qty), //updating to stock
+                                    REQUEST_STATUS = "Pending"
+                                };
+                                var ErasoftDbContext2 = new ErasoftContext(EraServerName, dbPathEra);
+                                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext2, log_CUST, currentLog, "Shopee");
+
+                                EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ACTION = 'Selisih Stok B' AND REQUEST_DATETIME <= '" + DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "'");
+                            }
+                        }
+                        catch (Exception ex2)
+                        {
+                        }
                         //add by calvin 28 oktober 2019
                         try
                         {
@@ -6350,10 +6416,20 @@ namespace MasterOnline.Controllers
                                 }
                             }
                             var Tahun = Convert.ToInt16(DateTime.UtcNow.AddHours(7).ToString("yyyy"));
-                            var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) and gd<>'" + default_gudang + "' and tahun='" + Tahun + "'";
-                            //var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) ";
-                            var axy = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL3);
-                            ErasoftDbContext.SaveChanges();
+                            var cekStokSelainGudangBundling = ErasoftDbContext.Database.SqlQuery<int>("select count(*) from stf08a (nolock) where brg in (select distinct unit from stf03 (nolock)) and gd<>'GB' and tahun='2022'").FirstOrDefault();
+                            if (cekStokSelainGudangBundling > 0)
+                            {
+                                try
+                                {
+                                    var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03 (nolock)) and gd<>'" + default_gudang + "' and tahun='" + Tahun + "'";
+                                    //var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) ";
+                                    var axy = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL3);
+                                    ErasoftDbContext.SaveChanges();
+                                }catch(Exception ex)
+                                {
+
+                                }
+                            }
 
                             var string_brg = "";
                             foreach (var brg in cekListBrgBundling)
@@ -6366,17 +6442,17 @@ namespace MasterOnline.Controllers
                                 string_brg += "'" + brg + "'";
                             }
 
-                            var sSQL2 = "update a set a.QTY_SIAPJUAL = b.qty_sales, a.QTY_KOMPONEN=b.qty_komp from stf03 a inner join ( " +
+                            var sSQL2 = "update a set a.QTY_SIAPJUAL = b.qty_sales, a.QTY_KOMPONEN=b.qty_komp from stf03 a (nolock) inner join ( " +
                                         "select a.brg,a.qty, isnull(qoh - qoo, 0) as qty_sales, case when (qoh-qoo)/a.qty > 0 then convert(float,convert(int,round((qoh-qoo)/a.qty,2))) else 0 end as qty_komp from ( " +
-                                        "select (select SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg ) qoh, " +
-                                        "(select SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg )qoo,a.brg,a.qty from stf03 a " +
+                                        "select (select SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] (nolock) where brg=a.brg ) qoh, " +
+                                        "(select SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] (nolock) where brg=a.brg )qoo,a.brg,a.qty from stf03 a " +
                                         ")a )b on a.brg=b.brg and a.qty=b.qty " +
                                         "where a.unit in (" + string_brg + ")";
                             ErasoftDbContext.Database.ExecuteSqlCommand(sSQL2);
                             ErasoftDbContext.SaveChanges();
 
-                            var cekListBrgBundlingSudahAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) inner join stf08a b (nolock) on a.unit=b.brg where b.tahun='" + Tahun + "' and b.gd ='" + default_gudang + "' and a.unit in (" + string_brg + ")").ToList();
-                            var cekListBrgBundlingBelumAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) left join stf08a b (nolock) on a.unit=b.brg where isnull(b.brg,'')='' and a.unit in (" + string_brg + ")").ToList();
+                            var cekListBrgBundlingSudahAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c (nolock) where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) inner join stf08a b (nolock) on a.unit=b.brg where b.tahun='" + Tahun + "' and b.gd ='" + default_gudang + "' and a.unit in (" + string_brg + ")").ToList();
+                            var cekListBrgBundlingBelumAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c (nolock) where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) left join stf08a b (nolock) on a.unit=b.brg where isnull(b.brg,'')='' and a.unit in (" + string_brg + ")").ToList();
 
                             if (cekListBrgBundlingBelumAdaStok.Count() > 0)
                             {
@@ -6520,10 +6596,22 @@ namespace MasterOnline.Controllers
                         }
                     }
                     var Tahun = Convert.ToInt16(DateTime.UtcNow.AddHours(7).ToString("yyyy"));
-                    var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) and gd<>'" + default_gudang + "' and tahun='" + Tahun + "'";
-                    //var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) ";
-                    var axy = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL3);
-                    ErasoftDbContext.SaveChanges();
+                    var cekStokSelainGudangBundling = ErasoftDbContext.Database.SqlQuery<int>("select count(*) from stf08a (nolock) where brg in (select distinct unit from stf03 (nolock)) and gd<>'GB' and tahun='2022'").FirstOrDefault();
+                    if (cekStokSelainGudangBundling > 0)
+                    {
+                        try
+                        {
+                            var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03 (nolock)) and gd<>'" + default_gudang + "' and tahun='" + Tahun + "'";
+                            //var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) ";
+                            var axy = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL3);
+                            ErasoftDbContext.SaveChanges();
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                    }
+
                     //var sSQL1 = "select a.brg, isnull(qoh - qoo, 0) as qty_sales, case when (qoh-qoo)/a.qty > 0 then convert(float,convert(int,round((qoh-qoo)/a.qty,2))) else 0 end as qty_komp from ( " +
                     //            "select (select SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg ) qoh, " +
                     //            "(select SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg )qoo,a.brg,a.qty " +
@@ -6531,17 +6619,17 @@ namespace MasterOnline.Controllers
                     //            ")a";
                     //var getListBrgKomponen = ErasoftDbContext.Database.SqlQuery<mdlQtyBrgBundling>(sSQL1).ToList();
 
-                    var sSQL2 = "update a set a.QTY_SIAPJUAL = b.qty_sales, a.QTY_KOMPONEN=b.qty_komp from stf03 a inner join ( " +
+                    var sSQL2 = "update a set a.QTY_SIAPJUAL = b.qty_sales, a.QTY_KOMPONEN=b.qty_komp from stf03 a(nolock) inner join ( " +
                                 "select a.brg,a.qty, isnull(qoh - qoo, 0) as qty_sales, case when (qoh-qoo)/a.qty > 0 then convert(float,convert(int,round((qoh-qoo)/a.qty,2))) else 0 end as qty_komp from ( " +
-                                "select (select SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg ) qoh, " +
-                                "(select SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg )qoo,a.brg,a.qty from stf03 a " +
+                                "select (select SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] (nolock) where brg=a.brg ) qoh, " +
+                                "(select SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] (nolock) where brg=a.brg )qoo,a.brg,a.qty from stf03 a " +
                                 ")a )b on a.brg=b.brg and a.qty=b.qty ";
                     ErasoftDbContext.Database.ExecuteSqlCommand(sSQL2);
                     ErasoftDbContext.SaveChanges();
 
                     var cekListBrgBundling = ErasoftDbContext.Database.SqlQuery<string>("select distinct unit from stf03").ToList();
-                    var cekListBrgBundlingSudahAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) inner join stf08a b (nolock) on a.unit=b.brg where b.tahun='" + Tahun + "' and b.gd ='" + default_gudang + "'").ToList();
-                    var cekListBrgBundlingBelumAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) left join stf08a b (nolock) on a.unit=b.brg where isnull(b.brg,'')=''").ToList();
+                    var cekListBrgBundlingSudahAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c(nolock) where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) inner join stf08a b (nolock) on a.unit=b.brg where b.tahun='" + Tahun + "' and b.gd ='" + default_gudang + "'").ToList();
+                    var cekListBrgBundlingBelumAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c(nolock) where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) left join stf08a b (nolock) on a.unit=b.brg where isnull(b.brg,'')=''").ToList();
 
                     if (cekListBrgBundlingBelumAdaStok.Count() > 0)
                     {
