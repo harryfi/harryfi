@@ -856,7 +856,8 @@ namespace MasterOnline.Controllers
                                             if (!string.IsNullOrEmpty(msg.content.smallImgUrl))
                                             {
                                                 var url_ = msg.content.imgUrl;
-                                                text = "<u><a rel=\"nofollow\" target=\"blank\" href=\"" + url_ + "\"><img src=\"" + msg.content.smallImgUrl + "\"></a></u>";
+                                                //text = "<u><a rel=\"nofollow\" target=\"blank\" href=\"" + url_ + "\"><img src=\"" + msg.content.smallImgUrl + "\"></a></u>";
+                                                text = "<u><a id=\"lzd_stiker\" rel=\"nofollow\" target=\"blank\" href=\"" + url_ + "\"><img style=\"width: 30%; height: 30%; display: block; margin: auto;\" src=\"" + msg.content.smallImgUrl + "\"></a></u>";
                                             }
                                             else
                                             {
