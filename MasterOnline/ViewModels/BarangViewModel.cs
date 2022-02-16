@@ -24,7 +24,7 @@ namespace MasterOnline.ViewModels
 
         public string LINK_GAMBAR_1 { get; set; }
 
-        public double MIN { get; set; }
+        public double MINI { get; set; }
 
         public double QOH { get; set; }
 

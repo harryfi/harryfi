@@ -447,14 +447,14 @@
                                                     //memiliki multi lokasi
                                                     <label class="checkbox-container">
                                                         <input type="checkbox" id="cbxProfilMULTILOKASI" class="cbxMULTILOKASI" name="@($"cbx-Profil-MULTILOKASI")" checked />
-                                                        <span class="checkmark cm-MULTILOKASI"></span>
+                                                        <span class="checkmark cm-MULTILOKASI" id="cbxProfilMULTILOKASI"></span>
                                                     </label>
                                                 }
                                                 else
                                                 {
                                                     <label class="checkbox-container">
                                                         <input type="checkbox" id="cbxProfilMULTILOKASI" class="cbxMULTILOKASI" name="@($"cbx-Profil-MULTILOKASI")" />
-                                                        <span class="checkmark cm-MULTILOKASI"></span>
+                                                        <span class="checkmark cm-MULTILOKASI" id="cbxProfilMULTILOKASI"></span>
                                                     </label>
                                                 }
                                             </div>
@@ -683,20 +683,32 @@
 
             $('.cbxMULTILOKASI').each(function () {
                 var $this = $(this);
-
+                var temp = $('#DataUsahaTambahan_MULTILOKASI').val();
                 $this.click(function () {
                     var $cbxTarget = $('.cbxMULTILOKASI[data-cbx="cbx-MULTILOKASI"]');
-                    if ($cbxTarget.val() == "1" || $("#cbxProfilMULTILOKASI").is(":checked") == true) {
+                    if ($("#cbxProfilMULTILOKASI").is(":checked") == true) {
                         if (confirm("Dengan mengaktifkan fitur MultiLokasi, maka seluruh update stok akan menyesuaikan gudang yang dimapping. Apakah Anda yakin akan mengaktifkan fitur MultiLokasi")) {
-                            $('#DataUsahaTambahan_MULTILOKASI').val(1);
+                            $('#cbxProfilMULTILOKASI').prop('checked', true);
+                            $('#DataUsahaTambahan_MULTILOKASI').val('1');
                             checkValidasiMultiLokasi();
                         } else {
-                            $('#cbxProfilMULTILOKASI').attr('checked', false);
-                            $('#DataUsahaTambahan_MULTILOKASI').val(0);
+                            if (temp == "1") {
+                                $('#cbxProfilMULTILOKASI').prop('checked', true);
+                            } else {
+                                $('#cbxProfilMULTILOKASI').prop('checked', false);
+                            }
                         }
-                        
                     } else {
-                        $('#DataUsahaTambahan_MULTILOKASI').val(0);
+                        if (confirm("Dengan menonaktifkan fitur MultiLokasi, maka seluruh update stok akan mengakumulasi dari gudang yang linknya aktif. Apakah Anda yakin akan menonaktifkan fitur MultiLokasi")) {
+                            $('#DataUsahaTambahan_MULTILOKASI').val('0');
+                            $('#cbxProfilMULTILOKASI').prop('checked', false);
+                        } else {
+                            if (temp == "1") {
+                                $('#cbxProfilMULTILOKASI').prop('checked', true);
+                            } else {
+                                $('#cbxProfilMULTILOKASI').prop('checked', false);
+                            }
+                        }
                     }
                 });
             });
@@ -712,7 +724,7 @@
                 success: function (response) {
                     if (response.mo_error != null) {
                         alert(response.mo_error);
-                        $('#cbxProfilMULTILOKASI').attr('checked', false);
+                        $('#cbxProfilMULTILOKASI').prop('checked', false);
                         $('#DataUsahaTambahan_MULTILOKASI').val(0);
                     }
                 },

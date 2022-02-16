@@ -6086,7 +6086,7 @@ namespace MasterOnline.Controllers
                         worksheet.Cells[5 + i, 18].Value = ""; //NAMA_BARANG
                         worksheet.Cells[5 + i, 19].Value = 0; //QTY
                         worksheet.Cells[5 + i, 20].Value = 0; //HARGA_SATUAN
-                        worksheet.Cells[5 + i, 21].Value = 0; //GUDANG/LOKASI
+                        worksheet.Cells[5 + i, 21].Value = "--Silahkan Pilih Gudang --"; //GUDANG/LOKASI
                         //worksheet.Cells[5 + i, 21].Value = 20; //DISC1
                         worksheet.Cells[5 + i, 22].Value = 0; //NDISC1
                         //worksheet.Cells[5 + i, 22].Value = 30; //DISC2
@@ -6094,7 +6094,7 @@ namespace MasterOnline.Controllers
                         worksheet.Cells[5 + i, 23].Value = 0;//TOTAL
                     }
 
-                    ExcelRange rg0 = worksheet.Cells[4, 1, worksheet.Dimension.End.Row, 22];
+                    ExcelRange rg0 = worksheet.Cells[4, 1, worksheet.Dimension.End.Row, 23];
                     string tableName0 = "TablePesanan";
                     ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
 
@@ -6228,6 +6228,54 @@ namespace MasterOnline.Controllers
                     table2.ShowFilter = true;
                     table2.ShowRowStripes = false;
                     //END EXPEDITIONS
+
+                    // SHEET 3
+                    var sheet3 = worksheet.Workbook.Worksheets.Add("master_gudang");
+
+                    sheet3.Cells[2, 1].Value = "MASTER GUDANG";
+
+                    // GUDANG
+                    //change by nurul 11/10/2021
+                    //var gudang = ErasoftDbContext.STF18.ToList();
+                    var gudang = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang != "GB").ToList();
+                    //end change by nurul 11/10/2021
+
+                    if (gudang.Count() > 0)
+                    {
+                        var j = 0;
+                        foreach (var itemGudang in gudang)
+                        {
+                            sheet3.Cells[4 + j, 1].Value = itemGudang.Kode_Gudang;
+                            sheet3.Cells[4 + j, 2].Value = itemGudang.Nama_Gudang;
+                            j += 1;
+                        }
+                    }
+
+                    var validation3 = worksheet.DataValidations.AddListValidation(worksheet.Cells[5, 21, worksheet.Dimension.End.Row, 21].Address);
+                    validation3.ShowErrorMessage = true;
+                    validation3.ErrorStyle = ExcelDataValidationWarningStyle.warning;
+                    validation3.ErrorTitle = "An invalid value was entered";
+                    validation3.Formula.ExcelFormula = string.Format("=master_gudang!${0}${1}:${2}${3}", "A", 4, "A", 4 + gudang.Count());
+
+                    using (var range = sheet3.Cells[3, 1, 3, 2])
+                    {
+                        range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                        range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                        range.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                        range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                        range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        range.Style.Fill.BackgroundColor.SetColor(Color.Orange);
+                    }
+
+                    ExcelRange rg3 = sheet3.Cells[3, 1, worksheet.Dimension.End.Row, 2];
+                    string tableName3 = "TableGudang";
+                    ExcelTable table3 = sheet3.Tables.Add(rg3, tableName3);
+                    table3.Columns[0].Name = "KODE_GUDANG";
+                    table3.Columns[1].Name = "NAMA_GUDANG";
+                    table3.ShowHeader = true;
+                    table3.ShowFilter = true;
+                    table3.ShowRowStripes = false;
+                    // END GUDANG
 
                     ret.byteExcel = package.GetAsByteArray();
                     ret.namaFile = username + "_template_upload_pesanan.xlsx";

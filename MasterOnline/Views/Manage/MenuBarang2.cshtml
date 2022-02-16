@@ -371,22 +371,22 @@
                         <div class=" col-md-7 col-sm-12 pull-right">
                             <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
                             <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
-                                <select class="form-control filter2_barang_field" required="required" placeholder="Harap pilih">
+                                <select class="form-control" id="filter2_barang_field" required="required" placeholder="Harap pilih">
                                     <option>Harap Pilih</option>
                                     <option value="provinsi">Provinsi Gudang</option>
                                     <option value="marketplace">Marketplace</option>
                                 </select>
                             </div>
                             <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
-                                <div class="col-12 filter2_barang_field_provinsi_div" style="display:none">
+                                <div class="col-12" id="filter2_barang_field_provinsi_div" style="display:none">
                                     @*<select class="form-control" id="filter2_' + $namaTab + '_field_provinsi" required="required" placeholder="Harap pilih">
                                         <option value="desc">Terbaru</option>
                                         <option value="asc">Terlama</option>
                                     </select>*@
                                     <div id="prov_temp" hidden="hidden"></div>
-                                    <select class="form-group filter2_barang_field_provinsi" placeholder="Harap Pilih" required="required"></select>
+                                    <select class="form-group" id="filter2_barang_field_provinsi" placeholder="Harap Pilih" required="required"></select>
                                 </div>
-                                <div class="col-12 filter2_barang_field_marketplace_div" style="display:none">
+                                <div class="col-12" id="filter2_barang_field_marketplace_div" style="display:none">
                                     @*<select class="form-control" id="filter2_barang_field_marketplace" required="required">
             <option value="7">Lazada</option>
             <option value="8">Bukalapak</option>
@@ -400,17 +400,17 @@
             <option value="18">Offline</option>
         </select>*@
                                     <div id="market_temp" hidden="hidden"></div>
-                                    <select class="form-group filter2_barang_field_marketplace" placeholder="Harap Pilih" required="required"></select>
+                                    <select class="form-group" id="filter2_barang_field_marketplace" placeholder="Harap Pilih" required="required"></select>
                                 </div>
                             </div>
                             <div class="col-lg-3 col-sm-6" style="margin-top:13px;">
-                                <div class="col-12 filter2_barang_field_gudang_div" style="display:none">
+                                <div class="col-12" id="filter2_barang_field_gudang_div" style="display:none">
                                     @*<select class="form-control" id="filter2_' + $namaTab + '_field_gudang" required="required">
                                         <option value="desc">Terbaru</option>
                                         <option value="asc">Terlama</option>
                                     </select>*@
                                     <div id="gudang_temp" hidden="hidden"></div>
-                                    <select class="form-group filter2_barang_field_gudang" placeholder="Harap Pilih" required="required"></select>
+                                    <select class="form-group" id="filter2_barang_field_gudang" placeholder="Harap Pilih" required="required"></select>
                                 </div>
                             </div>
                         </div>
@@ -525,26 +525,26 @@
                         <div class=" col-md-7 col-sm-12 pull-left">
                             <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
                             <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
-                                <select class="form-control filter2_kosong_field" required="required" placeholder="Harap pilih">
+                                <select class="form-control" id="filter2_kosong_field" required="required" placeholder="Harap pilih">
                                     <option>Harap Pilih</option>
                                     <option value="provinsi">Provinsi Gudang</option>
                                     <option value="marketplace">Marketplace</option>
                                 </select>
                             </div>
                             <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
-                                <div class="col-12 filter2_kosong_field_provinsi_div" style="display:none">
+                                <div class="col-12" id="filter2_kosong_field_provinsi_div" style="display:none">
                                     <div id="prov_temp" hidden="hidden"></div>
-                                    <select class="form-group filter2_kosong_field_provinsi" placeholder="Harap Pilih" required="required"></select>
+                                    <select class="form-group" id="filter2_kosong_field_provinsi" placeholder="Harap Pilih" required="required"></select>
                                 </div>
-                                <div class="col-12 filter2_kosong_field_marketplace_div" style="display:none">
+                                <div class="col-12" id="filter2_kosong_field_marketplace_div" style="display:none">
                                     <div id="market_temp" hidden="hidden"></div>
-                                    <select class="form-group filter2_kosong_field_marketplace" placeholder="Harap Pilih" required="required"></select>
+                                    <select class="form-group" id="filter2_kosong_field_marketplace" placeholder="Harap Pilih" required="required"></select>
                                 </div>
                             </div>
                             <div class="col-lg-3 col-sm-6" style="margin-top:13px;">
-                                <div class="col-12 filter2_kosong_field_gudang_div" style="display:none">
+                                <div class="col-12" id="filter2_kosong_field_gudang_div" style="display:none">
                                     <div id="gudang_temp" hidden="hidden"></div>
-                                    <select class="form-group filter2_kosong_field_gudang" placeholder="Harap Pilih" required="required"></select>
+                                    <select class="form-group" id="filter2_kosong_field_gudang" placeholder="Harap Pilih" required="required"></select>
                                 </div>
                             </div>
                         </div>
@@ -629,26 +629,26 @@
                         <div class=" col-md-7 col-sm-12 pull-right" style="padding-top:11px">
                             <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
                             <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
-                                <select class="form-control filter2_tidaklaku_field" required="required" placeholder="Harap pilih">
+                                <select class="form-control" id="filter2_tidaklaku_field" required="required" placeholder="Harap pilih">
                                     <option>Harap Pilih</option>
                                     <option value="provinsi">Provinsi Gudang</option>
                                     <option value="marketplace">Marketplace</option>
                                 </select>
                             </div>
                             <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
-                                <div class="col-12 filter2_tidaklaku_field_provinsi_div" style="display:none">
+                                <div class="col-12" id="filter2_tidaklaku_field_provinsi_div" style="display:none">
                                     <div id="prov_temp" hidden="hidden"></div>
-                                    <select class="form-group filter2_tidaklaku_field_provinsi" placeholder="Harap Pilih" required="required"></select>
+                                    <select class="form-group" id="filter2_tidaklaku_field_provinsi" placeholder="Harap Pilih" required="required"></select>
                                 </div>
-                                <div class="col-12 filter2_tidaklaku_field_marketplace_div" style="display:none">
+                                <div class="col-12" id="filter2_tidaklaku_field_marketplace_div" style="display:none">
                                     <div id="market_temp" hidden="hidden"></div>
-                                    <select class="form-group filter2_tidaklaku_field_marketplace" placeholder="Harap Pilih" required="required"></select>
+                                    <select class="form-group" id="filter2_tidaklaku_field_marketplace" placeholder="Harap Pilih" required="required"></select>
                                 </div>
                             </div>
                             <div class="col-lg-3 col-sm-6" style="margin-top:13px;">
-                                <div class="col-12 filter2_tidaklaku_field_gudang_div" style="display:none">
+                                <div class="col-12" id="filter2_tidaklaku_field_gudang_div" style="display:none">
                                     <div id="gudang_temp" hidden="hidden"></div>
-                                    <select class="form-group filter2_tidaklaku_field_gudang" placeholder="Harap Pilih" required="required"></select>
+                                    <select class="form-group" id="filter2_tidaklaku_field_gudang" placeholder="Harap Pilih" required="required"></select>
                                 </div>
                             </div>
                         </div>
@@ -741,26 +741,26 @@
                         <div class=" col-md-6 col-sm-12 pull-right" style="padding-top:11px">
                             <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
                             <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
-                                <select class="form-control filter2_minimumstok_field" required="required" placeholder="Harap pilih">
+                                <select class="form-control" id="filter2_minimumstok_field" required="required" placeholder="Harap pilih">
                                     <option>Harap Pilih</option>
                                     <option value="provinsi">Provinsi Gudang</option>
                                     <option value="marketplace">Marketplace</option>
                                 </select>
                             </div>
                             <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
-                                <div class="col-12 filter2_minimumstok_field_provinsi_div" style="display:none">
+                                <div class="col-12" id="filter2_minimumstok_field_provinsi_div" style="display:none">
                                     <div id="prov_temp" hidden="hidden"></div>
-                                    <select class="form-group filter2_minimumstok_field_provinsi" placeholder="Harap Pilih" required="required"></select>
+                                    <select class="form-group" id="filter2_minimumstok_field_provinsi" placeholder="Harap Pilih" required="required"></select>
                                 </div>
-                                <div class="col-12 filter2_minimumstok_field_marketplace_div" style="display:none">
+                                <div class="col-12" id="filter2_minimumstok_field_marketplace_div" style="display:none">
                                     <div id="market_temp" hidden="hidden"></div>
-                                    <select class="form-group filter2_minimumstok_field_marketplace" placeholder="Harap Pilih" required="required"></select>
+                                    <select class="form-group" id="filter2_minimumstok_field_marketplace" placeholder="Harap Pilih" required="required"></select>
                                 </div>
                             </div>
                             <div class="col-lg-3 col-sm-6" style="margin-top:13px;">
-                                <div class="col-12 filter2_minimumstok_field_gudang_div" style="display:none">
+                                <div class="col-12" id="filter2_minimumstok_field_gudang_div" style="display:none">
                                     <div id="gudang_temp" hidden="hidden"></div>
-                                    <select class="form-group filter2_minimumstok_field_gudang" placeholder="Harap Pilih" required="required"></select>
+                                    <select class="form-group" id="filter2_minimumstok_field_gudang" placeholder="Harap Pilih" required="required"></select>
                                 </div>
                             </div>
                         </div>
@@ -847,26 +847,26 @@
                         <div class=" col-md-7 col-sm-12 pull-right" style="padding-top:11px">
                             <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
                             <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
-                                <select class="form-control filter2_palinglaku_field" required="required" placeholder="Harap pilih">
+                                <select class="form-control" id="filter2_palinglaku_field" required="required" placeholder="Harap pilih">
                                     <option>Harap Pilih</option>
                                     <option value="provinsi">Provinsi Gudang</option>
                                     <option value="marketplace">Marketplace</option>
                                 </select>
                             </div>
                             <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
-                                <div class="col-12 filter2_palinglaku_field_provinsi_div" style="display:none">
+                                <div class="col-12" id="filter2_palinglaku_field_provinsi_div" style="display:none">
                                     <div id="prov_temp" hidden="hidden"></div>
-                                    <select class="form-group filter2_palinglaku_field_provinsi" placeholder="Harap Pilih" required="required"></select>
+                                    <select class="form-group" id="filter2_palinglaku_field_provinsi" placeholder="Harap Pilih" required="required"></select>
                                 </div>
-                                <div class="col-12 filter2_palinglaku_field_marketplace_div" style="display:none">
+                                <div class="col-12" id="filter2_palinglaku_field_marketplace_div" style="display:none">
                                     <div id="market_temp" hidden="hidden"></div>
-                                    <select class="form-group filter2_palinglaku_field_marketplace" placeholder="Harap Pilih" required="required"></select>
+                                    <select class="form-group" id="filter2_palinglaku_field_marketplace" placeholder="Harap Pilih" required="required"></select>
                                 </div>
                             </div>
                             <div class="col-lg-3 col-sm-6" style="margin-top:13px;">
-                                <div class="col-12 filter2_palinglaku_field_gudang_div" style="display:none">
+                                <div class="col-12" id="filter2_palinglaku_field_gudang_div" style="display:none">
                                     <div id="gudang_temp" hidden="hidden"></div>
-                                    <select class="form-group filter2_palinglaku_field_gudang" placeholder="Harap Pilih" required="required"></select>
+                                    <select class="form-group" id="filter2_palinglaku_field_gudang" placeholder="Harap Pilih" required="required"></select>
                                 </div>
                             </div>
                         </div>
@@ -1316,6 +1316,7 @@
             $('#barang-tab').click(function () {
                 $TabAktif = 0;
                 $namaTab = "barang";
+                setFilter();
                 //refreshFilter();
                 refreshTableBarang();
             });
@@ -1334,7 +1335,8 @@
             $('#kosong-tab').click(function () {
                 $TabAktif = 1;
                 $namaTab = "kosong";
-                refreshFilter();
+                setFilter();
+                //refreshFilter();
                 refreshTableBarangKosong();
             });
 
@@ -1352,7 +1354,8 @@
             $('#tidaklaku-tab').click(function () {
                 $TabAktif = 2;
                 $namaTab = "tidaklaku";
-                refreshFilter();
+                setFilter();
+                //refreshFilter();
                 refreshTableBarangTidakLaku();
             });
 
@@ -1371,7 +1374,8 @@
             $('#palinglaku-tab').click(function () {
                 $TabAktif = 4;
                 $namaTab = "palinglaku";
-                refreshFilter();
+                setFilter();
+                //refreshFilter();
                 refreshTablePalingLaku();
             });
 
@@ -1389,7 +1393,8 @@
             $('#minimumstok-tab').click(function () {
                 $TabAktif = 3;
                 $namaTab = "minimumstok";
-                refreshFilter();
+                setFilter();
+                //refreshFilter();
                 $('#Order').val("1");
                 refreshTableMinimumStok();
             });
@@ -1444,20 +1449,20 @@
             });
 
             //add by nurul 15/5/2020
-            $('#filter_' + $namaTab + '_field').change(function () {
+            $('#filter_barang_field').change(function () {
                 var filterBy = $(this).val();
                 //switch (filterBy) {
                 //    default:
                 //        $('#filter_detail_bayar_field_option_div').show();
                 //        break;
                 //}
-                $('#filter_' + $namaTab + '_field_option_div').show();
+                $('#filter_barang_field_option_div').show();
                 if (filterBy != "Harap Pilih" && $('#filter_barang_field_option').val() != "Harap Pilih") {
                     searchTableBarang();
                 }
 
             });
-            $('#filter_' + $namaTab + '_field_option').change(function () {
+            $('#filter_barang_field_option').change(function () {
                 if ($('#filter_barang_field').val() != "Harap Pilih" && $('#filter_barang_field_option').val() != "Harap Pilih") {
                     searchTableBarang();
                 }
@@ -1473,38 +1478,55 @@
 
             //add by nurul 5/1/2022
 
-            $('.filter2_' + $namaTab + '_field').change(function () {
+            
+            //end add by nurul 5/1/2022
+
+            //var gd1List = [];
+            //$('#filter2_' + $namaTab + '_field_gudang').selectize({
+            //    valueField: 'id',
+            //    searchField: 'text',
+            //    options: gd1List,
+            //});
+        });
+
+        function setFilter() {
+            $('#filter2_' + $namaTab + '_field').change(function () {
                 var filterBy = $(this).val();
                 switch (filterBy) {
                     case "provinsi":
-                        $('.filter2_' + $namaTab + '_field_provinsi_div').show();
-                        $('.filter2_' + $namaTab + '_field_marketplace_div').hide();
-                        $('.filter2_' + $namaTab + '_field_gudang').hide();
+                        $('#filter2_' + $namaTab + '_field_provinsi_div').show();
+                        $('#filter2_' + $namaTab + '_field_marketplace_div').hide();
+                        $('#filter2_' + $namaTab + '_field_gudang').hide();
                         //$('#filter_packing_kirim_shopee__' + cust).val('Harap Pilih');
-                        //var provcombo = $('.filter2_' + $namaTab + '_field_provinsi').selectize();
+                        //var provcombo = $('#filter2_' + $namaTab + '_field_provinsi').selectize();
                         //provcombo[0].selectize.setValue(null, true);
-                        //var gudangcombo = $('.filter2_' + $namaTab + '_field_gudang').selectize();
+                        //var gudangcombo = $('#filter2_' + $namaTab + '_field_gudang').selectize();
                         //gudangcombo[0].selectize.setValue(null, true);
                         getProvinsiGudang();
-                        $('.filter2_' + $namaTab + '_field_provinsi').val('harap pilih');
-                        $('.filter2_' + $namaTab + '_field_gudang').val('harap pilih');
-                        
+                        //$('#filter2_' + $namaTab + '_field_provinsi').val('harap pilih');
+                        //$('#filter2_' + $namaTab + '_field_gudang').val('harap pilih');
+                        if ($('#filter2_' + $namaTab + '_field_provinsi').val() != "Harap Pilih" && $('#filter2_' + $namaTab + '_field_provinsi').val() != "" && $('#filter2_' + $namaTab + '_field_provinsi').val() != null && $('#filter2_' + $namaTab + '_field_provinsi').val() != undefined ) {
+                            $('#filter2_' + $namaTab + '_field_provinsi').change();
+                        }
                         break;
                     case "marketplace":
-                        $('.filter2_' + $namaTab + '_field_provinsi_div').hide();
-                        $('.filter2_' + $namaTab + '_field_marketplace_div').show();
+                        $('#filter2_' + $namaTab + '_field_provinsi_div').hide();
+                        $('#filter2_' + $namaTab + '_field_marketplace_div').show();
                         getAkunMarket();
-                        $('.filter2_' + $namaTab + '_field_marketplace').val('Harap Pilih');
-                        $('.filter2_' + $namaTab + '_field_gudang_div').hide();
+                        //$('#filter2_' + $namaTab + '_field_marketplace').val('Harap Pilih');
+                        $('#filter2_' + $namaTab + '_field_gudang_div').hide();
+                        if ($('#filter2_' + $namaTab + '_field_marketplace').val() != "Harap Pilih" && $('#filter2_' + $namaTab + '_field_marketplace').val() != "" && $('#filter2_' + $namaTab + '_field_marketplace').val() != null && $('#filter2_' + $namaTab + '_field_marketplace').val() != undefined) {
+                            $('#filter2_' + $namaTab + '_field_marketplace').change();
+                        }
                         break;
                     default:
-                        $('.filter2_' + $namaTab + '_field_provinsi_div').hide();
-                        $('.filter2_' + $namaTab + '_field_marketplace_div').hide();
-                        $('.filter2_' + $namaTab + '_field_gudang_div').hide();
+                        $('#filter2_' + $namaTab + '_field_provinsi_div').hide();
+                        $('#filter2_' + $namaTab + '_field_marketplace_div').hide();
+                        $('#filter2_' + $namaTab + '_field_gudang_div').hide();
                         break;
                 }
             });
-            $('.filter2_' + $namaTab + '_field_marketplace').change(function () {
+            $('#filter2_' + $namaTab + '_field_marketplace').change(function () {
                 if ($TabAktif == 1) {
                     searchTableBarangKosong();
                 } else if ($TabAktif == 2) {
@@ -1517,16 +1539,29 @@
                     searchTableBarang();
                 }
             });
-            $('.filter2_' + $namaTab + '_field_provinsi').change(function () {
+            $('#filter2_' + $namaTab + '_field_provinsi').change(function () {
                 var filterBy = $(this).val();
-                //var gudangcombo = $('.filter2_' + $namaTab + '_field_gudang').selectize();
+                //var gudangcombo = $('#filter2_' + $namaTab + '_field_gudang').selectize();
                 //gudangcombo[0].selectize.clearOptions();
                 getListGudang(filterBy);
-                $('.filter2_' + $namaTab + '_field_gudang').val('harap pilih');
+                //$('#filter2_' + $namaTab + '_field_gudang').val('harap pilih');
                 if (filterBy != "0") {
-                    $('.filter2_' + $namaTab + '_field_gudang_div').show();
-                } else if (filterBy == "0"){
-                    $('.filter2_' + $namaTab + '_field_gudang_div').hide();
+                    $('#filter2_' + $namaTab + '_field_gudang_div').show();
+                    //if ($('#filter2_' + $namaTab + '_field_provinsi').val() != "Harap Pilih" && $('#filter2_' + $namaTab + '_field_provinsi').val() != "" && $('#filter2_' + $namaTab + '_field_gudang').val() != "Harap Pilih" && $('#filter2_' + $namaTab + '_field_gudang').val() != "") {
+                    //    if ($TabAktif == 1) {
+                    //        searchTableBarangKosong();
+                    //    } else if ($TabAktif == 2) {
+                    //        searchTableBarangTidakLaku();
+                    //    } else if ($TabAktif == 3) {
+                    //        searchTableMinimumStok();
+                    //    } else if ($TabAktif == 4) {
+                    //        searchTablePalingLaku();
+                    //    } else {
+                    //        searchTableBarang();
+                    //    }
+                    //}
+                } else if (filterBy == "0") {
+                    $('#filter2_' + $namaTab + '_field_gudang_div').hide();
                     if ($TabAktif == 1) {
                         searchTableBarangKosong();
                     } else if ($TabAktif == 2) {
@@ -1540,8 +1575,8 @@
                     }
                 }
             });
-            $('.filter2_' + $namaTab + '_field_gudang').change(function () {
-                if ($('.filter2_' + $namaTab + '_field_provinsi').val() != "Harap Pilih" && $('.filter2_' + $namaTab + '_field_provinsi').val() != "" && $('.filter2_' + $namaTab + '_field_gudang').val() != "Harap Pilih" && $('.filter2_' + $namaTab + '_field_gudang').val() != "") {
+            $('#filter2_' + $namaTab + '_field_gudang').change(function () {
+                if ($('#filter2_' + $namaTab + '_field_provinsi').val() != "Harap Pilih" && $('#filter2_' + $namaTab + '_field_provinsi').val() != "" && $('#filter2_' + $namaTab + '_field_gudang').val() != "Harap Pilih" && $('#filter2_' + $namaTab + '_field_gudang').val() != "") {
                     if ($TabAktif == 1) {
                         searchTableBarangKosong();
                     } else if ($TabAktif == 2) {
@@ -1553,39 +1588,30 @@
                     } else {
                         searchTableBarang();
                     }
-                } 
+                }
             });
-            //end add by nurul 5/1/2022
-
-            //var gd1List = [];
-            //$('.filter2_' + $namaTab + '_field_gudang').selectize({
-            //    valueField: 'id',
-            //    searchField: 'text',
-            //    options: gd1List,
-            //});
-        });
-
+        }
         function refreshFilter() {
-            //$('.filter2_' + $namaTab + '_field').prop('selectedIndex', 0);
-            //$('.filter2_' + $namaTab + '_field_provinsi').prop('selectedIndex', 0);
-            //$('.filter2_' + $namaTab + '_field_gudang').prop('selectedIndex', 0);
-            //$('.filter2_' + $namaTab + '_field_marketplace').prop('selectedIndex', 0);
+            //$('#filter2_' + $namaTab + '_field').prop('selectedIndex', 0);
+            //$('#filter2_' + $namaTab + '_field_provinsi').prop('selectedIndex', 0);
+            //$('#filter2_' + $namaTab + '_field_gudang').prop('selectedIndex', 0);
+            //$('#filter2_' + $namaTab + '_field_marketplace').prop('selectedIndex', 0);
 
-            //var MP1 = $('.filter2_' + $namaTab + '_field_provinsi').selectize();
-            //MP1[0].selectize.setValue(null, true);
-            //$('.filter2_' + $namaTab + '_field_provinsi')[0].selectize.enable(); 
+            var MP1 = $('#filter2_' + $namaTab + '_field_provinsi').selectize();
+            MP1[0].selectize.setValue(null, true);
+            $('#filter2_' + $namaTab + '_field_provinsi')[0].selectize.enable(); 
 
-            //var MP2 = $('.filter2_' + $namaTab + '_field_gudang').selectize();
-            //MP2[0].selectize.setValue(null, true);
-            //$('.filter2_' + $namaTab + '_field_gudang')[0].selectize.enable(); 
+            var MP2 = $('#filter2_' + $namaTab + '_field_gudang').selectize();
+            MP2[0].selectize.setValue(null, true);
+            $('#filter2_' + $namaTab + '_field_gudang')[0].selectize.enable(); 
 
-            //var MP3 = $('.filter2_' + $namaTab + '_field_marketplace').selectize();
-            //MP3[0].selectize.setValue(null, true);
-            //$('.filter2_' + $namaTab + '_field_marketplace')[0].selectize.enable(); 
+            var MP3 = $('#filter2_' + $namaTab + '_field_marketplace').selectize();
+            MP3[0].selectize.setValue(null, true);
+            $('#filter2_' + $namaTab + '_field_marketplace')[0].selectize.enable(); 
 
-            $('.filter2_' + $namaTab + '_field_provinsi_div').hide();
-            $('.filter2_' + $namaTab + '_field_gudang_div').hide();
-            $('.filter2_' + $namaTab + '_field_marketplace_div').hide();
+            $('#filter2_' + $namaTab + '_field_provinsi_div').hide();
+            $('#filter2_' + $namaTab + '_field_gudang_div').hide();
+            $('#filter2_' + $namaTab + '_field_marketplace_div').hide();
         }
         //add by nurul 15/5/2020
         function get_filterby() {
@@ -1621,7 +1647,7 @@
                             };
                         });
 
-                    var gudangSelect = $('.filter2_' + $namaTab + '_field_marketplace').selectize({
+                    var gudangSelect = $('#filter2_' + $namaTab + '_field_marketplace').selectize({
                         valueField: 'id',
                         searchField: 'text',
                         options: mpList,
@@ -1650,7 +1676,7 @@
 
                     //gudangSelect[0].selectize.setValue($('#MappingGudang_GD_MP').val());
                     //if ($('#MappingGudang_GD_MP').val() != "") {
-                    //    $('.filter2_' + $namaTab + '_field_provinsi')[0].selectize.disable();
+                    //    $('#filter2_' + $namaTab + '_field_provinsi')[0].selectize.disable();
                     //}
                 },
                 error: function (xhr) {
@@ -1677,7 +1703,7 @@
                             };
                         });
 
-                    var gudangSelect = $('.filter2_' + $namaTab + '_field_provinsi').selectize({
+                    var gudangSelect = $('#filter2_' + $namaTab + '_field_provinsi').selectize({
                         valueField: 'id',
                         searchField: 'text',
                         options: gdList,
@@ -1707,11 +1733,11 @@
 
                     //gudangSelect[0].selectize.setValue($('#MappingGudang_GD_MP').val());
                     //if ($('#MappingGudang_GD_MP').val() != "") {
-                    //    $('.filter2_' + $namaTab + '_field_provinsi')[0].selectize.disable();
+                    //    $('#filter2_' + $namaTab + '_field_provinsi')[0].selectize.disable();
                     //}
 
-                    //$(".filter2_' + $namaTab + '_field_provinsi").empty();
-                    //$('.filter2_' + $namaTab + '_field_provinsi').selectivity({
+                    //$("#filter2_' + $namaTab + '_field_provinsi").empty();
+                    //$('#filter2_' + $namaTab + '_field_provinsi').selectivity({
                     //    allowClear: true,
                     //    items: gdList,
                     //    placeholder: 'Harap pilih'
@@ -1719,7 +1745,7 @@
 
                     //var $kdProv = $('#gudang_temp').val();
 
-                    ////$('.filter2_' + $namaTab + '_field_provinsi').change(function () {
+                    ////$('#filter2_' + $namaTab + '_field_provinsi').change(function () {
                     ////    var $val = $(this).selectivity('value');
 
                     ////    if ($val === null) {
@@ -1730,7 +1756,7 @@
                     ////});
 
                     ////if ($kdProv !== null) {
-                    ////    $('.filter2_' + $namaTab + '_field_provinsi').selectivity('value', $kdProv);
+                    ////    $('#filter2_' + $namaTab + '_field_provinsi').selectivity('value', $kdProv);
                     ////}
                 },
                 error: function (xhr) {
@@ -1760,9 +1786,9 @@
                                 //nama: item.Nama
                             };
                         });
-                    //$('.filter2_' + $namaTab + '_field_gudang')[0].selectize.clearOptions();
+                    //$('#filter2_' + $namaTab + '_field_gudang')[0].selectize.clearOptions();
                     
-                    var gudangcombo = $('.filter2_' + $namaTab + '_field_gudang').selectize({
+                    var gudangcombo = $('#filter2_' + $namaTab + '_field_gudang').selectize({
                         valueField: 'id',
                         searchField: 'text',
                         options: gd2List,
@@ -1788,11 +1814,11 @@
                     //gudangcombo[0].selectize.addOption(gd1List);
                     //gudangSelect[0].selectize.setValue($('#gudang_temp').val(), true);
                     //if ($('#MappingGudang_GD_MP').val() != "") {
-                    //    $('.filter2_' + $namaTab + '_field_gudang')[0].selectize.disable();
+                    //    $('#filter2_' + $namaTab + '_field_gudang')[0].selectize.disable();
                     //}
 
-                    //$(".filter2_' + $namaTab + '_field_gudang").empty();
-                    //$('.filter2_' + $namaTab + '_field_gudang').selectivity({
+                    //$("#filter2_' + $namaTab + '_field_gudang").empty();
+                    //$('#filter2_' + $namaTab + '_field_gudang').selectivity({
                     //    allowClear: true,
                     //    items: gd2List,
                     //    placeholder: 'Harap pilih'
@@ -1800,7 +1826,7 @@
 
                     //var $kdProv = $('#gudang_temp').val();
 
-                    ////$('.filter2_' + $namaTab + '_field_gudang').change(function () {
+                    ////$('#filter2_' + $namaTab + '_field_gudang').change(function () {
                     ////    var $val = $(this).selectivity('value');
 
                     ////    if ($val === null) {
@@ -1811,7 +1837,7 @@
                     ////});
 
                     ////if ($kdProv !== null) {
-                    ////    $('.filter2_' + $namaTab + '_field_gudang').selectivity('value', $kdProv);
+                    ////    $('#filter2_' + $namaTab + '_field_gudang').selectivity('value', $kdProv);
                     ////}
                     
                 },
@@ -1822,16 +1848,16 @@
         }
 
         function get_filterby2() {
-            return $('.filter2_' + $namaTab + '_field').val();
+            return $('#filter2_' + $namaTab + '_field').val();
         }
         function get_filtervalue2(filterby2) {
             var filtervalue2 = "";
             switch (filterby2) {
                 case "provinsi":
-                    filtervalue2 = $('.filter2_' + $namaTab + '_field_provinsi').val();
+                    filtervalue2 = $('#filter2_' + $namaTab + '_field_provinsi').val();
                     break;
                 case "marketplace":
-                    filtervalue2 = $('.filter2_' + $namaTab + '_field_marketplace').val();
+                    filtervalue2 = $('#filter2_' + $namaTab + '_field_marketplace').val();
                     break;
                 default:
                     break;
@@ -1856,7 +1882,7 @@
             link = link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
 
             if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
-                link = link.replace("replaceFilter2gudang", encodeURIComponent($('.filter2_' + $namaTab + '_field_gudang').val()));
+                link = link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
             }
 
             $.ajax({
@@ -1910,7 +1936,7 @@
             link = link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
 
             if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
-                link = link.replace("replaceFilter2gudang", encodeURIComponent($('.filter2_' + $namaTab + '_field_gudang').val()));
+                link = link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
             }
 
             $.ajax({
@@ -1931,7 +1957,7 @@
             });
         }
         function refreshTableBarangKosong() {
-            var link = '@Html.Raw(Url.Action("RefreshTableBarangKosong", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangKosong2", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
             link = link.replace("replaceSearch", encodeURIComponent($('#search_kosong').val()));
             link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_tbkp').val()));
 
@@ -1966,7 +1992,7 @@
             link = link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
 
             if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
-                link = link.replace("replaceFilter2gudang", encodeURIComponent($('.filter2_' + $namaTab + '_field_gudang').val()));
+                link = link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
             }
 
             $.ajax({
@@ -1988,7 +2014,7 @@
         }
         function refreshTableBarangTidakLaku() {
             @*change by nurul 16/1/2019 -- var link = '@Url.Action("RefreshTableBarangTidakLaku", "Manage")'; 'change by nurul 15/1/2019 *@
-            var link = '@Html.Raw(Url.Action("RefreshTableBarangTidakLaku", "Manage", new { page = "replaceLastPage", search = "replaceSearch", param = "replacedrtgl;replacesdtgl" }))';
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangTidakLaku2", "Manage", new { page = "replaceLastPage", search = "replaceSearch", param = "replacedrtgl;replacesdtgl" }))';
             link = link.replace("replaceSearch", encodeURIComponent($('#search_tidaklaku').val()));
             link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_tbtlp').val()));
             link = link.replace("replacedrtgl", encodeURIComponent($('#DrTanggal').val()));
@@ -2025,7 +2051,7 @@
             link = link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
 
             if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
-                link = link.replace("replaceFilter2gudang", encodeURIComponent($('.filter2_' + $namaTab + '_field_gudang').val()));
+                link = link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
             }
 
             $.ajax({
@@ -2047,7 +2073,7 @@
         }
         function refreshTablePalingLaku() {
             @*change by nurul 16/1/2019 -- var link = '@Url.Action("RefreshTableBarangPalingLaku", "Manage")'; 'change by nurul 15/1/2019*@
-            var link = '@Html.Raw(Url.Action("RefreshTableBarangPalingLaku", "Manage", new { page = "replaceLastPage", search = "replaceSearch", param = "replacedrtgl;replacesdtgl" }))';
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangPalingLaku2", "Manage", new { page = "replaceLastPage", search = "replaceSearch", param = "replacedrtgl;replacesdtgl" }))';
             link = link.replace("replaceSearch", encodeURIComponent($('#search_palinglaku').val()));
             link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_tbpl').val()));
             link = link.replace("replacedrtgl", encodeURIComponent($('#DrTanggal1').val()));
@@ -2072,7 +2098,7 @@
         }
 
         function searchTableMinimumStok() {
-            var link = '@Html.Raw(Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage", new { search = "replaceSearch", param = "replacedrtgl;replacesdtgl", order = "replaceOrder", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang" }))';
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangDibawahMinimumStok2", "Manage", new { search = "replaceSearch", param = "replacedrtgl;replacesdtgl", order = "replaceOrder", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang" }))';
             link = link.replace("replaceSearch", encodeURIComponent($('#search_minimumstok').val()));
             link = link.replace("replacedrtgl", encodeURIComponent($('#DrTanggal2').val()));
             link = link.replace("replacesdtgl", encodeURIComponent($('#SdTanggal2').val()));
@@ -2084,7 +2110,7 @@
             link = link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
 
             if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
-                link = link.replace("replaceFilter2gudang", encodeURIComponent($('.filter2_' + $namaTab + '_field_gudang').val()));
+                link = link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
             }
 
             $.ajax({
@@ -2107,7 +2133,7 @@
         function refreshTableMinimumStok() {
             //change by nurul 6/5/2019
             @*var link = '@Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage")';*@
-            var link = '@Html.Raw(Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage", new { page = "replaceLastPage", search = "replaceSearch", param = "replacedrtgl;replacesdtgl", order = "replaceOrder" }))';
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangDibawahMinimumStok2", "Manage", new { page = "replaceLastPage", search = "replaceSearch", param = "replacedrtgl;replacesdtgl", order = "replaceOrder" }))';
             link = link.replace("replaceSearch", encodeURIComponent($('#search_minimumstok').val()));
             link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_tbms').val()));
             link = link.replace("replacedrtgl", encodeURIComponent($('#DrTanggal2').val()));
@@ -2151,7 +2177,7 @@
 
                 $('#search_detail').val('');
                 $('#txt_last_page_detail').val('');
-                //if ($('.filter2_' + $namaTab + '_field').val() == "")
+                //if ($('#filter2_' + $namaTab + '_field').val() == "")
         var $link = '@Html.Raw(Url.Action("LihatDetailPesanan2", "Manage", new { brgId = "replaceID", page = "replaceLastPage", search = "replaceSearch", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang" }))';
             $link = $link.replace("replaceID", encodeURIComponent(tempBrg));
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_detail').val()));
@@ -2163,7 +2189,7 @@
                 $link = $link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
 
                 if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
-                    $link = $link.replace("replaceFilter2gudang", encodeURIComponent($('.filter2_' + $namaTab + '_field_gudang').val()));
+                    $link = $link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
                 }
 
         $.ajax({
@@ -2182,20 +2208,20 @@
                     $('#marketplace_pesanan').show();
                     $('#provinsi_pesanan').hide();
                     $('#gudang_pesanan').hide();
-                    $('#market-pesanan').val($('.filter2_' + $namaTab + '_field_marketplace').text());
+                    $('#market-pesanan').val($('#filter2_' + $namaTab + '_field_marketplace').text());
                     $('#prov-pesanan').val('');
                     $('#gudang-pesanan').val('');
                 } else if (filterby2 == "provinsi" && filtervalue2 != "") {
                     $('#marketplace_pesanan').hide();
                     $('#provinsi_pesanan').show();
-                    if ($('.filter2_' + $namaTab + '_field_gudang').val() != "") {
+                    if ($('#filter2_' + $namaTab + '_field_gudang').val() != "") {
                         $('#gudang_pesanan').show();
                     } else {
                         $('#gudang_pesanan').hide();
                     }
                     $('#market-pesanan').val('');
-                    $('#prov-pesanan').val($('.filter2_' + $namaTab + '_field_provinsi').text());
-                    $('#gudang-pesanan').val($('.filter2_' + $namaTab + '_field_gudang').text());
+                    $('#prov-pesanan').val($('#filter2_' + $namaTab + '_field_provinsi').text());
+                    $('#gudang-pesanan').val($('#filter2_' + $namaTab + '_field_gudang').text());
                 } else {
                     $('#marketplace_pesanan').hide();
                     $('#provinsi_pesanan').hide();
@@ -2237,7 +2263,7 @@
                 link = link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
 
                 if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
-                    link = link.replace("replaceFilter2gudang", encodeURIComponent($('.filter2_' + $namaTab + '_field_gudang').val()));
+                    link = link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
                 }
 
             $.ajax({
@@ -2276,7 +2302,7 @@
                 link = link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
 
                 if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
-                    link = link.replace("replaceFilter2gudang", encodeURIComponent($('.filter2_' + $namaTab + '_field_gudang').val()));
+                    link = link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
                 }
 
                 $.ajax({
@@ -2323,7 +2349,7 @@
                 $link = $link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
 
                 if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
-                    $link = $link.replace("replaceFilter2gudang", encodeURIComponent($('.filter2_' + $namaTab + '_field_gudang').val()));
+                    $link = $link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
                 }
 
         $.ajax({
@@ -2339,20 +2365,20 @@
                     $('#marketplace_stok').show();
                     $('#provinsi_stok').hide();
                     $('#gudang_stok').hide();
-                    $('#market-stok').val($('.filter2_' + $namaTab + '_field_marketplace').text());
+                    $('#market-stok').val($('#filter2_' + $namaTab + '_field_marketplace').text());
                     $('#prov-stok').val('');
                     $('#gudang-stok').val('');
                 } else if (filterby2 == "provinsi" && filtervalue2 != "") {
                     $('#marketplace_stok').hide();
                     $('#provinsi_stok').show();
-                    if ($('.filter2_' + $namaTab + '_field_gudang').val() != "") {
+                    if ($('#filter2_' + $namaTab + '_field_gudang').val() != "") {
                         $('#gudang_stok').show();
                     } else {
                         $('#gudang_stok').hide();
                     }
                     $('#market-stok').val('');
-                    $('#prov-stok').val($('.filter2_' + $namaTab + '_field_provinsi').text());
-                    $('#gudang-stok').val($('.filter2_' + $namaTab + '_field_gudang').text());
+                    $('#prov-stok').val($('#filter2_' + $namaTab + '_field_provinsi').text());
+                    $('#gudang-stok').val($('#filter2_' + $namaTab + '_field_gudang').text());
                 } else {
                     $('#marketplace_stok').hide();
                     $('#provinsi_stok').hide();
@@ -2393,7 +2419,7 @@
                 link = link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
 
                 if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
-                    link = link.replace("replaceFilter2gudang", encodeURIComponent($('.filter2_' + $namaTab + '_field_gudang').val()));
+                    link = link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
                 }
 
             $.ajax({
@@ -2432,7 +2458,7 @@
                 link = link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
 
                 if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
-                    link = link.replace("replaceFilter2gudang", encodeURIComponent($('.filter2_' + $namaTab + '_field_gudang').val()));
+                    link = link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
                 }
 
                 $.ajax({
@@ -2479,7 +2505,7 @@
                 $link = $link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
 
                 if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
-                    $link = $link.replace("replaceFilter2gudang", encodeURIComponent($('.filter2_' + $namaTab + '_field_gudang').val()));
+                    $link = $link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
                 }
 
                 $.ajax({
@@ -2495,20 +2521,20 @@
                             $('#marketplace_qty').show();
                             $('#provinsi_qty').hide();
                             $('#gudang_qty').hide();
-                            $('#market-qty').val($('.filter2_' + $namaTab + '_field_marketplace').text());
+                            $('#market-qty').val($('#filter2_' + $namaTab + '_field_marketplace').text());
                             $('#prov-qty').val('');
                             $('#gudang-qty').val('');
                         } else if (filterby2 == "provinsi" && filtervalue2 != "") {
                             $('#marketplace_qty').hide();
                             $('#provinsi_qty').show();
-                            if ($('.filter2_' + $namaTab + '_field_gudang').val() != "") {
+                            if ($('#filter2_' + $namaTab + '_field_gudang').val() != "") {
                                 $('#gudang_qty').show();
                             } else {
                                 $('#gudang_qty').hide();
                             }
                             $('#market-qty').val('');
-                            $('#prov-qty').val($('.filter2_' + $namaTab + '_field_provinsi').text());
-                            $('#gudang-qty').val($('.filter2_' + $namaTab + '_field_gudang').text());
+                            $('#prov-qty').val($('#filter2_' + $namaTab + '_field_provinsi').text());
+                            $('#gudang-qty').val($('#filter2_' + $namaTab + '_field_gudang').text());
                         } else {
                             $('#marketplace_qty').hide();
                             $('#provinsi_qty').hide();
@@ -2549,7 +2575,7 @@
                 link = link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
 
                 if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
-                    link = link.replace("replaceFilter2gudang", encodeURIComponent($('.filter2_' + $namaTab + '_field_gudang').val()));
+                    link = link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
                 }
 
                 $.ajax({
@@ -2572,7 +2598,7 @@
             } else {
                 $('#loading_detail_qty_barang_tab').hide();
                 alert("Tidak ada detail qty siap jual.");
-            }
+            }filter2_
         }
 
         function refreshTableDetailQtySiapJual() {
@@ -2588,7 +2614,7 @@
                 link = link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
 
                 if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
-                    link = link.replace("replaceFilter2gudang", encodeURIComponent($('.filter2_' + $namaTab + '_field_gudang').val()));
+                    link = link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
                 }
 
                 $.ajax({
