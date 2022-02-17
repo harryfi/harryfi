@@ -547,7 +547,7 @@ namespace MasterOnline.Controllers
                             {
                                 foreach (var session in session_list)
                                 {
-                                    GetGetMessage(dbpath, uname, session, CUST, accessToken, milis, "").Start();
+                                    await GetGetMessage(dbpath, uname, session, CUST, accessToken, milis, "");
                                 }
                             }
                             if (!sudah14hari)
@@ -641,278 +641,281 @@ namespace MasterOnline.Controllers
 
                                     foreach (var msg in result.data.message_list)
                                     {
-                                        var created_sendtime = DateTimeOffset.FromUnixTimeMilliseconds(msg.send_time).UtcDateTime.AddHours(7);
-                                        var last_created_sendtime = created_sendtime.ToString("yyyy-MM-dd HH:mm:ss");
+                                        if (msg.template_id != "2")
+                                        {
+                                            var created_sendtime = DateTimeOffset.FromUnixTimeMilliseconds(msg.send_time).UtcDateTime.AddHours(7);
+                                            var last_created_sendtime = created_sendtime.ToString("yyyy-MM-dd HH:mm:ss");
 
-                                        var orderId = "";
-                                        if (string.IsNullOrEmpty(msg.content.orderId))
-                                        {
-                                            orderId = "";
-                                        }
-                                        else
-                                        {
-                                            orderId = msg.content.orderId;
-                                        }
-
-                                        //var txt = "";
-                                        //if (string.IsNullOrEmpty(msg.content.txt))
-                                        //{
-                                        //    txt = "";
-                                        //}
-                                        //else
-                                        //{
-                                        //    txt = msg.content.txt;
-                                        //}
-
-                                        var actionUrl = "";
-                                        if (string.IsNullOrEmpty(msg.content.actionUrl))
-                                        {
-                                            actionUrl = "";
-                                        }
-                                        else
-                                        {
-                                            actionUrl = msg.content.actionUrl;
-                                        }
-
-                                        var iconUrl = "";
-                                        if (string.IsNullOrEmpty(msg.content.iconUrl))
-                                        {
-                                            iconUrl = "";
-                                        }
-                                        else
-                                        {
-                                            iconUrl = msg.content.iconUrl;
-                                        }
-
-                                        var title = "";
-                                        if (string.IsNullOrEmpty(msg.content.title))
-                                        {
-                                            title = "";
-                                        }
-                                        else
-                                        {
-                                            title = msg.content.title;
-                                        }
-
-                                        var content = "";
-                                        if (string.IsNullOrEmpty(msg.content.content))
-                                        {
-                                            content = "";
-                                        }
-                                        else
-                                        {
-                                            content = msg.content.content;
-                                        }
-
-                                        var status = "";
-                                        if (string.IsNullOrEmpty(msg.content.status))
-                                        {
-                                            status = "";
-                                        }
-                                        else
-                                        {
-                                            status = msg.content.status;
-                                        }
-
-                                        var itemId = "";
-                                        if (string.IsNullOrEmpty(msg.content.itemId))
-                                        {
-                                            itemId = "";
-                                        }
-                                        else
-                                        {
-                                            itemId = msg.content.itemId;
-                                        }
-
-                                        var price = "";
-                                        if (string.IsNullOrEmpty(msg.content.price))
-                                        {
-                                            price = "";
-                                        }
-                                        else
-                                        {
-                                            price = msg.content.price;
-                                        }
-
-                                        var skuId = "";
-                                        if (string.IsNullOrEmpty(msg.content.skuId))
-                                        {
-                                            skuId = "";
-                                        }
-                                        else
-                                        {
-                                            skuId = msg.content.skuId;
-                                        }
-
-                                        var imgUrl = "";
-                                        if (string.IsNullOrEmpty(msg.content.imgUrl))
-                                        {
-                                            imgUrl = "";
-                                        }
-                                        else
-                                        {
-                                            imgUrl = msg.content.imgUrl;
-                                        }
-
-                                        var smallImgUrl = "";
-                                        if (string.IsNullOrEmpty(msg.content.smallImgUrl))
-                                        {
-                                            smallImgUrl = "";
-                                        }
-                                        else
-                                        {
-                                            smallImgUrl = msg.content.smallImgUrl;
-                                        }
-
-                                        var osskey = "";
-                                        if (string.IsNullOrEmpty(msg.content.osskey))
-                                        {
-                                            osskey = "";
-                                        }
-                                        else
-                                        {
-                                            osskey = msg.content.osskey;
-                                        }
-
-                                        var width = "";
-                                        if (string.IsNullOrEmpty(msg.content.width))
-                                        {
-                                            width = "";
-                                        }
-                                        else
-                                        {
-                                            width = msg.content.width;
-                                        }
-
-                                        var height = "";
-                                        if (string.IsNullOrEmpty(msg.content.height))
-                                        {
-                                            height = "";
-                                        }
-                                        else
-                                        {
-                                            height = msg.content.height;
-                                        }
-
-                                        var text = "";
-                                        if (msg.template_id == "1") //txt
-                                        {
-                                            if (!string.IsNullOrEmpty(msg.content.txt))
+                                            var orderId = "";
+                                            if (string.IsNullOrEmpty(msg.content.orderId))
                                             {
-                                                text = msg.content.txt;
+                                                orderId = "";
                                             }
                                             else
                                             {
-                                                text = "*Ada pesan baru masuk dengan tipe text.";
+                                                orderId = msg.content.orderId;
                                             }
-                                        }
-                                        else if (msg.template_id == "3") //image
-                                        {
-                                            if (!string.IsNullOrEmpty(msg.content.imgUrl))
-                                            {
-                                                //text = result.data.content.content.url;
-                                                var url_ = msg.content.imgUrl;
-                                                text = "<u><a rel=\"nofollow\" target=\"blank\" href=\"" + url_ + "\">Link Gambar</a></u>";
-                                                //height = msg.content.height;
-                                                //width = msg.content.width;
-                                                //osskey = msg.content.osskey;
-                                            }
-                                            else
-                                            {
-                                                text = "*Ada pesan baru masuk dengan tipe image.";
-                                                //height = msg.content.height;
-                                                //width = msg.content.width;
-                                                //osskey = msg.content.osskey;
-                                            }
-                                        }
-                                        else if (msg.template_id == "10007") //order
-                                        {
-                                            if (!string.IsNullOrEmpty(msg.content.orderId))
-                                            {
-                                                //text = "https://seller.shopee.co.id/portal/sale/order/?search=" + result.data.content.content.order_sn;
-                                                var url_ = "https://sellercenter.lazada.co.id/order/detail/" + msg.content.orderId + "/" + msg.to_account_id;
-                                                text = "<u><a rel=\"nofollow\" target=\"blank\" href=\"" + url_ + "\">Link Produk " + msg.content.title + "</a></u>";
-                                            }
-                                            else
-                                            {
-                                                text = "*Ada pesan baru masuk dengan tipe order";
-                                            }
-                                        }
-                                        else if (msg.template_id == "10006")
-                                        {
-                                            if (!string.IsNullOrEmpty(msg.content.itemId))
-                                            {
-                                                //text = "https://shopee.co.id/product/" + listShopeeShop.Sort1_Cust + "/" + result.data.content.content.item_id.ToString();
-                                                var url_ = msg.content.actionUrl;
-                                                text = "<u><a rel=\"nofollow\" target=\"blank\" href=\"" + url_ + "\">Link Produk " + msg.content.title + "</a></u>";
-                                            }
-                                            else
-                                            {
-                                                text = "*Ada pesan baru masuk dengan tipe item.";
-                                            }
-                                        }
-                                        else if (msg.template_id == "4")
-                                        {
-                                            if (!string.IsNullOrEmpty(msg.content.smallImgUrl))
-                                            {
-                                                var url_ = msg.content.imgUrl;
-                                                //text = "<u><a rel=\"nofollow\" target=\"blank\" href=\"" + url_ + "\"><img src=\"" + msg.content.smallImgUrl + "\"></a></u>";
-                                                text = "<u><a id=\"lzd_stiker\" rel=\"nofollow\" target=\"blank\" href=\"" + url_ + "\"><img style=\"width: 30%; height: 30%; display: block; margin: auto;\" src=\"" + msg.content.smallImgUrl + "\"></a></u>";
-                                            }
-                                            else
-                                            {
-                                                text = "*Ada pesan baru masuk dengan tipe stiker.";
-                                            }
-                                        }
-                                        else
-                                        {
-                                            text = "*Ada pesan baru masuk dengan template id = " + msg.template_id;
-                                        }
 
-                                        var message = new LAZADA_MESSAGES
-                                        {
-                                            session_id = msg.session_id,
-                                            message_id = msg.message_id,
-                                            last_message_id = result.data.last_message_id,
-                                            type = msg.type,
-                                            from_account_type = msg.from_account_type,
-                                            from_account_id = msg.from_account_id,
-                                            to_account_type = msg.to_account_type,
-                                            to_account_id = msg.to_account_id,
-                                            send_time = created_sendtime,
-                                            template_id = msg.template_id,
-                                            site_id = msg.site_id,
-                                            auto_reply = msg.auto_reply,
-                                            status = msg.status,
-                                            txt = text,
-                                            orderId = orderId,
-                                            actionUrl = actionUrl,
-                                            iconUrl = iconUrl,
-                                            title = title,
-                                            content_order = content,
-                                            status_order = status,
-                                            itemId = itemId,
-                                            price = price,
-                                            skuId = skuId,
-                                            smallImgUrl = smallImgUrl,
-                                            imgUrl = imgUrl,
-                                            osskey = osskey,
-                                            width = width,
-                                            height = height,
-                                            //17/09/2021
-                                            cust = cust,
-                                            //
-                                        };
-                                        //masukin sampe -1 bulan 
-                                        if (created_sendtime < dateLast14Days)
-                                        {
-                                            sudah14hari = true;
-                                            lastGetMessage = true; break;
-                                        }
-                                        //hanya masukin yg blm ada di list Conversation
-                                        if (!cekListMessage.Contains(message.message_id))
-                                        {
-                                            listMsg.Add(message);
+                                            //var txt = "";
+                                            //if (string.IsNullOrEmpty(msg.content.txt))
+                                            //{
+                                            //    txt = "";
+                                            //}
+                                            //else
+                                            //{
+                                            //    txt = msg.content.txt;
+                                            //}
+
+                                            var actionUrl = "";
+                                            if (string.IsNullOrEmpty(msg.content.actionUrl))
+                                            {
+                                                actionUrl = "";
+                                            }
+                                            else
+                                            {
+                                                actionUrl = msg.content.actionUrl;
+                                            }
+
+                                            var iconUrl = "";
+                                            if (string.IsNullOrEmpty(msg.content.iconUrl))
+                                            {
+                                                iconUrl = "";
+                                            }
+                                            else
+                                            {
+                                                iconUrl = msg.content.iconUrl;
+                                            }
+
+                                            var title = "";
+                                            if (string.IsNullOrEmpty(msg.content.title))
+                                            {
+                                                title = "";
+                                            }
+                                            else
+                                            {
+                                                title = msg.content.title;
+                                            }
+
+                                            var content = "";
+                                            if (string.IsNullOrEmpty(msg.content.content))
+                                            {
+                                                content = "";
+                                            }
+                                            else
+                                            {
+                                                content = msg.content.content;
+                                            }
+
+                                            var status = "";
+                                            if (string.IsNullOrEmpty(msg.content.status))
+                                            {
+                                                status = "";
+                                            }
+                                            else
+                                            {
+                                                status = msg.content.status;
+                                            }
+
+                                            var itemId = "";
+                                            if (string.IsNullOrEmpty(msg.content.itemId))
+                                            {
+                                                itemId = "";
+                                            }
+                                            else
+                                            {
+                                                itemId = msg.content.itemId;
+                                            }
+
+                                            var price = "";
+                                            if (string.IsNullOrEmpty(msg.content.price))
+                                            {
+                                                price = "";
+                                            }
+                                            else
+                                            {
+                                                price = msg.content.price;
+                                            }
+
+                                            var skuId = "";
+                                            if (string.IsNullOrEmpty(msg.content.skuId))
+                                            {
+                                                skuId = "";
+                                            }
+                                            else
+                                            {
+                                                skuId = msg.content.skuId;
+                                            }
+
+                                            var imgUrl = "";
+                                            if (string.IsNullOrEmpty(msg.content.imgUrl))
+                                            {
+                                                imgUrl = "";
+                                            }
+                                            else
+                                            {
+                                                imgUrl = msg.content.imgUrl;
+                                            }
+
+                                            var smallImgUrl = "";
+                                            if (string.IsNullOrEmpty(msg.content.smallImgUrl))
+                                            {
+                                                smallImgUrl = "";
+                                            }
+                                            else
+                                            {
+                                                smallImgUrl = msg.content.smallImgUrl;
+                                            }
+
+                                            var osskey = "";
+                                            if (string.IsNullOrEmpty(msg.content.osskey))
+                                            {
+                                                osskey = "";
+                                            }
+                                            else
+                                            {
+                                                osskey = msg.content.osskey;
+                                            }
+
+                                            var width = "";
+                                            if (string.IsNullOrEmpty(msg.content.width))
+                                            {
+                                                width = "";
+                                            }
+                                            else
+                                            {
+                                                width = msg.content.width;
+                                            }
+
+                                            var height = "";
+                                            if (string.IsNullOrEmpty(msg.content.height))
+                                            {
+                                                height = "";
+                                            }
+                                            else
+                                            {
+                                                height = msg.content.height;
+                                            }
+
+                                            var text = "";
+                                            if (msg.template_id == "1") //txt
+                                            {
+                                                if (!string.IsNullOrEmpty(msg.content.txt))
+                                                {
+                                                    text = msg.content.txt;
+                                                }
+                                                else
+                                                {
+                                                    text = "*Ada pesan baru masuk dengan tipe text.";
+                                                }
+                                            }
+                                            else if (msg.template_id == "3") //image
+                                            {
+                                                if (!string.IsNullOrEmpty(msg.content.imgUrl))
+                                                {
+                                                    //text = result.data.content.content.url;
+                                                    var url_ = msg.content.imgUrl;
+                                                    text = "<u><a rel=\"nofollow\" target=\"blank\" href=\"" + url_ + "\">Link Gambar</a></u>";
+                                                    //height = msg.content.height;
+                                                    //width = msg.content.width;
+                                                    //osskey = msg.content.osskey;
+                                                }
+                                                else
+                                                {
+                                                    text = "*Ada pesan baru masuk dengan tipe image.";
+                                                    //height = msg.content.height;
+                                                    //width = msg.content.width;
+                                                    //osskey = msg.content.osskey;
+                                                }
+                                            }
+                                            else if (msg.template_id == "10007") //order
+                                            {
+                                                if (!string.IsNullOrEmpty(msg.content.orderId))
+                                                {
+                                                    //text = "https://seller.shopee.co.id/portal/sale/order/?search=" + result.data.content.content.order_sn;
+                                                    var url_ = "https://sellercenter.lazada.co.id/order/detail/" + msg.content.orderId + "/" + msg.to_account_id;
+                                                    text = "<u><a rel=\"nofollow\" target=\"blank\" href=\"" + url_ + "\">Link Produk " + msg.content.title + "</a></u>";
+                                                }
+                                                else
+                                                {
+                                                    text = "*Ada pesan baru masuk dengan tipe order";
+                                                }
+                                            }
+                                            else if (msg.template_id == "10006")
+                                            {
+                                                if (!string.IsNullOrEmpty(msg.content.itemId))
+                                                {
+                                                    //text = "https://shopee.co.id/product/" + listShopeeShop.Sort1_Cust + "/" + result.data.content.content.item_id.ToString();
+                                                    var url_ = msg.content.actionUrl;
+                                                    text = "<u><a rel=\"nofollow\" target=\"blank\" href=\"" + url_ + "\">Link Produk " + msg.content.title + "</a></u>";
+                                                }
+                                                else
+                                                {
+                                                    text = "*Ada pesan baru masuk dengan tipe item.";
+                                                }
+                                            }
+                                            else if (msg.template_id == "4")
+                                            {
+                                                if (!string.IsNullOrEmpty(msg.content.smallImgUrl))
+                                                {
+                                                    var url_ = msg.content.imgUrl;
+                                                    //text = "<u><a rel=\"nofollow\" target=\"blank\" href=\"" + url_ + "\"><img src=\"" + msg.content.smallImgUrl + "\"></a></u>";
+                                                    text = "<u><a id=\"lzd_stiker\" rel=\"nofollow\" target=\"blank\" href=\"" + url_ + "\"><img style=\"width: 30%; height: 30%; display: block; margin: auto;\" src=\"" + msg.content.smallImgUrl + "\"></a></u>";
+                                                }
+                                                else
+                                                {
+                                                    text = "*Ada pesan baru masuk dengan tipe stiker.";
+                                                }
+                                            }
+                                            else
+                                            {
+                                                text = "*Ada pesan baru masuk dengan template id = " + msg.template_id;
+                                            }
+
+                                            var message = new LAZADA_MESSAGES
+                                            {
+                                                session_id = msg.session_id,
+                                                message_id = msg.message_id,
+                                                last_message_id = result.data.last_message_id,
+                                                type = msg.type,
+                                                from_account_type = msg.from_account_type,
+                                                from_account_id = msg.from_account_id,
+                                                to_account_type = msg.to_account_type,
+                                                to_account_id = msg.to_account_id,
+                                                send_time = created_sendtime,
+                                                template_id = msg.template_id,
+                                                site_id = msg.site_id,
+                                                auto_reply = msg.auto_reply,
+                                                status = msg.status,
+                                                txt = text,
+                                                orderId = orderId,
+                                                actionUrl = actionUrl,
+                                                iconUrl = iconUrl,
+                                                title = title,
+                                                content_order = content,
+                                                status_order = status,
+                                                itemId = itemId,
+                                                price = price,
+                                                skuId = skuId,
+                                                smallImgUrl = smallImgUrl,
+                                                imgUrl = imgUrl,
+                                                osskey = osskey,
+                                                width = width,
+                                                height = height,
+                                                //17/09/2021
+                                                cust = cust,
+                                                //
+                                            };
+                                            //masukin sampe -1 bulan 
+                                            if (created_sendtime < dateLast14Days)
+                                            {
+                                                sudah14hari = true;
+                                                lastGetMessage = true; break;
+                                            }
+                                            //hanya masukin yg blm ada di list Conversation
+                                            if (!cekListMessage.Contains(message.message_id))
+                                            {
+                                                listMsg.Add(message);
+                                            }
                                         }
                                     }
 
