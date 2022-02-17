@@ -851,7 +851,7 @@ namespace MasterOnline.Controllers
 
             //add by nurul 22/1/2022
             double qtyOnHand = 0d;
-            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then 0 else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
             if (multilokasi == "1" && !string.IsNullOrEmpty(Gudang) && Gudang != "ALL")
             {
                 qtyOnHand = GetQOHSTF08A_MultiLokasi(Barang, Gudang, "");

@@ -8719,7 +8719,7 @@ namespace MasterOnline.Controllers
                             ErasoftDbContext.SaveChanges();
 
                             //add by nurul 19/1/2022
-                            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then 0 else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
                             //end add by nurul 19/1/2022
                             if (brgInDb.TYPE == "4")
                             {
@@ -9288,7 +9288,7 @@ namespace MasterOnline.Controllers
                             ErasoftDbContext.SaveChanges();
 
                             //add by nurul 19/1/2022
-                            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then 0 else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
                             //end add by nurul 19/1/2022
                             if (brgInDb.TYPE == "4")
                             {
@@ -9601,7 +9601,7 @@ namespace MasterOnline.Controllers
                             //};
                             StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
                             //add by nurul 19/1/2022
-                            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then 0 else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
                             //end add by nurul 19/1/2022
                             for (int i = 0; i < listBrg.Tables[0].Rows.Count; i++)
                             {
@@ -10441,7 +10441,7 @@ namespace MasterOnline.Controllers
                         {
                             var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
                             //add by nurul 19/1/2022
-                            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then 0 else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
                             //end add by nurul 19/1/2022
                             foreach (var variasi in resServer.variation_id_list)
                             {
@@ -10961,7 +10961,7 @@ namespace MasterOnline.Controllers
                             {
                                 StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
                                 //add by nurul 19/1/2022
-                                var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then 0 else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                                var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
                                 //end add by nurul 19/1/2022
                                 for (int i = 0; i < listBrg.Tables[0].Rows.Count; i++)
                                 {
@@ -11120,7 +11120,7 @@ namespace MasterOnline.Controllers
 
                             var Jobclient = new BackgroundJobClient(sqlStorage);
                             //add by nurul 19/1/2022
-                            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then 0 else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
                             //end add by nurul 19/1/2022
                             for (int i = 0; i < listBrg.Tables[0].Rows.Count; i++)
                             {
@@ -11288,7 +11288,7 @@ namespace MasterOnline.Controllers
                             {
                                 StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
                                 //add by nurul 19/1/2022
-                                var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then 0 else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                                var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
                                 //end add by nurul 19/1/2022
                                 for (int i = 0; i < listBrg.Tables[0].Rows.Count; i++)
                                 {

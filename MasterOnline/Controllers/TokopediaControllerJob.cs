@@ -6836,7 +6836,7 @@ namespace MasterOnline.Controllers
 
                                                     StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
                                                     //add by nurul 19/1/2022
-                                                    var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then 0 else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                                                    var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
                                                     //end add by nurul 19/1/2022
 #if (DEBUG || Debug_AWS)
                                                     Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null, Convert.ToInt32(multilokasi))).Wait();
@@ -6897,7 +6897,7 @@ namespace MasterOnline.Controllers
                                                 data.idmarket = iden.idmarket;
                                                 StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
                                                 //add by nurul 19/1/2022
-                                                var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then 0 else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                                                var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
                                                 //end add by nurul 19/1/2022
 #if (DEBUG || Debug_AWS)
                                                 Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null, Convert.ToInt32(multilokasi))).Wait();
@@ -7233,7 +7233,7 @@ namespace MasterOnline.Controllers
                                     kdBrg = varianInDB.BRG;
                                 }
                                 //add by nurul 19/1/2022
-                                var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then 0 else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                                var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
                                 //end add by nurul 19/1/2022
 #if (DEBUG || Debug_AWS)
                                 Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kdBrg, log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null, Convert.ToInt32(multilokasi))).Wait();

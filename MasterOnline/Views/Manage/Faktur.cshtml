@@ -4878,9 +4878,13 @@
         //add by nurul 13/12/2018
         function getGudangForBarang() {
             if ($('#FakturDetail_BRG').val() != '') {
-
-                var link = '@Url.Action("GetGudangBarangFaktur", "Manage", new { brgId = "replaceId" })';
-                link = link.replace("replaceId", encodeURIComponent($('#FakturDetail_BRG').val()));
+                //change by nurul 17/2/2022
+                @*var link = '@Url.Action("GetGudangBarangFaktur", "Manage", new { brgId = "replaceId" })';
+                link = link.replace("replaceId", encodeURIComponent($('#FakturDetail_BRG').val()));*@
+                var link = '@Url.Action("GetGudangBarangFaktur", "Manage", new { brgId = "replaceId", cust = "replaceCust" })';
+                link = link.replace("replaceId", encodeURIComponent($('#FakturBundling_BRG').val()));
+                link = link.replace("replaceCust", encodeURIComponent($('#Faktur_CUST').val()));
+                //end change by nurul 17/2/2022
                 $.ajax({
                     type: "GET",
                     url: link,
@@ -7037,8 +7041,13 @@
         function getGudangForBarangBundling() {
             if ($('#FakturBundling_BRG').val() != '') {
 
-                var link = '@Url.Action("GetGudangBarangBundlingFaktur", "Manage", new { brgId = "replaceId" })';
+                //change by nurul 17/2/2022
+                @*var link = '@Url.Action("GetGudangBarangBundlingFaktur", "Manage", new { brgId = "replaceId" })';
+                link = link.replace("replaceId", encodeURIComponent($('#FakturBundling_BRG').val()));*@
+                var link = '@Url.Action("GetGudangBarangBundlingFaktur", "Manage", new { brgId = "replaceId", cust = "replaceCust" })';
                 link = link.replace("replaceId", encodeURIComponent($('#FakturBundling_BRG').val()));
+                link = link.replace("replaceCust", encodeURIComponent($('#Faktur_CUST').val()));
+                //end change by nurul 17/2/2022
                 $.ajax({
                     type: "GET",
                     url: link,

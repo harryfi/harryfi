@@ -2321,7 +2321,7 @@ namespace MasterOnline.Controllers
                     if (resServer.product != null)
                     {
                         //add by nurul 19/1/2022
-                        var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then 0 else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                        var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
                         //end add by nurul 19/1/2022
                         if (brgInDb.TYPE == "4")
                         {

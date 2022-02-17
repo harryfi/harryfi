@@ -748,7 +748,7 @@ namespace MasterOnline.Controllers
                     if (tblCustomer.TIDAK_HIT_UANG_R)
                     {
                         //add by nurul 19/1/2022
-                        var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then 0 else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                        var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
                         //end add by nurul 19/1/2022
 #if (DEBUG || Debug_AWS)
                         StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
@@ -1318,7 +1318,7 @@ namespace MasterOnline.Controllers
                                 if (brgInDB != null)
                                 {
                                     //add by nurul 19/1/2022
-                                    var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then 0 else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                                    var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
                                     //end add by nurul 19/1/2022
 #if (DEBUG || Debug_AWS)
                                     StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
@@ -2159,7 +2159,7 @@ namespace MasterOnline.Controllers
                 if(dsOrder.Tables[0].Rows[0]["TIDAK_HIT_UANG_R"].ToString() == "True" && !string.IsNullOrEmpty(dsOrder.Tables[0].Rows[0]["BRG_MP"].ToString()))
                 {
                     //add by nurul 19/1/2022
-                    var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then 0 else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                    var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
                     //end add by nurul 19/1/2022
                     StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
 #if (DEBUG || Debug_AWS)
