@@ -2198,9 +2198,9 @@ namespace MasterOnline.Controllers
 
                 if (responseFromServer != "")
                 {
-                    var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedCreateProductResult)) as TokpedCreateProductResult;
+                    var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedCreateProductResultV3)) as TokpedCreateProductResultV3;
                     //if (result.header.error_code == "")
-                    if (string.IsNullOrEmpty(result.header.reason))
+                    if (result.data.fail_data == 0)
                     {
                         await getItemDetailToLink(dbPathEra, kodeProduk, log_CUST, iden, iden.idmarket, 1, result.data.success_rows_data[0].product_id);
                         if (brg_stf02.TYPE == "4")
@@ -2210,8 +2210,15 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        currentLog.REQUEST_RESULT = result.header.reason;
-                        currentLog.REQUEST_EXCEPTION = result.header.messages;
+                        string errMsg = "";
+                        foreach (var err in result.data.failed_rows_data[0].error)
+                        {
+                            if (!string.IsNullOrEmpty(errMsg))
+                                errMsg += " ; ";
+                            errMsg += err;
+                        }
+                        currentLog.REQUEST_RESULT = errMsg;
+                        currentLog.REQUEST_EXCEPTION = errMsg;
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                         throw new Exception(result.header.messages + ";" + result.header.reason);
                     }
