@@ -1592,7 +1592,7 @@ namespace MasterOnline.Controllers
             {
                 var brg_stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == brg && p.IDMARKET == iden.idmarket).SingleOrDefault();
                 //string urll = "https://fs.tokopedia.net/v2/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/edit?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
-                string urll = "https://fs.tokopedia.net/v2/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/edit?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
+                string urll = "https://fs.tokopedia.net/v3/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/edit?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
                 if ((brg_stf02h.BRG_MP ?? "").Contains("PENDING") || (brg_stf02h.BRG_MP ?? "").Contains("WAITING_FOR_HANGFIRE"))
                 {
                     throw new Exception("Produk masih dalam proses create/upload ke Tokopedia, belum bisa di edit.");
