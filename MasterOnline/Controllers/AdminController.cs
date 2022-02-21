@@ -3246,66 +3246,69 @@ namespace MasterOnline.Controllers
                                     {
                                         foreach (var barangvariant in checkBarangVariant)
                                         {
-                                            var resultCekSIVarian = (from a in ErasoftDbContext.SIT01B
-                                                                     join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
-                                                                     where a.BRG.ToUpper() == barangvariant.BRG.ToString().ToUpper()
-                                                                     select new
-                                                                     {
-                                                                         a.NO_BUKTI,
-                                                                         a.BRG,
-                                                                         b.ST_POSTING
-                                                                     }
-                                                                                    ).ToList();
-
-                                            var resultCekSTVarian = (from a in ErasoftDbContext.STT01B
-                                                                     join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
-                                                                     where a.Kobar.ToUpper() == barangvariant.BRG.ToString().ToUpper()
-                                                                     select new
-                                                                     {
-                                                                         a.Nobuk,
-                                                                         a.Kobar,
-                                                                         b.ST_Posting
-                                                                     }
-                                                ).ToList();
-
-                                            //add by nurul 25/5/2021
-                                            var resultCekPBVarian = (from a in ErasoftDbContext.PBT01B
-                                                                     join b in ErasoftDbContext.PBT01A on a.INV equals b.INV
-                                                                     where a.BRG.ToUpper() == barangvariant.BRG.ToString().ToUpper()
-                                                                     select new
-                                                                     {
-                                                                         a.INV,
-                                                                         a.BRG,
-                                                                         b.POSTING
-                                                                     }
-                                                ).ToList();
-                                            //var resultCekMultiSKUVarian = (from a in ErasoftDbContext.STF03C
-                                            //                         where a.BRG.ToLower() == barangvariant.BRG.ToString().ToLower() || a.BRG_ACUAN.ToLower() == barangvariant.BRG.ToString().ToLower()
+                                            //remark by nurul 21/1/2022, remark cek posting varian karna yg d ubah hanya part nya saja 
+                                            //var resultCekSIVarian = (from a in ErasoftDbContext.SIT01B
+                                            //                         join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
+                                            //                         where a.BRG.ToUpper() == barangvariant.BRG.ToString().ToUpper()
                                             //                         select new
                                             //                         {
-                                            //                             a.BRG_ACUAN,
-                                            //                             a.BRG
+                                            //                             a.NO_BUKTI,
+                                            //                             a.BRG,
+                                            //                             b.ST_POSTING
+                                            //                         }
+                                            //                                        ).ToList();
+
+                                            //var resultCekSTVarian = (from a in ErasoftDbContext.STT01B
+                                            //                         join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
+                                            //                         where a.Kobar.ToUpper() == barangvariant.BRG.ToString().ToUpper()
+                                            //                         select new
+                                            //                         {
+                                            //                             a.Nobuk,
+                                            //                             a.Kobar,
+                                            //                             b.ST_Posting
                                             //                         }
                                             //    ).ToList();
 
-                                            //var resultCekBundlingVarian = (from a in ErasoftDbContext.STF03
-                                            //                         where a.Brg.ToLower() == barangvariant.BRG.ToString().ToLower() || a.Unit.ToLower() == barangvariant.BRG.ToString().ToLower()
+                                            ////add by nurul 25/5/2021
+                                            //var resultCekPBVarian = (from a in ErasoftDbContext.PBT01B
+                                            //                         join b in ErasoftDbContext.PBT01A on a.INV equals b.INV
+                                            //                         where a.BRG.ToUpper() == barangvariant.BRG.ToString().ToUpper()
                                             //                         select new
                                             //                         {
-                                            //                             a.Unit,
-                                            //                             a.Brg
+                                            //                             a.INV,
+                                            //                             a.BRG,
+                                            //                             b.POSTING
                                             //                         }
                                             //    ).ToList();
+                                            ////var resultCekMultiSKUVarian = (from a in ErasoftDbContext.STF03C
+                                            ////                         where a.BRG.ToLower() == barangvariant.BRG.ToString().ToLower() || a.BRG_ACUAN.ToLower() == barangvariant.BRG.ToString().ToLower()
+                                            ////                         select new
+                                            ////                         {
+                                            ////                             a.BRG_ACUAN,
+                                            ////                             a.BRG
+                                            ////                         }
+                                            ////    ).ToList();
 
-                                            var checkResultPBVarian = resultCekPBVarian.Where(p => p.POSTING.Contains("Y")).ToList();
-                                            //end add by nurul 25/5/2021
+                                            ////var resultCekBundlingVarian = (from a in ErasoftDbContext.STF03
+                                            ////                         where a.Brg.ToLower() == barangvariant.BRG.ToString().ToLower() || a.Unit.ToLower() == barangvariant.BRG.ToString().ToLower()
+                                            ////                         select new
+                                            ////                         {
+                                            ////                             a.Unit,
+                                            ////                             a.Brg
+                                            ////                         }
+                                            ////    ).ToList();
 
-                                            var checkResultSIVarian = resultCekSIVarian.Where(p => p.ST_POSTING.Contains("Y")).ToList();
-                                            var checkResultSTVarian = resultCekSTVarian.Where(p => p.ST_Posting.Contains("Y")).ToList();
+                                            //var checkResultPBVarian = resultCekPBVarian.Where(p => p.POSTING.Contains("Y")).ToList();
+                                            ////end add by nurul 25/5/2021
 
-                                            //if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0)
-                                            if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0 && checkResultPBVarian.Count() == 0)
-                                            {
+                                            //var checkResultSIVarian = resultCekSIVarian.Where(p => p.ST_POSTING.Contains("Y")).ToList();
+                                            //var checkResultSTVarian = resultCekSTVarian.Where(p => p.ST_Posting.Contains("Y")).ToList();
+
+                                            ////if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0)
+                                            //if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0 && checkResultPBVarian.Count() == 0)
+                                            //{
+                                                //end remark by nurul 21/1/2022, remark cek posting varian karna yg d ubah hanya part nya saja 
+
                                                 //if (resultCekMultiSKUVarian.Count() == 0)
                                                 //{
                                                 //    if (resultCekBundlingVarian.Count() == 0)
@@ -3318,24 +3321,27 @@ namespace MasterOnline.Controllers
                                                     );
 
                                                 resultEdit = true;
-                                                //    }
-                                                //    else
-                                                //    {
-                                                //        //kondisi kalau sudah dijadikan barang bundling/komponen 
-                                                //        vlistKodeBundling += "" + barangvariant.BRG.ToString() + ",";
-                                                //    }
-                                                //}
-                                                //else
-                                                //{
-                                                //    //kondisi kalau sudah dijadikan barang multi sku/brg acuan 
-                                                //    vlistKodeMultiSKU += "" + barangvariant.BRG.ToString() + ",";
-                                                //}
-                                            }
-                                            else
-                                            {
-                                                // kondisi kalau sudah posting
-                                                vlistKodeSudahPosting += "" + barangvariant.BRG.ToString() + ",";
-                                            }
+                                            //    }
+                                            //    else
+                                            //    {
+                                            //        //kondisi kalau sudah dijadikan barang bundling/komponen 
+                                            //        vlistKodeBundling += "" + barangvariant.BRG.ToString() + ",";
+                                            //    }
+                                            //}
+                                            //else
+                                            //{
+                                            //    //kondisi kalau sudah dijadikan barang multi sku/brg acuan 
+                                            //    vlistKodeMultiSKU += "" + barangvariant.BRG.ToString() + ",";
+                                            //}
+
+                                            //remark by nurul 21/1/2022, remark cek posting varian karna yg d ubah hanya part nya saja 
+                                            //}
+                                            //else
+                                            //{
+                                            //    // kondisi kalau sudah posting
+                                            //    vlistKodeSudahPosting += "" + barangvariant.BRG.ToString() + ",";
+                                            //}
+                                            //end remark by nurul 21/1/2022, remark cek posting varian karna yg d ubah hanya part nya saja 
                                         }
                                     }
                                 }
@@ -3740,73 +3746,76 @@ namespace MasterOnline.Controllers
                                             //var kodeBrgBaruVariantCheck = checkBarangVariantBaru[iurutanVariant].BRG.ToString();
                                             //var checkBarangMPBaruVariant = ErasoftDbContext.STF02H.Where(p => p.BRG == kodeBrgBaruVariantCheck).ToList();
 
-                                            var resultCekSIVarian = (from a in ErasoftDbContext.SIT01B
-                                                                     join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
-                                                                     where a.BRG.ToUpper() == barangvariant.BRG.ToString().ToUpper()
-                                                                     select new
-                                                                     {
-                                                                         a.NO_BUKTI,
-                                                                         a.BRG,
-                                                                         b.ST_POSTING
-                                                                     }
-                                                                                    ).ToList();
+                                            //remark by nurul 21/1/2022, remark cek posting varian karna yg d ubah hanya part nya saja 
+                                            //var resultCekSIVarian = (from a in ErasoftDbContext.SIT01B
+                                            //                         join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
+                                            //                         where a.BRG.ToUpper() == barangvariant.BRG.ToString().ToUpper()
+                                            //                         select new
+                                            //                         {
+                                            //                             a.NO_BUKTI,
+                                            //                             a.BRG,
+                                            //                             b.ST_POSTING
+                                            //                         }
+                                            //                                        ).ToList();
 
-                                            var resultCekSTVarian = (from a in ErasoftDbContext.STT01B
-                                                                     join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
-                                                                     where a.Kobar.ToUpper() == barangvariant.BRG.ToString().ToUpper()
-                                                                     select new
-                                                                     {
-                                                                         a.Nobuk,
-                                                                         a.Kobar,
-                                                                         b.ST_Posting
-                                                                     }
-                                                ).ToList();
-
-                                            //add by nurul 25/5/2021
-                                            var resultCekPBVarian = (from a in ErasoftDbContext.PBT01B
-                                                                     join b in ErasoftDbContext.PBT01A on a.INV equals b.INV
-                                                                     where a.BRG.ToUpper() == barangvariant.BRG.ToString().ToUpper()
-                                                                     select new
-                                                                     {
-                                                                         a.INV,
-                                                                         a.BRG,
-                                                                         b.POSTING
-                                                                     }
-                                                ).ToList();
-
-                                            //var resultCekMultiSKUVarian = (from a in ErasoftDbContext.STF03C
-                                            //                               where a.BRG.ToLower() == barangvariant.BRG.ToString().ToLower() || a.BRG_ACUAN.ToLower() == barangvariant.BRG.ToString().ToLower()
-                                            //                               select new
-                                            //                               {
-                                            //                                   a.BRG_ACUAN,
-                                            //                                   a.BRG
-                                            //                               }
+                                            //var resultCekSTVarian = (from a in ErasoftDbContext.STT01B
+                                            //                         join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
+                                            //                         where a.Kobar.ToUpper() == barangvariant.BRG.ToString().ToUpper()
+                                            //                         select new
+                                            //                         {
+                                            //                             a.Nobuk,
+                                            //                             a.Kobar,
+                                            //                             b.ST_Posting
+                                            //                         }
                                             //    ).ToList();
 
-                                            //var resultCekBundlingVarian = (from a in ErasoftDbContext.STF03
-                                            //                               where a.Brg.ToLower() == barangvariant.BRG.ToString().ToLower() || a.Unit.ToLower() == barangvariant.BRG.ToString().ToLower()
-                                            //                               select new
-                                            //                               {
-                                            //                                   a.Unit,
-                                            //                                   a.Brg
-                                            //                               }
+                                            ////add by nurul 25/5/2021
+                                            //var resultCekPBVarian = (from a in ErasoftDbContext.PBT01B
+                                            //                         join b in ErasoftDbContext.PBT01A on a.INV equals b.INV
+                                            //                         where a.BRG.ToUpper() == barangvariant.BRG.ToString().ToUpper()
+                                            //                         select new
+                                            //                         {
+                                            //                             a.INV,
+                                            //                             a.BRG,
+                                            //                             b.POSTING
+                                            //                         }
                                             //    ).ToList();
 
-                                            var checkResultPBVarian = resultCekPBVarian.Where(p => p.POSTING.Contains("Y")).ToList();
-                                            //end add by nurul 25/5/2021
+                                            ////var resultCekMultiSKUVarian = (from a in ErasoftDbContext.STF03C
+                                            ////                               where a.BRG.ToLower() == barangvariant.BRG.ToString().ToLower() || a.BRG_ACUAN.ToLower() == barangvariant.BRG.ToString().ToLower()
+                                            ////                               select new
+                                            ////                               {
+                                            ////                                   a.BRG_ACUAN,
+                                            ////                                   a.BRG
+                                            ////                               }
+                                            ////    ).ToList();
 
-                                            var checkResultSIVarian = resultCekSIVarian.Where(p => p.ST_POSTING.Contains("Y")).ToList();
-                                            var checkResultSTVarian = resultCekSTVarian.Where(p => p.ST_Posting.Contains("Y")).ToList();
+                                            ////var resultCekBundlingVarian = (from a in ErasoftDbContext.STF03
+                                            ////                               where a.Brg.ToLower() == barangvariant.BRG.ToString().ToLower() || a.Unit.ToLower() == barangvariant.BRG.ToString().ToLower()
+                                            ////                               select new
+                                            ////                               {
+                                            ////                                   a.Unit,
+                                            ////                                   a.Brg
+                                            ////                               }
+                                            ////    ).ToList();
 
-                                            //if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0)
-                                            if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0 && checkResultPBVarian.Count() == 0)
-                                            {
-                                                //if (resultCekMultiSKUVarian.Count() == 0)
-                                                //{
-                                                //    if (resultCekBundlingVarian.Count() == 0)
-                                                //    {
-                                                // kondisi kalau belum posting
-                                                sqlListKodeLama += "'" + barangvariant.BRG.ToString() + "',";
+                                            //var checkResultPBVarian = resultCekPBVarian.Where(p => p.POSTING.Contains("Y")).ToList();
+                                            ////end add by nurul 25/5/2021
+
+                                            //var checkResultSIVarian = resultCekSIVarian.Where(p => p.ST_POSTING.Contains("Y")).ToList();
+                                            //var checkResultSTVarian = resultCekSTVarian.Where(p => p.ST_Posting.Contains("Y")).ToList();
+
+                                            ////if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0)
+                                            //if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0 && checkResultPBVarian.Count() == 0)
+                                            //{
+                                            //end remark by nurul 21/1/2022, remark cek posting varian karna yg d ubah hanya part nya saja 
+
+                                            //if (resultCekMultiSKUVarian.Count() == 0)
+                                            //{
+                                            //    if (resultCekBundlingVarian.Count() == 0)
+                                            //    {
+                                            // kondisi kalau belum posting
+                                            sqlListKodeLama += "'" + barangvariant.BRG.ToString() + "',";
 
                                                 //if (checkBarangMPBaruVariant.Count() >= checkBarangMPLamaVariant.Count()) {
                                                 //EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + barangvariant.BRG + "'; DELETE FROM STF02H WHERE BRG ='" + barangvariant.BRG + "'");
@@ -3821,24 +3830,27 @@ namespace MasterOnline.Controllers
                                                     );
 
                                                 resultMerge = true;
-                                                //    }
-                                                //    else
-                                                //    {
-                                                //        //kondisi kalau sudah dijadikan barang bundling/komponen 
-                                                //        vlistKodeBundling += "" + barangvariant.BRG.ToString() + ",";
-                                                //    }
-                                                //}
-                                                //else
-                                                //{
-                                                //    //kondisi kalau sudah dijadikan barang multi sku/brg acuan 
-                                                //    vlistKodeMultiSKU += "" + barangvariant.BRG.ToString() + ",";
-                                                //}
-                                            }
-                                            else
-                                            {
-                                                // kondisi kalau sudah posting
-                                                vlistKodeSudahPosting += "" + barangvariant.BRG.ToString() + ",";
-                                            }
+                                            //    }
+                                            //    else
+                                            //    {
+                                            //        //kondisi kalau sudah dijadikan barang bundling/komponen 
+                                            //        vlistKodeBundling += "" + barangvariant.BRG.ToString() + ",";
+                                            //    }
+                                            //}
+                                            //else
+                                            //{
+                                            //    //kondisi kalau sudah dijadikan barang multi sku/brg acuan 
+                                            //    vlistKodeMultiSKU += "" + barangvariant.BRG.ToString() + ",";
+                                            //}
+
+                                            //remark by nurul 21/1/2022, remark cek posting varian karna yg d ubah hanya part nya saja 
+                                            //}
+                                            //else
+                                            //{
+                                            //    // kondisi kalau sudah posting
+                                            //    vlistKodeSudahPosting += "" + barangvariant.BRG.ToString() + ",";
+                                            //}
+                                            //end remark by nurul 21/1/2022, remark cek posting varian karna yg d ubah hanya part nya saja 
 
                                             iurutanVariant += 1;
                                         }
