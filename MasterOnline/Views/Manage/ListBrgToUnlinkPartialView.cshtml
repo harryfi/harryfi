@@ -15,18 +15,31 @@
         {
             if (prevBrg != "")
             {
-                <br />
-                <br />
-                <br />
-                <br />
-                <br />
-                <br />
+                @*<br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />*@
+                <div class="col-md-12" style="padding-top:10px;">
+                    <div class="col-md-3"><strong>Kode Barang</strong></div>
+                    <div class="col-md-1" style="text-align:end;"><strong>:</strong></div>
+                    <div class="col-md-8"><strong> @barang.BRG </strong></div>
+                </div>
             }
-            <div class="col-md-12">
+            else
+            {
+                <div class="col-md-12">
+                    <div class="col-md-3"><strong>Kode Barang</strong></div>
+                    <div class="col-md-1" style="text-align:end;"><strong>:</strong></div>
+                    <div class="col-md-8"><strong> @barang.BRG </strong></div>
+                </div>
+            }
+            @*<div class="col-md-12">
                 <div class="col-md-3"><strong>Kode Barang</strong></div>
                 <div class="col-md-1" style="text-align:end;"><strong>:</strong></div>
                 <div class="col-md-8"><strong> @barang.BRG </strong></div>
-            </div>
+            </div>*@
             <div class="col-md-12">
                 <div class="col-md-3"><strong>Nama Barang</strong></div>
                 <div class="col-md-1" style="text-align:end;"><strong>:</strong></div>
