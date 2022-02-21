@@ -3948,7 +3948,21 @@ namespace MasterOnline.Controllers
                             }
                             else
                             {
-                                sSQL += ", '', '', ''";
+                                //change 21 feb 2022, simpan url brg
+                                //sSQL += ", '', '', ''";
+                                string urlbrg = "";
+                                if(numVarian > 1)
+                                {
+                                    urlbrg = "is--" + productCode;
+                                }
+                                else
+                                {
+                                    var splitCode = productCode.Split('-');
+                                    urlbrg = "ps--" + splitCode[0] + "-" + splitCode[1] + "-" + splitCode[2];
+                                }
+                                sSQL += ", '', '', 'https://www.blibli.com/p/-/"+ urlbrg + "'";
+                                //end change 21 feb 2022, simpan url brg
+
                             }
                             if (!string.IsNullOrEmpty(attributeBlibli.ACODE_35))
                             {
@@ -5199,7 +5213,15 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    sSQL += ", '', '', ''";
+                    //change 21 feb 2022, simpan url brg
+                    //sSQL += ", '', '', ''";
+                    string urlbrg = "";
+                    string productCode = result.value.productSku;
+                    //var splitCode = productCode.Split('-');
+                    //urlbrg = "ps--" + splitCode[0] + "-" + splitCode[1] + "-" + splitCode[2];
+                    urlbrg = "ps--" + productCode;
+                    sSQL += ", '', '', 'https://www.blibli.com/p/-/" + urlbrg + "'";
+                    //end change 21 feb 2022, simpan url brg
                 }
                 if (!string.IsNullOrEmpty(attributeBlibli.ACODE_35))
                 {
