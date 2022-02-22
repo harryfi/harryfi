@@ -10983,16 +10983,29 @@ namespace MasterOnline.Controllers
                         {
                             List<string> itemUpdateStok = new List<string>();
 
+                            string urlbrg = "";
                             //product lolos qc dengan status active
                             foreach (var item in listBrg.content)
                             {
+                                if (listBrg.content.Count() > 1)
+                                {
+                                    urlbrg = "is--" + item.gdnSku;
+                                }
+                                else
+                                {
+                                    var splitCode = item.gdnSku.Split('-');
+                                    urlbrg = "ps--" + splitCode[0] + "-" + splitCode[1] + "-" + splitCode[2];
+                                }
                                 using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
                                 {
                                     oConnection.Open();
                                     using (SqlCommand oCommand = oConnection.CreateCommand())
                                     {
                                         oCommand.CommandType = CommandType.Text;
-                                        oCommand.CommandText = "UPDATE STF02H SET BRG_MP = @BRG_MP,LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '0;Buat Produk;;' WHERE BRG = @BRG AND IDMARKET = @IDMARKET ";
+                                        oCommand.CommandText = "UPDATE STF02H SET BRG_MP = @BRG_MP,LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" 
+                                            + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") 
+                                            + "',AVALUE_34 = 'https://www.blibli.com/p/-/" + urlbrg
+                                            + "',LINK_ERROR = '0;Buat Produk;;' WHERE BRG = @BRG AND IDMARKET = @IDMARKET ";
                                         //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
                                         oCommand.Parameters.Add(new SqlParameter("@BRG", SqlDbType.NVarChar, 50));
                                         oCommand.Parameters.Add(new SqlParameter("@IDMARKET", SqlDbType.Int));
@@ -11000,7 +11013,8 @@ namespace MasterOnline.Controllers
 
                                         oCommand.Parameters[0].Value = item.merchantSku;
                                         oCommand.Parameters[1].Value = iden.idmarket;
-                                        oCommand.Parameters[2].Value = item.gdnSku + ";" + item.productItemCode; // seharusnya gdnSku + item_var.productItemCode, tidak ketemu darimana gdnSku nya
+                                        //oCommand.Parameters[2].Value = item.gdnSku + ";" + item.productItemCode; // seharusnya gdnSku + item_var.productItemCode, tidak ketemu darimana gdnSku nya
+                                        oCommand.Parameters[2].Value = item.gdnSku; 
 
                                         oCommand.ExecuteNonQuery();
                                     }
@@ -11031,6 +11045,8 @@ namespace MasterOnline.Controllers
                                     oCommand.ExecuteNonQuery();
                                 }
                             }
+                            var splitCodeInduk = listBrg.content[0].gdnSku.Split('-');
+                            urlbrg = "ps--" + splitCodeInduk[0] + "-" + splitCodeInduk[1] + "-" + splitCodeInduk[2];
 
                             using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
                             {
@@ -11038,7 +11054,10 @@ namespace MasterOnline.Controllers
                                 using (SqlCommand oCommand = oConnection.CreateCommand())
                                 {
                                     oCommand.CommandType = CommandType.Text;
-                                    oCommand.CommandText = "UPDATE STF02H SET BRG_MP = @BRG_MP,LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '0;Buat Produk;;' WHERE BRG = @BRG AND IDMARKET = @IDMARKET AND BRG_MP = 'PENDING' ";
+                                    oCommand.CommandText = "UPDATE STF02H SET BRG_MP = @BRG_MP,LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" 
+                                        + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") 
+                                        + "',AVALUE_34 = 'https://www.blibli.com/p/-/" + urlbrg
+                                        + "',LINK_ERROR = '0;Buat Produk;;' WHERE BRG = @BRG AND IDMARKET = @IDMARKET AND BRG_MP = 'PENDING' ";
                                     oCommand.Parameters.Add(new SqlParameter("@BRG", SqlDbType.NVarChar, 50));
                                     oCommand.Parameters.Add(new SqlParameter("@IDMARKET", SqlDbType.Int));
                                     oCommand.Parameters.Add(new SqlParameter("@BRG_MP", SqlDbType.NVarChar, 50));
