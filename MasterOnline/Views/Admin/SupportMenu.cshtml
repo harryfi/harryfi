@@ -382,6 +382,30 @@
     </div>
 </div>
 
+<div class="modal fade" id="konfInduk" tabindex="-1" role="dialog" aria-labelledby="konfIndukLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfIndukLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div  style="height:200px;">
+                    <textarea id="label-konfirmasi-induk" style="width: 100%;height: 100%; border:none;"></textarea>
+                </div>
+                <div id="id-proses" hidden="hidden"></div>
+                <div id="ret1" hidden="hidden"></div>
+                <div id="ret2" hidden="hidden"></div>
+                <div id="ret3" hidden="hidden"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="lanjutProses($('#id-proses').val(), $('#ret1').val(), $('#ret2').val(), $('#ret3').val())">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section scripts
 {
     <script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
@@ -635,7 +659,7 @@
             });
         } 
 
-        function ProsesEditKode(emailAccount, listKodeBRGLama, listKodeBRGBaru) {
+        function ProsesEditKodeLanjut(emailAccount, listKodeBRGLama, listKodeBRGBaru) {
             var link = '@Url.Action("ProsesEditKode", "Admin", new { listData = "replaceEmail|replaceKodeBaru|replaceKodeLama" })';
             link = link.replace("replaceEmail", encodeURIComponent(emailAccount));
             link = link.replace("replaceKodeBaru", encodeURIComponent(listKodeBRGBaru));
@@ -673,7 +697,8 @@
             });
         } 
 
-        function ProsesMergeKode(emailAccount, listKodeBRGLama, listKodeBRGBaru) {
+
+        function ProsesMergeKodeLanjut(emailAccount, listKodeBRGLama, listKodeBRGBaru) {
             var link = '@Url.Action("ProsesMergeKode", "Admin", new { listData = "replaceEmail|replaceKodeBaru|replaceKodeLama" })';
             link = link.replace("replaceEmail", encodeURIComponent(emailAccount));
             link = link.replace("replaceKodeBaru", encodeURIComponent(listKodeBRGBaru));
@@ -709,7 +734,128 @@
                     $('#loading_account3').hide();
                 }
             });
+        }
+        //add by nurul 22/2/2022
+        function lanjutProses($idProses, emailAccount, listKodeBRGLama, listKodeBRGBaru) {
+            $('#konfInduk').modal('hide');
+            if ($idProses == "1") {
+                ProsesEditKodeLanjut(emailAccount, listKodeBRGLama, listKodeBRGBaru);
+            } else if ($idProses == "2") {
+                ProsesMergeKodeLanjut(emailAccount, listKodeBRGLama, listKodeBRGBaru);
+            }
+        }
+        function ProsesEditKode(emailAccount, listKodeBRGLama, listKodeBRGBaru) {
+            
+            @*var link2 = '@Url.Action("checkIndukSupportMenu", "Admin", new { listData = "replaceEmail|replaceKodeBaru|replaceKodeLama" })';
+            link2 = link2.replace("replaceEmail", encodeURIComponent(emailAccount));
+            link2 = link2.replace("replaceKodeBaru", encodeURIComponent(listKodeBRGBaru));
+            link = link2.replace("replaceKodeLama", encodeURIComponent(listKodeBRGLama));*@
+
+            var link2 = '@Url.Action("checkIndukSupportMenu", "Admin", new { listData = "replaceEmail|replaceKodeBaru|replaceKodeLama" })';
+            link2 = link2.replace("replaceEmail", encodeURIComponent(emailAccount));
+            link2 = link2.replace("replaceKodeBaru", encodeURIComponent(listKodeBRGBaru));
+            link2 = link2.replace("replaceKodeLama", encodeURIComponent(listKodeBRGLama));
+
+            $.ajax({
+                type: "GET",
+                url: link2,
+                beforeSend: function () {
+                    $('#loading_account3').show();
+                },
+                success: function (response) {
+                    $('#loading_account3').hide();
+                    rows_selected.shift();
+                    if (response.success) {
+                        $('#loading_account3').hide();
+                        if (response.induk) {
+                            if (response.label != "") {
+                                $('#konfInduk').modal('show');
+                                $('#label-konfirmasi-induk').val(response.label);
+                                $('#id-proses').val("1");
+                                $('#ret1').val(emailAccount);
+                                $('#ret2').val(listKodeBRGLama);
+                                $('#ret3').val(listKodeBRGBaru);
+                            } else {
+                                $('#konfInduk').modal('show');
+                                $('#label-konfirmasi-induk').val("Jika ada perubahan pada kode barang induk maka akan mengubah mapping induk pada variannya.");
+                                $('#id-proses').val("1");
+                                $('#ret1').val(emailAccount);
+                                $('#ret2').val(listKodeBRGLama);
+                                $('#ret3').val(listKodeBRGBaru);
+                            }
+                        }
+                        else {
+                            ProsesEditKodeLanjut(emailAccount, listKodeBRGLama, listKodeBRGBaru);
+                        }
+                    } else {
+                        $('#loading_account3').hide();
+                        if (response.error != "") {
+                            alert("Tidak berhasil Merge Kode Barang. " + response.error);
+                        } else {
+                            alert("Gagal Merge Kode Barang.");
+                        }
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    $('#loading_account3').hide();
+                }
+            });
         } 
+        function ProsesMergeKode(emailAccount, listKodeBRGLama, listKodeBRGBaru) {
+
+            var link1 = '@Url.Action("checkIndukSupportMenu", "Admin", new { listData = "replaceEmail|replaceKodeBaru|replaceKodeLama" })';
+            link1 = link1.replace("replaceEmail", encodeURIComponent(emailAccount));
+            link1 = link1.replace("replaceKodeBaru", encodeURIComponent(listKodeBRGBaru));
+            link1 = link1.replace("replaceKodeLama", encodeURIComponent(listKodeBRGLama));
+
+            $.ajax({
+                type: "GET",
+                url: link1,
+                beforeSend: function () {
+                    $('#loading_account3').show();
+                },
+                success: function (response) {
+                    $('#loading_account3').hide();
+                    rows_selected.shift();
+                    if (response.success) {
+                        $('#loading_account3').hide();
+                        if (response.induk) {
+                            if (response.label != "") {
+                                $('#konfInduk').modal('show');
+                                $('#label-konfirmasi-induk').val(response.label);
+                                $('#id-proses').val("2");
+                                $('#ret1').val(emailAccount);
+                                $('#ret2').val(listKodeBRGLama);
+                                $('#ret3').val(listKodeBRGBaru);
+                            } else {
+                                $('#konfInduk').modal('show');
+                                $('#label-konfirmasi-induk').val("Jika ada perubahan pada kode barang induk maka akan mengubah mapping induk pada variannya.");
+                                $('#id-proses').val("2");
+                                $('#ret1').val(emailAccount);
+                                $('#ret2').val(listKodeBRGLama);
+                                $('#ret3').val(listKodeBRGBaru);
+                            }
+                        }
+                        else {
+                            ProsesMergeKodeLanjut(emailAccount, listKodeBRGLama, listKodeBRGBaru);
+                        }
+                    } else {
+                        $('#loading_account3').hide();
+                        if (response.error != "") {
+                            alert("Tidak berhasil Merge Kode Barang. " + response.error);
+                        } else {
+                            alert("Gagal Merge Kode Barang.");
+                        }
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    $('#loading_account3').hide();
+                }
+            });
+        }
+        //end add by nurul 22/2/2022
 
         function ProsesDeleteKode(emailAccount, listKodeBRGDelete) {
             var link = '@Url.Action("ProsesDeleteKode", "Admin", new { listData = "replaceEmail|replaceKodeDelete" })';
