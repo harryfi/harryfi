@@ -535,6 +535,11 @@ namespace MasterOnline
         public virtual DbSet<SHOPEE_MESSAGE> SHOPEE_MESSAGE { get; set; }
         //end add by nurul 20/9/2021
 
+        //add by nurul 8/2/2022
+        public virtual DbSet<LAZADA_SESSIONLIST> LAZADA_SESSIONLIST { get; set; }
+        public virtual DbSet<LAZADA_MESSAGES> LAZADA_MESSAGES { get; set; }
+        //end add by nurul 8/2/2022
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
 
