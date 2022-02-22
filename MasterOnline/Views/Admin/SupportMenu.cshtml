@@ -390,8 +390,8 @@
                 <h4 class="modal-title" id="konfIndukLabel">Konfirmasi</h4>
             </div>
             <div class="modal-body">
-                <div >
-                    <textarea id="label-konfirmasi-induk"></textarea>
+                <div  style="height:200px;">
+                    <textarea id="label-konfirmasi-induk" style="width: 100%;height: 100%; border:none;"></textarea>
                 </div>
                 <div id="id-proses" hidden="hidden"></div>
                 <div id="ret1" hidden="hidden"></div>
@@ -804,14 +804,14 @@
         } 
         function ProsesMergeKode(emailAccount, listKodeBRGLama, listKodeBRGBaru) {
 
-            var link2 = '@Url.Action("checkIndukSupportMenu", "Admin", new { listData = "replaceEmail|replaceKodeBaru|replaceKodeLama" })';
-            link2 = link2.replace("replaceEmail", encodeURIComponent(emailAccount));
-            link2 = link2.replace("replaceKodeBaru", encodeURIComponent(listKodeBRGBaru));
-            link = link2.replace("replaceKodeLama", encodeURIComponent(listKodeBRGLama));
+            var link1 = '@Url.Action("checkIndukSupportMenu", "Admin", new { listData = "replaceEmail|replaceKodeBaru|replaceKodeLama" })';
+            link1 = link1.replace("replaceEmail", encodeURIComponent(emailAccount));
+            link1 = link1.replace("replaceKodeBaru", encodeURIComponent(listKodeBRGBaru));
+            link1 = link1.replace("replaceKodeLama", encodeURIComponent(listKodeBRGLama));
 
             $.ajax({
                 type: "GET",
-                url: link2,
+                url: link1,
                 beforeSend: function () {
                     $('#loading_account3').show();
                 },

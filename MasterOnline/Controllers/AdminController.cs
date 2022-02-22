@@ -3424,6 +3424,12 @@ namespace MasterOnline.Controllers
         }
 
         //add by nurul 22/2/2022
+        public class ListBarangEditMerge
+        {
+            public int no { get; set; }
+            public string brgLama { get; set; }
+            public string brgBaru { get; set; }
+        }
         public ActionResult checkIndukSupportMenu(string listData)
         {
             var adaInduk = false;
@@ -3460,20 +3466,43 @@ namespace MasterOnline.Controllers
                                 var cekBrgIndukExist = ErasoftDbContext.STF02.Where(a => splitlistBRGLama.Contains(a.BRG) && a.TYPE == "4").Select(a => a.BRG).ToList();
                                 if(cekBrgIndukExist.Count() > 0)
                                 {
+                                    var hitung = 0;
+                                    var listBrgNew = new List<ListBarangEditMerge>();
+                                    foreach(var barang in splitlistBRGLama)
+                                    {
+                                        hitung = hitung + 1;
+                                        var barangtemp = new ListBarangEditMerge
+                                        {
+                                            no = hitung,
+                                            brgBaru = splitlistBRGBaru[hitung - 1],
+                                            brgLama = splitlistBRGLama[hitung - 1]
+                                        };
+                                        listBrgNew.Add(barangtemp);
+                                    }
                                     adaInduk = true;
                                     var cekVarian = ErasoftDbContext.STF02.Where(a => cekBrgIndukExist.Contains(a.PART)).Select(s => new { s.BRG, s.PART }).ToList();
                                     
                                     foreach (var induk in cekBrgIndukExist)
                                     {
                                         var cekVarianPerInduk = cekVarian.Where(a => a.PART == induk).ToList();
-                                        Label = Label + "Barang Induk \"" + induk + "\" jika diubah kode barangnya maka akan mengubah mapping induk pada variannya sebagai berikut : " + System.Environment.NewLine;
+                                        var cekBarangBaru = listBrgNew.Where(a => a.brgLama == induk).FirstOrDefault();
+                                        var barangbaru = "";
+                                        if(cekBarangBaru != null)
+                                        {
+                                            barangbaru = cekBarangBaru.brgBaru;
+                                        }
+                                        Label = Label + "Merge / edit barang induk \"" + induk + "\" ke barang induk \"" + barangbaru + "\" akan ikut mengubah struktur varian barang induk \"" + barangbaru + "\" menjadi: " + System.Environment.NewLine;
+                                        //Label = Label + "Barang Induk \"" + induk + "\" jika diubah kode barangnya maka akan mengubah mapping induk pada variannya sebagai berikut : " + System.Environment.NewLine;
                                         if (cekVarianPerInduk.Count() > 0)
                                         {
+                                            var nomer = 0;
                                             foreach (var varian in cekVarianPerInduk)
                                             {
-                                                Label = Label + "- " + varian.BRG + System.Environment.NewLine;
+                                                nomer = nomer + 1;
+                                                Label = Label + nomer + ". " + varian.BRG + System.Environment.NewLine;
                                             }
                                         }
+                                        Label = Label + System.Environment.NewLine;
                                     }
                                     result = true;
                                 }
