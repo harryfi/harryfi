@@ -3065,7 +3065,7 @@ namespace MasterOnline.Controllers
                             var accountlist = MoDbContext.Account.Where(p => p.Email == accountEmail).SingleOrDefault();
                             DatabaseSQL EDB = new DatabaseSQL(accountlist.DatabasePathErasoft);
                             string dbSourceEra = "";
-#if (Debug_AWS)
+#if (Debug_AWS || DEBUG)
                             dbSourceEra = accountlist.DataSourcePathDebug;
 #else
                             dbSourceEra = accountlist.DataSourcePath;
@@ -3423,7 +3423,105 @@ namespace MasterOnline.Controllers
             }
         }
 
+        //add by nurul 22/2/2022
+        public ActionResult checkIndukSupportMenu(string listData)
+        {
+            var adaInduk = false;
+            var Label = "";
+            var result = false;
+            var errors = "";
+            try
+            {
+                if (!string.IsNullOrEmpty(listData))
+                {
+                    string[] dataSplitToko = listData.Split('|');
+                    string accountEmail = dataSplitToko[0];
+                    string listkodeBRGBaru = dataSplitToko[1];
+                    string listkodeBRGLama = dataSplitToko[2];
+                    string[] splitlistBRGBaru = listkodeBRGBaru.Split('^');
+                    string[] splitlistBRGLama = listkodeBRGLama.Split('^');
+                    if (!string.IsNullOrEmpty(listkodeBRGBaru) && !string.IsNullOrEmpty(listkodeBRGLama))
+                    {
+                        if (splitlistBRGBaru.Length == splitlistBRGLama.Length)
+                        {
+                            try
+                            {
+                                var accountlist = MoDbContext.Account.Where(p => p.Email == accountEmail).SingleOrDefault();
+                                DatabaseSQL EDB = new DatabaseSQL(accountlist.DatabasePathErasoft);
+                                string dbSourceEra = "";
+#if (Debug_AWS || DEBUG)
+                                dbSourceEra = accountlist.DataSourcePathDebug;
+#else
+                                dbSourceEra = accountlist.DataSourcePath;
+#endif
+                                ErasoftDbContext = new ErasoftContext(dbSourceEra, accountlist.DatabasePathErasoft);
 
+
+                                var cekBrgIndukExist = ErasoftDbContext.STF02.Where(a => splitlistBRGLama.Contains(a.BRG) && a.TYPE == "4").Select(a => a.BRG).ToList();
+                                if(cekBrgIndukExist.Count() > 0)
+                                {
+                                    adaInduk = true;
+                                    var cekVarian = ErasoftDbContext.STF02.Where(a => cekBrgIndukExist.Contains(a.PART)).Select(s => new { s.BRG, s.PART }).ToList();
+                                    
+                                    foreach (var induk in cekBrgIndukExist)
+                                    {
+                                        var cekVarianPerInduk = cekVarian.Where(a => a.PART == induk).ToList();
+                                        Label = Label + "Barang Induk \"" + induk + "\" jika diubah kode barangnya maka akan mengubah mapping induk pada variannya sebagai berikut : " + System.Environment.NewLine;
+                                        if (cekVarianPerInduk.Count() > 0)
+                                        {
+                                            foreach (var varian in cekVarianPerInduk)
+                                            {
+                                                Label = Label + "- " + varian.BRG + System.Environment.NewLine;
+                                            }
+                                        }
+                                    }
+                                    result = true;
+                                }
+                                else
+                                {
+                                    result = true;
+                                    return new JsonResult { Data = new { success = result, induk = adaInduk, label = Label, error = errors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                result = false;
+                                errors = errors + ex.Message + System.Environment.NewLine;
+                            }
+                        }
+                        else
+                        {
+                            result = false;
+                            // alert bahwa jumlah list kode tidak sama.
+                            errors = errors + "Jumlah list kode barang tidak sama." + System.Environment.NewLine;
+                            return new JsonResult { Data = new { success = result, error = errors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        }
+                    }
+                    else
+                    {
+                        result = false;
+                        // alert bahwa List kode barang kosong.
+                        errors = errors + "List kode barang kosong" + System.Environment.NewLine;
+                        return new JsonResult { Data = new { success = result, error = errors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                else
+                {
+                    result = false;
+                    // alert bahwa List kode barang kosong.
+                    errors = errors + "List kode barang kosong" + System.Environment.NewLine;
+                    return new JsonResult { Data = new { success = result, error = errors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+            }
+            catch(Exception ex2)
+            {
+                result = false;
+                errors = errors + ex2.Message + System.Environment.NewLine;
+                return new JsonResult { Data = new { success = result, error = errors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            return new JsonResult { Data = new { success = true, induk = adaInduk, label = Label, error= errors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+        }
+        //end add by nurul 22/2/2022
         public async Task<ActionResult> ProsesMergeKode(string listData)
         {
             bool resultMerge = false;
@@ -3469,6 +3567,7 @@ namespace MasterOnline.Controllers
                             var checkToko = ErasoftDbContext.ARF01.ToList();
                             var checkMP = MoDbContext.Marketplaces.ToList();
 
+                            
                             foreach (var listKodeBaru in splitlistBRGBaru)
                             {
                                 var checkBarangBaru = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == listKodeBaru.ToUpper()).ToList();
