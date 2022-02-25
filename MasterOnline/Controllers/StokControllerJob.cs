@@ -5303,12 +5303,14 @@ namespace MasterOnline.Controllers
                                 }
                             }
                             var Tahun = Convert.ToInt16(DateTime.UtcNow.AddHours(7).ToString("yyyy"));
-                            var cekStokSelainGudangBundling = ErasoftDbContext.Database.SqlQuery<int>("select count(*) from stf08a (nolock) where brg in (select distinct unit from stf03 (nolock)) and gd<>'GB' and tahun='2022'").FirstOrDefault();
+                            //var cekStokSelainGudangBundling = ErasoftDbContext.Database.SqlQuery<int>("select count(*) from stf08a (nolock) where brg in (select distinct unit from stf03 (nolock)) and gd<>'GB' and tahun='2022'").FirstOrDefault();
+                            var cekStokSelainGudangBundling = ErasoftDbContext.Database.SqlQuery<int>("select count(*) from stf08a (nolock) where brg in (select distinct unit from stf03 (nolock)) and gd<>'" + default_gudang + "'").FirstOrDefault();
                             if (cekStokSelainGudangBundling > 0)
                             {
                                 try
                                 {
-                                    var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03 (nolock)) and gd<>'" + default_gudang + "' and tahun='" + Tahun + "'";
+                                    //var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03 (nolock)) and gd<>'" + default_gudang + "' and tahun='" + Tahun + "'";
+                                    var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03 (nolock)) and gd<>'" + default_gudang + "' ";
                                     //var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) ";
                                     var axy = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL3);
                                     ErasoftDbContext.SaveChanges();
