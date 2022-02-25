@@ -5744,8 +5744,9 @@
                         searchField: 'text',
                         options: listKategori,
                         onChange: function (value) {
-                            $('#ListHargaJualPermarket_' + i +'__AVALUE_39').val(value);
+                            //$('#ListHargaJualPermarket_' + i +'__AVALUE_39').val(value);
                             //$('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
+                            $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val($('#LOGISTIC_SHOPEE_' + idmarket).val())
                         }
                     });
                     if (kategoriSelect[0] != undefined) {
@@ -5753,7 +5754,8 @@
                         //kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val());
                         if ($('#ListHargaJualPermarket_' + i + '__AVALUE_39').val() != undefined) {
                             var listLog = $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val().split(',');
-                            kategoriSelect[0].selectize.setValue(listLog, true);
+                            //kategoriSelect[0].selectize.setValue(listLog, true);
+                            kategoriSelect[0].selectize.setValue(listLog);
                         }
                         //end change by calvin 15 februari 2019
                     }
@@ -5797,8 +5799,9 @@
                         searchField: 'text',
                         options: listKategori,
                         onChange: function (value) {
-                            $('#ListHargaJualPermarket_' + i +'__AVALUE_39').val(value);
+                            //$('#ListHargaJualPermarket_' + i +'__AVALUE_39').val(value);
                             //$('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
+                            $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val($('#LOGISTIC_TOKPED_' + idmarket).val())
                         }
                     });
                     if (kategoriSelect[0] != undefined) {
@@ -5806,7 +5809,8 @@
                         //kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val());
                         if ($('#ListHargaJualPermarket_' + i + '__AVALUE_39').val() != undefined) {
                             var listLog = $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val().split(',');
-                            kategoriSelect[0].selectize.setValue(listLog, true);
+                            //kategoriSelect[0].selectize.setValue(listLog, true);
+                            kategoriSelect[0].selectize.setValue(listLog);
                         }
                         //end change by calvin 15 februari 2019
                     }
