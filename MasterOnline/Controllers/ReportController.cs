@@ -655,7 +655,8 @@ namespace MasterOnline.Controllers
         public string Preview16(ReportViewModel.Report16 data)
         {
 #if AWS
-            return string.Format("https://" + sDomainLive + "/Report/Form/frmLapSTT02C1_TanpaPosting.aspx?iSort=KODE_BARANG&iPeriode=HARI_INI&UserID={0}&CutOff={1}&PilihStok={2}&From={3}&To={4}&Gudang1={5}&Gudang2={6}&Gudang3={7}&Gudang4={8}&Gudang5={9}&Gudang6={10}&Gudang7={11}&Gudang8={12}&Gudang9={13}&Gudang10={14}&Username={15}",
+            //return string.Format("https://" + sDomainLive + "/Report/Form/frmLapSTT02C1_TanpaPosting.aspx?iSort=KODE_BARANG&iPeriode=HARI_INI&UserID={0}&CutOff={1}&PilihStok={2}&From={3}&To={4}&Gudang1={5}&Gudang2={6}&Gudang3={7}&Gudang4={8}&Gudang5={9}&Gudang6={10}&Gudang7={11}&Gudang8={12}&Gudang9={13}&Gudang10={14}&Username={15}", 
+            return string.Format("https://" + sDomainLive + "/Report/Form/frmLapSTT02C1_TanpaPosting.aspx?iSort=KODE_BARANG&iPeriode=HISTORIS&UserID={0}&CutOff={1}&PilihStok={2}&From={3}&To={4}&Gudang1={5}&Gudang2={6}&Gudang3={7}&Gudang4={8}&Gudang5={9}&Gudang6={10}&Gudang7={11}&Gudang8={12}&Gudang9={13}&Gudang10={14}&Username={15}",
                 Uri.EscapeDataString(data.UserId),
                 Uri.EscapeDataString(data.CutOffDate),
                 Uri.EscapeDataString(data.PilihStok),
@@ -674,7 +675,8 @@ namespace MasterOnline.Controllers
                 Uri.EscapeDataString(data.Gudang10),
                 Uri.EscapeDataString(usernameLogin));
 #else
-            return string.Format("https://" + sDomainDev + "/Report/Form/frmLapSTT02C1_TanpaPosting.aspx?iSort=KODE_BARANG&iPeriode=HARI_INI&UserID={0}&CutOff={1}&PilihStok={2}&From={3}&To={4}&Gudang1={5}&Gudang2={6}&Gudang3={7}&Gudang4={8}&Gudang5={9}&Gudang6={10}&Gudang7={11}&Gudang8={12}&Gudang9={13}&Gudang10={14}&Username={15}",
+            //return string.Format("https://" + sDomainDev + "/Report/Form/frmLapSTT02C1_TanpaPosting.aspx?iSort=KODE_BARANG&iPeriode=HARI_INI&UserID={0}&CutOff={1}&PilihStok={2}&From={3}&To={4}&Gudang1={5}&Gudang2={6}&Gudang3={7}&Gudang4={8}&Gudang5={9}&Gudang6={10}&Gudang7={11}&Gudang8={12}&Gudang9={13}&Gudang10={14}&Username={15}",
+            return string.Format("https://" + sDomainDev + "/Report/Form/frmLapSTT02C1_TanpaPosting.aspx?iSort=KODE_BARANG&iPeriode=HISTORIS&UserID={0}&CutOff={1}&PilihStok={2}&From={3}&To={4}&Gudang1={5}&Gudang2={6}&Gudang3={7}&Gudang4={8}&Gudang5={9}&Gudang6={10}&Gudang7={11}&Gudang8={12}&Gudang9={13}&Gudang10={14}&Username={15}",
                 Uri.EscapeDataString(data.UserId),
                 Uri.EscapeDataString(data.CutOffDate),
                 Uri.EscapeDataString(data.PilihStok),
