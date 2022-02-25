@@ -2220,7 +2220,7 @@ namespace MasterOnline.Controllers
                         currentLog.REQUEST_RESULT = errMsg;
                         currentLog.REQUEST_EXCEPTION = errMsg;
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                        throw new Exception(result.header.messages + ";" + result.header.reason);
+                        throw new Exception(errMsg);
                     }
                 }
 
