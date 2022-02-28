@@ -3817,8 +3817,18 @@ namespace MasterOnline.Controllers
                                         CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                                         CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "TOKPED";
                                         CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
-
-                                        EDB.ExecuteSQL("Con", "MoveOrderFromTempTableNew", CommandSQL);
+                                        //add by nurul 3/2/2022
+                                        var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                                        if (multilokasi == "1")
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTableNew_MultiLokasi", CommandSQL);
+                                        }
+                                        else
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTableNew", CommandSQL);
+                                        }
+                                        //add by nurul 3/2/2022
+                                        //EDB.ExecuteSQL("Con", "MoveOrderFromTempTableNew", CommandSQL);
                                         jmlhNewOrder++;
                                     }
                                 }
@@ -3840,8 +3850,18 @@ namespace MasterOnline.Controllers
                                         CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
                                         CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                         CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
-
-                                        EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                        //add by nurul 3/2/2022
+                                        var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                                        if (multilokasi == "1")
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
+                                        }
+                                        else
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                                        }
+                                        //add by nurul 3/2/2022
+                                        //EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
                                         jmlhNewOrder++;
                                     }
                                 }
@@ -4221,7 +4241,17 @@ namespace MasterOnline.Controllers
                                         CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                                         CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "TOKPED";
                                         CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
-
+                                        //add by nurul 3/2/2022
+                                        var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                                        if (multilokasi == "1")
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTableNew_MultiLokasi", CommandSQL);
+                                        }
+                                        else
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTableNew", CommandSQL);
+                                        }
+                                        //add by nurul 3/2/2022
                                         EDB.ExecuteSQL("Con", "MoveOrderFromTempTableNew", CommandSQL);
                                         jmlhNewOrder++;
                                     }
@@ -4244,8 +4274,18 @@ namespace MasterOnline.Controllers
                                         CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
                                         CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                         CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
-
-                                        EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                        //add by nurul 3/2/2022
+                                        var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                                        if (multilokasi == "1")
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
+                                        }
+                                        else
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                                        }
+                                        //add by nurul 3/2/2022
+                                        //EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
                                         jmlhNewOrder++;
                                     }
                                 }
@@ -4905,7 +4945,17 @@ namespace MasterOnline.Controllers
                                         CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                                         CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "TOKPED";
                                         CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
-
+                                        //add by nurul 3/2/2022
+                                        var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                                        if (multilokasi == "1")
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTableNew_MultiLokasi", CommandSQL);
+                                        }
+                                        else
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTableNew", CommandSQL);
+                                        }
+                                        //add by nurul 3/2/2022
                                         EDB.ExecuteSQL("Con", "MoveOrderFromTempTableNew", CommandSQL);
                                         jmlhNewOrder++;
                                     }
@@ -4928,8 +4978,18 @@ namespace MasterOnline.Controllers
                                         CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
                                         CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                         CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
-
-                                        EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                        //add by nurul 3/2/2022
+                                        var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                                        if (multilokasi == "1")
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
+                                        }
+                                        else
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                                        }
+                                        //add by nurul 3/2/2022
+                                        //EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
                                         jmlhNewOrder++;
                                     }
                                 }

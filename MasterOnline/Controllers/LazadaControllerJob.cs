@@ -3550,43 +3550,54 @@ namespace MasterOnline.Controllers
                                 }
 
                                 insertQ = insertQ.Substring(0, insertQ.Length - 2);
-                                if (adaInsert)
+                            if (adaInsert)
+                            {
+                                var a = EDB.ExecuteSQL(username, CommandType.Text, insertQ);
+
+                                //add by Tri 21 Feb 2020, gabung sp header dan detail move order
+                                var getDetail = getMultiOrderItems2(listOrderId, accessToken, connectionID, dbPathEra, uname, cust);
+                                if (getDetail.status == 1)
                                 {
-                                    var a = EDB.ExecuteSQL(username, CommandType.Text, insertQ);
+                                    EDB.ExecuteSQL("MOConnectionString", CommandType.Text, getDetail.message);
+                                }
+                                else
+                                {
+                                    throw new Exception(getDetail.message);
+                                }
+                                //end add by Tri 21 Feb 2020, gabung sp header dan detail move order
 
-                                    //add by Tri 21 Feb 2020, gabung sp header dan detail move order
-                                    var getDetail = getMultiOrderItems2(listOrderId, accessToken, connectionID, dbPathEra, uname, cust);
-                                    if(getDetail.status == 1)
-                                    {
-                                        EDB.ExecuteSQL("MOConnectionString", CommandType.Text, getDetail.message);
-                                    }
-                                    else
-                                    {
-                                        throw new Exception(getDetail.message);
-                                    }
-                                    //end add by Tri 21 Feb 2020, gabung sp header dan detail move order
+                                CommandSQL = new SqlCommand();
+                                CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
+                                CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = fromDt.ToString("yyyy-MM-dd HH:mm:ss");
+                                CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = toDt.ToString("yyyy-MM-dd HH:mm:ss");
+                                CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 1;
+                                CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@elevenia", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = cust;
 
-                                    CommandSQL = new SqlCommand();
-                                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
-                                    CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = fromDt.ToString("yyyy-MM-dd HH:mm:ss");
-                                    CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = toDt.ToString("yyyy-MM-dd HH:mm:ss");
-                                    CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 1;
-                                    CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@elevenia", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = cust;
-
+                                //add by nurul 3/2/2022
+                                var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                                if (multilokasi == "1")
+                                {
+                                    EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
+                                }
+                                else
+                                {
                                     EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
                                 }
+                                //add by nurul 3/2/2022
+                                //EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                            }
 
 
-                                ret.status = 1;
+                            ret.status = 1;
                                 //ret.message = a.ToString();
 
                                 //SqlCommand CommandSQL = new SqlCommand();
@@ -4272,24 +4283,35 @@ namespace MasterOnline.Controllers
                                 CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
                                 CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                 CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = cust;
-                                //remark to test
-                                EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
-                                //end remark to test
-
-                                //change 12 Maret 2019, handle record > 100
-                                //listOrderId = listOrderId.Substring(0, listOrderId.Length - 1) + "]";
-                                //getMultiOrderItems(listOrderId, accessToken, connectionID);
-
-                                //remark 24 feb 2020, gabung sp header dan detail move order
-                                //getMultiOrderItems2(listOrderId, accessToken, connectionID, dbPathEra, uname, cust);
-                                //end remark 24 feb 2020, gabung sp header dan detail move order
-
-                                //change 12 Maret 2019, handle record > 100
-                                //jmlhNewOrder++;
+                            //remark to test
+                            //add by nurul 3/2/2022
+                            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                            if (multilokasi == "1")
+                            {
+                                EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
                             }
-                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
+                            else
+                            {
+                                EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                            }
+                            //add by nurul 3/2/2022
+                            //EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                            //end remark to test
 
-                            if (jmlhNewOrder > 0)
+                            //change 12 Maret 2019, handle record > 100
+                            //listOrderId = listOrderId.Substring(0, listOrderId.Length - 1) + "]";
+                            //getMultiOrderItems(listOrderId, accessToken, connectionID);
+
+                            //remark 24 feb 2020, gabung sp header dan detail move order
+                            //getMultiOrderItems2(listOrderId, accessToken, connectionID, dbPathEra, uname, cust);
+                            //end remark 24 feb 2020, gabung sp header dan detail move order
+
+                            //change 12 Maret 2019, handle record > 100
+                            //jmlhNewOrder++;
+                        }
+                        //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
+
+                        if (jmlhNewOrder > 0)
                             {
                                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                 contextNotif.Clients.Group(dbPathEra).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari Lazada.");

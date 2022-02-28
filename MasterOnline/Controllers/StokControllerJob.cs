@@ -2032,68 +2032,68 @@ namespace MasterOnline.Controllers
             //END ADD BY NURUL 4/9/2020, handle cek stok brg multi sku 
 
             double qtyOnHand = 0d;
-            //add by nurul 19/1/2021, bundling
-            //var cekBundlingAtauTidak = ErasoftDbContext.STF03.Where(a => a.Unit == Barang).Count();
-            //if (cekBundlingAtauTidak > 0)
-            //{
-            //    {
-            //        object[] spParams = {
-            //        new SqlParameter("@BRG", Barang),
-            //        new SqlParameter("@GD", "GB"),
-            //        new SqlParameter("@Satuan", "2"),
-            //        new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-            //        new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
-            //        };
+            ////add by nurul 19/1/2021, bundling
+            ////var cekBundlingAtauTidak = ErasoftDbContext.STF03.Where(a => a.Unit == Barang).Count();
+            ////if (cekBundlingAtauTidak > 0)
+            ////{
+            ////    {
+            ////        object[] spParams = {
+            ////        new SqlParameter("@BRG", Barang),
+            ////        new SqlParameter("@GD", "GB"),
+            ////        new SqlParameter("@Satuan", "2"),
+            ////        new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
+            ////        new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
+            ////        };
 
-            //        ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-            //        qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-            //    }
+            ////        ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
+            ////        qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
+            ////    }
 
-            //    //ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
+            ////    //ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
 
-            //    //double qtySO = ErasoftDbContext.Database.SqlQuery<double>("SELECT ISNULL(SUM(ISNULL(QTY,0)),0) QSO FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04', '12') AND B.LOKASI = CASE '" + Gudang + "' WHEN 'ALL' THEN B.LOKASI ELSE '" + Gudang + "' END AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG = '" + Barang + "'").FirstOrDefault();
-            //    //qtyOnHand = qtyOnHand - qtySO;
-            //}
-            ////end add by nurul 19/1/2021, bundling
-            //else
-            //{
-            //{
-            //    object[] spParams = {
-            //    new SqlParameter("@BRG", Barang),
-            //    new SqlParameter("@GD", Gudang),
-            //    new SqlParameter("@Satuan", "2"),
-            //    new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-            //    new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
-            //    };
+            ////    //double qtySO = ErasoftDbContext.Database.SqlQuery<double>("SELECT ISNULL(SUM(ISNULL(QTY,0)),0) QSO FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04', '12') AND B.LOKASI = CASE '" + Gudang + "' WHEN 'ALL' THEN B.LOKASI ELSE '" + Gudang + "' END AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG = '" + Barang + "'").FirstOrDefault();
+            ////    //qtyOnHand = qtyOnHand - qtySO;
+            ////}
+            //////end add by nurul 19/1/2021, bundling
+            ////else
+            ////{
+            ////{
+            ////    object[] spParams = {
+            ////    new SqlParameter("@BRG", Barang),
+            ////    new SqlParameter("@GD", Gudang),
+            ////    new SqlParameter("@Satuan", "2"),
+            ////    new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
+            ////    new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
+            ////    };
 
-            //    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-            //    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-            //}
+            ////    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
+            ////    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
+            ////}
 
-            //ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-            //double qtySO = ErasoftDbContext.Database.SqlQuery<double>("SELECT ISNULL(SUM(ISNULL(QTY,0)),0) QSO FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04', '12') AND B.LOKASI = CASE '" + Gudang + "' WHEN 'ALL' THEN B.LOKASI ELSE '" + Gudang + "' END AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG = '" + Barang + "'").FirstOrDefault();
+            ////ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
+            ////double qtySO = ErasoftDbContext.Database.SqlQuery<double>("SELECT ISNULL(SUM(ISNULL(QTY,0)),0) QSO FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04', '12') AND B.LOKASI = CASE '" + Gudang + "' WHEN 'ALL' THEN B.LOKASI ELSE '" + Gudang + "' END AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG = '" + Barang + "'").FirstOrDefault();
 
-            var sSQLGetQOH = "SELECT QOH = ISNULL(SUM(QAWAL+(QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12)-(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12)),0) ";
-            //--, A.BRG,A.GD
-            sSQLGetQOH += "FROM STF08A A(nolock) ";
-            sSQLGetQOH += "INNER JOIN STF18 B(NOLOCK) ON A.GD = B.Kode_Gudang INNER JOIN MAPPING_GUDANG C(NOLOCK) ON A.GD = C.GD_MO ";
-            sSQLGetQOH += "WHERE A.BRG = '" + Barang + "' AND A.TAHUN = YEAR(DATEADD(HOUR, +7, GETUTCDATE())) AND C.CUST = '" + Akun + "' ";
-            //--GROUP BY A.BRG,A.GD"
-            qtyOnHand = ErasoftDbContext.Database.SqlQuery<double>(sSQLGetQOH).FirstOrDefault();
-            double qtySO = ErasoftDbContext.Database.SqlQuery<double>("SELECT ISNULL(SUM(ISNULL(QTY,0)),0) QSO FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04', '12') AND B.LOKASI IN (SELECT GD_MO FROM MAPPING_GUDANG (NOLOCK) WHERE CUST='" + Akun + "') AND A.CUST = '" + Akun + "' AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG = '" + Barang + "'").FirstOrDefault();
-            qtyOnHand = qtyOnHand - qtySO;
-            //}
+            //var sSQLGetQOH = "SELECT QOH = ISNULL(SUM(QAWAL+(QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12)-(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12)),0) ";
+            ////--, A.BRG,A.GD
+            //sSQLGetQOH += "FROM STF08A A(nolock) ";
+            //sSQLGetQOH += "INNER JOIN STF18 B(NOLOCK) ON A.GD = B.Kode_Gudang INNER JOIN MAPPING_GUDANG C(NOLOCK) ON A.GD = C.GD_MO ";
+            //sSQLGetQOH += "WHERE A.BRG = '" + Barang + "' AND A.TAHUN = YEAR(DATEADD(HOUR, +7, GETUTCDATE())) AND C.CUST = '" + Akun + "' ";
+            ////--GROUP BY A.BRG,A.GD"
+            //qtyOnHand = ErasoftDbContext.Database.SqlQuery<double>(sSQLGetQOH).FirstOrDefault();
+            //double qtySO = ErasoftDbContext.Database.SqlQuery<double>("SELECT ISNULL(SUM(ISNULL(QTY,0)),0) QSO FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04', '12') AND B.LOKASI IN (SELECT GD_MO FROM MAPPING_GUDANG (NOLOCK) WHERE CUST='" + Akun + "') AND A.CUST = '" + Akun + "' AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG = '" + Barang + "'").FirstOrDefault();
+            //qtyOnHand = qtyOnHand - qtySO;
+            ////}
 
-            //var sSQL = "SELECT QOH-QOO AS SISA,*FROM ( ";
-            //sSQL += "SELECT A.BRG, ISNULL(SUM(CASE WHEN A.JENIS = 'QOH' THEN A.JUMLAH ELSE 0 END),0) QOH,ISNULL(SUM(CASE WHEN A.JENIS = 'QOO'THEN A.JUMLAH ELSE 0 END),0) QOO  FROM [QOH_QOO_ALL_ITEM_GUDANG] A(NOLOCK) LEFT JOIN STF18 B(NOLOCK) ON A.GD=B.KODE_GUDANG INNER JOIN MAPPING_GUDANG C(NOLOCK) ON A.GD=C.GD_MO  ";
-            //sSQL += "WHERE BRG='" + Barang + "' AND ISNULL(KD_HARGA_JUAL,'')<>'1' AND C.CUST='" + Akun + "' ";
-            //sSQL += "GROUP BY A.BRG ";
-            //sSQL += ")A ";
-            //var getQOHQOO = ErasoftDbContext.Database.SqlQuery<qtySiapJualMultiLokasi>(sSQL).FirstOrDefault();
-            //if(getQOHQOO != null)
-            //{
-            //    qtyOnHand = getQOHQOO.SISA;
-            //}
+            var sSQL = "SELECT QOH-QOO AS SISA,*FROM ( ";
+            sSQL += "SELECT A.BRG, ISNULL(SUM(CASE WHEN A.JENIS = 'QOH' THEN A.JUMLAH ELSE 0 END),0) QOH,ISNULL(SUM(CASE WHEN A.JENIS = 'QOO'THEN A.JUMLAH ELSE 0 END),0) QOO  FROM [QOH_QOO_ALL_ITEM_GUDANG] A(NOLOCK) LEFT JOIN STF18 B(NOLOCK) ON A.GD=B.KODE_GUDANG INNER JOIN MAPPING_GUDANG C(NOLOCK) ON A.GD=C.GD_MO  ";
+            sSQL += "WHERE BRG='" + Barang + "' AND ISNULL(KD_HARGA_JUAL,'')<>'1' AND C.CUST='" + Akun + "' ";
+            sSQL += "GROUP BY A.BRG ";
+            sSQL += ")A ";
+            var getQOHQOO = ErasoftDbContext.Database.SqlQuery<qtySiapJualMultiLokasi>(sSQL).FirstOrDefault();
+            if (getQOHQOO != null)
+            {
+                qtyOnHand = getQOHQOO.SISA;
+            }
 
             return qtyOnHand;
         }
