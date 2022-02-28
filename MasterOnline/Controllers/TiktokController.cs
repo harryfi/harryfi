@@ -1,0 +1,1923 @@
+﻿using Erasoft.Function;
+using Hangfire;
+using Hangfire.SqlServer;
+using Lazop.Api;
+using Lazop.Api.Util;
+using MasterOnline.Models;
+using MasterOnline.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web;
+using System.Web.Mvc;
+using System.Xml;
+using System.Security.Cryptography;
+using System.Text;
+using System.IO;
+using Newtonsoft.Json;
+using System.Net;
+using System.Diagnostics;
+using System.Data.Entity.Validation;
+
+namespace MasterOnline.Controllers
+{
+    public class TiktokController : Controller
+    {
+        //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+        string urlLazada = "https://api.lazada.co.id/rest";
+        List<string> listSku = new List<string>();
+        //string eraCallbackUrl = "https://dev.masteronline.co.id/lzd/code?user=";
+        //string eraAppKey = "";101775;106147
+#if AWS
+                        
+        string eraAppKey = "3cqbhg";
+        string eraAppSecret = "57fb173019d59898be333ac5af995585437ed8bf";
+        string eraCallbackUrl = "https://masteronline.co.id/tiktok/auth";
+#elif Debug_AWS
+
+        string eraAppKey = "3cqbhg";
+        string eraAppSecret = "57fb173019d59898be333ac5af995585437ed8bf";
+        string eraCallbackUrl = "https://masteronline.co.id/tiktok/auth";
+#else
+
+        string eraAppKey = "3cqbhg";
+        string eraAppSecret = "57fb173019d59898be333ac5af995585437ed8bf";
+        string eraCallbackUrl = "https://dev.masteronline.co.id/tiktok/auth";
+
+        //string eraAppKey = "101775";
+        //string eraAppSecret = "QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu";
+        //string eraCallbackUrl = "https://masteronline.my.id/lzd/code?user=";
+#endif
+        // GET: Lazada; QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu;So2KEplWTt4XFO9OGmXjuFFVIT1Wc6FU
+        DatabaseSQL EDB;
+        MoDbContext MoDbContext;
+        ErasoftContext ErasoftDbContext;
+        string DatabasePathErasoft;
+        string dbSourceEra = "";
+        string username;
+        TTApiData apidata;
+
+
+
+        protected void SetupContext(string DatabasePathErasoft, string uname, TTApiData apidata)
+        {
+            //string ret = "";
+            MoDbContext = new MoDbContext("");
+            EDB = new DatabaseSQL(DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+            ErasoftDbContext = new ErasoftContext(EraServerName, DatabasePathErasoft);
+            username = uname;
+            this.apidata = apidata;
+        }
+
+        #region Authentication
+        [Route("tiktok/auth")]
+        [HttpGet]
+        public ActionResult TiktokCode(string code, string state)
+        {
+            var decrypt = DecryptString(state, System.Text.Encoding.Unicode);
+            var param = decrypt.Split(new string[] { "_param_" }, StringSplitOptions.None);
+            if (param.Count() == 2)
+            {
+                DatabaseSQL EDB = new DatabaseSQL(param[0]);
+                var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET API_KEY = '" + code + "' WHERE CUST = '" + param[1] + "'");
+                GetToken(param[0], param[1], code);
+            }
+            return View("Tiktokauth");
+        }
+
+        [HttpGet]
+        public string TiktokUrl(string cust)
+        {
+            string userId = "";
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+
+            if (sessionAccount != null)
+            {
+                userId = sessionAccountDatabasePathErasoft.ToString();
+
+            }
+            else
+            {
+                if (sessionUser != null)
+                {
+                    var userAccID = Convert.ToInt64(sessionUserAccountID);
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == userAccID);
+                    userId = accFromUser.DatabasePathErasoft;
+                }
+            }
+
+            string tikId = cust;
+            string compUrl = userId + "_param_" + tikId;
+            string sha256encryp = EncryptString(compUrl, System.Text.Encoding.Unicode);
+            string uri = "https://auth.tiktok-shops.com/oauth/authorize?app_key=" + eraAppKey + "&state=" + sha256encryp;
+            return uri;
+        }
+
+
+
+        public async Task<string> GetToken(string user, string cust, string authcode)
+        {
+            string ret;
+            string url;
+            url = "https://auth.tiktok-shops.com/api/token/getAccessToken";
+            DatabaseSQL EDB = new DatabaseSQL(user);
+            string EraServerName = EDB.GetServerName("sConn");
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(url);
+            myReq.Method = "POST";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            PostTiktokApi postdata = new PostTiktokApi()
+            {
+                app_key = eraAppKey,
+                app_secret = eraAppSecret,
+                auth_code = authcode,
+                grant_type = "authorized_code"
+            };
+            var data = JsonConvert.SerializeObject(postdata);
+            ErasoftDbContext = new ErasoftContext(EraServerName, user);
+            //add 22 april 2021, handle spamming
+            var cekLog = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Get Token" && p.REQUEST_ATTRIBUTE_1 == cust
+                && p.REQUEST_ATTRIBUTE_2 == authcode && p.REQUEST_STATUS == "Success").FirstOrDefault();
+            if (cekLog != null)
+            {
+                ret = "data sudah ada";
+                return ret;
+            }
+            //end add 22 april 2021, handle spamming
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "Get Token",
+                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_ATTRIBUTE_1 = cust,
+                REQUEST_ATTRIBUTE_2 = authcode,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, cust, currentLog);
+            myReq.ContentLength = data.Length;
+            try
+            {
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(data), 0, data.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + cust + "'");
+                currentLog.REQUEST_EXCEPTION = ex.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, cust, currentLog);
+                return ex.ToString();
+            }
+            try
+            {
+                if (responseFromServer != null)
+                {
+                    ret = "";
+                    TiktokAuth tauth = JsonConvert.DeserializeObject<TiktokAuth>(responseFromServer);
+                    string shopid = getShopId(tauth.Data.AccessToken);
+                    var dateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                    var tokendateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.AccessTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + dateExpired + "',TOKEN_EXPIRED = '" + tokendateExpired + "' , SORT1_CUST = '" + shopid + "' WHERE CUST = '" + cust + "'");
+                    if (result == 1)
+                    {
+                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, cust, currentLog);
+                        return ret;
+                    }
+                    else
+                    {
+                        currentLog.REQUEST_EXCEPTION = "failed to update token;execute result=" + result;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, cust, currentLog);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + cust + "'");
+                currentLog.REQUEST_EXCEPTION = ex.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, cust, currentLog);
+            }
+            return null;
+
+        }
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("2_get_token")]
+        public async Task<TiktokAuth> GetRefToken(string cust, string refreshToken, string dbpath, string username, DateTime? tanggal_exptoken, DateTime? tanggal_exprtok)
+        {
+            SetupContext(dbpath, username, null);
+            DateTime dateNow = DateTime.UtcNow.AddHours(7);
+            DateTime parse = DateTime.Parse(tanggal_exprtok.ToString());
+            TimeSpan ts = parse.Subtract(dateNow);
+            bool ATExp = false;
+
+            if (ts.Days < 1 && ts.Hours < 24 && dateNow < tanggal_exptoken)
+            {
+                ATExp = true;
+            }
+
+            if (ATExp)
+            {
+                string ret;
+                string url;
+                url = "https://auth.tiktok-shops.com/api/token/refreshToken";
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(url);
+                myReq.Method = "POST";
+                myReq.ContentType = "application/json";
+                string responseFromServer = "";
+                PostTiktokApiRef postdata = new PostTiktokApiRef()
+                {
+                    app_key = eraAppKey,
+                    app_secret = eraAppSecret,
+                    refresh_token = refreshToken,
+                    grant_type = "refresh_token"
+                };
+                var data = JsonConvert.SerializeObject(postdata);
+                //add 22 april 2021, handle spamming
+                var cekLog = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Refresh Token" && p.REQUEST_ATTRIBUTE_1 == cust
+                    && p.REQUEST_ATTRIBUTE_2 == refreshToken && p.REQUEST_STATUS == "Success").FirstOrDefault();
+                if (cekLog != null)
+                {
+                    ret = "data sudah ada";
+                }
+                //end add 22 april 2021, handle spamming
+                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                {
+                    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                    REQUEST_ACTION = "Refresh Token",
+                    REQUEST_DATETIME = DateTime.Now,
+                    REQUEST_ATTRIBUTE_1 = cust,
+                    REQUEST_ATTRIBUTE_2 = refreshToken,
+                    REQUEST_STATUS = "Pending",
+                };
+                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, cust, currentLog);
+                myReq.ContentLength = data.Length;
+                try
+                {
+                    using (var dataStream = myReq.GetRequestStream())
+                    {
+                        dataStream.Write(System.Text.Encoding.UTF8.GetBytes(data), 0, data.Length);
+                    }
+                    using (WebResponse response = await myReq.GetResponseAsync())
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + cust + "'");
+                    currentLog.REQUEST_EXCEPTION = ex.Message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, cust, currentLog);
+                    return null;
+                }
+                try
+                {
+                    if (responseFromServer != null)
+                    {
+                        ret = "";
+                        TiktokAuth tauth = JsonConvert.DeserializeObject<TiktokAuth>(responseFromServer);
+                        string shopid = getShopId(tauth.Data.AccessToken);
+                        var dateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                        var tokendateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.AccessTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                        var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + dateExpired + "',TOKEN_EXPIRED = '" + tokendateExpired + "' , SORT1_CUST = '" + shopid + "' WHERE CUST = '" + cust + "'");
+                        if (result == 1)
+                        {
+                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, cust, currentLog);
+                            return null;
+                        }
+                        else
+                        {
+                            currentLog.REQUEST_EXCEPTION = "failed to update token;execute result=" + result;
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, cust, currentLog);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + cust + "'");
+                    currentLog.REQUEST_EXCEPTION = ex.Message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, cust, currentLog);
+                }
+            }
+
+            return null;
+        }
+
+        public string getShopId(string acctoken)
+        {
+            try
+            {
+                string urll = "https://open-api.tiktokglobalshop.com/api/shop/get_authorized_shop?access_token={0}&timestamp={1}&sign={2}&app_key={3}";
+                int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                string sign = eraAppSecret + "/api/shop/get_authorized_shopapp_key" + eraAppKey + "timestamp" + timestamp + eraAppSecret;
+                string signencry = GetHash(sign, eraAppSecret);
+                var vformatUrl = String.Format(urll, acctoken, timestamp, signencry, eraAppKey);
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+                myReq.Method = "GET";
+                myReq.ContentType = "application/json";
+
+                string responseFromServer = "";
+                try
+                {
+                    using (WebResponse response = myReq.GetResponse())
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                }
+
+                try
+                {
+                    if (responseFromServer != null)
+                    {
+                        ShopListRes sres = JsonConvert.DeserializeObject<ShopListRes>(responseFromServer);
+                        return sres.Data.ShopList[0].ShopId;
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return null;
+        }
+
+
+        #endregion
+
+        #region Main Function
+        #region HangFire Trigger
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public async Task<string> GetOrderListPaid(string CUST, string NAMA_CUST, int page, TTApiData apidata)
+        {
+            SetupContext(apidata.access_token, apidata.username, apidata);
+            string ret = "";
+            string connId = Guid.NewGuid().ToString();
+            var dateFrom = DateTimeOffset.UtcNow.AddDays(-3).AddHours(7).ToString("yyyy-MM-ddTHH:mm:ssZ");
+            var dateTo = DateTimeOffset.UtcNow.AddHours(7).ToString("yyyy-MM-ddTHH:mm:ssZ");
+            string status = "";
+            ret += "'" + connId + "' , ";
+            string urll = "https://open-api.tiktokglobalshop.com/api/shop/get_authorized_shop?access_token={0}&timestamp={1}&sign={2}&app_key={3}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/shop/get_authorized_shopapp_key" + eraAppKey + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, apidata.access_token, timestamp, signencry, eraAppKey);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "GET";
+            myReq.ContentType = "application/json";
+
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.Print(ex.Message);
+            }
+
+            if (responseFromServer != null)
+            {
+                List<WooController.WooOrder> orderData = JsonConvert.DeserializeObject<List<WooController.WooOrder>>(responseFromServer, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+                if (orderData != null)
+                {
+                    string connID = Guid.NewGuid().ToString();
+                    var getdata = await GetPaidOrder(orderData, CUST, NAMA_CUST, connID);
+                    if (getdata)
+                    {
+                        await GetOrderListPaid(CUST, NAMA_CUST, page + 1, apidata);
+                    }
+                }
+            }
+            // add tuning no duplicate hangfire job get order
+            var queryStatus = "\\\"}\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","\"000003\""
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + apidata.access_token + "%' and invocationdata like '%woocomerce%' and invocationdata like '%GetOrderListPaid%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            // end add tuning no duplicate hangfire job get order
+            return null;
+        }
+
+        #endregion
+
+        #region Order Function
+        public async Task<bool> GetPaidOrder(List<WooController.WooOrder> orderData, string CUST, string NAMA_CUST, string connID)
+        {
+            ErasoftDbContext.Database.ExecuteSqlCommand("TRUNCATE TABLE TEMP_WOOCOMERCE_ORDERS");
+            ErasoftDbContext.Database.ExecuteSqlCommand("TRUNCATE TABLE TEMP_WOOCOMERCE_ORDERS_ITEM");
+            var orderPaid = orderData.Where(p => p.Status == "processing").ToList();
+            var jmlhOrderNew = 0;
+            string ordersn = "";
+            if (orderPaid != null)
+            {
+                var ordernoindb = ErasoftDbContext.SOT01A.Where(x => x.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
+                var arf01 = ErasoftDbContext.ARF01.FirstOrDefault(x => x.CUST == CUST);
+                var connIdARF01C = Guid.NewGuid().ToString();
+                foreach (var order in orderPaid)
+                {
+                    if (ordernoindb.Contains(order.Id.ToString()))
+                    {
+                        ordersn = ordersn + "'" + order.Id.ToString() + "',";
+                    }
+                    else
+                    {
+                        jmlhOrderNew++;
+                        #region Insert Pembeli
+                        string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                        insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                        insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
+                        var kabKot = "3174";
+                        var prov = "31";
+
+
+                        string fullname = order.Billing.FirstName.ToString() + " " + order.Billing.LastName.ToString();
+                        string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : fullname;
+
+                        string TLP = !string.IsNullOrEmpty(order.Billing.Phone) ? order.Billing.Phone.Replace('\'', '`') : "";
+                        if (TLP.Length > 30)
+                            TLP = TLP.Substring(0, 30);
+                        if (NAMA_CUST.Length > 30)
+                            NAMA_CUST = NAMA_CUST.Substring(0, 30);
+                        string AL_KIRIM1 = !string.IsNullOrEmpty((order.Billing.Address1 ?? "").Replace("'", "`") + " " + (order.Billing.Address2 ?? "").Replace("'", "`")) ? ((order.Billing.Address1 ?? "").Replace("'", "`") + " " + (order.Billing.Address2 ?? "").Replace("'", "`")) : "";
+                        if (AL_KIRIM1.Length > 30)
+                        {
+                            AL_KIRIM1 = AL_KIRIM1.Substring(0, 30);
+                        }
+                        string KODEPOS = !string.IsNullOrEmpty(order.Billing.Postcode) ? order.Billing.Postcode.Replace('\'', '`') : "";
+                        if (KODEPOS.Length > 7)
+                        {
+                            KODEPOS = KODEPOS.Substring(0, 7);
+                        }
+                        string province = !string.IsNullOrEmpty(order.Billing.State) ? order.Billing.State.Replace("'", "`") : "";
+                        if (province.Length > 50)
+                        {
+                            province = province.Substring(0, 50);
+                        }
+                        string city = !string.IsNullOrEmpty(order.Billing.City) ? order.Billing.City.Replace("'", "`") : "";
+                        if (city.Length > 50)
+                        {
+                            city = city.Substring(0, 50);
+                        }
+                        string contact_email = !string.IsNullOrEmpty(order.Billing.Email) ? order.Billing.Email.Replace("'", "`") : "";
+                        if (contact_email.Length > 50)
+                        {
+                            contact_email = city.Substring(0, 50);
+                        }
+
+                        insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '{13}', '{8}', '{9}', '{12}', '{11}','{10}'),",
+                            ((nama ?? "").Replace("'", "`")),
+                            ((order.Billing.Address1 ?? "").Replace("'", "`") + " " + (order.Billing.Address2 ?? "").Replace("'", "`")),
+                            (TLP),
+                            (NAMA_CUST.Replace(',', '.')),
+                            AL_KIRIM1,
+                            DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                            (username),
+                            KODEPOS,
+                            kabKot,
+                            prov,
+                            connIdARF01C,
+                            province,
+                            city,
+                            contact_email
+                            );
+                        insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
+                        EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
+
+                        #endregion
+                        if (!ordernoindb.Contains(order.Id.ToString()))
+                        {
+                            try
+                            {
+                                var conidARF = Guid.NewGuid().ToString();
+                                var dateOrder = Convert.ToDateTime(order.DateCreated).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                                var datePay = Convert.ToDateTime(order.DatePaid).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                                #region cut char
+                                string estimated_shipping_fee = !string.IsNullOrEmpty(Convert.ToString(double.Parse(order.ShippingTax))) ? Convert.ToString(double.Parse(order.ShippingTax)).Replace("'", "`") : "";
+                                if (estimated_shipping_fee.Length > 100)
+                                {
+                                    estimated_shipping_fee = estimated_shipping_fee.Substring(0, 100);
+                                }
+                                string payment_method = !string.IsNullOrEmpty(order.PaymentMethod) ? order.PaymentMethod.Replace("'", "`") : "";
+                                if (payment_method.Length > 100)
+                                {
+                                    payment_method = payment_method.Substring(0, 100);
+                                }
+                                string escrow_amount = !string.IsNullOrEmpty(order.DiscountTotal) ? order.DiscountTotal.Replace("'", "`") : "";
+                                if (escrow_amount.Length > 100)
+                                {
+                                    escrow_amount = escrow_amount.Substring(0, 100);
+                                }
+                                string currency = !string.IsNullOrEmpty(order.Currency) ? order.Currency.Replace("'", "`") : "";
+                                if (currency.Length > 50)
+                                {
+                                    currency = currency.Substring(0, 50);
+                                }
+                                string Recipient_Address_country = !string.IsNullOrEmpty(order.Shipping.Country) ? order.Shipping.Country.Replace("'", "`") : "ID";
+                                if (Recipient_Address_country.Length > 50)
+                                {
+                                    Recipient_Address_country = Recipient_Address_country.Substring(0, 50);
+                                }
+                                string Recipient_Address_city = !string.IsNullOrEmpty(order.Shipping.City) ? order.Shipping.City.Replace("'", "`") : "";
+                                if (Recipient_Address_city.Length > 50)
+                                {
+                                    Recipient_Address_city = Recipient_Address_city.Substring(0, 50);
+                                }
+                                string Recipient_Address_state = !string.IsNullOrEmpty(order.Shipping.State) ? order.Shipping.State.Replace("'", "`") : "";
+                                if (Recipient_Address_state.Length > 50)
+                                {
+                                    Recipient_Address_state = Recipient_Address_state.Substring(0, 50);
+                                }
+                                string total_amount = !string.IsNullOrEmpty(Convert.ToString(double.Parse(order.Total))) ? Convert.ToString(double.Parse(order.Total)).Replace("'", "`") : "";
+                                if (total_amount.Length > 100)
+                                {
+                                    total_amount = total_amount.Substring(0, 100);
+                                }
+                                string country = !string.IsNullOrEmpty(order.Shipping.Country) ? order.Shipping.Country.Replace("'", "`") : "";
+                                if (country.Length > 100)
+                                {
+                                    country = country.Substring(0, 100);
+                                }
+                                string ordersn1 = !string.IsNullOrEmpty(Convert.ToString(order.Id)) ? Convert.ToString(order.Id).Replace("'", "`") : "";
+                                if (ordersn1.Length > 100)
+                                {
+                                    ordersn1 = ordersn1.Substring(0, 100);
+                                }
+
+                                #endregion
+                                var shippingLine = "";
+                                var ongkir = "";
+                                var trackingCompany = "";
+                                var trackingNumber = "";
+
+                                if (order.ShippingLines.Count() > 0)
+                                {
+                                    shippingLine = order.ShippingLines[0].MethodTitle;
+                                    ongkir = order.ShippingLines[0].Total;
+                                }
+                                TEMP_WOOCOMERCE_ORDERS newOrder = new TEMP_WOOCOMERCE_ORDERS()
+                                {
+                                    company = nama,
+                                    country = country,
+                                    date_created = Convert.ToDateTime(dateOrder),
+                                    currency = currency,
+                                    order_key = order.OrderKey,
+                                    customer_note = order.CustomerNote ?? "",
+                                    date_completed = DateTime.Now,
+                                    id = ordersn1,
+                                    //ordersn = Convert.ToString(order.order_number),
+                                    //order_status = order.current_state_name,
+                                    status = "PAID",
+                                    //change by nurul 5/12/2019, local time 
+                                    //pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
+                                    date_paid = Convert.ToDateTime(datePay),
+                                    //end change by nurul 5/12/2019, local time 
+                                    state = Recipient_Address_state,
+                                    city = Recipient_Address_city,
+                                    address_1 = (order.Shipping.Address1 ?? "").Replace("'", "`") + " " + (order.Shipping.Address2 ?? "").Replace("'", "`"),
+                                    phone = TLP,
+                                    postalcode = KODEPOS,
+                                    email = contact_email,
+                                    number = order.Number,
+                                    total = total_amount,
+                                    date_modified = Convert.ToDateTime(dateOrder),
+                                    CONN_ID = connID,
+                                    CUST = CUST,
+                                    NAMA_CUST = NAMA_CUST,
+                                    ship_title = shippingLine,
+                                    ongkos_kirim = ongkir
+                                };
+                                List<TEMP_WOOCOMERCE_ORDERS_ITEM> addedsot1b = new List<TEMP_WOOCOMERCE_ORDERS_ITEM>();
+                                var getlastinsert = ErasoftDbContext.SOT01A.OrderBy(x => x.RecNum).ToList().LastOrDefault();
+                                foreach (var item in order.LineItems)
+                                {
+                                    #region cut char
+                                    string item_name = !string.IsNullOrEmpty(item.Name) ? (item.Name).Replace("'", "`") : "";
+                                    if (item_name.Length > 100)
+                                    {
+                                        item_name = item_name.Substring(0, 100);
+                                    }
+                                    string item_sku = !string.IsNullOrEmpty(item.Sku) ? item.Sku.Replace("'", "`") : "";
+                                    if (item_sku.Length > 150)
+                                    {
+                                        item_sku = item_sku.Substring(0, 150);
+                                    }
+                                    string variation_discounted_price = !string.IsNullOrEmpty(Convert.ToString(double.Parse(item.Total))) ? Convert.ToString(double.Parse(item.Total)).Replace("'", "`") : "";
+                                    if (variation_discounted_price.Length > 100)
+                                    {
+                                        variation_discounted_price = variation_discounted_price.Substring(0, 100);
+                                    }
+                                    string variation_name = !string.IsNullOrEmpty(item.Name) ? item.Name.Replace("'", "`") : "";
+                                    if (variation_name.Length > 50)
+                                    {
+                                        variation_name = variation_name.Substring(0, 50);
+                                    }
+                                    string item_id = !string.IsNullOrEmpty(Convert.ToString(item.ProductId)) ? Convert.ToString(item.ProductId).Replace("'", "`") : "";
+                                    if (item_id.Length > 20)
+                                    {
+                                        item_id = item_id.Substring(0, 20);
+                                    }
+                                    string variation_id = !string.IsNullOrEmpty(Convert.ToString(item.VariationId)) ? Convert.ToString(item.VariationId).Replace("'", "`") : "";
+                                    if (variation_id.Length > 20)
+                                    {
+                                        variation_id = variation_id.Substring(0, 20);
+                                    }
+                                    var getbrgindb = ErasoftDbContext.STF02.FirstOrDefault(x => x.BRG == item_id + ";" + variation_id);
+                                    #endregion
+
+                                    TEMP_WOOCOMERCE_ORDERS_ITEM newOrderItem = new TEMP_WOOCOMERCE_ORDERS_ITEM()
+                                    {
+                                        id = ordersn1,
+                                        product_id = item.ProductId.ToString(),
+                                        name = item_name,
+                                        sku = item_sku,
+                                        variation_id = variation_id,
+                                        weight = 1,
+                                        CONN_ID = connID,
+                                        date_created = Convert.ToDateTime(dateOrder),
+                                        quantity = item.Quantity.ToString(),
+                                        total = item.Total.ToString(),
+                                        price = item.Price.ToString(),
+                                        CUST = CUST,
+                                        NAMA_CUST = NAMA_CUST
+                                    };
+
+                                    addedsot1b.Add(newOrderItem);
+                                }
+                                try
+                                {
+                                    ErasoftDbContext.TEMP_WOOCOMERCE_ORDERS.Add(newOrder);
+                                    ErasoftDbContext.TEMP_WOOCOMERCE_ORDERS_ITEM.AddRange(addedsot1b);
+                                    ErasoftDbContext.SaveChanges();
+                                }
+                                catch (Exception ex)
+                                {
+
+                                }
+                                using (SqlCommand CommandSQL = new SqlCommand())
+                                {
+                                    //call sp to insert buyer data
+                                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
+
+                                    EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
+                                };
+                                using (SqlCommand CommandSQL = new SqlCommand())
+                                {
+                                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connID;
+                                    CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
+                                    CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                                    CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Woocom", SqlDbType.Int).Value = 1;
+                                    CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
+
+                                    EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                }
+                            }
+                            catch (DbEntityValidationException ex)
+                            {
+                                foreach (var eve in ex.EntityValidationErrors)
+                                {
+                                    Debug.Print("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:",
+                                        eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                                    foreach (var ve in eve.ValidationErrors)
+                                    {
+                                        Debug.Print("- Property: \"{0}\", Error: \"{1}\"",
+                                            ve.PropertyName, ve.ErrorMessage);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (!string.IsNullOrEmpty(ordersn))
+                {
+                    ordersn = ordersn.Substring(0, ordersn.Length - 1);
+                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0'");
+                    jmlhOrderNew = jmlhOrderNew + rowAffected;
+                    if (jmlhOrderNew > 0)
+                    {
+                        var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                        contextNotif.Clients.Group(apidata.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrderNew) + " Pesanan terbayar dari Woocomerce.");
+                    }
+                }
+            }
+            if (orderPaid.Count() == 10)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        #endregion
+
+        #region Update Stock
+        public async Task<string> UpdateProductTiktok(TTApiData iden, string idbarang = null, int stok = 0)
+        {
+            SetupContext(iden.DatabasePathErasoft, iden.username, iden);
+            string[] split = idbarang.Split(';');
+            StockUpdateTik sut = new StockUpdateTik()
+            {
+                ProductId = split[0],
+                Skus = new List<SkuTik>()
+            };
+            SkuTik sku = new SkuTik()
+            {
+                Id = split[1],
+                StockInfos = new List<StockInfoTik>()
+            };
+            StockInfoTik soi = new StockInfoTik()
+            {
+                AvailableStock = stok
+            };
+            sku.StockInfos.Add(soi);
+            sut.Skus.Add(sku);
+            string data = JsonConvert.SerializeObject(sut);
+            string urll = "https://open-api.tiktokglobalshop.com/api/products/stocks?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/products/stocksapp_key" + eraAppKey + "shop_id" + apidata.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, apidata.access_token, timestamp, signencry, eraAppKey, iden.shop_id);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "PUT";
+            myReq.ContentType = "application/json";
+            myReq.Accept = "application/json";
+            string responseFromServer = "";
+            myReq.ContentLength = data.Length;
+            try
+            {
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(data), 0, data.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+
+            }
+
+            if (responseFromServer != null)
+            {
+                return null;
+            }
+            return null;
+        }
+        #endregion
+
+
+        #region Fetch Function
+        #region Category
+        public async Task<string> getCategory(TTApiData apidata)
+        {
+            string urll = "https://open-api.tiktokglobalshop.com/api/products/categories?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/products/categoriesapp_key" + eraAppKey + "shop_id" + apidata.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, apidata.access_token, timestamp, signencry, eraAppKey, apidata.shop_id);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "GET";
+            myReq.ContentType = "application/json";
+            string ret = "";
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+            try
+            {
+                if (responseFromServer != null)
+                {
+                    ResProd respon = JsonConvert.DeserializeObject<ResProd>(responseFromServer);
+#if AWS
+                    string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#elif Debug_AWS
+                    string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#else
+                    string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#endif
+                    using (SqlConnection oConnection = new SqlConnection(con))
+                    {
+                        oConnection.Open();
+                        //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+                        //{
+                        using (SqlCommand oCommand = oConnection.CreateCommand())
+                        {
+                            //oCommand.CommandText = "DELETE FROM [CATEGORY_BLIBLI] WHERE ARF01_SORT1_CUST='" + data.merchant_code + "'";
+                            //oCommand.ExecuteNonQuery();
+                            //oCommand.Transaction = oTransaction;
+                            oCommand.CommandType = CommandType.Text;
+                            oCommand.CommandText = "INSERT INTO [CATEGORY_TIKTOK] ([CATEGORY_CODE], [CATEGORY_NAME], [PARENT_CODE], [IS_LAST_NODE], [MASTER_CATEGORY_CODE]) VALUES (@CATEGORY_CODE, @CATEGORY_NAME, @PARENT_CODE, @IS_LAST_NODE, @MASTER_CATEGORY_CODE)";
+                            //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
+                            oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
+                            oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
+                            oCommand.Parameters.Add(new SqlParameter("@PARENT_CODE", SqlDbType.NVarChar, 50));
+                            oCommand.Parameters.Add(new SqlParameter("@IS_LAST_NODE", SqlDbType.NVarChar, 1));
+                            oCommand.Parameters.Add(new SqlParameter("@MASTER_CATEGORY_CODE", SqlDbType.NVarChar, 50));
+
+                            try
+                            {
+                                foreach (var item in respon.Data.CategoryList) //foreach parent level top
+                                {
+                                    var checkcatalre = MoDbContext.CATEGORY_TIKTOK.FirstOrDefault(x => x.CATEGORY_CODE == item.Id);
+                                    if (checkcatalre == null)
+                                    {
+                                        oCommand.Parameters[0].Value = item.Id;
+                                        oCommand.Parameters[1].Value = item.LocalDisplayName;
+                                        oCommand.Parameters[2].Value = item.ParentId;
+                                        oCommand.Parameters[3].Value = item.IsLeaf ? "0" : "1";
+                                        oCommand.Parameters[4].Value = "";
+                                    }
+
+                                }
+                                //oTransaction.Commit();
+                            }
+                            catch (Exception ex)
+                            {
+                                //oTransaction.Rollback();
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return ret;
+
+        }
+
+        #endregion
+        #region FetchBarang
+        public async Task<BindingBase> getproduct(TTApiData iden, int IdMarket, int page, int recordCount, int totalData)
+        {
+            SetupContext(iden.DatabasePathErasoft, username, iden);
+            var ret = new BindingBase
+            {
+                status = 0,
+                recordCount = recordCount,
+                exception = 0,
+                totalData = totalData,//add 18 Juli 2019, show total record
+                pageinfo = ""
+            };
+
+            long seconds = CurrentTimeSecond();
+            List<TEMP_BRG_MP> listnewrec = new List<TEMP_BRG_MP>();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = seconds.ToString() + "_" + page,
+                REQUEST_ACTION = "Get Item List",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = iden.no_cust,
+                //REQUEST_ATTRIBUTE_3 = page.ToString(),
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden.no_cust, currentLog);
+            string urll = "https://open-api.tiktokglobalshop.com/api/products/search?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/products/searchapp_key" + eraAppKey + "shop_id" + apidata.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, apidata.access_token, timestamp, signencry, eraAppKey, iden.shop_id);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "POST";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            ProductParameter paramter = new ProductParameter()
+            {
+                PageSize = 10,
+                PageNumber = page,
+                SearchStatus = 0,
+                SellerSkuList = null
+            };
+            string data = JsonConvert.SerializeObject(paramter);
+            myReq.ContentLength = data.Length;
+            try
+            {
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(data), 0, data.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + iden.no_cust + "'");
+                currentLog.REQUEST_EXCEPTION = ex.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden.no_cust, currentLog);
+            }
+            if (responseFromServer != null)
+            {
+                ResProd res = JsonConvert.DeserializeObject<ResProd>(responseFromServer);
+                if (res.Data.Products.Count == 10)
+                {
+                    ret.nextPage = 1;
+                }
+                foreach (ProductTick ptick in res.Data.Products)
+                {
+                    if (ptick.Status == 4)
+                    {
+                        await getdetailproduct(ptick.Id, apidata, listnewrec, IdMarket, ret);
+                    }
+                }
+                if (listnewrec.Count() > 0)
+                {
+                    ErasoftDbContext.TEMP_BRG_MP.AddRange(listnewrec);
+                    ErasoftDbContext.SaveChanges();
+                }
+            }
+            return ret;
+        }
+
+        public async Task<string> getdetailproduct(string productid, TTApiData iden, List<TEMP_BRG_MP> newrec, int idmarket, BindingBase ret)
+        {
+            string urll = "https://open-api.tiktokglobalshop.com/api/products/details?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}&product_id={5}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/products/detailsapp_key" + eraAppKey + "product_id" + productid + "shop_id" + apidata.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, apidata.access_token, timestamp, signencry, eraAppKey, iden.shop_id, productid);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "GET";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+            if (responseFromServer != null)
+            {
+                ResProductDet res = JsonConvert.DeserializeObject<ResProductDet>(responseFromServer);
+                DetailProductTik detail = res.productTik;
+                string kdmp = detail.ProductId.ToString() + ";" + "0";
+                var checkstf02h = ErasoftDbContext.STF02H.FirstOrDefault(x => x.BRG_MP == kdmp);
+                if (checkstf02h == null)
+                {
+                    TEMP_BRG_MP tempbarang = new TEMP_BRG_MP();
+                    tempbarang.BRG_MP = detail.ProductId.ToString() + ";" + "0";
+                    tempbarang.NAMA = detail.ProductName;
+                    tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : double.Parse(detail.PackageWeight);
+                    tempbarang.PANJANG = detail.PackageLength == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageLength.ToString());
+                    tempbarang.LEBAR = detail.PackageWidth == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageWidth.ToString());
+                    tempbarang.TINGGI = detail.PackageHeight == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageHeight.ToString());
+                    tempbarang.CATEGORY_CODE = detail.CategoryList[2].Id;
+                    tempbarang.CATEGORY_NAME = detail.CategoryList[2].LocalDisplayName;
+                    foreach (ImageTik img in detail.Images)
+                    {
+                        if (tempbarang.IMAGE == null)
+                        {
+                            tempbarang.IMAGE = img.UrlList[0];
+                        }
+                        else if (tempbarang.IMAGE2 == null)
+                        {
+                            tempbarang.IMAGE2 = img.UrlList[0];
+                        }
+                        else if (tempbarang.IMAGE3 == null)
+                        {
+                            tempbarang.IMAGE3 = img.UrlList[0];
+                        }
+                        else if (tempbarang.IMAGE4 == null)
+                        {
+                            tempbarang.IMAGE4 = img.UrlList[0];
+                        }
+                        else if (tempbarang.IMAGE5 == null)
+                        {
+                            tempbarang.IMAGE5 = img.UrlList[0];
+                        }
+
+                    }
+                    tempbarang.Deskripsi = detail.Description;
+                    tempbarang.IDMARKET = int.Parse(idmarket.ToString());
+                    tempbarang.CUST = iden.no_cust;
+                    tempbarang.AVALUE_45 = detail.ProductName;
+                    tempbarang.ACODE_9 = "warranty";
+                    tempbarang.ANAME_9 = "Warranty Period";
+                    tempbarang.AVALUE_9 = detail.WarrantyPeriod.WarrantyDescription;
+                    tempbarang.ACODE_11 = "product_warranty";
+                    tempbarang.ANAME_11 = "Warranty Policy";
+                    tempbarang.AVALUE_11 = detail.WarrantyPolicy;
+                    tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
+                    tempbarang.DISPLAY = true;
+                    tempbarang.SELLER_SKU = kdmp;
+                    tempbarang.TYPE = "4";
+                    foreach (SkuTik satikd in detail.Skus)
+                    {
+                        foreach (SalesAttributeTik satik in satikd.SalesAttributes)
+                        {
+                            if (tempbarang.ACODE_1 == null)
+                            {
+                                tempbarang.ACODE_1 = satik.Id;
+                                tempbarang.ANAME_1 = satik.Name;
+                                tempbarang.AVALUE_1 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_2 == null)
+                            {
+                                tempbarang.ACODE_2 = satik.Id;
+                                tempbarang.ANAME_2 = satik.Name;
+                                tempbarang.AVALUE_2 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_3 == null)
+                            {
+                                tempbarang.ACODE_3 = satik.Id;
+                                tempbarang.ANAME_3 = satik.Name;
+                                tempbarang.AVALUE_3 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_4 == null)
+                            {
+                                tempbarang.ACODE_4 = satik.Id;
+                                tempbarang.ANAME_4 = satik.Name;
+                                tempbarang.AVALUE_4 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_5 == null)
+                            {
+                                tempbarang.ACODE_5 = satik.Id;
+                                tempbarang.ANAME_5 = satik.Name;
+                                tempbarang.AVALUE_5 = satik.ValueName;
+                            }
+
+                        }
+
+                    }
+                    await getvariationproduct(productid, detail.Skus, newrec, idmarket, detail, apidata, ret);
+                    ret.recordCount++;
+                    newrec.Add(tempbarang);
+                }
+                else
+                {
+                    TEMP_BRG_MP tempbarang = new TEMP_BRG_MP();
+                    tempbarang.BRG_MP = detail.ProductId.ToString() + ";" + "0";
+                    tempbarang.NAMA = detail.ProductName;
+                    tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : double.Parse(detail.PackageWeight);
+                    tempbarang.PANJANG = detail.PackageLength == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageLength.ToString());
+                    tempbarang.LEBAR = detail.PackageWidth == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageWidth.ToString());
+                    tempbarang.TINGGI = detail.PackageHeight == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageHeight.ToString());
+                    tempbarang.CATEGORY_CODE = detail.CategoryList[2].Id;
+                    tempbarang.CATEGORY_NAME = detail.CategoryList[2].LocalDisplayName;
+                    foreach (ImageTik img in detail.Images)
+                    {
+                        if (tempbarang.IMAGE == null)
+                        {
+                            tempbarang.IMAGE = img.UrlList[0];
+                        }
+                        else if (tempbarang.IMAGE2 == null)
+                        {
+                            tempbarang.IMAGE2 = img.UrlList[0];
+                        }
+                        else if (tempbarang.IMAGE3 == null)
+                        {
+                            tempbarang.IMAGE3 = img.UrlList[0];
+                        }
+                        else if (tempbarang.IMAGE4 == null)
+                        {
+                            tempbarang.IMAGE4 = img.UrlList[0];
+                        }
+                        else if (tempbarang.IMAGE5 == null)
+                        {
+                            tempbarang.IMAGE5 = img.UrlList[0];
+                        }
+
+                    }
+                    tempbarang.Deskripsi = detail.Description;
+                    tempbarang.IDMARKET = int.Parse(idmarket.ToString());
+                    tempbarang.CUST = iden.no_cust;
+                    tempbarang.AVALUE_45 = detail.ProductName;
+                    tempbarang.ACODE_9 = "warranty";
+                    tempbarang.ANAME_9 = "Warranty Period";
+                    tempbarang.AVALUE_9 = detail.WarrantyPeriod.WarrantyDescription;
+                    tempbarang.ACODE_11 = "product_warranty";
+                    tempbarang.ANAME_11 = "Warranty Policy";
+                    tempbarang.AVALUE_11 = detail.WarrantyPolicy;
+                    tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
+                    tempbarang.DISPLAY = true;
+                    tempbarang.SELLER_SKU = checkstf02h.BRG;
+                    tempbarang.TYPE = "4";
+                    foreach (SkuTik satikd in detail.Skus)
+                    {
+                        foreach (SalesAttributeTik satik in satikd.SalesAttributes)
+                        {
+                            if (tempbarang.ACODE_1 == null)
+                            {
+                                tempbarang.ACODE_1 = satik.Id;
+                                tempbarang.ANAME_1 = satik.Name;
+                                tempbarang.AVALUE_1 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_2 == null)
+                            {
+                                tempbarang.ACODE_2 = satik.Id;
+                                tempbarang.ANAME_2 = satik.Name;
+                                tempbarang.AVALUE_2 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_3 == null)
+                            {
+                                tempbarang.ACODE_3 = satik.Id;
+                                tempbarang.ANAME_3 = satik.Name;
+                                tempbarang.AVALUE_3 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_4 == null)
+                            {
+                                tempbarang.ACODE_4 = satik.Id;
+                                tempbarang.ANAME_4 = satik.Name;
+                                tempbarang.AVALUE_4 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_5 == null)
+                            {
+                                tempbarang.ACODE_5 = satik.Id;
+                                tempbarang.ANAME_5 = satik.Name;
+                                tempbarang.AVALUE_5 = satik.ValueName;
+                            }
+
+                        }
+
+                    }
+                    await getvariationproduct(productid, detail.Skus, newrec, idmarket, detail, apidata, ret, tempbarang.SELLER_SKU);
+                    ret.recordCount++;
+                    newrec.Add(tempbarang);
+                }
+
+
+
+
+            }
+            return null;
+        }
+
+        public async Task<string> getvariationproduct(string productid, List<SkuTik> skudata, List<TEMP_BRG_MP> newrec, int idmarket, DetailProductTik detail, TTApiData iden, BindingBase ret, string sellersku = null)
+        {
+            foreach (SkuTik sku in skudata)
+            {
+                string kdbrgvar = productid + ";" + sku.Id;
+                var checkstf02h = ErasoftDbContext.STF02H.SingleOrDefault(x => x.BRG_MP == kdbrgvar);
+                if (checkstf02h == null)
+                {
+                    TEMP_BRG_MP tempbarang = new TEMP_BRG_MP();
+                    tempbarang.BRG_MP = kdbrgvar;
+                    string namabarang = detail.ProductName;
+                    foreach (SalesAttributeTik sat in sku.SalesAttributes)
+                    {
+                        namabarang += " " + sat.ValueName;
+                        tempbarang.IMAGE = sat.SkuImg == null ? null : sat.SkuImg.UrlList[0];
+                        if (tempbarang.ACODE_1 == null)
+                        {
+                            tempbarang.ACODE_1 = sat.Id;
+                            tempbarang.ANAME_1 = sat.Name;
+                            tempbarang.AVALUE_1 = sat.ValueName;
+                        }
+                        else if (tempbarang.ACODE_2 == null)
+                        {
+                            tempbarang.ACODE_2 = sat.Id;
+                            tempbarang.ANAME_2 = sat.Name;
+                            tempbarang.AVALUE_2 = sat.ValueName;
+                        }
+                        else if (tempbarang.ACODE_3 == null)
+                        {
+                            tempbarang.ACODE_3 = sat.Id;
+                            tempbarang.ANAME_3 = sat.Name;
+                            tempbarang.AVALUE_3 = sat.ValueName;
+                        }
+                        else if (tempbarang.ACODE_4 == null)
+                        {
+                            tempbarang.ACODE_4 = sat.Id;
+                            tempbarang.ANAME_4 = sat.Name;
+                            tempbarang.AVALUE_4 = sat.ValueName;
+                        }
+                        else if (tempbarang.ACODE_5 == null)
+                        {
+                            tempbarang.ACODE_5 = sat.Id;
+                            tempbarang.ANAME_5 = sat.Name;
+                            tempbarang.AVALUE_5 = sat.ValueName;
+                        }
+                    }
+                    tempbarang.NAMA = namabarang;
+                    tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : double.Parse(detail.PackageWeight);
+                    tempbarang.PANJANG = detail.PackageLength == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageLength.ToString());
+                    tempbarang.LEBAR = detail.PackageWidth == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageWidth.ToString());
+                    tempbarang.TINGGI = detail.PackageHeight == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageHeight.ToString());
+                    tempbarang.CATEGORY_CODE = detail.CategoryList[2].Id;
+                    tempbarang.HJUAL = double.Parse(sku.Price.OriginalPrice.ToString());
+                    tempbarang.HJUAL_MP = double.Parse(sku.Price.OriginalPrice.ToString());
+                    tempbarang.CATEGORY_NAME = detail.CategoryList[2].LocalDisplayName;
+                    tempbarang.Deskripsi = detail.Description;
+                    tempbarang.IDMARKET = int.Parse(idmarket.ToString());
+                    tempbarang.CUST = iden.no_cust;
+                    tempbarang.SELLER_SKU = sku.SellerSku;
+                    tempbarang.AVALUE_45 = namabarang;
+                    tempbarang.ACODE_9 = "warranty";
+                    tempbarang.ANAME_9 = "Warranty Period";
+                    tempbarang.AVALUE_9 = detail.WarrantyPeriod.WarrantyDescription;
+                    tempbarang.ACODE_11 = "product_warranty";
+                    tempbarang.ANAME_11 = "Warranty Policy";
+                    tempbarang.AVALUE_11 = detail.WarrantyPolicy;
+                    tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
+                    tempbarang.DISPLAY = true;
+                    tempbarang.KODE_BRG_INDUK = sellersku == null ? productid + ";0" : sellersku;
+                    tempbarang.TYPE = "3";
+                    ret.recordCount++;
+                    newrec.Add(tempbarang);
+                }
+                else
+                {
+
+                    TEMP_BRG_MP tempbarang = new TEMP_BRG_MP();
+                    tempbarang.BRG_MP = kdbrgvar;
+                    string namabarang = detail.ProductName;
+                    foreach (SalesAttributeTik sat in sku.SalesAttributes)
+                    {
+                        namabarang += " " + sat.ValueName;
+                        tempbarang.IMAGE = sat.SkuImg == null ? null : sat.SkuImg.UrlList[0];
+                        if (tempbarang.ACODE_1 == null)
+                        {
+                            tempbarang.ACODE_1 = sat.Id;
+                            tempbarang.ANAME_1 = sat.Name;
+                            tempbarang.AVALUE_1 = sat.ValueName;
+                        }
+                        else if (tempbarang.ACODE_2 == null)
+                        {
+                            tempbarang.ACODE_2 = sat.Id;
+                            tempbarang.ANAME_2 = sat.Name;
+                            tempbarang.AVALUE_2 = sat.ValueName;
+                        }
+                        else if (tempbarang.ACODE_3 == null)
+                        {
+                            tempbarang.ACODE_3 = sat.Id;
+                            tempbarang.ANAME_3 = sat.Name;
+                            tempbarang.AVALUE_3 = sat.ValueName;
+                        }
+                        else if (tempbarang.ACODE_4 == null)
+                        {
+                            tempbarang.ACODE_4 = sat.Id;
+                            tempbarang.ANAME_4 = sat.Name;
+                            tempbarang.AVALUE_4 = sat.ValueName;
+                        }
+                        else if (tempbarang.ACODE_5 == null)
+                        {
+                            tempbarang.ACODE_5 = sat.Id;
+                            tempbarang.ANAME_5 = sat.Name;
+                            tempbarang.AVALUE_5 = sat.ValueName;
+                        }
+                    }
+                    tempbarang.NAMA = namabarang;
+                    tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : double.Parse(detail.PackageWeight);
+                    tempbarang.PANJANG = detail.PackageLength == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageLength.ToString());
+                    tempbarang.LEBAR = detail.PackageWidth == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageWidth.ToString());
+                    tempbarang.TINGGI = detail.PackageHeight == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageHeight.ToString());
+                    tempbarang.CATEGORY_CODE = detail.CategoryList[2].Id;
+                    tempbarang.HJUAL = double.Parse(sku.Price.OriginalPrice.ToString());
+                    tempbarang.HJUAL_MP = double.Parse(sku.Price.OriginalPrice.ToString());
+                    tempbarang.CATEGORY_NAME = detail.CategoryList[2].LocalDisplayName;
+                    tempbarang.Deskripsi = detail.Description;
+                    tempbarang.IDMARKET = int.Parse(idmarket.ToString());
+                    tempbarang.CUST = iden.no_cust;
+                    tempbarang.SELLER_SKU = checkstf02h.BRG;
+                    tempbarang.AVALUE_45 = namabarang;
+                    tempbarang.ACODE_9 = "warranty";
+                    tempbarang.ANAME_9 = "Warranty Period";
+                    tempbarang.AVALUE_9 = detail.WarrantyPeriod.WarrantyDescription;
+                    tempbarang.ACODE_11 = "product_warranty";
+                    tempbarang.ANAME_11 = "Warranty Policy";
+                    tempbarang.AVALUE_11 = detail.WarrantyPolicy;
+                    tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
+                    tempbarang.DISPLAY = true;
+                    tempbarang.KODE_BRG_INDUK = sellersku;
+                    tempbarang.TYPE = "3";
+                    ret.recordCount++;
+                    newrec.Add(tempbarang);
+                }
+
+            }
+            return null;
+        }
+        #endregion
+        #endregion
+        #endregion
+
+
+        #region Encyrptor
+        public static String GetHash(String text, String key)
+        {
+            ASCIIEncoding encoding = new ASCIIEncoding();
+
+            Byte[] textBytes = encoding.GetBytes(text);
+            Byte[] keyBytes = encoding.GetBytes(key);
+
+            Byte[] hashBytes;
+
+            using (HMACSHA256 hash = new HMACSHA256(keyBytes))
+                hashBytes = hash.ComputeHash(textBytes);
+
+            return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+        }
+
+        public static string EncryptString(string input, Encoding encoding)
+        {
+            Byte[] stringBytes = encoding.GetBytes(input);
+            StringBuilder sbBytes = new StringBuilder(stringBytes.Length * 2);
+            foreach (byte b in stringBytes)
+            {
+                sbBytes.AppendFormat("{0:X2}", b);
+            }
+            return sbBytes.ToString();
+        }
+
+        public static string DecryptString(string hexInput, Encoding encoding)
+        {
+            int numberChars = hexInput.Length;
+            byte[] bytes = new byte[numberChars / 2];
+            for (int i = 0; i < numberChars; i += 2)
+            {
+                bytes[i / 2] = Convert.ToByte(hexInput.Substring(i, 2), 16);
+            }
+            return encoding.GetString(bytes);
+        }
+        #endregion
+
+        #region helper
+
+        public static long CurrentTimeSecond()
+        {
+            //        return (long)DateTime.Now.ToUniversalTime().Subtract(
+            //new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            //).TotalMilliseconds;
+            return (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        }
+        public static string XmlEscape(string unescaped)
+        {
+            XmlDocument doc = new XmlDocument();
+            XmlNode node = doc.CreateElement("root");
+            node.InnerText = unescaped;
+            return node.InnerXml;
+        }
+
+        public static string XmlUnescape(string escaped)
+        {
+            XmlDocument doc = new XmlDocument();
+            XmlNode node = doc.CreateElement("root");
+            node.InnerXml = escaped;
+            return node.InnerText;
+        }
+
+        public enum api_status
+        {
+            Pending = 1,
+            Success = 2,
+            Failed = 3,
+            Exception = 4
+        }
+        public void manageAPI_LOG_MARKETPLACE(api_status action, ErasoftContext db, string iden, API_LOG_MARKETPLACE data)
+        {
+            switch (action)
+            {
+                case api_status.Pending:
+                    {
+                        var arf01 = ErasoftDbContext.ARF01.Where(p => p.CUST == iden).FirstOrDefault();
+                        var apiLog = new MasterOnline.API_LOG_MARKETPLACE
+                        {
+                            CUST = arf01 != null ? arf01.CUST : "",
+                            CUST_ATTRIBUTE_1 = arf01 != null ? arf01.PERSO : "",
+                            CUST_ATTRIBUTE_2 = data.CUST_ATTRIBUTE_2 != null ? data.CUST_ATTRIBUTE_2 : "",
+                            CUST_ATTRIBUTE_3 = data.CUST_ATTRIBUTE_3 != null ? data.CUST_ATTRIBUTE_3 : "",
+                            CUST_ATTRIBUTE_4 = data.CUST_ATTRIBUTE_4 != null ? data.CUST_ATTRIBUTE_4 : "",
+                            CUST_ATTRIBUTE_5 = data.CUST_ATTRIBUTE_5 != null ? data.CUST_ATTRIBUTE_5 : "",
+                            MARKETPLACE = "TiktokShop",
+                            REQUEST_ACTION = data.REQUEST_ACTION,
+                            REQUEST_ATTRIBUTE_1 = data.REQUEST_ATTRIBUTE_1 != null ? data.REQUEST_ATTRIBUTE_1 : "",
+                            REQUEST_ATTRIBUTE_2 = data.REQUEST_ATTRIBUTE_2 != null ? data.REQUEST_ATTRIBUTE_2 : "",
+                            REQUEST_ATTRIBUTE_3 = data.REQUEST_ATTRIBUTE_3 != null ? data.REQUEST_ATTRIBUTE_3 : "",
+                            REQUEST_ATTRIBUTE_4 = data.REQUEST_ATTRIBUTE_4 != null ? data.REQUEST_ATTRIBUTE_4 : "",
+                            REQUEST_ATTRIBUTE_5 = data.REQUEST_ATTRIBUTE_5 != null ? data.REQUEST_ATTRIBUTE_5 : "",
+                            REQUEST_DATETIME = data.REQUEST_DATETIME,
+                            REQUEST_ID = data.REQUEST_ID,
+                            REQUEST_STATUS = data.REQUEST_STATUS,
+                            REQUEST_EXCEPTION = data.REQUEST_EXCEPTION != null ? data.REQUEST_EXCEPTION : "",
+                            REQUEST_RESULT = data.REQUEST_RESULT != null ? data.REQUEST_RESULT : "",
+                        };
+                        ErasoftDbContext.API_LOG_MARKETPLACE.Add(apiLog);
+                        ErasoftDbContext.SaveChanges();
+                    }
+                    break;
+                case api_status.Success:
+                    {
+                        var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
+                        if (apiLogInDb != null)
+                        {
+                            apiLogInDb.REQUEST_STATUS = "Success";
+                            apiLogInDb.REQUEST_RESULT = data.REQUEST_RESULT;
+                            apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    break;
+                case api_status.Failed:
+                    {
+                        var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
+                        if (apiLogInDb != null)
+                        {
+                            apiLogInDb.REQUEST_STATUS = "Failed";
+                            apiLogInDb.REQUEST_RESULT = data.REQUEST_RESULT;
+                            apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    break;
+                case api_status.Exception:
+                    {
+                        var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.FirstOrDefault(p => p.REQUEST_ID == data.REQUEST_ID);
+                        if (apiLogInDb != null)
+                        {
+                            apiLogInDb.REQUEST_STATUS = "Failed";
+                            apiLogInDb.REQUEST_RESULT = "Exception";
+                            apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    break;
+            }
+        }
+        #endregion
+    }
+
+    #region Model
+    public class DataTiktok
+    {
+        [JsonProperty("access_token")]
+        public string AccessToken { get; set; }
+
+        [JsonProperty("access_token_expire_in")]
+        public int AccessTokenExpireIn { get; set; }
+
+        [JsonProperty("refresh_token")]
+        public string RefreshToken { get; set; }
+
+        [JsonProperty("refresh_token_expire_in")]
+        public int RefreshTokenExpireIn { get; set; }
+
+        [JsonProperty("open_id")]
+        public string OpenId { get; set; }
+
+        [JsonProperty("seller_name")]
+        public string SellerName { get; set; }
+    }
+
+    public class TiktokAuth
+    {
+        [JsonProperty("code")]
+        public int Code { get; set; }
+
+        [JsonProperty("message")]
+        public string Message { get; set; }
+
+        [JsonProperty("data")]
+        public DataTiktok Data { get; set; }
+    }
+
+    public class PostTiktokApi
+    {
+        [JsonProperty("app_key")]
+        public string app_key { get; set; }
+        [JsonProperty("app_secret")]
+        public string app_secret { get; set; }
+        [JsonProperty("auth_code")]
+        public string auth_code { get; set; }
+        [JsonProperty("grant_type")]
+        public string grant_type { get; set; }
+    }
+
+    public class PostTiktokApiRef
+    {
+        [JsonProperty("app_key")]
+        public string app_key { get; set; }
+        [JsonProperty("app_secret")]
+        public string app_secret { get; set; }
+        [JsonProperty("refresh_token")]
+        public string refresh_token { get; set; }
+        [JsonProperty("grant_type")]
+        public string grant_type { get; set; }
+    }
+
+    public class ShopListTiktok
+    {
+        [JsonProperty("shop_id")]
+        public string ShopId { get; set; }
+
+        [JsonProperty("shop_name")]
+        public string ShopName { get; set; }
+
+        [JsonProperty("region")]
+        public string Region { get; set; }
+
+        [JsonProperty("type")]
+        public string Type { get; set; }
+    }
+
+    public class DataTiktokShopList
+    {
+        [JsonProperty("shop_list")]
+        public List<ShopListTiktok> ShopList { get; set; }
+    }
+
+    public class ShopListRes
+    {
+        [JsonProperty("code")]
+        public int Code { get; set; }
+
+        [JsonProperty("message")]
+        public string Message { get; set; }
+
+        [JsonProperty("request_id")]
+        public string RequestId { get; set; }
+
+        [JsonProperty("data")]
+        public DataTiktokShopList Data { get; set; }
+    }
+
+    public class TTApiData
+    {
+        public string access_token { get; set; }
+        public string shop_id { get; set; }
+        public string DatabasePathErasoft { get; set; }
+        public string no_cust { get; set; }
+        public string username { get; set; }
+
+    }
+
+    public class PriceTik
+    {
+        [JsonProperty("original_price")]
+        public string OriginalPrice { get; set; }
+
+        [JsonProperty("currency")]
+        public string Currency { get; set; }
+    }
+
+    public class StockInfoTik
+    {
+        [JsonProperty("warehouse_id")]
+        public string WarehouseId { get; set; }
+
+        [JsonProperty("available_stock")]
+        public int AvailableStock { get; set; }
+    }
+
+    public class SalesAttributeTik
+    {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("value_id")]
+        public string ValueId { get; set; }
+
+        [JsonProperty("value_name")]
+        public string ValueName { get; set; }
+
+        [JsonProperty("sku_img")]
+        public SkuImgTik SkuImg { get; set; }
+    }
+
+    public class SkuImgTik
+    {
+        [JsonProperty("height")]
+        public int Height { get; set; }
+
+        [JsonProperty("width")]
+        public int Width { get; set; }
+
+        [JsonProperty("thumb_url_list")]
+        public List<string> ThumbUrlList { get; set; }
+
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("url_list")]
+        public List<string> UrlList { get; set; }
+    }
+
+
+    public class SkuTik
+    {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("seller_sku")]
+        public string SellerSku { get; set; }
+
+        [JsonProperty("price")]
+        public PriceTik Price { get; set; }
+
+        [JsonProperty("stock_infos")]
+        public List<StockInfoTik> StockInfos { get; set; }
+        [JsonProperty("sales_attributes")]
+        public List<SalesAttributeTik> SalesAttributes { get; set; }
+        [JsonProperty("sku_image")]
+        public SkuImgTik skuimage { get; set; }
+    }
+
+    public class BrandTik
+    {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("status")]
+        public int Status { get; set; }
+    }
+    public class ImageTik
+    {
+        [JsonProperty("height")]
+        public int Height { get; set; }
+
+        [JsonProperty("width")]
+        public int Width { get; set; }
+
+        [JsonProperty("thumb_url_list")]
+        public List<string> ThumbUrlList { get; set; }
+
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("url_list")]
+        public List<string> UrlList { get; set; }
+    }
+
+    public class ProductTick
+    {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("status")]
+        public int Status { get; set; }
+
+        [JsonProperty("sale_regions")]
+        public List<string> SaleRegions { get; set; }
+
+        [JsonProperty("skus")]
+        public List<SkuTik> Skus { get; set; }
+    }
+
+    public class WarrantyPeriodTick
+    {
+        [JsonProperty("warranty_id")]
+        public int WarrantyId { get; set; }
+
+        [JsonProperty("warranty_description")]
+        public string WarrantyDescription { get; set; }
+    }
+    public class DetailProductTik
+    {
+        [JsonProperty("product_id")]
+        public string ProductId { get; set; }
+
+        [JsonProperty("product_status")]
+        public int ProductStatus { get; set; }
+
+        [JsonProperty("product_name")]
+        public string ProductName { get; set; }
+
+        [JsonProperty("category_list")]
+        public List<CategoryListTik> CategoryList { get; set; }
+
+        [JsonProperty("brand")]
+        public BrandTik Brand { get; set; }
+
+        [JsonProperty("images")]
+        public List<ImageTik> Images { get; set; }
+
+        [JsonProperty("description")]
+        public string Description { get; set; }
+
+        [JsonProperty("warranty_period")]
+        public WarrantyPeriodTick WarrantyPeriod { get; set; }
+
+        [JsonProperty("warranty_policy")]
+        public string WarrantyPolicy { get; set; }
+
+        [JsonProperty("package_length")]
+        public int PackageLength { get; set; }
+
+        [JsonProperty("package_width")]
+        public int PackageWidth { get; set; }
+
+        [JsonProperty("package_height")]
+        public int PackageHeight { get; set; }
+
+        [JsonProperty("package_weight")]
+        public string PackageWeight { get; set; }
+
+        [JsonProperty("skus")]
+        public List<SkuTik> Skus { get; set; }
+
+        [JsonProperty("product_certifications")]
+        public List<ProductCertificationTik> ProductCertifications { get; set; }
+
+        [JsonProperty("is_cod_open")]
+        public bool IsCodOpen { get; set; }
+
+        [JsonProperty("update_time")]
+        public long UpdateTime { get; set; }
+    }
+
+    public class ProductCertificationTik
+    {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("title")]
+        public string Title { get; set; }
+
+        [JsonProperty("images")]
+        public List<ImageTik> Images { get; set; }
+
+        [JsonProperty("files")]
+        public List<FileTik> Files { get; set; }
+    }
+
+    public class FileTik
+    {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("list")]
+        public List<string> List { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("type")]
+        public string Type { get; set; }
+    }
+
+
+    public class TiktokProd
+    {
+        [JsonProperty("total")]
+        public int Total { get; set; }
+
+        [JsonProperty("products")]
+        public List<ProductTick> Products { get; set; }
+
+        [JsonProperty("category_list")]
+        public List<CategoryListTik> CategoryList { get; set; }
+
+    }
+
+    public class ResProd
+    {
+        [JsonProperty("code")]
+        public int Code { get; set; }
+
+        [JsonProperty("message")]
+        public string Message { get; set; }
+
+        [JsonProperty("request_id")]
+        public string RequestId { get; set; }
+
+        [JsonProperty("data")]
+        public TiktokProd Data { get; set; }
+    }
+
+    public class ResProductDet
+    {
+        [JsonProperty("code")]
+        public int Code { get; set; }
+
+        [JsonProperty("message")]
+        public string Message { get; set; }
+
+        [JsonProperty("request_id")]
+        public string RequestId { get; set; }
+        [JsonProperty("data")]
+        public DetailProductTik productTik { get; set; }
+    }
+    public class ProductParameter
+    {
+        [JsonProperty("page_size")]
+        public int PageSize { get; set; }
+
+        [JsonProperty("page_number")]
+        public int PageNumber { get; set; }
+
+        [JsonProperty("search_status")]
+        public int SearchStatus { get; set; }
+
+        [JsonProperty("seller_sku_list")]
+        public List<string> SellerSkuList { get; set; }
+    }
+
+    public class CategoryListTik
+    {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("parent_id")]
+        public string ParentId { get; set; }
+
+        [JsonProperty("local_display_name")]
+        public string LocalDisplayName { get; set; }
+
+        [JsonProperty("is_leaf")]
+        public bool IsLeaf { get; set; }
+    }
+
+    public class StockUpdateTik
+    {
+        [JsonProperty("product_id")]
+        public string ProductId { get; set; }
+
+        [JsonProperty("skus")]
+        public List<SkuTik> Skus { get; set; }
+    }
+
+    #endregion
+}

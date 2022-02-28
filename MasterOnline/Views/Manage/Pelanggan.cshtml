@@ -1829,6 +1829,7 @@
                                     //add by fauzi 26 Februari 2020 untuk penambahan marketplace Shopify
                                     var shopify = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Contains("Shopify"))?.IdMarket.ToString();
                                     //end
+                                    var tiktok = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Tiktok"))?.IdMarket.ToString();
                                 }
                                 //if (@bklapak == value ||  @blibli == value ) {
                                 if (@blibli == value ) {
@@ -1856,7 +1857,11 @@
                                     $('#password-akun').hide();
                                     $('#Customers_PASSWORD').removeAttr('required');
                                 }
-
+                                if (@tiktok == value) {
+                                    showHideTiktokForm(true);
+                                    $('#BlibliClient').show();
+                                    $('#BlibliClientPass').show();
+                                }
                                 //add by Tri, remove/append api_key
                                 $('#lbl_Customers_API_KEY').remove();
                                 $('#txtAPI_Key').remove();
@@ -2117,7 +2122,7 @@
                 }
             }
             //end add by nurul 23/9/2021
-       
+
             //change by nurul 21/2/2019
             @*var link = '@Url.Action("CekJumlahMarketplace", "Manage", new { uname = "replaceUname" })';
             link = link.replace("replaceUname", '@(username)');*@
@@ -2199,6 +2204,11 @@
                                                 }
                                             } else {
                                                 refreshTableCustomer();
+                                            }
+                                        }
+                                        else if (response.marketplace == "TIKTOK") {
+                                            if (confirm("Authorization Tiktok Shop account?")) {
+                                                GetTiktokShop(custCode);
                                             }
                                         }
                                         //add by nurul 7/1/2019
@@ -3081,7 +3091,10 @@
                         $('#id-nama-akun').html('Nama Akun *');
                         $('#txt-nama-akun').prop('placeholder', '');
                     }
-
+                    if (@tiktok == response.Customers.NAMA)
+                    {
+                        showHideTiktokForm(true);
+                    }
                     $('.customer_table_section').hide();
                     $('.customer_editor_section').show();
                     //add by nruul 18/10/2018
@@ -3925,5 +3938,49 @@
             comboSelect[0].selectize.setValue($('#Customers_KD_ANALISA').val(), true);
         }
         //end add by Tri 11/6/2021
+    function showHideTiktokForm(show) {
+        $('#labelTOKEN').remove();
+        $('#txtTOKEN').remove();
+        $('#labelAPP_SECRET').remove();
+        $('#txtAPP_SECRET').remove();
+        $('#labelAPP_KEY').remove();
+        $('#labelAPI_Key').remove();
+        $('#txtAPI_Key').remove();
+        $('#lbl_Customers_API_KEY').remove();
+        //ADD BY NURUL 28/4/2021
+        //$('#labelSort1_Cust').remove();
+        //$('#txtSort1_Cust').remove();
+        //END ADD BY NURUL 28/4/2021
+        if (show) {
+            $('#labelSort1_Cust').remove();
+            $('#txtSort1_Cust').remove();
+
+        }
+    }
+    function GetTiktokShop(kdCust) {
+            //alert(kdCust);
+            //var link = '@Url.Action("ShopeeUrl", "Shopee", new { cust = "replaceCust" })';
+             link = '@Url.Action("TiktokUrl", "Tiktok", new { cust = "replaceCust" })';
+            link = link.replace("replaceCust", encodeURIComponent(kdCust));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+
+                    var shpAuthPopUp = window.open(response, "Tiktok Shop Authentication ", "width=600, height=600, scrollbars=yes");
+                    var timer = setInterval(function () {
+                        if (shpAuthPopUp.closed) {
+                            clearInterval(timer);
+                            $('#loading_spinner').hide();
+                            window.location.href = '@Url.Action("Pelanggan", "Manage")';
+                        }
+                    }, 1000);
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
 </script>
 }
