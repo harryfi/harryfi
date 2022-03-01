@@ -1091,6 +1091,7 @@
     <Compile Include="Models\BUKALAPAK_TOKEN.cs" />
     <Compile Include="Models\CATEGORY_82CART.cs" />
     <Compile Include="Models\CATEGORY_SHOPIFY.cs" />
+    <Compile Include="Models\CATEGORY_TIKTOK.cs" />
     <Compile Include="Models\FAKTUR_API.cs" />
     <Compile Include="Models\LAZADA_MESSAGES.cs" />
     <Compile Include="Models\LAZADA_SESSIONLIST.cs" />

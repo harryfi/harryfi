@@ -382,384 +382,384 @@ namespace MasterOnline.Controllers
 
         #region Main Function
         #region HangFire Trigger
-        [AutomaticRetry(Attempts = 2)]
-        [Queue("3_general")]
-        public async Task<string> GetOrderListPaid(string CUST, string NAMA_CUST, int page, TTApiData apidata)
-        {
-            SetupContext(apidata.access_token, apidata.username, apidata);
-            string ret = "";
-            string connId = Guid.NewGuid().ToString();
-            var dateFrom = DateTimeOffset.UtcNow.AddDays(-3).AddHours(7).ToString("yyyy-MM-ddTHH:mm:ssZ");
-            var dateTo = DateTimeOffset.UtcNow.AddHours(7).ToString("yyyy-MM-ddTHH:mm:ssZ");
-            string status = "";
-            ret += "'" + connId + "' , ";
-            string urll = "https://open-api.tiktokglobalshop.com/api/shop/get_authorized_shop?access_token={0}&timestamp={1}&sign={2}&app_key={3}";
-            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
-            string sign = eraAppSecret + "/api/shop/get_authorized_shopapp_key" + eraAppKey + "timestamp" + timestamp + eraAppSecret;
-            string signencry = GetHash(sign, eraAppSecret);
-            var vformatUrl = String.Format(urll, apidata.access_token, timestamp, signencry, eraAppKey);
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
-            myReq.Method = "GET";
-            myReq.ContentType = "application/json";
+        //[AutomaticRetry(Attempts = 2)]
+        //[Queue("3_general")]
+        //public async Task<string> GetOrderListPaid(string CUST, string NAMA_CUST, int page, TTApiData apidata)
+        //{
+        //    SetupContext(apidata.access_token, apidata.username, apidata);
+        //    string ret = "";
+        //    string connId = Guid.NewGuid().ToString();
+        //    var dateFrom = DateTimeOffset.UtcNow.AddDays(-3).AddHours(7).ToString("yyyy-MM-ddTHH:mm:ssZ");
+        //    var dateTo = DateTimeOffset.UtcNow.AddHours(7).ToString("yyyy-MM-ddTHH:mm:ssZ");
+        //    string status = "";
+        //    ret += "'" + connId + "' , ";
+        //    string urll = "https://open-api.tiktokglobalshop.com/api/shop/get_authorized_shop?access_token={0}&timestamp={1}&sign={2}&app_key={3}";
+        //    int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+        //    string sign = eraAppSecret + "/api/shop/get_authorized_shopapp_key" + eraAppKey + "timestamp" + timestamp + eraAppSecret;
+        //    string signencry = GetHash(sign, eraAppSecret);
+        //    var vformatUrl = String.Format(urll, apidata.access_token, timestamp, signencry, eraAppKey);
+        //    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+        //    myReq.Method = "GET";
+        //    myReq.ContentType = "application/json";
 
-            string responseFromServer = "";
-            try
-            {
-                using (WebResponse response = myReq.GetResponse())
-                {
-                    using (Stream stream = response.GetResponseStream())
-                    {
-                        StreamReader reader = new StreamReader(stream);
-                        responseFromServer = reader.ReadToEnd();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.Print(ex.Message);
-            }
+        //    string responseFromServer = "";
+        //    try
+        //    {
+        //        using (WebResponse response = myReq.GetResponse())
+        //        {
+        //            using (Stream stream = response.GetResponseStream())
+        //            {
+        //                StreamReader reader = new StreamReader(stream);
+        //                responseFromServer = reader.ReadToEnd();
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Debug.Print(ex.Message);
+        //    }
 
-            if (responseFromServer != null)
-            {
-                List<WooController.WooOrder> orderData = JsonConvert.DeserializeObject<List<WooController.WooOrder>>(responseFromServer, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
-                if (orderData != null)
-                {
-                    string connID = Guid.NewGuid().ToString();
-                    var getdata = await GetPaidOrder(orderData, CUST, NAMA_CUST, connID);
-                    if (getdata)
-                    {
-                        await GetOrderListPaid(CUST, NAMA_CUST, page + 1, apidata);
-                    }
-                }
-            }
-            // add tuning no duplicate hangfire job get order
-            var queryStatus = "\\\"}\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","\"000003\""
-            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + apidata.access_token + "%' and invocationdata like '%woocomerce%' and invocationdata like '%GetOrderListPaid%' and statename like '%Enque%' and invocationdata not like '%resi%'");
-            // end add tuning no duplicate hangfire job get order
-            return null;
-        }
+        //    if (responseFromServer != null)
+        //    {
+        //        List<WooController.WooOrder> orderData = JsonConvert.DeserializeObject<List<WooController.WooOrder>>(responseFromServer, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+        //        if (orderData != null)
+        //        {
+        //            string connID = Guid.NewGuid().ToString();
+        //            var getdata = await GetPaidOrder(orderData, CUST, NAMA_CUST, connID);
+        //            if (getdata)
+        //            {
+        //                await GetOrderListPaid(CUST, NAMA_CUST, page + 1, apidata);
+        //            }
+        //        }
+        //    }
+        //    // add tuning no duplicate hangfire job get order
+        //    var queryStatus = "\\\"}\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","\"000003\""
+        //    var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + apidata.access_token + "%' and invocationdata like '%woocomerce%' and invocationdata like '%GetOrderListPaid%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+        //    // end add tuning no duplicate hangfire job get order
+        //    return null;
+        //}
 
         #endregion
 
         #region Order Function
-        public async Task<bool> GetPaidOrder(List<WooController.WooOrder> orderData, string CUST, string NAMA_CUST, string connID)
-        {
-            ErasoftDbContext.Database.ExecuteSqlCommand("TRUNCATE TABLE TEMP_WOOCOMERCE_ORDERS");
-            ErasoftDbContext.Database.ExecuteSqlCommand("TRUNCATE TABLE TEMP_WOOCOMERCE_ORDERS_ITEM");
-            var orderPaid = orderData.Where(p => p.Status == "processing").ToList();
-            var jmlhOrderNew = 0;
-            string ordersn = "";
-            if (orderPaid != null)
-            {
-                var ordernoindb = ErasoftDbContext.SOT01A.Where(x => x.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
-                var arf01 = ErasoftDbContext.ARF01.FirstOrDefault(x => x.CUST == CUST);
-                var connIdARF01C = Guid.NewGuid().ToString();
-                foreach (var order in orderPaid)
-                {
-                    if (ordernoindb.Contains(order.Id.ToString()))
-                    {
-                        ordersn = ordersn + "'" + order.Id.ToString() + "',";
-                    }
-                    else
-                    {
-                        jmlhOrderNew++;
-                        #region Insert Pembeli
-                        string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
-                        insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
-                        insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
-                        var kabKot = "3174";
-                        var prov = "31";
+        //public async Task<bool> GetPaidOrder(List<WooController.WooOrder> orderData, string CUST, string NAMA_CUST, string connID)
+        //{
+        //    ErasoftDbContext.Database.ExecuteSqlCommand("TRUNCATE TABLE TEMP_WOOCOMERCE_ORDERS");
+        //    ErasoftDbContext.Database.ExecuteSqlCommand("TRUNCATE TABLE TEMP_WOOCOMERCE_ORDERS_ITEM");
+        //    var orderPaid = orderData.Where(p => p.Status == "processing").ToList();
+        //    var jmlhOrderNew = 0;
+        //    string ordersn = "";
+        //    if (orderPaid != null)
+        //    {
+        //        var ordernoindb = ErasoftDbContext.SOT01A.Where(x => x.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
+        //        var arf01 = ErasoftDbContext.ARF01.FirstOrDefault(x => x.CUST == CUST);
+        //        var connIdARF01C = Guid.NewGuid().ToString();
+        //        foreach (var order in orderPaid)
+        //        {
+        //            if (ordernoindb.Contains(order.Id.ToString()))
+        //            {
+        //                ordersn = ordersn + "'" + order.Id.ToString() + "',";
+        //            }
+        //            else
+        //            {
+        //                jmlhOrderNew++;
+        //                #region Insert Pembeli
+        //                string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+        //                insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+        //                insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
+        //                var kabKot = "3174";
+        //                var prov = "31";
 
 
-                        string fullname = order.Billing.FirstName.ToString() + " " + order.Billing.LastName.ToString();
-                        string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : fullname;
+        //                string fullname = order.Billing.FirstName.ToString() + " " + order.Billing.LastName.ToString();
+        //                string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : fullname;
 
-                        string TLP = !string.IsNullOrEmpty(order.Billing.Phone) ? order.Billing.Phone.Replace('\'', '`') : "";
-                        if (TLP.Length > 30)
-                            TLP = TLP.Substring(0, 30);
-                        if (NAMA_CUST.Length > 30)
-                            NAMA_CUST = NAMA_CUST.Substring(0, 30);
-                        string AL_KIRIM1 = !string.IsNullOrEmpty((order.Billing.Address1 ?? "").Replace("'", "`") + " " + (order.Billing.Address2 ?? "").Replace("'", "`")) ? ((order.Billing.Address1 ?? "").Replace("'", "`") + " " + (order.Billing.Address2 ?? "").Replace("'", "`")) : "";
-                        if (AL_KIRIM1.Length > 30)
-                        {
-                            AL_KIRIM1 = AL_KIRIM1.Substring(0, 30);
-                        }
-                        string KODEPOS = !string.IsNullOrEmpty(order.Billing.Postcode) ? order.Billing.Postcode.Replace('\'', '`') : "";
-                        if (KODEPOS.Length > 7)
-                        {
-                            KODEPOS = KODEPOS.Substring(0, 7);
-                        }
-                        string province = !string.IsNullOrEmpty(order.Billing.State) ? order.Billing.State.Replace("'", "`") : "";
-                        if (province.Length > 50)
-                        {
-                            province = province.Substring(0, 50);
-                        }
-                        string city = !string.IsNullOrEmpty(order.Billing.City) ? order.Billing.City.Replace("'", "`") : "";
-                        if (city.Length > 50)
-                        {
-                            city = city.Substring(0, 50);
-                        }
-                        string contact_email = !string.IsNullOrEmpty(order.Billing.Email) ? order.Billing.Email.Replace("'", "`") : "";
-                        if (contact_email.Length > 50)
-                        {
-                            contact_email = city.Substring(0, 50);
-                        }
+        //                string TLP = !string.IsNullOrEmpty(order.Billing.Phone) ? order.Billing.Phone.Replace('\'', '`') : "";
+        //                if (TLP.Length > 30)
+        //                    TLP = TLP.Substring(0, 30);
+        //                if (NAMA_CUST.Length > 30)
+        //                    NAMA_CUST = NAMA_CUST.Substring(0, 30);
+        //                string AL_KIRIM1 = !string.IsNullOrEmpty((order.Billing.Address1 ?? "").Replace("'", "`") + " " + (order.Billing.Address2 ?? "").Replace("'", "`")) ? ((order.Billing.Address1 ?? "").Replace("'", "`") + " " + (order.Billing.Address2 ?? "").Replace("'", "`")) : "";
+        //                if (AL_KIRIM1.Length > 30)
+        //                {
+        //                    AL_KIRIM1 = AL_KIRIM1.Substring(0, 30);
+        //                }
+        //                string KODEPOS = !string.IsNullOrEmpty(order.Billing.Postcode) ? order.Billing.Postcode.Replace('\'', '`') : "";
+        //                if (KODEPOS.Length > 7)
+        //                {
+        //                    KODEPOS = KODEPOS.Substring(0, 7);
+        //                }
+        //                string province = !string.IsNullOrEmpty(order.Billing.State) ? order.Billing.State.Replace("'", "`") : "";
+        //                if (province.Length > 50)
+        //                {
+        //                    province = province.Substring(0, 50);
+        //                }
+        //                string city = !string.IsNullOrEmpty(order.Billing.City) ? order.Billing.City.Replace("'", "`") : "";
+        //                if (city.Length > 50)
+        //                {
+        //                    city = city.Substring(0, 50);
+        //                }
+        //                string contact_email = !string.IsNullOrEmpty(order.Billing.Email) ? order.Billing.Email.Replace("'", "`") : "";
+        //                if (contact_email.Length > 50)
+        //                {
+        //                    contact_email = city.Substring(0, 50);
+        //                }
 
-                        insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '{13}', '{8}', '{9}', '{12}', '{11}','{10}'),",
-                            ((nama ?? "").Replace("'", "`")),
-                            ((order.Billing.Address1 ?? "").Replace("'", "`") + " " + (order.Billing.Address2 ?? "").Replace("'", "`")),
-                            (TLP),
-                            (NAMA_CUST.Replace(',', '.')),
-                            AL_KIRIM1,
-                            DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                            (username),
-                            KODEPOS,
-                            kabKot,
-                            prov,
-                            connIdARF01C,
-                            province,
-                            city,
-                            contact_email
-                            );
-                        insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
-                        EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
+        //                insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '{13}', '{8}', '{9}', '{12}', '{11}','{10}'),",
+        //                    ((nama ?? "").Replace("'", "`")),
+        //                    ((order.Billing.Address1 ?? "").Replace("'", "`") + " " + (order.Billing.Address2 ?? "").Replace("'", "`")),
+        //                    (TLP),
+        //                    (NAMA_CUST.Replace(',', '.')),
+        //                    AL_KIRIM1,
+        //                    DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+        //                    (username),
+        //                    KODEPOS,
+        //                    kabKot,
+        //                    prov,
+        //                    connIdARF01C,
+        //                    province,
+        //                    city,
+        //                    contact_email
+        //                    );
+        //                insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
+        //                EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
 
-                        #endregion
-                        if (!ordernoindb.Contains(order.Id.ToString()))
-                        {
-                            try
-                            {
-                                var conidARF = Guid.NewGuid().ToString();
-                                var dateOrder = Convert.ToDateTime(order.DateCreated).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-                                var datePay = Convert.ToDateTime(order.DatePaid).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-                                #region cut char
-                                string estimated_shipping_fee = !string.IsNullOrEmpty(Convert.ToString(double.Parse(order.ShippingTax))) ? Convert.ToString(double.Parse(order.ShippingTax)).Replace("'", "`") : "";
-                                if (estimated_shipping_fee.Length > 100)
-                                {
-                                    estimated_shipping_fee = estimated_shipping_fee.Substring(0, 100);
-                                }
-                                string payment_method = !string.IsNullOrEmpty(order.PaymentMethod) ? order.PaymentMethod.Replace("'", "`") : "";
-                                if (payment_method.Length > 100)
-                                {
-                                    payment_method = payment_method.Substring(0, 100);
-                                }
-                                string escrow_amount = !string.IsNullOrEmpty(order.DiscountTotal) ? order.DiscountTotal.Replace("'", "`") : "";
-                                if (escrow_amount.Length > 100)
-                                {
-                                    escrow_amount = escrow_amount.Substring(0, 100);
-                                }
-                                string currency = !string.IsNullOrEmpty(order.Currency) ? order.Currency.Replace("'", "`") : "";
-                                if (currency.Length > 50)
-                                {
-                                    currency = currency.Substring(0, 50);
-                                }
-                                string Recipient_Address_country = !string.IsNullOrEmpty(order.Shipping.Country) ? order.Shipping.Country.Replace("'", "`") : "ID";
-                                if (Recipient_Address_country.Length > 50)
-                                {
-                                    Recipient_Address_country = Recipient_Address_country.Substring(0, 50);
-                                }
-                                string Recipient_Address_city = !string.IsNullOrEmpty(order.Shipping.City) ? order.Shipping.City.Replace("'", "`") : "";
-                                if (Recipient_Address_city.Length > 50)
-                                {
-                                    Recipient_Address_city = Recipient_Address_city.Substring(0, 50);
-                                }
-                                string Recipient_Address_state = !string.IsNullOrEmpty(order.Shipping.State) ? order.Shipping.State.Replace("'", "`") : "";
-                                if (Recipient_Address_state.Length > 50)
-                                {
-                                    Recipient_Address_state = Recipient_Address_state.Substring(0, 50);
-                                }
-                                string total_amount = !string.IsNullOrEmpty(Convert.ToString(double.Parse(order.Total))) ? Convert.ToString(double.Parse(order.Total)).Replace("'", "`") : "";
-                                if (total_amount.Length > 100)
-                                {
-                                    total_amount = total_amount.Substring(0, 100);
-                                }
-                                string country = !string.IsNullOrEmpty(order.Shipping.Country) ? order.Shipping.Country.Replace("'", "`") : "";
-                                if (country.Length > 100)
-                                {
-                                    country = country.Substring(0, 100);
-                                }
-                                string ordersn1 = !string.IsNullOrEmpty(Convert.ToString(order.Id)) ? Convert.ToString(order.Id).Replace("'", "`") : "";
-                                if (ordersn1.Length > 100)
-                                {
-                                    ordersn1 = ordersn1.Substring(0, 100);
-                                }
+        //                #endregion
+        //                if (!ordernoindb.Contains(order.Id.ToString()))
+        //                {
+        //                    try
+        //                    {
+        //                        var conidARF = Guid.NewGuid().ToString();
+        //                        var dateOrder = Convert.ToDateTime(order.DateCreated).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+        //                        var datePay = Convert.ToDateTime(order.DatePaid).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+        //                        #region cut char
+        //                        string estimated_shipping_fee = !string.IsNullOrEmpty(Convert.ToString(double.Parse(order.ShippingTax))) ? Convert.ToString(double.Parse(order.ShippingTax)).Replace("'", "`") : "";
+        //                        if (estimated_shipping_fee.Length > 100)
+        //                        {
+        //                            estimated_shipping_fee = estimated_shipping_fee.Substring(0, 100);
+        //                        }
+        //                        string payment_method = !string.IsNullOrEmpty(order.PaymentMethod) ? order.PaymentMethod.Replace("'", "`") : "";
+        //                        if (payment_method.Length > 100)
+        //                        {
+        //                            payment_method = payment_method.Substring(0, 100);
+        //                        }
+        //                        string escrow_amount = !string.IsNullOrEmpty(order.DiscountTotal) ? order.DiscountTotal.Replace("'", "`") : "";
+        //                        if (escrow_amount.Length > 100)
+        //                        {
+        //                            escrow_amount = escrow_amount.Substring(0, 100);
+        //                        }
+        //                        string currency = !string.IsNullOrEmpty(order.Currency) ? order.Currency.Replace("'", "`") : "";
+        //                        if (currency.Length > 50)
+        //                        {
+        //                            currency = currency.Substring(0, 50);
+        //                        }
+        //                        string Recipient_Address_country = !string.IsNullOrEmpty(order.Shipping.Country) ? order.Shipping.Country.Replace("'", "`") : "ID";
+        //                        if (Recipient_Address_country.Length > 50)
+        //                        {
+        //                            Recipient_Address_country = Recipient_Address_country.Substring(0, 50);
+        //                        }
+        //                        string Recipient_Address_city = !string.IsNullOrEmpty(order.Shipping.City) ? order.Shipping.City.Replace("'", "`") : "";
+        //                        if (Recipient_Address_city.Length > 50)
+        //                        {
+        //                            Recipient_Address_city = Recipient_Address_city.Substring(0, 50);
+        //                        }
+        //                        string Recipient_Address_state = !string.IsNullOrEmpty(order.Shipping.State) ? order.Shipping.State.Replace("'", "`") : "";
+        //                        if (Recipient_Address_state.Length > 50)
+        //                        {
+        //                            Recipient_Address_state = Recipient_Address_state.Substring(0, 50);
+        //                        }
+        //                        string total_amount = !string.IsNullOrEmpty(Convert.ToString(double.Parse(order.Total))) ? Convert.ToString(double.Parse(order.Total)).Replace("'", "`") : "";
+        //                        if (total_amount.Length > 100)
+        //                        {
+        //                            total_amount = total_amount.Substring(0, 100);
+        //                        }
+        //                        string country = !string.IsNullOrEmpty(order.Shipping.Country) ? order.Shipping.Country.Replace("'", "`") : "";
+        //                        if (country.Length > 100)
+        //                        {
+        //                            country = country.Substring(0, 100);
+        //                        }
+        //                        string ordersn1 = !string.IsNullOrEmpty(Convert.ToString(order.Id)) ? Convert.ToString(order.Id).Replace("'", "`") : "";
+        //                        if (ordersn1.Length > 100)
+        //                        {
+        //                            ordersn1 = ordersn1.Substring(0, 100);
+        //                        }
 
-                                #endregion
-                                var shippingLine = "";
-                                var ongkir = "";
-                                var trackingCompany = "";
-                                var trackingNumber = "";
+        //                        #endregion
+        //                        var shippingLine = "";
+        //                        var ongkir = "";
+        //                        var trackingCompany = "";
+        //                        var trackingNumber = "";
 
-                                if (order.ShippingLines.Count() > 0)
-                                {
-                                    shippingLine = order.ShippingLines[0].MethodTitle;
-                                    ongkir = order.ShippingLines[0].Total;
-                                }
-                                TEMP_WOOCOMERCE_ORDERS newOrder = new TEMP_WOOCOMERCE_ORDERS()
-                                {
-                                    company = nama,
-                                    country = country,
-                                    date_created = Convert.ToDateTime(dateOrder),
-                                    currency = currency,
-                                    order_key = order.OrderKey,
-                                    customer_note = order.CustomerNote ?? "",
-                                    date_completed = DateTime.Now,
-                                    id = ordersn1,
-                                    //ordersn = Convert.ToString(order.order_number),
-                                    //order_status = order.current_state_name,
-                                    status = "PAID",
-                                    //change by nurul 5/12/2019, local time 
-                                    //pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
-                                    date_paid = Convert.ToDateTime(datePay),
-                                    //end change by nurul 5/12/2019, local time 
-                                    state = Recipient_Address_state,
-                                    city = Recipient_Address_city,
-                                    address_1 = (order.Shipping.Address1 ?? "").Replace("'", "`") + " " + (order.Shipping.Address2 ?? "").Replace("'", "`"),
-                                    phone = TLP,
-                                    postalcode = KODEPOS,
-                                    email = contact_email,
-                                    number = order.Number,
-                                    total = total_amount,
-                                    date_modified = Convert.ToDateTime(dateOrder),
-                                    CONN_ID = connID,
-                                    CUST = CUST,
-                                    NAMA_CUST = NAMA_CUST,
-                                    ship_title = shippingLine,
-                                    ongkos_kirim = ongkir
-                                };
-                                List<TEMP_WOOCOMERCE_ORDERS_ITEM> addedsot1b = new List<TEMP_WOOCOMERCE_ORDERS_ITEM>();
-                                var getlastinsert = ErasoftDbContext.SOT01A.OrderBy(x => x.RecNum).ToList().LastOrDefault();
-                                foreach (var item in order.LineItems)
-                                {
-                                    #region cut char
-                                    string item_name = !string.IsNullOrEmpty(item.Name) ? (item.Name).Replace("'", "`") : "";
-                                    if (item_name.Length > 100)
-                                    {
-                                        item_name = item_name.Substring(0, 100);
-                                    }
-                                    string item_sku = !string.IsNullOrEmpty(item.Sku) ? item.Sku.Replace("'", "`") : "";
-                                    if (item_sku.Length > 150)
-                                    {
-                                        item_sku = item_sku.Substring(0, 150);
-                                    }
-                                    string variation_discounted_price = !string.IsNullOrEmpty(Convert.ToString(double.Parse(item.Total))) ? Convert.ToString(double.Parse(item.Total)).Replace("'", "`") : "";
-                                    if (variation_discounted_price.Length > 100)
-                                    {
-                                        variation_discounted_price = variation_discounted_price.Substring(0, 100);
-                                    }
-                                    string variation_name = !string.IsNullOrEmpty(item.Name) ? item.Name.Replace("'", "`") : "";
-                                    if (variation_name.Length > 50)
-                                    {
-                                        variation_name = variation_name.Substring(0, 50);
-                                    }
-                                    string item_id = !string.IsNullOrEmpty(Convert.ToString(item.ProductId)) ? Convert.ToString(item.ProductId).Replace("'", "`") : "";
-                                    if (item_id.Length > 20)
-                                    {
-                                        item_id = item_id.Substring(0, 20);
-                                    }
-                                    string variation_id = !string.IsNullOrEmpty(Convert.ToString(item.VariationId)) ? Convert.ToString(item.VariationId).Replace("'", "`") : "";
-                                    if (variation_id.Length > 20)
-                                    {
-                                        variation_id = variation_id.Substring(0, 20);
-                                    }
-                                    var getbrgindb = ErasoftDbContext.STF02.FirstOrDefault(x => x.BRG == item_id + ";" + variation_id);
-                                    #endregion
+        //                        if (order.ShippingLines.Count() > 0)
+        //                        {
+        //                            shippingLine = order.ShippingLines[0].MethodTitle;
+        //                            ongkir = order.ShippingLines[0].Total;
+        //                        }
+        //                        TEMP_WOOCOMERCE_ORDERS newOrder = new TEMP_WOOCOMERCE_ORDERS()
+        //                        {
+        //                            company = nama,
+        //                            country = country,
+        //                            date_created = Convert.ToDateTime(dateOrder),
+        //                            currency = currency,
+        //                            order_key = order.OrderKey,
+        //                            customer_note = order.CustomerNote ?? "",
+        //                            date_completed = DateTime.Now,
+        //                            id = ordersn1,
+        //                            //ordersn = Convert.ToString(order.order_number),
+        //                            //order_status = order.current_state_name,
+        //                            status = "PAID",
+        //                            //change by nurul 5/12/2019, local time 
+        //                            //pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
+        //                            date_paid = Convert.ToDateTime(datePay),
+        //                            //end change by nurul 5/12/2019, local time 
+        //                            state = Recipient_Address_state,
+        //                            city = Recipient_Address_city,
+        //                            address_1 = (order.Shipping.Address1 ?? "").Replace("'", "`") + " " + (order.Shipping.Address2 ?? "").Replace("'", "`"),
+        //                            phone = TLP,
+        //                            postalcode = KODEPOS,
+        //                            email = contact_email,
+        //                            number = order.Number,
+        //                            total = total_amount,
+        //                            date_modified = Convert.ToDateTime(dateOrder),
+        //                            CONN_ID = connID,
+        //                            CUST = CUST,
+        //                            NAMA_CUST = NAMA_CUST,
+        //                            ship_title = shippingLine,
+        //                            ongkos_kirim = ongkir
+        //                        };
+        //                        List<TEMP_WOOCOMERCE_ORDERS_ITEM> addedsot1b = new List<TEMP_WOOCOMERCE_ORDERS_ITEM>();
+        //                        var getlastinsert = ErasoftDbContext.SOT01A.OrderBy(x => x.RecNum).ToList().LastOrDefault();
+        //                        foreach (var item in order.LineItems)
+        //                        {
+        //                            #region cut char
+        //                            string item_name = !string.IsNullOrEmpty(item.Name) ? (item.Name).Replace("'", "`") : "";
+        //                            if (item_name.Length > 100)
+        //                            {
+        //                                item_name = item_name.Substring(0, 100);
+        //                            }
+        //                            string item_sku = !string.IsNullOrEmpty(item.Sku) ? item.Sku.Replace("'", "`") : "";
+        //                            if (item_sku.Length > 150)
+        //                            {
+        //                                item_sku = item_sku.Substring(0, 150);
+        //                            }
+        //                            string variation_discounted_price = !string.IsNullOrEmpty(Convert.ToString(double.Parse(item.Total))) ? Convert.ToString(double.Parse(item.Total)).Replace("'", "`") : "";
+        //                            if (variation_discounted_price.Length > 100)
+        //                            {
+        //                                variation_discounted_price = variation_discounted_price.Substring(0, 100);
+        //                            }
+        //                            string variation_name = !string.IsNullOrEmpty(item.Name) ? item.Name.Replace("'", "`") : "";
+        //                            if (variation_name.Length > 50)
+        //                            {
+        //                                variation_name = variation_name.Substring(0, 50);
+        //                            }
+        //                            string item_id = !string.IsNullOrEmpty(Convert.ToString(item.ProductId)) ? Convert.ToString(item.ProductId).Replace("'", "`") : "";
+        //                            if (item_id.Length > 20)
+        //                            {
+        //                                item_id = item_id.Substring(0, 20);
+        //                            }
+        //                            string variation_id = !string.IsNullOrEmpty(Convert.ToString(item.VariationId)) ? Convert.ToString(item.VariationId).Replace("'", "`") : "";
+        //                            if (variation_id.Length > 20)
+        //                            {
+        //                                variation_id = variation_id.Substring(0, 20);
+        //                            }
+        //                            var getbrgindb = ErasoftDbContext.STF02.FirstOrDefault(x => x.BRG == item_id + ";" + variation_id);
+        //                            #endregion
 
-                                    TEMP_WOOCOMERCE_ORDERS_ITEM newOrderItem = new TEMP_WOOCOMERCE_ORDERS_ITEM()
-                                    {
-                                        id = ordersn1,
-                                        product_id = item.ProductId.ToString(),
-                                        name = item_name,
-                                        sku = item_sku,
-                                        variation_id = variation_id,
-                                        weight = 1,
-                                        CONN_ID = connID,
-                                        date_created = Convert.ToDateTime(dateOrder),
-                                        quantity = item.Quantity.ToString(),
-                                        total = item.Total.ToString(),
-                                        price = item.Price.ToString(),
-                                        CUST = CUST,
-                                        NAMA_CUST = NAMA_CUST
-                                    };
+        //                            TEMP_WOOCOMERCE_ORDERS_ITEM newOrderItem = new TEMP_WOOCOMERCE_ORDERS_ITEM()
+        //                            {
+        //                                id = ordersn1,
+        //                                product_id = item.ProductId.ToString(),
+        //                                name = item_name,
+        //                                sku = item_sku,
+        //                                variation_id = variation_id,
+        //                                weight = 1,
+        //                                CONN_ID = connID,
+        //                                date_created = Convert.ToDateTime(dateOrder),
+        //                                quantity = item.Quantity.ToString(),
+        //                                total = item.Total.ToString(),
+        //                                price = item.Price.ToString(),
+        //                                CUST = CUST,
+        //                                NAMA_CUST = NAMA_CUST
+        //                            };
 
-                                    addedsot1b.Add(newOrderItem);
-                                }
-                                try
-                                {
-                                    ErasoftDbContext.TEMP_WOOCOMERCE_ORDERS.Add(newOrder);
-                                    ErasoftDbContext.TEMP_WOOCOMERCE_ORDERS_ITEM.AddRange(addedsot1b);
-                                    ErasoftDbContext.SaveChanges();
-                                }
-                                catch (Exception ex)
-                                {
+        //                            addedsot1b.Add(newOrderItem);
+        //                        }
+        //                        try
+        //                        {
+        //                            ErasoftDbContext.TEMP_WOOCOMERCE_ORDERS.Add(newOrder);
+        //                            ErasoftDbContext.TEMP_WOOCOMERCE_ORDERS_ITEM.AddRange(addedsot1b);
+        //                            ErasoftDbContext.SaveChanges();
+        //                        }
+        //                        catch (Exception ex)
+        //                        {
 
-                                }
-                                using (SqlCommand CommandSQL = new SqlCommand())
-                                {
-                                    //call sp to insert buyer data
-                                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
+        //                        }
+        //                        using (SqlCommand CommandSQL = new SqlCommand())
+        //                        {
+        //                            //call sp to insert buyer data
+        //                            CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+        //                            CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
 
-                                    EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
-                                };
-                                using (SqlCommand CommandSQL = new SqlCommand())
-                                {
-                                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connID;
-                                    CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
-                                    CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                                    CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
-                                    CommandSQL.Parameters.Add("@Woocom", SqlDbType.Int).Value = 1;
-                                    CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
+        //                            EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
+        //                        };
+        //                        using (SqlCommand CommandSQL = new SqlCommand())
+        //                        {
+        //                            CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+        //                            CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connID;
+        //                            CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
+        //                            CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        //                            CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
+        //                            CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+        //                            CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
+        //                            CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+        //                            CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
+        //                            CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+        //                            CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
+        //                            CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
+        //                            CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
+        //                            CommandSQL.Parameters.Add("@Woocom", SqlDbType.Int).Value = 1;
+        //                            CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
 
-                                    EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
-                                }
-                            }
-                            catch (DbEntityValidationException ex)
-                            {
-                                foreach (var eve in ex.EntityValidationErrors)
-                                {
-                                    Debug.Print("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:",
-                                        eve.Entry.Entity.GetType().Name, eve.Entry.State);
-                                    foreach (var ve in eve.ValidationErrors)
-                                    {
-                                        Debug.Print("- Property: \"{0}\", Error: \"{1}\"",
-                                            ve.PropertyName, ve.ErrorMessage);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                if (!string.IsNullOrEmpty(ordersn))
-                {
-                    ordersn = ordersn.Substring(0, ordersn.Length - 1);
-                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0'");
-                    jmlhOrderNew = jmlhOrderNew + rowAffected;
-                    if (jmlhOrderNew > 0)
-                    {
-                        var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                        contextNotif.Clients.Group(apidata.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrderNew) + " Pesanan terbayar dari Woocomerce.");
-                    }
-                }
-            }
-            if (orderPaid.Count() == 10)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
+        //                            EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+        //                        }
+        //                    }
+        //                    catch (DbEntityValidationException ex)
+        //                    {
+        //                        foreach (var eve in ex.EntityValidationErrors)
+        //                        {
+        //                            Debug.Print("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:",
+        //                                eve.Entry.Entity.GetType().Name, eve.Entry.State);
+        //                            foreach (var ve in eve.ValidationErrors)
+        //                            {
+        //                                Debug.Print("- Property: \"{0}\", Error: \"{1}\"",
+        //                                    ve.PropertyName, ve.ErrorMessage);
+        //                            }
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //        }
+        //        if (!string.IsNullOrEmpty(ordersn))
+        //        {
+        //            ordersn = ordersn.Substring(0, ordersn.Length - 1);
+        //            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0'");
+        //            jmlhOrderNew = jmlhOrderNew + rowAffected;
+        //            if (jmlhOrderNew > 0)
+        //            {
+        //                var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+        //                contextNotif.Clients.Group(apidata.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrderNew) + " Pesanan terbayar dari Woocomerce.");
+        //            }
+        //        }
+        //    }
+        //    if (orderPaid.Count() == 10)
+        //    {
+        //        return true;
+        //    }
+        //    else
+        //    {
+        //        return false;
+        //    }
+        //}
         #endregion
 
         #region Update Stock
@@ -979,7 +979,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + iden.no_cust + "'");
+                //var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + iden.no_cust + "'");
                 currentLog.REQUEST_EXCEPTION = ex.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden.no_cust, currentLog);
             }
@@ -994,20 +994,27 @@ namespace MasterOnline.Controllers
                 {
                     if (ptick.Status == 4)
                     {
-                        await getdetailproduct(ptick.Id, apidata, listnewrec, IdMarket, ret);
+                        var bindGetProd = await getdetailproduct(ptick.Id, apidata, listnewrec, IdMarket);
+                        if (bindGetProd.exception == 1)
+                        {
+                            ret.exception = 1;
+                        }
+                        ret.recordCount += bindGetProd.recordCount;
+                        ret.totalData += bindGetProd.totalData;
                     }
                 }
-                if (listnewrec.Count() > 0)
-                {
-                    ErasoftDbContext.TEMP_BRG_MP.AddRange(listnewrec);
-                    ErasoftDbContext.SaveChanges();
-                }
+                //if (listnewrec.Count() > 0)
+                //{
+                //    ErasoftDbContext.TEMP_BRG_MP.AddRange(listnewrec);
+                //    ErasoftDbContext.SaveChanges();
+                //}
             }
             return ret;
         }
 
-        public async Task<string> getdetailproduct(string productid, TTApiData iden, List<TEMP_BRG_MP> newrec, int idmarket, BindingBase ret)
+        public async Task<BindingBase> getdetailproduct(string productid, TTApiData iden, List<TEMP_BRG_MP> newrec, int idmarket)
         {
+            var ret = new BindingBase();
             string urll = "https://open-api.tiktokglobalshop.com/api/products/details?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}&product_id={5}";
             int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
             string sign = eraAppSecret + "/api/products/detailsapp_key" + eraAppKey + "product_id" + productid + "shop_id" + apidata.shop_id + "timestamp" + timestamp + eraAppSecret;
@@ -1035,19 +1042,35 @@ namespace MasterOnline.Controllers
             {
                 ResProductDet res = JsonConvert.DeserializeObject<ResProductDet>(responseFromServer);
                 DetailProductTik detail = res.productTik;
+                ret.totalData = detail.Skus.Count + 1;
                 string kdmp = detail.ProductId.ToString() + ";" + "0";
-                var checkstf02h = ErasoftDbContext.STF02H.FirstOrDefault(x => x.BRG_MP == kdmp);
-                if (checkstf02h == null)
+                var checkstf02h = ErasoftDbContext.STF02H.FirstOrDefault(x => x.BRG_MP == kdmp && x.IDMARKET == idmarket);
+                var checkTemp = ErasoftDbContext.TEMP_BRG_MP.FirstOrDefault(x => x.BRG_MP == kdmp && x.IDMARKET == idmarket);
+                if (checkstf02h == null && checkTemp == null)
                 {
+                    var splitItemName = new StokControllerJob().SplitItemName(detail.ProductName.Replace('\'', '`'));
+                    var nama = splitItemName[0];
+                    var nama2 = splitItemName[1];
                     TEMP_BRG_MP tempbarang = new TEMP_BRG_MP();
                     tempbarang.BRG_MP = detail.ProductId.ToString() + ";" + "0";
-                    tempbarang.NAMA = detail.ProductName;
+                    tempbarang.NAMA = nama;
+                    tempbarang.NAMA2 = nama2;
                     tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : double.Parse(detail.PackageWeight);
                     tempbarang.PANJANG = detail.PackageLength == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageLength.ToString());
                     tempbarang.LEBAR = detail.PackageWidth == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageWidth.ToString());
                     tempbarang.TINGGI = detail.PackageHeight == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageHeight.ToString());
-                    tempbarang.CATEGORY_CODE = detail.CategoryList[2].Id;
-                    tempbarang.CATEGORY_NAME = detail.CategoryList[2].LocalDisplayName;
+                    //tempbarang.CATEGORY_CODE = detail.CategoryList[2].Id;
+                    //tempbarang.CATEGORY_NAME = detail.CategoryList[2].LocalDisplayName;
+                    tempbarang.CATEGORY_CODE = detail.CategoryList[0].Id;
+                    tempbarang.CATEGORY_NAME = detail.CategoryList[0].LocalDisplayName;
+                    foreach(var kat in detail.CategoryList)
+                    {
+                        if (kat.IsLeaf)
+                        {
+                            tempbarang.CATEGORY_CODE = kat.Id;
+                            tempbarang.CATEGORY_NAME = kat.LocalDisplayName;
+                        }
+                    }
                     foreach (ImageTik img in detail.Images)
                     {
                         if (tempbarang.IMAGE == null)
@@ -1075,20 +1098,21 @@ namespace MasterOnline.Controllers
                     tempbarang.Deskripsi = detail.Description;
                     tempbarang.IDMARKET = int.Parse(idmarket.ToString());
                     tempbarang.CUST = iden.no_cust;
-                    tempbarang.AVALUE_45 = detail.ProductName;
-                    tempbarang.ACODE_9 = "warranty";
-                    tempbarang.ANAME_9 = "Warranty Period";
-                    tempbarang.AVALUE_9 = detail.WarrantyPeriod.WarrantyDescription;
-                    tempbarang.ACODE_11 = "product_warranty";
-                    tempbarang.ANAME_11 = "Warranty Policy";
-                    tempbarang.AVALUE_11 = detail.WarrantyPolicy;
+                    tempbarang.AVALUE_45 = detail.ProductName.Replace('\'', '`');
+                    tempbarang.ACODE_31 = "warranty";
+                    tempbarang.ANAME_31 = "Warranty Period";
+                    tempbarang.AVALUE_31 = detail.WarrantyPeriod.WarrantyDescription;
+                    tempbarang.ACODE_32 = "product_warranty";
+                    tempbarang.ANAME_32 = "Warranty Policy";
+                    tempbarang.AVALUE_32 = detail.WarrantyPolicy;
                     tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
+                    tempbarang.AVALUE_38 = tempbarang.MEREK;
                     tempbarang.DISPLAY = true;
                     tempbarang.SELLER_SKU = kdmp;
                     tempbarang.TYPE = "4";
-                    foreach (SkuTik satikd in detail.Skus)
+                    //foreach (SkuTik satikd in detail.Skus)
                     {
-                        foreach (SalesAttributeTik satik in satikd.SalesAttributes)
+                        foreach (SalesAttributeTik satik in detail.Skus[0].SalesAttributes)
                         {
                             if (tempbarang.ACODE_1 == null)
                             {
@@ -1120,160 +1144,486 @@ namespace MasterOnline.Controllers
                                 tempbarang.ANAME_5 = satik.Name;
                                 tempbarang.AVALUE_5 = satik.ValueName;
                             }
+                            if (tempbarang.ACODE_6 == null)
+                            {
+                                tempbarang.ACODE_6 = satik.Id;
+                                tempbarang.ANAME_6 = satik.Name;
+                                tempbarang.AVALUE_6 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_7 == null)
+                            {
+                                tempbarang.ACODE_7 = satik.Id;
+                                tempbarang.ANAME_7 = satik.Name;
+                                tempbarang.AVALUE_7 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_8 == null)
+                            {
+                                tempbarang.ACODE_8 = satik.Id;
+                                tempbarang.ANAME_8 = satik.Name;
+                                tempbarang.AVALUE_8 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_9 == null)
+                            {
+                                tempbarang.ACODE_9 = satik.Id;
+                                tempbarang.ANAME_9 = satik.Name;
+                                tempbarang.AVALUE_9 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_10 == null)
+                            {
+                                tempbarang.ACODE_10 = satik.Id;
+                                tempbarang.ANAME_10 = satik.Name;
+                                tempbarang.AVALUE_10 = satik.ValueName;
+                            }
+                            if (tempbarang.ACODE_11 == null)
+                            {
+                                tempbarang.ACODE_11 = satik.Id;
+                                tempbarang.ANAME_11 = satik.Name;
+                                tempbarang.AVALUE_11 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_12 == null)
+                            {
+                                tempbarang.ACODE_12 = satik.Id;
+                                tempbarang.ANAME_12 = satik.Name;
+                                tempbarang.AVALUE_12 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_13 == null)
+                            {
+                                tempbarang.ACODE_13 = satik.Id;
+                                tempbarang.ANAME_13 = satik.Name;
+                                tempbarang.AVALUE_13 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_14 == null)
+                            {
+                                tempbarang.ACODE_14 = satik.Id;
+                                tempbarang.ANAME_14 = satik.Name;
+                                tempbarang.AVALUE_14 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_15 == null)
+                            {
+                                tempbarang.ACODE_15 = satik.Id;
+                                tempbarang.ANAME_15 = satik.Name;
+                                tempbarang.AVALUE_15 = satik.ValueName;
+                            }
+                            if (tempbarang.ACODE_16 == null)
+                            {
+                                tempbarang.ACODE_16 = satik.Id;
+                                tempbarang.ANAME_16 = satik.Name;
+                                tempbarang.AVALUE_16 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_17 == null)
+                            {
+                                tempbarang.ACODE_17 = satik.Id;
+                                tempbarang.ANAME_17 = satik.Name;
+                                tempbarang.AVALUE_17 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_18 == null)
+                            {
+                                tempbarang.ACODE_18 = satik.Id;
+                                tempbarang.ANAME_18 = satik.Name;
+                                tempbarang.AVALUE_18 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_19 == null)
+                            {
+                                tempbarang.ACODE_19 = satik.Id;
+                                tempbarang.ANAME_19 = satik.Name;
+                                tempbarang.AVALUE_19 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_20 == null)
+                            {
+                                tempbarang.ACODE_20 = satik.Id;
+                                tempbarang.ANAME_20 = satik.Name;
+                                tempbarang.AVALUE_20 = satik.ValueName;
+                            }
+                            if (tempbarang.ACODE_21 == null)
+                            {
+                                tempbarang.ACODE_21 = satik.Id;
+                                tempbarang.ANAME_21 = satik.Name;
+                                tempbarang.AVALUE_21 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_22 == null)
+                            {
+                                tempbarang.ACODE_22 = satik.Id;
+                                tempbarang.ANAME_22 = satik.Name;
+                                tempbarang.AVALUE_22 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_23 == null)
+                            {
+                                tempbarang.ACODE_23 = satik.Id;
+                                tempbarang.ANAME_23 = satik.Name;
+                                tempbarang.AVALUE_23 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_24 == null)
+                            {
+                                tempbarang.ACODE_24 = satik.Id;
+                                tempbarang.ANAME_24 = satik.Name;
+                                tempbarang.AVALUE_24 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_25 == null)
+                            {
+                                tempbarang.ACODE_25 = satik.Id;
+                                tempbarang.ANAME_25 = satik.Name;
+                                tempbarang.AVALUE_25 = satik.ValueName;
+                            }
+                            if (tempbarang.ACODE_26 == null)
+                            {
+                                tempbarang.ACODE_26 = satik.Id;
+                                tempbarang.ANAME_26 = satik.Name;
+                                tempbarang.AVALUE_26 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_27 == null)
+                            {
+                                tempbarang.ACODE_27 = satik.Id;
+                                tempbarang.ANAME_27 = satik.Name;
+                                tempbarang.AVALUE_27 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_28 == null)
+                            {
+                                tempbarang.ACODE_28 = satik.Id;
+                                tempbarang.ANAME_28 = satik.Name;
+                                tempbarang.AVALUE_28 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_29 == null)
+                            {
+                                tempbarang.ACODE_29 = satik.Id;
+                                tempbarang.ANAME_29 = satik.Name;
+                                tempbarang.AVALUE_29 = satik.ValueName;
+                            }
+                            else if (tempbarang.ACODE_30 == null)
+                            {
+                                tempbarang.ACODE_30 = satik.Id;
+                                tempbarang.ANAME_30 = satik.Name;
+                                tempbarang.AVALUE_30 = satik.ValueName;
+                            }
 
                         }
 
                     }
-                    await getvariationproduct(productid, detail.Skus, newrec, idmarket, detail, apidata, ret);
+                    //await getvariationproduct(productid, detail.Skus, newrec, idmarket, detail, apidata, ret);
                     ret.recordCount++;
-                    newrec.Add(tempbarang);
+                    //newrec.Add(tempbarang);
+                    try
+                    {
+                        ErasoftDbContext.TEMP_BRG_MP.Add(tempbarang);
+                        ErasoftDbContext.SaveChanges();
+                        ret.recordCount++;
+                    }
+                    catch (Exception ex)
+                    {
+                        ret.exception = 1;
+                    }
                 }
-                else
+                else if(checkstf02h != null)
                 {
-                    TEMP_BRG_MP tempbarang = new TEMP_BRG_MP();
-                    tempbarang.BRG_MP = detail.ProductId.ToString() + ";" + "0";
-                    tempbarang.NAMA = detail.ProductName;
-                    tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : double.Parse(detail.PackageWeight);
-                    tempbarang.PANJANG = detail.PackageLength == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageLength.ToString());
-                    tempbarang.LEBAR = detail.PackageWidth == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageWidth.ToString());
-                    tempbarang.TINGGI = detail.PackageHeight == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageHeight.ToString());
-                    tempbarang.CATEGORY_CODE = detail.CategoryList[2].Id;
-                    tempbarang.CATEGORY_NAME = detail.CategoryList[2].LocalDisplayName;
-                    foreach (ImageTik img in detail.Images)
-                    {
-                        if (tempbarang.IMAGE == null)
-                        {
-                            tempbarang.IMAGE = img.UrlList[0];
-                        }
-                        else if (tempbarang.IMAGE2 == null)
-                        {
-                            tempbarang.IMAGE2 = img.UrlList[0];
-                        }
-                        else if (tempbarang.IMAGE3 == null)
-                        {
-                            tempbarang.IMAGE3 = img.UrlList[0];
-                        }
-                        else if (tempbarang.IMAGE4 == null)
-                        {
-                            tempbarang.IMAGE4 = img.UrlList[0];
-                        }
-                        else if (tempbarang.IMAGE5 == null)
-                        {
-                            tempbarang.IMAGE5 = img.UrlList[0];
-                        }
-
-                    }
-                    tempbarang.Deskripsi = detail.Description;
-                    tempbarang.IDMARKET = int.Parse(idmarket.ToString());
-                    tempbarang.CUST = iden.no_cust;
-                    tempbarang.AVALUE_45 = detail.ProductName;
-                    tempbarang.ACODE_9 = "warranty";
-                    tempbarang.ANAME_9 = "Warranty Period";
-                    tempbarang.AVALUE_9 = detail.WarrantyPeriod.WarrantyDescription;
-                    tempbarang.ACODE_11 = "product_warranty";
-                    tempbarang.ANAME_11 = "Warranty Policy";
-                    tempbarang.AVALUE_11 = detail.WarrantyPolicy;
-                    tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
-                    tempbarang.DISPLAY = true;
-                    tempbarang.SELLER_SKU = checkstf02h.BRG;
-                    tempbarang.TYPE = "4";
-                    foreach (SkuTik satikd in detail.Skus)
-                    {
-                        foreach (SalesAttributeTik satik in satikd.SalesAttributes)
-                        {
-                            if (tempbarang.ACODE_1 == null)
-                            {
-                                tempbarang.ACODE_1 = satik.Id;
-                                tempbarang.ANAME_1 = satik.Name;
-                                tempbarang.AVALUE_1 = satik.ValueName;
-                            }
-                            else if (tempbarang.ACODE_2 == null)
-                            {
-                                tempbarang.ACODE_2 = satik.Id;
-                                tempbarang.ANAME_2 = satik.Name;
-                                tempbarang.AVALUE_2 = satik.ValueName;
-                            }
-                            else if (tempbarang.ACODE_3 == null)
-                            {
-                                tempbarang.ACODE_3 = satik.Id;
-                                tempbarang.ANAME_3 = satik.Name;
-                                tempbarang.AVALUE_3 = satik.ValueName;
-                            }
-                            else if (tempbarang.ACODE_4 == null)
-                            {
-                                tempbarang.ACODE_4 = satik.Id;
-                                tempbarang.ANAME_4 = satik.Name;
-                                tempbarang.AVALUE_4 = satik.ValueName;
-                            }
-                            else if (tempbarang.ACODE_5 == null)
-                            {
-                                tempbarang.ACODE_5 = satik.Id;
-                                tempbarang.ANAME_5 = satik.Name;
-                                tempbarang.AVALUE_5 = satik.ValueName;
-                            }
-
-                        }
-
-                    }
-                    await getvariationproduct(productid, detail.Skus, newrec, idmarket, detail, apidata, ret, tempbarang.SELLER_SKU);
-                    ret.recordCount++;
-                    newrec.Add(tempbarang);
+                    kdmp = checkstf02h.BRG;
                 }
+                #region remark
+                //else
+                //{
+                //    TEMP_BRG_MP tempbarang = new TEMP_BRG_MP();
+                //    tempbarang.BRG_MP = detail.ProductId.ToString() + ";" + "0";
+                //    tempbarang.NAMA = detail.ProductName;
+                //    tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : double.Parse(detail.PackageWeight);
+                //    tempbarang.PANJANG = detail.PackageLength == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageLength.ToString());
+                //    tempbarang.LEBAR = detail.PackageWidth == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageWidth.ToString());
+                //    tempbarang.TINGGI = detail.PackageHeight == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageHeight.ToString());
+                //    tempbarang.CATEGORY_CODE = detail.CategoryList[2].Id;
+                //    tempbarang.CATEGORY_NAME = detail.CategoryList[2].LocalDisplayName;
+                //    foreach (ImageTik img in detail.Images)
+                //    {
+                //        if (tempbarang.IMAGE == null)
+                //        {
+                //            tempbarang.IMAGE = img.UrlList[0];
+                //        }
+                //        else if (tempbarang.IMAGE2 == null)
+                //        {
+                //            tempbarang.IMAGE2 = img.UrlList[0];
+                //        }
+                //        else if (tempbarang.IMAGE3 == null)
+                //        {
+                //            tempbarang.IMAGE3 = img.UrlList[0];
+                //        }
+                //        else if (tempbarang.IMAGE4 == null)
+                //        {
+                //            tempbarang.IMAGE4 = img.UrlList[0];
+                //        }
+                //        else if (tempbarang.IMAGE5 == null)
+                //        {
+                //            tempbarang.IMAGE5 = img.UrlList[0];
+                //        }
 
+                //    }
+                //    tempbarang.Deskripsi = detail.Description;
+                //    tempbarang.IDMARKET = int.Parse(idmarket.ToString());
+                //    tempbarang.CUST = iden.no_cust;
+                //    tempbarang.AVALUE_45 = detail.ProductName;
+                //    tempbarang.ACODE_9 = "warranty";
+                //    tempbarang.ANAME_9 = "Warranty Period";
+                //    tempbarang.AVALUE_9 = detail.WarrantyPeriod.WarrantyDescription;
+                //    tempbarang.ACODE_11 = "product_warranty";
+                //    tempbarang.ANAME_11 = "Warranty Policy";
+                //    tempbarang.AVALUE_11 = detail.WarrantyPolicy;
+                //    tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
+                //    tempbarang.DISPLAY = true;
+                //    tempbarang.SELLER_SKU = checkstf02h.BRG;
+                //    tempbarang.TYPE = "4";
+                //    foreach (SkuTik satikd in detail.Skus)
+                //    {
+                //        foreach (SalesAttributeTik satik in satikd.SalesAttributes)
+                //        {
+                //            if (tempbarang.ACODE_1 == null)
+                //            {
+                //                tempbarang.ACODE_1 = satik.Id;
+                //                tempbarang.ANAME_1 = satik.Name;
+                //                tempbarang.AVALUE_1 = satik.ValueName;
+                //            }
+                //            else if (tempbarang.ACODE_2 == null)
+                //            {
+                //                tempbarang.ACODE_2 = satik.Id;
+                //                tempbarang.ANAME_2 = satik.Name;
+                //                tempbarang.AVALUE_2 = satik.ValueName;
+                //            }
+                //            else if (tempbarang.ACODE_3 == null)
+                //            {
+                //                tempbarang.ACODE_3 = satik.Id;
+                //                tempbarang.ANAME_3 = satik.Name;
+                //                tempbarang.AVALUE_3 = satik.ValueName;
+                //            }
+                //            else if (tempbarang.ACODE_4 == null)
+                //            {
+                //                tempbarang.ACODE_4 = satik.Id;
+                //                tempbarang.ANAME_4 = satik.Name;
+                //                tempbarang.AVALUE_4 = satik.ValueName;
+                //            }
+                //            else if (tempbarang.ACODE_5 == null)
+                //            {
+                //                tempbarang.ACODE_5 = satik.Id;
+                //                tempbarang.ANAME_5 = satik.Name;
+                //                tempbarang.AVALUE_5 = satik.ValueName;
+                //            }
 
+                //        }
 
+                //    }
+                //    await getvariationproduct(productid, detail.Skus, newrec, idmarket, detail, apidata, ret, tempbarang.SELLER_SKU);
+                //    ret.recordCount++;
+                //    newrec.Add(tempbarang);
+                //}
+                #endregion
+                var bindGetVar = await getvariationproduct(productid, detail.Skus, newrec, idmarket, detail, apidata, ret, kdmp);
+                if(bindGetVar.exception == 1)
+                {
+                    ret.exception = 1;
+                }
+                ret.recordCount += bindGetVar.recordCount;
 
             }
-            return null;
+            return ret;
         }
 
-        public async Task<string> getvariationproduct(string productid, List<SkuTik> skudata, List<TEMP_BRG_MP> newrec, int idmarket, DetailProductTik detail, TTApiData iden, BindingBase ret, string sellersku = null)
+        public async Task<BindingBase> getvariationproduct(string productid, List<SkuTik> skudata, List<TEMP_BRG_MP> newrec, int idmarket, DetailProductTik detail, TTApiData iden, BindingBase ret, string sellersku = null)
         {
+            int insertJml = 0;
+            newrec = new List<TEMP_BRG_MP>();
             foreach (SkuTik sku in skudata)
             {
                 string kdbrgvar = productid + ";" + sku.Id;
-                var checkstf02h = ErasoftDbContext.STF02H.SingleOrDefault(x => x.BRG_MP == kdbrgvar);
-                if (checkstf02h == null)
+                var checkstf02h = ErasoftDbContext.STF02H.SingleOrDefault(x => x.BRG_MP == kdbrgvar && x.IDMARKET == idmarket);
+                var checkTemp = ErasoftDbContext.TEMP_BRG_MP.SingleOrDefault(x => x.BRG_MP == kdbrgvar && x.IDMARKET == idmarket);
+                if (checkstf02h == null && checkTemp == null)
                 {
+                    string namabarang = detail.ProductName;
+                    var splitItemName = new StokControllerJob().SplitItemName(namabarang.Replace('\'', '`'));
+                    var nama = splitItemName[0];
+                    var nama2 = splitItemName[1];
+
                     TEMP_BRG_MP tempbarang = new TEMP_BRG_MP();
                     tempbarang.BRG_MP = kdbrgvar;
-                    string namabarang = detail.ProductName;
-                    foreach (SalesAttributeTik sat in sku.SalesAttributes)
+                    foreach (SalesAttributeTik satik in sku.SalesAttributes)
                     {
-                        namabarang += " " + sat.ValueName;
-                        tempbarang.IMAGE = sat.SkuImg == null ? null : sat.SkuImg.UrlList[0];
                         if (tempbarang.ACODE_1 == null)
                         {
-                            tempbarang.ACODE_1 = sat.Id;
-                            tempbarang.ANAME_1 = sat.Name;
-                            tempbarang.AVALUE_1 = sat.ValueName;
+                            tempbarang.ACODE_1 = satik.Id;
+                            tempbarang.ANAME_1 = satik.Name;
+                            tempbarang.AVALUE_1 = satik.ValueName;
                         }
                         else if (tempbarang.ACODE_2 == null)
                         {
-                            tempbarang.ACODE_2 = sat.Id;
-                            tempbarang.ANAME_2 = sat.Name;
-                            tempbarang.AVALUE_2 = sat.ValueName;
+                            tempbarang.ACODE_2 = satik.Id;
+                            tempbarang.ANAME_2 = satik.Name;
+                            tempbarang.AVALUE_2 = satik.ValueName;
                         }
                         else if (tempbarang.ACODE_3 == null)
                         {
-                            tempbarang.ACODE_3 = sat.Id;
-                            tempbarang.ANAME_3 = sat.Name;
-                            tempbarang.AVALUE_3 = sat.ValueName;
+                            tempbarang.ACODE_3 = satik.Id;
+                            tempbarang.ANAME_3 = satik.Name;
+                            tempbarang.AVALUE_3 = satik.ValueName;
                         }
                         else if (tempbarang.ACODE_4 == null)
                         {
-                            tempbarang.ACODE_4 = sat.Id;
-                            tempbarang.ANAME_4 = sat.Name;
-                            tempbarang.AVALUE_4 = sat.ValueName;
+                            tempbarang.ACODE_4 = satik.Id;
+                            tempbarang.ANAME_4 = satik.Name;
+                            tempbarang.AVALUE_4 = satik.ValueName;
                         }
                         else if (tempbarang.ACODE_5 == null)
                         {
-                            tempbarang.ACODE_5 = sat.Id;
-                            tempbarang.ANAME_5 = sat.Name;
-                            tempbarang.AVALUE_5 = sat.ValueName;
+                            tempbarang.ACODE_5 = satik.Id;
+                            tempbarang.ANAME_5 = satik.Name;
+                            tempbarang.AVALUE_5 = satik.ValueName;
                         }
+                        if (tempbarang.ACODE_6 == null)
+                        {
+                            tempbarang.ACODE_6 = satik.Id;
+                            tempbarang.ANAME_6 = satik.Name;
+                            tempbarang.AVALUE_6 = satik.ValueName;
+                        }
+                        else if (tempbarang.ACODE_7 == null)
+                        {
+                            tempbarang.ACODE_7 = satik.Id;
+                            tempbarang.ANAME_7 = satik.Name;
+                            tempbarang.AVALUE_7 = satik.ValueName;
+                        }
+                        else if (tempbarang.ACODE_8 == null)
+                        {
+                            tempbarang.ACODE_8 = satik.Id;
+                            tempbarang.ANAME_8 = satik.Name;
+                            tempbarang.AVALUE_8 = satik.ValueName;
+                        }
+                        else if (tempbarang.ACODE_9 == null)
+                        {
+                            tempbarang.ACODE_9 = satik.Id;
+                            tempbarang.ANAME_9 = satik.Name;
+                            tempbarang.AVALUE_9 = satik.ValueName;
+                        }
+                        else if (tempbarang.ACODE_10 == null)
+                        {
+                            tempbarang.ACODE_10 = satik.Id;
+                            tempbarang.ANAME_10 = satik.Name;
+                            tempbarang.AVALUE_10 = satik.ValueName;
+                        }
+                        if (tempbarang.ACODE_11 == null)
+                        {
+                            tempbarang.ACODE_11 = satik.Id;
+                            tempbarang.ANAME_11 = satik.Name;
+                            tempbarang.AVALUE_11 = satik.ValueName;
+                        }
+                        else if (tempbarang.ACODE_12 == null)
+                        {
+                            tempbarang.ACODE_12 = satik.Id;
+                            tempbarang.ANAME_12 = satik.Name;
+                            tempbarang.AVALUE_12 = satik.ValueName;
+                        }
+                        else if (tempbarang.ACODE_13 == null)
+                        {
+                            tempbarang.ACODE_13 = satik.Id;
+                            tempbarang.ANAME_13 = satik.Name;
+                            tempbarang.AVALUE_13 = satik.ValueName;
+                        }
+                        else if (tempbarang.ACODE_14 == null)
+                        {
+                            tempbarang.ACODE_14 = satik.Id;
+                            tempbarang.ANAME_14 = satik.Name;
+                            tempbarang.AVALUE_14 = satik.ValueName;
+                        }
+                        else if (tempbarang.ACODE_15 == null)
+                        {
+                            tempbarang.ACODE_15 = satik.Id;
+                            tempbarang.ANAME_15 = satik.Name;
+                            tempbarang.AVALUE_15 = satik.ValueName;
+                        }
+                        if (tempbarang.ACODE_16 == null)
+                        {
+                            tempbarang.ACODE_16 = satik.Id;
+                            tempbarang.ANAME_16 = satik.Name;
+                            tempbarang.AVALUE_16 = satik.ValueName;
+                        }
+                        else if (tempbarang.ACODE_17 == null)
+                        {
+                            tempbarang.ACODE_17 = satik.Id;
+                            tempbarang.ANAME_17 = satik.Name;
+                            tempbarang.AVALUE_17 = satik.ValueName;
+                        }
+                        else if (tempbarang.ACODE_18 == null)
+                        {
+                            tempbarang.ACODE_18 = satik.Id;
+                            tempbarang.ANAME_18 = satik.Name;
+                            tempbarang.AVALUE_18 = satik.ValueName;
+                        }
+                        else if (tempbarang.ACODE_19 == null)
+                        {
+                            tempbarang.ACODE_19 = satik.Id;
+                            tempbarang.ANAME_19 = satik.Name;
+                            tempbarang.AVALUE_19 = satik.ValueName;
+                        }
+                        else if (tempbarang.ACODE_20 == null)
+                        {
+                            tempbarang.ACODE_20 = satik.Id;
+                            tempbarang.ANAME_20 = satik.Name;
+                            tempbarang.AVALUE_20 = satik.ValueName;
+                        }
+                        if (tempbarang.ACODE_21 == null)
+                        {
+                            tempbarang.ACODE_21 = satik.Id;
+                            tempbarang.ANAME_21 = satik.Name;
+                            tempbarang.AVALUE_21 = satik.ValueName;
+                        }
+                        else if (tempbarang.ACODE_22 == null)
+                        {
+                            tempbarang.ACODE_22 = satik.Id;
+                            tempbarang.ANAME_22 = satik.Name;
+                            tempbarang.AVALUE_22 = satik.ValueName;
+                        }
+                        else if (tempbarang.ACODE_23 == null)
+                        {
+                            tempbarang.ACODE_23 = satik.Id;
+                            tempbarang.ANAME_23 = satik.Name;
+                            tempbarang.AVALUE_23 = satik.ValueName;
+                        }
+                        else if (tempbarang.ACODE_24 == null)
+                        {
+                            tempbarang.ACODE_24 = satik.Id;
+                            tempbarang.ANAME_24 = satik.Name;
+                            tempbarang.AVALUE_24 = satik.ValueName;
+                        }
+                        else if (tempbarang.ACODE_25 == null)
+                        {
+                            tempbarang.ACODE_25 = satik.Id;
+                            tempbarang.ANAME_25 = satik.Name;
+                            tempbarang.AVALUE_25 = satik.ValueName;
+                        }
+                        if (tempbarang.ACODE_26 == null)
+                        {
+                            tempbarang.ACODE_26 = satik.Id;
+                            tempbarang.ANAME_26 = satik.Name;
+                            tempbarang.AVALUE_26 = satik.ValueName;
+                        }
+                        else if (tempbarang.ACODE_27 == null)
+                        {
+                            tempbarang.ACODE_27 = satik.Id;
+                            tempbarang.ANAME_27 = satik.Name;
+                            tempbarang.AVALUE_27 = satik.ValueName;
+                        }
+                        else if (tempbarang.ACODE_28 == null)
+                        {
+                            tempbarang.ACODE_28 = satik.Id;
+                            tempbarang.ANAME_28 = satik.Name;
+                            tempbarang.AVALUE_28 = satik.ValueName;
+                        }
+                        else if (tempbarang.ACODE_29 == null)
+                        {
+                            tempbarang.ACODE_29 = satik.Id;
+                            tempbarang.ANAME_29 = satik.Name;
+                            tempbarang.AVALUE_29 = satik.ValueName;
+                        }
+                        else if (tempbarang.ACODE_30 == null)
+                        {
+                            tempbarang.ACODE_30 = satik.Id;
+                            tempbarang.ANAME_30 = satik.Name;
+                            tempbarang.AVALUE_30 = satik.ValueName;
+                        }
+
                     }
-                    tempbarang.NAMA = namabarang;
+                    tempbarang.NAMA = nama;
+                    tempbarang.NAMA2 = nama2;
                     tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : double.Parse(detail.PackageWeight);
                     tempbarang.PANJANG = detail.PackageLength == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageLength.ToString());
                     tempbarang.LEBAR = detail.PackageWidth == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageWidth.ToString());
@@ -1287,90 +1637,105 @@ namespace MasterOnline.Controllers
                     tempbarang.CUST = iden.no_cust;
                     tempbarang.SELLER_SKU = sku.SellerSku;
                     tempbarang.AVALUE_45 = namabarang;
-                    tempbarang.ACODE_9 = "warranty";
-                    tempbarang.ANAME_9 = "Warranty Period";
-                    tempbarang.AVALUE_9 = detail.WarrantyPeriod.WarrantyDescription;
-                    tempbarang.ACODE_11 = "product_warranty";
-                    tempbarang.ANAME_11 = "Warranty Policy";
-                    tempbarang.AVALUE_11 = detail.WarrantyPolicy;
+                    tempbarang.ACODE_31 = "warranty";
+                    tempbarang.ANAME_31 = "Warranty Period";
+                    tempbarang.AVALUE_31 = detail.WarrantyPeriod.WarrantyDescription;
+                    tempbarang.ACODE_32 = "product_warranty";
+                    tempbarang.ANAME_32 = "Warranty Policy";
+                    tempbarang.AVALUE_32 = detail.WarrantyPolicy;
                     tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
+                    tempbarang.AVALUE_38 = tempbarang.MEREK;
                     tempbarang.DISPLAY = true;
                     tempbarang.KODE_BRG_INDUK = sellersku == null ? productid + ";0" : sellersku;
                     tempbarang.TYPE = "3";
-                    ret.recordCount++;
+                    insertJml++;
                     newrec.Add(tempbarang);
                 }
-                else
-                {
+                #region remark
+                //else
+                //{
 
-                    TEMP_BRG_MP tempbarang = new TEMP_BRG_MP();
-                    tempbarang.BRG_MP = kdbrgvar;
-                    string namabarang = detail.ProductName;
-                    foreach (SalesAttributeTik sat in sku.SalesAttributes)
-                    {
-                        namabarang += " " + sat.ValueName;
-                        tempbarang.IMAGE = sat.SkuImg == null ? null : sat.SkuImg.UrlList[0];
-                        if (tempbarang.ACODE_1 == null)
-                        {
-                            tempbarang.ACODE_1 = sat.Id;
-                            tempbarang.ANAME_1 = sat.Name;
-                            tempbarang.AVALUE_1 = sat.ValueName;
-                        }
-                        else if (tempbarang.ACODE_2 == null)
-                        {
-                            tempbarang.ACODE_2 = sat.Id;
-                            tempbarang.ANAME_2 = sat.Name;
-                            tempbarang.AVALUE_2 = sat.ValueName;
-                        }
-                        else if (tempbarang.ACODE_3 == null)
-                        {
-                            tempbarang.ACODE_3 = sat.Id;
-                            tempbarang.ANAME_3 = sat.Name;
-                            tempbarang.AVALUE_3 = sat.ValueName;
-                        }
-                        else if (tempbarang.ACODE_4 == null)
-                        {
-                            tempbarang.ACODE_4 = sat.Id;
-                            tempbarang.ANAME_4 = sat.Name;
-                            tempbarang.AVALUE_4 = sat.ValueName;
-                        }
-                        else if (tempbarang.ACODE_5 == null)
-                        {
-                            tempbarang.ACODE_5 = sat.Id;
-                            tempbarang.ANAME_5 = sat.Name;
-                            tempbarang.AVALUE_5 = sat.ValueName;
-                        }
-                    }
-                    tempbarang.NAMA = namabarang;
-                    tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : double.Parse(detail.PackageWeight);
-                    tempbarang.PANJANG = detail.PackageLength == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageLength.ToString());
-                    tempbarang.LEBAR = detail.PackageWidth == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageWidth.ToString());
-                    tempbarang.TINGGI = detail.PackageHeight == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageHeight.ToString());
-                    tempbarang.CATEGORY_CODE = detail.CategoryList[2].Id;
-                    tempbarang.HJUAL = double.Parse(sku.Price.OriginalPrice.ToString());
-                    tempbarang.HJUAL_MP = double.Parse(sku.Price.OriginalPrice.ToString());
-                    tempbarang.CATEGORY_NAME = detail.CategoryList[2].LocalDisplayName;
-                    tempbarang.Deskripsi = detail.Description;
-                    tempbarang.IDMARKET = int.Parse(idmarket.ToString());
-                    tempbarang.CUST = iden.no_cust;
-                    tempbarang.SELLER_SKU = checkstf02h.BRG;
-                    tempbarang.AVALUE_45 = namabarang;
-                    tempbarang.ACODE_9 = "warranty";
-                    tempbarang.ANAME_9 = "Warranty Period";
-                    tempbarang.AVALUE_9 = detail.WarrantyPeriod.WarrantyDescription;
-                    tempbarang.ACODE_11 = "product_warranty";
-                    tempbarang.ANAME_11 = "Warranty Policy";
-                    tempbarang.AVALUE_11 = detail.WarrantyPolicy;
-                    tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
-                    tempbarang.DISPLAY = true;
-                    tempbarang.KODE_BRG_INDUK = sellersku;
-                    tempbarang.TYPE = "3";
-                    ret.recordCount++;
-                    newrec.Add(tempbarang);
-                }
-
+                //    TEMP_BRG_MP tempbarang = new TEMP_BRG_MP();
+                //    tempbarang.BRG_MP = kdbrgvar;
+                //    string namabarang = detail.ProductName;
+                //    foreach (SalesAttributeTik sat in sku.SalesAttributes)
+                //    {
+                //        namabarang += " " + sat.ValueName;
+                //        tempbarang.IMAGE = sat.SkuImg == null ? null : sat.SkuImg.UrlList[0];
+                //        if (tempbarang.ACODE_1 == null)
+                //        {
+                //            tempbarang.ACODE_1 = sat.Id;
+                //            tempbarang.ANAME_1 = sat.Name;
+                //            tempbarang.AVALUE_1 = sat.ValueName;
+                //        }
+                //        else if (tempbarang.ACODE_2 == null)
+                //        {
+                //            tempbarang.ACODE_2 = sat.Id;
+                //            tempbarang.ANAME_2 = sat.Name;
+                //            tempbarang.AVALUE_2 = sat.ValueName;
+                //        }
+                //        else if (tempbarang.ACODE_3 == null)
+                //        {
+                //            tempbarang.ACODE_3 = sat.Id;
+                //            tempbarang.ANAME_3 = sat.Name;
+                //            tempbarang.AVALUE_3 = sat.ValueName;
+                //        }
+                //        else if (tempbarang.ACODE_4 == null)
+                //        {
+                //            tempbarang.ACODE_4 = sat.Id;
+                //            tempbarang.ANAME_4 = sat.Name;
+                //            tempbarang.AVALUE_4 = sat.ValueName;
+                //        }
+                //        else if (tempbarang.ACODE_5 == null)
+                //        {
+                //            tempbarang.ACODE_5 = sat.Id;
+                //            tempbarang.ANAME_5 = sat.Name;
+                //            tempbarang.AVALUE_5 = sat.ValueName;
+                //        }
+                //    }
+                //    tempbarang.NAMA = namabarang;
+                //    tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : double.Parse(detail.PackageWeight);
+                //    tempbarang.PANJANG = detail.PackageLength == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageLength.ToString());
+                //    tempbarang.LEBAR = detail.PackageWidth == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageWidth.ToString());
+                //    tempbarang.TINGGI = detail.PackageHeight == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageHeight.ToString());
+                //    tempbarang.CATEGORY_CODE = detail.CategoryList[2].Id;
+                //    tempbarang.HJUAL = double.Parse(sku.Price.OriginalPrice.ToString());
+                //    tempbarang.HJUAL_MP = double.Parse(sku.Price.OriginalPrice.ToString());
+                //    tempbarang.CATEGORY_NAME = detail.CategoryList[2].LocalDisplayName;
+                //    tempbarang.Deskripsi = detail.Description;
+                //    tempbarang.IDMARKET = int.Parse(idmarket.ToString());
+                //    tempbarang.CUST = iden.no_cust;
+                //    tempbarang.SELLER_SKU = checkstf02h.BRG;
+                //    tempbarang.AVALUE_45 = namabarang;
+                //    tempbarang.ACODE_9 = "warranty";
+                //    tempbarang.ANAME_9 = "Warranty Period";
+                //    tempbarang.AVALUE_9 = detail.WarrantyPeriod.WarrantyDescription;
+                //    tempbarang.ACODE_11 = "product_warranty";
+                //    tempbarang.ANAME_11 = "Warranty Policy";
+                //    tempbarang.AVALUE_11 = detail.WarrantyPolicy;
+                //    tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
+                //    tempbarang.DISPLAY = true;
+                //    tempbarang.KODE_BRG_INDUK = sellersku;
+                //    tempbarang.TYPE = "3";
+                //    ret.recordCount++;
+                //    newrec.Add(tempbarang);
+                //}
+                #endregion
             }
-            return null;
+            if(insertJml > 0)
+            {
+                try
+                {
+                    ErasoftDbContext.TEMP_BRG_MP.AddRange(newrec);
+                    ErasoftDbContext.SaveChanges();
+                    ret.recordCount += insertJml;
+                }
+                catch(Exception ex)
+                {
+                    ret.exception = 1;
+                }
+            }
+            return ret;
         }
         #endregion
         #endregion

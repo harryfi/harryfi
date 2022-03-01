@@ -228,7 +228,22 @@ namespace MasterOnline.Controllers
         //string shopeeV2Url = "https://partner.test-stable.shopeemobile.com";
         //int MOPartnerIDV2 = 1000723;
         //string MOPartnerKeyV2 = "d59a300f63f9d36b92f71b0ccb5b37e4e2b43e9c567df3f2e2808136dd4893dd";
+#if AWS
+                        
+        string eraAppKeyTikTok = "3cqbhg";
+        string eraAppSecretTikTok = "57fb173019d59898be333ac5af995585437ed8bf";
+        string eraCallbackUrlTikTok = "https://masteronline.co.id/tiktok/auth";
+#elif Debug_AWS
 
+        string eraAppKeyTikTok = "3cqbhg";
+        string eraAppSecretTikTok = "57fb173019d59898be333ac5af995585437ed8bf";
+        string eraCallbackUrlTikTok = "https://masteronline.co.id/tiktok/auth";
+#else
+
+        string eraAppKeyTikTok = "3cqbhg";
+        string eraAppSecretTikTok = "57fb173019d59898be333ac5af995585437ed8bf";
+        string eraCallbackUrlTikTok = "https://dev.masteronline.co.id/tiktok/auth";
+#endif
         public StokControllerJob()
         {
             //Catatan by calvin :
@@ -1107,6 +1122,7 @@ namespace MasterOnline.Controllers
             var kdJD = 19;
             var kdShopify = 21;
             var kd82Cart = 20;
+            var kdtiktok = 2021;
             // change by fauzi 07 Januari 2020
             int delayTokped = 0;
 
@@ -1517,6 +1533,37 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
+                    else if (marketPlace.NAMA.Equals(kdtiktok.ToString()))
+                    {
+                        if (marketPlace.TIDAK_HIT_UANG_R == true)
+                        {
+                            if (!string.IsNullOrEmpty(marketPlace.Sort1_Cust))
+                            {
+                                if (!string.IsNullOrEmpty(stf02h.BRG_MP))
+                                {
+                                    TTApiData data = new TTApiData()
+                                    {
+                                        shop_id = marketPlace.Sort1_Cust,
+                                        DatabasePathErasoft = dbPathEra,
+                                        username = uname,
+                                        access_token = marketPlace.TOKEN
+                                    };
+                                    if (stf02h.BRG_MP.Contains("PENDING") || stf02h.BRG_MP.Contains("PEDITENDING"))
+                                    {
+
+                                    }
+                                    else
+                                    {
+#if (DEBUG || Debug_AWS)
+                                        Task.Run(() => tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+#else
+                                        client.Enqueue<StokControllerJob>(x => x.tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
+#endif
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
             //}
@@ -1556,6 +1603,7 @@ namespace MasterOnline.Controllers
             var kdJD = 19;
             var kd82Cart = 20;
             var kdshopify = 21;
+            var kdtiktok = 2021;
             int delayTokped = 0;
             string EDBConnID = EDB.GetConnectionString("ConnId");
             var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -1972,6 +2020,38 @@ namespace MasterOnline.Controllers
                                         //E2Cart_UpdateStock_82Cart(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname);
 #else
                                         client.Enqueue<StokControllerJob>(x => x.E2Cart_UpdateStock_82Cart(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname));
+#endif
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else if (marketPlace.NAMA.Equals(kdtiktok.ToString()))
+                    {
+                        if (marketPlace.TIDAK_HIT_UANG_R == true)
+                        {
+                            if (!string.IsNullOrEmpty(marketPlace.Sort1_Cust))
+                            {
+                                if (!string.IsNullOrEmpty(stf02h.BRG_MP))
+                                {
+                                    TTApiData data = new TTApiData()
+                                    {
+                                        shop_id = marketPlace.Sort1_Cust,
+                                        DatabasePathErasoft = dbPathEra,
+                                        username = uname,
+                                        access_token = marketPlace.TOKEN
+                                    };
+                                    if (stf02h.BRG_MP.Contains("PENDING") || stf02h.BRG_MP.Contains("PEDITENDING"))
+                                    {
+
+                                    }
+                                    else
+                                    {
+#if (DEBUG || Debug_AWS)
+                                        Task.Run(() => tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+                                        //E2Cart_UpdateStock_82Cart(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname);
+#else
+                                        client.Enqueue<StokControllerJob>(x => x.tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
 #endif
                                     }
                                 }
@@ -3190,6 +3270,113 @@ namespace MasterOnline.Controllers
             return newQty;
         }
 
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_update_stok")]
+        [NotifyOnFailed("Update Stok {obj} ke Tiktok Shop gagal.")]
+        public async Task<string> tiktok_updatestock(string DatabasePathErasoft, string stf02_brg, string log_Cust, string log_ActionCat, string log_ActName, TTApiData apidata, string idbarang, int stok, string uname, PerformContext context)
+        {
+            SetupContext(DatabasePathErasoft, uname);
+            var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
+            if (qtyOnHand < 0)
+            {
+                qtyOnHand = 0;
+            }
+
+            stok = Convert.ToInt32(qtyOnHand);
+            string[] split = idbarang.Split(';');
+            StockUpdateTik sut = new StockUpdateTik()
+            {
+                ProductId = split[0],
+                Skus = new List<SkuTik>()
+            };
+            SkuTik sku = new SkuTik()
+            {
+                Id = split[1],
+                StockInfos = new List<StockInfoTik>()
+            };
+            StockInfoTik soi = new StockInfoTik()
+            {
+                AvailableStock = stok
+            };
+            sku.StockInfos.Add(soi);
+            sut.Skus.Add(sku);
+            string request_data = JsonConvert.SerializeObject(sut);
+            string urll = "https://open-api.tiktokglobalshop.com/api/products/stocks?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecretTikTok + "/api/products/stocksapp_key" + eraAppKeyTikTok + "shop_id" + apidata.shop_id + "timestamp" + timestamp + eraAppSecretTikTok;
+            string signencry = GetHash(sign, eraAppSecretTikTok);
+            var vformatUrl = String.Format(urll, apidata.access_token, timestamp, signencry, eraAppKeyTikTok, apidata.shop_id);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "PUT";
+            myReq.ContentType = "application/json";
+            myReq.Accept = "application/json";
+            string responseFromServer = "";
+            myReq.ContentLength = request_data.Length;
+            //try
+            //{
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(request_data), 0, request_data.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            //}
+            //catch (Exception e)
+            //{
+
+            //}
+
+            if (responseFromServer != "")
+            {
+                return null;
+            }
+
+            return "";
+        }
+        #region Encyrptor tiktok
+        public static String GetHash(String text, String key)
+        {
+            ASCIIEncoding encoding = new ASCIIEncoding();
+
+            Byte[] textBytes = encoding.GetBytes(text);
+            Byte[] keyBytes = encoding.GetBytes(key);
+
+            Byte[] hashBytes;
+
+            using (HMACSHA256 hash = new HMACSHA256(keyBytes))
+                hashBytes = hash.ComputeHash(textBytes);
+
+            return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+        }
+
+        public static string EncryptString(string input, Encoding encoding)
+        {
+            Byte[] stringBytes = encoding.GetBytes(input);
+            StringBuilder sbBytes = new StringBuilder(stringBytes.Length * 2);
+            foreach (byte b in stringBytes)
+            {
+                sbBytes.AppendFormat("{0:X2}", b);
+            }
+            return sbBytes.ToString();
+        }
+
+        public static string DecryptString(string hexInput, Encoding encoding)
+        {
+            int numberChars = hexInput.Length;
+            byte[] bytes = new byte[numberChars / 2];
+            for (int i = 0; i < numberChars; i += 2)
+            {
+                bytes[i / 2] = Convert.ToByte(hexInput.Substring(i, 2), 16);
+            }
+            return encoding.GetString(bytes);
+        }
+        #endregion
         public class Tokped_updateStockResult
         {
             public Tokped_updateStockResultHeader header { get; set; }
