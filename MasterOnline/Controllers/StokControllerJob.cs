@@ -4591,6 +4591,31 @@ namespace MasterOnline.Controllers
                                 var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
                                 manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, log_CUST, currentLog, "Tokped");
                             }
+
+                            //ADD BY NURUL 1/3/2022
+                            try
+                            {
+                                if (multilokasi == 1)
+                                {
+                                    MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                    {
+                                        REQUEST_ID = "SS_" + DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                                        REQUEST_ACTION = "Selisih Stok B MULTILOKASI",
+                                        REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
+                                        REQUEST_ATTRIBUTE_1 = stf02_brg,
+                                        REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(stok), //updating to stock
+                                        REQUEST_STATUS = "Pending"
+                                    };
+                                    var ErasoftDbContext2 = new ErasoftContext(EraServerName, dbPathEra);
+                                    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext2, log_CUST, currentLog, "Tokped");
+
+                                    EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ACTION = 'Selisih Stok B MULTILOKASI' AND REQUEST_DATETIME <= '" + DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "'");
+                                }
+                            }
+                            catch (Exception ex2)
+                            {
+                            }
+                            //END AD BY NURUL 1/3/2022
                         }
                 }
             }
@@ -5258,6 +5283,31 @@ namespace MasterOnline.Controllers
                             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, log_CUST, currentLog, "Shopee");
                         }
                         //end add by calvin 28 oktober 2019
+
+                        //ADD BY NURUL 1/3/2022
+                        try
+                        {
+                            if (multilokasi == 1)
+                            {
+                                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                {
+                                    REQUEST_ID = "SS_" + DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                                    REQUEST_ACTION = "Selisih Stok B MULTILOKASI",
+                                    REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
+                                    REQUEST_ATTRIBUTE_1 = stf02_brg,
+                                    REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(qty), //updating to stock
+                                    REQUEST_STATUS = "Pending"
+                                };
+                                var ErasoftDbContext2 = new ErasoftContext(EraServerName, dbPathEra);
+                                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext2, log_CUST, currentLog, "Shopee");
+
+                                EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ACTION = 'Selisih Stok B MULTILOKASI' AND REQUEST_DATETIME <= '" + DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "'");
+                            }
+                        }
+                        catch (Exception ex2)
+                        {
+                        }
+                        //END ADD BY NURUL 1/3/2022
                     }
                 }
                 catch (Exception ex)
@@ -5474,6 +5524,31 @@ namespace MasterOnline.Controllers
                             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, log_CUST, currentLog, "Shopee");
                         }
                         //end add by calvin 28 oktober 2019
+
+                        //ADD BY NURUL 1/3/2022
+                        try
+                        {
+                            if (multilokasi == 1)
+                            {
+                                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                {
+                                    REQUEST_ID = "SS_" + DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                                    REQUEST_ACTION = "Selisih Stok B MULTILOKASI",
+                                    REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
+                                    REQUEST_ATTRIBUTE_1 = stf02_brg,
+                                    REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(qty), //updating to stock
+                                    REQUEST_STATUS = "Pending"
+                                };
+                                var ErasoftDbContext2 = new ErasoftContext(EraServerName, dbPathEra);
+                                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext2, log_CUST, currentLog, "Shopee");
+
+                                EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ACTION = 'Selisih Stok B MULTILOKASI' AND REQUEST_DATETIME <= '" + DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "'");
+                            }
+                        }
+                        catch (Exception ex2)
+                        {
+                        }
+                        //END ADD BY NURUL 1/3/2022
                     }
                 }
                 catch (Exception ex)
