@@ -9284,6 +9284,20 @@ namespace MasterOnline.Controllers
         //add by nurul 20/9/2021
         public async Task<string> ListMessage(TokopediaAPIData iden, string filter, int page)
         {
+            ////add by nurul 1/3/2022
+            //var hitung = 8;
+            //var kelipatan8 = new List<int>();
+            //for (int i = 0; i < 5000; i++)
+            //{
+            //    kelipatan8.Add(hitung);
+            //    hitung = hitung + 8;
+            //}
+            //if (kelipatan8.Contains(page))
+            //{
+                await Task.Delay(10000); //delay 10 detik biar ga kena limit 8 request per menit 
+            //}
+            ////end add by nurul 1/3/2022
+
             string ret = "";
             string connId = Guid.NewGuid().ToString();
             var token = SetupContext(iden);
@@ -9336,6 +9350,7 @@ namespace MasterOnline.Controllers
                             {
                                 var cekListMessage = ErasoftDbContext.TOKPED_LISTMESSAGE.Select(a => a.msg_id).ToList();
                                 var lastGetMessage = false;
+                                var lastMessage = false;
                                 while (!lastGetMessage)
                                 {
                                     foreach (var msg in result.data)
@@ -9362,6 +9377,7 @@ namespace MasterOnline.Controllers
                                         //masukin sampe -1 bulan 
                                         if (message.last_reply_time < dateLast1Month && msg.attributes.pin_status == 0)
                                         {
+                                            lastMessage = true;
                                             lastGetMessage = true; break;
                                         }
                                         //hanya masukin yg blm ada di list message 
@@ -9407,7 +9423,7 @@ namespace MasterOnline.Controllers
                                     ErasoftDbContext.TOKPED_LISTMESSAGE.AddRange(listMessage);
                                     ErasoftDbContext.SaveChanges();
                                 }
-                                if (!lastGetMessage)
+                                if (!lastMessage)
                                 {
                                     var nextMessage = await ListMessage(iden, filter, page + 1);
                                     //ret.AddRange(nextOrders);
@@ -9427,6 +9443,20 @@ namespace MasterOnline.Controllers
 
         public async Task<string> ListReply(TokopediaAPIData iden, string msgId, int page)
         {
+            ////add by nurul 1/3/2022
+            //var hitung = 8;
+            //var kelipatan8 = new List<int>();
+            //for (int i = 0; i < 5000; i++)
+            //{
+            //    kelipatan8.Add(hitung);
+            //    hitung = hitung + 8;
+            //}
+            //if (kelipatan8.Contains(page))
+            //{
+            await Task.Delay(10000); //delay 10 detik biar ga kena limit 8 request per menit 
+            //}
+            ////end add by nurul 1/3/2022
+
             string ret = "";
             string connId = Guid.NewGuid().ToString();
             var token = SetupContext(iden);
