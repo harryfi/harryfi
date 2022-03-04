@@ -27,10 +27,7 @@ namespace MasterOnline.Controllers
     public class TiktokController : Controller
     {
         //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-        string urlLazada = "https://api.lazada.co.id/rest";
         List<string> listSku = new List<string>();
-        //string eraCallbackUrl = "https://dev.masteronline.co.id/lzd/code?user=";
-        //string eraAppKey = "";101775;106147
 #if AWS
                         
         string eraAppKey = "3cqbhg";
@@ -51,7 +48,6 @@ namespace MasterOnline.Controllers
         //string eraAppSecret = "QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu";
         //string eraCallbackUrl = "https://masteronline.my.id/lzd/code?user=";
 #endif
-        // GET: Lazada; QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu;So2KEplWTt4XFO9OGmXjuFFVIT1Wc6FU
         DatabaseSQL EDB;
         MoDbContext MoDbContext;
         ErasoftContext ErasoftDbContext;

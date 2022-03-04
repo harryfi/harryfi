@@ -706,6 +706,7 @@
     <Compile Include="Controllers\ShopeeControllerJob.cs" />
     <Compile Include="Controllers\ShopeeController.cs" />
     <Compile Include="Controllers\TiktokController.cs" />
+    <Compile Include="Controllers\TiktokControllerJob.cs" />
     <Compile Include="Controllers\TokopediaControllerJob.cs" />
     <Compile Include="Controllers\TokopediaController.cs" />
     <Compile Include="Controllers\TransferExcelController.cs" />
@@ -7034,6 +7035,7 @@
     <Folder Include="Views\PartnerApiControllerJob\" />
     <Folder Include="Views\PartnerApi\" />
     <Folder Include="Views\StokOpnameViewModel\" />
+    <Folder Include="Views\TiktokController\" />
     <Folder Include="Views\Tiktok\" />
   </ItemGroup>
   <ItemGroup>
