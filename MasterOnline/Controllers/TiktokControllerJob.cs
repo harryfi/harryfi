@@ -86,9 +86,10 @@ namespace MasterOnline.Controllers
             var lanjut = true;
             var connIdProses = "";
             var nextPage = "";
+            int ord_status = 100;
             while (lanjut)
             {
-                var returnGetOrder = await GetOrderList_Insert(iden, 100, CUST, NAMA_CUST, nextPage, fromDt, toDt);
+                var returnGetOrder = await GetOrderList_Insert(iden, ord_status, CUST, NAMA_CUST, nextPage, fromDt, toDt);
                 if (returnGetOrder.ConnId != "")
                 {
                     connIdProses += "'" + returnGetOrder.ConnId + "' , ";
@@ -97,8 +98,23 @@ namespace MasterOnline.Controllers
                 {
                     AdaKomponen = returnGetOrder.AdaKomponen;
                 }
-                if (!returnGetOrder.more) { lanjut = false; break; }
                 nextPage = returnGetOrder.nextPage;
+                if (!returnGetOrder.more) { 
+                    if(ord_status == 100)
+                    {
+                        ord_status = 111;
+                        nextPage = "";
+                    }
+                    else if (ord_status == 111)
+                    {
+                        ord_status = 112;
+                        nextPage = "";
+                    }
+                    else
+                    {
+                        lanjut = false; break;
+                    }
+                }
             }
             if (!string.IsNullOrEmpty(connIdProses))
             {
@@ -176,9 +192,25 @@ namespace MasterOnline.Controllers
                             jmlhNewOrder = filtered.Count();
                         }
 
-                        if (order_status == 100)//unpaid
+                        if (order_status != 100)//update paid
                         {
+                            string ordersn = "";
+                            var filteredSudahAda = ordersn_list.Where(p => SudahAdaDiMO.Contains(p));
+                            foreach (var item in filteredSudahAda)
+                            {
+                                ordersn = ordersn + "'" + item + "',";
+                            }
+                            if (!string.IsNullOrEmpty(ordersn))
+                            {
+                                ordersn = ordersn.Substring(0, ordersn.Length - 1);
+                                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0' AND CUST = '" + CUST + "'");
+                                if (rowAffected > 0)
+                                {
+                                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                    contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(rowAffected) + " Pesanan terbayar dari TikTok.");
 
+                                }
+                            }
                         }
                     }
                 }
