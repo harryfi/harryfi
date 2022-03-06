@@ -1112,6 +1112,7 @@
     <Compile Include="Models\TEMP_SHOPIFY_ORDERS.cs" />
     <Compile Include="Models\TEMP_SHOPIFY_ORDERS_ITEM.cs" />
     <Compile Include="Models\PEMBELI_FAKTUR_SHOPEE.cs" />
+    <Compile Include="Models\TEMP_TIKTOK_ORDERS.cs" />
     <Compile Include="Models\TEMP_UPLOAD_EXCEL_BAYAR.cs" />
     <Compile Include="Models\TABLE_LOG_DETAIL.cs" />
     <Compile Include="Models\ShopeeExcelBayarPiutang.cs" />

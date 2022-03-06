@@ -99,8 +99,9 @@ namespace MasterOnline.Controllers
                     AdaKomponen = returnGetOrder.AdaKomponen;
                 }
                 nextPage = returnGetOrder.nextPage;
-                if (!returnGetOrder.more) { 
-                    if(ord_status == 100)
+                if (!returnGetOrder.more)
+                {
+                    if (ord_status == 100)
                     {
                         ord_status = 111;
                         nextPage = "";
@@ -266,8 +267,8 @@ namespace MasterOnline.Controllers
                 var result = JsonConvert.DeserializeObject(responseFromServer, typeof(GetOrderDetailResponse)) as GetOrderDetailResponse;
                 var connIdARF01C = Guid.NewGuid().ToString();
                 //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                TEMP_SHOPEE_ORDERS batchinsert = new TEMP_SHOPEE_ORDERS();
-                List<TEMP_SHOPEE_ORDERS_ITEM> batchinsertItem = new List<TEMP_SHOPEE_ORDERS_ITEM>();
+                TEMP_TIKTOK_ORDERS batchinsert = new TEMP_TIKTOK_ORDERS();
+                List<TEMP_TIKTOK_ORDERS_ITEM> batchinsertItem = new List<TEMP_TIKTOK_ORDERS_ITEM>();
                 string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
                 insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
                 insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
@@ -310,7 +311,7 @@ namespace MasterOnline.Controllers
                             //(NAMA_CUST.Replace(',', '.')),
                             (NAMA_CUST.Length > 30 ? NAMA_CUST.Substring(0, 30) : NAMA_CUST),
                             (AL_KIRIM1),
-                            DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                            DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss"),
                             (username),
                             (KODEPOS),
                             kabKot,
@@ -338,25 +339,26 @@ namespace MasterOnline.Controllers
                     try
                     {
                         //connID = Guid.NewGuid().ToString();//remark 4 jan 2020, connid sama per batch untuk update stok
-                        ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_SHOPEE_ORDERS");
-                        ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_SHOPEE_ORDERS_ITEM");
-                        batchinsertItem = new List<TEMP_SHOPEE_ORDERS_ITEM>();
+                        ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_TIKTOK_ORDERS");
+                        ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_TIKTOK_ORDERS_ITEM");
+                        batchinsertItem = new List<TEMP_TIKTOK_ORDERS_ITEM>();
                         #region cut max length dan ubah '
                         string payment_method = !string.IsNullOrEmpty(order.payment_method) ? order.payment_method.Trim().Replace('\'', '`') : "";
                         if (payment_method.Length > 100)
                         {
                             payment_method = payment_method.Substring(0, 100);
                         }
-                        string shipping_carrier = !string.IsNullOrEmpty(order.shipping_carrier) ? order.shipping_carrier.Trim().Replace('\'', '`') : "";
+                        string shipping_carrier = !string.IsNullOrEmpty(order.shipping_provider) ? order.shipping_provider.Trim().Replace('\'', '`') : "";
                         if (shipping_carrier.Length > 300)
                         {
                             shipping_carrier = shipping_carrier.Substring(0, 300);
                         }
-                        string currency = !string.IsNullOrEmpty(order.currency) ? order.currency.Trim().Replace('\'', '`') : "";
-                        if (currency.Length > 50)
-                        {
-                            currency = currency.Substring(0, 50);
-                        }
+                        //string currency = !string.IsNullOrEmpty(order.currency) ? order.currency.Trim().Replace('\'', '`') : "";
+                        //if (currency.Length > 50)
+                        //{
+                        //    currency = currency.Substring(0, 50);
+                        //}
+                        string currency = "";
                         string Recipient_Address_town = !string.IsNullOrEmpty(order.recipient_address.town) ? order.recipient_address.town.Trim().Replace('\'', '`') : "";
                         if (Recipient_Address_town.Length > 300)
                         {
@@ -377,7 +379,7 @@ namespace MasterOnline.Controllers
                         {
                             Recipient_Address_district = Recipient_Address_district.Substring(0, 300);
                         }
-                        string Recipient_Address_country = !string.IsNullOrEmpty(order.recipient_address.country) ? order.recipient_address.country.Trim().Replace('\'', '`') : "";
+                        string Recipient_Address_country = !string.IsNullOrEmpty(order.recipient_address.region) ? order.recipient_address.region.Trim().Replace('\'', '`') : "";
                         if (Recipient_Address_country.Length > 300)
                         {
                             Recipient_Address_country = Recipient_Address_country.Substring(0, 300);
@@ -397,54 +399,58 @@ namespace MasterOnline.Controllers
                         {
                             Recipient_Address_state = Recipient_Address_state.Substring(0, 300);
                         }
-                        string tracking_no = !string.IsNullOrEmpty(order.tracking_no) ? order.tracking_no.Trim().Replace('\'', '`') : "";
+                        string tracking_no = !string.IsNullOrEmpty(order.tracking_number) ? order.tracking_number.Trim().Replace('\'', '`') : "";
                         if (tracking_no.Length > 100)
                         {
                             tracking_no = tracking_no.Substring(0, 100);
                         }
-                        string order_status = !string.IsNullOrEmpty(order.order_status) ? order.order_status.Trim().Replace('\'', '`') : "";
+                        string order_status = !string.IsNullOrEmpty(order.order_status.ToString()) ? order.order_status.ToString().Trim().Replace('\'', '`') : "";
                         if (order_status.Length > 100)
                         {
                             order_status = order_status.Substring(0, 100);
                         }
-                        string service_code = !string.IsNullOrEmpty(order.service_code) ? order.service_code.Trim().Replace('\'', '`') : "";
+                        string service_code = !string.IsNullOrEmpty(order.shipping_provider_id) ? order.shipping_provider_id.Trim().Replace('\'', '`') : "";
                         if (service_code.Length > 100)
                         {
                             service_code = service_code.Substring(0, 100);
                         }
-                        string ordersn = !string.IsNullOrEmpty(order.ordersn) ? order.ordersn.Trim().Replace('\'', '`') : "";
+                        string ordersn = !string.IsNullOrEmpty(order.order_id) ? order.order_id.Trim().Replace('\'', '`') : "";
                         if (ordersn.Length > 100)
                         {
                             ordersn = ordersn.Substring(0, 100);
                         }
-                        string country = !string.IsNullOrEmpty(order.country) ? order.country.Trim().Replace('\'', '`') : "";
-                        if (country.Length > 100)
-                        {
-                            country = country.Substring(0, 100);
-                        }
-                        string dropshipper = !string.IsNullOrEmpty(order.dropshipper) ? order.dropshipper.Trim().Replace('\'', '`') : "";
-                        if (dropshipper.Length > 300)
-                        {
-                            dropshipper = dropshipper.Substring(0, 300);
-                        }
-                        string buyer_username = !string.IsNullOrEmpty(order.buyer_username) ? order.buyer_username.Trim().Replace('\'', '`') : "";
-                        if (buyer_username.Length > 300)
-                        {
-                            buyer_username = buyer_username.Substring(0, 300);
-                        }
+                        //string country = !string.IsNullOrEmpty(order.country) ? order.country.Trim().Replace('\'', '`') : "";
+                        //if (country.Length > 100)
+                        //{
+                        //    country = country.Substring(0, 100);
+                        //}
+                        string country = "";
+                        //string dropshipper = !string.IsNullOrEmpty(order.dropshipper) ? order.dropshipper.Trim().Replace('\'', '`') : "";
+                        //if (dropshipper.Length > 300)
+                        //{
+                        //    dropshipper = dropshipper.Substring(0, 300);
+                        //}
+                        string dropshipper = "";
+                        //string buyer_username = !string.IsNullOrEmpty(order.buyer_username) ? order.buyer_username.Trim().Replace('\'', '`') : "";
+                        //if (buyer_username.Length > 300)
+                        //{
+                        //    buyer_username = buyer_username.Substring(0, 300);
+                        //}
+                        string buyer_username = "";
                         if (NAMA_CUST.Length > 50)
                         {
                             NAMA_CUST = NAMA_CUST.Substring(0, 50);
                         }
-                        //add by nurul 22/3/2021
-                        string checkout_shipping_carrier = !string.IsNullOrEmpty(order.checkout_shipping_carrier) ? order.checkout_shipping_carrier.Trim().Replace('\'', '`') : "";
-                        if (checkout_shipping_carrier.Length > 300)
-                        {
-                            checkout_shipping_carrier = checkout_shipping_carrier.Substring(0, 300);
-                        }
-                        //end add by nurul 22/3/2021
+                        ////add by nurul 22/3/2021
+                        //string checkout_shipping_carrier = !string.IsNullOrEmpty(order.checkout_shipping_carrier) ? order.checkout_shipping_carrier.Trim().Replace('\'', '`') : "";
+                        //if (checkout_shipping_carrier.Length > 300)
+                        //{
+                        //    checkout_shipping_carrier = checkout_shipping_carrier.Substring(0, 300);
+                        //}
+                        ////end add by nurul 22/3/2021
+                        string checkout_shipping_carrier = "";
                         #endregion
-                        TEMP_SHOPEE_ORDERS newOrder = new TEMP_SHOPEE_ORDERS()
+                        var newOrder = new TEMP_TIKTOK_ORDERS()
                         {
                             actual_shipping_cost = order.actual_shipping_cost,
                             buyer_username = buyer_username,
@@ -492,111 +498,80 @@ namespace MasterOnline.Controllers
                         newOrder.ship_by_date = null;
                         if (order.ship_by_date > 0)
                         {
-                            newOrder.ship_by_date = DateTimeOffset.FromUnixTimeSeconds(order.ship_by_date).UtcDateTime.AddHours(7);
+                            newOrder.ship_by_date = DateTimeOffset.FromUnixTimeSeconds(order.cancel_order_sla).UtcDateTime.AddHours(7);
                         }
                         //end add 27 okt 2020, expired shipping date
-                        var ShippingFeeData = await GetShippingFee(iden, order.ordersn);
-                        if (ShippingFeeData != null)
-                        {
-                            newOrder.estimated_shipping_fee = (ShippingFeeData.order_income.buyer_paid_shipping_fee + ShippingFeeData.order_income.shopee_shipping_rebate - ShippingFeeData.order_income.actual_shipping_fee).ToString();
-                            if (ShippingFeeData.order_income.buyer_paid_shipping_fee + ShippingFeeData.order_income.shopee_shipping_rebate - ShippingFeeData.order_income.actual_shipping_fee < 0)
-                            {
-                                newOrder.estimated_shipping_fee = "0";
-                            }
-                        }
+                        //var ShippingFeeData = await GetShippingFee(iden, order.ordersn);
+                        //if (ShippingFeeData != null)
+                        //{
+                        //    newOrder.estimated_shipping_fee = (ShippingFeeData.order_income.buyer_paid_shipping_fee + ShippingFeeData.order_income.shopee_shipping_rebate - ShippingFeeData.order_income.actual_shipping_fee).ToString();
+                        //    if (ShippingFeeData.order_income.buyer_paid_shipping_fee + ShippingFeeData.order_income.shopee_shipping_rebate - ShippingFeeData.order_income.actual_shipping_fee < 0)
+                        //    {
+                        //        newOrder.estimated_shipping_fee = "0";
+                        //    }
+                        //}
+                        newOrder.estimated_shipping_fee = order.original_shipping_fee - order.shipping_fee_seller_discount
                         //var listPromo = new Dictionary<long, double>();//add 6 juli 2020
                         var listPromo = new Dictionary<long, List<Activity>>();//add 6 juli 2020
-                        foreach (var item in order.items)
+                        foreach (var item in order.item_list)
                         {
-                            string item_name = !string.IsNullOrEmpty(item.item_name) ? item.item_name.Replace('\'', '`') : "";
+                            string item_name = !string.IsNullOrEmpty(item.product_name) ? item.product_name.Replace('\'', '`') : "";
                             if (item_name.Length > 400)
                             {
                                 item_name = item_name.Substring(0, 400);
                             }
-                            string item_sku = !string.IsNullOrEmpty(item.item_sku) ? item.item_sku.Replace('\'', '`') : "";
+                            string item_sku = !string.IsNullOrEmpty(item.seller_sku) ? item.seller_sku.Replace('\'', '`') : "";
                             if (item_sku.Length > 400)
                             {
                                 item_sku = item_sku.Substring(0, 400);
                             }
-                            string variation_name = !string.IsNullOrEmpty(item.variation_name) ? item.variation_name.Replace('\'', '`') : "";
+                            string variation_name = !string.IsNullOrEmpty(item.sku_name) ? item.sku_name.Replace('\'', '`') : "";
                             if (variation_name.Length > 400)
                             {
                                 variation_name = variation_name.Substring(0, 400);
                             }
-                            string variation_sku = !string.IsNullOrEmpty(item.variation_sku) ? item.variation_sku.Replace('\'', '`') : "";
-                            if (variation_sku.Length > 400)
-                            {
-                                variation_sku = variation_sku.Substring(0, 400);
-                            }
+                            //string variation_sku = !string.IsNullOrEmpty(item.variation_sku) ? item.variation_sku.Replace('\'', '`') : "";
+                            //if (variation_sku.Length > 400)
+                            //{
+                            //    variation_sku = variation_sku.Substring(0, 400);
+                            //}
+                            string variation_sku = "";
 
+                            long paidTime = 0;
+                            if(order.paid_time == null)
+                            {
+                                paidTime = Convert.ToInt64(order.create_time);
+                            }
+                            else
+                            {
+                                paidTime = order.paid_time;
+                            }
                             TEMP_SHOPEE_ORDERS_ITEM newOrderItem = new TEMP_SHOPEE_ORDERS_ITEM()
                             {
                                 ordersn = ordersn,
-                                is_wholesale = item.is_wholesale,
-                                item_id = item.item_id,
+                                is_wholesale = false,
+                                item_id = Convert.ToInt64( item.product_id),
                                 item_name = item_name,
                                 item_sku = item_sku,
-                                variation_discounted_price = item.variation_discounted_price,
-                                variation_id = item.variation_id,
+                                variation_discounted_price = item.sku_sale_price,
+                                variation_id = Convert.ToInt64(item.sku_id),
                                 variation_name = variation_name,
-                                variation_original_price = item.variation_original_price,
-                                variation_quantity_purchased = item.variation_quantity_purchased,
+                                variation_original_price = item.sku_original_price,
+                                variation_quantity_purchased = item.quantity,
                                 variation_sku = variation_sku,
-                                weight = item.weight,
-                                pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
+                                weight = 0,
+                                pay_time = DateTimeOffset.FromUnixTimeSeconds(paidTime).UtcDateTime,
                                 CONN_ID = connID,
                                 CUST = CUST,
                                 NAMA_CUST = NAMA_CUST
                             };
-                            if (!string.IsNullOrEmpty(item.promotion_type))
-                            {
-                                if (item.promotion_type == "bundle_deal")
-                                {
-                                    var discount = 0d;
-                                    if (!listPromo.ContainsKey(item.promotion_id))
-                                    {
-                                        var dataDisc = await GetEscrowDetail(iden, order.ordersn, item.item_id, item.variation_id, item.promotion_id);
-                                        //if (dataDisc.activity_id > 0)
-                                        //{
-                                        //    listPromo.Add(item.promotion_id, dataDisc);
-                                        //}
-                                        if (dataDisc.Count > 0)
-                                        {
-                                            listPromo.Add(item.promotion_id, dataDisc);
-                                        }
-                                    }
-                                    //else
-                                    //{
-                                    //    discount = listPromo[item.promotion_id];
-                                    //}
-                                    newOrderItem.variation_discounted_price = item.variation_original_price;
-                                    var dDisc = listPromo[item.promotion_id];
-                                    foreach (var listAct in dDisc)
-                                    {
-                                        if (listAct.activity_id == item.promotion_id)
-                                        {
-                                            foreach (var disc in listAct.items)
-                                            {
-                                                if (item.item_id == disc.item_id && item.variation_id == disc.variation_id)
-                                                {
-                                                    discount = (Convert.ToInt64(listAct.original_price) - Convert.ToInt64(listAct.discounted_price))
-                                                        * 100 / Convert.ToInt64(listAct.original_price);
-                                                    newOrderItem.variation_discounted_price = disc.original_price;
-                                                }
-                                            }
-                                        }
-
-                                    }
-                                    newOrderItem.DISC = discount;
-                                    newOrderItem.N_DISC = Convert.ToInt64(newOrderItem.variation_discounted_price) * newOrderItem.variation_quantity_purchased * discount / 100;
-                                }
-                            }
+                           
                             batchinsertItem.Add(newOrderItem);
                         }
                         batchinsert = (newOrder);
 
-                        ErasoftDbContext.TEMP_SHOPEE_ORDERS.Add(batchinsert);
-                        ErasoftDbContext.TEMP_SHOPEE_ORDERS_ITEM.AddRange(batchinsertItem);
+                        ErasoftDbContext.TEMP_TIKTOK_ORDERS.Add(batchinsert);
+                        ErasoftDbContext.TEMP_TIKTOK_ORDERS_ITEM.AddRange(batchinsertItem);
                         ErasoftDbContext.SaveChanges();
 
                         //add 3 Des 2020
@@ -617,6 +592,7 @@ namespace MasterOnline.Controllers
                             CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
                             CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
                             CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
+                            CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "TIKTOK";
                             CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
 
                             EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
@@ -694,7 +670,7 @@ public class OrderDetail_List
     public string shipping_provider { get; set; }
     public string shipping_provider_id { get; set; }
     public string create_time { get; set; }
-    public long paid_time { get; set; }
+    public long? paid_time { get; set; }
     public string buyer_message { get; set; }
     public Payment_Info payment_info { get; set; }
     public Recipient_Address recipient_address { get; set; }
@@ -748,4 +724,3 @@ public class Item_List
     public int sku_original_price { get; set; }
     public int sku_sale_price { get; set; }
 }
-

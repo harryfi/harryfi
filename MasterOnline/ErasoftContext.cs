@@ -457,6 +457,8 @@ namespace MasterOnline
         public virtual DbSet<TEMP_BRG_MP> TEMP_BRG_MP { get; set; }
         public virtual DbSet<TEMP_SHOPEE_ORDERS> TEMP_SHOPEE_ORDERS { get; set; }
         public virtual DbSet<TEMP_SHOPEE_ORDERS_ITEM> TEMP_SHOPEE_ORDERS_ITEM { get; set; }
+        public virtual DbSet<TEMP_TIKTOK_ORDERS> TEMP_TIKTOK_ORDERS { get; set; }
+        public virtual DbSet<TEMP_TIKTOK_ORDERS_ITEM> TEMP_TIKTOK_ORDERS_ITEM { get; set; }
         //add by fauzi for 82cart
         public virtual DbSet<TEMP_82CART_ORDERS> TEMP_82CART_ORDERS { get; set; }
         public virtual DbSet<TEMP_82CART_ORDERS_ITEM> TEMP_82CART_ORDERS_ITEM { get; set; }
