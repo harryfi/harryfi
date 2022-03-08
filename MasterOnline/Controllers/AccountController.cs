@@ -2026,6 +2026,14 @@ namespace MasterOnline.Controllers
                     {
                         if (!string.IsNullOrWhiteSpace(tblCustomer.TOKEN))
                         {
+                            var idenTikTok = new TTApiData
+                            {
+                                access_token = tblCustomer.TOKEN,
+                                no_cust = tblCustomer.CUST,
+                                DatabasePathErasoft = dbPathEra,
+                                shop_id = tblCustomer.Sort1_Cust,
+                                username = username
+                            };
 #if (AWS || DEV)
                             client.Enqueue<TiktokController>(x => x.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username, tblCustomer.TGL_EXPIRED,tblCustomer.TOKEN_EXPIRED));
 
@@ -2049,10 +2057,13 @@ namespace MasterOnline.Controllers
 #endif
                                 AdminController.ReminderNotifyExpiredAccountMP(dbPathEra, tblCustomer.PERSO, "Tiktok Shop", tblCustomer.TGL_EXPIRED);
                             }
-                        }
-                        if (!tblCustomer.TIDAK_HIT_UANG_R == true)
-                        {
-                            //order data
+                            if (!tblCustomer.TIDAK_HIT_UANG_R == true)
+                            {
+                                //order data
+                                var tikapijob = new TiktokControllerJob();
+                                tikapijob.GetOrder_Insert_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
+
+                            }
                         }
                     }
                 }

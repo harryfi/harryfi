@@ -69,19 +69,17 @@ namespace MasterOnline.Controllers
         [Queue("3_general")]
         public async Task<string> GetOrder_Insert_Tiktok(TTApiData iden, string CUST, string NAMA_CUST)
         {
-            SetupContext(apidata.access_token, apidata.username);
+            SetupContext(iden.access_token, iden.username);
 
-            if (!string.IsNullOrEmpty(iden.token))
-            {
-                iden = await RefreshTokenShopee_V2(iden, false);
-            }
             var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
             delQry += DateTime.UtcNow.AddHours(7).AddHours(-12).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + CUST + "'";
 
-            var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
+            //var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
 
-            var fromDt = (long)DateTimeOffset.UtcNow.AddHours(-12).ToUnixTimeSeconds();
-            var toDt = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            //var fromDt = (long)DateTimeOffset.UtcNow.AddHours(-12).ToUnixTimeSeconds();
+            //var toDt = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-4).ToUnixTimeSeconds();
+            var toDt = (long)DateTimeOffset.UtcNow.AddDays(-2).ToUnixTimeSeconds();
 
             var lanjut = true;
             var connIdProses = "";
@@ -94,10 +92,10 @@ namespace MasterOnline.Controllers
                 {
                     connIdProses += "'" + returnGetOrder.ConnId + "' , ";
                 }
-                if (returnGetOrder.AdaKomponen)
-                {
-                    AdaKomponen = returnGetOrder.AdaKomponen;
-                }
+                //if (returnGetOrder.AdaKomponen)
+                //{
+                //    AdaKomponen = returnGetOrder.AdaKomponen;
+                //}
                 nextPage = returnGetOrder.nextPage;
                 if (!returnGetOrder.more)
                 {
@@ -131,7 +129,7 @@ namespace MasterOnline.Controllers
         public async Task<returnsGetOrder> GetOrderList_Insert(TTApiData apidata, int order_status, string CUST, string NAMA_CUST, string page, long fromDt, long toDt)
         {
             SetupContext(apidata.access_token, apidata.username);
-            string ret = new returnsGetOrder();
+            var ret = new returnsGetOrder();
             string connId = Guid.NewGuid().ToString();
             string status = "";
             ret.ConnId = connId;
@@ -140,12 +138,14 @@ namespace MasterOnline.Controllers
             int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
             string sign = eraAppSecret + "/api/orders/searchapp_key" + eraAppKey + "shop_id" + apidata.shop_id + "timestamp" + timestamp + eraAppSecret;
             string signencry = GetHash(sign, eraAppSecret);
-            var vformatUrl = String.Format(urll, apidata.access_token, timestamp, signencry, eraAppKey, iden.shop_id);
+            var vformatUrl = String.Format(urll, apidata.access_token, timestamp, signencry, eraAppKey, apidata.shop_id);
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
             myReq.Method = "POST";
             myReq.ContentType = "application/json";
 
-            string myData = "{\"create_time_from\": " + fromDt + ",\"create_time_to\": " + toDt + ",\"order_status\": " + order_status
+            //string myData = "{\"create_time_from\": " + fromDt + ",\"create_time_to\": " + toDt + ",\"order_status\": " + order_status
+            //    + ",\"sort_type\": 1,\"sort_by\": \"CREATE_TIME\",\"page_size\":10";
+            string myData = "{\"create_time_from\": " + fromDt + ",\"create_time_to\": " + toDt 
                 + ",\"sort_type\": 1,\"sort_by\": \"CREATE_TIME\",\"page_size\":10";
             if (!string.IsNullOrEmpty(page))
             {
@@ -158,7 +158,7 @@ namespace MasterOnline.Controllers
                 myReq.ContentLength = System.Text.Encoding.UTF8.GetBytes(myData).Length;
                 using (var dataStream = myReq.GetRequestStream())
                 {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myReq.ContentLength);
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, System.Text.Encoding.UTF8.GetBytes(myData).Length);
                 }
                 using (WebResponse response = myReq.GetResponse())
                 {
@@ -177,12 +177,13 @@ namespace MasterOnline.Controllers
             if (responseFromServer != "")
             {
                 var listOrder = JsonConvert.DeserializeObject(responseFromServer, typeof(GetOrderListResponse)) as GetOrderListResponse;
-                if (listOrder.order_list != null)
+                if(listOrder.data != null)
+                if (listOrder.data.order_list != null)
                 {
-                    if (listOrder.orders.Length > 0)
+                    if (listOrder.data.order_list.Length > 0)
                     {
                         string[] ordersn_list = listOrder.data.order_list.Select(p => p.order_id).ToArray();
-                        var dariTgl = DateTimeOffset.FromUnixTimeSeconds(daysFrom).UtcDateTime.AddHours(7).AddDays(-1);
+                        var dariTgl = DateTimeOffset.FromUnixTimeSeconds(fromDt).UtcDateTime.AddHours(7).AddDays(-1);
 
                         var SudahAdaDiMO = ErasoftDbContext.SOT01A.Where(p => p.USER_NAME == "Auto TikTok" && p.CUST == CUST && p.TGL >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
 
@@ -208,7 +209,7 @@ namespace MasterOnline.Controllers
                                 if (rowAffected > 0)
                                 {
                                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                                    contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(rowAffected) + " Pesanan terbayar dari TikTok.");
+                                    contextNotif.Clients.Group(apidata.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(rowAffected) + " Pesanan terbayar dari TikTok.");
 
                                 }
                             }
@@ -220,20 +221,21 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> GetOrderDetails(ShopeeAPIData iden, string[] ordersn_list, string connID, string CUST, string NAMA_CUST, StatusOrder stat)
+        public async Task<string> GetOrderDetails(TTApiData iden, string[] ordersn_list, string connID, string CUST, string NAMA_CUST, int stat)
         {
+            var ret = "";
             string urll = "https://open-api.tiktokglobalshop.com/api/orders/detail/query?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
             int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
-            string sign = eraAppSecret + "/api/orders/detail/queryapp_key" + eraAppKey + "shop_id" + apidata.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string sign = eraAppSecret + "/api/orders/detail/queryapp_key" + eraAppKey + "shop_id" + iden.shop_id + "timestamp" + timestamp + eraAppSecret;
             string signencry = GetHash(sign, eraAppSecret);
-            var vformatUrl = String.Format(urll, apidata.access_token, timestamp, signencry, eraAppKey, iden.shop_id);
+            var vformatUrl = String.Format(urll, iden.access_token, timestamp, signencry, eraAppKey, iden.shop_id);
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
             myReq.Method = "POST";
             myReq.ContentType = "application/json";
 
             GetOrderDetailsData HttpBody = new GetOrderDetailsData
             {
-                ordersn_list = ordersn_list
+                order_id_list = ordersn_list
             };
 
             string myData = JsonConvert.SerializeObject(HttpBody);
@@ -244,7 +246,7 @@ namespace MasterOnline.Controllers
                 myReq.ContentLength = System.Text.Encoding.UTF8.GetBytes(myData).Length;
                 using (var dataStream = myReq.GetRequestStream())
                 {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myReq.ContentLength);
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, System.Text.Encoding.UTF8.GetBytes(myData).Length);
                 }
                 using (WebResponse response = myReq.GetResponse())
                 {
@@ -275,7 +277,7 @@ namespace MasterOnline.Controllers
                 var kabKot = "3174";
                 var prov = "31";
                 string sqlVal = "";
-                foreach (var order in result.orders)
+                foreach (var order in result.data.order_list)
                 {
                     //add by nurul 25/8/2021, handle pembeli d samarkan ***
                     if (!order.recipient_address.name.Contains('*'))
@@ -334,7 +336,7 @@ namespace MasterOnline.Controllers
                         EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
                     };
                 }
-                foreach (var order in result.orders)
+                foreach (var order in result.data.order_list)
                 {
                     try
                     {
@@ -450,28 +452,37 @@ namespace MasterOnline.Controllers
                         ////end add by nurul 22/3/2021
                         string checkout_shipping_carrier = "";
                         #endregion
+                        long paidTime = 0;
+                        if (order.paid_time == null)
+                        {
+                            paidTime = Convert.ToInt64(order.create_time);
+                        }
+                        else
+                        {
+                            paidTime = order.paid_time.Value;
+                        }
                         var newOrder = new TEMP_TIKTOK_ORDERS()
                         {
-                            actual_shipping_cost = order.actual_shipping_cost,
+                            actual_shipping_cost = order.payment_info.original_shipping_fee.ToString(),
                             buyer_username = buyer_username,
-                            cod = order.cod,
+                            cod = false,
                             country = country,
-                            create_time = DateTimeOffset.FromUnixTimeSeconds(order.create_time).UtcDateTime,
+                            create_time = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64( order.create_time)).UtcDateTime,
                             currency = currency,
-                            days_to_ship = order.days_to_ship,
+                            days_to_ship = 0,
                             dropshipper = dropshipper,
-                            escrow_amount = order.escrow_amount,
-                            estimated_shipping_fee = order.estimated_shipping_fee,
-                            goods_to_declare = order.goods_to_declare,
-                            message_to_seller = (order.message_to_seller ?? "").Replace('\'', '`'),
-                            note = (order.note ?? "").Replace('\'', '`'),
-                            note_update_time = DateTimeOffset.FromUnixTimeSeconds(order.note_update_time).UtcDateTime,
+                            escrow_amount = order.payment_info.total_amount.ToString(),
+                            estimated_shipping_fee = order.payment_info.original_shipping_fee.ToString(),
+                            goods_to_declare = false,
+                            message_to_seller = "",
+                            note = "",
+                            note_update_time = DateTime.UtcNow.AddHours(7),
                             ordersn = ordersn,
                             order_status = order_status,
                             payment_method = payment_method,
                             //change by nurul 5/12/2019, local time 
                             //pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
-                            pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime.AddHours(7),
+                            pay_time = DateTimeOffset.FromUnixTimeSeconds(paidTime).UtcDateTime.AddHours(7),
                             //end change by nurul 5/12/2019, local time 
                             Recipient_Address_country = Recipient_Address_country,
                             Recipient_Address_state = Recipient_Address_state,
@@ -484,7 +495,7 @@ namespace MasterOnline.Controllers
                             Recipient_Address_zipcode = Recipient_Address_zipcode,
                             service_code = service_code,
                             shipping_carrier = shipping_carrier,
-                            total_amount = order.total_amount,
+                            total_amount = order.payment_info.total_amount.ToString(),
                             tracking_no = tracking_no,
                             update_time = DateTimeOffset.FromUnixTimeSeconds(order.update_time).UtcDateTime,
                             CONN_ID = connID,
@@ -496,7 +507,7 @@ namespace MasterOnline.Controllers
                         };
                         //add 27 okt 2020, expired shipping date
                         newOrder.ship_by_date = null;
-                        if (order.ship_by_date > 0)
+                        if (order.cancel_order_sla > 0)
                         {
                             newOrder.ship_by_date = DateTimeOffset.FromUnixTimeSeconds(order.cancel_order_sla).UtcDateTime.AddHours(7);
                         }
@@ -510,7 +521,7 @@ namespace MasterOnline.Controllers
                         //        newOrder.estimated_shipping_fee = "0";
                         //    }
                         //}
-                        newOrder.estimated_shipping_fee = order.original_shipping_fee - order.shipping_fee_seller_discount
+                        newOrder.estimated_shipping_fee = (order.payment_info.original_shipping_fee - order.payment_info.shipping_fee_seller_discount).ToString();
                         //var listPromo = new Dictionary<long, double>();//add 6 juli 2020
                         var listPromo = new Dictionary<long, List<Activity>>();//add 6 juli 2020
                         foreach (var item in order.item_list)
@@ -537,26 +548,17 @@ namespace MasterOnline.Controllers
                             //}
                             string variation_sku = "";
 
-                            long paidTime = 0;
-                            if(order.paid_time == null)
-                            {
-                                paidTime = Convert.ToInt64(order.create_time);
-                            }
-                            else
-                            {
-                                paidTime = order.paid_time;
-                            }
-                            TEMP_SHOPEE_ORDERS_ITEM newOrderItem = new TEMP_SHOPEE_ORDERS_ITEM()
+                            var newOrderItem = new TEMP_TIKTOK_ORDERS_ITEM()
                             {
                                 ordersn = ordersn,
                                 is_wholesale = false,
                                 item_id = Convert.ToInt64( item.product_id),
                                 item_name = item_name,
                                 item_sku = item_sku,
-                                variation_discounted_price = item.sku_sale_price,
+                                variation_discounted_price = item.sku_sale_price.ToString(),
                                 variation_id = Convert.ToInt64(item.sku_id),
                                 variation_name = variation_name,
-                                variation_original_price = item.sku_original_price,
+                                variation_original_price = item.sku_original_price.ToString(),
                                 variation_quantity_purchased = item.quantity,
                                 variation_sku = variation_sku,
                                 weight = 0,
@@ -606,6 +608,44 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+        #region Encyrptor
+        public static String GetHash(String text, String key)
+        {
+            ASCIIEncoding encoding = new ASCIIEncoding();
+
+            Byte[] textBytes = encoding.GetBytes(text);
+            Byte[] keyBytes = encoding.GetBytes(key);
+
+            Byte[] hashBytes;
+
+            using (HMACSHA256 hash = new HMACSHA256(keyBytes))
+                hashBytes = hash.ComputeHash(textBytes);
+
+            return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+        }
+
+        public static string EncryptString(string input, Encoding encoding)
+        {
+            Byte[] stringBytes = encoding.GetBytes(input);
+            StringBuilder sbBytes = new StringBuilder(stringBytes.Length * 2);
+            foreach (byte b in stringBytes)
+            {
+                sbBytes.AppendFormat("{0:X2}", b);
+            }
+            return sbBytes.ToString();
+        }
+
+        public static string DecryptString(string hexInput, Encoding encoding)
+        {
+            int numberChars = hexInput.Length;
+            byte[] bytes = new byte[numberChars / 2];
+            for (int i = 0; i < numberChars; i += 2)
+            {
+                bytes[i / 2] = Convert.ToByte(hexInput.Substring(i, 2), 16);
+            }
+            return encoding.GetString(bytes);
+        }
+        #endregion
 
     }
 }
