@@ -69,17 +69,17 @@ namespace MasterOnline.Controllers
         [Queue("3_general")]
         public async Task<string> GetOrder_Insert_Tiktok(TTApiData iden, string CUST, string NAMA_CUST)
         {
-            SetupContext(iden.access_token, iden.username);
+            SetupContext(iden.DatabasePathErasoft, iden.username);
 
             var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
             delQry += DateTime.UtcNow.AddHours(7).AddHours(-12).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + CUST + "'";
 
             //var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
 
-            //var fromDt = (long)DateTimeOffset.UtcNow.AddHours(-12).ToUnixTimeSeconds();
-            //var toDt = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-4).ToUnixTimeSeconds();
-            var toDt = (long)DateTimeOffset.UtcNow.AddDays(-2).ToUnixTimeSeconds();
+            var fromDt = (long)DateTimeOffset.UtcNow.AddHours(-12).ToUnixTimeSeconds();
+            var toDt = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            //var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-5).ToUnixTimeSeconds();
+            //var toDt = (long)DateTimeOffset.UtcNow.AddDays(-3).ToUnixTimeSeconds();
 
             var lanjut = true;
             var connIdProses = "";
@@ -128,7 +128,7 @@ namespace MasterOnline.Controllers
         }
         public async Task<returnsGetOrder> GetOrderList_Insert(TTApiData apidata, int order_status, string CUST, string NAMA_CUST, string page, long fromDt, long toDt)
         {
-            SetupContext(apidata.access_token, apidata.username);
+            SetupContext(apidata.DatabasePathErasoft, apidata.username);
             var ret = new returnsGetOrder();
             string connId = Guid.NewGuid().ToString();
             string status = "";
@@ -143,10 +143,10 @@ namespace MasterOnline.Controllers
             myReq.Method = "POST";
             myReq.ContentType = "application/json";
 
-            //string myData = "{\"create_time_from\": " + fromDt + ",\"create_time_to\": " + toDt + ",\"order_status\": " + order_status
-            //    + ",\"sort_type\": 1,\"sort_by\": \"CREATE_TIME\",\"page_size\":10";
-            string myData = "{\"create_time_from\": " + fromDt + ",\"create_time_to\": " + toDt 
+            string myData = "{\"create_time_from\": " + fromDt + ",\"create_time_to\": " + toDt + ",\"order_status\": " + order_status
                 + ",\"sort_type\": 1,\"sort_by\": \"CREATE_TIME\",\"page_size\":10";
+            //string myData = "{\"create_time_from\": " + fromDt + ",\"create_time_to\": " + toDt 
+            //    + ",\"sort_type\": 1,\"sort_by\": \"CREATE_TIME\",\"page_size\":10";
             if (!string.IsNullOrEmpty(page))
             {
                 myData += ",\"cursor\": \"" + page + "\"";
@@ -459,7 +459,7 @@ namespace MasterOnline.Controllers
                         }
                         else
                         {
-                            paidTime = order.paid_time.Value;
+                            paidTime = order.paid_time.Value * 1000;
                         }
                         var newOrder = new TEMP_TIKTOK_ORDERS()
                         {
@@ -467,12 +467,12 @@ namespace MasterOnline.Controllers
                             buyer_username = buyer_username,
                             cod = false,
                             country = country,
-                            create_time = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64( order.create_time)).UtcDateTime,
+                            create_time = DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64( order.create_time)).UtcDateTime,
                             currency = currency,
                             days_to_ship = 0,
                             dropshipper = dropshipper,
                             escrow_amount = order.payment_info.total_amount.ToString(),
-                            estimated_shipping_fee = order.payment_info.original_shipping_fee.ToString(),
+                            estimated_shipping_fee = order.payment_info.shipping_fee.ToString(),
                             goods_to_declare = false,
                             message_to_seller = "",
                             note = "",
@@ -482,7 +482,7 @@ namespace MasterOnline.Controllers
                             payment_method = payment_method,
                             //change by nurul 5/12/2019, local time 
                             //pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
-                            pay_time = DateTimeOffset.FromUnixTimeSeconds(paidTime).UtcDateTime.AddHours(7),
+                            pay_time = DateTimeOffset.FromUnixTimeMilliseconds(paidTime).UtcDateTime.AddHours(7),
                             //end change by nurul 5/12/2019, local time 
                             Recipient_Address_country = Recipient_Address_country,
                             Recipient_Address_state = Recipient_Address_state,
@@ -521,7 +521,7 @@ namespace MasterOnline.Controllers
                         //        newOrder.estimated_shipping_fee = "0";
                         //    }
                         //}
-                        newOrder.estimated_shipping_fee = (order.payment_info.original_shipping_fee - order.payment_info.shipping_fee_seller_discount).ToString();
+                        //newOrder.estimated_shipping_fee = (order.payment_info.original_shipping_fee - order.payment_info.shipping_fee_seller_discount).ToString();
                         //var listPromo = new Dictionary<long, double>();//add 6 juli 2020
                         var listPromo = new Dictionary<long, List<Activity>>();//add 6 juli 2020
                         foreach (var item in order.item_list)
@@ -562,7 +562,7 @@ namespace MasterOnline.Controllers
                                 variation_quantity_purchased = item.quantity,
                                 variation_sku = variation_sku,
                                 weight = 0,
-                                pay_time = DateTimeOffset.FromUnixTimeSeconds(paidTime).UtcDateTime,
+                                pay_time = DateTimeOffset.FromUnixTimeMilliseconds(paidTime).UtcDateTime,
                                 CONN_ID = connID,
                                 CUST = CUST,
                                 NAMA_CUST = NAMA_CUST
@@ -583,14 +583,14 @@ namespace MasterOnline.Controllers
                         {
                             CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
                             CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connID;
-                            CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
-                            CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                            CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss");
+                            CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                             CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
                             CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
                             CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
                             CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
                             CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
-                            CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 1;
+                            CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
                             CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
                             CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
                             CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;

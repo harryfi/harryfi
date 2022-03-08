@@ -251,24 +251,24 @@ namespace MasterOnline.Controllers
                     grant_type = "refresh_token"
                 };
                 var data = JsonConvert.SerializeObject(postdata);
-                //add 22 april 2021, handle spamming
-                var cekLog = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Refresh Token" && p.REQUEST_ATTRIBUTE_1 == cust
-                    && p.REQUEST_ATTRIBUTE_2 == refreshToken && p.REQUEST_STATUS == "Success").FirstOrDefault();
-                if (cekLog != null)
-                {
-                    ret = "data sudah ada";
-                }
-                //end add 22 april 2021, handle spamming
-                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-                {
-                    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                    REQUEST_ACTION = "Refresh Token",
-                    REQUEST_DATETIME = DateTime.Now,
-                    REQUEST_ATTRIBUTE_1 = cust,
-                    REQUEST_ATTRIBUTE_2 = refreshToken,
-                    REQUEST_STATUS = "Pending",
-                };
-                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, cust, currentLog);
+                ////add 22 april 2021, handle spamming
+                //var cekLog = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Refresh Token" && p.REQUEST_ATTRIBUTE_1 == cust
+                //    && p.REQUEST_ATTRIBUTE_2 == refreshToken && p.REQUEST_STATUS == "Success").FirstOrDefault();
+                //if (cekLog != null)
+                //{
+                //    ret = "data sudah ada";
+                //}
+                ////end add 22 april 2021, handle spamming
+                //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                //{
+                //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                //    REQUEST_ACTION = "Refresh Token",
+                //    REQUEST_DATETIME = DateTime.Now,
+                //    REQUEST_ATTRIBUTE_1 = cust,
+                //    REQUEST_ATTRIBUTE_2 = refreshToken,
+                //    REQUEST_STATUS = "Pending",
+                //};
+                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, cust, currentLog);
                 myReq.ContentLength = data.Length;
                 try
                 {
@@ -288,8 +288,8 @@ namespace MasterOnline.Controllers
                 catch (Exception ex)
                 {
                     var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + cust + "'");
-                    currentLog.REQUEST_EXCEPTION = ex.Message;
-                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, cust, currentLog);
+                    //currentLog.REQUEST_EXCEPTION = ex.Message;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, cust, currentLog);
                     return null;
                 }
                 try
@@ -304,21 +304,21 @@ namespace MasterOnline.Controllers
                         var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + dateExpired + "',TOKEN_EXPIRED = '" + tokendateExpired + "' , SORT1_CUST = '" + shopid + "' WHERE CUST = '" + cust + "'");
                         if (result == 1)
                         {
-                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, cust, currentLog);
+                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, cust, currentLog);
                             return null;
                         }
                         else
                         {
-                            currentLog.REQUEST_EXCEPTION = "failed to update token;execute result=" + result;
-                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, cust, currentLog);
+                            //currentLog.REQUEST_EXCEPTION = "failed to update token;execute result=" + result;
+                            //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, cust, currentLog);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
                     var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + cust + "'");
-                    currentLog.REQUEST_EXCEPTION = ex.Message;
-                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, cust, currentLog);
+                    //currentLog.REQUEST_EXCEPTION = ex.Message;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, cust, currentLog);
                 }
             }
 

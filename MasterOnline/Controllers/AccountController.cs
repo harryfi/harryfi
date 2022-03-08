@@ -2057,11 +2057,19 @@ namespace MasterOnline.Controllers
 #endif
                                 AdminController.ReminderNotifyExpiredAccountMP(dbPathEra, tblCustomer.PERSO, "Tiktok Shop", tblCustomer.TGL_EXPIRED);
                             }
-                            if (!tblCustomer.TIDAK_HIT_UANG_R == true)
+                            string connId_JobId = "";
+                            if (tblCustomer.TIDAK_HIT_UANG_R == true)
                             {
                                 //order data
+
+#if (AWS || DEV)
+                            connId_JobId = dbPathEra + "_tiktok_pesanan_insert_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TiktokControllerJob>(x => x.GetOrder_Insert_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO)), Cron.MinuteInterval(5), recurJobOpt);
+
+#else
                                 var tikapijob = new TiktokControllerJob();
-                                tikapijob.GetOrder_Insert_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
+                                await tikapijob.GetOrder_Insert_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
+#endif
 
                             }
                         }
