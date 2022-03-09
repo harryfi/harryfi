@@ -1107,6 +1107,7 @@ namespace MasterOnline.Controllers
                     tempbarang.DISPLAY = true;
                     tempbarang.SELLER_SKU = kdmp;
                     tempbarang.TYPE = "4";
+                    tempbarang.AVALUE_34 = "https://shop.tiktok.com/view/product/" + detail.ProductId;
                     //foreach (SkuTik satikd in detail.Skus)
                     {
                         foreach (SalesAttributeTik satik in detail.Skus[0].SalesAttributes)
@@ -2420,6 +2421,7 @@ namespace MasterOnline.Controllers
                     tempbarang.AVALUE_32 = detail.WarrantyPolicy;
                     tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
                     tempbarang.AVALUE_38 = tempbarang.MEREK;
+                    tempbarang.AVALUE_34 = "https://shop.tiktok.com/view/product/" + productid;
                     tempbarang.DISPLAY = true;
                     tempbarang.KODE_BRG_INDUK = sellersku == null ? productid + ";0" : sellersku;
                     tempbarang.TYPE = "3";
