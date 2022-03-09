@@ -64,13 +64,111 @@ namespace MasterOnline.Controllers
             string EraServerName = EDB.GetServerName("sConn");
             ErasoftDbContext = new ErasoftContext(EraServerName, DatabasePathErasoft);
             username = uname;
+
         }
+        public async Task<TTApiData> RefreshTokenTikTok(TTApiData iden)
+        {
+            DateTime dateNow = DateTime.UtcNow.AddHours(7).AddMinutes(-30);
+            bool ATExp = false;
+
+            //if (ts.Days < 1 && ts.Hours < 24 && dateNow < tanggal_exptoken)
+            if (dateNow > iden.expired_date)
+            {
+                var cekInDB = ErasoftDbContext.ARF01.Where(m => m.CUST == iden.no_cust).FirstOrDefault();
+                if (cekInDB != null)
+                {
+                    //if (dataAPI.token != cekInDB.TOKEN)
+                    //if (dataAPI.token_expired != cekInDB.TOKEN_EXPIRED)
+                    if (iden.expired_date < cekInDB.TOKEN_EXPIRED)
+                    {
+                        iden.access_token = cekInDB.TOKEN;
+                        iden.expired_date = cekInDB.TGL_EXPIRED.Value;
+                        iden.refresh_token = cekInDB.REFRESH_TOKEN;
+
+                        if (cekInDB.TOKEN_EXPIRED.Value.AddMinutes(-30) > DateTime.UtcNow.AddHours(7))
+                        {
+                            return iden;
+                        }
+                    }
+                }
+                ATExp = true;
+            }
+
+            if (ATExp)
+            {
+                string url;
+                url = "https://auth.tiktok-shops.com/api/token/refreshToken";
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(url);
+                myReq.Method = "POST";
+                myReq.ContentType = "application/json";
+                string responseFromServer = "";
+                PostTiktokApiRef postdata = new PostTiktokApiRef()
+                {
+                    app_key = eraAppKey,
+                    app_secret = eraAppSecret,
+                    refresh_token = iden.refresh_token,
+                    grant_type = "refresh_token"
+                };
+                var data = JsonConvert.SerializeObject(postdata);
+                myReq.ContentLength = data.Length;
+                try
+                {
+                    using (var dataStream = myReq.GetRequestStream())
+                    {
+                        dataStream.Write(System.Text.Encoding.UTF8.GetBytes(data), 0, data.Length);
+                    }
+                    using (WebResponse response = await myReq.GetResponseAsync())
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + iden.no_cust + "'");
+                    
+                    return null;
+                }
+                try
+                {
+                    if (responseFromServer != "")
+                    {
+                        TiktokAuth tauth = JsonConvert.DeserializeObject<TiktokAuth>(responseFromServer);
+                        var dateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                        var tokendateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.AccessTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                        var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken 
+                            + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + dateExpired 
+                            + "',TOKEN_EXPIRED = '" + tokendateExpired + "' WHERE CUST = '" + iden.no_cust + "'");
+                        if (result == 1)
+                        {
+                            iden.access_token = tauth.Data.AccessToken;
+                            iden.refresh_token = tauth.Data.RefreshToken;
+                            iden.expired_date = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7);
+                            //return null;
+                        }
+                        else
+                        {
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + iden.no_cust + "'");
+                }
+            }
+
+            return iden;
+        }
+
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
         public async Task<string> GetOrder_Insert_Tiktok(TTApiData iden, string CUST, string NAMA_CUST)
         {
             SetupContext(iden.DatabasePathErasoft, iden.username);
-
+            iden = await RefreshTokenTikTok(iden);
             var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
             delQry += DateTime.UtcNow.AddHours(7).AddHours(-12).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + CUST + "'";
 
@@ -160,7 +258,7 @@ namespace MasterOnline.Controllers
                 {
                     dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, System.Text.Encoding.UTF8.GetBytes(myData).Length);
                 }
-                using (WebResponse response = myReq.GetResponse())
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {
@@ -248,7 +346,7 @@ namespace MasterOnline.Controllers
                 {
                     dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, System.Text.Encoding.UTF8.GetBytes(myData).Length);
                 }
-                using (WebResponse response = myReq.GetResponse())
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {
@@ -262,7 +360,7 @@ namespace MasterOnline.Controllers
 
             }
 
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 //try
                 //{
@@ -474,7 +572,7 @@ namespace MasterOnline.Controllers
                             escrow_amount = order.payment_info.total_amount.ToString(),
                             estimated_shipping_fee = order.payment_info.shipping_fee.ToString(),
                             goods_to_declare = false,
-                            message_to_seller = "",
+                            message_to_seller = (order.buyer_message ?? "").Replace('\'', '`'),
                             note = "",
                             note_update_time = DateTime.UtcNow.AddHours(7),
                             ordersn = ordersn,
@@ -608,6 +706,350 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public async Task<string> GetOrder_Complete_Tiktok(TTApiData iden, string CUST, string NAMA_CUST)
+        {
+            SetupContext(iden.DatabasePathErasoft, iden.username);
+            iden = await RefreshTokenTikTok(iden);
+            
+            var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
+            var toDt = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+            var lanjut = true;
+            var connIdProses = "";
+            var nextPage = "";
+            int ord_status = 130;
+            while (lanjut)
+            {
+                var returnGetOrder = await GetOrderList_Insert(iden, ord_status, CUST, NAMA_CUST, nextPage, fromDt, toDt);
+                
+                nextPage = returnGetOrder.nextPage;
+                if (!returnGetOrder.more)
+                {
+                    {
+                        lanjut = false; break;
+                    }
+                }
+            }
+           
+
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust
+                + "%' and arguments like '%GetOrder_Complete_Tiktok%' and statename like '%Enque%'");
+
+            return "";
+        }
+        public async Task<returnsGetOrder> GetOrderList_Complete(TTApiData apidata, int order_status, string CUST, string NAMA_CUST, string page, long fromDt, long toDt)
+        {
+            SetupContext(apidata.DatabasePathErasoft, apidata.username);
+            var ret = new returnsGetOrder();
+            string connId = Guid.NewGuid().ToString();
+            ret.ConnId = connId;
+            string urll = "https://open-api.tiktokglobalshop.com/api/orders/search?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/orders/searchapp_key" + eraAppKey + "shop_id" + apidata.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, apidata.access_token, timestamp, signencry, eraAppKey, apidata.shop_id);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "POST";
+            myReq.ContentType = "application/json";
+
+            string myData = "{\"create_time_from\": " + fromDt + ",\"create_time_to\": " + toDt + ",\"order_status\": " + order_status
+                + ",\"sort_type\": 1,\"sort_by\": \"CREATE_TIME\",\"page_size\":10";
+            //string myData = "{\"create_time_from\": " + fromDt + ",\"create_time_to\": " + toDt 
+            //    + ",\"sort_type\": 1,\"sort_by\": \"CREATE_TIME\",\"page_size\":10";
+            if (!string.IsNullOrEmpty(page))
+            {
+                myData += ",\"cursor\": \"" + page + "\"";
+            }
+            myData += "}";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = System.Text.Encoding.UTF8.GetBytes(myData).Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, System.Text.Encoding.UTF8.GetBytes(myData).Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != "")
+            {
+                var listOrder = JsonConvert.DeserializeObject(responseFromServer, typeof(GetOrderListResponse)) as GetOrderListResponse;
+                if (listOrder.data != null)
+                    if (listOrder.data.order_list != null)
+                    {
+                        if (listOrder.data.order_list.Length > 0)
+                        {
+                            string[] ordersn_list = listOrder.data.order_list.Select(p => p.order_id).ToArray();
+                            string ordersn = "";
+                            foreach (var item in ordersn_list)
+                            {
+                                ordersn = ordersn + "'" + item + "',";
+                                ordersn = ordersn.Substring(0, ordersn.Length - 1);
+                                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE CUST = '" 
+                                    + apidata.no_cust + "' AND NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '03'");
+                                if(rowAffected > 0)
+                                {
+                                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                    contextNotif.Clients.Group(apidata.DatabasePathErasoft).moNewOrder("" + Convert.ToString(rowAffected) 
+                                        + " Pesanan dari TikTok sudah selesai.");
+                                    
+                                    var dateTimeNow = DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd");
+                                    string sSQLUpdateDatePesananSelesai = "UPDATE SIT01A SET TGL_KIRIM = '" + dateTimeNow + "' WHERE CUST = '"+apidata.no_cust
+                                        +"' AND NO_REF IN (" + ordersn + ")";
+                                    var resultUpdateDatePesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdateDatePesananSelesai);
+                                }
+                            }
+                        }
+                    }
+            }
+
+            return ret;
+        }
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public async Task<string> GetOrder_Cancel_Tiktok(TTApiData iden, string CUST, string NAMA_CUST)
+        {
+            SetupContext(iden.DatabasePathErasoft, iden.username);
+            iden = await RefreshTokenTikTok(iden);
+
+            var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
+            var toDt = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            //var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-5).ToUnixTimeSeconds();
+            //var toDt = (long)DateTimeOffset.UtcNow.AddDays(-3).ToUnixTimeSeconds();
+
+            var lanjut = true;
+            var connIdProses = "";
+            var nextPage = "";
+            int ord_status = 140;
+            while (lanjut)
+            {
+                var returnGetOrder = await GetOrderList_Cancel(iden, ord_status, CUST, NAMA_CUST, nextPage, fromDt, toDt);
+                if (returnGetOrder.ConnId != "")
+                {
+                    connIdProses += "'" + returnGetOrder.ConnId + "' , ";
+                }
+                nextPage = returnGetOrder.nextPage;
+                if (!returnGetOrder.more)
+                {
+                    {
+                        lanjut = false; break;
+                    }
+                }
+            }
+            if (!string.IsNullOrEmpty(connIdProses))
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username, connIdProses.Substring(0, connIdProses.Length - 3));
+            }
+
+
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust
+                + "%' and arguments like '%GetOrder_Cancel_Tiktok%' and statename like '%Enque%'");
+
+            return "";
+        }
+        public async Task<returnsGetOrder> GetOrderList_Cancel(TTApiData apidata, int order_status, string CUST, string NAMA_CUST, string page, long fromDt, long toDt)
+        {
+            SetupContext(apidata.DatabasePathErasoft, apidata.username);
+            var ret = new returnsGetOrder();
+            string connId = Guid.NewGuid().ToString();
+            string status = "";
+            ret.ConnId = connId;
+            var jmlhNewOrder = 0;
+            string urll = "https://open-api.tiktokglobalshop.com/api/orders/search?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/orders/searchapp_key" + eraAppKey + "shop_id" + apidata.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, apidata.access_token, timestamp, signencry, eraAppKey, apidata.shop_id);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "POST";
+            myReq.ContentType = "application/json";
+
+            string myData = "{\"create_time_from\": " + fromDt + ",\"create_time_to\": " + toDt + ",\"order_status\": " + order_status
+                + ",\"sort_type\": 1,\"sort_by\": \"CREATE_TIME\",\"page_size\":10";
+            //string myData = "{\"create_time_from\": " + fromDt + ",\"create_time_to\": " + toDt 
+            //    + ",\"sort_type\": 1,\"sort_by\": \"CREATE_TIME\",\"page_size\":10";
+            if (!string.IsNullOrEmpty(page))
+            {
+                myData += ",\"cursor\": \"" + page + "\"";
+            }
+            myData += "}";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = System.Text.Encoding.UTF8.GetBytes(myData).Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, System.Text.Encoding.UTF8.GetBytes(myData).Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != "")
+            {
+                var listOrder = JsonConvert.DeserializeObject(responseFromServer, typeof(GetOrderListResponse)) as GetOrderListResponse;
+                if (listOrder.data != null)
+                    if (listOrder.data.order_list != null)
+                    {
+                        if (listOrder.data.order_list.Length > 0)
+                        {
+                            string[] ordersn_list = listOrder.data.order_list.Select(p => p.order_id).ToArray();
+                            var dariTgl = DateTimeOffset.FromUnixTimeSeconds(fromDt).UtcDateTime.AddHours(7).AddDays(-1);
+
+                            var SudahAdaDiMO = ErasoftDbContext.SOT01A.Where(p => p.USER_NAME == "Auto TikTok" && p.CUST == CUST && 
+                            (p.STATUS_TRANSAKSI != "11" || p.STATUS_TRANSAKSI != "12") && p.TGL >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
+
+                            var filtered = ordersn_list.Where(p => SudahAdaDiMO.Contains(p));
+                            if (filtered.Count() > 0)
+                            {
+                                string ordersn = "";
+                                foreach (var item in filtered)
+                                {
+                                    ordersn = ordersn + "'" + item + "',";
+                                }
+                                var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connId
+                                    + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn
+                                    + ") AND STATUS_TRANSAKSI  NOT IN ('11', '12') AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) <> 1");
+
+                                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ("
+                                    + ordersn + ") AND STATUS_TRANSAKSI  NOT IN ('11', '12') AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) <> 1");
+
+                                if(rowAffected > 0)
+                                {
+                                    await GetOrderDetails(apidata, filtered.ToArray(), connId, CUST, NAMA_CUST, order_status);
+
+                                    string qry_Retur = "SELECT F.NO_REF FROM SIT01A (NOLOCK) F INNER JOIN SOT01A (NOLOCK) P ON P.NO_BUKTI = F.NO_SO AND F.JENIS_FORM = '2' ";
+                                    qry_Retur += "WHERE P.NO_REFERENSI IN (" + ordersn + ") AND ISNULL(F.NO_FA_OUTLET, '-') LIKE '%-%' AND P.CUST = '" + CUST + "' AND ISNULL(P.TIPE_KIRIM,0) <> 1";
+                                    var dsFaktur = EDB.GetDataSet("MOConnectionString", "RETUR", qry_Retur);
+                                    if (dsFaktur.Tables[0].Rows.Count > 0)
+                                    {
+                                        var listFaktur = "";
+                                        for (int j = 0; j < dsFaktur.Tables[0].Rows.Count; j++)
+                                        {
+                                            listFaktur += "'" + dsFaktur.Tables[0].Rows[j]["NO_REF"].ToString() + "',";
+                                        }
+                                        listFaktur = listFaktur.Substring(0, listFaktur.Length - 1);
+                                        var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + listFaktur + ") AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + CUST + "'");
+                                    }
+
+                                    var sSQLInsertTempBundling = "INSERT INTO TEMP_ALL_MP_ORDER_ITEM_BUNDLING ([BRG],[CONN_ID],[TGL]) " +
+                                                             "SELECT DISTINCT C.UNIT AS BRG, '" + connId + "' AS CONN_ID, DATEADD(HOUR, +7, GETUTCDATE()) AS TGL " +
+                                                             "FROM TEMP_ALL_MP_ORDER_ITEM A(NOLOCK) " +
+                                                             "LEFT JOIN TEMP_ALL_MP_ORDER_ITEM_BUNDLING B(NOLOCK) ON B.CONN_ID = '" + connId + "' AND A.BRG = B.BRG " +
+                                                             "INNER JOIN STF03 C(NOLOCK) ON A.BRG = C.BRG " +
+                                                             "WHERE ISNULL(A.CONN_ID,'') = '" + connId + "' " +
+                                                             "AND ISNULL(B.BRG,'') = '' AND A.BRG <> 'NOT_FOUND'";
+                                    var execInsertTempBundling = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLInsertTempBundling);
+                                    new StokControllerJob().updateStockMarketPlace(connId, apidata.DatabasePathErasoft, apidata.username);
+
+                                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                    contextNotif.Clients.Group(apidata.DatabasePathErasoft).moNewOrder("" + Convert.ToString(rowAffected) 
+                                        + " Pesanan dari TikTok dibatalkan.");
+
+                                }
+
+                            }
+
+                        }
+                    }
+            }
+
+            return ret;
+        }
+        public async Task<string> GetOrderDetailsForCancelReason(TTApiData iden, string[] ordersn_list, string connID, string CUST, string NAMA_CUST, int stat)
+        {
+            var ret = "";
+            string urll = "https://open-api.tiktokglobalshop.com/api/orders/detail/query?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/orders/detail/queryapp_key" + eraAppKey + "shop_id" + iden.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, iden.access_token, timestamp, signencry, eraAppKey, iden.shop_id);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "POST";
+            myReq.ContentType = "application/json";
+
+            GetOrderDetailsData HttpBody = new GetOrderDetailsData
+            {
+                order_id_list = ordersn_list
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = System.Text.Encoding.UTF8.GetBytes(myData).Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, System.Text.Encoding.UTF8.GetBytes(myData).Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != "")
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(GetOrderDetailResponse)) as GetOrderDetailResponse;
+                if(result.data != null)
+                {
+                    var sSQL1 = "";
+                    var sSQL2 = "SELECT * INTO #TEMP FROM (";
+                    foreach (var order in result.data.order_list)
+                    {
+                        if (!string.IsNullOrEmpty(sSQL1))
+                        {
+                            sSQL1 += " UNION ALL ";
+                        }
+                        sSQL1 += " SELECT '" + order.order_id + "' NO_REFERENSI, '" + (order.cancel_reason ?? "") + "' ALASAN ";
+                    }
+                    sSQL2 += sSQL1 + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
+                    sSQL2 += " SELECT A.NO_BUKTI, ALASAN, 'AUTO_SHOPEE' FROM SOT01A A INNER JOIN #TEMP T ON A.NO_REFERENSI = T.NO_REFERENSI ";
+                    sSQL2 += " LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = ''; DROP TABLE #TEMP";
+                    EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL2);
+
+                }
+                
+            }
+            return ret;
+        }
+
+
         #region Encyrptor
         public static String GetHash(String text, String key)
         {
@@ -722,6 +1164,8 @@ public class OrderDetail_List
     public long cancel_order_sla { get; set; }
     public long receiver_address_updated { get; set; }
     public long update_time { get; set; }
+    public string cancel_reason { get; set; }
+    public string cancel_user { get; set; }
 }
 
 public class Payment_Info

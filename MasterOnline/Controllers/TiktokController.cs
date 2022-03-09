@@ -2758,11 +2758,12 @@ namespace MasterOnline.Controllers
     public class TTApiData
     {
         public string access_token { get; set; }
+        public string refresh_token { get; set; }
         public string shop_id { get; set; }
         public string DatabasePathErasoft { get; set; }
         public string no_cust { get; set; }
         public string username { get; set; }
-
+        public DateTime expired_date { get; set; }
     }
 
     public class PriceTik
