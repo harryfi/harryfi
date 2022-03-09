@@ -7024,6 +7024,7 @@
     <Content Include="Views\Manage\TableHistoryUnlinkBrg.cshtml" />
     <Content Include="Views\Manage\ListCustomerPartialView.cshtml" />
     <Content Include="Views\LazadaChat\LazadaAuthChat.cshtml" />
+    <Content Include="Views\Tiktok\Tiktokauth.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -7036,8 +7037,6 @@
     <Folder Include="Views\PartnerApiControllerJob\" />
     <Folder Include="Views\PartnerApi\" />
     <Folder Include="Views\StokOpnameViewModel\" />
-    <Folder Include="Views\TiktokController\" />
-    <Folder Include="Views\Tiktok\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
