@@ -1859,8 +1859,8 @@
                                 }
                                 if (@tiktok == value) {
                                     showHideTiktokForm(true);
-                                    $('#BlibliClient').show();
-                                    $('#BlibliClientPass').show();
+                                    //$('#BlibliClient').show();
+                                    //$('#BlibliClientPass').show();
                                 }
                                 //add by Tri, remove/append api_key
                                 $('#lbl_Customers_API_KEY').remove();
@@ -1874,7 +1874,7 @@
                                 showHideShopifyForm(false);
 
 
-                                if (@bklapak != value && @tokped != value && @shopee != value && @others != value) {
+                                if (@bklapak != value && @tokped != value && @shopee != value && @others != value && @tiktok != value) {
                                 @*if (@bklapak != value && @shopee != value) {*@
                                     var labelAPI_Key = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_KEY" id="lbl_Customers_API_KEY">API Key *</label>';
                                     var txtAPI_Key = '';

@@ -603,6 +603,10 @@ namespace MasterOnline.Controllers
                             checkout_shipping_carrier = checkout_shipping_carrier
                             //end add by nurul 22/3/2021
                         };
+                        if(order.payment_method == "6")
+                        {
+                            newOrder.cod = true;
+                        }
                         //add 27 okt 2020, expired shipping date
                         newOrder.ship_by_date = null;
                         if (order.cancel_order_sla > 0)
