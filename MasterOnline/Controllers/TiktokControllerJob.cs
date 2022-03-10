@@ -603,7 +603,7 @@ namespace MasterOnline.Controllers
                             checkout_shipping_carrier = checkout_shipping_carrier
                             //end add by nurul 22/3/2021
                         };
-                        if(order.payment_method == "6")
+                        if(order.payment_method == "CASH_ON_DELIVERY")
                         {
                             newOrder.cod = true;
                         }
@@ -1053,6 +1053,115 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Update Status Ready To Ship Pesanan {obj} ke TikTok Gagal.")]
+        public async Task<string> UpdateStatus_RTS(TTApiData iden, string ordersn)
+        {
+            var ret = "";
+            string urll = "https://open-api.tiktokglobalshop.com/api/order/rts?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/order/rtsapp_key" + eraAppKey + "shop_id" + iden.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, iden.access_token, timestamp, signencry, eraAppKey, iden.shop_id);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "POST";
+            myReq.ContentType = "application/json";
+
+
+            string myData = "{\"order_id\":\""+ ordersn + "\"}";
+
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = System.Text.Encoding.UTF8.GetBytes(myData).Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, System.Text.Encoding.UTF8.GetBytes(myData).Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != "")
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(TiktokCommonResponse)) as TiktokCommonResponse;
+                if (result.code != 0)
+                {
+                    throw new Exception(responseFromServer);
+
+                }
+
+            }
+            return ret;
+        }
+
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Update Status Ready To Ship Pesanan {obj} ke TikTok Gagal.")]
+        public async Task<string> GetShippingDoc(TTApiData iden, string ordersn)
+        {
+            var ret = "";
+            string urll = "https://open-api.tiktokglobalshop.com/api/logistics/shipping_document?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/logistics/shipping_documentapp_key" + eraAppKey + "shop_id" + iden.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, iden.access_token, timestamp, signencry, eraAppKey, iden.shop_id);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "GET";
+            myReq.ContentType = "application/json";
+
+
+            string myData = "{\"order_id\":\"" + ordersn + "\", \"document_type\" : \"SHIPPING_LABEL\", \"document_size\" : \"A6\"}";
+
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = System.Text.Encoding.UTF8.GetBytes(myData).Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, System.Text.Encoding.UTF8.GetBytes(myData).Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != "")
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(TiktokPrintLabelResponse)) as TiktokPrintLabelResponse;
+                if (result.code != 0)
+                {
+                    throw new Exception(responseFromServer);
+
+                }
+                else
+                {
+                    return result.data.doc_url;
+                }
+
+            }
+            return ret;
+        }
 
         #region Encyrptor
         public static String GetHash(String text, String key)
@@ -1096,6 +1205,21 @@ namespace MasterOnline.Controllers
     }
 }
 
+public class TiktokPrintLabelResponse : TiktokCommonResponse
+{
+    public TiktokPrintLabelData data { get; set; }
+}
+public class TiktokPrintLabelData
+{
+    public string doc_url { get; set; }
+
+}
+public class TiktokCommonResponse
+{
+    public int code { get; set; }
+    public string message { get; set; }
+    public string request_id { get; set; }
+}
 
 public class returnsGetOrder
 {

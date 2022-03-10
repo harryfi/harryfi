@@ -3314,18 +3314,18 @@ namespace MasterOnline.Controllers
             myReq.ContentLength = request_data.Length;
             //try
             //{
-                using (var dataStream = myReq.GetRequestStream())
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(request_data), 0, request_data.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
                 {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(request_data), 0, request_data.Length);
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
                 }
-                using (WebResponse response = await myReq.GetResponseAsync())
-                {
-                    using (Stream stream = response.GetResponseStream())
-                    {
-                        StreamReader reader = new StreamReader(stream);
-                        responseFromServer = reader.ReadToEnd();
-                    }
-                }
+            }
             //}
             //catch (Exception e)
             //{
@@ -3334,7 +3334,11 @@ namespace MasterOnline.Controllers
 
             if (responseFromServer != "")
             {
-                return null;
+                var res = JsonConvert.DeserializeObject<TiktokUpdateStockResponse>(responseFromServer);
+                if(res.code != 0)
+                {
+                    throw new Exception(responseFromServer);
+                }
             }
 
             return "";
@@ -3381,6 +3385,13 @@ namespace MasterOnline.Controllers
         {
             public Tokped_updateStockResultHeader header { get; set; }
             public Tokped_updateStockResultData data { get; set; }
+        }
+
+        public class TiktokUpdateStockResponse
+        {
+            public int code { get; set; }
+            public string message { get; set; }
+            public string request_id { get; set; }
         }
 
         public class Tokped_updateStockResultHeader
@@ -4311,7 +4322,7 @@ namespace MasterOnline.Controllers
                                 var ErasoftDbContext2 = new ErasoftContext(EraServerName, dbPathEra);
                                 manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext2, log_CUST, currentLog, "Shopee");
 
-                                EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ACTION = 'Selisih Stok B' AND REQUEST_DATETIME <= '"+ DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "'");
+                                EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ACTION = 'Selisih Stok B' AND REQUEST_DATETIME <= '" + DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "'");
                             }
                         }
                         catch (Exception ex2)
@@ -4364,7 +4375,7 @@ namespace MasterOnline.Controllers
                         client.Schedule<StokControllerJob>(x => x.ShopeeUnlinkProduct(DatabasePathErasoft, stf02_brg, log_CUST, uname, iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(0), qty), TimeSpan.FromMinutes(1));
 #endif
                     }
-                    else if(msg.ToLower().Contains("promotion"))
+                    else if (msg.ToLower().Contains("promotion"))
                     {
                         var reqID = "SUPPORT_UPDATE_STOK_SHOPEE_" + stf02_brg + "_" + log_CUST + "_" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff");
                         var sSQL = "INSERT INTO API_LOG_MARKETPLACE (REQUEST_STATUS,CUST_ATTRIBUTE_1,CUST_ATTRIBUTE_2,CUST_ATTRIBUTE_3,CUST,MARKETPLACE,REQUEST_ID,";
@@ -4376,7 +4387,7 @@ namespace MasterOnline.Controllers
                         sSQL += "'HANGFIRE' REQUEST_ATTRIBUTE_5, 'Update Stok " + stf02_brg + " ke Shopee gagal.' REQUEST_RESULT, '" + msg + "' REQUEST_EXCEPTION";
                         sSQL += ") A LEFT JOIN API_LOG_MARKETPLACE B ON B.REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND A.REQUEST_ACTION = B.REQUEST_ACTION AND A.CUST = B.CUST AND A.CUST_ATTRIBUTE_1 = B.CUST_ATTRIBUTE_1 WHERE ISNULL(B.RECNUM,0) = 0";
                         var insertLog = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
-                        if(insertLog == 0)
+                        if (insertLog == 0)
                         {
                             //update JOBID MENJADI JOBID BARU JIKA TIDAK SEDANG RETRY,STATUS,DATE,FAIL COUNT
                             sSQL = "UPDATE B SET REQUEST_STATUS = 'FAILED', REQUEST_ID = '" + reqID + "', REQUEST_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', CUST_ATTRIBUTE_2 = CONVERT(INT,CUST_ATTRIBUTE_2) + 1 ";
@@ -5060,11 +5071,11 @@ namespace MasterOnline.Controllers
                                 {
                                     var model = retStok.jingdong_epistock_updateEpiMerchantWareStock_response.EptRemoteResult.model;
                                     getMessage = " " + Convert.ToString(model).Replace("\"", "").Split(new string[] { "message\":\"" }, StringSplitOptions.None).Last().Split(new string[] { "\",\"" }, StringSplitOptions.None).First();
-                                    
+
                                 }
 
                                 throw new Exception(retStok.jingdong_epistock_updateEpiMerchantWareStock_response.EptRemoteResult.message.ToString() + getMessage);
-                                
+
                             }
                         }
                         else
@@ -5499,7 +5510,8 @@ namespace MasterOnline.Controllers
                                     //var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) ";
                                     var axy = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL3);
                                     ErasoftDbContext.SaveChanges();
-                                }catch(Exception ex)
+                                }
+                                catch (Exception ex)
                                 {
 
                                 }

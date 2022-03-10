@@ -989,7 +989,8 @@ namespace MasterOnline.Controllers
                 }
                 foreach (ProductTick ptick in res.Data.Products)
                 {
-                    if (ptick.Status == 4)
+                    //1 - draft、2 - pending、3 - failed、4 - live、5 - seller_deactivated、6 - platform_deactivated、7 - freeze 、8 - deleted
+                    if (ptick.Status == 4 || ptick.Status == 5) 
                     {
                         var bindGetProd = await getdetailproduct(ptick.Id, apidata, listnewrec, IdMarket);
                         if (bindGetProd.exception == 1)
@@ -1039,11 +1040,15 @@ namespace MasterOnline.Controllers
             {
                 ResProductDet res = JsonConvert.DeserializeObject<ResProductDet>(responseFromServer);
                 DetailProductTik detail = res.productTik;
-                ret.totalData = detail.Skus.Count + 1;
+                ret.totalData = detail.Skus.Count;
+                if(detail.Skus.Count > 1)
+                {
+                    ret.totalData++;
+                }
                 string kdmp = detail.ProductId.ToString() + ";" + "0";
                 var checkstf02h = ErasoftDbContext.STF02H.FirstOrDefault(x => x.BRG_MP == kdmp && x.IDMARKET == idmarket);
                 var checkTemp = ErasoftDbContext.TEMP_BRG_MP.FirstOrDefault(x => x.BRG_MP == kdmp && x.IDMARKET == idmarket);
-                if (checkstf02h == null && checkTemp == null)
+                if (checkstf02h == null && checkTemp == null && detail.Skus.Count > 1)
                 {
                     var splitItemName = new StokControllerJob().SplitItemName(detail.ProductName.Replace('\'', '`'));
                     var nama = splitItemName[0];
@@ -1104,10 +1109,11 @@ namespace MasterOnline.Controllers
                     tempbarang.AVALUE_32 = detail.WarrantyPolicy;
                     tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
                     tempbarang.AVALUE_38 = tempbarang.MEREK;
-                    tempbarang.DISPLAY = true;
+                    tempbarang.DISPLAY = (detail.ProductStatus == 4 ? true : false);
                     tempbarang.SELLER_SKU = kdmp;
                     tempbarang.TYPE = "4";
                     tempbarang.AVALUE_34 = "https://shop.tiktok.com/view/product/" + detail.ProductId;
+                    tempbarang.AVALUE_39 = (detail.IsCodOpen ? "1" : "0");
                     //foreach (SkuTik satikd in detail.Skus)
                     {
                         foreach (SalesAttributeTik satik in detail.Skus[0].SalesAttributes)
@@ -1697,7 +1703,7 @@ namespace MasterOnline.Controllers
                         ret.exception = 1;
                     }
                 }
-                else if(checkstf02h != null)
+                else if(checkstf02h != null && detail.Skus.Count > 1)
                 {
                     kdmp = checkstf02h.BRG;
                 }
@@ -1837,6 +1843,16 @@ namespace MasterOnline.Controllers
                             tempbarang.AVALUE_2 = satik.ValueName;
                         }
                         namabarang += " " + satik.ValueName;
+                        if(string.IsNullOrEmpty(tempbarang.IMAGE))
+                        {
+                            if(satik.SkuImg != null)
+                            {
+                                if(satik.SkuImg.UrlList != null)
+                                {
+                                    tempbarang.IMAGE = satik.SkuImg.UrlList[0];
+                                }
+                            }
+                        }
                     }
                     var splitItemName = new StokControllerJob().SplitItemName(namabarang.Replace('\'', '`'));
                     var nama = splitItemName[0];
@@ -2422,8 +2438,13 @@ namespace MasterOnline.Controllers
                     tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
                     tempbarang.AVALUE_38 = tempbarang.MEREK;
                     tempbarang.AVALUE_34 = "https://shop.tiktok.com/view/product/" + productid;
-                    tempbarang.DISPLAY = true;
+                    tempbarang.DISPLAY = (detail.ProductStatus == 4 ? true : false);
                     tempbarang.KODE_BRG_INDUK = sellersku == null ? productid + ";0" : sellersku;
+                    tempbarang.AVALUE_39 = (detail.IsCodOpen ? "1" : "0");
+                    if (skudata.Count == 1)
+                    {
+                        tempbarang.KODE_BRG_INDUK = "";
+                    };
                     tempbarang.TYPE = "3";
                     insertJml++;
                     newrec.Add(tempbarang);

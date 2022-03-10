@@ -2035,28 +2035,15 @@ namespace MasterOnline.Controllers
                                 username = username,
                                 expired_date = tblCustomer.TGL_EXPIRED.Value
                             };
+                            if (tblCustomer.TOKEN_EXPIRED != null)
+                            {
 #if (AWS || DEV)
                             client.Enqueue<TiktokController>(x => x.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username, tblCustomer.TGL_EXPIRED,tblCustomer.TOKEN_EXPIRED));
 
 #else
-                            TiktokController tikapi = new TiktokController();
-                            tikapi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username, tblCustomer.TGL_EXPIRED, tblCustomer.TOKEN_EXPIRED);
+                                TiktokController tikapi = new TiktokController();
+                                tikapi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username, tblCustomer.TGL_EXPIRED, tblCustomer.TOKEN_EXPIRED);
 #endif
-
-                            //add by fauzi 20 Februari 2020
-                            if (!string.IsNullOrWhiteSpace(tblCustomer.TGL_EXPIRED.ToString()))
-                            {
-                                var accFromMoDB = MoDbContext.Account.Single(a => a.DatabasePathErasoft == dbPathEra);
-                                //add by fauzi 20 Februari 2020 untuk declare connection id hangfire job check token expired.
-                                var connection_id_proses_checktoken = dbPathEra + "_proses_checktoken_expired_tiktok_" + tblCustomer.CUST.ToString();
-#if (AWS || DEV)
-                            recurJobM.RemoveIfExists(connection_id_proses_checktoken);
-                            recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Tiktok Shop", tblCustomer.TGL_EXPIRED)), "0 1 * * *", recurJobOpt);
-                            //recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Tiktok Shop", tblCustomer.TGL_EXPIRED)), "0 5 * * *", recurJobOpt);
-#else
-                                //Task.Run(() => AdminController.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED)).Wait();
-#endif
-                                AdminController.ReminderNotifyExpiredAccountMP(dbPathEra, tblCustomer.PERSO, "Tiktok Shop", tblCustomer.TGL_EXPIRED);
                             }
                             string connId_JobId = "";
                             if (tblCustomer.TIDAK_HIT_UANG_R == true)
@@ -2071,7 +2058,7 @@ namespace MasterOnline.Controllers
                                 recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TiktokControllerJob>(x => x.GetOrder_Complete_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO)), Cron.MinuteInterval(15), recurJobOpt);
                                 
                                 connId_JobId = dbPathEra + "_tiktok_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TiktokControllerJob>(x => x.GetOrder_Cancel_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO)), Cron.MinuteInterval(15), recurJobOpt);
+                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TiktokControllerJob>(x => x.GetOrder_Cancel_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO)), Cron.MinuteInterval(5), recurJobOpt);
 
 #else
                                 var tikapijob = new TiktokControllerJob();
