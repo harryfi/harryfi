@@ -50,4 +50,21 @@ namespace MasterOnline.Models
         public string nmPartner { get; set; }
         public string Subscription { get; set; }
     }
+
+    public class REMINDER_EXPIRED_VIEW
+    {
+        public long AccountId { get; set; }
+        public string Email { get; set; }
+        public string Username { get; set; }
+        public string NoHp { get; set; }
+        public string NamaTokoOnline { get; set; }
+        public string NamaPartner { get; set; }
+        public DateTime? TGL_SUBSCRIPTION { get; set; }
+        public string KETERANGAN { get; set; }
+        public int? JumlahUser { get; set; }
+        public bool Status { get; set; }
+        public DateTime? tgl_email1 { get; set; }
+        public DateTime? tgl_email2 { get; set; }
+
+    }
 }

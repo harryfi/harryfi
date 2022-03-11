@@ -1629,7 +1629,7 @@ namespace MasterOnline.Controllers
         //add by Iman 15/04/2019
         [Route("admin/manage/reminder-expired")]
         [SessionAdminCheck]
-        public ActionResult AccountReminderExpired(string param)
+        public ActionResult AccountReminderExpired(int? page = 1, string search = "", string filter = "14")
         {
             //if (param != null)
             //{
@@ -1659,29 +1659,31 @@ namespace MasterOnline.Controllers
             //else
             //{
 
-            DateTime dateTime = DateTime.UtcNow.Date;
-            DateTime Nextmonth = dateTime.AddMonths(1);
-            param = dateTime.ToString("dd/MM/yyyy") + ";" + Nextmonth.ToString("dd/MM/yyyy");
-            //param = "29/04/2019;29/05/2019";
-            string dr = (param.Split(';')[param.Split(';').Length - 2]);
-            string sd = (param.Split(';')[param.Split(';').Length - 1]);
-            string tgl1 = (dr.Split('/')[dr.Split('/').Length - 3]);
-            string bln1 = (dr.Split('/')[dr.Split('/').Length - 2]);
-            string thn1 = (dr.Split('/')[dr.Split('/').Length - 1]);
-            string drtanggal = tgl1 + '/' + bln1 + '/' + thn1;
-            string tgl2 = (sd.Split('/')[sd.Split('/').Length - 3]);
-            string bln2 = (sd.Split('/')[sd.Split('/').Length - 2]);
-            string thn2 = (sd.Split('/')[sd.Split('/').Length - 1]);
-            string sdtanggal = tgl2 + '/' + bln2 + '/' + thn2;
-            var drTgl = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
-            var sdTgl = DateTime.ParseExact(sdtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
-            var vm = new MenuAccount
-            {
-                //ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION >= drTgl && a.TGL_SUBSCRIPTION <= sdTgl && a.Status == true).ToList(),
-                ListPartner = MoDbContext.Partner.ToList()
-            };
+            //DateTime dateTime = DateTime.UtcNow.Date;
+            //DateTime Nextmonth = dateTime.AddMonths(1);
+            //param = dateTime.ToString("dd/MM/yyyy") + ";" + Nextmonth.ToString("dd/MM/yyyy");
+            ////param = "29/04/2019;29/05/2019";
+            //string dr = (param.Split(';')[param.Split(';').Length - 2]);
+            //string sd = (param.Split(';')[param.Split(';').Length - 1]);
+            //string tgl1 = (dr.Split('/')[dr.Split('/').Length - 3]);
+            //string bln1 = (dr.Split('/')[dr.Split('/').Length - 2]);
+            //string thn1 = (dr.Split('/')[dr.Split('/').Length - 1]);
+            //string drtanggal = tgl1 + '/' + bln1 + '/' + thn1;
+            //string tgl2 = (sd.Split('/')[sd.Split('/').Length - 3]);
+            //string bln2 = (sd.Split('/')[sd.Split('/').Length - 2]);
+            //string thn2 = (sd.Split('/')[sd.Split('/').Length - 1]);
+            //string sdtanggal = tgl2 + '/' + bln2 + '/' + thn2;
+            //var drTgl = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            //var sdTgl = DateTime.ParseExact(sdtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            //var vm = new MenuAccount
+            //{
+            //    //ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION >= drTgl && a.TGL_SUBSCRIPTION <= sdTgl && a.Status == true).ToList(),
+            //    ListPartner = MoDbContext.Partner.ToList()
+            //};
 
-            return View("AccountReminderExpired", vm);
+            //return View("AccountReminderExpired", vm);
+
+            return View("AccountReminderExpired");
 
             //var date = DateTime.Today.AddMonths(+1);
             //var vm = new MenuAccount()
@@ -1774,7 +1776,274 @@ namespace MasterOnline.Controllers
             }
         }
 
+        public ActionResult RefreshTableReminderWillExpired(string take, int? page, string drTgl, string search = "", string filter = "0")//, string sdTgl
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["takeRecord"] = take;
+            ViewData["LastPage"] = page;
+            ViewData["getDrTgl"] = drTgl;
+            //ViewData["getSdTgl"] = sdTgl;
+            //ViewData["flag"] = flag;
+            ViewData["searchParam"] = search;
+            ViewData["filter"] = filter;
 
+            
+            if (filter == "" || filter == null)
+                filter = "0";
+            int filterDays = Convert.ToInt32(filter);
+
+            DateTime Drtgl;
+            DateTime Sdtgl;
+
+            if (!(String.IsNullOrEmpty(drTgl)))
+            {
+                Drtgl = DateTime.ParseExact(drTgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture).AddDays(filterDays);
+            }
+            else
+            {
+                Drtgl = DateTime.UtcNow.AddHours(7);
+            }
+
+            if (!(String.IsNullOrEmpty(drTgl)))
+            {
+                Sdtgl = DateTime.ParseExact(drTgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture).AddDays(filterDays);
+            }
+            else
+            {
+                Sdtgl = DateTime.UtcNow.AddHours(7).AddMonths(1);
+            }
+            //DateTime Drtgl = ((drTgl != "" || drTgl == null) ? DateTime.ParseExact(drTgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) : DateTime.UtcNow.AddHours(7));
+            //DateTime Sdtgl = ((sdTgl != "" || sdTgl == null) ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) : DateTime.UtcNow.AddHours(7).AddMonths(1));
+            //var Drtgl = DateTime.UtcNow.AddHours(7);
+            //var Sdtgl = DateTime.UtcNow.AddHours(7).AddMonths(1);
+            string tempDrtgl = Drtgl.ToString("yyyy-MM-dd");
+            string tempSdtgl = Sdtgl.ToString("yyyy-MM-dd");
+
+            string[] getkata = search.Split(' ');
+            string sSQLEmail = "";
+            string sSQLUsername = "";
+            string sSQLNohp = "";
+            string sSQLNamatoko = "";
+            string sSQLNamapartner = "";
+            string sSQLTglsubs = "";
+            string sSQLTipesubs = "";
+            string sSQLJumlahsubs = "";
+            string sSQLTglemail1 = "";
+            string sSQLTglemail2 = "";
+
+            if (getkata.Length > 0)
+            {
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sSQLEmail += " and ";
+                            sSQLUsername += " and ";
+                            sSQLNohp += " and ";
+                            sSQLNamatoko += " and ";
+                            sSQLNamapartner += " and ";
+                            sSQLTglsubs += " and ";
+                            sSQLTipesubs += " and ";
+                            sSQLJumlahsubs += " and ";
+                            sSQLTglemail1 += " and ";
+                            sSQLTglemail2 += " and ";
+                        }
+
+                        sSQLEmail += " ( A.Email like '%" + getkata[i] + "%' )";
+                        sSQLUsername += " ( A.Username like '%" + getkata[i] + "%' )";
+                        sSQLNohp += " ( A.NoHp like '%" + getkata[i] + "%' )";
+                        sSQLNamatoko += " ( A.NamaTokoOnline like '%" + getkata[i] + "%' )";
+                        sSQLNamapartner += " ( B.Username like '%" + getkata[i] + "%' )";
+                        sSQLTglsubs += " ( A.TGL_SUBSCRIPTION like '%" + getkata[i] + "%' )";
+                        sSQLTipesubs += " ( C.KETERANGAN like '%" + getkata[i] + "%' )";
+                        sSQLJumlahsubs += " ( A.jumlahUser like '%" + getkata[i] + "%' )";
+                        sSQLTglemail1 += " ( A.tgl_email1 like '%" + getkata[i] + "%' )";
+                        sSQLTglemail2 += " ( A.tgl_email2 like '%" + getkata[i] + "%' )";
+
+                    }
+                }
+            }
+
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.AccountId, A.Email, A.Username, A.NoHp, A.NamaTokoOnline, ISNULL(B.Username, '') [NamaPartner], ";
+            sSQLSelect += "A.TGL_SUBSCRIPTION , C.KETERANGAN, ISNULL(A.jumlahUser, 0) [JumlahUser], A.Status, A.tgl_email1, A.tgl_email2 ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.Email) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM Account A (NOLOCK) LEFT JOIN Partner B (NOLOCK) ON A.KODE_REFERRAL = B.PartnerId ";
+            sSQL2 += "LEFT JOIN Subscription C (NOLOCK) ON A.KODE_SUBSCRIPTION = C.KODE ";
+            sSQL2 += "WHERE A.TGL_SUBSCRIPTION >= '" + tempDrtgl + "' AND A.TGL_SUBSCRIPTION <= '" + tempSdtgl + "'";
+            //if (flag == "1")
+            //{
+            //    sSQL2 += "WHERE A.TGL_SUBSCRIPTION >= '" + tempDrtgl + "' AND A.TGL_SUBSCRIPTION <= '" + tempSdtgl + "'";
+            //}
+            //else
+            //{
+            //    sSQL2 += "WHERE A.TGL_SUBSCRIPTION <= '" + tempSdtgl + "'";
+            //}
+
+
+            if (search != "")
+            {
+                sSQL2 += " AND ( " + sSQLEmail + " or " + sSQLUsername + " or " + sSQLNohp + " or " + sSQLNamatoko + "  or " + sSQLNamapartner + " or "
+                                    + sSQLTglsubs + " or " + sSQLTipesubs + "   or " + sSQLJumlahsubs + " or " + sSQLTglemail1 + " or " + sSQLTglemail2 + " ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalReminderExpired = MoDbContext.Database.SqlQuery<int>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalReminderExpired)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY TGL_SUBSCRIPTION ASC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * Convert.ToInt32(take)) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT " + take + " ROWS ONLY ";
+
+            var reminderExpired = MoDbContext.Database.SqlQuery<REMINDER_EXPIRED_VIEW>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<REMINDER_EXPIRED_VIEW> pageOrders = new StaticPagedList<REMINDER_EXPIRED_VIEW>(reminderExpired, pagenumber + 1, Convert.ToInt32(take), totalReminderExpired); //Convert.ToInt32(take) //10
+
+            return PartialView("TableAccountReminderExpired", pageOrders);
+        }
+
+        public ActionResult RefreshTableReminderAlreadyExpired(string take, int? page, string drTgl, string sdTgl, string search = "", string filter = "0")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["takeRecord"] = take;
+            ViewData["LastPage"] = page;
+            ViewData["getDrTgl"] = drTgl;
+            ViewData["getSdTgl"] = sdTgl;
+            //ViewData["flag"] = flag;
+            ViewData["searchParam"] = search;
+            ViewData["filter"] = filter;
+
+
+            if (filter == "" || filter == null)
+                filter = "0";
+            int filterDays = Convert.ToInt32(filter);
+
+            DateTime Drtgl;
+            DateTime Sdtgl;
+
+            if (!(String.IsNullOrEmpty(drTgl)))
+            {
+                Drtgl = DateTime.ParseExact(drTgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture).AddDays(filterDays);
+            }
+            else
+            {
+                Drtgl = DateTime.UtcNow.AddHours(7);
+            }
+
+            if (!(String.IsNullOrEmpty(sdTgl)))
+            {
+                Sdtgl = DateTime.ParseExact(drTgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture).AddDays(filterDays);
+            }
+            else
+            {
+                Sdtgl = DateTime.UtcNow.AddHours(7).AddMonths(1);
+            }
+            //DateTime Drtgl = ((drTgl != "" || drTgl == null) ? DateTime.ParseExact(drTgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) : DateTime.UtcNow.AddHours(7));
+            //DateTime Sdtgl = ((sdTgl != "" || sdTgl == null) ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) : DateTime.UtcNow.AddHours(7).AddMonths(1));
+            //var Drtgl = DateTime.UtcNow.AddHours(7);
+            //var Sdtgl = DateTime.UtcNow.AddHours(7).AddMonths(1);
+            string tempDrtgl = Drtgl.ToString("yyyy-MM-dd");
+            string tempSdtgl = Sdtgl.ToString("yyyy-MM-dd");
+
+            string[] getkata = search.Split(' ');
+            string sSQLEmail = "";
+            string sSQLUsername = "";
+            string sSQLNohp = "";
+            string sSQLNamatoko = "";
+            string sSQLNamapartner = "";
+            string sSQLTglsubs = "";
+            string sSQLTipesubs = "";
+            string sSQLJumlahsubs = "";
+            string sSQLTglemail1 = "";
+            string sSQLTglemail2 = "";
+
+            if (getkata.Length > 0)
+            {
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sSQLEmail += " and ";
+                            sSQLUsername += " and ";
+                            sSQLNohp += " and ";
+                            sSQLNamatoko += " and ";
+                            //sSQLNamapartner += " and ";
+                            sSQLTglsubs += " and ";
+                            sSQLTipesubs += " and ";
+                            sSQLJumlahsubs += " and ";
+                            sSQLTglemail1 += " and ";
+                            sSQLTglemail2 += " and ";
+                        }
+
+                        sSQLEmail += " ( A.Email like '%" + getkata[i] + "%' )";
+                        sSQLUsername += " ( A.Username like '%" + getkata[i] + "%' )";
+                        sSQLNohp += " ( A.NoHp like '%" + getkata[i] + "%' )";
+                        sSQLNamatoko += " ( A.NamaTokoOnline like '%" + getkata[i] + "%' )";
+                        //sSQLNamapartner += " ( B.Username like '%" + getkata[i] + "%' )";
+                        sSQLTglsubs += " ( A.TGL_SUBSCRIPTION like '%" + getkata[i] + "%' )";
+                        sSQLTipesubs += " ( C.KETERANGAN like '%" + getkata[i] + "%' )";
+                        sSQLJumlahsubs += " ( A.jumlahUser like '%" + getkata[i] + "%' )";
+                        sSQLTglemail1 += " ( A.tgl_email1 like '%" + getkata[i] + "%' )";
+                        sSQLTglemail2 += " ( A.tgl_email2 like '%" + getkata[i] + "%' )";
+
+                    }
+                }
+            }
+
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.AccountId, A.Email, A.Username, A.NoHp, A.NamaTokoOnline, ISNULL(B.Username, '') [NamaPartner], ";
+            sSQLSelect += "A.TGL_SUBSCRIPTION , C.KETERANGAN, ISNULL(A.jumlahUser, 0) [JumlahUser], A.Status, A.tgl_email1, A.tgl_email2 ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.Email) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM Account A (NOLOCK) LEFT JOIN Partner B (NOLOCK) ON A.KODE_REFERRAL = B.PartnerId ";
+            sSQL2 += "LEFT JOIN Subscription C (NOLOCK) ON A.KODE_SUBSCRIPTION = C.KODE ";
+            sSQL2 += "WHERE A.TGL_SUBSCRIPTION <= '" + tempDrtgl + "'";
+
+            //if (flag == "1")
+            //{
+            //    sSQL2 += "WHERE A.TGL_SUBSCRIPTION >= '" + tempDrtgl + "' AND A.TGL_SUBSCRIPTION <= '" + tempSdtgl + "'";
+            //}
+            //else
+            //{
+            //    sSQL2 += "WHERE A.TGL_SUBSCRIPTION <= '" + tempSdtgl + "'";
+            //}
+
+
+            if (search != "")
+            {
+                sSQL2 += " AND ( " + sSQLEmail + " or " + sSQLUsername + " or " + sSQLNohp + " or " + sSQLNamatoko + "  or "
+                                    + sSQLTglsubs + " or " + sSQLTipesubs + "   or " + sSQLJumlahsubs + " or " + sSQLTglemail1 + " or " + sSQLTglemail2 + " ) "; // " + sSQLNamapartner + " or
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalReminderExpired = MoDbContext.Database.SqlQuery<int>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalReminderExpired)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY TGL_SUBSCRIPTION DESC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * Convert.ToInt32(take)) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT " + take + " ROWS ONLY ";
+
+            var reminderExpired = MoDbContext.Database.SqlQuery<REMINDER_EXPIRED_VIEW>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<REMINDER_EXPIRED_VIEW> pageOrders = new StaticPagedList<REMINDER_EXPIRED_VIEW>(reminderExpired, pagenumber + 1, Convert.ToInt32(take), totalReminderExpired); //Convert.ToInt32(take) //10
+
+            return PartialView("TableAccountSudahExpired", pageOrders);
+        }
 
         [SessionAdminCheck]
         public ActionResult AccountMenuSudahExpired(string param)
