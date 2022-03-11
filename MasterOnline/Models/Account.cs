@@ -101,5 +101,10 @@ namespace MasterOnline.Models
 
         public string confirm_broadcast { get; set; }
 
+        public string TOKEN { get; set; }
+        public DateTime? TOKEN_EXPIREDDATE { get; set; }
+        public string IP_ADDRESS_WL { get; set; }
+
+        public string DatabaseId { get; set; }
     }
 }
