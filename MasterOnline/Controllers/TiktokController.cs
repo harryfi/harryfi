@@ -129,6 +129,8 @@ namespace MasterOnline.Controllers
             string ret;
             string url;
             url = "https://auth.tiktok-shops.com/api/token/getAccessToken";
+            MoDbContext = new MoDbContext("");
+
             DatabaseSQL EDB = new DatabaseSQL(user);
             string EraServerName = EDB.GetServerName("sConn");
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(url);
@@ -196,6 +198,23 @@ namespace MasterOnline.Controllers
                     var dateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                     var tokendateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.AccessTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                     var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + dateExpired + "',TOKEN_EXPIRED = '" + tokendateExpired + "' , SORT1_CUST = '" + shopid + "' WHERE CUST = '" + cust + "'");
+                    //MoDbContext.Database.ExecuteSqlCommand("INSERT INTO [TABEL_MAPPING_TIKTOK] (dbpathera, shopid,cust) values ('"+ user + "', '"+ shopid + "', '" + cust + "') ");
+                    var tblMapping = MoDbContext.TABEL_MAPPING_TIKTOK.Where(m => m.DBPATHERA == user && m.CUST == cust).FirstOrDefault();
+                    if(tblMapping != null)
+                    {
+                        tblMapping.SHOPID = shopid;
+                    }
+                    else
+                    {
+                        tblMapping = new TABEL_MAPPING_TIKTOK
+                        {
+                            CUST = cust,
+                            SHOPID = shopid,
+                            DBPATHERA = user
+                        };
+                        MoDbContext.TABEL_MAPPING_TIKTOK.Add(tblMapping);
+                    }
+                    MoDbContext.SaveChanges();
                     if (result == 1)
                     {
                         manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, cust, currentLog);

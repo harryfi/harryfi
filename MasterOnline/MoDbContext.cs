@@ -59,6 +59,7 @@ namespace MasterOnline
         public DbSet<ATTRIBUTE_82CART> Attribute82Cart { get; set; }
         public DbSet<Tutorial_Header> Tutorial_Header { get; set; }
         public DbSet<Tutorial_Detail> Tutorial_Detail { get; set; }
+        public DbSet<TABEL_MAPPING_TIKTOK> TABEL_MAPPING_TIKTOK { get; set; }
 
         //add by Tri for bukalapak
         public DbSet<BUKALAPAK_TOKEN> BUKALAPAK_TOKEN { get; set; }
