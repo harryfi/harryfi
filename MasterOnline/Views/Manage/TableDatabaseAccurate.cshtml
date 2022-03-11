@@ -62,24 +62,27 @@
             contentType: 'application/json',
             url: link,
             success: function (response) {
-                if (response.Errors[0] != "") {
-                //if (response.Errors == null) {
-                    @*$('#loading_spinner').hide();
-                    window.location.href = '@Url.Action("PartnerApi")';
-                    self.window.close();*@
-
-                    alert(response.Errors[0]);
+                console.log(response);
+                //if (response.Errors[0] != "") {
+                if (response.Errors == null) {
                     $('#loading_spinner').hide();
+                    window.location.href = '@Url.Action("PartnerApi")';
                     self.window.close();
+
+                    //alert(response.Errors[0]);
+                    //$('#loading_spinner').hide();
+                    //self.window.close();
                     //location.href = '@Url.Action("PartnerApi")';
                 } else {
-                    @*alert(response.Errors[0]);
+                    alert(response.Errors[0]);
                     $('#loading_spinner').hide();
-                    location.href = '@Url.Action("PartnerApi")';*@
+                    //location.href = '@Url.Action("PartnerApi")';
+                    self.window.close();
 
+                    @*console.log(response);
                     $('#loading_spinner').hide();
                     window.location.href = '@Url.Action("PartnerApi")';
-                    self.window.close();
+                    self.window.close();*@
                 }
             },
             error: function (xhr, status, error) {
