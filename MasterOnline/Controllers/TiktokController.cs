@@ -1043,7 +1043,7 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             try
             {
-                using (WebResponse response = myReq.GetResponse())
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {
@@ -1872,6 +1872,17 @@ namespace MasterOnline.Controllers
                                 }
                             }
                         }
+                    }
+                    if(string.IsNullOrEmpty(tempbarang.IMAGE) && skudata.Count == 1)// non varian tidak set gambar
+                    {
+                        if(detail.Images != null)
+                        {
+                            if (tempbarang.IMAGE == null)
+                            {
+                                tempbarang.IMAGE = detail.Images[0].UrlList[0];
+                            }
+                        }
+                        
                     }
                     var splitItemName = new StokControllerJob().SplitItemName(namabarang.Replace('\'', '`'));
                     var nama = splitItemName[0];

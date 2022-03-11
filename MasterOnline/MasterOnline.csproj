@@ -7025,6 +7025,7 @@
     <Content Include="Views\Manage\ListCustomerPartialView.cshtml" />
     <Content Include="Views\LazadaChat\LazadaAuthChat.cshtml" />
     <Content Include="Views\Tiktok\Tiktokauth.cshtml" />
+    <Content Include="Views\Manage\PackingListTiktok.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

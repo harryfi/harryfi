@@ -713,6 +713,73 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
+        public async Task<string> GetOrderTiktok_webhook_Insert(TTApiData iden, string CUST, string NAMA_CUST)
+        {
+            string ret = "";
+            SetupContext(iden.DatabasePathErasoft, iden.username);
+            var daysNow = DateTime.UtcNow.AddHours(7).AddDays(-1);
+            EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM TABEL_WEBHOOK_TIKTOK WHERE CUST = '" + CUST
+                + "' AND TGL <  '" + daysNow.AddDays(-2).ToString("yyyy-MM-dd HH:mm:ss") + "'");
+            var dsNewOrder = EDB.GetDataSet("CString", "SO", "SELECT T.ORDERID FROM TABEL_WEBHOOK_TOKPED (NOLOCK) T LEFT JOIN SOT01A (NOLOCK) S ON S.NO_REFERENSI = T.ORDERID AND T.CUST = S.CUST WHERE T.TGL >= '"
+                + daysNow.ToString("yyyy-MM-dd HH:mm:ss") + "' AND ORDER_STATUS = 'UNPAID' AND T.CUST = '" + CUST + "' AND ISNULL(S.NO_BUKTI, '') = ''");
+
+            var connIdProses = "";
+            var ordersn_list = new List<string>();
+            if (dsNewOrder.Tables[0].Rows.Count > 0)
+            {
+                for (int i = 0; i < dsNewOrder.Tables[0].Rows.Count; i++)
+                {
+                    var insertData = dsNewOrder.Tables[0].Rows[i]["ORDERID"].ToString();
+                    ordersn_list.Add(insertData);
+                    if (ordersn_list.Count >= 10 || i == dsNewOrder.Tables[0].Rows.Count - 1)
+                    {
+                        string connId = Guid.NewGuid().ToString();
+
+                        var returnGetOrder = await GetOrderDetails(iden,  ordersn_list.ToArray(), connId,  CUST,  NAMA_CUST,  100);
+                        //if (!string.IsNullOrEmpty(returnGetOrder))
+                        {
+                            connIdProses += "'" + connId + "' , ";
+                        }
+                        ordersn_list = new List<string>();
+                    }
+                }
+            }
+            var dsNewOrderPaid = EDB.GetDataSet("CString", "SO", "SELECT T.ORDERID FROM TABEL_WEBHOOK_TOKPED (NOLOCK) T LEFT JOIN SOT01A (NOLOCK) S ON S.NO_REFERENSI = T.ORDERID AND T.CUST = S.CUST WHERE T.TGL >= '"
+                + daysNow.ToString("yyyy-MM-dd HH:mm:ss") + "' AND ORDER_STATUS = 'AWAITING_SHIPMENT' AND T.CUST = '" + CUST + "' AND ISNULL(S.NO_BUKTI, '') = ''");
+
+            if (dsNewOrderPaid.Tables[0].Rows.Count > 0)
+            {
+                for (int i = 0; i < dsNewOrderPaid.Tables[0].Rows.Count; i++)
+                {
+                    var insertData = dsNewOrderPaid.Tables[0].Rows[i]["ORDERID"].ToString();
+                    ordersn_list.Add(insertData);
+                    if (ordersn_list.Count >= 10 || i == dsNewOrderPaid.Tables[0].Rows.Count - 1)
+                    {
+                        string connId = Guid.NewGuid().ToString();
+
+                        var returnGetOrder = await GetOrderDetails(iden, ordersn_list.ToArray(), connId, CUST, NAMA_CUST, 111);
+                        //if (!string.IsNullOrEmpty(returnGetOrder))
+                        {
+                            connIdProses += "'" + connId + "' , ";
+                        }
+                        ordersn_list = new List<string>();
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(connIdProses))
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username, connIdProses.Substring(0, connIdProses.Length - 3));
+            }
+
+
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust
+                 + "%' and arguments like '%GetOrderTiktok_webhook_Insert%' and statename like '%Enque%'");
+
+            return ret;
+        }
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
         public async Task<string> GetOrder_Complete_Tiktok(TTApiData iden, string CUST, string NAMA_CUST)
         {
             SetupContext(iden.DatabasePathErasoft, iden.username);
