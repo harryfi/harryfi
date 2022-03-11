@@ -378,7 +378,7 @@ namespace MasterOnline.Controllers
                 foreach (var order in result.data.order_list)
                 {
                     //add by nurul 25/8/2021, handle pembeli d samarkan ***
-                    if (!order.recipient_address.name.Contains('*'))
+                    //if (!order.recipient_address.name.Contains('*')) // tetap insert karena tidak bisa dapat unmask data kecuali di shipping label
                     //end add by nurul 25/8/2021, handle pembeli d samarkan ***
                     {
                         string nama = order.recipient_address.name.Trim().Length > 30 ? order.recipient_address.name.Trim().Substring(0, 30) : order.recipient_address.name.Trim();
