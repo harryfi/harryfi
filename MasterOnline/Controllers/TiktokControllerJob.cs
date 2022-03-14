@@ -278,6 +278,8 @@ namespace MasterOnline.Controllers
                 if(listOrder.data != null)
                 if (listOrder.data.order_list != null)
                 {
+                        ret.more = listOrder.data.more;
+                        ret.nextPage = listOrder.data.next_cursor;
                     if (listOrder.data.order_list.Length > 0)
                     {
                         string[] ordersn_list = listOrder.data.order_list.Select(p => p.order_id).ToArray();
@@ -679,7 +681,7 @@ namespace MasterOnline.Controllers
                         ErasoftDbContext.SaveChanges();
 
                         //add 3 Des 2020
-                        EDB.ExecuteSQL("Con", CommandType.Text, "DELETE FROM TEMP_SHOPEE_ORDERS_ITEM WHERE ordersn <> '" + ordersn + "'");
+                        EDB.ExecuteSQL("Con", CommandType.Text, "DELETE FROM TEMP_TIKTOK_ORDERS_ITEM WHERE ordersn <> '" + ordersn + "'");
                         //end add 3 Des 2020
                         using (SqlCommand CommandSQL = new SqlCommand())
                         {
@@ -1042,6 +1044,8 @@ namespace MasterOnline.Controllers
                 if (listOrder.data != null)
                     if (listOrder.data.order_list != null)
                     {
+                        ret.more = listOrder.data.more;
+                        ret.nextPage = listOrder.data.next_cursor;
                         if (listOrder.data.order_list.Length > 0)
                         {
                             string[] ordersn_list = listOrder.data.order_list.Select(p => p.order_id).ToArray();
@@ -1167,6 +1171,8 @@ namespace MasterOnline.Controllers
                 if (listOrder.data != null)
                     if (listOrder.data.order_list != null)
                     {
+                        ret.more = listOrder.data.more;
+                        ret.nextPage = listOrder.data.next_cursor;
                         if (listOrder.data.order_list.Length > 0)
                         {
                             string[] ordersn_list = listOrder.data.order_list.Select(p => p.order_id).ToArray();
