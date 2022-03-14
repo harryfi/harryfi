@@ -56,6 +56,62 @@ namespace MasterOnline.Controllers
         string username;
         TTApiData apidata;
 
+        public TiktokController()
+        {
+            MoDbContext = new MoDbContext("");
+            username = "";
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+
+            if (sessionAccount != null)
+            {
+                if (sessionAccountUserID.ToString() == "admin_manage")
+                {
+                    ErasoftDbContext = new ErasoftContext();
+                }
+                else
+                {
+#if (Debug_AWS || DEBUG)
+                    dbSourceEra = sessionAccountDataSourcePathDebug.ToString();
+#else
+                    dbSourceEra = sessionAccountDataSourcePath.ToString();
+#endif
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionAccountDatabasePathErasoft.ToString());
+                }
+                EDB = new DatabaseSQL(sessionAccountDatabasePathErasoft.ToString());
+                DatabasePathErasoft = sessionAccountDatabasePathErasoft.ToString();
+                username = sessionAccountUserName.ToString();
+            }
+            else
+            {
+                if (sessionUser != null)
+                {
+                    var userAccID = Convert.ToInt64(sessionUserAccountID);
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == userAccID);
+#if (Debug_AWS || DEBUG)
+                    dbSourceEra = accFromUser.DataSourcePathDebug;
+#else
+                    dbSourceEra = accFromUser.DataSourcePath;
+#endif
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, accFromUser.DatabasePathErasoft);
+                    EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
+                    DatabasePathErasoft = accFromUser.DatabasePathErasoft;
+                    username = accFromUser.Username;
+                }
+            }
+
+            if (username.Length > 20)
+                username = username.Substring(0, 17) + "...";
+        }
 
 
         protected void SetupContext(string DatabasePathErasoft, string uname, TTApiData apidata)
@@ -200,7 +256,7 @@ namespace MasterOnline.Controllers
                     var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + dateExpired + "',TOKEN_EXPIRED = '" + tokendateExpired + "' , SORT1_CUST = '" + shopid + "' WHERE CUST = '" + cust + "'");
                     //MoDbContext.Database.ExecuteSqlCommand("INSERT INTO [TABEL_MAPPING_TIKTOK] (dbpathera, shopid,cust) values ('"+ user + "', '"+ shopid + "', '" + cust + "') ");
                     var tblMapping = MoDbContext.TABEL_MAPPING_TIKTOK.Where(m => m.DBPATHERA == user && m.CUST == cust).FirstOrDefault();
-                    if(tblMapping != null)
+                    if (tblMapping != null)
                     {
                         tblMapping.SHOPID = shopid;
                     }
@@ -248,7 +304,7 @@ namespace MasterOnline.Controllers
             bool ATExp = false;
 
             //if (ts.Days < 1 && ts.Hours < 24 && dateNow < tanggal_exptoken)
-            if ( dateNow > tanggal_exptoken)
+            if (dateNow > tanggal_exptoken)
             {
                 ATExp = true;
             }
@@ -840,6 +896,53 @@ namespace MasterOnline.Controllers
         #endregion
 
 
+        public async Task<string> GetShippingProvider(string cust)
+        {
+            var ret = "";
+            var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
+            if (tblCustomer.STATUS_API == "1")
+            {
+                if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
+                {
+                    string urll = "https://open-api.tiktokglobalshop.com/api/logistics/shipping_providers?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
+                    int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                    string sign = eraAppSecret + "/api/logistics/shipping_providersapp_key" + eraAppKey + "shop_id" + tblCustomer.Sort1_Cust + "timestamp" + timestamp + eraAppSecret;
+                    string signencry = GetHash(sign, eraAppSecret);
+                    var vformatUrl = String.Format(urll, tblCustomer.TOKEN, timestamp, signencry, eraAppKey, tblCustomer.Sort1_Cust);
+                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+                    myReq.Method = "GET";
+                    myReq.ContentType = "application/json";
+
+                    string responseFromServer = "";
+                    try
+                    {
+                        using (WebResponse response = await myReq.GetResponseAsync())
+                        {
+                            using (Stream stream = response.GetResponseStream())
+                            {
+                                StreamReader reader = new StreamReader(stream);
+                                responseFromServer = reader.ReadToEnd();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+
+                    if (responseFromServer != "")
+                    {
+                        var result = JsonConvert.DeserializeObject(responseFromServer, typeof(TiktokGetShipmentResponse)) as TiktokGetShipmentResponse;
+                        if (result.code == 0)
+                        {
+                            
+                        }
+                    }
+                }
+            }
+
+            return ret;
+        }
         #region Fetch Function
         #region Category
         public async Task<string> getCategory(TTApiData apidata)
@@ -1009,7 +1112,7 @@ namespace MasterOnline.Controllers
                 foreach (ProductTick ptick in res.Data.Products)
                 {
                     //1 - draft、2 - pending、3 - failed、4 - live、5 - seller_deactivated、6 - platform_deactivated、7 - freeze 、8 - deleted
-                    if (ptick.Status == 4 || ptick.Status == 5) 
+                    if (ptick.Status == 4 || ptick.Status == 5)
                     {
                         var bindGetProd = await getdetailproduct(ptick.Id, apidata, listnewrec, IdMarket);
                         if (bindGetProd.exception == 1)
@@ -1060,7 +1163,7 @@ namespace MasterOnline.Controllers
                 ResProductDet res = JsonConvert.DeserializeObject<ResProductDet>(responseFromServer);
                 DetailProductTik detail = res.productTik;
                 ret.totalData = detail.Skus.Count;
-                if(detail.Skus.Count > 1)
+                if (detail.Skus.Count > 1)
                 {
                     ret.totalData++;
                 }
@@ -1084,7 +1187,7 @@ namespace MasterOnline.Controllers
                     //tempbarang.CATEGORY_NAME = detail.CategoryList[2].LocalDisplayName;
                     tempbarang.CATEGORY_CODE = detail.CategoryList[0].Id;
                     tempbarang.CATEGORY_NAME = detail.CategoryList[0].LocalDisplayName;
-                    foreach(var kat in detail.CategoryList)
+                    foreach (var kat in detail.CategoryList)
                     {
                         if (kat.IsLeaf)
                         {
@@ -1136,14 +1239,14 @@ namespace MasterOnline.Controllers
                     //foreach (SkuTik satikd in detail.Skus)
                     {
                         foreach (SalesAttributeTik satik in detail.Skus[0].SalesAttributes)
-                        { 
+                        {
                             if (tempbarang.ACODE_1 == null)
                             {
                                 tempbarang.ACODE_1 = satik.Id;
                                 tempbarang.ANAME_1 = satik.Name;
                                 tempbarang.AVALUE_1 = satik.ValueName;
                             }
-                              else if (tempbarang.ACODE_2 == null)
+                            else if (tempbarang.ACODE_2 == null)
                             {
                                 tempbarang.ACODE_2 = satik.Id;
                                 tempbarang.ANAME_2 = satik.Name;
@@ -1722,7 +1825,7 @@ namespace MasterOnline.Controllers
                         ret.exception = 1;
                     }
                 }
-                else if(checkstf02h != null && detail.Skus.Count > 1)
+                else if (checkstf02h != null && detail.Skus.Count > 1)
                 {
                     kdmp = checkstf02h.BRG;
                 }
@@ -1820,7 +1923,7 @@ namespace MasterOnline.Controllers
                 //}
                 #endregion
                 var bindGetVar = getvariationproduct(productid, detail.Skus, newrec, idmarket, detail, apidata, kdmp);
-                if(bindGetVar.exception == 1)
+                if (bindGetVar.exception == 1)
                 {
                     ret.exception = 1;
                 }
@@ -1862,27 +1965,27 @@ namespace MasterOnline.Controllers
                             tempbarang.AVALUE_2 = satik.ValueName;
                         }
                         namabarang += " " + satik.ValueName;
-                        if(string.IsNullOrEmpty(tempbarang.IMAGE))
+                        if (string.IsNullOrEmpty(tempbarang.IMAGE))
                         {
-                            if(satik.SkuImg != null)
+                            if (satik.SkuImg != null)
                             {
-                                if(satik.SkuImg.UrlList != null)
+                                if (satik.SkuImg.UrlList != null)
                                 {
                                     tempbarang.IMAGE = satik.SkuImg.UrlList[0];
                                 }
                             }
                         }
                     }
-                    if(string.IsNullOrEmpty(tempbarang.IMAGE) && skudata.Count == 1)// non varian tidak set gambar
+                    if (string.IsNullOrEmpty(tempbarang.IMAGE) && skudata.Count == 1)// non varian tidak set gambar
                     {
-                        if(detail.Images != null)
+                        if (detail.Images != null)
                         {
                             if (tempbarang.IMAGE == null)
                             {
                                 tempbarang.IMAGE = detail.Images[0].UrlList[0];
                             }
                         }
-                        
+
                     }
                     var splitItemName = new StokControllerJob().SplitItemName(namabarang.Replace('\'', '`'));
                     var nama = splitItemName[0];
@@ -2550,7 +2653,7 @@ namespace MasterOnline.Controllers
                 //}
                 #endregion
             }
-            if(insertJml > 0)
+            if (insertJml > 0)
             {
                 try
                 {
@@ -2558,7 +2661,7 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.SaveChanges();
                     ret.recordCount += insertJml;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     ret.exception = 1;
                 }
@@ -2715,6 +2818,48 @@ namespace MasterOnline.Controllers
     }
 
     #region Model
+
+    public class TiktokGetShipmentResponse
+    {
+        public int code { get; set; }
+        public string message { get; set; }
+        public string request_id { get; set; }
+        public TiktokGetShipmentData data { get; set; }
+    }
+
+    public class TiktokGetShipmentData
+    {
+        public Delivery_Option_List[] delivery_option_list { get; set; }
+    }
+
+    public class Delivery_Option_List
+    {
+        public string delivery_option_id { get; set; }
+        public string delivery_option_name { get; set; }
+        public Item_Weight_Limit item_weight_limit { get; set; }
+        public Item_Dimension_Limit item_dimension_limit { get; set; }
+        public Shipping_Provider_List[] shipping_provider_list { get; set; }
+    }
+
+    public class Item_Weight_Limit
+    {
+        public int max_weight { get; set; }
+        public int min_weight { get; set; }
+    }
+
+    public class Item_Dimension_Limit
+    {
+        public int length { get; set; }
+        public int width { get; set; }
+        public int height { get; set; }
+    }
+
+    public class Shipping_Provider_List
+    {
+        public string shipping_provider_id { get; set; }
+        public string shipping_provider_name { get; set; }
+    }
+
     public class DataTiktok
     {
         [JsonProperty("access_token")]
