@@ -1381,7 +1381,7 @@ namespace MasterOnline.Controllers
         [NotifyOnFailed("Update Status Ready To Ship Pesanan {obj} ke TikTok Gagal.")]
         public string UpdateStatus_RTS(TTApiData iden, string ordersn, string no_bukti)
         {
-            SetupContext(apidata.DatabasePathErasoft, apidata.username);
+            SetupContext(iden.DatabasePathErasoft, iden.username);
             var ret = "";
             string urll = "https://open-api.tiktokglobalshop.com/api/order/rts?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
             int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
@@ -1440,7 +1440,7 @@ namespace MasterOnline.Controllers
         [NotifyOnFailed("Update Status Ready To Ship Pesanan {obj} ke TikTok Gagal.")]
         public string GetShippingDoc(TTApiData iden, string ordersn)
         {
-            SetupContext(apidata.DatabasePathErasoft, apidata.username);
+            SetupContext(iden.DatabasePathErasoft, iden.username);
             var ret = "";
             string urll = "https://open-api.tiktokglobalshop.com/api/logistics/shipping_document?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
             int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
