@@ -131,6 +131,10 @@ namespace MasterOnline.ViewModels
         public string logoToko { get; set; }
         public string typeLogo { get; set; }
         //end add by nurul 5/2/2021
+
+        //add by nurul 15/3/2022
+        public string tipeKirim { get; set; }
+        //end add by nurul 15/3/2022
     }
 
     public class tempKetTokped

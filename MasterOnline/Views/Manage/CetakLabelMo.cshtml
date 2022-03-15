@@ -1421,10 +1421,15 @@
                                                         <tr class="col-md-12" style="width:650px  !important;">
                                                             @if (Model.urlTotal != null && Model?.urlTotal == "1")
                                                             {
-                                                                <td class="sub_title col-md-6 total" style="width:650px !important;">
+                                                                <td class="sub_title col-md-6" style="width:350px !important;">
                                                                     <span class="block_subtitle_label">Total</span> @(labelList.linktotal)
                                                                 </td>
                                                             }
+                                                            @*//add by nurul 15/3/2022*@
+                                                            <td class="sub_title col-md-6" style="width:300px !important">
+                                                                <span class="block_subtitle_label">Tipe</span> @(labelList.tipeKirim)
+                                                            </td>
+                                                            @*//end add by nurul 15/3/2022*@
                                                         </tr>
                                                         @*===========================================================================*@
                                                         @*<tr>
@@ -1905,10 +1910,15 @@
                                                         <tr class="col-md-12" style="width:650px  !important;">
                                                             @if (Model.urlTotal != null && Model?.urlTotal == "1")
                                                             {
-                                                                <td class="sub_title col-md-6 total" style="width:650px !important;">
+                                                                <td class="sub_title col-md-6" style="width:350px !important;">
                                                                     <span class="block_subtitle_label">Total</span> @(labelList.linktotal)
                                                                 </td>
                                                             }
+                                                            @*//add by nurul 15/3/2022*@
+                                                            <td class="sub_title col-md-6" style="width:300px !important">
+                                                                <span class="block_subtitle_label">Tipe</span> @(labelList.tipeKirim)
+                                                            </td>
+                                                            @*//end add by nurul 15/3/2022*@
                                                         </tr>
                                                         @*===========================================================================*@
                                                     </table>
