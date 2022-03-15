@@ -68,6 +68,8 @@ namespace MasterOnline
         public string NAMA_BARANG { get; set; }
         public string RAK { get; set; }
         public int? QTY { get; set; }
+        public string maxPesan { get; set; }
+        public string currentPesan { get; set; }
     }
 
     //add by nurul 20/11/2019

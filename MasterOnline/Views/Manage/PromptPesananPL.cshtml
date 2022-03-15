@@ -20,6 +20,8 @@
         <tr role="row">
             <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">No Pesanan</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">No Referensi</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Kode Booking</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">No Resi</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Pilih</th>
         </tr>
     </thead>
@@ -29,6 +31,8 @@
             <tr>
                 <td>@item.NO_BUKTI</td>
                 <td>@item.NO_REF</td>
+                <td>@item.NO_PO</td>
+                <td>@item.NO_RESI</td>
                 <td class="edit-hapus-col">
                     <button class="btn btn-primary" onclick="pilihPrompt('@item.NO_BUKTI')">
                         <span class="glyphicon glyphicon-check" aria-hidden="true"></span>

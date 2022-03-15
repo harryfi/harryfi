@@ -39,6 +39,7 @@ namespace MasterOnline.ViewModels
         public int jmlOrder { get; set; }
         public int maxOrder { get; set; }
         public List<ScanBarcodePackingPesanan> dataScan { get; set; }
+        public string default_no_bukti { get; set; }
     }
 
     public class ScanBarcodePackingPesanan

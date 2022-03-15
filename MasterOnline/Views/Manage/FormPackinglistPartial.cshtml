@@ -14,6 +14,7 @@
     var total82cart = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("82Cart")).Count();
     var totalShopify = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Shopify")).Count();
     var totalBukalapak = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Bukalapak")).Count();
+    var totalWoocomerce = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Woocomerce")).Count();
 }
 
 <style>
@@ -81,6 +82,8 @@
         }
         if (@totalBukalapak > 0) {
             RefreshPackingPesananBukalapak1();
+        } if (@totalWoocomerce > 0) {
+            RefreshPackingPesananWoo1();
         }
     }
 
@@ -430,6 +433,25 @@
         });
     }
 
+    function RefreshPackingPesananWoo1() {
+        var $link = '@Html.Raw(Url.Action("RefreshTablePackingPesananMP", "Manage", new { nama_cust = "1023", bukti = "replaceBuktiPacking" }))';
+        $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                //$('#loading_barang_tab').show();
+            },
+            success: function (response) {
+                $('#packing_pesanan_woo_content').html(response);
+                //$('#loading_barang_tab').hide();
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
     //add by nurul 17/2/2021
     function RefreshPackingTabRekapBrg() {
         //$('#search_packing').val('');
@@ -509,7 +531,7 @@
                     code: $('#dataScan_'+i+'__code').val(),
                     qty: $('#dataScan_' + i + '__qty').val(),
                     isValid: $('#dataScan_' + i + '__isValid').val(),
-                    input_qty: $('#data_qty_' + i).val(),
+                    input_qty: $('#data_qty_' + i).text(),
                     rak: $('#dataScan_' + i + '__rak').val(),
                 };
 
@@ -537,7 +559,14 @@
                     success: function (response) {
                         document.getElementById("btnCancelPickingBrg").disabled = false;
                         document.getElementById("btnSimpanPickingBrg").disabled = false;
+                        console.log(response)
+                        if (response.Errors[0] != "dataset") {
+                            alert(response.Errors[0]);
+                            return;
+                        }
                         $('#modalPickingBarang').modal('hide');
+                        RefreshPackingTabRekapBrg();
+
                         //if (response != null) {
                         //    editPackinglist1(response.Errors[0]);
                         //}
@@ -554,12 +583,22 @@
         function openModalPacking() {
 
             noPesanan = $('#txtNoPesanan').val();
+            noPesananDef = $('#default_no_bukti').val();
+            textbrc = $('#txtScanBarcodePacking').val();
+            console.log(textbrc);
             if (noPesanan == undefined) {
                 noPesanan = "";
             }
-            var link = '@Html.Raw(Url.Action("OpenModalPackingPesanan", "Manage", new { nobuk = "replaceId", no_pesanan = "replaceNoPesanan" }))';
+            var link = '@Html.Raw(Url.Action("OpenModalPackingPesanan", "Manage", new { nobuk = "replaceId", no_pesanan = "replaceNoPesanan", no_pesanan_default = "replacepdef"}))';
             link = link.replace("replaceId", $('#packingList_NO_BUKTI').val());
-            link = link.replace("replaceNoPesanan", noPesanan);
+            if (textbrc != undefined) {
+                link = link.replace("replaceNoPesanan", textbrc);
+            } else
+            {
+                link = link.replace("replaceNoPesanan", noPesanan);
+            }
+
+            link = link.replace("replacepdef", noPesananDef);
 
             $.ajax({
                 type: "GET",
@@ -589,6 +628,9 @@
         }
         function CloseModalPicking() {
             editPackinglist1($('#packingList_NO_BUKTI').val(), 2);
+        }
+        function orderback() {
+            $('#txtScanBarcodePacking').val(undefined);
         }
         function SimpanPackingPesanan() {
             if ($('#txtNoPesanan').val() == undefined || $('#txtNoPesanan').val() == "") {
@@ -620,10 +662,12 @@
                         if (response.Errors[0].includes("sudah valid")) {
                             //editPackinglist1($('#packingList_NO_BUKTI').val());
                             $('#modalPackingPesanan').modal('hide');
+                            RefreshPackingTabPesanan()
                         }
                     } else {
                         $('#modal-packing').html(response);
                         $('#modalPackingPesanan').modal('show');
+                        RefreshPackingTabPesanan()
                     }
                     $('#loading_spinner').hide();
                 },
@@ -748,6 +792,7 @@
                 <li id="li_pesanan_82cart_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_82cart_tab_focus" href="#packing_pesanan_82cart" aria-expanded="false">82Cart(<span>@total82cart</span>)</a></li>
                 <li id="li_pesanan_shopify_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_shopify_tab_focus" href="#packing_pesanan_shopify" aria-expanded="false">Shopify(<span>@totalShopify</span>)</a></li>
                 <li id="li_pesanan_bukalapak_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_bukalapak_tab_focus" href="#packing_pesanan_bukalapak" aria-expanded="false">Bukalapak(<span>@totalBukalapak</span>)</a></li>
+                <li id="li_pesanan_woo_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_woo_tab_focus" href="#packing_pesanan_woo" aria-expanded="false">Woocomerce(<span>@totalWoocomerce</span>)</a></li>
             }
             else
             {
@@ -1038,6 +1083,11 @@
 
                 </div>
             </div>
+            <div id="packing_pesanan_woo" class="tab-pane fade in">
+                <div class="col-lg-12" id="packing_pesanan_woo_content">
+
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -1057,6 +1107,16 @@
                     </div>
                     <div class="col-md-5 text-left" style="padding-top: 5px;">
                         Picking List (Rekap per Barang)
+                    </div>
+                    <div class="col-md-3"></div>
+                </div>
+                <div class="row ">
+                    <div class="col-md-3"></div>
+                    <div class="col-md-1 text-right">
+                        <input type="radio" style="height:20px; width:20px;" name="printType" value="2" />
+                    </div>
+                    <div class="col-md-5 text-left" style="padding-top: 5px;">
+                        Picking List (Rekap per Barang) Dengan Gambar
                     </div>
                     <div class="col-md-3"></div>
                 </div>
@@ -1109,7 +1169,7 @@
     <div class="modal-dialog" role="document" style="width:70%;">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" onclick="orderback()" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title">Scan Barcode Packing</h4>
             </div>
             <div class="modal-body">
@@ -1119,7 +1179,7 @@
                 <div id="modal-packing"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal" id="btnCancelPackingPesanan">Batal</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" id="btnCancelPackingPesanan" onclick="orderback();">Batal</button>
                 <button type="button" class="btn btn-success" onclick="SimpanPackingPesanan();" id="btnSimpanPackingPesanan">Simpan</button>
             </div>
         </div>

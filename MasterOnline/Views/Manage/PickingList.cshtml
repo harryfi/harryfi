@@ -239,58 +239,58 @@
 </div>
 @*end add by nurul 23/2/2021*@
 @*<div class="row" id="packinglist_section" hidden>
-    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        <div class="row packinglist_table_section">
-            <div class="col-lg-4 col-sm-6" style="margin-bottom:7px;">
-                <div class="input-group">
-                    <input id="search_packinglist" type="text" class="form-control" placeholder="Pencarian">
-                    <span class="input-group-btn">
-                        <button type="button" id="search_packinglist_click" class="btn btn-primary">
-                            <i class="fa fa-search"></i>
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="row packinglist_table_section">
+                <div class="col-lg-4 col-sm-6" style="margin-bottom:7px;">
+                    <div class="input-group">
+                        <input id="search_packinglist" type="text" class="form-control" placeholder="Pencarian">
+                        <span class="input-group-btn">
+                            <button type="button" id="search_packinglist_click" class="btn btn-primary">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-lg-8 col-sm-6">
+                    <div class="pull-right">
+                        <button class="btn btn-primary btn_tambah_data" id="tambah_packinglist" style="display:none">Tambah Baru</button>
+                    </div>
+                </div>
+            </div>
+            <div class="row packinglist_table_section" style="margin-top: 5px;">
+                <div class="col-sm-12 addpixel" id="table-packinglist-partial">
+                </div>
+            </div>
+            <div class="row packinglist_editor_section" style="display: none;">
+                <div class="col-lg-12 modalresponsive">
+                    <div class="page-editor">
+                        <h2 class="editor-title">Packing List</h2>
+                        <span class="title-accent"></span>
+                        <button id="close-editor-1" type="button" class="pull-right page-close">
+                            <span class="close-btn thick"></span>
                         </button>
-                    </span>
-                </div>
-            </div>
-            <div class="col-lg-8 col-sm-6">
-                <div class="pull-right">
-                    <button class="btn btn-primary btn_tambah_data" id="tambah_packinglist" style="display:none">Tambah Baru</button>
-                </div>
-            </div>
-        </div>
-        <div class="row packinglist_table_section" style="margin-top: 5px;">
-            <div class="col-sm-12 addpixel" id="table-packinglist-partial">
-            </div>
-        </div>
-        <div class="row packinglist_editor_section" style="display: none;">
-            <div class="col-lg-12 modalresponsive">
-                <div class="page-editor">
-                    <h2 class="editor-title">Packing List</h2>
-                    <span class="title-accent"></span>
-                    <button id="close-editor-1" type="button" class="pull-right page-close">
-                        <span class="close-btn thick"></span>
-                    </button>
-                    @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
-                    {
-                        foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                        @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
                         {
-                            <div class="alert alert-danger">
-                                <span class="message-error">@modelError.ErrorMessage</span>
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
+                            foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                            {
+                                <div class="alert alert-danger">
+                                    <span class="message-error">@modelError.ErrorMessage</span>
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            }
+                        }
+                        @using (Html.BeginForm("SavePackinglist", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-packinglist" }))
+                        {
+                            <div id="form-partial">
                             </div>
                         }
-                    }
-                    @using (Html.BeginForm("SavePackinglist", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-packinglist" }))
-                    {
-                        <div id="form-partial">
-                        </div>
-                    }
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>*@
+    </div>*@
 
 <div class="modal fade" id="konfHapusPackinglist" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
@@ -333,45 +333,45 @@
 </div>
 
 @*<div class="modal fade" id="modalPackingPesanan" tabindex="-1" role="dialog" aria-labelledby="modalPackingPesananLabel">
-    <div class="modal-dialog" role="document" style="width:70%;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Scan Barcode Packing</h4>
-            </div>
-            <div class="modal-body">
-                @*<div class="row text-center">
-                        <button id="btnHapusPicking"></button>
-                    </div>
-                <div id="modal-packing"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal" id="btnCancelPackingPesanan">Batal</button>
-                <button type="button" class="btn btn-success" onclick="SimpanPackingPesanan();" id="btnSimpanPackingPesanan">Simpan</button>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="modalPickingBarang" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="modalPickingBarangLabel">
-    <div class="modal-dialog" role="document" style="width:70%;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Scan Barcode Picking</h4>
-            </div>
-            <div class="modal-body">
-                @*<div class="row text-center">
-                        <button id="btnHapusPicking"></button>
-                    </div>
-                <div id="modal-picking"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal" id="btnCancelPickingBrg">Batal</button>
-                <button type="button" class="btn btn-success" onclick="SimpanPickingBarang();" id="btnSimpanPickingBrg">Simpan</button>
+        <div class="modal-dialog" role="document" style="width:70%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Scan Barcode Packing</h4>
+                </div>
+                <div class="modal-body">
+                    @*<div class="row text-center">
+                            <button id="btnHapusPicking"></button>
+                        </div>
+                    <div id="modal-packing"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" id="btnCancelPackingPesanan">Batal</button>
+                    <button type="button" class="btn btn-success" onclick="SimpanPackingPesanan();" id="btnSimpanPackingPesanan">Simpan</button>
+                </div>
             </div>
         </div>
     </div>
-</div>*@
+    <div class="modal fade" id="modalPickingBarang" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="modalPickingBarangLabel">
+        <div class="modal-dialog" role="document" style="width:70%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Scan Barcode Picking</h4>
+                </div>
+                <div class="modal-body">
+                    @*<div class="row text-center">
+                            <button id="btnHapusPicking"></button>
+                        </div>
+                    <div id="modal-picking"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" id="btnCancelPickingBrg">Batal</button>
+                    <button type="button" class="btn btn-success" onclick="SimpanPickingBarang();" id="btnSimpanPickingBrg">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>*@
 
 @*<div class="modal fade" id="modalPrint" tabindex="-1" role="dialog" aria-labelledby="modalPrintLabel">
         <div class="modal-dialog" role="document">
@@ -555,7 +555,7 @@
                 var splitDrTgl = $('#DrTanggalDashboard').val().split('/');
                 var getDrTgl = new Date(splitDrTgl[2], splitDrTgl[1] - 1, splitDrTgl[0]);
                 var splitSdTgl = $('#SdTanggalDashboard').val().split('/');
-                var getSdTgl = new Date(splitSdTgl[2], splitSdTgl[1] - 1, splitSdTgl[0]); 
+                var getSdTgl = new Date(splitSdTgl[2], splitSdTgl[1] - 1, splitSdTgl[0]);
                 if (getDrTgl > getSdTgl) {
                     alert("Dari tanggal tidak boleh lebih dari S/d tanggal.");
                 } else{
@@ -1110,6 +1110,9 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
+                    if (response.Errors[0] != "done") {
+                        alert(response.Errors[0]);
+                    }
                     $('#table-packinglist-partial').html(response);
                     //Initialize();
                     //refreshTablePackinglist1($savePage);
@@ -1660,7 +1663,7 @@
                     //        searchTableRekapBarang();
                     //    }
                     //});
-                    
+
                     $('#filter_barang_field').change(function () {
                         var filterBy = $(this).val();
                         switch (filterBy) {
@@ -1723,7 +1726,7 @@
             var filtervalue = get_filtervalue(filterby);
             var link = '@Html.Raw(Url.Action("ListRekapBarangToExcel", "TransferExcel"))';
             link += "?search=" + encodeURIComponent($('#search_rekapbarang').val()) + "&filter=" + encodeURIComponent(filterby) + "&filtervalue=" + encodeURIComponent(filtervalue) + "&drTgl=" + encodeURIComponent($('#DrTanggalDashboard').val()) + "&sdTgl=" + encodeURIComponent($('#SdTanggalDashboard').val());
-            
+
             $.ajax({
                 xhr: function () {
                     var xhr = $.ajaxSettings.xhr();

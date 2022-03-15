@@ -60,7 +60,7 @@
                 <label>Scan Barcode</label>
             </div>
             <div class="col-md-3">
-                <input class="form-control" data-val="true" id="txtScanBarcodePacking" name="txtScanBarcodePacking" />
+                <input class="form-control" style="width: 500px" data-val="true" id="txtScanBarcodePacking" name="txtScanBarcodePacking" placeholder="No. Pesanan/ No. Referensi/ No. Resi/ Kode Booking" />
             </div>
         </div>
     </div>
@@ -78,6 +78,7 @@
             </tr>
         </thead>
         <tbody>
+            @Html.HiddenFor(m => m.default_no_bukti)
             @*@foreach(var barang in Model.dataScan)*@
             @for (int i = 0; i < Model.dataScan.Count; i++)
             {
@@ -96,13 +97,13 @@
                         <label id="txtIsValid_@i"></label>
                     </td>
                     @*@if (barang.isValid)
-                {
-                    <td>VALID</td>
-                }
-                else
-                {
-                    <td>TIDAK VALID</td>
-                }*@
+                        {
+                            <td>VALID</td>
+                        }
+                        else
+                        {
+                            <td>TIDAK VALID</td>
+                        }*@
                 </tr>
             }
         </tbody>
@@ -130,7 +131,7 @@
                         return false;
                     }
                 }
-                alert('Barang yang anda scan : ' + $("#txtScanBarcodePacking").val() + ' tidak ada dipesanan ini.');
+                checkrpre();
                 $("#txtScanBarcodePacking").val('');
                 $("#txtScanBarcodePacking").focus();
             }
@@ -138,9 +139,22 @@
         return false;
     });
 
+    function checkrpre()
+    {
+        for (i = 0; i < $('#maxDataPacking').val(); i++) {
+            if (document.getElementById('txtIsValid_' + i).innerText != "") {
+                alert("Selesaikan Packing List Untuk Pesanan Ini");
+                return false;
+            }
+        }
+        openModalPacking();
+
+    }
+
     function PromptPesanan() {
             showPromptPesananTextBoxWindow();
-        }
+    }
+
 
     function showPromptPesananTextBoxWindow() {
         var $link = '@Url.Action("PromptPesananPL", "Manage")';

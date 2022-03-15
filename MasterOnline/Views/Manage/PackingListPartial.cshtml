@@ -62,6 +62,7 @@
             <tr role="row">
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Nomor Bukti</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 90px;">Tanggal</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 90px;">Barcode Pesanan</th>
                 <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 60px;">Edit</th>
                 <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px;">Hapus</th>
             </tr>
@@ -77,6 +78,9 @@
                         {
                             @packingList.TGL.Value.ToString("dd/MM/yyyy")
                         }
+                    </td>
+                    <td>
+                        @packingList.currentPesan / @packingList.maxPesan
                     </td>
                     <td class="edit-hapus-col">
                         <button class="btn btn-primary" onclick="editPackinglist1('@packingList.NO_BUKTI')">

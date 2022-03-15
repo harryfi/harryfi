@@ -23,6 +23,10 @@ namespace MasterOnline.ViewModels
         public double JumlahRekapBarang { get; set; }
         public double JumlahRekapQtyBarang { get; set; }
         //end add by fauzi 22/01/2021, tambah dashboard packing list
+
+        //add by steven 14/02/2022
+        public bool isImageShow { get; set; }
+        //end add by steven
     }
 
     public class SOT03BDetailPacking
@@ -59,6 +63,7 @@ namespace MasterOnline.ViewModels
         //ADD BY NURUL 23/11/2021
         public string WAREHOUSE_ID { get; set; }
         //END ADD BY NURUL 23/11/2021
+       
     }
 
     public class RekapBarang
@@ -83,6 +88,10 @@ namespace MasterOnline.ViewModels
         //ADD BY TRI 6 OKT 2020
         public string RAK { get; set; }
         //END ADD BY TRI 6 OKT 2020
+
+        //ADD BY STEVEN 14/02/2022
+        public string IMAGE { get; set; }
+        //END ADD BY STEVEN
     }
 
     public class templistDetailPacking

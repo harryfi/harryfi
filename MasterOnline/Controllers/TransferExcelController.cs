@@ -7534,6 +7534,102 @@ namespace MasterOnline.Controllers
                                 ret.Errors.Add("Tidak ada data packing list");
                             }
                         }
+                        else if (mode == "2")
+                        {
+                            ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Picking List");
+                            string sSQL = "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(B.LKS,'') as RAK " +
+                                "from SOT03C A (nolock) INNER JOIN STF02 B(nolock) ON A.BRG = B.BRG LEFT JOIN SOT01A C(NOLOCK) ON A.NO_PESANAN=C.NO_BUKTI " +
+                                "WHERE A.NO_BUKTI = '" + noPackingList + "' and isnull(C.status_kirim,'') <> '5' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE, B.LKS ";
+                            var lsPicking = EDB.GetDataSet("CString", "SO", sSQL);
+                            if (lsPicking.Tables[0].Rows.Count > 0)
+                            {
+                                worksheet.Cells["A1"].Value = "PICKING LIST";
+                                worksheet.Cells["A2"].Value = "NO. BUKTI    : " + noPackingList;
+                                worksheet.Cells["A3"].Value = "Tanggal      : " + tgl;
+                                for (int i = 0; i < lsPicking.Tables[0].Rows.Count; i++)
+                                {
+                                    var brg = lsPicking.Tables[0].Rows[i]["BRG"].ToString();
+                                    var image = ErasoftDbContext.STF02.First(x => x.BRG.ToUpper() == brg.ToUpper()).LINK_GAMBAR_1;
+                                    Image imgdata = null;
+                                    try
+                                    {
+                                        System.Net.HttpWebRequest webRequest = (System.Net.HttpWebRequest)System.Net.HttpWebRequest.Create(image);
+                                        webRequest.AllowWriteStreamBuffering = true;
+                                        webRequest.Timeout = 30000;
+
+                                        System.Net.WebResponse webResponse = webRequest.GetResponse();
+
+                                        System.IO.Stream stream = webResponse.GetResponseStream();
+
+                                        imgdata = Image.FromStream(stream);
+
+                                        webResponse.Close();
+                                    }
+                                    catch (Exception e)
+                                    {
+
+                                    }
+                                    OfficeOpenXml.Drawing.ExcelPicture epict = worksheet.Drawings.AddPicture("img" + i, imgdata);
+                                    epict.SetSize(140, 100);
+                                    epict.SetPosition(5 + i, 2, 0, 2);
+                                    worksheet.Row(6 + i).Height = 100;
+                                    worksheet.Column(1).Width = 140;
+                                    worksheet.Cells[6 + i, 2].Value = lsPicking.Tables[0].Rows[i]["BRG"];
+                                    worksheet.Cells[6 + i, 3].Value = lsPicking.Tables[0].Rows[i]["BARCODE"];
+                                    worksheet.Cells[6 + i, 4].Value = lsPicking.Tables[0].Rows[i]["NAMA_BARANG"];
+                                    worksheet.Cells[6 + i, 5].Value = lsPicking.Tables[0].Rows[i]["RAK"];
+                                    worksheet.Cells[6 + i, 6].Value = lsPicking.Tables[0].Rows[i]["QTY"];
+
+                                    //add by nurul 9/2/2021
+                                    var tempRef = "";
+                                    var getListNoref = EDB.GetDataSet("CString", "SOT01A", "select brg, ISNULL(SUM(qty),0) AS QTY,isnull(no_referensi,'') as no_referensi from sot01a a (nolock) inner join sot01b b (nolock) on a.no_bukti=b.no_bukti where brg='" + lsPicking.Tables[0].Rows[i]["BRG"] + "' and a.no_bukti in (select no_pesanan from sot03b where no_bukti='" + noPackingList + "') GROUP BY brg,no_referensi");
+                                    if (getListNoref.Tables[0].Rows.Count > 0)
+                                    {
+                                        for (int a = 0; a < getListNoref.Tables[0].Rows.Count; a++)
+                                        {
+                                            if (!string.IsNullOrEmpty(getListNoref.Tables[0].Rows[a]["no_referensi"].ToString()))
+                                            {
+                                                tempRef = tempRef + getListNoref.Tables[0].Rows[a]["no_referensi"].ToString() + " (" + getListNoref.Tables[0].Rows[a]["qty"].ToString() + ") " + Environment.NewLine + " ";
+                                            }
+                                        }
+                                    }
+                                    if (tempRef != "")
+                                    {
+                                        tempRef = tempRef.Substring(0, tempRef.Length - 4);
+                                    }
+                                    worksheet.Cells[6 + i, 7].Value = tempRef;
+                                }
+                                ExcelRange rg0 = worksheet.Cells[5, 1, worksheet.Dimension.End.Row, 7];
+                                string tableName0 = "TablePackingList";
+                                ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
+                                table0.Columns[0].Name = "GAMBAR BARANG";
+                                table0.Columns[1].Name = "KODE BARANG";
+                                table0.Columns[2].Name = "KODE BARCODE";
+                                table0.Columns[3].Name = "NAMA BARANG";
+                                table0.Columns[4].Name = "LOKASI RAK";
+                                table0.Columns[5].Name = "QTY";
+                                //add by nurul 9/2/2021
+                                table0.Columns[6].Name = "NO REFERENSI";
+                                //end add by nurul 9/2/2021
+
+                                //using (var range = worksheet.Cells[5, 1, 5, 5])
+                                using (var range = worksheet.Cells[6, 1, 6, 7])
+                                {
+                                    range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                                    range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                                    range.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                                    range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                                }
+
+                                table0.ShowHeader = true;
+                                table0.ShowFilter = true;
+                                table0.ShowRowStripes = false;
+                                worksheet.Cells.AutoFitColumns(0);
+
+                                ret.byteExcel = package.GetAsByteArray();
+                                ret.namaFile = username + "_PickingList_" + noPackingList + ".xlsx";
+                            }
+                        }
                         else
                         {
                             ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Picking List");
@@ -7578,7 +7674,6 @@ namespace MasterOnline.Controllers
                                 ExcelRange rg0 = worksheet.Cells[5, 1, worksheet.Dimension.End.Row, 6];
                                 string tableName0 = "TablePackingList";
                                 ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
-
                                 table0.Columns[0].Name = "KODE BARANG";
                                 table0.Columns[1].Name = "KODE BARCODE";
                                 table0.Columns[2].Name = "NAMA BARANG";
@@ -7589,7 +7684,7 @@ namespace MasterOnline.Controllers
                                 //end add by nurul 9/2/2021
 
                                 //using (var range = worksheet.Cells[5, 1, 5, 5])
-                                using (var range = worksheet.Cells[5, 1, 5, 6])
+                                using (var range = worksheet.Cells[5, 1, 5, 7])
                                 {
                                     range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
                                     range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
