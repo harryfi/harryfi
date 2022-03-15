@@ -273,6 +273,7 @@ namespace MasterOnline.Controllers
                     MoDbContext.SaveChanges();
                     if (result == 1)
                     {
+                        GetShippingProvider(cust);
                         manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, cust, currentLog);
                         return ret;
                     }
@@ -935,7 +936,26 @@ namespace MasterOnline.Controllers
                         var result = JsonConvert.DeserializeObject(responseFromServer, typeof(TiktokGetShipmentResponse)) as TiktokGetShipmentResponse;
                         if (result.code == 0)
                         {
-                            
+                            if(result.data != null)
+                            {
+                                var tempShipment = ErasoftDbContext.DELIVERY_PROVIDER_TIKTOK.Where(m => m.CUST == cust).ToList();
+                                foreach (var delivery in result.data.delivery_option_list)
+                                {
+                                    foreach(var shipment in delivery.shipping_provider_list)
+                                    {
+                                        if (tempShipment.Where(m => m.SHIPPING_ID == shipment.shipping_provider_id).ToList().Count == 0)
+                                        {
+                                            var newProvider = new DELIVERY_PROVIDER_TIKTOK();
+                                            newProvider.CUST = cust;
+                                            newProvider.NAME = delivery.delivery_option_name + " " + shipment.shipping_provider_name;
+                                            newProvider.SHIPPING_ID = shipment.shipping_provider_id;
+
+                                            ErasoftDbContext.DELIVERY_PROVIDER_TIKTOK.Add(newProvider);
+                                            ErasoftDbContext.SaveChanges();
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }

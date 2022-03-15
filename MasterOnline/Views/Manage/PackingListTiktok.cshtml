@@ -314,7 +314,7 @@
         $postdata = {
             cust : cust,
             bukti : $('#packingList_NO_BUKTI').val(),
-            //DeliveryProvider : $('#txtShipment__' + cust).val(),
+            DeliveryProvider : $('#txtShipment__' + cust).val(),
             rows_selected : rows_selected
         };
 
@@ -823,8 +823,9 @@
         window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
     }
 
-    function afterPromptDelTempLzd(val) {
-        $('#txtShipment__' + promptTiktokCust).val(val);
+    function afterPromptDelTempTiktok(val, id) {
+        $('#txtShipmentName__' + promptTiktokCust).val(val);
+        $('#txtShipment__' + promptTiktokCust).val(id);
     }
 
     function cekValidasiPackingTiktok(cust) {
@@ -1327,16 +1328,17 @@
                                 </span>
                             </div>
                         </div>
-                        @*<div class="col-md-4" style="text-align:right">
+                        <div class="col-md-4" style="text-align:right">
                             <div class="input-group">
-                                <input id="txtShipment__@(item.CUST)" disabled="disabled" placeholder="Delivery Provider" required="required" class="form-control" maxlength="30" data_val_length_max="30">
+                                <input id="txtShipment__@(item.CUST)" disabled="disabled" style="display:none;" class="form-control">
+                                <input id="txtShipmentName__@(item.CUST)" disabled="disabled" placeholder="Delivery Provider"  class="form-control">
                                 <span class="input-group-btn">
                                     <button id="btnShipment__@(item.CUST)" class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryProvTiktok('@(item.CUST)')">
                                         <span class="glyphicon glyphicon-option-horizontal"></span>
                                     </button>
                                 </span>
                             </div>
-                        </div>*@
+                        </div>
                         <div class="col-md-1"></div>
                         <div class="col-md-1 pull-left">
                             <button id="btnRefreshTiktok_@(item.CUST)" type="button" class="btn btn-default" onclick="RefreshPackingTiktok('@(item.CUST)')" style="width:75px">Refresh</button>
@@ -1366,12 +1368,12 @@
                                         <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnPrintTiktok__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="TiktokGetLabelPerPacking('@(item.CUST)','1')">
                                             <span aria-hidden="true"> Label Marketplace</span>
                                         </button>
-                                        @*<button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnPrintMOTiktok__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="TiktokGetLabelPerPacking('@(item.CUST)','2')">
+                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnPrintMOTiktok__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="TiktokGetLabelPerPacking('@(item.CUST)','2')">
                                             <span aria-hidden="true"> Label MasterOnline</span>
-                                        </button>*@
-                                        @*<button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnPrintFakturMOTiktok__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="TiktokGetFakturPerPacking('@(item.CUST)')">
+                                        </button>
+                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnPrintFakturMOTiktok__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="TiktokGetFakturPerPacking('@(item.CUST)')">
                                             <span aria-hidden="true"> Faktur MasterOnline</span>
-                                        </button>*@
+                                        </button>
                                     </div>
                                 </div>
                             </div>

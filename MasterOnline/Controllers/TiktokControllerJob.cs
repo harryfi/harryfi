@@ -1379,7 +1379,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Update Status Ready To Ship Pesanan {obj} ke TikTok Gagal.")]
-        public string UpdateStatus_RTS(TTApiData iden, string ordersn, string no_bukti)
+        public string UpdateStatus_RTS(TTApiData iden, string ordersn, string no_bukti, string DeliveryProvider, string tracking_no)
         {
             SetupContext(iden.DatabasePathErasoft, iden.username);
             var ret = "";
@@ -1393,8 +1393,12 @@ namespace MasterOnline.Controllers
             myReq.ContentType = "application/json";
 
 
-            string myData = "{\"order_id\":\""+ ordersn + "\"}";
-
+            string myData = "{\"order_id\":\""+ ordersn + "\"";
+            if (!string.IsNullOrEmpty(DeliveryProvider))
+            {
+                myData += ", \"self_shipment\" : { \"tracking_number\" : " + tracking_no + "\"" + "\"shipping_provider_id\" : " + DeliveryProvider + "\"}";
+            }
+            myData += "}";
             string responseFromServer = "";
             try
             {

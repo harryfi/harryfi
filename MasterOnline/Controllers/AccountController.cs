@@ -2054,8 +2054,8 @@ namespace MasterOnline.Controllers
                             connId_JobId = dbPathEra + "_tiktok_pesanan_insert_" + Convert.ToString(tblCustomer.RecNum.Value);
                                 recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TiktokControllerJob>(x => x.GetOrder_Insert_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO)), Cron.HourInterval(1), recurJobOpt);
                                  
-                                connId_JobId = dbPathEra + "_tiktok_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TiktokControllerJob>(x => x.GetOrder_Complete_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO)), Cron.HourInterval(6), recurJobOpt);
+                                //connId_JobId = dbPathEra + "_tiktok_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TiktokControllerJob>(x => x.GetOrder_Complete_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO)), Cron.HourInterval(6), recurJobOpt);
                                 
                                 connId_JobId = dbPathEra + "_tiktok_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
                                 recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TiktokControllerJob>(x => x.GetOrder_Cancel_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO)), Cron.HourInterval(1), recurJobOpt);
@@ -2069,7 +2069,7 @@ namespace MasterOnline.Controllers
 #else
                                 var tikapijob = new TiktokControllerJob();
                                 await tikapijob.GetOrder_Insert_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
-                                await tikapijob.GetOrder_Complete_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
+                                //await tikapijob.GetOrder_Complete_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
                                 await tikapijob.GetOrder_Cancel_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
                                 await tikapijob.GetOrderTiktok_webhook_Insert(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
                                 await tikapijob.GetOrderTiktok_webhook_Cancel(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
