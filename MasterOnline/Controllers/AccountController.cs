@@ -2015,7 +2015,105 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex) { }
             #endregion
+            #region TiktokShop
+            try
+            {
+                var tiktokshop = LocalErasoftDbContext.ARF01.Where(x => x.NAMA == "2021");
+                var lstwoshop = tiktokshop.ToList();
+                if (lstwoshop.Count > 0)
+                {
+                    foreach (ARF01 tblCustomer in lstwoshop)
+                    {
+                        if (!string.IsNullOrWhiteSpace(tblCustomer.TOKEN))
+                        {
+                            var idenTikTok = new TTApiData
+                            {
+                                access_token = tblCustomer.TOKEN,
+                                no_cust = tblCustomer.CUST,
+                                DatabasePathErasoft = dbPathEra,
+                                shop_id = tblCustomer.Sort1_Cust,
+                                username = username,
+                                expired_date = tblCustomer.TGL_EXPIRED.Value, 
+                                refresh_token = tblCustomer.REFRESH_TOKEN
+                            };
+                                var tikapijob = new TiktokControllerJob();
+                            if (tblCustomer.TOKEN_EXPIRED != null)
+                            {
+#if (AWS || DEV)
+                            client.Enqueue<TiktokControllerJob>(x => x.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username, tblCustomer.TGL_EXPIRED,tblCustomer.TOKEN_EXPIRED));
 
+#else
+                                //TiktokController tikapi = new TiktokController();
+                                await tikapijob.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username, tblCustomer.TGL_EXPIRED, tblCustomer.TOKEN_EXPIRED);
+#endif
+                            }
+                            string connId_JobId = "";
+                            if (tblCustomer.TIDAK_HIT_UANG_R == true)
+                            {
+                                //order data
+
+#if (AWS || DEV)
+                            connId_JobId = dbPathEra + "_tiktok_pesanan_insert_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TiktokControllerJob>(x => x.GetOrder_Insert_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO)), Cron.HourInterval(1), recurJobOpt);
+                                 
+                                //connId_JobId = dbPathEra + "_tiktok_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TiktokControllerJob>(x => x.GetOrder_Complete_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO)), Cron.HourInterval(6), recurJobOpt);
+                                
+                                connId_JobId = dbPathEra + "_tiktok_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TiktokControllerJob>(x => x.GetOrder_Cancel_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO)), Cron.HourInterval(1), recurJobOpt);
+                                
+                                connId_JobId = dbPathEra + "_tiktok_pesanan_webhook_insert_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TiktokControllerJob>(x => x.GetOrderTiktok_webhook_Insert(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO)), Cron.MinuteInterval(5), recurJobOpt);
+                                
+                                connId_JobId = dbPathEra + "_tiktok_pesanan_webhook_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TiktokControllerJob>(x => x.GetOrderTiktok_webhook_Cancel(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO)), Cron.MinuteInterval(5), recurJobOpt);
+
+#else
+                                await tikapijob.GetOrder_Insert_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
+                                //await tikapijob.GetOrder_Complete_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
+                                await tikapijob.GetOrder_Cancel_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
+                                await tikapijob.GetOrderTiktok_webhook_Insert(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
+                                await tikapijob.GetOrderTiktok_webhook_Cancel(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
+#endif
+                                if (!string.IsNullOrEmpty(sync_pesanan_stok))
+                                {
+                                    if (sync_pesanan_stok == tblCustomer.CUST)
+                                    {
+#if (AWS || DEV)
+                                    client.Enqueue<TiktokControllerJob>(x => x.GetOrder_GoLive_Insert_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO));
+#else
+                                        await tikapijob.GetOrder_GoLive_Insert_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
+#endif
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                connId_JobId = dbPathEra + "_tiktok_pesanan_insert_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.RemoveIfExists(connId_JobId);
+
+                                connId_JobId = dbPathEra + "_tiktok_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.RemoveIfExists(connId_JobId);
+
+                                connId_JobId = dbPathEra + "_tiktok_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.RemoveIfExists(connId_JobId);
+
+                                connId_JobId = dbPathEra + "_tiktok_pesanan_webhook_insert_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.RemoveIfExists(connId_JobId);
+
+                                connId_JobId = dbPathEra + "_tiktok_pesanan_webhook_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.RemoveIfExists(connId_JobId);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            #endregion
             return "";
         }
 

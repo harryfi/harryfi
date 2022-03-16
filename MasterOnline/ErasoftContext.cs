@@ -452,11 +452,14 @@ namespace MasterOnline
         public virtual DbSet<DeliveryTemplateElevenia> DeliveryTemplateElevenia { get; set; }
         public virtual DbSet<PICKUP_POINT_BLIBLI> PICKUP_POINT_BLIBLI { get; set; }
         public virtual DbSet<DELIVERY_PROVIDER_LAZADA> DELIVERY_PROVIDER_LAZADA { get; set; }
+        public virtual DbSet<DELIVERY_PROVIDER_TIKTOK> DELIVERY_PROVIDER_TIKTOK { get; set; }
         public virtual DbSet<API_LOG_MARKETPLACE> API_LOG_MARKETPLACE { get; set; }
         public virtual DbSet<LOG_IMPORT_FAKTUR> LOG_IMPORT_FAKTUR { get; set; }
         public virtual DbSet<TEMP_BRG_MP> TEMP_BRG_MP { get; set; }
         public virtual DbSet<TEMP_SHOPEE_ORDERS> TEMP_SHOPEE_ORDERS { get; set; }
         public virtual DbSet<TEMP_SHOPEE_ORDERS_ITEM> TEMP_SHOPEE_ORDERS_ITEM { get; set; }
+        public virtual DbSet<TEMP_TIKTOK_ORDERS> TEMP_TIKTOK_ORDERS { get; set; }
+        public virtual DbSet<TEMP_TIKTOK_ORDERS_ITEM> TEMP_TIKTOK_ORDERS_ITEM { get; set; }
         //add by fauzi for 82cart
         public virtual DbSet<TEMP_82CART_ORDERS> TEMP_82CART_ORDERS { get; set; }
         public virtual DbSet<TEMP_82CART_ORDERS_ITEM> TEMP_82CART_ORDERS_ITEM { get; set; }

@@ -228,7 +228,22 @@ namespace MasterOnline.Controllers
         //string shopeeV2Url = "https://partner.test-stable.shopeemobile.com";
         //int MOPartnerIDV2 = 1000723;
         //string MOPartnerKeyV2 = "d59a300f63f9d36b92f71b0ccb5b37e4e2b43e9c567df3f2e2808136dd4893dd";
+#if AWS
+                        
+        string eraAppKeyTikTok = "3cqbhg";
+        string eraAppSecretTikTok = "57fb173019d59898be333ac5af995585437ed8bf";
+        string eraCallbackUrlTikTok = "https://masteronline.co.id/tiktok/auth";
+#elif Debug_AWS
 
+        string eraAppKeyTikTok = "3cqbhg";
+        string eraAppSecretTikTok = "57fb173019d59898be333ac5af995585437ed8bf";
+        string eraCallbackUrlTikTok = "https://masteronline.co.id/tiktok/auth";
+#else
+
+        string eraAppKeyTikTok = "3cqbhg";
+        string eraAppSecretTikTok = "57fb173019d59898be333ac5af995585437ed8bf";
+        string eraCallbackUrlTikTok = "https://dev.masteronline.co.id/tiktok/auth";
+#endif
         public StokControllerJob()
         {
             //Catatan by calvin :
@@ -1107,6 +1122,7 @@ namespace MasterOnline.Controllers
             var kdJD = 19;
             var kdShopify = 21;
             var kd82Cart = 20;
+            var kdtiktok = 2021;
             // change by fauzi 07 Januari 2020
             int delayTokped = 0;
 
@@ -1517,6 +1533,37 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
+                    else if (marketPlace.NAMA.Equals(kdtiktok.ToString()))
+                    {
+                        if (marketPlace.TIDAK_HIT_UANG_R == true)
+                        {
+                            if (!string.IsNullOrEmpty(marketPlace.Sort1_Cust))
+                            {
+                                if (!string.IsNullOrEmpty(stf02h.BRG_MP))
+                                {
+                                    TTApiData data = new TTApiData()
+                                    {
+                                        shop_id = marketPlace.Sort1_Cust,
+                                        DatabasePathErasoft = dbPathEra,
+                                        username = uname,
+                                        access_token = marketPlace.TOKEN
+                                    };
+                                    if (stf02h.BRG_MP.Contains("PENDING") || stf02h.BRG_MP.Contains("PEDITENDING"))
+                                    {
+
+                                    }
+                                    else
+                                    {
+#if (DEBUG || Debug_AWS)
+                                        Task.Run(() => tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+#else
+                                        client.Enqueue<StokControllerJob>(x => x.tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
+#endif
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
             //}
@@ -1556,6 +1603,7 @@ namespace MasterOnline.Controllers
             var kdJD = 19;
             var kd82Cart = 20;
             var kdshopify = 21;
+            var kdtiktok = 2021;
             int delayTokped = 0;
             string EDBConnID = EDB.GetConnectionString("ConnId");
             var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -1972,6 +2020,38 @@ namespace MasterOnline.Controllers
                                         //E2Cart_UpdateStock_82Cart(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname);
 #else
                                         client.Enqueue<StokControllerJob>(x => x.E2Cart_UpdateStock_82Cart(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname));
+#endif
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else if (marketPlace.NAMA.Equals(kdtiktok.ToString()))
+                    {
+                        if (marketPlace.TIDAK_HIT_UANG_R == true)
+                        {
+                            if (!string.IsNullOrEmpty(marketPlace.Sort1_Cust))
+                            {
+                                if (!string.IsNullOrEmpty(stf02h.BRG_MP))
+                                {
+                                    TTApiData data = new TTApiData()
+                                    {
+                                        shop_id = marketPlace.Sort1_Cust,
+                                        DatabasePathErasoft = dbPathEra,
+                                        username = uname,
+                                        access_token = marketPlace.TOKEN
+                                    };
+                                    if (stf02h.BRG_MP.Contains("PENDING") || stf02h.BRG_MP.Contains("PEDITENDING"))
+                                    {
+
+                                    }
+                                    else
+                                    {
+#if (DEBUG || Debug_AWS)
+                                        Task.Run(() => tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+                                        //E2Cart_UpdateStock_82Cart(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname);
+#else
+                                        client.Enqueue<StokControllerJob>(x => x.tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
 #endif
                                     }
                                 }
@@ -3190,10 +3270,128 @@ namespace MasterOnline.Controllers
             return newQty;
         }
 
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_update_stok")]
+        [NotifyOnFailed("Update Stok {obj} ke Tiktok Shop gagal.")]
+        public async Task<string> tiktok_updatestock(string DatabasePathErasoft, string stf02_brg, string log_Cust, string log_ActionCat, string log_ActName, TTApiData apidata, string idbarang, int stok, string uname, PerformContext context)
+        {
+            SetupContext(DatabasePathErasoft, uname);
+            var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
+            if (qtyOnHand < 0)
+            {
+                qtyOnHand = 0;
+            }
+
+            stok = Convert.ToInt32(qtyOnHand);
+            string[] split = idbarang.Split(';');
+            StockUpdateTik sut = new StockUpdateTik()
+            {
+                ProductId = split[0],
+                Skus = new List<SkuTik>()
+            };
+            SkuTik sku = new SkuTik()
+            {
+                Id = split[1],
+                StockInfos = new List<StockInfoTik>()
+            };
+            StockInfoTik soi = new StockInfoTik()
+            {
+                AvailableStock = stok
+            };
+            sku.StockInfos.Add(soi);
+            sut.Skus.Add(sku);
+            string request_data = JsonConvert.SerializeObject(sut);
+            string urll = "https://open-api.tiktokglobalshop.com/api/products/stocks?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecretTikTok + "/api/products/stocksapp_key" + eraAppKeyTikTok + "shop_id" + apidata.shop_id + "timestamp" + timestamp + eraAppSecretTikTok;
+            string signencry = GetHash(sign, eraAppSecretTikTok);
+            var vformatUrl = String.Format(urll, apidata.access_token, timestamp, signencry, eraAppKeyTikTok, apidata.shop_id);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "PUT";
+            myReq.ContentType = "application/json";
+            myReq.Accept = "application/json";
+            string responseFromServer = "";
+            myReq.ContentLength = request_data.Length;
+            //try
+            //{
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(request_data), 0, request_data.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            //}
+            //catch (Exception e)
+            //{
+
+            //}
+
+            if (responseFromServer != "")
+            {
+                var res = JsonConvert.DeserializeObject<TiktokUpdateStockResponse>(responseFromServer);
+                if(res.code != 0)
+                {
+                    throw new Exception(responseFromServer);
+                }
+            }
+
+            return "";
+        }
+        #region Encyrptor tiktok
+        public static String GetHash(String text, String key)
+        {
+            ASCIIEncoding encoding = new ASCIIEncoding();
+
+            Byte[] textBytes = encoding.GetBytes(text);
+            Byte[] keyBytes = encoding.GetBytes(key);
+
+            Byte[] hashBytes;
+
+            using (HMACSHA256 hash = new HMACSHA256(keyBytes))
+                hashBytes = hash.ComputeHash(textBytes);
+
+            return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+        }
+
+        public static string EncryptString(string input, Encoding encoding)
+        {
+            Byte[] stringBytes = encoding.GetBytes(input);
+            StringBuilder sbBytes = new StringBuilder(stringBytes.Length * 2);
+            foreach (byte b in stringBytes)
+            {
+                sbBytes.AppendFormat("{0:X2}", b);
+            }
+            return sbBytes.ToString();
+        }
+
+        public static string DecryptString(string hexInput, Encoding encoding)
+        {
+            int numberChars = hexInput.Length;
+            byte[] bytes = new byte[numberChars / 2];
+            for (int i = 0; i < numberChars; i += 2)
+            {
+                bytes[i / 2] = Convert.ToByte(hexInput.Substring(i, 2), 16);
+            }
+            return encoding.GetString(bytes);
+        }
+        #endregion
         public class Tokped_updateStockResult
         {
             public Tokped_updateStockResultHeader header { get; set; }
             public Tokped_updateStockResultData data { get; set; }
+        }
+
+        public class TiktokUpdateStockResponse
+        {
+            public int code { get; set; }
+            public string message { get; set; }
+            public string request_id { get; set; }
         }
 
         public class Tokped_updateStockResultHeader
@@ -4124,7 +4322,7 @@ namespace MasterOnline.Controllers
                                 var ErasoftDbContext2 = new ErasoftContext(EraServerName, dbPathEra);
                                 manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext2, log_CUST, currentLog, "Shopee");
 
-                                EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ACTION = 'Selisih Stok B' AND REQUEST_DATETIME <= '"+ DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "'");
+                                EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ACTION = 'Selisih Stok B' AND REQUEST_DATETIME <= '" + DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "'");
                             }
                         }
                         catch (Exception ex2)
@@ -4177,7 +4375,7 @@ namespace MasterOnline.Controllers
                         client.Schedule<StokControllerJob>(x => x.ShopeeUnlinkProduct(DatabasePathErasoft, stf02_brg, log_CUST, uname, iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(0), qty), TimeSpan.FromMinutes(1));
 #endif
                     }
-                    else if(msg.ToLower().Contains("promotion"))
+                    else if (msg.ToLower().Contains("promotion"))
                     {
                         var reqID = "SUPPORT_UPDATE_STOK_SHOPEE_" + stf02_brg + "_" + log_CUST + "_" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff");
                         var sSQL = "INSERT INTO API_LOG_MARKETPLACE (REQUEST_STATUS,CUST_ATTRIBUTE_1,CUST_ATTRIBUTE_2,CUST_ATTRIBUTE_3,CUST,MARKETPLACE,REQUEST_ID,";
@@ -4189,7 +4387,7 @@ namespace MasterOnline.Controllers
                         sSQL += "'HANGFIRE' REQUEST_ATTRIBUTE_5, 'Update Stok " + stf02_brg + " ke Shopee gagal.' REQUEST_RESULT, '" + msg + "' REQUEST_EXCEPTION";
                         sSQL += ") A LEFT JOIN API_LOG_MARKETPLACE B ON B.REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND A.REQUEST_ACTION = B.REQUEST_ACTION AND A.CUST = B.CUST AND A.CUST_ATTRIBUTE_1 = B.CUST_ATTRIBUTE_1 WHERE ISNULL(B.RECNUM,0) = 0";
                         var insertLog = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
-                        if(insertLog == 0)
+                        if (insertLog == 0)
                         {
                             //update JOBID MENJADI JOBID BARU JIKA TIDAK SEDANG RETRY,STATUS,DATE,FAIL COUNT
                             sSQL = "UPDATE B SET REQUEST_STATUS = 'FAILED', REQUEST_ID = '" + reqID + "', REQUEST_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', CUST_ATTRIBUTE_2 = CONVERT(INT,CUST_ATTRIBUTE_2) + 1 ";
@@ -4873,11 +5071,11 @@ namespace MasterOnline.Controllers
                                 {
                                     var model = retStok.jingdong_epistock_updateEpiMerchantWareStock_response.EptRemoteResult.model;
                                     getMessage = " " + Convert.ToString(model).Replace("\"", "").Split(new string[] { "message\":\"" }, StringSplitOptions.None).Last().Split(new string[] { "\",\"" }, StringSplitOptions.None).First();
-                                    
+
                                 }
 
                                 throw new Exception(retStok.jingdong_epistock_updateEpiMerchantWareStock_response.EptRemoteResult.message.ToString() + getMessage);
-                                
+
                             }
                         }
                         else
@@ -5314,7 +5512,8 @@ namespace MasterOnline.Controllers
                                     //var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) ";
                                     var axy = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL3);
                                     ErasoftDbContext.SaveChanges();
-                                }catch(Exception ex)
+                                }
+                                catch (Exception ex)
                                 {
 
                                 }

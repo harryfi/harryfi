@@ -1,0 +1,1426 @@
+﻿@using System.Globalization
+@*@using MasterOnline.ViewModels*@
+@using PagedList.Mvc
+@model PagedList.IPagedList<PackingPerMP>
+@{
+    string currentFilter = ViewBag.CurrentFilter;
+    string currentSort = ViewBag.CurrentSort;
+
+}
+<style>
+    .cetak_label {
+        color: orange;
+        font-weight: bold;
+    }
+
+    .dropdown-hover:hover {
+        background-color: gainsboro !important;
+    }
+
+    #modal-print-option {
+        margin: auto;
+    }
+
+        #modal-print-option .modal-content .modal-header {
+            -webkit-box-shadow: none;
+            box-shadow: none;
+            border: none;
+            background-color: white;
+        }
+
+        #modal-print-option .modal-content .modal-body {
+            height: 125px;
+            -webkit-box-shadow: none;
+            box-shadow: none;
+            background-color: white;
+        }
+
+    .checkbox-container {
+        display: block;
+        position: relative;
+        /*padding-left: 35px;*/
+        margin-top: 4px;
+        cursor: pointer;
+        font-size: 11px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+        /* Hide the browser's default checkbox */
+        .checkbox-container input {
+            position: relative;
+            opacity: 100;
+            cursor: pointer;
+            display: none;
+        }
+
+    /* Create a custom checkbox */
+    .checkmark {
+        position: absolute;
+        top: 0;
+        /*remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        /*left: 18px;*/
+        /*end remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        height: 25px;
+        width: 25px;
+        background-color: #eee;
+        border: solid 1px #ccc;
+    }
+
+    /* On mouse-over, add a grey background color */
+    .checkbox-container:hover input ~ .checkmark {
+        background-color: #ccc;
+    }
+
+    /* When the checkbox is checked, add a blue background */
+    .checkbox-container input:checked ~ .checkmark {
+        background-color: #2196F3;
+    }
+
+    /* Create the checkmark/indicator (hidden when not checked) */
+    .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+    }
+
+    /* Show the checkmark when checked */
+    .checkbox-container input:checked ~ .checkmark:after {
+        display: block;
+    }
+
+    /* Style the checkmark/indicator */
+    .checkbox-container .checkmark:after {
+        left: 9px;
+        top: 5px;
+        width: 6px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 3px 3px 0;
+        -webkit-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        transform: rotate(45deg);
+    }
+
+    @@media only screen and (max-width: 767px) {
+        #modal-print-option {
+            margin-top: 21px;
+            /* margin: auto; */
+            margin-left: -49px;
+            width: 40%;
+        }
+
+        .modal-dialog {
+            width: 52%;
+            margin: 0;
+        }
+
+        .modal-content {
+            width: 75%;
+        }
+    }
+
+    @@media only screen and (max-width: 440px) {
+        .snip1404 .plan {
+            width: 100%;
+        }
+
+        .modal-dialog {
+            width: 52%;
+            margin: 0;
+        }
+    }
+</style>
+<style type="text/css">
+    #loading_spinner {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        z-index: 100;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0,0,0,.5);
+    }
+
+    #loading_spinner_image {
+        width: 20px;
+        height: 20px;
+        margin-top: -90px;
+        margin-left: -90px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        border-width: 30px;
+        border-radius: 50%;
+    }
+
+    #loading_spinner_btn {
+        display: none;
+        width: 100%;
+        height: 100%;
+        z-index: 100;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+
+    #loading_spinner_image_btn {
+        width: 20px;
+        height: 40px;
+        border-width: 30px;
+        border-radius: 50%;
+    }
+
+    .modal-dialog {
+        /*remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        /*width: 75%;*/
+        height: 75%;
+        /*remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        /*margin: 0 auto;*/
+        padding: 0;
+    }
+
+    .modal-content {
+        margin-top: 35px;
+        height: auto;
+        min-height: 100%;
+        border-radius: 0;
+    }
+</style>
+@Html.AntiForgeryToken()
+<script type="text/javascript">
+    $(document).ready(function () {
+        if ($('#PackingListTiktokFound')) {
+            if (parseInt($('#PackingListTiktokFound').val()) > 0) {
+                $('#li_pesanan_tiktok_tab_focus').show().on('click', function () {
+                    $('#tiktok_packing_cust_tabs li:first').find('a').click();
+                });
+            }
+            else{
+                $('#li_pesanan_tiktok_tab_focus').hide();
+            }
+        }
+
+
+    });
+    function allcheckboxpackingtiktokonclick(cust){
+        $('.checkbox_packing_tiktok').each( function() {
+        	if($(this).attr("data-cust") == cust){
+                $(this).prop('checked', $('#all_checkbox_packing_tiktok__' + cust).prop('checked'));
+        	}
+        });
+    }
+    function RequestPackingTiktok(cust) {
+        $('#btnProsesPackingTiktok__' + cust).attr("disabled", true);
+
+        $('#modalPrintTiktok__label__' + cust).html('Proses Ambil Resi Pesanan Tiktok');
+        $('#modalPrintTiktok__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
+        $('#modalPrintTiktok__' + cust).modal({
+            show: true,
+            backdrop: 'static',
+            keyboard: false
+        });
+
+        var $link = '@Url.Action("RequestPackedTiktokPerPacking", "Manage")';
+
+        var rows_selected = [];
+        $('.checkbox_packing_tiktok').each( function() {
+            if($(this).attr("data-cust") == cust && $(this).is(":checked")){
+                rows_selected.push($(this).attr("data-recnum"));
+            }
+        });
+
+        $postdata = {
+            cust : cust,
+            bukti : $('#packingList_NO_BUKTI').val(),
+            //DeliveryProvider : $('#txtShipment__' + cust).val(),
+            rows_selected : rows_selected
+        };
+
+        $.ajax({
+            type: "POST",
+            url: $link,
+            contentType: "application/json; charset=UTF-8",
+            cache: false,
+            data: JSON.stringify($postdata),
+            beforeSend: function () {
+                //$('#loading_barang_tab').show();
+                $('#loading_spinner').show();
+            },
+            success: function (response) {
+                //$('#loading_barang_tab').hide();
+
+                if (!response.mo_error) {
+                    var textareaValue = "";
+
+                    textareaValue += "Jumlah pesanan berhasil diproses : "+ response.successCount +"</br>";
+
+                    var adaError = false;
+                    var errorValue = "";
+                    response.listErrors.forEach(function (item) {
+                        adaError = true;
+                        errorValue += item.keyname + " : " + item.errorMessage + "</br>";
+                    });
+                    if (adaError) {
+                        textareaValue += "</br>";
+                        textareaValue += "Pesanan gagal diproses :</br>";
+                        textareaValue += errorValue;
+                    }
+                    $('#modalPrintTiktok__textarea__' + cust).show();
+                    $('#modalPrintTiktok__textarea__' + cust).html(textareaValue);
+
+                    // if(response.successCount > 0){
+                    //     refreshTableSudahDibayar();
+                    // }
+                } else {
+                    $('#modalPrintTiktok__textarea__' + cust).show();
+                    $('#modalPrintTiktok__textarea__' + cust).html(response.mo_error);
+                }
+            },
+            complete: function () {
+                $('#loading_spinner').hide();
+                $('#btnProsesPackingTiktok__' + cust).attr("disabled", false);
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+    function RequestPickupPackingTiktok(cust) {
+        $('#modalPrintTiktok__label__' + cust).html('Proses Siap Kirim Pesanan Tiktok');
+        $('#btnProsesTiktok__' + cust).attr("disabled", true);
+        $('#modalPrintTiktok__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
+        $('#modalPrintTiktok__' + cust).modal({
+            show: true,
+            backdrop: 'static',
+            keyboard: false
+        });
+
+        var $link = '@Url.Action("RequestRTSTiktokPerPacking", "Manage")';
+
+        var rows_selected = [];
+        $('.checkbox_packing_tiktok').each( function() {
+            if($(this).attr("data-cust") == cust && $(this).is(":checked")){
+                rows_selected.push($(this).attr("data-recnum"));
+            }
+        });
+
+        $postdata = {
+            cust : cust,
+            bukti : $('#packingList_NO_BUKTI').val(),
+            //DeliveryProvider : $('#txtShipment__' + cust).val(),
+            rows_selected : rows_selected
+        };
+
+        $.ajax({
+            type: "POST",
+            url: $link,
+            contentType: "application/json; charset=UTF-8",
+            cache: false,
+            data: JSON.stringify($postdata),
+            beforeSend: function () {
+                //$('#loading_barang_tab').show();
+                $('#loading_spinner').show();
+            },
+            success: function (response) {
+                //$('#loading_barang_tab').hide();
+                if (!response.mo_error) {
+                    var textareaValue = "";
+
+                    textareaValue += "Jumlah pesanan berhasil diproses : "+ response.successCount +"</br>";
+
+                    var adaError = false;
+                    var errorValue = "";
+                    response.listErrors.forEach(function (item) {
+                        adaError = true;
+                        errorValue += item.keyname + " : " + item.errorMessage + "</br>";
+                    });
+                    if (adaError) {
+                        textareaValue += "</br>";
+                        textareaValue += "Pesanan gagal diproses :</br>";
+                        textareaValue += errorValue;
+                    }
+                    $('#modalPrintTiktok__textarea__' + cust).show();
+                    $('#modalPrintTiktok__textarea__' + cust).html(textareaValue);
+
+                    // if(response.successCount > 0){
+                    //     refreshTableSudahDibayar();
+                    // }
+                } else {
+                    $('#modalPrintTiktok__textarea__' + cust).show();
+                    $('#modalPrintTiktok__textarea__' + cust).html(response.mo_error);
+                }
+            },
+            complete: function () {
+                $('#loading_spinner').hide();
+                $('#btnProsesTiktok__' + cust).attr("disabled", false);
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
+    //add by nurul 26/2/2021
+    function TiktokGetFakturPerPacking(cust) {
+        var rows_selected = [];
+        var row_bukti = [];
+        $('.checkbox_packing_tiktok').each(function () {
+            if ($(this).attr("data-cust") == cust && $(this).is(":checked")) {
+                rows_selected.push($(this).attr("data-recnum"));
+                var bukti = $(this).attr("data-bukti") + " ";
+                row_bukti.push(bukti);
+            }
+        });
+
+        if (row_bukti.length > 0) {
+
+            $('#modalPrintFakturOption__' + cust).modal({
+                show: true,
+                backdrop: 'static',
+                keyboard: false
+            });
+            $('#cetak_faktur__' + cust).text(row_bukti.length);
+            $('#ctk_alamat_faktur__' + cust).attr('checked', true);
+            $('#ctk_tlp_faktur__' + cust).attr('checked', true);
+            $('#ctk_ket_faktur__' + cust).attr('checked', true);
+
+            $('#btn-print-faktur2__' + cust).off('click').on('click', function () {
+                var toko = $('#nama_toko_faktur__' + cust).val();
+                var tlpToko = $('#tlp_toko_faktur__' + cust).val();
+                var alamat_faktur = "0";
+                var tlp_faktur = "0";
+                var ket_faktur = "0";
+
+                if ($("#ctk_alamat_faktur__" + cust).is(":checked") == true) {
+                    alamat_faktur = "1";
+                } else if ($("#ctk_alamat_faktur__" + cust).is(":checked") == false) {
+                    alamat_faktur = "0";
+                }
+                if ($('#ctk_tlp_faktur__' + cust).is(":checked") == true) {
+                    tlp_faktur = "1";
+                } else if ($('#ctk_tlp_faktur__' + cust).is(":checked") == false) {
+                    tlp_faktur = "0";
+                }
+                if ($('#ctk_ket_faktur__' + cust).is(":checked") == true) {
+                    ket_faktur = "1";
+                } else if ($('#ctk_ket_faktur__' + cust).is(":checked") == false) {
+                    ket_faktur = "0";
+                }
+
+                $('#modalPrintTiktok__faktur__' + cust).html('Print Faktur MasterOnline');
+                $('#modalPrintTiktok__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
+                $('#modalPrintTiktok__' + cust).modal({
+                    show: true,
+                    backdrop: 'static',
+                    keyboard: false
+                });
+
+                $postdata2 = {
+                    cust: cust,
+                    bukti: $('#packingList_NO_BUKTI').val(),
+                    rows_selected: rows_selected,
+                    toko: toko,
+                    tlptoko: tlpToko,
+                    ctkFaktur: "1",
+                    tlp_fakturLink: tlp_faktur,
+                    alamat_fakturLink: alamat_faktur,
+                    ket_fakturLink: ket_faktur
+                };
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("CetakLabelMo", "Manage")',
+                    contentType: "application/json; charset=UTF-8",
+                    cache: false,
+                    data: JSON.stringify($postdata2),
+                    success: function (response) {
+                        if (response != null) {
+                            if (response.mo_error == null) {
+                                $('#modalPrintFakturOption__' + cust).modal('hide');
+                                $('#modalPrintTiktok__' + cust).modal('hide');
+                                var w = window.open('about:blank');
+                                w.document.open();
+                                w.document.write(response);
+                                w.document.close();
+                            } else {
+                                $('#modalPrintFakturOption__' + cust).modal('hide');
+                                $('#modalPrintTiktok__textarea__' + cust).html(response.mo_error);
+                                alert(response.mo_error);
+                            }
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $('#modalPrintFakturOption__' + cust).modal('hide');
+                        console.log(error);
+                    }
+                });
+            });
+
+        } else {
+            alert("Mohon pilih pesanan yang mau diproses.");
+        }
+    }
+    //end add by nurul 26/2/2021
+    function TiktokGetLabelPerPacking(cust, label) {
+
+        var rows_selected = [];
+        var row_bukti = [];
+        $('.checkbox_packing_tiktok').each( function() {
+            if($(this).attr("data-cust") == cust && $(this).is(":checked")){
+                rows_selected.push($(this).attr("data-recnum"));
+                row_bukti.push($(this).attr("data-bukti"));
+            }
+        });
+
+        $postdata = {
+            cust : cust,
+            bukti : $('#packingList_NO_BUKTI').val(),
+            rows_selected: rows_selected,
+            label: label
+        };
+
+        if (rows_selected.length <= 0) {
+            alert("Mohon pilih pesanan yang mau diproses.");
+        } else {
+            if (label == "1") {
+                var $link = '@Url.Action("TiktokLabelPerPacking", "Manage")';
+
+                $('#modalPrintTiktok__label__' + cust).html('Print Pesanan Tiktok');
+                $('#modalPrintTiktok__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
+                $('#modalPrintTiktok__' + cust).modal({
+                    show: true,
+                    backdrop: 'static',
+                    keyboard: false
+                });
+
+                $.ajax({
+                    type: "POST",
+                    url: $link,
+                    contentType: "application/json; charset=UTF-8",
+                    cache: false,
+                    data: JSON.stringify($postdata),
+                    success: function (response) {
+                        if (response != null) {
+                            if (response.mo_error != undefined) {
+                                $('#modalPrintTiktok__textarea__' + cust).html(response.mo_error);
+                            } else {
+                                var textareaValue = "";
+                                var adaError = false;
+                                var errorValue = "";
+                                response.listErrors.forEach(function (item) {
+                                    adaError = true;
+                                    errorValue += item.errorMessage + ". </br>";
+                                });
+                                if (adaError) {
+                                    textareaValue += "</br>";
+                                    textareaValue += "Errors :</br>";
+                                    textareaValue += errorValue;
+                                }
+                                $('#modalPrintTiktok__textarea__' + cust).html(textareaValue);
+                                //if (response.mo_label != null) {
+                                if (response.mo_label.length > 0) {
+                                    window.open('/Manage/Download_PrintLabel?path=' + response.mo_label, '_blank');
+                                }
+                                if (!adaError) {
+                                    $('#modalPrintTiktok__' + cust).modal('hide');
+                                }
+                            }
+                            //end change by nurul 17/2/2021
+                        }
+
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            } else if (label == "2") {
+
+                if (row_bukti.length > 0) {
+
+                    $('#modalPrintLabelOption__' + cust).modal({
+                        show: true,
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                    //$('#cetak_label__' + cust).text(row_bukti);
+                    $('#cetak_label__' + cust).text(row_bukti.length);
+                    $('#ctk_alamat__' + cust).attr('checked', true);
+                    $('#ctk_tlp__' + cust).attr('checked', true);
+                    $('#ctk_nama__' + cust).attr('checked', true);
+                    $('#ctk_mp__' + cust).attr('checked', true);
+                    $('#ctk_nobuk__' + cust).attr('checked', true);
+                    $('#ctk_total__' + cust).attr('checked', true);
+                    $('#ctk_port__' + cust).attr('checked', true);
+                    $('#ctk_ref__' + cust).attr('checked', true);
+                    $('#nama_toko__' + cust).val("");
+                    $('#tlp_toko__' + cust).val("");
+                    $('#ctk_logo__' + cust).attr('checked', true);
+
+
+                    $('#btn-print-faktur__' + cust).off('click').on('click', function () {
+                        var toko = $('#nama_toko__' + cust).val();
+                        var $toko = '&toko=' + encodeURIComponent(toko);
+                        var tlpToko = $('#tlp_toko__' + cust).val();
+                        var $tlpToko = '&tlpToko=' + encodeURIComponent(tlpToko);
+                        var alamat = "0";
+                        var tlp = "0";
+                        var mp = "0";
+                        var nobuk = "0";
+                        var total = "0";
+                        var port = "0";
+                        var ref = "0";
+                        var nama = "0";
+                        var logo = "0";
+
+                        if ($("#ctk_alamat__" + cust).is(":checked") == true) {
+                            alamat = "1";
+                        } else if ($("#ctk_alamat__" + cust).is(":checked") == false) {
+                            alamat = "0";
+                        }
+                        if ($('#ctk_tlp__' + cust).is(":checked") == true) {
+                            tlp = "1";
+                        } else if ($('#ctk_tlp__' + cust).is(":checked") == false) {
+                            tlp = "0";
+                        }
+
+                        if ($("#ctk_mp__" + cust).is(":checked") == true) {
+                            mp = "1";
+                        } else if ($("#ctk_mp__" + cust).is(":checked") == false) {
+                            mp = "0";
+                        }
+                        if ($('#ctk_nobuk__' + cust).is(":checked") == true) {
+                            nobuk = "1";
+                        } else if ($('#ctk_nobuk__' + cust).is(":checked") == false) {
+                            nobuk = "0";
+                        }
+                        if ($('#ctk_total__' + cust).is(":checked") == true) {
+                            total = "1";
+                        } else if ($('#ctk_total__' + cust).is(":checked") == false) {
+                            total = "0";
+                        }
+                        if ($('#ctk_port__' + cust).is(":checked") == true) {
+                            port = "1";
+                        } else if ($('#ctk_port__' + cust).is(":checked") == false) {
+                            port = "0";
+                        }
+                        if ($('#ctk_ref__' + cust).is(":checked") == true) {
+                            ref = "1";
+                        } else if ($('#ctk_ref__' + cust).is(":checked") == false) {
+                            ref = "0";
+                        }
+                        if ($('#ctk_nama__' + cust).is(":checked") == true) {
+                            nama = "1";
+                        } else if ($('#ctk_nama__' + cust).is(":checked") == false) {
+                            nama = "0";
+                        }
+                        if ($('#ctk_logo__' + cust).is(":checked") == true) {
+                            logo = "1";
+                        } else if ($('#ctk_logo__' + cust).is(":checked") == false) {
+                            logo = "0";
+                        }
+
+                        var $alamat = '&alamat=' + alamat;
+                        var $tlp = '&tlp=' + tlp;
+                        var $mp = '&mp=' + mp;
+                        var $nobuk = '&nobuk=' + nobuk;
+                        var $total = '&total=' + total;
+
+                      
+                        $('#modalPrintTiktok__label__' + cust).html('Print Pesanan Tiktok');
+                        $('#modalPrintTiktok__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
+                        $('#modalPrintTiktok__' + cust).modal({
+                            show: true,
+                            backdrop: 'static',
+                            keyboard: false
+                        });
+
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("TiktokLabelPerPacking", "Manage")',
+                            contentType: "application/json; charset=UTF-8",
+                            cache: false,
+                            data: JSON.stringify($postdata),
+                            beforeSend: function () {
+                                $('#modalPrintLabelOption__' + cust).modal('hide');
+                                //$('#loading_spinner').show();
+                            },
+                            success: function (response) {
+                                if (response != null) {
+                                    if (response.mo_error != undefined) {
+                                        $('#modalPrintTiktok__textarea__' + cust).html(response.mo_error);
+                                    }
+                                    else {
+                                        var textareaValue = "";
+                                        var adaError = false;
+                                        var errorValue = "";
+                                        var tempRecnumError = [];
+                                        response.listErrors.forEach(function (item) {
+                                            adaError = true;
+                                            errorValue += item.errorMessage + ". </br>";
+                                            tempRecnumError.push(item.recnum);
+                                        });
+                                        if (adaError) {
+                                            textareaValue += "</br>";
+                                            textareaValue += "Error Orders :</br>";
+                                            textareaValue += errorValue;
+
+                                            //if (response.listSuccess.length == 0 || response.listSuccess.length == response.listErrors.length) {
+                                            //    $('#modalPrintLabelOption__' + cust).modal('hide');
+                                            //} else {
+                                            if (response.listSuccess.length > 0) {
+                                                var rows_selected_new = [];
+                                                rows_selected.forEach(function (rec_select) {
+                                                    var adaRec = false;
+                                                    tempRecnumError.forEach(function (rec) {
+                                                        if (rec_select == rec) {
+                                                            adaRec = true;
+                                                        }
+                                                    });
+                                                    if (!adaRec) {
+                                                        rows_selected_new.push(rec_select);
+                                                    }
+                                                });
+                                                if (rows_selected_new.length > 0) {
+                                                    var temptextareaValue = textareaValue;
+                                                    textareaValue += "</br>";
+                                                    textareaValue += "</br>";
+                                                    textareaValue += "Sedang diproses. Mohon menunggu..";
+                                                    $postdata2 = {
+                                                        cust: cust,
+                                                        bukti: $('#packingList_NO_BUKTI').val(),
+                                                        rows_selected: rows_selected_new,
+                                                        toko: toko,
+                                                        tlptoko: tlpToko,
+                                                        ctkLabel: "1",
+                                                        alLink: alamat,
+                                                        noLink: tlp,
+                                                        namaLink: nama,
+                                                        mpLink: mp,
+                                                        nobukLink: nobuk,
+                                                        totalLink: total,
+                                                        logoLink: logo,
+                                                        data: response.mo_label,
+                                                        portLink: port,
+                                                        refLink: ref,
+                                                    };
+                                                    $.ajax({
+                                                        type: "POST",
+                                                        url: '@Url.Action("CetakLabelMo", "Manage")',
+                                                        contentType: "application/json; charset=UTF-8",
+                                                        cache: false,
+                                                        data: JSON.stringify($postdata2),
+                                                        success: function (response) {
+                                                            if (response != null) {
+                                                                if (response.mo_error == null) {
+                                                                    $('#modalPrintLabelOption__' + cust).modal('hide');
+                                                                    //$('#modalPrintBlibli__' + cust).modal('hide');
+                                                                    $('#modalPrintTiktok__textarea__' + cust).html(temptextareaValue);
+                                                                    var w = window.open('about:blank');
+                                                                    w.document.open();
+                                                                    w.document.write(response);
+                                                                    w.document.close();
+                                                                } else {
+                                                                    $('#modalPrintLabelOption__' + cust).modal('hide');
+                                                                    $('#modalPrintTiktok__textarea__' + cust).html(response.mo_error);
+                                                                    alert(response.mo_error);
+                                                                }
+                                                            }
+                                                        },
+                                                        error: function (xhr, status, error) {
+                                                            $('#modalPrintLabelOption__' + cust).modal('hide');
+                                                            console.log(error);
+                                                        }
+                                                    });
+                                                } else {
+                                                    $('#modalPrintLabelOption__' + cust).modal('hide');
+                                                }
+                                            } else {
+                                                $('#modalPrintLabelOption__' + cust).modal('hide');
+                                            }
+                                        } else {
+                                            $postdata2 = {
+                                                cust: cust,
+                                                bukti: $('#packingList_NO_BUKTI').val(),
+                                                rows_selected: rows_selected,
+                                                toko: toko,
+                                                tlptoko: tlpToko,
+                                                ctkLabel: "1",
+                                                alLink: alamat,
+                                                noLink: tlp,
+                                                namaLink: nama,
+                                                mpLink: mp,
+                                                nobukLink: nobuk,
+                                                totalLink: total,
+                                                portLink: port,
+                                                refLink: ref,
+                                                data: response.mo_label,
+                                                logoLink: logo,
+                                            };
+
+                                            $.ajax({
+                                                type: "POST",
+                                                url: '@Url.Action("CetakLabelMo", "Manage")',
+                                                contentType: "application/json; charset=UTF-8",
+                                                cache: false,
+                                                data: JSON.stringify($postdata2),
+                                                success: function (response) {
+                                                    if (response != null) {
+                                                        if (response.mo_error == null) {
+                                                            $('#modalPrintLabelOption__' + cust).modal('hide');
+                                                            $('#modalPrintTiktok__' + cust).modal('hide');
+                                                            var w = window.open('about:blank');
+                                                            w.document.open();
+                                                            w.document.write(response);
+                                                            w.document.close();
+                                                        } else {
+                                                            $('#modalPrintLabelOption__' + cust).modal('hide');
+                                                            $('#modalPrintTiktok__textarea__' + cust).html(response.mo_error);
+                                                            alert(response.mo_error);
+                                                        }
+                                                    }
+                                                },
+                                                error: function (xhr, status, error) {
+                                                    $('#modalPrintLabelOption__' + cust).modal('hide');
+                                                    console.log(error);
+                                                }
+                                            });
+                                        }
+                                        $('#modalPrintTiktok__textarea__' + cust).html(textareaValue);
+                                    }
+                                   
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.log(error);
+                                //$('#loading_spinner').hide();
+                            }
+                        });
+
+                    });
+                } else {
+                    alert("Mohon pilih pesanan yang mau diproses.");
+                }
+
+            }
+        }
+    }
+
+
+    function PromptDeliveryProvTiktok(r) {
+        showPromptDeliveryProvTiktokTextBoxWindow(r);
+    }
+    var promptTiktokCust = "";
+    function showPromptDeliveryProvTiktokTextBoxWindow(val) {
+        promptTiktokCust = val;
+        var $link = '@Url.Action("PromptDeliveryProviderTiktok", "Manage", new { cust = "replaceCust" })';
+        $link = $link.replace("replaceCust", val);
+        window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+    }
+
+    function afterPromptDelTempTiktok(val, id) {
+        $('#txtShipmentName__' + promptTiktokCust).val(val);
+        $('#txtShipment__' + promptTiktokCust).val(id);
+    }
+
+    function cekValidasiPackingTiktok(cust) {
+        if ($("#txtShipment__" + cust).val()) {
+            RequestPackingTiktok(cust);
+        }
+        else {
+            alert("Delivery Provider harus dipilih terlebih dahulu.");
+        }
+    }
+
+    function cekValidasiRTSTiktok(cust) {
+        //if ($("#txtShipment__" + cust).val()) {
+            RequestPickupPackingTiktok(cust);
+        //}
+        //else {
+        //    alert("Delivery Provider harus dipilih terlebih dahulu.");
+        //}
+    }
+
+    //add by nurul 24/7/2020
+    function refreshTablePackingListPerAkunTiktok(cust) {
+        var $link = '@Html.Raw(Url.Action("refreshTablePackingListPerAkun", "Manage", new { bukti = "replacebukti", cust = "replacecust", marketplace = "replacemarket", search = "replacesearch", filter = "replacefilter", filtervalue = "replacefiltervalue" }))';
+        $link = $link.replace("replacebukti", encodeURIComponent($('#packingList_NO_BUKTI').val()));
+        $link = $link.replace("replacecust", encodeURIComponent(cust));
+        $link = $link.replace("replacemarket", encodeURIComponent("TIKTOK"));
+        $link = $link.replace("replacesearch", encodeURIComponent($('#search_table_packing_pesanan_tiktok__' + cust).val()));
+        //$link = $link.replace("replacefilter", encodeURIComponent(null));
+        //$link = $link.replace("replacefiltervalue", encodeURIComponent(null));
+        var filterbyTiktok = get_tiktok_filterby(cust);
+        var filtervalueTiktok = get_tiktok_filtervalue(filterbyTiktok, cust);
+        $link = $link.replace("replacefilter", encodeURIComponent(filterbyTiktok));
+        $link = $link.replace("replacefiltervalue", encodeURIComponent(filtervalueTiktok));
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                $('#table_packing_tiktok__' + cust).hide();
+                //$('#loading_faktur_tab').show();
+            },
+            success: function (response) {
+                $('#table_packing_tiktok__' + cust).html(response);
+                //$('#loading_faktur_tab').hide();
+                $('#table_packing_tiktok__' + cust).show();
+
+                //add by nurul 23/7/2020
+                $('#filter_packing_field_tiktok__' + cust).change(function () {
+                    var filterBy = $(this).val();
+                    switch (filterBy) {
+                        case "kirim":
+                            $('#filter_packing_kirim_field_option_div_tiktok__' + cust).show();
+                            $('#filter_packing_print_field_option_div_tiktok__' + cust).hide();
+                            $('#filter_packing_field_tipe_div_tiktok__' + cust).hide();
+                            $('#filter_packing_kirim_tiktok__' + cust).val('Harap Pilih');
+                            break;
+                        case "print":
+                            $('#filter_packing_kirim_field_option_div_tiktok__' + cust).hide();
+                            $('#filter_packing_print_field_option_div_tiktok__' + cust).show();
+                            $('#filter_packing_field_tipe_div_tiktok__' + cust).hide();
+                            $('#filter_packing_print_tiktok__' + cust).val('Harap Pilih');
+                            break;
+                        case "tipe":
+                            $('#filter_packing_kirim_field_option_div_tiktok__' + cust).hide();
+                            $('#filter_packing_print_field_option_div_tiktok__' + cust).hide();
+                            $('#filter_packing_field_tipe_div_tiktok__' + cust).show();
+                            $('#filter_packing_tipe_tiktok__' + cust).val('Harap Pilih');
+                            break;
+                        default:
+                            $('#filter_packing_kirim_field_option_div_tiktok__' + cust).hide();
+                            $('#filter_packing_print_field_option_div_tiktok__' + cust).hide();
+                            $('#filter_packing_field_tipe_div_tiktok__' + cust).hide();
+                            break;
+                    }
+
+                });
+                $('#filter_packing_kirim_tiktok__' + cust).change(function () {
+                    if ($('#filter_packing_kirim_tiktok__' + cust).val() != "Harap Pilih" && $('#filter_packing_field_tiktok__' + cust).val() != "Harap Pilih") {
+                        SearchTablePackingListPerAkunTiktok(cust);
+                    }
+                });
+                $('#filter_packing_print_tiktok__' + cust).change(function () {
+                    if ($('#filter_packing_print_tiktok_' + cust).val() != "Harap Pilih" && $('#filter_packing_field_tiktok__' + cust).val() != "Harap Pilih") {
+                        SearchTablePackingListPerAkunTiktok(cust);
+                    }
+                });
+                $('#filter_packing_tipe_tiktok__' + cust).change(function () {
+                    if ($('#filter_packing_tipe_tiktok__' + cust).val() != "Harap Pilih" && $('#filter_packing_field_tiktok__' + cust).val() != "Harap Pilih") {
+                        SearchTablePackingListPerAkunTiktok(cust);
+                    }
+                });
+
+                $('#search_table_packing_pesanan_tiktok__' + cust).keypress(function (e) {
+                    var key = e.which;
+                    if (key == 13)// the enter key code
+                    {
+                        SearchTablePackingListPerAkunTiktok(cust);
+                        return false;
+                    }
+                });
+                $('#search_table_packing_pesanan_tiktok_button__' + cust).click(function () {
+                    SearchTablePackingListPerAkunTiktok(cust);
+                });
+        //end add by nurul 23/7/2020
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
+    function get_tiktok_filterby(cust) {
+        return $('#filter_packing_field_tiktok__' + cust).val();
+    }
+    function get_tiktok_filtervalue(filterbyTiktok, cust) {
+        var filtervalueTiktok = "";
+        switch (filterbyTiktok) {
+            case "kirim":
+                filtervalueTiktok = $('#filter_packing_kirim_tiktok__' + cust).val();
+                break;
+            case "print":
+                filtervalueTiktok = $('#filter_packing_print_tiktok__' + cust).val();
+                break;
+            case "tipe":
+                filtervalueTiktok = $('#filter_packing_tipe_tiktok__' + cust).val();
+                break;
+            default:
+                break;
+        }
+        return filtervalueTiktok;
+    }
+    function SearchTablePackingListPerAkunTiktok(cust) {
+        $custTiktok = cust;
+        var $link = '@Html.Raw(Url.Action("refreshTablePackingListPerAkun", "Manage", new { bukti = "replacebukti", cust = "replacecust", marketplace = "replacemarket", search = "replacesearch", filter = "replacefilter", filtervalue = "replacefiltervalue" }))';
+        $link = $link.replace("replacebukti", encodeURIComponent($('#packingList_NO_BUKTI').val()));
+        $link = $link.replace("replacecust", encodeURIComponent(cust));
+        $link = $link.replace("replacemarket", encodeURIComponent("TIKTOK"));
+        $link = $link.replace("replacesearch", encodeURIComponent($('#search_table_packing_pesanan_tiktok__' + cust).val()));
+        var filterbyTiktok = get_tiktok_filterby(cust);
+        var filtervalueTiktok = get_tiktok_filtervalue(filterbyTiktok, cust);
+        $link = $link.replace("replacefilter", encodeURIComponent(filterbyTiktok));
+        $link = $link.replace("replacefiltervalue", encodeURIComponent(filtervalueTiktok));
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                $('#table_packing_tiktok__' + cust).hide();
+                //$('#loading_faktur_tab').show();
+            },
+            success: function (response) {
+                $('#table_packing_tiktok__' + cust).html(response);
+                //$('#loading_faktur_tab').hide();
+                $('#table_packing_tiktok__' + cust).show();
+
+
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
+    function RefreshPackingTiktok(cust) {
+        $('#search_table_packing_pesanan_tiktok__' + cust).val('');
+        $('#filter_packing_field_tiktok__' + cust).val('Harap Pilih').change();
+        var $link = '@Html.Raw(Url.Action("refreshTablePackingListPerAkun", "Manage", new { bukti = "replacebukti", cust = "replacecust", marketplace = "replacemarket", search = "replacesearch", filter = "replacefilter", filtervalue = "replacefiltervalue" }))';
+        $link = $link.replace("replacebukti", encodeURIComponent($('#packingList_NO_BUKTI').val()));
+        $link = $link.replace("replacecust", encodeURIComponent(cust));
+        $link = $link.replace("replacemarket", encodeURIComponent("TIKTOK"));
+        $link = $link.replace("replacesearch", encodeURIComponent($('#search_table_packing_pesanan_tiktok__' + cust).val()));
+        $link = $link.replace("replacefilter", encodeURIComponent(null));
+        $link = $link.replace("replacefiltervalue", encodeURIComponent(null));
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                $('#table_packing_tiktok__' + cust).hide();
+                //$('#loading_faktur_tab').show();
+            },
+            success: function (response) {
+                $('#table_packing_tiktok__' + cust).html(response);
+                //$('#loading_faktur_tab').hide();
+                $('#table_packing_tiktok__' + cust).show();
+
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+    //end add by nurul 24/7/2020
+</script>
+@{
+    var distinctCust = Model.Select(p => new { p.CUST, p.NAMA_CUST }).Distinct().ToList();
+}
+<div class="row">
+    <div class="col-12">
+        <ul id="tiktok_packing_cust_tabs" class="nav nav-tabs">
+            @foreach (var item in distinctCust)
+            {
+                var listPackingPerAkun = Model.Where(a => a.CUST == item.CUST).ToList();
+                var countSOPerCust = Model.Where(a => a.CUST == item.CUST).Count();
+                <li><a data-toggle="tab" href="#tiktok_tab_content__@(item.CUST)" onclick="refreshTablePackingListPerAkunTiktok('@item.CUST')">@(item.NAMA_CUST)<span>(@countSOPerCust)</span></a></li>
+            }
+        </ul>
+        <div class="tab-content">
+            @{
+                var PackingListTiktokFound = distinctCust.Count();
+            }
+            @Html.TextBox("PackingListTiktokFound", PackingListTiktokFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+            @foreach (var item in distinctCust)
+            {
+                <div id="tiktok_tab_content__@(item.CUST)" class="tab-pane fade in">
+                    <input id="txt_last_page__@(item.CUST)" type="hidden" class="form-control" value="@ViewData["LastPage"]">
+                    @*add by nurul 13/12/2019*@
+                    <div class="modal fade" id="modalPrintLabelOption__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel__@(item.CUST)">
+                        <div class="modal-dialog" id="modal-print-option" role="document">
+                            <div class="modal-content " style="margin:auto;height:470px;width:650px;overflow-y:auto">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title" id="printOptionLabel__@(item.CUST)">Print Label</h4>
+                                    <hr />
+                                    <div>
+                                        <h5>Apakah Anda yakin ingin mencetak <span class="cetak_label" id="cetak_label__@(item.CUST)"></span> label?</h5>
+                                    </div>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-4" style="text-align:left">
+                                            <label>Nama Toko (Dropship) </label>
+                                        </div>
+                                        <div class="col-md-6" style="text-align:left">
+                                            <input id="nama_toko__@(item.CUST)" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
+                                        </div>
+                                        <div class="col-md-2"></div>
+                                    </div>
+                                    <br />
+                                    <div class="row">
+                                        <div class="col-md-4" style="text-align:left">
+                                            <label>No Telepon Toko (Dropship) </label>
+                                        </div>
+                                        <div class="col-md-6" style="text-align:left">
+                                            <input id="tlp_toko__@(item.CUST)" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
+                                        </div>
+                                        <div class="col-md-2"></div>
+                                    </div>
+                                    <br />
+                                    <div class="row">
+                                        <div class="col-md-4" style="text-align:left">
+                                            <label>Pengaturan Label : </label>
+                                        </div>
+                                        <div class="col-md-8"></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-1">
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_mp__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                                <span id="ctk_mp__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Nama Marketplace
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_alamat__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                                <span id="ctk_alamat__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Alamat Toko
+                                        </div>
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-top:5px">
+                                        <div class="col-md-1">
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_tlp__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                                <span id="ctk_tlp__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Telepon Toko
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_nama__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                                <span id="ctk_nama__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Nama Toko
+                                        </div>
+
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-top:5px">
+                                        <div class="col-md-1">
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_port__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                                <span id="ctk_port__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Barcode PortCode
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_ref__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                                <span id="ctk_ref__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Barcode Referensi
+                                        </div>
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-top:5px">
+                                        <div class="col-md-1">
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_nobuk__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                                <span id="ctk_nobuk__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            No Bukti Pesanan
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_total__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                                <span id="ctk_total__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Total harga
+                                        </div>
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-top:5px">
+                                        <div class="col-md-1">
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_logo__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                                <span id="ctk_logo__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Logo Toko
+                                        </div>
+
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
+                                    <br />
+                                    <div class="row">
+                                        <div class="col-md-1">
+                                        </div>
+                                        <div class="col-md-10" style="padding-top:10px">
+                                            <button id="btn-print-faktur__@(item.CUST)" type="button" class="btn btn-success btn-block">Print</button>
+                                        </div>
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="modalPrintFakturOption__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="printOptionFaktur__@(item.CUST)">
+                        <div class="modal-dialog" id="modal-print-option" role="document">
+                            <div class="modal-content " style="margin:auto;height:380px;width:650px;overflow-y:auto">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title" id="printOptionFaktur__@(item.CUST)">Print Faktur</h4>
+                                    <hr />
+                                    <div>
+                                        <h5>Apakah Anda yakin ingin mencetak <span class="cetak_label" id="cetak_faktur__@(item.CUST)"></span> faktur?</h5>
+                                    </div>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-4" style="text-align:left">
+                                            <label>Nama Toko (Dropship) </label>
+                                        </div>
+                                        <div class="col-md-6" style="text-align:left">
+                                            <input id="nama_toko_faktur__@(item.CUST)" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
+                                        </div>
+                                        <div class="col-md-2"></div>
+                                    </div>
+                                    <br />
+                                    <div class="row">
+                                        <div class="col-md-4" style="text-align:left">
+                                            <label>No Telepon Toko (Dropship) </label>
+                                        </div>
+                                        <div class="col-md-6" style="text-align:left">
+                                            <input id="tlp_toko_faktur__@(item.CUST)" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
+                                        </div>
+                                        <div class="col-md-2"></div>
+                                    </div>
+                                    <br />
+                                    <div class="row">
+                                        <div class="col-md-4" style="text-align:left">
+                                            <label>Pengaturan Faktur : </label>
+                                        </div>
+                                        <div class="col-md-8"></div>
+                                    </div>
+                                    <div class="row option-cetak-faktur">
+                                        <div class="col-md-2">
+                                        </div>
+                                        <div class="col-md-1" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_alamat_faktur__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                                <span id="ctk_alamat_faktur__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Alamat Toko
+                                        </div>
+                                        <div class="col-md-1" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_tlp_faktur__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                                <span id="ctk_tlp_faktur__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Telepon Toko
+                                        </div>
+                                        <div class="col-md-2">
+                                        </div>
+                                    </div>
+                                    <div class="row option-cetak-faktur">
+                                        <div class="col-md-2">
+                                        </div>
+                                        <div class="col-md-1" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_ket_faktur__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                                <span id="ctk_ket_faktur__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Catatan Pembeli
+                                        </div>
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
+                                    <br />
+                                    <div class="row">
+                                        <div class="col-md-1">
+                                        </div>
+                                        <div class="col-md-10" style="padding-top:10px">
+                                            <button id="btn-print-faktur2__@(item.CUST)" type="button" class="btn btn-success btn-block">Print</button>
+                                        </div>
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="modalPrintTiktok__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="modalPrintTiktok__label__@(item.CUST)">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title" id="modalPrintTiktok__label__@(item.CUST)">Print Pesanan Tiktok</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-12" id="modalPrintTiktok__textarea__@(item.CUST)">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-danger" onclick="$('#modalPrintTiktok__@(item.CUST)').modal('hide');">Tutup</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <input id="search_table_packing_pesanan_tiktok__@(item.CUST)" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_table_packing_pesanan_tiktok_button__@(item.CUST)" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-4" style="text-align:right">
+                            @*<div class="input-group">
+                                <input id="txtShipment__@(item.CUST)" disabled="disabled" style="display:none;" class="form-control">
+                                <input id="txtShipmentName__@(item.CUST)" disabled="disabled" placeholder="Delivery Provider"  class="form-control">
+                                <span class="input-group-btn">
+                                    <button id="btnShipment__@(item.CUST)" class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryProvTiktok('@(item.CUST)')">
+                                        <span class="glyphicon glyphicon-option-horizontal"></span>
+                                    </button>
+                                </span>
+                            </div>*@
+                        </div>
+                        <div class="col-md-1"></div>
+                        <div class="col-md-1 pull-left">
+                            <button id="btnRefreshTiktok_@(item.CUST)" type="button" class="btn btn-default" onclick="RefreshPackingTiktok('@(item.CUST)')" style="width:75px">Refresh</button>
+                        </div>
+                        <div class="col-md-2 pull-right" style="text-align:right">
+                            <div class="col-md-6" style="text-align:right">
+                                <div class="btn-group pull-right" role="group">
+                                    <button id="pl_tiktok_btnGroup1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:75px">
+                                        Proses <span class="caret"></span>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        @*<button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnProsesPackingTiktok__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="cekValidasiPackingTiktok('@(item.CUST)')">
+                                            <span aria-hidden="true"> Ambil Resi</span>
+                                        </button>*@
+                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnProsesTiktok__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="cekValidasiRTSTiktok('@(item.CUST)')">
+                                            <span aria-hidden="true"> Ready To Ship</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 pull-right" style="text-align:right">
+                                <div class="btn-group pull-right" role="group">
+                                    <button id="pl_tiktok_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:75px">
+                                        Print <span class="caret"></span>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnPrintTiktok__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="TiktokGetLabelPerPacking('@(item.CUST)','1')">
+                                            <span aria-hidden="true"> Label Marketplace</span>
+                                        </button>
+                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnPrintMOTiktok__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="TiktokGetLabelPerPacking('@(item.CUST)','2')">
+                                            <span aria-hidden="true"> Label MasterOnline</span>
+                                        </button>
+                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnPrintFakturMOTiktok__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="TiktokGetFakturPerPacking('@(item.CUST)')">
+                                            <span aria-hidden="true"> Faktur MasterOnline</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="col-lg-1 col-sm-6 col-md-1" style="margin-top:10px;">Filter</label>
+                        <div class="col-lg-2 col-sm-6 col-md-2">
+                            <select class="form-control" id="filter_packing_field_tiktok__@(item.CUST)" required="required">
+                                <option>Harap Pilih</option>
+                                <option value="kirim">Status Kirim</option>
+                                <option value="print">Status Print</option>
+                                <option value="tipe">Tipe Pesanan</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-sm-6 col-md-2">
+                            <div class="col-12" id="filter_packing_kirim_field_option_div_tiktok__@(item.CUST)" style="display:none">
+                                <select class="form-control" id="filter_packing_kirim_tiktok__@(item.CUST)" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="0">Dalam Proses</option>
+                                    <option value="1">Gagal Proses</option>
+                                    <option value="2">Siap Kirim</option>
+                                    <option value="5">Batal</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_packing_print_field_option_div_tiktok__@(item.CUST)" style="display:none">
+                                <select class="form-control" id="filter_packing_print_tiktok__@(item.CUST)" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="1">Sudah</option>
+                                    <option value="0">Belum</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_packing_field_tipe_div_tiktok__@(item.CUST)" style="display:none">
+                                <select class="form-control" id="filter_packing_tipe_tiktok__@(item.CUST)" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="cod">COD</option>
+                                    <option value="preorder">Preorder</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div id="table_packing_tiktok__@(item.CUST)" >
+                       
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

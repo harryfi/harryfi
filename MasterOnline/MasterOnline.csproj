@@ -705,6 +705,8 @@
     <Compile Include="Controllers\ScrapperController.cs" />
     <Compile Include="Controllers\ShopeeControllerJob.cs" />
     <Compile Include="Controllers\ShopeeController.cs" />
+    <Compile Include="Controllers\TiktokController.cs" />
+    <Compile Include="Controllers\TiktokControllerJob.cs" />
     <Compile Include="Controllers\TokopediaControllerJob.cs" />
     <Compile Include="Controllers\TokopediaController.cs" />
     <Compile Include="Controllers\TransferExcelController.cs" />
@@ -1090,6 +1092,7 @@
     <Compile Include="Models\BUKALAPAK_TOKEN.cs" />
     <Compile Include="Models\CATEGORY_82CART.cs" />
     <Compile Include="Models\CATEGORY_SHOPIFY.cs" />
+    <Compile Include="Models\CATEGORY_TIKTOK.cs" />
     <Compile Include="Models\FAKTUR_API.cs" />
     <Compile Include="Models\LAZADA_MESSAGES.cs" />
     <Compile Include="Models\LAZADA_SESSIONLIST.cs" />
@@ -1109,6 +1112,7 @@
     <Compile Include="Models\TEMP_SHOPIFY_ORDERS.cs" />
     <Compile Include="Models\TEMP_SHOPIFY_ORDERS_ITEM.cs" />
     <Compile Include="Models\PEMBELI_FAKTUR_SHOPEE.cs" />
+    <Compile Include="Models\TEMP_TIKTOK_ORDERS.cs" />
     <Compile Include="Models\TEMP_UPLOAD_EXCEL_BAYAR.cs" />
     <Compile Include="Models\TABLE_LOG_DETAIL.cs" />
     <Compile Include="Models\ShopeeExcelBayarPiutang.cs" />
@@ -7020,6 +7024,10 @@
     <Content Include="Views\Manage\TableHistoryUnlinkBrg.cshtml" />
     <Content Include="Views\Manage\ListCustomerPartialView.cshtml" />
     <Content Include="Views\LazadaChat\LazadaAuthChat.cshtml" />
+    <Content Include="Views\Tiktok\Tiktokauth.cshtml" />
+    <Content Include="Views\Manage\PackingListTiktok.cshtml" />
+    <Content Include="Views\Manage\ListDetailPackingListTiktok.cshtml" />
+    <Content Include="Views\Manage\PromptDeliveryProviderTiktok.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
