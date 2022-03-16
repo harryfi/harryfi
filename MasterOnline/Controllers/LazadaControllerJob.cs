@@ -2012,7 +2012,7 @@ namespace MasterOnline.Controllers
             //add by nurul 8/6/2021
             else if (ret.code.Equals("82")) //All order items must have status Pending.
             {
-                GetKurirAndAwb(orderId, accessToken);
+                GetKurirAndAwb(dbPathEra, uname, orderId, accessToken);
             }
             //end add by nurul 8/6/2021
             else
@@ -2037,8 +2037,9 @@ namespace MasterOnline.Controllers
         }
 
         //add by nurul 8/6/2021
-        public LazadaGetOrderItem GetKurirAndAwb(string orderid, string accessToken)
+        public LazadaGetOrderItem GetKurirAndAwb(string dbPathEra, string uname, string orderid, string accessToken)
         {
+            SetupContext(dbPathEra, uname);
             var ret = new LazadaGetOrderItem();
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
