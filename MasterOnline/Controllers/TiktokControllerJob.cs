@@ -144,8 +144,8 @@ namespace MasterOnline.Controllers
                     {
                         ret = "";
                         TiktokAuth tauth = JsonConvert.DeserializeObject<TiktokAuth>(responseFromServer);
-                        var dateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-                        var tokendateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.AccessTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                        var dateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.AccessTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                        var tokendateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                         var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken 
                             + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + dateExpired + "',TOKEN_EXPIRED = '" 
                             + tokendateExpired + "' WHERE CUST = '" + cust + "'");
@@ -243,8 +243,8 @@ namespace MasterOnline.Controllers
                     if (responseFromServer != "")
                     {
                         TiktokAuth tauth = JsonConvert.DeserializeObject<TiktokAuth>(responseFromServer);
-                        var dateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-                        var tokendateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.AccessTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                        var dateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.AccessTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                        var tokendateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                         var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken 
                             + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + dateExpired 
                             + "',TOKEN_EXPIRED = '" + tokendateExpired + "' WHERE CUST = '" + iden.no_cust + "'");
@@ -252,7 +252,7 @@ namespace MasterOnline.Controllers
                         {
                             iden.access_token = tauth.Data.AccessToken;
                             iden.refresh_token = tauth.Data.RefreshToken;
-                            iden.expired_date = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7);
+                            iden.expired_date = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.AccessTokenExpireIn).UtcDateTime.AddHours(7);
                             //return null;
                         }
                         else
@@ -1010,17 +1010,20 @@ namespace MasterOnline.Controllers
                 ordersn = ordersn.Substring(0, ordersn.Length - 1);
                 var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connId
                     + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn
-                    + ") AND STATUS_TRANSAKSI  NOT IN ('11', '12') AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) <> 1");
+                    //+ ") AND STATUS_TRANSAKSI  NOT IN ('11', '12') AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) <> 1");
+                    + ") AND STATUS_TRANSAKSI  NOT IN ('11', '12') AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "'");
 
                 var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ("
-                    + ordersn + ") AND STATUS_TRANSAKSI  NOT IN ('11', '12') AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) <> 1");
+                    //+ ordersn + ") AND STATUS_TRANSAKSI  NOT IN ('11', '12') AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) <> 1");
+                    + ordersn + ") AND STATUS_TRANSAKSI  NOT IN ('11', '12') AND CUST = '" + CUST + "'");
 
                 if (rowAffected > 0)
                 {
                     await GetOrderDetailsForCancelReason(apidata, filtered.ToArray(), connId, CUST, NAMA_CUST);
 
                     string qry_Retur = "SELECT F.NO_REF FROM SIT01A (NOLOCK) F INNER JOIN SOT01A (NOLOCK) P ON P.NO_BUKTI = F.NO_SO AND F.JENIS_FORM = '2' ";
-                    qry_Retur += "WHERE P.NO_REFERENSI IN (" + ordersn + ") AND ISNULL(F.NO_FA_OUTLET, '-') LIKE '%-%' AND P.CUST = '" + CUST + "' AND ISNULL(P.TIPE_KIRIM,0) <> 1";
+                    //qry_Retur += "WHERE P.NO_REFERENSI IN (" + ordersn + ") AND ISNULL(F.NO_FA_OUTLET, '-') LIKE '%-%' AND P.CUST = '" + CUST + "' AND ISNULL(P.TIPE_KIRIM,0) <> 1";
+                    qry_Retur += "WHERE P.NO_REFERENSI IN (" + ordersn + ") AND ISNULL(F.NO_FA_OUTLET, '-') LIKE '%-%' AND P.CUST = '" + CUST + "'";
                     var dsFaktur = EDB.GetDataSet("MOConnectionString", "RETUR", qry_Retur);
                     if (dsFaktur.Tables[0].Rows.Count > 0)
                     {
@@ -1036,71 +1039,71 @@ namespace MasterOnline.Controllers
                 }
 
                 #region handle cancel COD
-                string qrycod = "SELECT P.NO_REFERENSI, ISNULL(F.NO_REF, '') NO_REF FROM SIT01A (NOLOCK) F RIGHT JOIN SOT01A (NOLOCK) P ON P.NO_BUKTI = F.NO_SO AND F.JENIS_FORM = '2' ";
-                qrycod += "WHERE P.NO_REFERENSI IN (" + ordersn + ") AND ISNULL(F.NO_FA_OUTLET, '-') LIKE '%-%' AND P.CUST = '"
-                    + CUST + "' AND ISNULL(P.TIPE_KIRIM,0) = 1 AND P.STATUS_TRANSAKSI NOT IN ('11', '12')";
-                var dsOrderCOD = EDB.GetDataSet("MOConnectionString", "COD", qrycod);
-                if (dsOrderCOD.Tables[0].Rows.Count > 0)
-                {
-                    var listNoRefCOD = new List<string>();
-                    for (int k = 0; k < dsOrderCOD.Tables[0].Rows.Count; k++)
-                    {
-                        listNoRefCOD.Add(dsOrderCOD.Tables[0].Rows[k]["NO_REFERENSI"].ToString());
+                //string qrycod = "SELECT P.NO_REFERENSI, ISNULL(F.NO_REF, '') NO_REF FROM SIT01A (NOLOCK) F RIGHT JOIN SOT01A (NOLOCK) P ON P.NO_BUKTI = F.NO_SO AND F.JENIS_FORM = '2' ";
+                //qrycod += "WHERE P.NO_REFERENSI IN (" + ordersn + ") AND ISNULL(F.NO_FA_OUTLET, '-') LIKE '%-%' AND P.CUST = '"
+                //    + CUST + "' AND ISNULL(P.TIPE_KIRIM,0) = 1 AND P.STATUS_TRANSAKSI NOT IN ('11', '12')";
+                //var dsOrderCOD = EDB.GetDataSet("MOConnectionString", "COD", qrycod);
+                //if (dsOrderCOD.Tables[0].Rows.Count > 0)
+                //{
+                //    var listNoRefCOD = new List<string>();
+                //    for (int k = 0; k < dsOrderCOD.Tables[0].Rows.Count; k++)
+                //    {
+                //        listNoRefCOD.Add(dsOrderCOD.Tables[0].Rows[k]["NO_REFERENSI"].ToString());
 
-                    }
-                    if (listNoRefCOD.Count > 0)
-                    {
-                        var ordersDetail = await GetOrderDetailsForCancelReason(apidata, filtered.ToArray(), connId, CUST, NAMA_CUST);
+                //    }
+                //    if (listNoRefCOD.Count > 0)
+                //    {
+                //        var ordersDetail = await GetOrderDetailsForCancelReason(apidata, filtered.ToArray(), connId, CUST, NAMA_CUST);
 
-                        var fData = ordersDetail.Where(m => listNoRefCOD.Contains(m.order_id)).ToList();
-                        var listPesananCOD_11 = "";
-                        var listPesananCOD_12 = "";
+                //        var fData = ordersDetail.Where(m => listNoRefCOD.Contains(m.order_id)).ToList();
+                //        var listPesananCOD_11 = "";
+                //        var listPesananCOD_12 = "";
 
-                        foreach (var ord in fData)
-                        {
-                            if (ord.rts_sla.Value > 0)//sudah kirim
-                            {
-                                listPesananCOD_12 += "'" + ord.order_id + "',";
-                            }
-                            else
-                            {
-                                listPesananCOD_11 += "'" + ord.order_id + "',";
-                            }
-                        }
-                        if (listPesananCOD_11 != "")//pesanan cod batal tapi belum di kirim
-                        {
-                            listPesananCOD_11 = listPesananCOD_11.Substring(0, listPesananCOD_11.Length - 1);
-                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connId
-                                    + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + listPesananCOD_11
-                                    + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1 "
-                                    + "AND BRG NOT IN ( SELECT BRG FROM TEMP_ALL_MP_ORDER_ITEM (NOLOCK) WHERE CONN_ID = '" + connId + "')");
+                //        foreach (var ord in fData)
+                //        {
+                //            if (ord.rts_sla.Value > 0)//sudah kirim
+                //            {
+                //                listPesananCOD_12 += "'" + ord.order_id + "',";
+                //            }
+                //            else
+                //            {
+                //                listPesananCOD_11 += "'" + ord.order_id + "',";
+                //            }
+                //        }
+                //        if (listPesananCOD_11 != "")//pesanan cod batal tapi belum di kirim
+                //        {
+                //            listPesananCOD_11 = listPesananCOD_11.Substring(0, listPesananCOD_11.Length - 1);
+                //            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connId
+                //                    + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + listPesananCOD_11
+                //                    + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1 "
+                //                    + "AND BRG NOT IN ( SELECT BRG FROM TEMP_ALL_MP_ORDER_ITEM (NOLOCK) WHERE CONN_ID = '" + connId + "')");
 
-                            var rowAffected_2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ("
-                                             + listPesananCOD_11 + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1");
-                            if (rowAffected_2 > 0)
-                            {
-                                var rowAffectedSI_2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ("
-                                    + listPesananCOD_11 + ") AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + CUST
-                                    + "' AND ISNULL(NO_FA_OUTLET, '-') LIKE '%-%' ");
-                                rowAffected += rowAffected_2;
-                            }
+                //            var rowAffected_2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ("
+                //                             + listPesananCOD_11 + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1");
+                //            if (rowAffected_2 > 0)
+                //            {
+                //                var rowAffectedSI_2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ("
+                //                    + listPesananCOD_11 + ") AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + CUST
+                //                    + "' AND ISNULL(NO_FA_OUTLET, '-') LIKE '%-%' ");
+                //                rowAffected += rowAffected_2;
+                //            }
 
-                        }
-                        if (listPesananCOD_12 != "")//pesanan cod batal sudah di kirim
-                        {
-                            listPesananCOD_12 = listPesananCOD_12.Substring(0, listPesananCOD_12.Length - 1);
-                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connId
-                                    + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + listPesananCOD_12
-                                    + ") AND STATUS_TRANSAKSI <> '12' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1 "
-                                    + "AND BRG NOT IN ( SELECT BRG FROM TEMP_ALL_MP_ORDER_ITEM (NOLOCK) WHERE CONN_ID = '" + connId + "')");
+                //        }
+                //        if (listPesananCOD_12 != "")//pesanan cod batal sudah di kirim
+                //        {
+                //            listPesananCOD_12 = listPesananCOD_12.Substring(0, listPesananCOD_12.Length - 1);
+                //            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connId
+                //                    + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + listPesananCOD_12
+                //                    + ") AND STATUS_TRANSAKSI <> '12' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1 "
+                //                    + "AND BRG NOT IN ( SELECT BRG FROM TEMP_ALL_MP_ORDER_ITEM (NOLOCK) WHERE CONN_ID = '" + connId + "')");
 
-                            var rowAffected_3 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '12',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "' WHERE NO_REFERENSI IN ("
-                                             + listPesananCOD_12 + ") AND STATUS_TRANSAKSI <> '12' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1");
-                            rowAffected += rowAffected_3;
-                        }
-                    }
+                //            var rowAffected_3 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '12',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "' WHERE NO_REFERENSI IN ("
+                //                             + listPesananCOD_12 + ") AND STATUS_TRANSAKSI <> '12' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1");
+                //            rowAffected += rowAffected_3;
+                //        }
+                //    }
 
-                }
+                //}
 
                 #endregion
 
@@ -1360,17 +1363,20 @@ namespace MasterOnline.Controllers
                                 ordersn = ordersn.Substring(0, ordersn.Length - 1);
                                 var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connId
                                     + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn
-                                    + ") AND STATUS_TRANSAKSI  NOT IN ('11', '12') AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) <> 1");
+                                    //+ ") AND STATUS_TRANSAKSI  NOT IN ('11', '12') AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) <> 1");
+                                    + ") AND STATUS_TRANSAKSI  NOT IN ('11', '12') AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "'");
 
                                 var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ("
-                                    + ordersn + ") AND STATUS_TRANSAKSI  NOT IN ('11', '12') AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) <> 1");
+                                    //+ ordersn + ") AND STATUS_TRANSAKSI  NOT IN ('11', '12') AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) <> 1");
+                                    + ordersn + ") AND STATUS_TRANSAKSI  NOT IN ('11', '12') AND CUST = '" + CUST + "'");
 
-                                if(rowAffected > 0)
+                                if (rowAffected > 0)
                                 {
                                     await GetOrderDetailsForCancelReason(apidata, filtered.ToArray(), connId, CUST, NAMA_CUST);
 
                                     string qry_Retur = "SELECT F.NO_REF FROM SIT01A (NOLOCK) F INNER JOIN SOT01A (NOLOCK) P ON P.NO_BUKTI = F.NO_SO AND F.JENIS_FORM = '2' ";
-                                    qry_Retur += "WHERE P.NO_REFERENSI IN (" + ordersn + ") AND ISNULL(F.NO_FA_OUTLET, '-') LIKE '%-%' AND P.CUST = '" + CUST + "' AND ISNULL(P.TIPE_KIRIM,0) <> 1";
+                                    //qry_Retur += "WHERE P.NO_REFERENSI IN (" + ordersn + ") AND ISNULL(F.NO_FA_OUTLET, '-') LIKE '%-%' AND P.CUST = '" + CUST + "' AND ISNULL(P.TIPE_KIRIM,0) <> 1";
+                                    qry_Retur += "WHERE P.NO_REFERENSI IN (" + ordersn + ") AND ISNULL(F.NO_FA_OUTLET, '-') LIKE '%-%' AND P.CUST = '" + CUST + "'";
                                     var dsFaktur = EDB.GetDataSet("MOConnectionString", "RETUR", qry_Retur);
                                     if (dsFaktur.Tables[0].Rows.Count > 0)
                                     {
@@ -1386,71 +1392,71 @@ namespace MasterOnline.Controllers
                                 }
 
                                 #region handle cancel COD
-                                string qrycod = "SELECT P.NO_REFERENSI, ISNULL(F.NO_REF, '') NO_REF FROM SIT01A (NOLOCK) F RIGHT JOIN SOT01A (NOLOCK) P ON P.NO_BUKTI = F.NO_SO AND F.JENIS_FORM = '2' ";
-                                qrycod += "WHERE P.NO_REFERENSI IN (" + ordersn + ") AND ISNULL(F.NO_FA_OUTLET, '-') LIKE '%-%' AND P.CUST = '"
-                                    + CUST + "' AND ISNULL(P.TIPE_KIRIM,0) = 1 AND P.STATUS_TRANSAKSI NOT IN ('11', '12')";
-                                var dsOrderCOD = EDB.GetDataSet("MOConnectionString", "COD", qrycod);
-                                if (dsOrderCOD.Tables[0].Rows.Count > 0)
-                                {
-                                    var listNoRefCOD = new List<string>();
-                                    for (int k = 0; k < dsOrderCOD.Tables[0].Rows.Count; k++)
-                                    {
-                                        listNoRefCOD.Add(dsOrderCOD.Tables[0].Rows[k]["NO_REFERENSI"].ToString());
+                                //string qrycod = "SELECT P.NO_REFERENSI, ISNULL(F.NO_REF, '') NO_REF FROM SIT01A (NOLOCK) F RIGHT JOIN SOT01A (NOLOCK) P ON P.NO_BUKTI = F.NO_SO AND F.JENIS_FORM = '2' ";
+                                //qrycod += "WHERE P.NO_REFERENSI IN (" + ordersn + ") AND ISNULL(F.NO_FA_OUTLET, '-') LIKE '%-%' AND P.CUST = '"
+                                //    + CUST + "' AND ISNULL(P.TIPE_KIRIM,0) = 1 AND P.STATUS_TRANSAKSI NOT IN ('11', '12')";
+                                //var dsOrderCOD = EDB.GetDataSet("MOConnectionString", "COD", qrycod);
+                                //if (dsOrderCOD.Tables[0].Rows.Count > 0)
+                                //{
+                                //    var listNoRefCOD = new List<string>();
+                                //    for (int k = 0; k < dsOrderCOD.Tables[0].Rows.Count; k++)
+                                //    {
+                                //        listNoRefCOD.Add(dsOrderCOD.Tables[0].Rows[k]["NO_REFERENSI"].ToString());
 
-                                    }
-                                    if (listNoRefCOD.Count > 0)
-                                    {
-                                        var ordersDetail = await GetOrderDetailsForCancelReason(apidata, filtered.ToArray(), connId, CUST, NAMA_CUST);
+                                //    }
+                                //    if (listNoRefCOD.Count > 0)
+                                //    {
+                                //        var ordersDetail = await GetOrderDetailsForCancelReason(apidata, filtered.ToArray(), connId, CUST, NAMA_CUST);
 
-                                        var fData = ordersDetail.Where(m => listNoRefCOD.Contains(m.order_id)).ToList();
-                                        var listPesananCOD_11 = "";
-                                        var listPesananCOD_12 = "";
+                                //        var fData = ordersDetail.Where(m => listNoRefCOD.Contains(m.order_id)).ToList();
+                                //        var listPesananCOD_11 = "";
+                                //        var listPesananCOD_12 = "";
 
-                                        foreach (var ord in fData)
-                                        {
-                                            if (ord.rts_sla.Value > 0)//sudah kirim
-                                            {
-                                                listPesananCOD_12 += "'" + ord.order_id + "',";
-                                            }
-                                            else
-                                            {
-                                                listPesananCOD_11 += "'" + ord.order_id + "',";
-                                            }
-                                        }
-                                        if (listPesananCOD_11 != "")//pesanan cod batal tapi belum di kirim
-                                        {
-                                            listPesananCOD_11 = listPesananCOD_11.Substring(0, listPesananCOD_11.Length - 1);
-                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connId
-                                                    + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + listPesananCOD_11
-                                                    + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1 "
-                                                    + "AND BRG NOT IN ( SELECT BRG FROM TEMP_ALL_MP_ORDER_ITEM (NOLOCK) WHERE CONN_ID = '" + connId + "')");
+                                //        foreach (var ord in fData)
+                                //        {
+                                //            if (ord.rts_sla.Value > 0)//sudah kirim
+                                //            {
+                                //                listPesananCOD_12 += "'" + ord.order_id + "',";
+                                //            }
+                                //            else
+                                //            {
+                                //                listPesananCOD_11 += "'" + ord.order_id + "',";
+                                //            }
+                                //        }
+                                //        if (listPesananCOD_11 != "")//pesanan cod batal tapi belum di kirim
+                                //        {
+                                //            listPesananCOD_11 = listPesananCOD_11.Substring(0, listPesananCOD_11.Length - 1);
+                                //            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connId
+                                //                    + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + listPesananCOD_11
+                                //                    + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1 "
+                                //                    + "AND BRG NOT IN ( SELECT BRG FROM TEMP_ALL_MP_ORDER_ITEM (NOLOCK) WHERE CONN_ID = '" + connId + "')");
 
-                                            var rowAffected_2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ("
-                                                             + listPesananCOD_11 + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1");
-                                            if (rowAffected_2 > 0)
-                                            {
-                                                var rowAffectedSI_2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ("
-                                                    + listPesananCOD_11 + ") AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + CUST
-                                                    + "' AND ISNULL(NO_FA_OUTLET, '-') LIKE '%-%' ");
-                                                rowAffected += rowAffected_2;
-                                            }
+                                //            var rowAffected_2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ("
+                                //                             + listPesananCOD_11 + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1");
+                                //            if (rowAffected_2 > 0)
+                                //            {
+                                //                var rowAffectedSI_2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ("
+                                //                    + listPesananCOD_11 + ") AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + CUST
+                                //                    + "' AND ISNULL(NO_FA_OUTLET, '-') LIKE '%-%' ");
+                                //                rowAffected += rowAffected_2;
+                                //            }
 
-                                        }
-                                        if (listPesananCOD_12 != "")//pesanan cod batal sudah di kirim
-                                        {
-                                            listPesananCOD_12 = listPesananCOD_12.Substring(0, listPesananCOD_12.Length - 1);
-                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connId
-                                                    + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + listPesananCOD_12
-                                                    + ") AND STATUS_TRANSAKSI <> '12' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1 "
-                                                    + "AND BRG NOT IN ( SELECT BRG FROM TEMP_ALL_MP_ORDER_ITEM (NOLOCK) WHERE CONN_ID = '" + connId + "')");
+                                //        }
+                                //        if (listPesananCOD_12 != "")//pesanan cod batal sudah di kirim
+                                //        {
+                                //            listPesananCOD_12 = listPesananCOD_12.Substring(0, listPesananCOD_12.Length - 1);
+                                //            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connId
+                                //                    + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + listPesananCOD_12
+                                //                    + ") AND STATUS_TRANSAKSI <> '12' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1 "
+                                //                    + "AND BRG NOT IN ( SELECT BRG FROM TEMP_ALL_MP_ORDER_ITEM (NOLOCK) WHERE CONN_ID = '" + connId + "')");
 
-                                            var rowAffected_3 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '12',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "' WHERE NO_REFERENSI IN ("
-                                                             + listPesananCOD_12 + ") AND STATUS_TRANSAKSI <> '12' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1");
-                                            rowAffected += rowAffected_3;
-                                        }
-                                    }
+                                //            var rowAffected_3 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '12',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "' WHERE NO_REFERENSI IN ("
+                                //                             + listPesananCOD_12 + ") AND STATUS_TRANSAKSI <> '12' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) = 1");
+                                //            rowAffected += rowAffected_3;
+                                //        }
+                                //    }
 
-                                }
+                                //}
 
                                 #endregion
 

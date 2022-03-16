@@ -239,7 +239,7 @@
         $postdata = {
             cust : cust,
             bukti : $('#packingList_NO_BUKTI').val(),
-            DeliveryProvider : $('#txtShipment__' + cust).val(),
+            //DeliveryProvider : $('#txtShipment__' + cust).val(),
             rows_selected : rows_selected
         };
 
@@ -314,7 +314,7 @@
         $postdata = {
             cust : cust,
             bukti : $('#packingList_NO_BUKTI').val(),
-            DeliveryProvider : $('#txtShipment__' + cust).val(),
+            //DeliveryProvider : $('#txtShipment__' + cust).val(),
             rows_selected : rows_selected
         };
 
@@ -1329,7 +1329,7 @@
                             </div>
                         </div>
                         <div class="col-md-4" style="text-align:right">
-                            <div class="input-group">
+                            @*<div class="input-group">
                                 <input id="txtShipment__@(item.CUST)" disabled="disabled" style="display:none;" class="form-control">
                                 <input id="txtShipmentName__@(item.CUST)" disabled="disabled" placeholder="Delivery Provider"  class="form-control">
                                 <span class="input-group-btn">
@@ -1337,7 +1337,7 @@
                                         <span class="glyphicon glyphicon-option-horizontal"></span>
                                     </button>
                                 </span>
-                            </div>
+                            </div>*@
                         </div>
                         <div class="col-md-1"></div>
                         <div class="col-md-1 pull-left">

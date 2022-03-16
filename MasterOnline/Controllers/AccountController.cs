@@ -2033,7 +2033,8 @@ namespace MasterOnline.Controllers
                                 DatabasePathErasoft = dbPathEra,
                                 shop_id = tblCustomer.Sort1_Cust,
                                 username = username,
-                                expired_date = tblCustomer.TGL_EXPIRED.Value
+                                expired_date = tblCustomer.TGL_EXPIRED.Value, 
+                                refresh_token = tblCustomer.REFRESH_TOKEN
                             };
                                 var tikapijob = new TiktokControllerJob();
                             if (tblCustomer.TOKEN_EXPIRED != null)

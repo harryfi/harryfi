@@ -251,8 +251,8 @@ namespace MasterOnline.Controllers
                     ret = "";
                     TiktokAuth tauth = JsonConvert.DeserializeObject<TiktokAuth>(responseFromServer);
                     string shopid = getShopId(tauth.Data.AccessToken);
-                    var dateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-                    var tokendateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.AccessTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                    var dateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.AccessTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                    var tokendateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                     var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + dateExpired + "',TOKEN_EXPIRED = '" + tokendateExpired + "' , SORT1_CUST = '" + shopid + "' WHERE CUST = '" + cust + "'");
                     //MoDbContext.Database.ExecuteSqlCommand("INSERT INTO [TABEL_MAPPING_TIKTOK] (dbpathera, shopid,cust) values ('"+ user + "', '"+ shopid + "', '" + cust + "') ");
                     var tblMapping = MoDbContext.TABEL_MAPPING_TIKTOK.Where(m => m.DBPATHERA == user && m.CUST == cust).FirstOrDefault();
@@ -273,7 +273,7 @@ namespace MasterOnline.Controllers
                     MoDbContext.SaveChanges();
                     if (result == 1)
                     {
-                        GetShippingProvider(cust);
+                        //GetShippingProvider(cust);
                         manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, cust, currentLog);
                         return ret;
                     }
@@ -375,8 +375,8 @@ namespace MasterOnline.Controllers
                         ret = "";
                         TiktokAuth tauth = JsonConvert.DeserializeObject<TiktokAuth>(responseFromServer);
                         string shopid = getShopId(tauth.Data.AccessToken);
-                        var dateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-                        var tokendateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.AccessTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                        var dateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.AccessTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                        var tokendateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                         var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + dateExpired + "',TOKEN_EXPIRED = '" + tokendateExpired + "' , SORT1_CUST = '" + shopid + "' WHERE CUST = '" + cust + "'");
                         if (result == 1)
                         {

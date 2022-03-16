@@ -152,21 +152,21 @@
                     </td>
                     <td>@order.no_bukti</td>
                     <td>@order.no_referensi</td>
-                    @*<td>@order.tracking_no</td>*@
-                    <td>
+                    <td>@order.tracking_no</td>
+                    @*<td>
                         <input type="text" class="noresi-input-box" style="display: none; width: 150px;" />
                         <span class="noresi-initial">@order.tracking_no</span>
-                    </td>
+                    </td>*@
                     <td>@order.nama_pemesan</td>
                     <td>@tipe_pesanan</td>
                     <td>@status_kirim</td>
                     <td>@st_print</td>
                     <td>@order.kurir</td>
-                    <td class="edit-hapus-col">
+                    @*<td class="edit-hapus-col">
                         <button type="button" class="btn btn-primary" onclick="editNoResiTiktok('@order.no_bukti')">
                             <span class="icon-btn-edit glyphicon glyphicon-pencil" aria-hidden="true"></span>
                         </button>
-                    </td>
+                    </td>*@
                 </tr>
             }
         </tbody>

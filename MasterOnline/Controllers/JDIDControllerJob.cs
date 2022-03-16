@@ -4574,6 +4574,7 @@ namespace MasterOnline.Controllers
                     CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 1;
                     CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
                     CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
+                    CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "";
                     CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = data.no_cust;
 
                     EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
@@ -5172,7 +5173,8 @@ namespace MasterOnline.Controllers
                                             CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 1;
                                             CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
                                             CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
-                                            CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = data.no_cust;
+                                        CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "";
+                                        CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = data.no_cust;
 
                                             EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
                                         }
@@ -5830,7 +5832,8 @@ namespace MasterOnline.Controllers
                                                 CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 1;
                                                 CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
                                                 CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
-                                                CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = data.no_cust;
+                                            CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "";
+                                            CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = data.no_cust;
 
                                                 EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
                                             }
