@@ -2035,14 +2035,15 @@ namespace MasterOnline.Controllers
                                 username = username,
                                 expired_date = tblCustomer.TGL_EXPIRED.Value
                             };
+                                var tikapijob = new TiktokControllerJob();
                             if (tblCustomer.TOKEN_EXPIRED != null)
                             {
 #if (AWS || DEV)
-                            client.Enqueue<TiktokController>(x => x.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username, tblCustomer.TGL_EXPIRED,tblCustomer.TOKEN_EXPIRED));
+                            client.Enqueue<TiktokControllerJob>(x => x.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username, tblCustomer.TGL_EXPIRED,tblCustomer.TOKEN_EXPIRED));
 
 #else
-                                TiktokController tikapi = new TiktokController();
-                                tikapi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username, tblCustomer.TGL_EXPIRED, tblCustomer.TOKEN_EXPIRED);
+                                //TiktokController tikapi = new TiktokController();
+                                await tikapijob.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username, tblCustomer.TGL_EXPIRED, tblCustomer.TOKEN_EXPIRED);
 #endif
                             }
                             string connId_JobId = "";
@@ -2067,14 +2068,23 @@ namespace MasterOnline.Controllers
                                 recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TiktokControllerJob>(x => x.GetOrderTiktok_webhook_Cancel(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO)), Cron.MinuteInterval(5), recurJobOpt);
 
 #else
-                                var tikapijob = new TiktokControllerJob();
                                 await tikapijob.GetOrder_Insert_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
                                 //await tikapijob.GetOrder_Complete_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
                                 await tikapijob.GetOrder_Cancel_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
                                 await tikapijob.GetOrderTiktok_webhook_Insert(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
                                 await tikapijob.GetOrderTiktok_webhook_Cancel(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
 #endif
-
+                                if (!string.IsNullOrEmpty(sync_pesanan_stok))
+                                {
+                                    if (sync_pesanan_stok == tblCustomer.CUST)
+                                    {
+#if (AWS || DEV)
+                                    client.Enqueue<TiktokControllerJob>(x => x.GetOrder_GoLive_Insert_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO));
+#else
+                                        await tikapijob.GetOrder_GoLive_Insert_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
+#endif
+                                    }
+                                }
                             }
                             else
                             {

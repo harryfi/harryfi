@@ -66,6 +66,112 @@ namespace MasterOnline.Controllers
             username = uname;
 
         }
+        public async Task<TiktokAuth> GetRefToken(string cust, string refreshToken, string dbpath, string username, DateTime? tanggal_exptoken, DateTime? tanggal_exprtok)
+        {
+            SetupContext(dbpath, username);
+            DateTime dateNow = DateTime.UtcNow.AddHours(7).AddMinutes(-30);
+            DateTime parse = DateTime.Parse(tanggal_exprtok.ToString());
+            TimeSpan ts = parse.Subtract(dateNow);
+            bool ATExp = false;
+
+            //if (ts.Days < 1 && ts.Hours < 24 && dateNow < tanggal_exptoken)
+            if (dateNow > tanggal_exptoken)
+            {
+                ATExp = true;
+            }
+
+            if (ATExp)
+            {
+                string ret;
+                string url;
+                url = "https://auth.tiktok-shops.com/api/token/refreshToken";
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(url);
+                myReq.Method = "POST";
+                myReq.ContentType = "application/json";
+                string responseFromServer = "";
+                PostTiktokApiRef postdata = new PostTiktokApiRef()
+                {
+                    app_key = eraAppKey,
+                    app_secret = eraAppSecret,
+                    refresh_token = refreshToken,
+                    grant_type = "refresh_token"
+                };
+                var data = JsonConvert.SerializeObject(postdata);
+                ////add 22 april 2021, handle spamming
+                //var cekLog = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Refresh Token" && p.REQUEST_ATTRIBUTE_1 == cust
+                //    && p.REQUEST_ATTRIBUTE_2 == refreshToken && p.REQUEST_STATUS == "Success").FirstOrDefault();
+                //if (cekLog != null)
+                //{
+                //    ret = "data sudah ada";
+                //}
+                ////end add 22 april 2021, handle spamming
+                //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                //{
+                //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                //    REQUEST_ACTION = "Refresh Token",
+                //    REQUEST_DATETIME = DateTime.Now,
+                //    REQUEST_ATTRIBUTE_1 = cust,
+                //    REQUEST_ATTRIBUTE_2 = refreshToken,
+                //    REQUEST_STATUS = "Pending",
+                //};
+                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, cust, currentLog);
+                myReq.ContentLength = data.Length;
+                try
+                {
+                    using (var dataStream = myReq.GetRequestStream())
+                    {
+                        dataStream.Write(System.Text.Encoding.UTF8.GetBytes(data), 0, data.Length);
+                    }
+                    using (WebResponse response = await myReq.GetResponseAsync())
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + cust + "'");
+                    //currentLog.REQUEST_EXCEPTION = ex.Message;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, cust, currentLog);
+                    return null;
+                }
+                try
+                {
+                    if (responseFromServer != null)
+                    {
+                        ret = "";
+                        TiktokAuth tauth = JsonConvert.DeserializeObject<TiktokAuth>(responseFromServer);
+                        var dateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                        var tokendateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.AccessTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                        var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken 
+                            + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + dateExpired + "',TOKEN_EXPIRED = '" 
+                            + tokendateExpired + "' WHERE CUST = '" + cust + "'");
+                        if (result == 1)
+                        {
+                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, cust, currentLog);
+                            return null;
+                        }
+                        else
+                        {
+                            //currentLog.REQUEST_EXCEPTION = "failed to update token;execute result=" + result;
+                            //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, cust, currentLog);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + cust + "'");
+                    //currentLog.REQUEST_EXCEPTION = ex.Message;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, cust, currentLog);
+                }
+            }
+
+            return null;
+        }
+
         public async Task<TTApiData> RefreshTokenTikTok(TTApiData iden)
         {
             DateTime dateNow = DateTime.UtcNow.AddHours(7).AddMinutes(-30);
@@ -162,6 +268,67 @@ namespace MasterOnline.Controllers
 
             return iden;
         }
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public async Task<string> GetOrder_GoLive_Insert_Tiktok(TTApiData iden, string CUST, string NAMA_CUST)
+        {
+            SetupContext(iden.DatabasePathErasoft, iden.username);
+            iden = await RefreshTokenTikTok(iden);
+            var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
+            delQry += DateTime.UtcNow.AddHours(7).AddHours(-12).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + CUST + "'";
+
+            //var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
+
+            var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-3).ToUnixTimeSeconds();
+            var toDt = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            //var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-5).ToUnixTimeSeconds();
+            //var toDt = (long)DateTimeOffset.UtcNow.AddDays(-3).ToUnixTimeSeconds();
+
+            var lanjut = true;
+            var connIdProses = "";
+            var nextPage = "";
+            int ord_status = 100;
+            while (lanjut)
+            {
+                var returnGetOrder = await GetOrderList_Insert(iden, ord_status, CUST, NAMA_CUST, nextPage, fromDt, toDt);
+                if (returnGetOrder.ConnId != "")
+                {
+                    connIdProses += "'" + returnGetOrder.ConnId + "' , ";
+                }
+                //if (returnGetOrder.AdaKomponen)
+                //{
+                //    AdaKomponen = returnGetOrder.AdaKomponen;
+                //}
+                nextPage = returnGetOrder.nextPage;
+                if (!returnGetOrder.more)
+                {
+                    if (ord_status == 100)
+                    {
+                        ord_status = 111;
+                        nextPage = "";
+                    }
+                    else if (ord_status == 111)
+                    {
+                        ord_status = 112;
+                        nextPage = "";
+                    }
+                    else
+                    {
+                        lanjut = false; break;
+                    }
+                }
+            }
+            if (!string.IsNullOrEmpty(connIdProses))
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username, connIdProses.Substring(0, connIdProses.Length - 3));
+            }
+
+
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust
+                + "%' and arguments like '%GetOrder_Insert_Tiktok%' and statename like '%Enque%'");
+
+            return "";
+        }
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
@@ -174,7 +341,7 @@ namespace MasterOnline.Controllers
 
             //var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
 
-            var fromDt = (long)DateTimeOffset.UtcNow.AddHours(-12).ToUnixTimeSeconds();
+            var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds();
             var toDt = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             //var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-5).ToUnixTimeSeconds();
             //var toDt = (long)DateTimeOffset.UtcNow.AddDays(-3).ToUnixTimeSeconds();
@@ -840,6 +1007,7 @@ namespace MasterOnline.Controllers
                 {
                     ordersn = ordersn + "'" + item + "',";
                 }
+                ordersn = ordersn.Substring(0, ordersn.Length - 1);
                 var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connId
                     + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn
                     + ") AND STATUS_TRANSAKSI  NOT IN ('11', '12') AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) <> 1");
@@ -1189,6 +1357,7 @@ namespace MasterOnline.Controllers
                                 {
                                     ordersn = ordersn + "'" + item + "',";
                                 }
+                                ordersn = ordersn.Substring(0, ordersn.Length - 1);
                                 var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connId
                                     + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn
                                     + ") AND STATUS_TRANSAKSI  NOT IN ('11', '12') AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) <> 1");
