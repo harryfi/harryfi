@@ -1980,10 +1980,15 @@ namespace MasterOnline.Controllers
                         order.TRACKING_SHIPMENT = ret.data.order_items[0].tracking_number;
                         order.SHIPMENT = ret.data.order_items[0].shipment_provider;
                         //order.status_kirim = "2"; -- remark by fauzi 04 November 2020
-                        if (string.IsNullOrWhiteSpace(order.TRACKING_SHIPMENT))
-                        {
-                            order.status_kirim = "1";
-                        }
+                        //remark by nurul 15/3/2022
+                        //if (string.IsNullOrWhiteSpace(order.TRACKING_SHIPMENT))
+                        //{
+                        //    order.status_kirim = "1";
+                        //}
+                        //remark by nurul 15/3/2022
+                        //add by nu 15/3/2022
+                        order.PRINT_COUNT = 1; //simpan flag sudah ambil resi 
+                        //end add by nurul 15/3/2022
                         ErasoftDbContext.SaveChanges();
                         //ADD BY NURUL 28/9/2021
                         //try
@@ -2007,15 +2012,17 @@ namespace MasterOnline.Controllers
             //add by nurul 8/6/2021
             else if (ret.code.Equals("82")) //All order items must have status Pending.
             {
-                GetKurirAndAwb(orderId, accessToken);
+                GetKurirAndAwb(dbPathEra, uname, orderId, accessToken);
             }
             //end add by nurul 8/6/2021
             else
             {
-                var orderid = orderItemId[0];
-                var orderDetail = ErasoftDbContext.SOT01B.Where(p => p.ORDER_ITEM_ID == orderid).FirstOrDefault();
+                //remark by nurul 15/3/2022
+                //var orderid = orderItemId[0];
+                //var orderDetail = ErasoftDbContext.SOT01B.Where(p => p.ORDER_ITEM_ID == orderid).FirstOrDefault();
 
-                EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='2' WHERE NO_BUKTI = '" + orderDetail.NO_BUKTI + "'");
+                //EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='1' WHERE NO_BUKTI = '" + orderDetail.NO_BUKTI + "'");
+                //end remark by nurul 15/3/2022
                 throw new Exception(ret.message);
             }
             //}
@@ -2030,8 +2037,9 @@ namespace MasterOnline.Controllers
         }
 
         //add by nurul 8/6/2021
-        public LazadaGetOrderItem GetKurirAndAwb(string orderid, string accessToken)
+        public LazadaGetOrderItem GetKurirAndAwb(string dbPathEra, string uname, string orderid, string accessToken)
         {
+            SetupContext(dbPathEra, uname);
             var ret = new LazadaGetOrderItem();
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
@@ -2063,6 +2071,9 @@ namespace MasterOnline.Controllers
                             //order.SHIPMENT = bindOrder.data[0].shipment_provider;
                             order.TRACKING_SHIPMENT = resi;
                             order.SHIPMENT = kurir;
+                            //add by nurul 15/3/2022
+                            order.PRINT_COUNT = 1; //simpan flag sudah ambil resi 
+                            //end add by nurul 15/3/2022
                             ErasoftDbContext.SaveChanges();
                             //ADD BY NURUL 28/9/2021
                             //try
