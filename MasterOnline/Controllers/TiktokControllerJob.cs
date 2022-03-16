@@ -324,8 +324,8 @@ namespace MasterOnline.Controllers
             }
 
 
-            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust
-                + "%' and arguments like '%GetOrder_Insert_Tiktok%' and statename like '%Enque%'");
+            //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust
+            //    + "%' and arguments like '%GetOrder_Insert_Tiktok%' and statename like '%Enque%'");
 
             return "";
         }
