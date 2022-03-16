@@ -104,6 +104,10 @@ namespace MasterOnline
         //end add by nurul 14/2/2022
         public DateTime? so_tgl { get; set; }
         //end add by nurul 14/2/2022
+
+        //add by nurul 4/3/2022
+        public string tipe_kirim { get; set; }
+        //end add by nurul 4/3/2022
     }
 
     //add by nurul 2/6/2020
