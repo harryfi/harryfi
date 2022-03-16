@@ -375,7 +375,7 @@ namespace MasterOnline.Controllers
 
                                             Models.TEMP_BRG_MP newrecord = new TEMP_BRG_MP()
                                             {
-                                                SELLER_SKU = brgMp,
+                                                SELLER_SKU = (item.reference ?? ""),
                                                 BRG_MP = brgMp,
                                                 //KODE_BRG_INDUK = Convert.ToString(item.id_product),
                                                 NAMA = nama,
@@ -676,10 +676,10 @@ namespace MasterOnline.Controllers
             {
                 skuBRG = product_varian.attribute_reference;
             }
-            else
-            {
-                skuBRG = brgmp_varian;
-            }
+            //else
+            //{
+            //    skuBRG = brgmp_varian;
+            //}
 
             Models.TEMP_BRG_MP newrecord = new TEMP_BRG_MP()
             {
@@ -3414,6 +3414,7 @@ namespace MasterOnline.Controllers
             public string apiKey { get; set; }
             public string apiCredential { get; set; }
             public string id_product { get; set; }
+            public string reference { get; set; }
             public string name { get; set; }
             public string ean13 { get; set; }
             public string upc { get; set; }
