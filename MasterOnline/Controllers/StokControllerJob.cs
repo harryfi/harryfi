@@ -3276,6 +3276,8 @@ namespace MasterOnline.Controllers
         public async Task<string> tiktok_updatestock(string DatabasePathErasoft, string stf02_brg, string log_Cust, string log_ActionCat, string log_ActName, TTApiData apidata, string idbarang, int stok, string uname, PerformContext context)
         {
             SetupContext(DatabasePathErasoft, uname);
+            apidata = new TiktokControllerJob().RefreshTokenTikTok(apidata);
+
             var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
             if (qtyOnHand < 0)
             {

@@ -180,7 +180,7 @@ namespace MasterOnline.Controllers
 
 
 
-        public async Task<string> GetToken(string user, string cust, string authcode)
+        public string GetToken(string user, string cust, string authcode)
         {
             string ret;
             string url;
@@ -228,7 +228,7 @@ namespace MasterOnline.Controllers
                 {
                     dataStream.Write(System.Text.Encoding.UTF8.GetBytes(data), 0, data.Length);
                 }
-                using (WebResponse response = await myReq.GetResponseAsync())
+                using (WebResponse response = myReq.GetResponse())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {
@@ -253,7 +253,9 @@ namespace MasterOnline.Controllers
                     string shopid = getShopId(tauth.Data.AccessToken);
                     var dateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.AccessTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                     var tokendateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + dateExpired + "',TOKEN_EXPIRED = '" + tokendateExpired + "' , SORT1_CUST = '" + shopid + "' WHERE CUST = '" + cust + "'");
+                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken 
+                        + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + tokendateExpired
+                        + "',TOKEN_EXPIRED = '" + dateExpired + "' , SORT1_CUST = '" + shopid + "' WHERE CUST = '" + cust + "'");
                     //MoDbContext.Database.ExecuteSqlCommand("INSERT INTO [TABEL_MAPPING_TIKTOK] (dbpathera, shopid,cust) values ('"+ user + "', '"+ shopid + "', '" + cust + "') ");
                     var tblMapping = MoDbContext.TABEL_MAPPING_TIKTOK.Where(m => m.DBPATHERA == user && m.CUST == cust).FirstOrDefault();
                     if (tblMapping != null)
@@ -279,7 +281,7 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        currentLog.REQUEST_EXCEPTION = "failed to update token;execute result=" + result;
+                        currentLog.REQUEST_EXCEPTION = "failed to update token;execute result=" + responseFromServer;
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, cust, currentLog);
                     }
                 }
@@ -287,7 +289,7 @@ namespace MasterOnline.Controllers
             catch (Exception ex)
             {
                 var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + cust + "'");
-                currentLog.REQUEST_EXCEPTION = ex.Message;
+                currentLog.REQUEST_EXCEPTION = responseFromServer + ";" + ex.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, cust, currentLog);
             }
             return null;
@@ -377,7 +379,9 @@ namespace MasterOnline.Controllers
                         string shopid = getShopId(tauth.Data.AccessToken);
                         var dateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.AccessTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                         var tokendateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-                        var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + dateExpired + "',TOKEN_EXPIRED = '" + tokendateExpired + "' , SORT1_CUST = '" + shopid + "' WHERE CUST = '" + cust + "'");
+                        var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken 
+                            + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + tokendateExpired + "',TOKEN_EXPIRED = '" 
+                            +  dateExpired + "' , SORT1_CUST = '" + shopid + "' WHERE CUST = '" + cust + "'");
                         if (result == 1)
                         {
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, cust, currentLog);
@@ -1199,7 +1203,7 @@ namespace MasterOnline.Controllers
                     tempbarang.BRG_MP = detail.ProductId.ToString() + ";" + "0";
                     tempbarang.NAMA = nama;
                     tempbarang.NAMA2 = nama2;
-                    tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : double.Parse(detail.PackageWeight);
+                    tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : (double.Parse(detail.PackageWeight) * 1000);//berat dalam kg
                     tempbarang.PANJANG = detail.PackageLength == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageLength.ToString());
                     tempbarang.LEBAR = detail.PackageWidth == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageWidth.ToString());
                     tempbarang.TINGGI = detail.PackageHeight == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageHeight.ToString());
@@ -2569,7 +2573,7 @@ namespace MasterOnline.Controllers
                     #endregion
                     tempbarang.NAMA = nama;
                     tempbarang.NAMA2 = nama2;
-                    tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : double.Parse(detail.PackageWeight);
+                    tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : (double.Parse(detail.PackageWeight) * 1000);//berat dalam kg
                     tempbarang.PANJANG = detail.PackageLength == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageLength.ToString());
                     tempbarang.LEBAR = detail.PackageWidth == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageWidth.ToString());
                     tempbarang.TINGGI = detail.PackageHeight == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageHeight.ToString());

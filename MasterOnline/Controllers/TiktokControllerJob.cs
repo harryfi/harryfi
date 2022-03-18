@@ -75,7 +75,7 @@ namespace MasterOnline.Controllers
             bool ATExp = false;
 
             //if (ts.Days < 1 && ts.Hours < 24 && dateNow < tanggal_exptoken)
-            if (dateNow > tanggal_exptoken)
+            if (dateNow > tanggal_exprtok)
             {
                 ATExp = true;
             }
@@ -147,8 +147,8 @@ namespace MasterOnline.Controllers
                         var dateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.AccessTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                         var tokendateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                         var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken 
-                            + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + dateExpired + "',TOKEN_EXPIRED = '" 
-                            + tokendateExpired + "' WHERE CUST = '" + cust + "'");
+                            + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + tokendateExpired + "',TOKEN_EXPIRED = '" 
+                            + dateExpired + "' WHERE CUST = '" + cust + "'");
                         if (result == 1)
                         {
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, cust, currentLog);
@@ -172,8 +172,10 @@ namespace MasterOnline.Controllers
             return null;
         }
 
-        public async Task<TTApiData> RefreshTokenTikTok(TTApiData iden)
+        public TTApiData RefreshTokenTikTok(TTApiData iden)
         {
+            SetupContext(iden.DatabasePathErasoft, iden.username);
+
             DateTime dateNow = DateTime.UtcNow.AddHours(7).AddMinutes(-30);
             bool ATExp = false;
 
@@ -188,7 +190,7 @@ namespace MasterOnline.Controllers
                     if (iden.expired_date < cekInDB.TOKEN_EXPIRED)
                     {
                         iden.access_token = cekInDB.TOKEN;
-                        iden.expired_date = cekInDB.TGL_EXPIRED.Value;
+                        iden.expired_date = cekInDB.TOKEN_EXPIRED.Value;
                         iden.refresh_token = cekInDB.REFRESH_TOKEN;
 
                         if (cekInDB.TOKEN_EXPIRED.Value.AddMinutes(-30) > DateTime.UtcNow.AddHours(7))
@@ -223,7 +225,7 @@ namespace MasterOnline.Controllers
                     {
                         dataStream.Write(System.Text.Encoding.UTF8.GetBytes(data), 0, data.Length);
                     }
-                    using (WebResponse response = await myReq.GetResponseAsync())
+                    using (WebResponse response = myReq.GetResponse())
                     {
                         using (Stream stream = response.GetResponseStream())
                         {
@@ -246,8 +248,8 @@ namespace MasterOnline.Controllers
                         var dateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.AccessTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                         var tokendateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                         var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken 
-                            + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + dateExpired 
-                            + "',TOKEN_EXPIRED = '" + tokendateExpired + "' WHERE CUST = '" + iden.no_cust + "'");
+                            + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + tokendateExpired
+                            + "',TOKEN_EXPIRED = '" + dateExpired  + "' WHERE CUST = '" + iden.no_cust + "'");
                         if (result == 1)
                         {
                             iden.access_token = tauth.Data.AccessToken;
@@ -273,7 +275,7 @@ namespace MasterOnline.Controllers
         public async Task<string> GetOrder_GoLive_Insert_Tiktok(TTApiData iden, string CUST, string NAMA_CUST)
         {
             SetupContext(iden.DatabasePathErasoft, iden.username);
-            iden = await RefreshTokenTikTok(iden);
+            iden = RefreshTokenTikTok(iden);
             var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
             delQry += DateTime.UtcNow.AddHours(7).AddHours(-12).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + CUST + "'";
 
@@ -335,7 +337,7 @@ namespace MasterOnline.Controllers
         public async Task<string> GetOrder_Insert_Tiktok(TTApiData iden, string CUST, string NAMA_CUST)
         {
             SetupContext(iden.DatabasePathErasoft, iden.username);
-            iden = await RefreshTokenTikTok(iden);
+            iden = RefreshTokenTikTok(iden);
             var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
             delQry += DateTime.UtcNow.AddHours(7).AddHours(-12).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + CUST + "'";
 
@@ -459,7 +461,10 @@ namespace MasterOnline.Controllers
                         {
                             await GetOrderDetails(apidata, filtered.ToArray(), connId, CUST, NAMA_CUST, order_status);
                             jmlhNewOrder = filtered.Count();
-                        }
+
+
+                                new StokControllerJob().updateStockMarketPlace(connId, apidata.DatabasePathErasoft, apidata.username);
+                            }
 
                         if (order_status != 100)//update paid
                         {
@@ -720,14 +725,14 @@ namespace MasterOnline.Controllers
                         string checkout_shipping_carrier = "";
                         #endregion
                         long paidTime = 0;
-                        if (order.paid_time == null)
+                        //if (order.paid_time == null)
                         {
                             paidTime = Convert.ToInt64(order.create_time);
                         }
-                        else
-                        {
-                            paidTime = order.paid_time.Value * 1000;
-                        }
+                        //else
+                        //{
+                        //    paidTime = order.paid_time.Value;
+                        //}
                         var newOrder = new TEMP_TIKTOK_ORDERS()
                         {
                             actual_shipping_cost = order.payment_info.original_shipping_fee.ToString(),
@@ -905,6 +910,7 @@ namespace MasterOnline.Controllers
                         string connId = Guid.NewGuid().ToString();
 
                         var returnGetOrder = await GetOrderDetails(iden,  ordersn_list.ToArray(), connId,  CUST,  NAMA_CUST,  100);
+                        new StokControllerJob().updateStockMarketPlace(connId, iden.DatabasePathErasoft, iden.username);
                         //if (!string.IsNullOrEmpty(returnGetOrder))
                         {
                             connIdProses += "'" + connId + "' , ";
@@ -927,6 +933,7 @@ namespace MasterOnline.Controllers
                         string connId = Guid.NewGuid().ToString();
 
                         var returnGetOrder = await GetOrderDetails(iden, ordersn_list.ToArray(), connId, CUST, NAMA_CUST, 111);
+                        new StokControllerJob().updateStockMarketPlace(connId, iden.DatabasePathErasoft, iden.username);
                         //if (!string.IsNullOrEmpty(returnGetOrder))
                         {
                             connIdProses += "'" + connId + "' , ";
@@ -994,7 +1001,7 @@ namespace MasterOnline.Controllers
             ret.ConnId = connId;
             
             //string[] ordersn_list = listOrder.data.order_list.Select(p => p.order_id).ToArray();
-            var dariTgl = DateTime.UtcNow.AddHours(7).AddDays(14);
+            var dariTgl = DateTime.UtcNow.AddHours(7).AddDays(-14);
 
             var SudahAdaDiMO = ErasoftDbContext.SOT01A.Where(p => p.USER_NAME == "Auto TikTok" && p.CUST == CUST &&
             (p.STATUS_TRANSAKSI != "11" || p.STATUS_TRANSAKSI != "12") && p.TGL >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
@@ -1135,7 +1142,7 @@ namespace MasterOnline.Controllers
         public async Task<string> GetOrder_Complete_Tiktok(TTApiData iden, string CUST, string NAMA_CUST)
         {
             SetupContext(iden.DatabasePathErasoft, iden.username);
-            iden = await RefreshTokenTikTok(iden);
+            iden = RefreshTokenTikTok(iden);
             
             var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
             var toDt = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -1251,7 +1258,7 @@ namespace MasterOnline.Controllers
         public async Task<string> GetOrder_Cancel_Tiktok(TTApiData iden, string CUST, string NAMA_CUST)
         {
             SetupContext(iden.DatabasePathErasoft, iden.username);
-            iden = await RefreshTokenTikTok(iden);
+            iden = RefreshTokenTikTok(iden);
 
             var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
             var toDt = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();

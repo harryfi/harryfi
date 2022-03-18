@@ -2033,19 +2033,29 @@ namespace MasterOnline.Controllers
                                 DatabasePathErasoft = dbPathEra,
                                 shop_id = tblCustomer.Sort1_Cust,
                                 username = username,
-                                expired_date = tblCustomer.TGL_EXPIRED.Value, 
+                                expired_date = tblCustomer.TOKEN_EXPIRED.Value, 
                                 refresh_token = tblCustomer.REFRESH_TOKEN
                             };
                                 var tikapijob = new TiktokControllerJob();
-                            if (tblCustomer.TOKEN_EXPIRED != null)
+                            if (tblCustomer.TOKEN_EXPIRED != null && tblCustomer.STATUS_API == "1")
                             {
 #if (AWS || DEV)
                             client.Enqueue<TiktokControllerJob>(x => x.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username, tblCustomer.TGL_EXPIRED,tblCustomer.TOKEN_EXPIRED));
 
+                                var accFromMoDB2 = MoDbContext.Account.Single(a => a.DatabasePathErasoft == dbPathEra);
+                                var connection_id_proses_checktoken = dbPathEra + "_proses_checktoken_expired_tiktok_" + tblCustomer.CUST.ToString();
+                        recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB2.Email, tblCustomer.PERSO, "Tiktok", tblCustomer.TGL_EXPIRED)), "0 1 * * *", recurJobOpt);
+
 #else
                                 //TiktokController tikapi = new TiktokController();
                                 await tikapijob.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username, tblCustomer.TGL_EXPIRED, tblCustomer.TOKEN_EXPIRED);
+                                AdminController.ReminderNotifyExpiredAccountMP(dbPathEra, tblCustomer.PERSO, "Tiktok", tblCustomer.TGL_EXPIRED);
 #endif
+                            }
+                            else
+                            {
+                                recurJobM.RemoveIfExists(dbPathEra + "_proses_checktoken_expired_tiktok_" + tblCustomer.CUST.ToString());
+
                             }
                             string connId_JobId = "";
                             if (tblCustomer.TIDAK_HIT_UANG_R == true)
