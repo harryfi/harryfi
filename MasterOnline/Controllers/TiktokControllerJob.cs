@@ -174,6 +174,8 @@ namespace MasterOnline.Controllers
 
         public async Task<TTApiData> RefreshTokenTikTok(TTApiData iden)
         {
+            SetupContext(iden.DatabasePathErasoft, iden.username);
+
             DateTime dateNow = DateTime.UtcNow.AddHours(7).AddMinutes(-30);
             bool ATExp = false;
 
