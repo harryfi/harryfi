@@ -1203,7 +1203,7 @@ namespace MasterOnline.Controllers
                     tempbarang.BRG_MP = detail.ProductId.ToString() + ";" + "0";
                     tempbarang.NAMA = nama;
                     tempbarang.NAMA2 = nama2;
-                    tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : double.Parse(detail.PackageWeight);
+                    tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : (double.Parse(detail.PackageWeight) * 1000);//berat dalam kg
                     tempbarang.PANJANG = detail.PackageLength == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageLength.ToString());
                     tempbarang.LEBAR = detail.PackageWidth == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageWidth.ToString());
                     tempbarang.TINGGI = detail.PackageHeight == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageHeight.ToString());
@@ -2573,7 +2573,7 @@ namespace MasterOnline.Controllers
                     #endregion
                     tempbarang.NAMA = nama;
                     tempbarang.NAMA2 = nama2;
-                    tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : double.Parse(detail.PackageWeight);
+                    tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : (double.Parse(detail.PackageWeight) * 1000);//berat dalam kg
                     tempbarang.PANJANG = detail.PackageLength == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageLength.ToString());
                     tempbarang.LEBAR = detail.PackageWidth == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageWidth.ToString());
                     tempbarang.TINGGI = detail.PackageHeight == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageHeight.ToString());
