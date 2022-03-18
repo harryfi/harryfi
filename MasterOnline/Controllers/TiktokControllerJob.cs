@@ -461,7 +461,10 @@ namespace MasterOnline.Controllers
                         {
                             await GetOrderDetails(apidata, filtered.ToArray(), connId, CUST, NAMA_CUST, order_status);
                             jmlhNewOrder = filtered.Count();
-                        }
+
+
+                                new StokControllerJob().updateStockMarketPlace(connId, apidata.DatabasePathErasoft, apidata.username);
+                            }
 
                         if (order_status != 100)//update paid
                         {
