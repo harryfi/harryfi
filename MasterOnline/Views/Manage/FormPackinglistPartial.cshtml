@@ -14,7 +14,7 @@
     var total82cart = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("82Cart")).Count();
     var totalShopify = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Shopify")).Count();
     var totalBukalapak = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Bukalapak")).Count();
-    var totalWoocomerce = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Woocomerce")).Count();
+    //var totalWoocomerce = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Woocomerce")).Count();
 }
 
 <style>
@@ -82,9 +82,9 @@
         }
         if (@totalBukalapak > 0) {
             RefreshPackingPesananBukalapak1();
-        } if (@totalWoocomerce > 0) {
+        } @*if (@totalWoocomerce > 0) {
             RefreshPackingPesananWoo1();
-        }
+        }*@
     }
 
     function RefreshPackingPesananTokped1() {
@@ -792,7 +792,7 @@
                 <li id="li_pesanan_82cart_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_82cart_tab_focus" href="#packing_pesanan_82cart" aria-expanded="false">82Cart(<span>@total82cart</span>)</a></li>
                 <li id="li_pesanan_shopify_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_shopify_tab_focus" href="#packing_pesanan_shopify" aria-expanded="false">Shopify(<span>@totalShopify</span>)</a></li>
                 <li id="li_pesanan_bukalapak_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_bukalapak_tab_focus" href="#packing_pesanan_bukalapak" aria-expanded="false">Bukalapak(<span>@totalBukalapak</span>)</a></li>
-                <li id="li_pesanan_woo_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_woo_tab_focus" href="#packing_pesanan_woo" aria-expanded="false">Woocomerce(<span>@totalWoocomerce</span>)</a></li>
+                @*<li id="li_pesanan_woo_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_woo_tab_focus" href="#packing_pesanan_woo" aria-expanded="false">Woocomerce(<span>@totalWoocomerce</span>)</a></li>*@
             }
             else
             {
