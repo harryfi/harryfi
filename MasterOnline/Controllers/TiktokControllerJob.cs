@@ -1001,7 +1001,7 @@ namespace MasterOnline.Controllers
             ret.ConnId = connId;
             
             //string[] ordersn_list = listOrder.data.order_list.Select(p => p.order_id).ToArray();
-            var dariTgl = DateTime.UtcNow.AddHours(7).AddDays(14);
+            var dariTgl = DateTime.UtcNow.AddHours(7).AddDays(-14);
 
             var SudahAdaDiMO = ErasoftDbContext.SOT01A.Where(p => p.USER_NAME == "Auto TikTok" && p.CUST == CUST &&
             (p.STATUS_TRANSAKSI != "11" || p.STATUS_TRANSAKSI != "12") && p.TGL >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
