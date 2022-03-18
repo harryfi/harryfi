@@ -75,7 +75,7 @@ namespace MasterOnline.Controllers
             bool ATExp = false;
 
             //if (ts.Days < 1 && ts.Hours < 24 && dateNow < tanggal_exptoken)
-            if (dateNow > tanggal_exptoken)
+            if (dateNow > tanggal_exprtok)
             {
                 ATExp = true;
             }
@@ -147,8 +147,8 @@ namespace MasterOnline.Controllers
                         var dateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.AccessTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                         var tokendateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                         var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken 
-                            + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + dateExpired + "',TOKEN_EXPIRED = '" 
-                            + tokendateExpired + "' WHERE CUST = '" + cust + "'");
+                            + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + tokendateExpired + "',TOKEN_EXPIRED = '" 
+                            + dateExpired + "' WHERE CUST = '" + cust + "'");
                         if (result == 1)
                         {
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, cust, currentLog);
@@ -188,7 +188,7 @@ namespace MasterOnline.Controllers
                     if (iden.expired_date < cekInDB.TOKEN_EXPIRED)
                     {
                         iden.access_token = cekInDB.TOKEN;
-                        iden.expired_date = cekInDB.TGL_EXPIRED.Value;
+                        iden.expired_date = cekInDB.TOKEN_EXPIRED.Value;
                         iden.refresh_token = cekInDB.REFRESH_TOKEN;
 
                         if (cekInDB.TOKEN_EXPIRED.Value.AddMinutes(-30) > DateTime.UtcNow.AddHours(7))
@@ -246,8 +246,8 @@ namespace MasterOnline.Controllers
                         var dateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.AccessTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                         var tokendateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                         var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken 
-                            + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + dateExpired 
-                            + "',TOKEN_EXPIRED = '" + tokendateExpired + "' WHERE CUST = '" + iden.no_cust + "'");
+                            + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + tokendateExpired
+                            + "',TOKEN_EXPIRED = '" + dateExpired  + "' WHERE CUST = '" + iden.no_cust + "'");
                         if (result == 1)
                         {
                             iden.access_token = tauth.Data.AccessToken;
@@ -726,7 +726,7 @@ namespace MasterOnline.Controllers
                         }
                         else
                         {
-                            paidTime = order.paid_time.Value * 1000;
+                            paidTime = order.paid_time.Value;
                         }
                         var newOrder = new TEMP_TIKTOK_ORDERS()
                         {
@@ -905,6 +905,7 @@ namespace MasterOnline.Controllers
                         string connId = Guid.NewGuid().ToString();
 
                         var returnGetOrder = await GetOrderDetails(iden,  ordersn_list.ToArray(), connId,  CUST,  NAMA_CUST,  100);
+                        new StokControllerJob().updateStockMarketPlace(connId, iden.DatabasePathErasoft, iden.username);
                         //if (!string.IsNullOrEmpty(returnGetOrder))
                         {
                             connIdProses += "'" + connId + "' , ";
@@ -927,6 +928,7 @@ namespace MasterOnline.Controllers
                         string connId = Guid.NewGuid().ToString();
 
                         var returnGetOrder = await GetOrderDetails(iden, ordersn_list.ToArray(), connId, CUST, NAMA_CUST, 111);
+                        new StokControllerJob().updateStockMarketPlace(connId, iden.DatabasePathErasoft, iden.username);
                         //if (!string.IsNullOrEmpty(returnGetOrder))
                         {
                             connIdProses += "'" + connId + "' , ";
