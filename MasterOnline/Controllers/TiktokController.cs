@@ -180,7 +180,7 @@ namespace MasterOnline.Controllers
 
 
 
-        public async Task<string> GetToken(string user, string cust, string authcode)
+        public string GetToken(string user, string cust, string authcode)
         {
             string ret;
             string url;
@@ -228,7 +228,7 @@ namespace MasterOnline.Controllers
                 {
                     dataStream.Write(System.Text.Encoding.UTF8.GetBytes(data), 0, data.Length);
                 }
-                using (WebResponse response = await myReq.GetResponseAsync())
+                using (WebResponse response = myReq.GetResponse())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {
@@ -281,7 +281,7 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        currentLog.REQUEST_EXCEPTION = "failed to update token;execute result=" + result;
+                        currentLog.REQUEST_EXCEPTION = "failed to update token;execute result=" + responseFromServer;
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, cust, currentLog);
                     }
                 }
@@ -289,7 +289,7 @@ namespace MasterOnline.Controllers
             catch (Exception ex)
             {
                 var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + cust + "'");
-                currentLog.REQUEST_EXCEPTION = ex.Message;
+                currentLog.REQUEST_EXCEPTION = responseFromServer + ";" + ex.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, cust, currentLog);
             }
             return null;

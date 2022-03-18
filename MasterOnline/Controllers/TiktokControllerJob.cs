@@ -172,7 +172,7 @@ namespace MasterOnline.Controllers
             return null;
         }
 
-        public async Task<TTApiData> RefreshTokenTikTok(TTApiData iden)
+        public TTApiData RefreshTokenTikTok(TTApiData iden)
         {
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
@@ -225,7 +225,7 @@ namespace MasterOnline.Controllers
                     {
                         dataStream.Write(System.Text.Encoding.UTF8.GetBytes(data), 0, data.Length);
                     }
-                    using (WebResponse response = await myReq.GetResponseAsync())
+                    using (WebResponse response = myReq.GetResponse())
                     {
                         using (Stream stream = response.GetResponseStream())
                         {
@@ -275,7 +275,7 @@ namespace MasterOnline.Controllers
         public async Task<string> GetOrder_GoLive_Insert_Tiktok(TTApiData iden, string CUST, string NAMA_CUST)
         {
             SetupContext(iden.DatabasePathErasoft, iden.username);
-            iden = await RefreshTokenTikTok(iden);
+            iden = RefreshTokenTikTok(iden);
             var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
             delQry += DateTime.UtcNow.AddHours(7).AddHours(-12).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + CUST + "'";
 
@@ -337,7 +337,7 @@ namespace MasterOnline.Controllers
         public async Task<string> GetOrder_Insert_Tiktok(TTApiData iden, string CUST, string NAMA_CUST)
         {
             SetupContext(iden.DatabasePathErasoft, iden.username);
-            iden = await RefreshTokenTikTok(iden);
+            iden = RefreshTokenTikTok(iden);
             var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
             delQry += DateTime.UtcNow.AddHours(7).AddHours(-12).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + CUST + "'";
 
@@ -722,14 +722,14 @@ namespace MasterOnline.Controllers
                         string checkout_shipping_carrier = "";
                         #endregion
                         long paidTime = 0;
-                        if (order.paid_time == null)
+                        //if (order.paid_time == null)
                         {
                             paidTime = Convert.ToInt64(order.create_time);
                         }
-                        else
-                        {
-                            paidTime = order.paid_time.Value;
-                        }
+                        //else
+                        //{
+                        //    paidTime = order.paid_time.Value;
+                        //}
                         var newOrder = new TEMP_TIKTOK_ORDERS()
                         {
                             actual_shipping_cost = order.payment_info.original_shipping_fee.ToString(),
@@ -1139,7 +1139,7 @@ namespace MasterOnline.Controllers
         public async Task<string> GetOrder_Complete_Tiktok(TTApiData iden, string CUST, string NAMA_CUST)
         {
             SetupContext(iden.DatabasePathErasoft, iden.username);
-            iden = await RefreshTokenTikTok(iden);
+            iden = RefreshTokenTikTok(iden);
             
             var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
             var toDt = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -1255,7 +1255,7 @@ namespace MasterOnline.Controllers
         public async Task<string> GetOrder_Cancel_Tiktok(TTApiData iden, string CUST, string NAMA_CUST)
         {
             SetupContext(iden.DatabasePathErasoft, iden.username);
-            iden = await RefreshTokenTikTok(iden);
+            iden = RefreshTokenTikTok(iden);
 
             var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
             var toDt = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
