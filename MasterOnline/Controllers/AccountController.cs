@@ -2041,9 +2041,10 @@ namespace MasterOnline.Controllers
                             {
 #if (AWS || DEV)
                             client.Enqueue<TiktokControllerJob>(x => x.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username, tblCustomer.TGL_EXPIRED,tblCustomer.TOKEN_EXPIRED));
-                            
-                        var connection_id_proses_checktoken = dbPathEra + "_proses_checktoken_expired_tiktok_" + tblCustomer.CUST.ToString();
-                        recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED)), "0 1 * * *", recurJobOpt);
+
+                                var accFromMoDB2 = MoDbContext.Account.Single(a => a.DatabasePathErasoft == dbPathEra);
+                                var connection_id_proses_checktoken = dbPathEra + "_proses_checktoken_expired_tiktok_" + tblCustomer.CUST.ToString();
+                        recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB2.Email, tblCustomer.PERSO, "Tiktok", tblCustomer.TGL_EXPIRED)), "0 1 * * *", recurJobOpt);
 
 #else
                                 //TiktokController tikapi = new TiktokController();
