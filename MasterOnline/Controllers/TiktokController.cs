@@ -1123,6 +1123,7 @@ namespace MasterOnline.Controllers
             catch (Exception ex)
             {
                 //var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + iden.no_cust + "'");
+                ret.exception = 1; 
                 currentLog.REQUEST_EXCEPTION = ex.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden.no_cust, currentLog);
             }
@@ -1181,88 +1182,810 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                ret.exception = 1;
             }
-            if (responseFromServer != null)
+            try
             {
-                ResProductDet res = JsonConvert.DeserializeObject<ResProductDet>(responseFromServer);
-                DetailProductTik detail = res.productTik;
-                ret.totalData = detail.Skus.Count;
-                if (detail.Skus.Count > 1)
+                if (responseFromServer != null)
                 {
-                    ret.totalData++;
-                }
-                string kdmp = detail.ProductId.ToString() + ";" + "0";
-                var checkstf02h = ErasoftDbContext.STF02H.FirstOrDefault(x => x.BRG_MP == kdmp && x.IDMARKET == idmarket);
-                var checkTemp = ErasoftDbContext.TEMP_BRG_MP.FirstOrDefault(x => x.BRG_MP == kdmp && x.IDMARKET == idmarket);
-                if (checkstf02h == null && checkTemp == null && detail.Skus.Count > 1)
-                {
-                    var splitItemName = new StokControllerJob().SplitItemName(detail.ProductName.Replace('\'', '`'));
-                    var nama = splitItemName[0];
-                    var nama2 = splitItemName[1];
-                    TEMP_BRG_MP tempbarang = new TEMP_BRG_MP();
-                    tempbarang.BRG_MP = detail.ProductId.ToString() + ";" + "0";
-                    tempbarang.NAMA = nama;
-                    tempbarang.NAMA2 = nama2;
-                    tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : (double.Parse(detail.PackageWeight) * 1000);//berat dalam kg
-                    tempbarang.PANJANG = detail.PackageLength == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageLength.ToString());
-                    tempbarang.LEBAR = detail.PackageWidth == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageWidth.ToString());
-                    tempbarang.TINGGI = detail.PackageHeight == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageHeight.ToString());
-                    //tempbarang.CATEGORY_CODE = detail.CategoryList[2].Id;
-                    //tempbarang.CATEGORY_NAME = detail.CategoryList[2].LocalDisplayName;
-                    tempbarang.CATEGORY_CODE = detail.CategoryList[0].Id;
-                    tempbarang.CATEGORY_NAME = detail.CategoryList[0].LocalDisplayName;
-                    foreach (var kat in detail.CategoryList)
+                    ResProductDet res = JsonConvert.DeserializeObject<ResProductDet>(responseFromServer);
+                    DetailProductTik detail = res.productTik;
+                    ret.totalData = detail.Skus.Count;
+                    if (detail.Skus.Count > 1)
                     {
-                        if (kat.IsLeaf)
-                        {
-                            tempbarang.CATEGORY_CODE = kat.Id;
-                            tempbarang.CATEGORY_NAME = kat.LocalDisplayName;
-                        }
+                        ret.totalData++;
                     }
-                    foreach (ImageTik img in detail.Images)
+                    string kdmp = detail.ProductId.ToString() + ";" + "0";
+                    var checkstf02h = ErasoftDbContext.STF02H.FirstOrDefault(x => x.BRG_MP == kdmp && x.IDMARKET == idmarket);
+                    var checkTemp = ErasoftDbContext.TEMP_BRG_MP.FirstOrDefault(x => x.BRG_MP == kdmp && x.IDMARKET == idmarket);
+                    if (checkstf02h == null && checkTemp == null && detail.Skus.Count > 1)
                     {
-                        if (tempbarang.IMAGE == null)
+                        var splitItemName = new StokControllerJob().SplitItemName(detail.ProductName.Replace('\'', '`'));
+                        var nama = splitItemName[0];
+                        var nama2 = splitItemName[1];
+                        TEMP_BRG_MP tempbarang = new TEMP_BRG_MP();
+                        tempbarang.BRG_MP = detail.ProductId.ToString() + ";" + "0";
+                        tempbarang.NAMA = nama;
+                        tempbarang.NAMA2 = nama2;
+                        tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : (double.Parse(detail.PackageWeight) * 1000);//berat dalam kg
+                        tempbarang.PANJANG = detail.PackageLength == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageLength.ToString());
+                        tempbarang.LEBAR = detail.PackageWidth == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageWidth.ToString());
+                        tempbarang.TINGGI = detail.PackageHeight == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageHeight.ToString());
+                        //tempbarang.CATEGORY_CODE = detail.CategoryList[2].Id;
+                        //tempbarang.CATEGORY_NAME = detail.CategoryList[2].LocalDisplayName;
+                        tempbarang.CATEGORY_CODE = detail.CategoryList[0].Id;
+                        tempbarang.CATEGORY_NAME = detail.CategoryList[0].LocalDisplayName;
+                        foreach (var kat in detail.CategoryList)
                         {
-                            tempbarang.IMAGE = img.UrlList[0];
+                            if (kat.IsLeaf)
+                            {
+                                tempbarang.CATEGORY_CODE = kat.Id;
+                                tempbarang.CATEGORY_NAME = kat.LocalDisplayName;
+                            }
                         }
-                        else if (tempbarang.IMAGE2 == null)
+                        foreach (ImageTik img in detail.Images)
                         {
-                            tempbarang.IMAGE2 = img.UrlList[0];
-                        }
-                        else if (tempbarang.IMAGE3 == null)
-                        {
-                            tempbarang.IMAGE3 = img.UrlList[0];
-                        }
-                        else if (tempbarang.IMAGE4 == null)
-                        {
-                            tempbarang.IMAGE4 = img.UrlList[0];
-                        }
-                        else if (tempbarang.IMAGE5 == null)
-                        {
-                            tempbarang.IMAGE5 = img.UrlList[0];
-                        }
+                            if (tempbarang.IMAGE == null)
+                            {
+                                tempbarang.IMAGE = img.UrlList[0];
+                            }
+                            else if (tempbarang.IMAGE2 == null)
+                            {
+                                tempbarang.IMAGE2 = img.UrlList[0];
+                            }
+                            else if (tempbarang.IMAGE3 == null)
+                            {
+                                tempbarang.IMAGE3 = img.UrlList[0];
+                            }
+                            else if (tempbarang.IMAGE4 == null)
+                            {
+                                tempbarang.IMAGE4 = img.UrlList[0];
+                            }
+                            else if (tempbarang.IMAGE5 == null)
+                            {
+                                tempbarang.IMAGE5 = img.UrlList[0];
+                            }
 
+                        }
+                        tempbarang.Deskripsi = detail.Description;
+                        tempbarang.IDMARKET = int.Parse(idmarket.ToString());
+                        tempbarang.CUST = iden.no_cust;
+                        tempbarang.AVALUE_45 = detail.ProductName.Replace('\'', '`');
+                        tempbarang.ACODE_31 = "warranty";
+                        tempbarang.ANAME_31 = "Warranty Period";
+                        tempbarang.AVALUE_31 = detail.WarrantyPeriod.WarrantyDescription;
+                        tempbarang.ACODE_32 = "product_warranty";
+                        tempbarang.ANAME_32 = "Warranty Policy";
+                        tempbarang.AVALUE_32 = detail.WarrantyPolicy;
+                        tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
+                        tempbarang.AVALUE_38 = tempbarang.MEREK;
+                        tempbarang.DISPLAY = (detail.ProductStatus == 4 ? true : false);
+                        tempbarang.SELLER_SKU = kdmp;
+                        tempbarang.TYPE = "4";
+                        tempbarang.AVALUE_34 = "https://shop.tiktok.com/view/product/" + detail.ProductId;
+                        tempbarang.AVALUE_39 = (detail.IsCodOpen ? "1" : "0");
+                        //foreach (SkuTik satikd in detail.Skus)
+                        {
+                            foreach (SalesAttributeTik satik in detail.Skus[0].SalesAttributes)
+                            {
+                                if (tempbarang.ACODE_1 == null)
+                                {
+                                    tempbarang.ACODE_1 = satik.Id;
+                                    tempbarang.ANAME_1 = satik.Name;
+                                    tempbarang.AVALUE_1 = satik.ValueName;
+                                }
+                                else if (tempbarang.ACODE_2 == null)
+                                {
+                                    tempbarang.ACODE_2 = satik.Id;
+                                    tempbarang.ANAME_2 = satik.Name;
+                                    tempbarang.AVALUE_2 = satik.ValueName;
+                                }
+
+                            }
+                            if (detail.product_attributes != null)
+                            {
+                                foreach (var prodAttr in detail.product_attributes)
+                                {
+                                    if (tempbarang.ACODE_3 == null)
+                                    {
+                                        tempbarang.ACODE_3 = prodAttr.Id;
+                                        tempbarang.ANAME_3 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_3))
+                                            {
+                                                tempbarang.AVALUE_3 += ",";
+                                            }
+                                            tempbarang.AVALUE_3 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_4 == null)
+                                    {
+                                        tempbarang.ACODE_4 = prodAttr.Id;
+                                        tempbarang.ANAME_4 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_4))
+                                            {
+                                                tempbarang.AVALUE_4 += ",";
+                                            }
+                                            tempbarang.AVALUE_4 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_5 == null)
+                                    {
+                                        tempbarang.ACODE_5 = prodAttr.Id;
+                                        tempbarang.ANAME_5 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_5))
+                                            {
+                                                tempbarang.AVALUE_5 += ",";
+                                            }
+                                            tempbarang.AVALUE_5 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_6 == null)
+                                    {
+                                        tempbarang.ACODE_6 = prodAttr.Id;
+                                        tempbarang.ANAME_6 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_6))
+                                            {
+                                                tempbarang.AVALUE_6 += ",";
+                                            }
+                                            tempbarang.AVALUE_6 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_7 == null)
+                                    {
+                                        tempbarang.ACODE_7 = prodAttr.Id;
+                                        tempbarang.ANAME_7 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_7))
+                                            {
+                                                tempbarang.AVALUE_7 += ",";
+                                            }
+                                            tempbarang.AVALUE_7 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_8 == null)
+                                    {
+                                        tempbarang.ACODE_8 = prodAttr.Id;
+                                        tempbarang.ANAME_8 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_8))
+                                            {
+                                                tempbarang.AVALUE_8 += ",";
+                                            }
+                                            tempbarang.AVALUE_8 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_9 == null)
+                                    {
+                                        tempbarang.ACODE_9 = prodAttr.Id;
+                                        tempbarang.ANAME_9 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_9))
+                                            {
+                                                tempbarang.AVALUE_9 += ",";
+                                            }
+                                            tempbarang.AVALUE_9 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_10 == null)
+                                    {
+                                        tempbarang.ACODE_10 = prodAttr.Id;
+                                        tempbarang.ANAME_10 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_10))
+                                            {
+                                                tempbarang.AVALUE_10 += ",";
+                                            }
+                                            tempbarang.AVALUE_10 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_11 == null)
+                                    {
+                                        tempbarang.ACODE_11 = prodAttr.Id;
+                                        tempbarang.ANAME_11 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_11))
+                                            {
+                                                tempbarang.AVALUE_11 += ",";
+                                            }
+                                            tempbarang.AVALUE_11 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_12 == null)
+                                    {
+                                        tempbarang.ACODE_12 = prodAttr.Id;
+                                        tempbarang.ANAME_12 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_12))
+                                            {
+                                                tempbarang.AVALUE_12 += ",";
+                                            }
+                                            tempbarang.AVALUE_12 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_13 == null)
+                                    {
+                                        tempbarang.ACODE_13 = prodAttr.Id;
+                                        tempbarang.ANAME_13 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_13))
+                                            {
+                                                tempbarang.AVALUE_13 += ",";
+                                            }
+                                            tempbarang.AVALUE_13 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_14 == null)
+                                    {
+                                        tempbarang.ACODE_14 = prodAttr.Id;
+                                        tempbarang.ANAME_14 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_14))
+                                            {
+                                                tempbarang.AVALUE_14 += ",";
+                                            }
+                                            tempbarang.AVALUE_14 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_15 == null)
+                                    {
+                                        tempbarang.ACODE_15 = prodAttr.Id;
+                                        tempbarang.ANAME_15 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_15))
+                                            {
+                                                tempbarang.AVALUE_15 += ",";
+                                            }
+                                            tempbarang.AVALUE_15 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_16 == null)
+                                    {
+                                        tempbarang.ACODE_16 = prodAttr.Id;
+                                        tempbarang.ANAME_16 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_16))
+                                            {
+                                                tempbarang.AVALUE_16 += ",";
+                                            }
+                                            tempbarang.AVALUE_16 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_17 == null)
+                                    {
+                                        tempbarang.ACODE_17 = prodAttr.Id;
+                                        tempbarang.ANAME_17 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_17))
+                                            {
+                                                tempbarang.AVALUE_17 += ",";
+                                            }
+                                            tempbarang.AVALUE_17 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_18 == null)
+                                    {
+                                        tempbarang.ACODE_18 = prodAttr.Id;
+                                        tempbarang.ANAME_18 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_18))
+                                            {
+                                                tempbarang.AVALUE_18 += ",";
+                                            }
+                                            tempbarang.AVALUE_18 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_19 == null)
+                                    {
+                                        tempbarang.ACODE_19 = prodAttr.Id;
+                                        tempbarang.ANAME_19 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_19))
+                                            {
+                                                tempbarang.AVALUE_19 += ",";
+                                            }
+                                            tempbarang.AVALUE_19 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_20 == null)
+                                    {
+                                        tempbarang.ACODE_20 = prodAttr.Id;
+                                        tempbarang.ANAME_20 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_20))
+                                            {
+                                                tempbarang.AVALUE_20 += ",";
+                                            }
+                                            tempbarang.AVALUE_20 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_21 == null)
+                                    {
+                                        tempbarang.ACODE_21 = prodAttr.Id;
+                                        tempbarang.ANAME_21 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_21))
+                                            {
+                                                tempbarang.AVALUE_21 += ",";
+                                            }
+                                            tempbarang.AVALUE_21 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_22 == null)
+                                    {
+                                        tempbarang.ACODE_22 = prodAttr.Id;
+                                        tempbarang.ANAME_22 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_22))
+                                            {
+                                                tempbarang.AVALUE_22 += ",";
+                                            }
+                                            tempbarang.AVALUE_22 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_23 == null)
+                                    {
+                                        tempbarang.ACODE_23 = prodAttr.Id;
+                                        tempbarang.ANAME_23 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_23))
+                                            {
+                                                tempbarang.AVALUE_23 += ",";
+                                            }
+                                            tempbarang.AVALUE_23 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_24 == null)
+                                    {
+                                        tempbarang.ACODE_24 = prodAttr.Id;
+                                        tempbarang.ANAME_24 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_24))
+                                            {
+                                                tempbarang.AVALUE_24 += ",";
+                                            }
+                                            tempbarang.AVALUE_24 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_25 == null)
+                                    {
+                                        tempbarang.ACODE_25 = prodAttr.Id;
+                                        tempbarang.ANAME_25 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_25))
+                                            {
+                                                tempbarang.AVALUE_25 += ",";
+                                            }
+                                            tempbarang.AVALUE_25 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_26 == null)
+                                    {
+                                        tempbarang.ACODE_26 = prodAttr.Id;
+                                        tempbarang.ANAME_26 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_26))
+                                            {
+                                                tempbarang.AVALUE_26 += ",";
+                                            }
+                                            tempbarang.AVALUE_26 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_27 == null)
+                                    {
+                                        tempbarang.ACODE_27 = prodAttr.Id;
+                                        tempbarang.ANAME_27 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_27))
+                                            {
+                                                tempbarang.AVALUE_27 += ",";
+                                            }
+                                            tempbarang.AVALUE_27 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_28 == null)
+                                    {
+                                        tempbarang.ACODE_28 = prodAttr.Id;
+                                        tempbarang.ANAME_28 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_28))
+                                            {
+                                                tempbarang.AVALUE_28 += ",";
+                                            }
+                                            tempbarang.AVALUE_28 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_29 == null)
+                                    {
+                                        tempbarang.ACODE_29 = prodAttr.Id;
+                                        tempbarang.ANAME_29 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_29))
+                                            {
+                                                tempbarang.AVALUE_29 += ",";
+                                            }
+                                            tempbarang.AVALUE_29 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                    else if (tempbarang.ACODE_30 == null)
+                                    {
+                                        tempbarang.ACODE_30 = prodAttr.Id;
+                                        tempbarang.ANAME_30 = prodAttr.name.Replace('\'', '`');
+                                        foreach (var attrVal in prodAttr.values)
+                                        {
+                                            if (!string.IsNullOrEmpty(tempbarang.AVALUE_30))
+                                            {
+                                                tempbarang.AVALUE_30 += ",";
+                                            }
+                                            tempbarang.AVALUE_30 += attrVal.name.Replace('\'', '`');
+                                        }
+                                    }
+                                }
+                            }
+                            #region old attr
+                            //foreach (SalesAttributeTik satik in detail.Skus[0].SalesAttributes)
+                            //    {
+                            //    if (tempbarang.ACODE_1 == null)
+                            //    {
+                            //        tempbarang.ACODE_1 = satik.Id;
+                            //        tempbarang.ANAME_1 = satik.Name;
+                            //        tempbarang.AVALUE_1 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_2 == null)
+                            //    {
+                            //        tempbarang.ACODE_2 = satik.Id;
+                            //        tempbarang.ANAME_2 = satik.Name;
+                            //        tempbarang.AVALUE_2 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_3 == null)
+                            //    {
+                            //        tempbarang.ACODE_3 = satik.Id;
+                            //        tempbarang.ANAME_3 = satik.Name;
+                            //        tempbarang.AVALUE_3 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_4 == null)
+                            //    {
+                            //        tempbarang.ACODE_4 = satik.Id;
+                            //        tempbarang.ANAME_4 = satik.Name;
+                            //        tempbarang.AVALUE_4 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_5 == null)
+                            //    {
+                            //        tempbarang.ACODE_5 = satik.Id;
+                            //        tempbarang.ANAME_5 = satik.Name;
+                            //        tempbarang.AVALUE_5 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_6 == null)
+                            //    {
+                            //        tempbarang.ACODE_6 = satik.Id;
+                            //        tempbarang.ANAME_6 = satik.Name;
+                            //        tempbarang.AVALUE_6 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_7 == null)
+                            //    {
+                            //        tempbarang.ACODE_7 = satik.Id;
+                            //        tempbarang.ANAME_7 = satik.Name;
+                            //        tempbarang.AVALUE_7 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_8 == null)
+                            //    {
+                            //        tempbarang.ACODE_8 = satik.Id;
+                            //        tempbarang.ANAME_8 = satik.Name;
+                            //        tempbarang.AVALUE_8 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_9 == null)
+                            //    {
+                            //        tempbarang.ACODE_9 = satik.Id;
+                            //        tempbarang.ANAME_9 = satik.Name;
+                            //        tempbarang.AVALUE_9 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_10 == null)
+                            //    {
+                            //        tempbarang.ACODE_10 = satik.Id;
+                            //        tempbarang.ANAME_10 = satik.Name;
+                            //        tempbarang.AVALUE_10 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_11 == null)
+                            //    {
+                            //        tempbarang.ACODE_11 = satik.Id;
+                            //        tempbarang.ANAME_11 = satik.Name;
+                            //        tempbarang.AVALUE_11 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_12 == null)
+                            //    {
+                            //        tempbarang.ACODE_12 = satik.Id;
+                            //        tempbarang.ANAME_12 = satik.Name;
+                            //        tempbarang.AVALUE_12 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_13 == null)
+                            //    {
+                            //        tempbarang.ACODE_13 = satik.Id;
+                            //        tempbarang.ANAME_13 = satik.Name;
+                            //        tempbarang.AVALUE_13 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_14 == null)
+                            //    {
+                            //        tempbarang.ACODE_14 = satik.Id;
+                            //        tempbarang.ANAME_14 = satik.Name;
+                            //        tempbarang.AVALUE_14 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_15 == null)
+                            //    {
+                            //        tempbarang.ACODE_15 = satik.Id;
+                            //        tempbarang.ANAME_15 = satik.Name;
+                            //        tempbarang.AVALUE_15 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_16 == null)
+                            //    {
+                            //        tempbarang.ACODE_16 = satik.Id;
+                            //        tempbarang.ANAME_16 = satik.Name;
+                            //        tempbarang.AVALUE_16 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_17 == null)
+                            //    {
+                            //        tempbarang.ACODE_17 = satik.Id;
+                            //        tempbarang.ANAME_17 = satik.Name;
+                            //        tempbarang.AVALUE_17 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_18 == null)
+                            //    {
+                            //        tempbarang.ACODE_18 = satik.Id;
+                            //        tempbarang.ANAME_18 = satik.Name;
+                            //        tempbarang.AVALUE_18 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_19 == null)
+                            //    {
+                            //        tempbarang.ACODE_19 = satik.Id;
+                            //        tempbarang.ANAME_19 = satik.Name;
+                            //        tempbarang.AVALUE_19 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_20 == null)
+                            //    {
+                            //        tempbarang.ACODE_20 = satik.Id;
+                            //        tempbarang.ANAME_20 = satik.Name;
+                            //        tempbarang.AVALUE_20 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_21 == null)
+                            //    {
+                            //        tempbarang.ACODE_21 = satik.Id;
+                            //        tempbarang.ANAME_21 = satik.Name;
+                            //        tempbarang.AVALUE_21 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_22 == null)
+                            //    {
+                            //        tempbarang.ACODE_22 = satik.Id;
+                            //        tempbarang.ANAME_22 = satik.Name;
+                            //        tempbarang.AVALUE_22 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_23 == null)
+                            //    {
+                            //        tempbarang.ACODE_23 = satik.Id;
+                            //        tempbarang.ANAME_23 = satik.Name;
+                            //        tempbarang.AVALUE_23 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_24 == null)
+                            //    {
+                            //        tempbarang.ACODE_24 = satik.Id;
+                            //        tempbarang.ANAME_24 = satik.Name;
+                            //        tempbarang.AVALUE_24 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_25 == null)
+                            //    {
+                            //        tempbarang.ACODE_25 = satik.Id;
+                            //        tempbarang.ANAME_25 = satik.Name;
+                            //        tempbarang.AVALUE_25 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_26 == null)
+                            //    {
+                            //        tempbarang.ACODE_26 = satik.Id;
+                            //        tempbarang.ANAME_26 = satik.Name;
+                            //        tempbarang.AVALUE_26 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_27 == null)
+                            //    {
+                            //        tempbarang.ACODE_27 = satik.Id;
+                            //        tempbarang.ANAME_27 = satik.Name;
+                            //        tempbarang.AVALUE_27 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_28 == null)
+                            //    {
+                            //        tempbarang.ACODE_28 = satik.Id;
+                            //        tempbarang.ANAME_28 = satik.Name;
+                            //        tempbarang.AVALUE_28 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_29 == null)
+                            //    {
+                            //        tempbarang.ACODE_29 = satik.Id;
+                            //        tempbarang.ANAME_29 = satik.Name;
+                            //        tempbarang.AVALUE_29 = satik.ValueName;
+                            //    }
+                            //    else if (tempbarang.ACODE_30 == null)
+                            //    {
+                            //        tempbarang.ACODE_30 = satik.Id;
+                            //        tempbarang.ANAME_30 = satik.Name;
+                            //        tempbarang.AVALUE_30 = satik.ValueName;
+                            //    }
+
+                            //}
+                            #endregion
+                        }
+                        //await getvariationproduct(productid, detail.Skus, newrec, idmarket, detail, apidata, ret);
+                        //ret.recordCount++;
+                        //newrec.Add(tempbarang);
+                        try
+                        {
+                            ErasoftDbContext.TEMP_BRG_MP.Add(tempbarang);
+                            ErasoftDbContext.SaveChanges();
+                            ret.recordCount++;
+                        }
+                        catch (Exception ex)
+                        {
+                            ret.exception = 1;
+                        }
                     }
-                    tempbarang.Deskripsi = detail.Description;
-                    tempbarang.IDMARKET = int.Parse(idmarket.ToString());
-                    tempbarang.CUST = iden.no_cust;
-                    tempbarang.AVALUE_45 = detail.ProductName.Replace('\'', '`');
-                    tempbarang.ACODE_31 = "warranty";
-                    tempbarang.ANAME_31 = "Warranty Period";
-                    tempbarang.AVALUE_31 = detail.WarrantyPeriod.WarrantyDescription;
-                    tempbarang.ACODE_32 = "product_warranty";
-                    tempbarang.ANAME_32 = "Warranty Policy";
-                    tempbarang.AVALUE_32 = detail.WarrantyPolicy;
-                    tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
-                    tempbarang.AVALUE_38 = tempbarang.MEREK;
-                    tempbarang.DISPLAY = (detail.ProductStatus == 4 ? true : false);
-                    tempbarang.SELLER_SKU = kdmp;
-                    tempbarang.TYPE = "4";
-                    tempbarang.AVALUE_34 = "https://shop.tiktok.com/view/product/" + detail.ProductId;
-                    tempbarang.AVALUE_39 = (detail.IsCodOpen ? "1" : "0");
-                    //foreach (SkuTik satikd in detail.Skus)
+                    else if (checkstf02h != null && detail.Skus.Count > 1)
                     {
-                        foreach (SalesAttributeTik satik in detail.Skus[0].SalesAttributes)
+                        kdmp = checkstf02h.BRG;
+                    }
+                    #region remark
+                    //else
+                    //{
+                    //    TEMP_BRG_MP tempbarang = new TEMP_BRG_MP();
+                    //    tempbarang.BRG_MP = detail.ProductId.ToString() + ";" + "0";
+                    //    tempbarang.NAMA = detail.ProductName;
+                    //    tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : double.Parse(detail.PackageWeight);
+                    //    tempbarang.PANJANG = detail.PackageLength == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageLength.ToString());
+                    //    tempbarang.LEBAR = detail.PackageWidth == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageWidth.ToString());
+                    //    tempbarang.TINGGI = detail.PackageHeight == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageHeight.ToString());
+                    //    tempbarang.CATEGORY_CODE = detail.CategoryList[2].Id;
+                    //    tempbarang.CATEGORY_NAME = detail.CategoryList[2].LocalDisplayName;
+                    //    foreach (ImageTik img in detail.Images)
+                    //    {
+                    //        if (tempbarang.IMAGE == null)
+                    //        {
+                    //            tempbarang.IMAGE = img.UrlList[0];
+                    //        }
+                    //        else if (tempbarang.IMAGE2 == null)
+                    //        {
+                    //            tempbarang.IMAGE2 = img.UrlList[0];
+                    //        }
+                    //        else if (tempbarang.IMAGE3 == null)
+                    //        {
+                    //            tempbarang.IMAGE3 = img.UrlList[0];
+                    //        }
+                    //        else if (tempbarang.IMAGE4 == null)
+                    //        {
+                    //            tempbarang.IMAGE4 = img.UrlList[0];
+                    //        }
+                    //        else if (tempbarang.IMAGE5 == null)
+                    //        {
+                    //            tempbarang.IMAGE5 = img.UrlList[0];
+                    //        }
+
+                    //    }
+                    //    tempbarang.Deskripsi = detail.Description;
+                    //    tempbarang.IDMARKET = int.Parse(idmarket.ToString());
+                    //    tempbarang.CUST = iden.no_cust;
+                    //    tempbarang.AVALUE_45 = detail.ProductName;
+                    //    tempbarang.ACODE_9 = "warranty";
+                    //    tempbarang.ANAME_9 = "Warranty Period";
+                    //    tempbarang.AVALUE_9 = detail.WarrantyPeriod.WarrantyDescription;
+                    //    tempbarang.ACODE_11 = "product_warranty";
+                    //    tempbarang.ANAME_11 = "Warranty Policy";
+                    //    tempbarang.AVALUE_11 = detail.WarrantyPolicy;
+                    //    tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
+                    //    tempbarang.DISPLAY = true;
+                    //    tempbarang.SELLER_SKU = checkstf02h.BRG;
+                    //    tempbarang.TYPE = "4";
+                    //    foreach (SkuTik satikd in detail.Skus)
+                    //    {
+                    //        foreach (SalesAttributeTik satik in satikd.SalesAttributes)
+                    //        {
+                    //            if (tempbarang.ACODE_1 == null)
+                    //            {
+                    //                tempbarang.ACODE_1 = satik.Id;
+                    //                tempbarang.ANAME_1 = satik.Name;
+                    //                tempbarang.AVALUE_1 = satik.ValueName;
+                    //            }
+                    //            else if (tempbarang.ACODE_2 == null)
+                    //            {
+                    //                tempbarang.ACODE_2 = satik.Id;
+                    //                tempbarang.ANAME_2 = satik.Name;
+                    //                tempbarang.AVALUE_2 = satik.ValueName;
+                    //            }
+                    //            else if (tempbarang.ACODE_3 == null)
+                    //            {
+                    //                tempbarang.ACODE_3 = satik.Id;
+                    //                tempbarang.ANAME_3 = satik.Name;
+                    //                tempbarang.AVALUE_3 = satik.ValueName;
+                    //            }
+                    //            else if (tempbarang.ACODE_4 == null)
+                    //            {
+                    //                tempbarang.ACODE_4 = satik.Id;
+                    //                tempbarang.ANAME_4 = satik.Name;
+                    //                tempbarang.AVALUE_4 = satik.ValueName;
+                    //            }
+                    //            else if (tempbarang.ACODE_5 == null)
+                    //            {
+                    //                tempbarang.ACODE_5 = satik.Id;
+                    //                tempbarang.ANAME_5 = satik.Name;
+                    //                tempbarang.AVALUE_5 = satik.ValueName;
+                    //            }
+
+                    //        }
+
+                    //    }
+                    //    await getvariationproduct(productid, detail.Skus, newrec, idmarket, detail, apidata, ret, tempbarang.SELLER_SKU);
+                    //    ret.recordCount++;
+                    //    newrec.Add(tempbarang);
+                    //}
+                    #endregion
+                    var bindGetVar = getvariationproduct(productid, detail.Skus, newrec, idmarket, detail, apidata, kdmp);
+                    if (bindGetVar.exception == 1)
+                    {
+                        ret.exception = 1;
+                    }
+                    ret.recordCount += bindGetVar.recordCount;
+
+                }
+            }
+            catch(Exception ex)
+            {
+                ret.exception = 1;
+            }
+            return ret;
+        }
+
+        public BindingBase getvariationproduct(string productid, List<SkuTik> skudata, List<TEMP_BRG_MP> newrec, int idmarket, DetailProductTik detail, TTApiData iden, string sellersku = null)
+        {
+            var ret = new BindingBase();
+            int insertJml = 0;
+            newrec = new List<TEMP_BRG_MP>();
+            try
+            {
+                foreach (SkuTik sku in skudata)
+                {
+                    string kdbrgvar = productid + ";" + sku.Id;
+                    var checkstf02h = ErasoftDbContext.STF02H.SingleOrDefault(x => x.BRG_MP == kdbrgvar && x.IDMARKET == idmarket);
+                    var checkTemp = ErasoftDbContext.TEMP_BRG_MP.SingleOrDefault(x => x.BRG_MP == kdbrgvar && x.IDMARKET == idmarket);
+                    if (checkstf02h == null && checkTemp == null)
+                    {
+                        string namabarang = detail.ProductName;
+
+                        TEMP_BRG_MP tempbarang = new TEMP_BRG_MP();
+                        tempbarang.BRG_MP = kdbrgvar;
+
+                        foreach (SalesAttributeTik satik in sku.SalesAttributes)
                         {
                             if (tempbarang.ACODE_1 == null)
                             {
@@ -1276,8 +1999,33 @@ namespace MasterOnline.Controllers
                                 tempbarang.ANAME_2 = satik.Name;
                                 tempbarang.AVALUE_2 = satik.ValueName;
                             }
+                            namabarang += " " + satik.ValueName;
+                            if (string.IsNullOrEmpty(tempbarang.IMAGE))
+                            {
+                                if (satik.SkuImg != null)
+                                {
+                                    if (satik.SkuImg.UrlList != null)
+                                    {
+                                        tempbarang.IMAGE = satik.SkuImg.UrlList[0];
+                                    }
+                                }
+                            }
+                        }
+                        if (string.IsNullOrEmpty(tempbarang.IMAGE) && skudata.Count == 1)// non varian tidak set gambar
+                        {
+                            if (detail.Images != null)
+                            {
+                                if (tempbarang.IMAGE == null)
+                                {
+                                    tempbarang.IMAGE = detail.Images[0].UrlList[0];
+                                }
+                            }
 
                         }
+                        var splitItemName = new StokControllerJob().SplitItemName(namabarang.Replace('\'', '`'));
+                        var nama = splitItemName[0];
+                        var nama2 = splitItemName[1];
+
                         if (detail.product_attributes != null)
                         {
                             foreach (var prodAttr in detail.product_attributes)
@@ -1649,8 +2397,8 @@ namespace MasterOnline.Controllers
                             }
                         }
                         #region old attr
-                        //foreach (SalesAttributeTik satik in detail.Skus[0].SalesAttributes)
-                        //    {
+                        //foreach (SalesAttributeTik satik in sku.SalesAttributes)
+                        //{
                         //    if (tempbarang.ACODE_1 == null)
                         //    {
                         //        tempbarang.ACODE_1 = satik.Id;
@@ -1834,848 +2582,126 @@ namespace MasterOnline.Controllers
 
                         //}
                         #endregion
-                    }
-                    //await getvariationproduct(productid, detail.Skus, newrec, idmarket, detail, apidata, ret);
-                    //ret.recordCount++;
-                    //newrec.Add(tempbarang);
-                    try
-                    {
-                        ErasoftDbContext.TEMP_BRG_MP.Add(tempbarang);
-                        ErasoftDbContext.SaveChanges();
-                        ret.recordCount++;
-                    }
-                    catch (Exception ex)
-                    {
-                        ret.exception = 1;
-                    }
-                }
-                else if (checkstf02h != null && detail.Skus.Count > 1)
-                {
-                    kdmp = checkstf02h.BRG;
-                }
-                #region remark
-                //else
-                //{
-                //    TEMP_BRG_MP tempbarang = new TEMP_BRG_MP();
-                //    tempbarang.BRG_MP = detail.ProductId.ToString() + ";" + "0";
-                //    tempbarang.NAMA = detail.ProductName;
-                //    tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : double.Parse(detail.PackageWeight);
-                //    tempbarang.PANJANG = detail.PackageLength == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageLength.ToString());
-                //    tempbarang.LEBAR = detail.PackageWidth == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageWidth.ToString());
-                //    tempbarang.TINGGI = detail.PackageHeight == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageHeight.ToString());
-                //    tempbarang.CATEGORY_CODE = detail.CategoryList[2].Id;
-                //    tempbarang.CATEGORY_NAME = detail.CategoryList[2].LocalDisplayName;
-                //    foreach (ImageTik img in detail.Images)
-                //    {
-                //        if (tempbarang.IMAGE == null)
-                //        {
-                //            tempbarang.IMAGE = img.UrlList[0];
-                //        }
-                //        else if (tempbarang.IMAGE2 == null)
-                //        {
-                //            tempbarang.IMAGE2 = img.UrlList[0];
-                //        }
-                //        else if (tempbarang.IMAGE3 == null)
-                //        {
-                //            tempbarang.IMAGE3 = img.UrlList[0];
-                //        }
-                //        else if (tempbarang.IMAGE4 == null)
-                //        {
-                //            tempbarang.IMAGE4 = img.UrlList[0];
-                //        }
-                //        else if (tempbarang.IMAGE5 == null)
-                //        {
-                //            tempbarang.IMAGE5 = img.UrlList[0];
-                //        }
-
-                //    }
-                //    tempbarang.Deskripsi = detail.Description;
-                //    tempbarang.IDMARKET = int.Parse(idmarket.ToString());
-                //    tempbarang.CUST = iden.no_cust;
-                //    tempbarang.AVALUE_45 = detail.ProductName;
-                //    tempbarang.ACODE_9 = "warranty";
-                //    tempbarang.ANAME_9 = "Warranty Period";
-                //    tempbarang.AVALUE_9 = detail.WarrantyPeriod.WarrantyDescription;
-                //    tempbarang.ACODE_11 = "product_warranty";
-                //    tempbarang.ANAME_11 = "Warranty Policy";
-                //    tempbarang.AVALUE_11 = detail.WarrantyPolicy;
-                //    tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
-                //    tempbarang.DISPLAY = true;
-                //    tempbarang.SELLER_SKU = checkstf02h.BRG;
-                //    tempbarang.TYPE = "4";
-                //    foreach (SkuTik satikd in detail.Skus)
-                //    {
-                //        foreach (SalesAttributeTik satik in satikd.SalesAttributes)
-                //        {
-                //            if (tempbarang.ACODE_1 == null)
-                //            {
-                //                tempbarang.ACODE_1 = satik.Id;
-                //                tempbarang.ANAME_1 = satik.Name;
-                //                tempbarang.AVALUE_1 = satik.ValueName;
-                //            }
-                //            else if (tempbarang.ACODE_2 == null)
-                //            {
-                //                tempbarang.ACODE_2 = satik.Id;
-                //                tempbarang.ANAME_2 = satik.Name;
-                //                tempbarang.AVALUE_2 = satik.ValueName;
-                //            }
-                //            else if (tempbarang.ACODE_3 == null)
-                //            {
-                //                tempbarang.ACODE_3 = satik.Id;
-                //                tempbarang.ANAME_3 = satik.Name;
-                //                tempbarang.AVALUE_3 = satik.ValueName;
-                //            }
-                //            else if (tempbarang.ACODE_4 == null)
-                //            {
-                //                tempbarang.ACODE_4 = satik.Id;
-                //                tempbarang.ANAME_4 = satik.Name;
-                //                tempbarang.AVALUE_4 = satik.ValueName;
-                //            }
-                //            else if (tempbarang.ACODE_5 == null)
-                //            {
-                //                tempbarang.ACODE_5 = satik.Id;
-                //                tempbarang.ANAME_5 = satik.Name;
-                //                tempbarang.AVALUE_5 = satik.ValueName;
-                //            }
-
-                //        }
-
-                //    }
-                //    await getvariationproduct(productid, detail.Skus, newrec, idmarket, detail, apidata, ret, tempbarang.SELLER_SKU);
-                //    ret.recordCount++;
-                //    newrec.Add(tempbarang);
-                //}
-                #endregion
-                var bindGetVar = getvariationproduct(productid, detail.Skus, newrec, idmarket, detail, apidata, kdmp);
-                if (bindGetVar.exception == 1)
-                {
-                    ret.exception = 1;
-                }
-                ret.recordCount += bindGetVar.recordCount;
-
-            }
-            return ret;
-        }
-
-        public BindingBase getvariationproduct(string productid, List<SkuTik> skudata, List<TEMP_BRG_MP> newrec, int idmarket, DetailProductTik detail, TTApiData iden, string sellersku = null)
-        {
-            var ret = new BindingBase();
-            int insertJml = 0;
-            newrec = new List<TEMP_BRG_MP>();
-            foreach (SkuTik sku in skudata)
-            {
-                string kdbrgvar = productid + ";" + sku.Id;
-                var checkstf02h = ErasoftDbContext.STF02H.SingleOrDefault(x => x.BRG_MP == kdbrgvar && x.IDMARKET == idmarket);
-                var checkTemp = ErasoftDbContext.TEMP_BRG_MP.SingleOrDefault(x => x.BRG_MP == kdbrgvar && x.IDMARKET == idmarket);
-                if (checkstf02h == null && checkTemp == null)
-                {
-                    string namabarang = detail.ProductName;
-
-                    TEMP_BRG_MP tempbarang = new TEMP_BRG_MP();
-                    tempbarang.BRG_MP = kdbrgvar;
-
-                    foreach (SalesAttributeTik satik in sku.SalesAttributes)
-                    {
-                        if (tempbarang.ACODE_1 == null)
+                        tempbarang.NAMA = nama;
+                        tempbarang.NAMA2 = nama2;
+                        tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : (double.Parse(detail.PackageWeight) * 1000);//berat dalam kg
+                        tempbarang.PANJANG = detail.PackageLength == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageLength.ToString());
+                        tempbarang.LEBAR = detail.PackageWidth == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageWidth.ToString());
+                        tempbarang.TINGGI = detail.PackageHeight == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageHeight.ToString());
+                        //tempbarang.CATEGORY_CODE = detail.CategoryList[2].Id;
+                        tempbarang.CATEGORY_CODE = detail.CategoryList[0].Id;
+                        tempbarang.CATEGORY_NAME = detail.CategoryList[0].LocalDisplayName;
+                        foreach (var kat in detail.CategoryList)
                         {
-                            tempbarang.ACODE_1 = satik.Id;
-                            tempbarang.ANAME_1 = satik.Name;
-                            tempbarang.AVALUE_1 = satik.ValueName;
-                        }
-                        else if (tempbarang.ACODE_2 == null)
-                        {
-                            tempbarang.ACODE_2 = satik.Id;
-                            tempbarang.ANAME_2 = satik.Name;
-                            tempbarang.AVALUE_2 = satik.ValueName;
-                        }
-                        namabarang += " " + satik.ValueName;
-                        if (string.IsNullOrEmpty(tempbarang.IMAGE))
-                        {
-                            if (satik.SkuImg != null)
+                            if (kat.IsLeaf)
                             {
-                                if (satik.SkuImg.UrlList != null)
-                                {
-                                    tempbarang.IMAGE = satik.SkuImg.UrlList[0];
-                                }
+                                tempbarang.CATEGORY_CODE = kat.Id;
+                                tempbarang.CATEGORY_NAME = kat.LocalDisplayName;
                             }
                         }
-                    }
-                    if (string.IsNullOrEmpty(tempbarang.IMAGE) && skudata.Count == 1)// non varian tidak set gambar
-                    {
-                        if (detail.Images != null)
+                        tempbarang.HJUAL = double.Parse(sku.Price.OriginalPrice.ToString());
+                        tempbarang.HJUAL_MP = double.Parse(sku.Price.OriginalPrice.ToString());
+                        //tempbarang.CATEGORY_NAME = detail.CategoryList[2].LocalDisplayName;
+                        tempbarang.Deskripsi = detail.Description;
+                        tempbarang.IDMARKET = int.Parse(idmarket.ToString());
+                        tempbarang.CUST = iden.no_cust;
+                        tempbarang.SELLER_SKU = sku.SellerSku;
+                        tempbarang.AVALUE_45 = namabarang;
+                        tempbarang.ACODE_31 = "warranty";
+                        tempbarang.ANAME_31 = "Warranty Period";
+                        tempbarang.AVALUE_31 = detail.WarrantyPeriod.WarrantyDescription;
+                        tempbarang.ACODE_32 = "product_warranty";
+                        tempbarang.ANAME_32 = "Warranty Policy";
+                        tempbarang.AVALUE_32 = detail.WarrantyPolicy;
+                        tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
+                        tempbarang.AVALUE_38 = tempbarang.MEREK;
+                        tempbarang.AVALUE_34 = "https://shop.tiktok.com/view/product/" + productid;
+                        tempbarang.DISPLAY = (detail.ProductStatus == 4 ? true : false);
+                        tempbarang.KODE_BRG_INDUK = sellersku == null ? productid + ";0" : sellersku;
+                        tempbarang.AVALUE_39 = (detail.IsCodOpen ? "1" : "0");
+                        if (skudata.Count == 1)
                         {
-                            if (tempbarang.IMAGE == null)
-                            {
-                                tempbarang.IMAGE = detail.Images[0].UrlList[0];
-                            }
-                        }
-
+                            tempbarang.KODE_BRG_INDUK = "";
+                        };
+                        tempbarang.TYPE = "3";
+                        insertJml++;
+                        newrec.Add(tempbarang);
                     }
-                    var splitItemName = new StokControllerJob().SplitItemName(namabarang.Replace('\'', '`'));
-                    var nama = splitItemName[0];
-                    var nama2 = splitItemName[1];
-
-                    if (detail.product_attributes != null)
-                    {
-                        foreach (var prodAttr in detail.product_attributes)
-                        {
-                            if (tempbarang.ACODE_3 == null)
-                            {
-                                tempbarang.ACODE_3 = prodAttr.Id;
-                                tempbarang.ANAME_3 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_3))
-                                    {
-                                        tempbarang.AVALUE_3 += ",";
-                                    }
-                                    tempbarang.AVALUE_3 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_4 == null)
-                            {
-                                tempbarang.ACODE_4 = prodAttr.Id;
-                                tempbarang.ANAME_4 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_4))
-                                    {
-                                        tempbarang.AVALUE_4 += ",";
-                                    }
-                                    tempbarang.AVALUE_4 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_5 == null)
-                            {
-                                tempbarang.ACODE_5 = prodAttr.Id;
-                                tempbarang.ANAME_5 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_5))
-                                    {
-                                        tempbarang.AVALUE_5 += ",";
-                                    }
-                                    tempbarang.AVALUE_5 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_6 == null)
-                            {
-                                tempbarang.ACODE_6 = prodAttr.Id;
-                                tempbarang.ANAME_6 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_6))
-                                    {
-                                        tempbarang.AVALUE_6 += ",";
-                                    }
-                                    tempbarang.AVALUE_6 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_7 == null)
-                            {
-                                tempbarang.ACODE_7 = prodAttr.Id;
-                                tempbarang.ANAME_7 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_7))
-                                    {
-                                        tempbarang.AVALUE_7 += ",";
-                                    }
-                                    tempbarang.AVALUE_7 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_8 == null)
-                            {
-                                tempbarang.ACODE_8 = prodAttr.Id;
-                                tempbarang.ANAME_8 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_8))
-                                    {
-                                        tempbarang.AVALUE_8 += ",";
-                                    }
-                                    tempbarang.AVALUE_8 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_9 == null)
-                            {
-                                tempbarang.ACODE_9 = prodAttr.Id;
-                                tempbarang.ANAME_9 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_9))
-                                    {
-                                        tempbarang.AVALUE_9 += ",";
-                                    }
-                                    tempbarang.AVALUE_9 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_10 == null)
-                            {
-                                tempbarang.ACODE_10 = prodAttr.Id;
-                                tempbarang.ANAME_10 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_10))
-                                    {
-                                        tempbarang.AVALUE_10 += ",";
-                                    }
-                                    tempbarang.AVALUE_10 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_11 == null)
-                            {
-                                tempbarang.ACODE_11 = prodAttr.Id;
-                                tempbarang.ANAME_11 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_11))
-                                    {
-                                        tempbarang.AVALUE_11 += ",";
-                                    }
-                                    tempbarang.AVALUE_11 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_12 == null)
-                            {
-                                tempbarang.ACODE_12 = prodAttr.Id;
-                                tempbarang.ANAME_12 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_12))
-                                    {
-                                        tempbarang.AVALUE_12 += ",";
-                                    }
-                                    tempbarang.AVALUE_12 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_13 == null)
-                            {
-                                tempbarang.ACODE_13 = prodAttr.Id;
-                                tempbarang.ANAME_13 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_13))
-                                    {
-                                        tempbarang.AVALUE_13 += ",";
-                                    }
-                                    tempbarang.AVALUE_13 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_14 == null)
-                            {
-                                tempbarang.ACODE_14 = prodAttr.Id;
-                                tempbarang.ANAME_14 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_14))
-                                    {
-                                        tempbarang.AVALUE_14 += ",";
-                                    }
-                                    tempbarang.AVALUE_14 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_15 == null)
-                            {
-                                tempbarang.ACODE_15 = prodAttr.Id;
-                                tempbarang.ANAME_15 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_15))
-                                    {
-                                        tempbarang.AVALUE_15 += ",";
-                                    }
-                                    tempbarang.AVALUE_15 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_16 == null)
-                            {
-                                tempbarang.ACODE_16 = prodAttr.Id;
-                                tempbarang.ANAME_16 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_16))
-                                    {
-                                        tempbarang.AVALUE_16 += ",";
-                                    }
-                                    tempbarang.AVALUE_16 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_17 == null)
-                            {
-                                tempbarang.ACODE_17 = prodAttr.Id;
-                                tempbarang.ANAME_17 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_17))
-                                    {
-                                        tempbarang.AVALUE_17 += ",";
-                                    }
-                                    tempbarang.AVALUE_17 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_18 == null)
-                            {
-                                tempbarang.ACODE_18 = prodAttr.Id;
-                                tempbarang.ANAME_18 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_18))
-                                    {
-                                        tempbarang.AVALUE_18 += ",";
-                                    }
-                                    tempbarang.AVALUE_18 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_19 == null)
-                            {
-                                tempbarang.ACODE_19 = prodAttr.Id;
-                                tempbarang.ANAME_19 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_19))
-                                    {
-                                        tempbarang.AVALUE_19 += ",";
-                                    }
-                                    tempbarang.AVALUE_19 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_20 == null)
-                            {
-                                tempbarang.ACODE_20 = prodAttr.Id;
-                                tempbarang.ANAME_20 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_20))
-                                    {
-                                        tempbarang.AVALUE_20 += ",";
-                                    }
-                                    tempbarang.AVALUE_20 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_21 == null)
-                            {
-                                tempbarang.ACODE_21 = prodAttr.Id;
-                                tempbarang.ANAME_21 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_21))
-                                    {
-                                        tempbarang.AVALUE_21 += ",";
-                                    }
-                                    tempbarang.AVALUE_21 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_22 == null)
-                            {
-                                tempbarang.ACODE_22 = prodAttr.Id;
-                                tempbarang.ANAME_22 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_22))
-                                    {
-                                        tempbarang.AVALUE_22 += ",";
-                                    }
-                                    tempbarang.AVALUE_22 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_23 == null)
-                            {
-                                tempbarang.ACODE_23 = prodAttr.Id;
-                                tempbarang.ANAME_23 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_23))
-                                    {
-                                        tempbarang.AVALUE_23 += ",";
-                                    }
-                                    tempbarang.AVALUE_23 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_24 == null)
-                            {
-                                tempbarang.ACODE_24 = prodAttr.Id;
-                                tempbarang.ANAME_24 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_24))
-                                    {
-                                        tempbarang.AVALUE_24 += ",";
-                                    }
-                                    tempbarang.AVALUE_24 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_25 == null)
-                            {
-                                tempbarang.ACODE_25 = prodAttr.Id;
-                                tempbarang.ANAME_25 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_25))
-                                    {
-                                        tempbarang.AVALUE_25 += ",";
-                                    }
-                                    tempbarang.AVALUE_25 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_26 == null)
-                            {
-                                tempbarang.ACODE_26 = prodAttr.Id;
-                                tempbarang.ANAME_26 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_26))
-                                    {
-                                        tempbarang.AVALUE_26 += ",";
-                                    }
-                                    tempbarang.AVALUE_26 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_27 == null)
-                            {
-                                tempbarang.ACODE_27 = prodAttr.Id;
-                                tempbarang.ANAME_27 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_27))
-                                    {
-                                        tempbarang.AVALUE_27 += ",";
-                                    }
-                                    tempbarang.AVALUE_27 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_28 == null)
-                            {
-                                tempbarang.ACODE_28 = prodAttr.Id;
-                                tempbarang.ANAME_28 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_28))
-                                    {
-                                        tempbarang.AVALUE_28 += ",";
-                                    }
-                                    tempbarang.AVALUE_28 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_29 == null)
-                            {
-                                tempbarang.ACODE_29 = prodAttr.Id;
-                                tempbarang.ANAME_29 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_29))
-                                    {
-                                        tempbarang.AVALUE_29 += ",";
-                                    }
-                                    tempbarang.AVALUE_29 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                            else if (tempbarang.ACODE_30 == null)
-                            {
-                                tempbarang.ACODE_30 = prodAttr.Id;
-                                tempbarang.ANAME_30 = prodAttr.name.Replace('\'', '`');
-                                foreach (var attrVal in prodAttr.values)
-                                {
-                                    if (!string.IsNullOrEmpty(tempbarang.AVALUE_30))
-                                    {
-                                        tempbarang.AVALUE_30 += ",";
-                                    }
-                                    tempbarang.AVALUE_30 += attrVal.name.Replace('\'', '`');
-                                }
-                            }
-                        }
-                    }
-                    #region old attr
-                    //foreach (SalesAttributeTik satik in sku.SalesAttributes)
+                    #region remark
+                    //else
                     //{
-                    //    if (tempbarang.ACODE_1 == null)
-                    //    {
-                    //        tempbarang.ACODE_1 = satik.Id;
-                    //        tempbarang.ANAME_1 = satik.Name;
-                    //        tempbarang.AVALUE_1 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_2 == null)
-                    //    {
-                    //        tempbarang.ACODE_2 = satik.Id;
-                    //        tempbarang.ANAME_2 = satik.Name;
-                    //        tempbarang.AVALUE_2 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_3 == null)
-                    //    {
-                    //        tempbarang.ACODE_3 = satik.Id;
-                    //        tempbarang.ANAME_3 = satik.Name;
-                    //        tempbarang.AVALUE_3 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_4 == null)
-                    //    {
-                    //        tempbarang.ACODE_4 = satik.Id;
-                    //        tempbarang.ANAME_4 = satik.Name;
-                    //        tempbarang.AVALUE_4 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_5 == null)
-                    //    {
-                    //        tempbarang.ACODE_5 = satik.Id;
-                    //        tempbarang.ANAME_5 = satik.Name;
-                    //        tempbarang.AVALUE_5 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_6 == null)
-                    //    {
-                    //        tempbarang.ACODE_6 = satik.Id;
-                    //        tempbarang.ANAME_6 = satik.Name;
-                    //        tempbarang.AVALUE_6 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_7 == null)
-                    //    {
-                    //        tempbarang.ACODE_7 = satik.Id;
-                    //        tempbarang.ANAME_7 = satik.Name;
-                    //        tempbarang.AVALUE_7 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_8 == null)
-                    //    {
-                    //        tempbarang.ACODE_8 = satik.Id;
-                    //        tempbarang.ANAME_8 = satik.Name;
-                    //        tempbarang.AVALUE_8 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_9 == null)
-                    //    {
-                    //        tempbarang.ACODE_9 = satik.Id;
-                    //        tempbarang.ANAME_9 = satik.Name;
-                    //        tempbarang.AVALUE_9 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_10 == null)
-                    //    {
-                    //        tempbarang.ACODE_10 = satik.Id;
-                    //        tempbarang.ANAME_10 = satik.Name;
-                    //        tempbarang.AVALUE_10 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_11 == null)
-                    //    {
-                    //        tempbarang.ACODE_11 = satik.Id;
-                    //        tempbarang.ANAME_11 = satik.Name;
-                    //        tempbarang.AVALUE_11 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_12 == null)
-                    //    {
-                    //        tempbarang.ACODE_12 = satik.Id;
-                    //        tempbarang.ANAME_12 = satik.Name;
-                    //        tempbarang.AVALUE_12 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_13 == null)
-                    //    {
-                    //        tempbarang.ACODE_13 = satik.Id;
-                    //        tempbarang.ANAME_13 = satik.Name;
-                    //        tempbarang.AVALUE_13 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_14 == null)
-                    //    {
-                    //        tempbarang.ACODE_14 = satik.Id;
-                    //        tempbarang.ANAME_14 = satik.Name;
-                    //        tempbarang.AVALUE_14 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_15 == null)
-                    //    {
-                    //        tempbarang.ACODE_15 = satik.Id;
-                    //        tempbarang.ANAME_15 = satik.Name;
-                    //        tempbarang.AVALUE_15 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_16 == null)
-                    //    {
-                    //        tempbarang.ACODE_16 = satik.Id;
-                    //        tempbarang.ANAME_16 = satik.Name;
-                    //        tempbarang.AVALUE_16 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_17 == null)
-                    //    {
-                    //        tempbarang.ACODE_17 = satik.Id;
-                    //        tempbarang.ANAME_17 = satik.Name;
-                    //        tempbarang.AVALUE_17 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_18 == null)
-                    //    {
-                    //        tempbarang.ACODE_18 = satik.Id;
-                    //        tempbarang.ANAME_18 = satik.Name;
-                    //        tempbarang.AVALUE_18 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_19 == null)
-                    //    {
-                    //        tempbarang.ACODE_19 = satik.Id;
-                    //        tempbarang.ANAME_19 = satik.Name;
-                    //        tempbarang.AVALUE_19 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_20 == null)
-                    //    {
-                    //        tempbarang.ACODE_20 = satik.Id;
-                    //        tempbarang.ANAME_20 = satik.Name;
-                    //        tempbarang.AVALUE_20 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_21 == null)
-                    //    {
-                    //        tempbarang.ACODE_21 = satik.Id;
-                    //        tempbarang.ANAME_21 = satik.Name;
-                    //        tempbarang.AVALUE_21 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_22 == null)
-                    //    {
-                    //        tempbarang.ACODE_22 = satik.Id;
-                    //        tempbarang.ANAME_22 = satik.Name;
-                    //        tempbarang.AVALUE_22 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_23 == null)
-                    //    {
-                    //        tempbarang.ACODE_23 = satik.Id;
-                    //        tempbarang.ANAME_23 = satik.Name;
-                    //        tempbarang.AVALUE_23 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_24 == null)
-                    //    {
-                    //        tempbarang.ACODE_24 = satik.Id;
-                    //        tempbarang.ANAME_24 = satik.Name;
-                    //        tempbarang.AVALUE_24 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_25 == null)
-                    //    {
-                    //        tempbarang.ACODE_25 = satik.Id;
-                    //        tempbarang.ANAME_25 = satik.Name;
-                    //        tempbarang.AVALUE_25 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_26 == null)
-                    //    {
-                    //        tempbarang.ACODE_26 = satik.Id;
-                    //        tempbarang.ANAME_26 = satik.Name;
-                    //        tempbarang.AVALUE_26 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_27 == null)
-                    //    {
-                    //        tempbarang.ACODE_27 = satik.Id;
-                    //        tempbarang.ANAME_27 = satik.Name;
-                    //        tempbarang.AVALUE_27 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_28 == null)
-                    //    {
-                    //        tempbarang.ACODE_28 = satik.Id;
-                    //        tempbarang.ANAME_28 = satik.Name;
-                    //        tempbarang.AVALUE_28 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_29 == null)
-                    //    {
-                    //        tempbarang.ACODE_29 = satik.Id;
-                    //        tempbarang.ANAME_29 = satik.Name;
-                    //        tempbarang.AVALUE_29 = satik.ValueName;
-                    //    }
-                    //    else if (tempbarang.ACODE_30 == null)
-                    //    {
-                    //        tempbarang.ACODE_30 = satik.Id;
-                    //        tempbarang.ANAME_30 = satik.Name;
-                    //        tempbarang.AVALUE_30 = satik.ValueName;
-                    //    }
 
+                    //    TEMP_BRG_MP tempbarang = new TEMP_BRG_MP();
+                    //    tempbarang.BRG_MP = kdbrgvar;
+                    //    string namabarang = detail.ProductName;
+                    //    foreach (SalesAttributeTik sat in sku.SalesAttributes)
+                    //    {
+                    //        namabarang += " " + sat.ValueName;
+                    //        tempbarang.IMAGE = sat.SkuImg == null ? null : sat.SkuImg.UrlList[0];
+                    //        if (tempbarang.ACODE_1 == null)
+                    //        {
+                    //            tempbarang.ACODE_1 = sat.Id;
+                    //            tempbarang.ANAME_1 = sat.Name;
+                    //            tempbarang.AVALUE_1 = sat.ValueName;
+                    //        }
+                    //        else if (tempbarang.ACODE_2 == null)
+                    //        {
+                    //            tempbarang.ACODE_2 = sat.Id;
+                    //            tempbarang.ANAME_2 = sat.Name;
+                    //            tempbarang.AVALUE_2 = sat.ValueName;
+                    //        }
+                    //        else if (tempbarang.ACODE_3 == null)
+                    //        {
+                    //            tempbarang.ACODE_3 = sat.Id;
+                    //            tempbarang.ANAME_3 = sat.Name;
+                    //            tempbarang.AVALUE_3 = sat.ValueName;
+                    //        }
+                    //        else if (tempbarang.ACODE_4 == null)
+                    //        {
+                    //            tempbarang.ACODE_4 = sat.Id;
+                    //            tempbarang.ANAME_4 = sat.Name;
+                    //            tempbarang.AVALUE_4 = sat.ValueName;
+                    //        }
+                    //        else if (tempbarang.ACODE_5 == null)
+                    //        {
+                    //            tempbarang.ACODE_5 = sat.Id;
+                    //            tempbarang.ANAME_5 = sat.Name;
+                    //            tempbarang.AVALUE_5 = sat.ValueName;
+                    //        }
+                    //    }
+                    //    tempbarang.NAMA = namabarang;
+                    //    tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : double.Parse(detail.PackageWeight);
+                    //    tempbarang.PANJANG = detail.PackageLength == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageLength.ToString());
+                    //    tempbarang.LEBAR = detail.PackageWidth == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageWidth.ToString());
+                    //    tempbarang.TINGGI = detail.PackageHeight == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageHeight.ToString());
+                    //    tempbarang.CATEGORY_CODE = detail.CategoryList[2].Id;
+                    //    tempbarang.HJUAL = double.Parse(sku.Price.OriginalPrice.ToString());
+                    //    tempbarang.HJUAL_MP = double.Parse(sku.Price.OriginalPrice.ToString());
+                    //    tempbarang.CATEGORY_NAME = detail.CategoryList[2].LocalDisplayName;
+                    //    tempbarang.Deskripsi = detail.Description;
+                    //    tempbarang.IDMARKET = int.Parse(idmarket.ToString());
+                    //    tempbarang.CUST = iden.no_cust;
+                    //    tempbarang.SELLER_SKU = checkstf02h.BRG;
+                    //    tempbarang.AVALUE_45 = namabarang;
+                    //    tempbarang.ACODE_9 = "warranty";
+                    //    tempbarang.ANAME_9 = "Warranty Period";
+                    //    tempbarang.AVALUE_9 = detail.WarrantyPeriod.WarrantyDescription;
+                    //    tempbarang.ACODE_11 = "product_warranty";
+                    //    tempbarang.ANAME_11 = "Warranty Policy";
+                    //    tempbarang.AVALUE_11 = detail.WarrantyPolicy;
+                    //    tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
+                    //    tempbarang.DISPLAY = true;
+                    //    tempbarang.KODE_BRG_INDUK = sellersku;
+                    //    tempbarang.TYPE = "3";
+                    //    ret.recordCount++;
+                    //    newrec.Add(tempbarang);
                     //}
                     #endregion
-                    tempbarang.NAMA = nama;
-                    tempbarang.NAMA2 = nama2;
-                    tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : (double.Parse(detail.PackageWeight) * 1000);//berat dalam kg
-                    tempbarang.PANJANG = detail.PackageLength == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageLength.ToString());
-                    tempbarang.LEBAR = detail.PackageWidth == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageWidth.ToString());
-                    tempbarang.TINGGI = detail.PackageHeight == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageHeight.ToString());
-                    tempbarang.CATEGORY_CODE = detail.CategoryList[2].Id;
-                    tempbarang.HJUAL = double.Parse(sku.Price.OriginalPrice.ToString());
-                    tempbarang.HJUAL_MP = double.Parse(sku.Price.OriginalPrice.ToString());
-                    tempbarang.CATEGORY_NAME = detail.CategoryList[2].LocalDisplayName;
-                    tempbarang.Deskripsi = detail.Description;
-                    tempbarang.IDMARKET = int.Parse(idmarket.ToString());
-                    tempbarang.CUST = iden.no_cust;
-                    tempbarang.SELLER_SKU = sku.SellerSku;
-                    tempbarang.AVALUE_45 = namabarang;
-                    tempbarang.ACODE_31 = "warranty";
-                    tempbarang.ANAME_31 = "Warranty Period";
-                    tempbarang.AVALUE_31 = detail.WarrantyPeriod.WarrantyDescription;
-                    tempbarang.ACODE_32 = "product_warranty";
-                    tempbarang.ANAME_32 = "Warranty Policy";
-                    tempbarang.AVALUE_32 = detail.WarrantyPolicy;
-                    tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
-                    tempbarang.AVALUE_38 = tempbarang.MEREK;
-                    tempbarang.AVALUE_34 = "https://shop.tiktok.com/view/product/" + productid;
-                    tempbarang.DISPLAY = (detail.ProductStatus == 4 ? true : false);
-                    tempbarang.KODE_BRG_INDUK = sellersku == null ? productid + ";0" : sellersku;
-                    tempbarang.AVALUE_39 = (detail.IsCodOpen ? "1" : "0");
-                    if (skudata.Count == 1)
-                    {
-                        tempbarang.KODE_BRG_INDUK = "";
-                    };
-                    tempbarang.TYPE = "3";
-                    insertJml++;
-                    newrec.Add(tempbarang);
                 }
-                #region remark
-                //else
-                //{
-
-                //    TEMP_BRG_MP tempbarang = new TEMP_BRG_MP();
-                //    tempbarang.BRG_MP = kdbrgvar;
-                //    string namabarang = detail.ProductName;
-                //    foreach (SalesAttributeTik sat in sku.SalesAttributes)
-                //    {
-                //        namabarang += " " + sat.ValueName;
-                //        tempbarang.IMAGE = sat.SkuImg == null ? null : sat.SkuImg.UrlList[0];
-                //        if (tempbarang.ACODE_1 == null)
-                //        {
-                //            tempbarang.ACODE_1 = sat.Id;
-                //            tempbarang.ANAME_1 = sat.Name;
-                //            tempbarang.AVALUE_1 = sat.ValueName;
-                //        }
-                //        else if (tempbarang.ACODE_2 == null)
-                //        {
-                //            tempbarang.ACODE_2 = sat.Id;
-                //            tempbarang.ANAME_2 = sat.Name;
-                //            tempbarang.AVALUE_2 = sat.ValueName;
-                //        }
-                //        else if (tempbarang.ACODE_3 == null)
-                //        {
-                //            tempbarang.ACODE_3 = sat.Id;
-                //            tempbarang.ANAME_3 = sat.Name;
-                //            tempbarang.AVALUE_3 = sat.ValueName;
-                //        }
-                //        else if (tempbarang.ACODE_4 == null)
-                //        {
-                //            tempbarang.ACODE_4 = sat.Id;
-                //            tempbarang.ANAME_4 = sat.Name;
-                //            tempbarang.AVALUE_4 = sat.ValueName;
-                //        }
-                //        else if (tempbarang.ACODE_5 == null)
-                //        {
-                //            tempbarang.ACODE_5 = sat.Id;
-                //            tempbarang.ANAME_5 = sat.Name;
-                //            tempbarang.AVALUE_5 = sat.ValueName;
-                //        }
-                //    }
-                //    tempbarang.NAMA = namabarang;
-                //    tempbarang.BERAT = detail.PackageWeight == "" ? double.Parse(0.ToString()) : double.Parse(detail.PackageWeight);
-                //    tempbarang.PANJANG = detail.PackageLength == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageLength.ToString());
-                //    tempbarang.LEBAR = detail.PackageWidth == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageWidth.ToString());
-                //    tempbarang.TINGGI = detail.PackageHeight == 0 ? double.Parse(0.ToString()) : double.Parse(detail.PackageHeight.ToString());
-                //    tempbarang.CATEGORY_CODE = detail.CategoryList[2].Id;
-                //    tempbarang.HJUAL = double.Parse(sku.Price.OriginalPrice.ToString());
-                //    tempbarang.HJUAL_MP = double.Parse(sku.Price.OriginalPrice.ToString());
-                //    tempbarang.CATEGORY_NAME = detail.CategoryList[2].LocalDisplayName;
-                //    tempbarang.Deskripsi = detail.Description;
-                //    tempbarang.IDMARKET = int.Parse(idmarket.ToString());
-                //    tempbarang.CUST = iden.no_cust;
-                //    tempbarang.SELLER_SKU = checkstf02h.BRG;
-                //    tempbarang.AVALUE_45 = namabarang;
-                //    tempbarang.ACODE_9 = "warranty";
-                //    tempbarang.ANAME_9 = "Warranty Period";
-                //    tempbarang.AVALUE_9 = detail.WarrantyPeriod.WarrantyDescription;
-                //    tempbarang.ACODE_11 = "product_warranty";
-                //    tempbarang.ANAME_11 = "Warranty Policy";
-                //    tempbarang.AVALUE_11 = detail.WarrantyPolicy;
-                //    tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
-                //    tempbarang.DISPLAY = true;
-                //    tempbarang.KODE_BRG_INDUK = sellersku;
-                //    tempbarang.TYPE = "3";
-                //    ret.recordCount++;
-                //    newrec.Add(tempbarang);
-                //}
-                #endregion
+            }
+            catch(Exception ex)
+            {
+                ret.exception = 1;
             }
             if (insertJml > 0)
             {
