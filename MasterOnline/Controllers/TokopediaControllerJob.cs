@@ -6898,14 +6898,41 @@ namespace MasterOnline.Controllers
                                                     //add by nurul 19/1/2022
                                                     var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
                                                     //end add by nurul 19/1/2022
+                                                    var cekMappingGudang = ErasoftDbContext.MAPPING_GUDANG.Where(a => a.CUST == log_CUST).ToList();
 #if (DEBUG || Debug_AWS)
-                                                    Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null, Convert.ToInt32(multilokasi))).Wait();
+                                                    if (multilokasi == "1")
+                                                    {
+                                                        if (cekMappingGudang.Count() > 0)
+                                                        {
+                                                            foreach (var gudang in cekMappingGudang)
+                                                            {
+                                                                Task.Run(() => stokAPI.Tokped_updateStock_MULTILOKASI(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null, Convert.ToInt32(multilokasi), gudang.GD_MP, gudang.GD_MO)).Wait();
+                                                            }
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null, Convert.ToInt32(multilokasi))).Wait();
+                                                    }
 #else
-                                            string EDBConnID = EDB.GetConnectionString("ConnId");
-                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                                                    var sqlStorage = new SqlServerStorage(EDBConnID);
 
-                                            var Jobclient = new BackgroundJobClient(sqlStorage);
-                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null, Convert.ToInt32(multilokasi)));
+                                                    var Jobclient = new BackgroundJobClient(sqlStorage);
+                                                    if (multilokasi == "1")
+                                                    {
+                                                        if (cekMappingGudang.Count() > 0)
+                                                        {
+                                                            foreach (var gudang in cekMappingGudang)
+                                                            {
+                                                                Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock_MULTILOKASI(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null, Convert.ToInt32(multilokasi), gudang.GD_MP, gudang.GD_MO));
+                                                            }
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null, Convert.ToInt32(multilokasi)));
+                                                    }
 #endif
                                                 }
                                             }
@@ -6959,15 +6986,43 @@ namespace MasterOnline.Controllers
                                                 //add by nurul 19/1/2022
                                                 var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
                                                 //end add by nurul 19/1/2022
+                                                var cekMappingGudang = ErasoftDbContext.MAPPING_GUDANG.Where(a => a.CUST == log_CUST).ToList();
 #if (DEBUG || Debug_AWS)
-                                                Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null, Convert.ToInt32(multilokasi))).Wait();
+                                                if (multilokasi == "1")
+                                                {
+                                                    if (cekMappingGudang.Count() > 0)
+                                                    {
+                                                        foreach (var gudang in cekMappingGudang)
+                                                        {
+                                                            Task.Run(() => stokAPI.Tokped_updateStock_MULTILOKASI(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null, Convert.ToInt32(multilokasi), gudang.GD_MP, gudang.GD_MO)).Wait();
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null, Convert.ToInt32(multilokasi))).Wait();
+                                                }
 #else
-                                            string EDBConnID = EDB.GetConnectionString("ConnId");
-                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                                                    var sqlStorage = new SqlServerStorage(EDBConnID);
 
-                                            var Jobclient = new BackgroundJobClient(sqlStorage);
-                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null, Convert.ToInt32(multilokasi)));
+                                                    var Jobclient = new BackgroundJobClient(sqlStorage);
+                                                    if (multilokasi == "1")
+                                                    {
+                                                        if (cekMappingGudang.Count() > 0)
+                                                        {
+                                                            foreach (var gudang in cekMappingGudang)
+                                                            {
+                                                                Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock_MULTILOKASI(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null, Convert.ToInt32(multilokasi), gudang.GD_MP, gudang.GD_MO));
+                                                            }
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null, Convert.ToInt32(multilokasi)));
+                                                    }
 #endif
+
                                                 //}
                                                 //catch (Exception ex)
                                                 //{
@@ -7295,14 +7350,41 @@ namespace MasterOnline.Controllers
                                 //add by nurul 19/1/2022
                                 var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
                                 //end add by nurul 19/1/2022
+                                var cekMappingGudang = ErasoftDbContext.MAPPING_GUDANG.Where(a => a.CUST == log_CUST).ToList();
 #if (DEBUG || Debug_AWS)
-                                Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kdBrg, log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null, Convert.ToInt32(multilokasi))).Wait();
+                                if (multilokasi == "1")
+                                {
+                                    if (cekMappingGudang.Count() > 0)
+                                    {
+                                        foreach (var gudang in cekMappingGudang)
+                                        {
+                                            Task.Run(() => stokAPI.Tokped_updateStock_MULTILOKASI(dbPathEra, kdBrg, log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null, Convert.ToInt32(multilokasi), gudang.GD_MP, gudang.GD_MO)).Wait();
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kdBrg, log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null, Convert.ToInt32(multilokasi))).Wait();
+                                }
 #else
-                                            string EDBConnID = EDB.GetConnectionString("ConnId");
-                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                                                    var sqlStorage = new SqlServerStorage(EDBConnID);
 
-                                            var Jobclient = new BackgroundJobClient(sqlStorage);
-                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kdBrg, log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null, Convert.ToInt32(multilokasi)));
+                                                    var Jobclient = new BackgroundJobClient(sqlStorage);
+                                                    if (multilokasi == "1")
+                                                    {
+                                                        if (cekMappingGudang.Count() > 0)
+                                                        {
+                                                            foreach (var gudang in cekMappingGudang)
+                                                            {
+                                                                Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock_MULTILOKASI(dbPathEra, kdBrg, log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null, Convert.ToInt32(multilokasi), gudang.GD_MP, gudang.GD_MO));
+                                                            }
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kdBrg, log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null, Convert.ToInt32(multilokasi)));
+                                                    }
 #endif
                             }
                         }
