@@ -2422,6 +2422,555 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
+        public BindingBase GetOrder_webhook_lzd_insert(string cust, string accessToken, string dbPathEra, string uname)
+        {
+            var ret = new BindingBase();
+            SetupContext(dbPathEra, uname);
+            int page = 0;
+            var more = true;
+            //add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
+            var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
+            delQry += DateTime.UtcNow.AddHours(7).AddHours(-6).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + cust + "'";
+
+            var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
+            //end add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
+
+            var fromDt = DateTime.UtcNow.AddHours(7).AddHours(-6);
+            var toDt = DateTime.UtcNow.AddHours(7);
+
+            EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM TABEL_WEBHOOK_LAZADA WHERE CUST = '" + cust
+                + "' AND TGL <  '" + fromDt.AddDays(-2).ToString("yyyy-MM-dd HH:mm:ss") + "'");
+            var dsNewOrder = EDB.GetDataSet("CString", "SO", "SELECT DISTINCT T.ORDERID FROM TABEL_WEBHOOK_LAZADA (NOLOCK) T LEFT JOIN SOT01A (NOLOCK) S ON S.NO_REFERENSI = T.ORDERID AND T.CUST = S.CUST WHERE T.TGL >= '"
+                + fromDt.ToString("yyyy-MM-dd HH:mm:ss") + "' AND ORDER_STATUS in ('unpaid', 'ready_to_ship', 'pending', 'packed') AND T.CUST = '" + cust + "' AND ISNULL(S.NO_BUKTI, '') = ''");
+
+            //add by nurul 20/1/2021, bundling NewLzdOrders
+            var AdaPesanan = false;
+            var connIdProses = "";
+            var AdaKomponen = false;
+            List<string> tempConnId = new List<string>() { };
+            //end add by nurul 20/1/2021, bundling 
+
+            var dataJsonOrder = new NewLzdOrders();
+            dataJsonOrder.code = "0";
+            dataJsonOrder.data = new DataOrders();
+            var listData = new List<Order>();
+            if (dsNewOrder.Tables[0].Rows.Count > 0)
+            {
+                for (int i = 0; i < dsNewOrder.Tables[0].Rows.Count; i++)
+                {
+                    var orderid = dsNewOrder.Tables[0].Rows[i]["ORDERID"].ToString();
+                    var getOrderJson = GetSinlgelOrder(accessToken, orderid);
+                    listData.Add(getOrderJson.data);
+                    if (listData.Count >= 10 || i == dsNewOrder.Tables[0].Rows.Count - 1)
+                    {
+                        dataJsonOrder.data.orders = listData;
+                        var count = GetOrdersWithPage_webhook(cust, accessToken, dbPathEra, uname, page, dataJsonOrder, fromDt, toDt);
+                        if (count.AdaPesanan)
+                        {
+                            AdaPesanan = count.AdaPesanan;
+                        }
+                        if (count.ConnId != "")
+                        {
+                            tempConnId.Add(count.ConnId);
+                            connIdProses += "'" + count.ConnId + "' , ";
+                        }
+                        if (count.AdaKomponen)
+                        {
+                            AdaKomponen = count.AdaKomponen;
+                        }
+                        listData = new List<Order>();
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(connIdProses))
+            {
+                new StokControllerJob().getQtyBundling(dbPathEra, uname, connIdProses.Substring(0, connIdProses.Length - 3));
+            }
+            var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus 
+                + "%' and invocationdata like '%GetOrder_webhook_lzd_insert%' and statename like '%Enque%' ");
+            
+            return ret;
+        }
+        public BindingBase GetOrdersWithPage_webhook(string cust, string accessToken, string dbPathEra, string uname, int page, NewLzdOrders bindOrder, DateTime fromDt, DateTime toDt)
+        {
+            var ret = new BindingBase();
+            ret.status = 0;
+            ret.recordCount = 0;
+
+            var MoDbContext = new MoDbContext("");
+            var EDB = new DatabaseSQL(dbPathEra);
+            string EraServerName = EDB.GetServerName("sConn");
+            var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
+            var username = uname;
+
+            var jmlhNewOrder = 0;//add by calvin 1 april 2019
+            string connectionID = Guid.NewGuid().ToString();
+            //add by nurul 19/1/2021, bundling 
+            ret.ConnId = connectionID;
+            //end add by nurul 19/1/2021, bundling
+
+            //ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            //LazopRequest request = new LazopRequest();
+            //request.SetApiName("/orders/get");
+            //request.SetHttpMethod("GET");
+            //request.AddApiParameter("created_before", toDt.ToString("yyyy-MM-ddTHH:mm:ss") + "+07:00");
+            //request.AddApiParameter("created_after", fromDt.ToString("yyyy-MM-ddTHH:mm:ss") + "+07:00");
+            //request.AddApiParameter("sort_direction", "DESC");
+            //request.AddApiParameter("offset", (page * 100).ToString());
+            //request.AddApiParameter("limit", "100");
+            //request.AddApiParameter("status", statusLzd);
+            //request.AddApiParameter("sort_by", "created_at");
+            //try
+            //{
+            //LazopResponse response = client.Execute(request, accessToken);
+            //var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(NewLzdOrders)) as NewLzdOrders;
+            if (bindOrder != null)
+            {
+                //ret = bindOrder;
+                if (bindOrder.code.Equals("0"))
+                {
+                    List<string> listOrderId = new List<string>();
+
+                    if (bindOrder.data.orders.Count > 0)
+                    {
+                        ret.recordCount = bindOrder.data.orders.Count;
+                        var fromDtSO = fromDt.AddDays(-1);
+                        var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust && p.TGL.Value >= fromDtSO).Select(p => p.NO_REFERENSI).ToList();
+                        bool adaInsert = false;
+                        bool adaInsertPembeli = false;
+
+                        string insertQ = "INSERT INTO TEMP_LAZADA_GETORDERS ([ORDERID],[CUST_FIRSTNAME],[CUST_LASTNAME],[ORDER_NUMBER],[PAYMENT_METHOD],[REMARKS]";
+                        insertQ += ",[DELIVERY_INFO],[PRICE],[GIFT_OPTION],[GIFT_MESSAGE],[VOUCHER_CODE],[CREATED_AT],[UPDATED_AT],[BILLING_FIRSTNAME],[BILLING_LASTNAME]";
+                        insertQ += ",[BILLING_PHONE],[BILLING_PHONE2],[BILLING_ADDRESS],[BILLING_ADDRESS2],[BILLING_ADDRESS3],[BILLING_ADDRESS4],[BILLING_ADDRESS5]";
+                        insertQ += ",[BILLING_EMAIL],[BILLING_CITY],[BILLING_POSTCODE],[BILLING_COUNTRY],[SHIPPING_FIRSTNAME],[SHIPPING_LASTNAME],[SHIPPING_PHONE],[SHIPPING_PHONE2]";
+                        insertQ += ",[SHIPPING_ADDRESS],[SHIPPING_ADDRESS2],[SHIPPING_ADDRESS3],[SHIPPING_ADDRESS4],[SHIPPING_ADDRESS5],[SHIPPING_EMAIL],[SHIPPING_CITY]";
+                        insertQ += ",[SHIPPING_POSTCODE],[SHIPPING_COUNTRY],[NATIONAL_REGISTRASION_NUM],[ITEM_COUNT],[PROMISED_SHIPPING_TIME],[EXTRA_ATTRIBUTES],[STATUSES]";
+                        insertQ += ",[VOUCHER],[SHIPPING_FEE],[TAXCODE],[BRANCH_NUMBER],[CUST],[USERNAME],[CONNECTION_ID]) VALUES ";
+
+                        string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                        insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                        insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV, CONNECTION_ID) VALUES ";
+
+                        var connIDARF01C = Guid.NewGuid().ToString();
+                        string no_referensi_update_status = "";
+
+                        var list_pesanan_update_pembeli = new List<string>();
+
+                        foreach (Order order in bindOrder.data.orders.Where(p => OrderNoInDb.Contains(Convert.ToString(p.order_id))).ToList())
+                        {
+                            no_referensi_update_status += "'" + Convert.ToString(order.order_id) + "',";
+                        }
+                        if (no_referensi_update_status != "")
+                        {
+                            no_referensi_update_status = no_referensi_update_status.Substring(0, no_referensi_update_status.Length - 1);
+
+                            var dsPesananUnpaid = EDB.GetDataSet("CString", "SIT01A", "SELECT NO_REFERENSI FROM SOT01A WHERE NO_REFERENSI IN (" + no_referensi_update_status + ") AND STATUS_TRANSAKSI = '0'");
+                            if (dsPesananUnpaid.Tables[0].Rows.Count > 0)
+                            {
+                                for (int i = 0; i < dsPesananUnpaid.Tables[0].Rows.Count; i++)
+                                {
+                                    list_pesanan_update_pembeli.Add(Convert.ToString(dsPesananUnpaid.Tables[0].Rows[i]["NO_REFERENSI"]));
+                                }
+                                //getMultiOrderItemsForExpiredDate(list_pesanan_update_pembeli, accessToken, dbPathEra, cust);//remark 13 nov 2020 tutup sementara
+                                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + no_referensi_update_status + ") AND STATUS_TRANSAKSI = '0'");
+                            }
+                        }
+                        if (list_pesanan_update_pembeli.Count() > 0)
+                        {
+                            var noref_update_pembeli = bindOrder.data.orders.Where(p => list_pesanan_update_pembeli.Contains(Convert.ToString(p.order_id))).ToList();
+                            foreach (var order in noref_update_pembeli)
+                            {
+                                if (order.address_billing != null)
+                                {
+                                    if (!string.IsNullOrEmpty(order.address_billing.phone))
+                                    {
+                                        var ordInDB = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust && p.NO_REFERENSI == order.order_id).FirstOrDefault();
+                                        if (ordInDB != null)//add by calvin 16 oktober 2019
+                                        {
+                                            if (string.IsNullOrEmpty(ordInDB.PEMESAN))
+                                            {
+                                                var pembeliInDB = new ARF01C();
+                                                if (!string.IsNullOrEmpty(order.address_billing.customer_email))
+                                                {
+                                                    pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.EMAIL == order.address_billing.customer_email).FirstOrDefault();
+                                                }
+                                                else
+                                                {
+                                                    pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
+                                                }
+
+                                                if (pembeliInDB != null)
+                                                {
+                                                    var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + ordInDB.NO_BUKTI + "'");
+                                                }
+                                                else
+                                                {
+                                                    InsertPembeli(order, connIDARF01C, dbPathEra, username);
+                                                    if (!string.IsNullOrEmpty(order.address_billing.customer_email))
+                                                    {
+                                                        pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.EMAIL == order.address_billing.customer_email).FirstOrDefault();
+                                                    }
+                                                    else
+                                                    {
+                                                        pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
+                                                    }
+                                                    if (pembeliInDB != null)
+                                                    {
+                                                        var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + ordInDB.NO_BUKTI + "'");
+                                                    }
+                                                    else
+                                                    {
+                                                        var adaPembeliGagalInsert = true;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        var notinso = bindOrder.data.orders.Where(p => !OrderNoInDb.Contains(Convert.ToString(p.order_id))).ToList();
+                        foreach (Order order in notinso)
+                        {
+                            bool doInsert = true;
+                            bool doInsertPembeli = true;
+                            var pembeliInDB = new ARF01C();
+                            #region data pembeli
+
+                            string billing_first_name = string.IsNullOrEmpty(order.address_billing.first_name) ? "" : order.address_billing.first_name.Replace("'", "`");
+                            if (billing_first_name.Length > 50)
+                                billing_first_name = billing_first_name.Substring(0, 50);
+
+                            string billing_last_name = string.IsNullOrEmpty(order.address_billing.last_name) ? "" : order.address_billing.last_name.Replace("'", "`");
+                            if (billing_last_name.Length > 50)
+                                billing_last_name = billing_last_name.Substring(0, 50);
+
+                            string phone = (string.IsNullOrEmpty(order.address_billing.phone) ? "NO_PHONE" : order.address_billing.phone.Replace("'", "`"));
+                            if (phone.Length > 50)
+                                phone = phone.Substring(0, 50);
+
+                            string phone2 = string.IsNullOrEmpty(order.address_billing.phone2) ? "" : order.address_billing.phone2.Replace("'", "`");
+                            if (phone2.Length > 50)
+                                phone2 = phone2.Substring(0, 50);
+
+                            string billing_address2 = string.IsNullOrEmpty(order.address_billing.address2) ? "" : order.address_billing.address2.Replace("'", "`");
+                            if (billing_address2.Length > 50)
+                                billing_address2 = billing_address2.Substring(0, 50);
+
+                            string billing_address3 = string.IsNullOrEmpty(order.address_billing.address3) ? "" : order.address_billing.address3.Replace("'", "`");
+                            if (billing_address3.Length > 50)
+                                billing_address3 = billing_address3.Substring(0, 50);
+
+                            string billing_address4 = string.IsNullOrEmpty(order.address_billing.address4) ? "" : order.address_billing.address4.Replace("'", "`");
+                            if (billing_address4.Length > 50)
+                                billing_address4 = billing_address4.Substring(0, 50);
+
+                            string billing_address5 = string.IsNullOrEmpty(order.address_billing.address5) ? "" : order.address_billing.address5.Replace("'", "`");
+                            if (billing_address5.Length > 50)
+                                billing_address5 = billing_address5.Substring(0, 50);
+
+                            string customer_email = string.IsNullOrEmpty(order.address_billing.customer_email) ? "" : order.address_billing.customer_email.Replace("'", "`");
+                            if (customer_email.Length > 50)
+                                customer_email = customer_email.Substring(0, 50);
+
+                            string city = string.IsNullOrEmpty(order.address_billing.city) ? "" : order.address_billing.city.Replace("'", "`");
+                            if (city.Length > 50)
+                                city = city.Substring(0, 50);
+
+                            string post_code = string.IsNullOrEmpty(order.address_billing.post_code) ? "" : order.address_billing.post_code.Replace("'", "`");
+                            if (post_code.Length > 50)
+                                post_code = post_code.Substring(0, 50);
+
+                            string country = string.IsNullOrEmpty(order.address_billing.country) ? "" : order.address_billing.country.Replace("'", "`");
+                            if (country.Length > 50)
+                                country = country.Substring(0, 50);
+
+                            #endregion
+                            if (doInsert)
+                            {
+                                adaInsert = true;
+                                var giftOptionBit = (order.gift_option.Equals("")) ? 1 : 0;
+                                var price = order.price.Split('.');
+                                //add by nurul 4/12/2019, local time
+                                var tempCreated_at = order.created_at.AddHours(7);
+                                var tempUpdated_at = order.updated_at.AddHours(7);
+                                //end add by nurul 4/12/2019, local time
+                                var statusEra = "";
+                                #region convert status
+                                switch (order.statuses[0].ToString())
+                                {
+                                    case "processing":
+                                    case "packed":
+                                    case "pending":
+                                        statusEra = "01";
+                                        break;
+                                    case "ready_to_ship":
+                                        //change by Tri 12 mar 2020, status rts juga masuk ke MO untuk handle customer yang ubah status pesanan di lazada langsung
+                                        //statusEra = "03";
+                                        statusEra = "01";
+                                        //end change by Tri 12 mar 2020, status rts juga masuk ke MO untuk handle customer yang ubah status pesanan di lazada langsung
+                                        break;
+                                    case "delivered":
+                                    //statusEra = "03";
+                                    //break;
+                                    case "shipped":
+                                        statusEra = "04";
+                                        break;
+                                    case "returned":
+                                        statusEra = "06";
+                                        break;
+                                    case "return_waiting_for_approval":
+                                        statusEra = "07";
+                                        break;
+                                    case "return_shipped_by_customer":
+                                        statusEra = "08";
+                                        break;
+                                    case "return_rejected":
+                                        statusEra = "09";
+                                        break;
+                                    case "failed":
+                                        statusEra = "10";
+                                        break;
+                                    case "canceled":
+                                        statusEra = "11";
+                                        break;
+                                    default:
+                                        statusEra = "99";
+                                        break;
+                                }
+                                #endregion convert status
+                                var nama1 = order.customer_first_name.Replace("'", "`");
+                                if (nama1.Length > 30)
+                                    nama1 = nama1.Substring(0, 30);
+                                var nama2 = order.customer_last_name.Replace("'", "`");
+                                if (nama2.Length > 30)
+                                    nama2 = nama2.Substring(0, 30);
+                                
+                                #region cut max length dan ubah petik
+                                string payment_method = string.IsNullOrEmpty(order.payment_method) ? "" : order.payment_method.Replace("'", "`");
+                                if (payment_method.Length > 50)
+                                    payment_method = payment_method.Substring(0, 50);
+
+                                string remarks = string.IsNullOrEmpty(order.remarks) ? "" : order.remarks.Replace("'", "`");
+                                if (remarks.Length > 50)
+                                    remarks = remarks.Substring(0, 50);
+
+                                string order_number = string.IsNullOrEmpty(order.order_number) ? "" : order.order_number.Replace("'", "`");
+                                if (order_number.Length > 50)
+                                    order_number = order_number.Substring(0, 50);
+
+                                string delivery_info = string.IsNullOrEmpty(order.delivery_info) ? "" : order.delivery_info.Replace("'", "`");
+                                if (delivery_info.Length > 50)
+                                    delivery_info = delivery_info.Substring(0, 50);
+
+                                string gift_message = string.IsNullOrEmpty(order.gift_message) ? "" : order.gift_message.Replace("'", "`");
+                                if (gift_message.Length > 50)
+                                    gift_message = gift_message.Substring(0, 50);
+
+                                string voucher_code = string.IsNullOrEmpty(order.voucher_code) ? "" : order.voucher_code.Replace("'", "`");
+                                if (voucher_code.Length > 50)
+                                    voucher_code = voucher_code.Substring(0, 50);
+
+                                string first_name = string.IsNullOrEmpty(order.address_shipping.first_name) ? "" : order.address_shipping.first_name.Replace("'", "`");
+                                if (first_name.Length > 50)
+                                    first_name = first_name.Substring(0, 50);
+
+                                string last_name = string.IsNullOrEmpty(order.address_shipping.last_name) ? "" : order.address_shipping.last_name.Replace("'", "`");
+                                if (last_name.Length > 50)
+                                    last_name = last_name.Substring(0, 50);
+
+                                string shipping_phone = string.IsNullOrEmpty(order.address_shipping.phone) ? "" : order.address_shipping.phone.Replace("'", "`");
+                                if (shipping_phone.Length > 50)
+                                    shipping_phone = shipping_phone.Substring(0, 50);
+
+                                string shipping_phone2 = string.IsNullOrEmpty(order.address_shipping.phone2) ? "" : order.address_shipping.phone2.Replace("'", "`");
+                                if (shipping_phone2.Length > 50)
+                                    shipping_phone2 = shipping_phone2.Substring(0, 50);
+
+                                string shipping_address2 = string.IsNullOrEmpty(order.address_shipping.address2) ? "" : order.address_shipping.address2.Replace("'", "`");
+                                if (shipping_address2.Length > 50)
+                                    shipping_address2 = shipping_address2.Substring(0, 50);
+
+                                string shipping_address3 = string.IsNullOrEmpty(order.address_shipping.address3) ? "" : order.address_shipping.address3.Replace("'", "`");
+                                if (shipping_address3.Length > 50)
+                                    shipping_address3 = shipping_address3.Substring(0, 50);
+
+                                string shipping_address4 = string.IsNullOrEmpty(order.address_shipping.address4) ? "" : order.address_shipping.address4.Replace("'", "`");
+                                if (shipping_address4.Length > 50)
+                                    shipping_address4 = shipping_address4.Substring(0, 50);
+
+                                string shipping_address5 = string.IsNullOrEmpty(order.address_shipping.address5) ? "" : order.address_shipping.address5.Replace("'", "`");
+                                if (shipping_address5.Length > 50)
+                                    shipping_address5 = shipping_address5.Substring(0, 50);
+
+                                string shipping_customer_email = string.IsNullOrEmpty(order.address_shipping.customer_email) ? "" : order.address_shipping.customer_email.Replace("'", "`");
+                                if (shipping_customer_email.Length > 50)
+                                    shipping_customer_email = customer_email.Substring(0, 50);
+
+                                string shipping_city = string.IsNullOrEmpty(order.address_shipping.city) ? "" : order.address_shipping.city.Replace("'", "`");
+                                if (shipping_city.Length > 50)
+                                    shipping_city = shipping_city.Substring(0, 50);
+
+                                string shipping_post_code = string.IsNullOrEmpty(order.address_shipping.post_code) ? "" : order.address_shipping.post_code.Replace("'", "`");
+                                if (shipping_post_code.Length > 50)
+                                    shipping_post_code = shipping_post_code.Substring(0, 50);
+
+                                string shipping_country = string.IsNullOrEmpty(order.address_shipping.country) ? "" : order.address_shipping.country.Replace("'", "`");
+                                if (shipping_country.Length > 50)
+                                    shipping_country = shipping_country.Substring(0, 50);
+
+                                string national_registration_number = string.IsNullOrEmpty(order.national_registration_number) ? "" : order.national_registration_number.Replace("'", "`");
+                                if (national_registration_number.Length > 50)
+                                    national_registration_number = national_registration_number.Substring(0, 50);
+
+                                string extra_attributes = string.IsNullOrEmpty(order.extra_attributes) ? "" : order.extra_attributes.Replace("'", "`");
+                                if (extra_attributes.Length > 50)
+                                    extra_attributes = extra_attributes.Substring(0, 50);
+
+                                string tax_code = string.IsNullOrEmpty(order.tax_code) ? "" : order.tax_code.Replace("'", "`");
+                                if (tax_code.Length > 50)
+                                    tax_code = tax_code.Substring(0, 50);
+
+                                string branch_number = string.IsNullOrEmpty(order.branch_number) ? "" : order.branch_number.Replace("'", "`");
+                                if (branch_number.Length > 50)
+                                    branch_number = branch_number.Substring(0, 50);
+                                #endregion
+
+                                insertQ += "('" + order.order_id + "','" + nama1 + "','" + nama2 + "','" + order_number + "','" + payment_method + "','" + remarks;
+                                insertQ += "','" + delivery_info + "','" + price[0].Replace(",", "") + "'," + giftOptionBit + ",'" + gift_message + "','" + voucher_code + "','" + tempCreated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + tempUpdated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + billing_first_name + "','" + billing_last_name;
+                                insertQ += "','" + phone + "','" + phone2 + "','" + order.address_billing.address1.Replace('\'', '`') + "','" + billing_address2 + "','" + billing_address3 + "','" + billing_address4 + "','" + billing_address5;
+                                insertQ += "','" + customer_email + "','" + city + "','" + post_code + "','" + country + "','" + first_name + "','" + last_name + "','" + shipping_phone + "','" + shipping_phone2;
+                                insertQ += "','" + order.address_shipping.address1.Replace('\'', '`') + "','" + shipping_address2 + "','" + shipping_address3 + "','" + shipping_address4 + "','" + shipping_address5 + "','" + shipping_customer_email + "','" + shipping_city;
+                                insertQ += "','" + shipping_post_code + "','" + shipping_country + "','" + national_registration_number + "'," + order.items_count + ",'" + order.promised_shipping_times + "','" + extra_attributes + "','" + statusEra;
+                                insertQ += "'," + order.voucher + "," + order.shipping_fee + ",'" + tax_code + "','" + branch_number + "','" + cust + "','" + username + "','" + connectionID + "')";
+                                
+                                listOrderId.Add(order.order_id);
+
+                                insertQ += " , ";
+                                if (!OrderNoInDb.Contains(Convert.ToString(order.order_id)))
+                                    jmlhNewOrder++;
+                            }
+                            if (doInsertPembeli && order.address_billing != null)
+                            {
+                                if (!string.IsNullOrEmpty(order.address_billing.phone))
+                                {
+                                    adaInsertPembeli = true;
+                                    var tblKabKot = EDB.GetDataSet("MOConnectionString", "KabupatenKota", "SELECT TOP 1 * FROM KabupatenKota WHERE NamaKabKot LIKE '%" + order.address_billing.address4 + "%'");
+                                    var tblProv = EDB.GetDataSet("MOConnectionString", "Provinsi", "SELECT TOP 1 * FROM Provinsi WHERE NamaProv LIKE '%" + order.address_billing.address5 + "%'");
+
+                                    var kabKot = "3174";//set default value jika tidak ada di db
+                                    var prov = "31";//set default value jika tidak ada di db
+
+                                    if (tblProv.Tables[0].Rows.Count > 0)
+                                        prov = tblProv.Tables[0].Rows[0]["KodeProv"].ToString();
+                                    if (tblKabKot.Tables[0].Rows.Count > 0)
+                                        kabKot = tblKabKot.Tables[0].Rows[0]["KodeKabKot"].ToString();
+
+                                    var nama = order.address_billing.first_name.Replace('\'', '`');
+                                    if (nama.Length > 30)
+                                        nama = nama.Substring(0, 30);
+
+                                    insertPembeli += "('" + nama + "','" + order.address_billing.address1.Replace('\'', '`') + "','" + phone + "','" + customer_email + "',0,0,'0','01',";
+                                    insertPembeli += "1, 'IDR', '01', '" + order.address_billing.address1.Replace('\'', '`') + "', 0, 0, 0, 0, '1', 0, 0, ";
+                                    insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + post_code.Substring(0, post_code.Length > 5 ? 5 : post_code.Length) + "', '" + customer_email + "', '" + kabKot + "', '" + prov + "', '" + billing_address4 + "', '" + billing_address5 + "', '" + connIDARF01C + "')";
+                                    insertPembeli += " , ";
+                                }
+                            }
+                        }
+                        //change by Tri 24/9/2019
+                        //if (adaInsert)
+                        if (adaInsert || adaInsertPembeli)
+                        //end change by Tri 24/9/2019
+                        {
+                            SqlCommand CommandSQL = new SqlCommand();
+
+                            insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 2);
+                            if (adaInsertPembeli)
+                            {
+                                var aa = EDB.ExecuteSQL(username, CommandType.Text, insertPembeli);
+                                CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIDARF01C;
+                                EDB.ExecuteSQL("MOConnectionString", "MoveARF01CFromTempTable", CommandSQL);
+                            }
+
+                            insertQ = insertQ.Substring(0, insertQ.Length - 2);
+                            if (adaInsert)
+                            {
+                                var a = EDB.ExecuteSQL(username, CommandType.Text, insertQ);
+
+                                //add by Tri 21 Feb 2020, gabung sp header dan detail move order
+                                var getDetail = getMultiOrderItems2(listOrderId, accessToken, connectionID, dbPathEra, uname, cust);
+                                if (getDetail.status == 1)
+                                {
+                                    EDB.ExecuteSQL("MOConnectionString", CommandType.Text, getDetail.message);
+                                }
+                                else
+                                {
+                                    throw new Exception(getDetail.message);
+                                }
+                                //end add by Tri 21 Feb 2020, gabung sp header dan detail move order
+
+                                CommandSQL = new SqlCommand();
+                                CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
+                                CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = fromDt.AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss");
+                                CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = toDt.ToString("yyyy-MM-dd HH:mm:ss");
+                                CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 1;
+                                CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@elevenia", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "";
+                                CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = cust;
+
+                                EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                            }
+
+
+                            ret.status = 1;
+                        }
+
+                        if (jmlhNewOrder > 0)
+                        {
+                            var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                            contextNotif.Clients.Group(dbPathEra).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari Lazada.");
+
+
+                            new StokControllerJob().updateStockMarketPlace(connectionID, dbPathEra, uname);
+
+                            //add by nurul 19/1/2021, bundling 
+                            ret.AdaPesanan = true;
+                            //end add by nurul 19/1/2021, bundling
+                        }
+                    }
+                    else
+                    {
+                        ret.message = "no order";
+                    }
+                }
+                else
+                {
+                    ret.message = "lazada api return error";
+                    if (string.IsNullOrEmpty(bindOrder.message))
+                        ret.message += "\n" + bindOrder.message.ToString();
+
+                }
+            }
+            else
+            {
+                ret.message = "failed to call lazada api";
+            }
+            return ret;
+        }
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
         public BindingBase GetOrders_GoLive_Unpaid(string cust, string accessToken, string dbPathEra, string uname)
         {
             var ret = new BindingBase();
