@@ -990,8 +990,8 @@ namespace MasterOnline.Controllers
             #endregion
 
             #region lazada
-            try { 
             var kdLazada = 7;
+            try { 
             //var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
             var LazadaShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdLazada.ToString());
             if (id_single_account.HasValue)
@@ -1095,6 +1095,8 @@ namespace MasterOnline.Controllers
                                     string connId_JobId = dbPathEra + "_lazada_webhook_insert_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
                                     new LazadaControllerJob().GetOrder_webhook_lzd_insert(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
 
+                                    connId_JobId = dbPathEra + "_lazada_webhook_cancel_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                    new LazadaControllerJob().GetOrder_webhook_lzd_cancel(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
 #else
                             string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
                             recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.HourInterval(1), recurJobOpt);
@@ -1116,6 +1118,9 @@ namespace MasterOnline.Controllers
 
                             connId_JobId = dbPathEra + "_lazada_webhook_insert_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
                             recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrder_webhook_lzd_insert(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+
+                            connId_JobId = dbPathEra + "_lazada_webhook_cancel_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrder_webhook_lzd_cancel(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
 
 #endif
 

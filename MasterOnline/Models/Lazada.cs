@@ -135,7 +135,15 @@ namespace MasterOnline.Models
         public string code { get; set; }
         public string request_id { get; set; }
     }
-
+    public class GetShopResponse
+    {
+        public GetShopResponsedata data { get; set; }
+    }
+    public class GetShopResponsedata
+    {
+        public string seller_id { get; set; }
+        public string email { get; set; }
+    }
     public class Country_User_Info
     {
         public string country { get; set; }
