@@ -239,6 +239,22 @@ namespace MasterOnline.Controllers
                         + "', Sort1_Cust = '" + sellerid + "'  WHERE CUST = '" + cust + "'");
                     if (result == 1)
                     {
+                        var tblMapping = MoDbContext.TABEL_MAPPING_LAZADA.Where(m => m.DBPATHERA == user && m.CUST == cust).FirstOrDefault();
+                        if (tblMapping != null)
+                        {
+                            tblMapping.SHOPID = sellerid;
+                        }
+                        else
+                        {
+                            tblMapping = new TABEL_MAPPING_LAZADA
+                            {
+                                CUST = cust,
+                                SHOPID = sellerid,
+                                DBPATHERA = user
+                            };
+                            MoDbContext.TABEL_MAPPING_LAZADA.Add(tblMapping);
+                        }
+                        MoDbContext.SaveChanges();
                         manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, "", currentLog);
                         GetShipment(cust, bindAuth.access_token);
                     }

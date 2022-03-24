@@ -40,4 +40,15 @@ namespace MasterOnline.Models
         public string CUST { get; set; }
 
     }
+    [Table("TABEL_MAPPING_LAZADA")]
+    public class TABEL_MAPPING_LAZADA
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int RECNUM { get; set; }
+        public string DBPATHERA { get; set; }
+        public string SHOPID { get; set; }
+        public string CUST { get; set; }
+
+    }
 }
