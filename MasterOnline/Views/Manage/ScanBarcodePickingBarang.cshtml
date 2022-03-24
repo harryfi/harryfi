@@ -132,6 +132,8 @@
     $(document).ready(function () {
         //alert('test');
         $("#txtScanBarcode").focus();
+
+        
     });
 
     $("input.num-only").off('keydown').on('keydown',
@@ -150,6 +152,20 @@
             if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
                 e.preventDefault();
             }
+        });
+
+
+        $("#txtScanBarcode").keyup(function (event) {
+            event.preventDefault();
+            if (event.keyCode === 13 || event.keyCode === 9) {
+                if ($("#txtScanBarcode").val() == '') {
+                    alert('Silahkan scan barcode barang.');
+                }
+                else {
+                    ScanBarcodeBarang();
+                }
+            }
+            return false;
         });
 
     function changeQtyPacking(id, qty) {
@@ -173,18 +189,18 @@
         }
     }
 
-    $("#txtScanBarcode").keyup(function (event) {
-        event.preventDefault();
-        if (event.keyCode === 13 || event.keyCode === 9) {
-            if ($("#txtScanBarcode").val() == '') {
-                alert('Silahkan scan barcode barang.');
-            }
-            else {
-                ScanBarcodeBarang();
-            }
-        }
-        return false;
-    });
+    //$("#txtScanBarcode").keyup(function (event) {
+    //    event.preventDefault();
+    //    if (event.keyCode === 13 || event.keyCode === 9) {
+    //        if ($("#txtScanBarcode").val() == '') {
+    //            alert('Silahkan scan barcode barang.');
+    //        }
+    //        else {
+    //            ScanBarcodeBarang();
+    //        }
+    //    }
+    //    return false;
+    //});
 
     function ScanBarcodeBarang() {
         listBrg = [];
@@ -225,6 +241,8 @@
                         //$('#modalPickingBarang').modal('hide');
                         if (response.Errors == undefined) {
                             //editPackinglist1(response.Errors[0]);
+                            $('#modal-picking').remove();
+                            $('#modal-picking-body').append('<div id="modal-picking"></div>');
                             $('#modal-picking').html(response);
                             $("#txtScanBarcode").focus();
                         }

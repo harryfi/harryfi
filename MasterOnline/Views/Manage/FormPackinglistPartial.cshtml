@@ -580,11 +580,14 @@
                 });
         }
 
-        function openModalPacking() {
+        function openModalPacking(x) {
 
             noPesanan = $('#txtNoPesanan').val();
             noPesananDef = $('#default_no_bukti').val();
             textbrc = $('#txtScanBarcodePacking').val();
+            if (x == "open") {
+                noPesananDef = undefined;
+            }
             console.log(textbrc);
             if (noPesanan == undefined) {
                 noPesanan = "";
@@ -609,9 +612,12 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
+                    $('#default_no_bukti').val('');
                     if (response.Errors != null) {
                         alert(response.Errors[0]);
                     } else {
+                        $('#modal-packing').remove();
+                        $('#modal-packing-body').append('<div id="modal-packing"></div>');
                         $('#modal-packing').html(response);
                         $('#modalPackingPesanan').modal('show');
                     }
@@ -829,7 +835,7 @@
                     <div class="col-lg-4 ">
                         <div class="pull-right">
                             <button id="btnRefreshTabPesanan" type="button" class="btn btn-default" onclick="RefreshPackingTabPesanan()" style="width:75px">Refresh</button>
-                            <button type="button" id="btnPackingPesanan" class="btn btn-primary" onclick="openModalPacking();">Scan Barcode Packing</button>
+                            <button type="button" id="btnPackingPesanan" class="btn btn-primary" onclick="openModalPacking('open');">Scan Barcode Packing</button>
                         </div>
                     </div>
                 </div>
@@ -1172,7 +1178,7 @@
                 <button type="button" class="close" onclick="orderback()" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title">Scan Barcode Packing</h4>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" id="modal-packing-body">
                 @*<div class="row text-center">
                         <button id="btnHapusPicking"></button>
                     </div>*@
@@ -1192,7 +1198,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title">Scan Barcode Picking</h4>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" id="modal-picking-body">
                 @*<div class="row text-center">
                         <button id="btnHapusPicking"></button>
                     </div>*@

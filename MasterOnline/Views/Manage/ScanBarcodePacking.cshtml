@@ -110,33 +110,35 @@
     </table>
 </div>
 <script>
-    $("#txtScanBarcodePacking").keyup(function (event) {
-        event.preventDefault();
-        if (event.keyCode === 13 || event.keyCode === 9) {
-            if ($('#txtNoPesanan').val() == "") {
-                alert('Silahkan pilih pesanan terlebih dahulu.');
-                return false;
-            }
-            if ($("#txtScanBarcodePacking").val() == '') {
-                alert('Silahkan scan barcode barang.');
-            }
-            else {
-                //ScanBarcodeBarangPacking();
-                for (i = 0; i < $('#maxDataPacking').val(); i++) {
-                    if ($('#dataScan_' + i + '__code').val() == $("#txtScanBarcodePacking").val()) {
-                        document.getElementById('txtIsValid_' + i).innerText = "VALID";
-                        $("#txtScanBarcode_" + i).val($("#txtScanBarcodePacking").val());
-                        $("#txtScanBarcodePacking").val('');
-                        $("#txtScanBarcodePacking").focus();
-                        return false;
-                    }
+    $(document).ready(function () {
+        $("#txtScanBarcodePacking").keyup(function (event) {
+            event.preventDefault();
+            if (event.keyCode === 13 || event.keyCode === 9) {
+                if ($('#txtNoPesanan').val() == "") {
+                    alert('Silahkan pilih pesanan terlebih dahulu.');
+                    return false;
                 }
-                checkrpre();
-                $("#txtScanBarcodePacking").val('');
-                $("#txtScanBarcodePacking").focus();
+                if ($("#txtScanBarcodePacking").val() == '') {
+                    alert('Silahkan scan barcode barang.');
+                }
+                else {
+                    //ScanBarcodeBarangPacking();
+                    for (i = 0; i < $('#maxDataPacking').val(); i++) {
+                        if ($('#dataScan_' + i + '__code').val() == $("#txtScanBarcodePacking").val()) {
+                            document.getElementById('txtIsValid_' + i).innerText = "VALID";
+                            $("#txtScanBarcode_" + i).val($("#txtScanBarcodePacking").val());
+                            $("#txtScanBarcodePacking").val('');
+                            $("#txtScanBarcodePacking").focus();
+                            return false;
+                        }
+                    }
+                    checkrpre();
+                    $("#txtScanBarcodePacking").val('');
+                    $("#txtScanBarcodePacking").focus();
+                }
             }
-        }
-        return false;
+            return false;
+        });
     });
 
     function checkrpre()
