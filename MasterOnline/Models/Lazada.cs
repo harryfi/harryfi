@@ -141,7 +141,7 @@ namespace MasterOnline.Models
     }
     public class GetShopResponsedata
     {
-        public string seller_id { get; set; }
+        public long seller_id { get; set; }
         public string email { get; set; }
     }
     public class Country_User_Info

@@ -279,7 +279,7 @@ namespace MasterOnline.Controllers
                 LazopResponse response = client.Execute(request, accessToken);
 
                 var resData = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(GetShopResponse)) as GetShopResponse;
-                ret = resData.data.seller_id;
+                ret = resData.data.seller_id.ToString();
             }
             catch (Exception ex)
             {
