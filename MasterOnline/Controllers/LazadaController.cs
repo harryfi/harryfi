@@ -284,9 +284,7 @@ namespace MasterOnline.Controllers
         public string GetShopID(string accessToken)
         {
             var ret = "";
-            string url;
-            url = "https://auth.lazada.com/rest";
-            ILazopClient client = new LazopClient(url, eraAppKey, eraAppSecret);
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest("/seller/get");
             request.SetHttpMethod("GET");
 

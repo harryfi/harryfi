@@ -2493,6 +2493,56 @@ namespace MasterOnline.Controllers
             
             return ret;
         }
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public string GetOrder_webhook_lzd_update(string cust, string accessToken, string dbPathEra, string uname)
+        {
+            string ret = "";
+            SetupContext(dbPathEra, uname);
+            var daysNow = DateTime.UtcNow.AddHours(7).AddDays(-1);
+            EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM TABEL_WEBHOOK_LAZADA WHERE CUST = '" + cust
+                + "' AND TGL <  '" + daysNow.AddDays(-2).ToString("yyyy-MM-dd HH:mm:ss") + "'");
+
+            var dsNewOrder = EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE S SET STATUS_TRANSAKSI = '04' FROM TABEL_WEBHOOK_LAZADA (NOLOCK) T INNER JOIN SOT01A (NOLOCK) S ON S.NO_REFERENSI = T.ORDERID AND T.CUST = S.CUST WHERE T.TGL >= '"
+                + daysNow.ToString("yyyy-MM-dd HH:mm:ss") + "' AND ORDER_STATUS IN ('700', '701') AND T.CUST = '" + cust + "' AND STATUS_TRANSAKSI = '03'");
+            if (dsNewOrder > 0)
+            {
+                var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                contextNotif.Clients.Group(dbPathEra).moNewOrder("" + Convert.ToString(dsNewOrder) + " Pesanan dari Lazada sudah selesai.");
+
+                var dateTimeNow = DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd");
+                string sSQLUpdateDatePesananSelesai = "UPDATE S SET TGL_KIRIM = '" + dateTimeNow
+                    + "' FROM TABEL_WEBHOOK_LAZADA (NOLOCK) T INNER JOIN SIT01A (NOLOCK) S ON S.NO_REF = T.ORDERID  AND T.CUST = S.CUST WHERE T.TGL >= '"
+                    + daysNow.ToString("yyyy-MM-dd HH:mm:ss") + "' AND T.CUST = '" + cust + "' AND ORDER_STATUS IN ('delivered') ";
+                var resultUpdateDatePesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdateDatePesananSelesai);
+            }
+
+            //add 27 july 2021, cek pesanan tanpa pemesan
+            string sSQL = "SELECT DISTINCT NO_REFERENSI FROM SOT01A (NOLOCK) ";
+            sSQL += "WHERE STATUS_TRANSAKSI not in ('0', '11','12') AND TGL >= '" + DateTime.UtcNow.AddHours(7).AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss")
+                + "' AND TGL <= '" + DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss")
+                + "' AND CUST = '" + cust + "' and isnull(pemesan,'') = ''";
+
+            var dsPesanan = EDB.GetDataSet("CString", "SOT01", sSQL);
+
+            if (dsPesanan.Tables[0].Rows.Count > 0)
+            {
+                for (int i = 0; i < dsPesanan.Tables[0].Rows.Count; i++)
+                {
+                    UpdatePemesanLazada(accessToken, dsPesanan.Tables[0].Rows[i]["NO_REFERENSI"].ToString(), dbPathEra, cust);
+                }
+            }
+
+            //end add 27 july 2021, cek pesanan tanpa pemesan
+
+            var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus
+                + "%' and invocationdata like '%GetOrder_webhook_lzd_update%' and statename like '%Enque%' ");
+
+            return ret;
+        }
+
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
         public BindingBase GetOrder_webhook_lzd_cancel(string cust, string accessToken, string dbPathEra, string uname)
