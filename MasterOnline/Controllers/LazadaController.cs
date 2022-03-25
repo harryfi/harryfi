@@ -231,7 +231,7 @@ namespace MasterOnline.Controllers
                 if (!response.IsError())
                 {
                     var bindAuth = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaAuth)) as LazadaAuth;
-                    var sellerid = GetShopID(accessToken);
+                    var sellerid = GetShopID(bindAuth.access_token);
                     // add by fauzi 20 februari 2020
                     var dateExpired = DateTime.UtcNow.AddSeconds(bindAuth.expires_in).ToString("yyyy-MM-dd HH:mm:ss");
                     var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + bindAuth.access_token 
