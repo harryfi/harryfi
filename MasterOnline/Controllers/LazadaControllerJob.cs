@@ -3207,8 +3207,8 @@ namespace MasterOnline.Controllers
                                 CommandSQL = new SqlCommand();
                                 CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
                                 CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
-                                CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = fromDt.AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss");
-                                CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = toDt.ToString("yyyy-MM-dd HH:mm:ss");
+                                CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = fromDt.AddDays(-3).ToString("yyyy-MM-dd HH:mm:ss");
+                                CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = toDt.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                                 CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 1;
                                 CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
                                 CommandSQL.Parameters.Add("@elevenia", SqlDbType.Int).Value = 0;
