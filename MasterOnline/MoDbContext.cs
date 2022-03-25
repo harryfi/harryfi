@@ -60,6 +60,7 @@ namespace MasterOnline
         public DbSet<Tutorial_Header> Tutorial_Header { get; set; }
         public DbSet<Tutorial_Detail> Tutorial_Detail { get; set; }
         public DbSet<TABEL_MAPPING_TIKTOK> TABEL_MAPPING_TIKTOK { get; set; }
+        public DbSet<TABEL_MAPPING_LAZADA> TABEL_MAPPING_LAZADA { get; set; }
 
         //add by Tri for bukalapak
         public DbSet<BUKALAPAK_TOKEN> BUKALAPAK_TOKEN { get; set; }
