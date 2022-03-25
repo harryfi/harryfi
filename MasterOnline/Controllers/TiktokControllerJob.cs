@@ -1630,10 +1630,10 @@ namespace MasterOnline.Controllers
             var ret = "";
             string urll = "https://open-api.tiktokglobalshop.com/api/logistics/shipping_document?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}&order_id={5}&document_type={6}";
             int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
-            string sign = eraAppSecret + "/api/logistics/shipping_documentapp_key" + eraAppKey + "document_typeSHIPPING_LABELorder_id" + ordersn
+            string sign = eraAppSecret + "/api/logistics/shipping_documentapp_key" + eraAppKey + "document_typeSL_PLorder_id" + ordersn
                 + "shop_id" + iden.shop_id + "timestamp" + timestamp + eraAppSecret;
             string signencry = GetHash(sign, eraAppSecret);
-            var vformatUrl = String.Format(urll, iden.access_token, timestamp, signencry, eraAppKey, iden.shop_id, ordersn, "SHIPPING_LABEL");
+            var vformatUrl = String.Format(urll, iden.access_token, timestamp, signencry, eraAppKey, iden.shop_id, ordersn, "SL_PL");
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
             myReq.Method = "GET";
             myReq.ContentType = "application/json";
