@@ -2558,7 +2558,7 @@ namespace MasterOnline.Controllers
             EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM TABEL_WEBHOOK_LAZADA WHERE CUST = '" + cust
                 + "' AND TGL <  '" + fromDt.AddDays(-2).ToString("yyyy-MM-dd HH:mm:ss") + "'");
             var dsNewOrder = EDB.GetDataSet("CString", "SO", "SELECT DISTINCT T.ORDERID FROM TABEL_WEBHOOK_LAZADA (NOLOCK) T LEFT JOIN SOT01A (NOLOCK) S ON S.NO_REFERENSI = T.ORDERID AND T.CUST = S.CUST WHERE T.TGL >= '"
-                + fromDt.ToString("yyyy-MM-dd HH:mm:ss") + "' AND ORDER_STATUS in ('canceled') AND T.CUST = '" + cust + "' AND ISNULL(S.NO_BUKTI, '') = ''");
+                + fromDt.ToString("yyyy-MM-dd HH:mm:ss") + "' AND ORDER_STATUS in ('canceled') AND T.CUST = '" + cust + "' AND ISNULL(S.NO_BUKTI, '') <> ''");
 
             //add by nurul 20/1/2021, bundling NewLzdOrders
             var AdaPesanan = false;
