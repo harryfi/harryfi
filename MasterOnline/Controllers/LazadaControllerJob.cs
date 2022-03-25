@@ -2505,7 +2505,7 @@ namespace MasterOnline.Controllers
                 + "' AND TGL <  '" + daysNow.AddDays(-2).ToString("yyyy-MM-dd HH:mm:ss") + "'");
 
             var dsNewOrder = EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE S SET STATUS_TRANSAKSI = '04' FROM TABEL_WEBHOOK_LAZADA (NOLOCK) T INNER JOIN SOT01A (NOLOCK) S ON S.NO_REFERENSI = T.ORDERID AND T.CUST = S.CUST WHERE T.TGL >= '"
-                + daysNow.ToString("yyyy-MM-dd HH:mm:ss") + "' AND ORDER_STATUS IN ('700', '701') AND T.CUST = '" + cust + "' AND STATUS_TRANSAKSI = '03'");
+                + daysNow.ToString("yyyy-MM-dd HH:mm:ss") + "' AND ORDER_STATUS IN ('delivered') AND T.CUST = '" + cust + "' AND STATUS_TRANSAKSI = '03'");
             if (dsNewOrder > 0)
             {
                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
@@ -2573,7 +2573,7 @@ namespace MasterOnline.Controllers
 
             var orderUnpaidList = (from a in ErasoftDbContext.SOT01A
                                    where a.USER_NAME == "Auto Lazada" && a.STATUS_TRANSAKSI != "11" && a.STATUS_TRANSAKSI != "12"
-                                   && a.CUST == cust && a.TGL < toDt2 && a.TGL > fromDt2
+                                   && a.CUST == cust && a.TGL > fromDt2
                                    select a.NO_REFERENSI).ToList();
 
             var dataJsonOrder = new NewLzdOrders();
