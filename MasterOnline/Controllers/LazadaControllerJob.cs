@@ -2487,6 +2487,27 @@ namespace MasterOnline.Controllers
             {
                 new StokControllerJob().getQtyBundling(dbPathEra, uname, connIdProses.Substring(0, connIdProses.Length - 3));
             }
+
+            var dsOrder = EDB.GetDataSet("CString", "SOT01", "SELECT NO_REFERENSI FROM SOT01A WHERE CUST = '" + cust + "' AND USER_NAME = 'Auto Lazada"
+                + "' AND TGL >= '" + DateTime.UtcNow.AddHours(7).AddHours(-7).ToString("yyyy-MM-dd HH:mm:ss")
+                 + "' AND STATUS_TRANSAKSI = '0' AND ISNULL(NO_REFERENSI, '') <> ''");
+            if (dsOrder.Tables[0].Rows.Count > 0)
+            {
+                var listOrder = new List<string>();
+                for (int i = 0; i < dsOrder.Tables[0].Rows.Count; i++)
+                {
+                    listOrder.Add(dsOrder.Tables[0].Rows[i]["NO_REFERENSI"].ToString());
+                    if (listOrder.Count == 100)
+                    {
+                        GetOrderDetailsCekUnpaid(listOrder, accessToken, Guid.NewGuid().ToString(), dbPathEra, uname, CUST);
+                        listOrder = new List<string>();
+                    }
+                }
+                if (listOrder.Count > 0)
+                {
+                    GetOrderDetailsCekUnpaid(listOrder, accessToken, Guid.NewGuid().ToString(), dbPathEra, uname, CUST);
+                }
+            }
             var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus 
                 + "%' and invocationdata like '%GetOrder_webhook_lzd_insert%' and statename like '%Enque%' ");
@@ -2993,6 +3014,9 @@ namespace MasterOnline.Controllers
                                 #region convert status
                                 switch (order.statuses[0].ToString())
                                 {
+                                    case "unpaid":
+                                        statusEra = "0";
+                                        break;
                                     case "processing":
                                     case "packed":
                                     case "pending":
