@@ -969,7 +969,7 @@ namespace MasterOnline.Controllers
         }
         #region Fetch Function
         #region Category
-        public async Task<string> getCategory(TTApiData apidata)
+        public string getCategory(TTApiData apidata)
         {
             string urll = "https://open-api.tiktokglobalshop.com/api/products/categories?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
             int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
@@ -1003,9 +1003,9 @@ namespace MasterOnline.Controllers
 #if AWS
                     string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #elif Debug_AWS
-                    string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+                    string con = "Data Source=54.151.175.62\\SQLEXPRESS,12354;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #else
-                    string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+                    string con = "Data Source=54.151.175.62\\SQLEXPRESS,45650;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #endif
                     using (SqlConnection oConnection = new SqlConnection(con))
                     {
@@ -1036,8 +1036,12 @@ namespace MasterOnline.Controllers
                                         oCommand.Parameters[0].Value = item.Id;
                                         oCommand.Parameters[1].Value = item.LocalDisplayName;
                                         oCommand.Parameters[2].Value = item.ParentId;
-                                        oCommand.Parameters[3].Value = item.IsLeaf ? "0" : "1";
+                                        oCommand.Parameters[3].Value = item.IsLeaf ? "1" : "0";
                                         oCommand.Parameters[4].Value = "";
+                                        if (oCommand.ExecuteNonQuery() < 1)
+                                        {
+                                           
+                                        }
                                     }
 
                                 }
