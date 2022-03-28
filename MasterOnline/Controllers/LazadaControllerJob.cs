@@ -2499,13 +2499,13 @@ namespace MasterOnline.Controllers
                     listOrder.Add(dsOrder.Tables[0].Rows[i]["NO_REFERENSI"].ToString());
                     if (listOrder.Count == 100)
                     {
-                        GetOrderDetailsCekUnpaid(listOrder, accessToken, Guid.NewGuid().ToString(), dbPathEra, uname, CUST);
+                        GetOrderDetailsCekUnpaid(listOrder, accessToken, Guid.NewGuid().ToString(), dbPathEra, uname, cust);
                         listOrder = new List<string>();
                     }
                 }
                 if (listOrder.Count > 0)
                 {
-                    GetOrderDetailsCekUnpaid(listOrder, accessToken, Guid.NewGuid().ToString(), dbPathEra, uname, CUST);
+                    GetOrderDetailsCekUnpaid(listOrder, accessToken, Guid.NewGuid().ToString(), dbPathEra, uname, cust);
                 }
             }
             var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
