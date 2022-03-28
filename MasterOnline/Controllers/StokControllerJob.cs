@@ -1575,9 +1575,11 @@ namespace MasterOnline.Controllers
                                         else
                                         {
 #if (DEBUG || Debug_AWS)
-                                            Task.Run(() => tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+                                            //Task.Run(() => tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+                                            Task.Run(() => tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null, 0)).Wait();
 #else
-                                        client.Enqueue<StokControllerJob>(x => x.tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
+                                        //client.Enqueue<StokControllerJob>(x => x.tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
+                                            client.Enqueue<StokControllerJob>(x => x.tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null, 0));
 #endif
                                         }
                                     }
@@ -2076,10 +2078,12 @@ namespace MasterOnline.Controllers
                                         else
                                         {
 #if (DEBUG || Debug_AWS)
-                                            Task.Run(() => tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+                                            //Task.Run(() => tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+                                            Task.Run(() => tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null, 0)).Wait();
                                             //E2Cart_UpdateStock_82Cart(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname);
 #else
-                                        client.Enqueue<StokControllerJob>(x => x.tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
+                                        //client.Enqueue<StokControllerJob>(x => x.tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
+                                        client.Enqueue<StokControllerJob>(x => x.tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null, 0));
 #endif
                                         }
                                     }
@@ -2642,9 +2646,11 @@ namespace MasterOnline.Controllers
                                     else
                                     {
 #if (DEBUG || Debug_AWS)
-                                        Task.Run(() => tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+                                        //Task.Run(() => tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+                                        Task.Run(() => tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null, 1)).Wait();
 #else
-                                        client.Enqueue<StokControllerJob>(x => x.tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
+                                        //client.Enqueue<StokControllerJob>(x => x.tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
+                                        client.Enqueue<StokControllerJob>(x => x.tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null, 1));
 #endif
                                     }
                                 }
@@ -3149,10 +3155,12 @@ namespace MasterOnline.Controllers
                                     else
                                     {
 #if (DEBUG || Debug_AWS)
-                                        Task.Run(() => tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+                                        //Task.Run(() => tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+                                        Task.Run(() => tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null, 1)).Wait();
                                         //E2Cart_UpdateStock_82Cart(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname);
 #else
-                                        client.Enqueue<StokControllerJob>(x => x.tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
+                                        //client.Enqueue<StokControllerJob>(x => x.tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
+                                    client.Enqueue<StokControllerJob>(x => x.tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null, 1));
 #endif
                                     }
                                 }
@@ -4420,16 +4428,29 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
         [NotifyOnFailed("Update Stok {obj} ke Tiktok Shop gagal.")]
-        public async Task<string> tiktok_updatestock(string DatabasePathErasoft, string stf02_brg, string log_Cust, string log_ActionCat, string log_ActName, TTApiData apidata, string idbarang, int stok, string uname, PerformContext context)
+        public async Task<string> tiktok_updatestock(string DatabasePathErasoft, string stf02_brg, string log_Cust, string log_ActionCat, string log_ActName, TTApiData apidata, string idbarang, int stok, string uname, PerformContext context, int multilokasi)
         {
             SetupContext(DatabasePathErasoft, uname);
             apidata = new TiktokControllerJob().RefreshTokenTikTok(apidata);
 
-            var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
+
+
+            //change by nurul 28/3/2022
+            //var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
+            double qtyOnHand = 0;
+            if (multilokasi == 1)
+            {
+                qtyOnHand = GetQOHSTF08A_MultiLokasi(stf02_brg, "ALL", log_Cust);
+            }
+            else
+            {
+                qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
+            }
             if (qtyOnHand < 0)
             {
                 qtyOnHand = 0;
             }
+            //end change by nurul 19/1/2022
 
             stok = Convert.ToInt32(qtyOnHand);
             string[] split = idbarang.Split(';');
