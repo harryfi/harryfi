@@ -1548,45 +1548,46 @@ namespace MasterOnline.Controllers
 #else
                                         client.Enqueue<StokControllerJob>(x => x.E2Cart_UpdateStock_82Cart(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, 0));
 #endif
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                    else if (marketPlace.NAMA.Equals(kdtiktok.ToString()))
-                    {
-                        if (marketPlace.TIDAK_HIT_UANG_R == true)
+                        else if (marketPlace.NAMA.Equals(kdtiktok.ToString()))
                         {
-                            if (!string.IsNullOrEmpty(marketPlace.Sort1_Cust))
+                            if (marketPlace.TIDAK_HIT_UANG_R == true)
                             {
-                                if (!string.IsNullOrEmpty(stf02h.BRG_MP))
+                                if (!string.IsNullOrEmpty(marketPlace.Sort1_Cust))
                                 {
-                                    TTApiData data = new TTApiData()
+                                    if (!string.IsNullOrEmpty(stf02h.BRG_MP))
                                     {
-                                        shop_id = marketPlace.Sort1_Cust,
-                                        DatabasePathErasoft = dbPathEra,
-                                        username = uname,
-                                        access_token = marketPlace.TOKEN
-                                    };
-                                    if (stf02h.BRG_MP.Contains("PENDING") || stf02h.BRG_MP.Contains("PEDITENDING"))
-                                    {
+                                        TTApiData data = new TTApiData()
+                                        {
+                                            shop_id = marketPlace.Sort1_Cust,
+                                            DatabasePathErasoft = dbPathEra,
+                                            username = uname,
+                                            access_token = marketPlace.TOKEN
+                                        };
+                                        if (stf02h.BRG_MP.Contains("PENDING") || stf02h.BRG_MP.Contains("PEDITENDING"))
+                                        {
 
-                                    }
-                                    else
-                                    {
+                                        }
+                                        else
+                                        {
 #if (DEBUG || Debug_AWS)
-                                        Task.Run(() => tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+                                            Task.Run(() => tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
 #else
                                         client.Enqueue<StokControllerJob>(x => x.tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
 #endif
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
+                //}
             }
-            //}
         }
 
         public void updateStockMarketPlace(string connId, string DatabasePathErasoft, string uname)
@@ -1632,7 +1633,6 @@ namespace MasterOnline.Controllers
             var kdshopify = 21;
             var kdtiktok = 2021;
             int delayTokped = 0;
-            var kdtiktok = 2021;
             string EDBConnID = EDB.GetConnectionString("ConnId");
             var sqlStorage = new SqlServerStorage(EDBConnID);
 
@@ -2054,6 +2054,38 @@ namespace MasterOnline.Controllers
                                 }
                             }
                         }
+                        else if (marketPlace.NAMA.Equals(kdtiktok.ToString()))
+                        {
+                            if (marketPlace.TIDAK_HIT_UANG_R == true)
+                            {
+                                if (!string.IsNullOrEmpty(marketPlace.Sort1_Cust))
+                                {
+                                    if (!string.IsNullOrEmpty(stf02h.BRG_MP))
+                                    {
+                                        TTApiData data = new TTApiData()
+                                        {
+                                            shop_id = marketPlace.Sort1_Cust,
+                                            DatabasePathErasoft = dbPathEra,
+                                            username = uname,
+                                            access_token = marketPlace.TOKEN
+                                        };
+                                        if (stf02h.BRG_MP.Contains("PENDING") || stf02h.BRG_MP.Contains("PEDITENDING"))
+                                        {
+
+                                        }
+                                        else
+                                        {
+#if (DEBUG || Debug_AWS)
+                                            Task.Run(() => tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+                                            //E2Cart_UpdateStock_82Cart(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname);
+#else
+                                        client.Enqueue<StokControllerJob>(x => x.tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
+#endif
+                                        }
+                                    }
+                                }
+                            }
+                        }
 
                     }
                 }
@@ -2196,6 +2228,7 @@ namespace MasterOnline.Controllers
             var kdJD = 19;
             var kdShopify = 21;
             var kd82Cart = 20;
+            var kdtiktok = 2021;
             // change by fauzi 07 Januari 2020
             int delayTokped = 0;
 
@@ -2587,6 +2620,37 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
+                    else if (marketPlace.NAMA.Equals(kdtiktok.ToString()))
+                    {
+                        if (marketPlace.TIDAK_HIT_UANG_R == true)
+                        {
+                            if (!string.IsNullOrEmpty(marketPlace.Sort1_Cust))
+                            {
+                                if (!string.IsNullOrEmpty(stf02h.BRG_MP))
+                                {
+                                    TTApiData data = new TTApiData()
+                                    {
+                                        shop_id = marketPlace.Sort1_Cust,
+                                        DatabasePathErasoft = dbPathEra,
+                                        username = uname,
+                                        access_token = marketPlace.TOKEN
+                                    };
+                                    if (stf02h.BRG_MP.Contains("PENDING") || stf02h.BRG_MP.Contains("PEDITENDING"))
+                                    {
+
+                                    }
+                                    else
+                                    {
+#if (DEBUG || Debug_AWS)
+                                        Task.Run(() => tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+#else
+                                        client.Enqueue<StokControllerJob>(x => x.tiktok_updatestock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
+#endif
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
             //}
@@ -2627,6 +2691,7 @@ namespace MasterOnline.Controllers
             var kd82Cart = 20;
             var kdshopify = 21;
             int delayTokped = 0;
+            var kdtiktok = 2021;
             string EDBConnID = EDB.GetConnectionString("ConnId");
             var sqlStorage = new SqlServerStorage(EDBConnID);
 
