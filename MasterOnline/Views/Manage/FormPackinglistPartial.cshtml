@@ -580,28 +580,37 @@
                 });
         }
 
-        function openModalPacking(x) {
+        function openModalPacking(x,prompt) {
 
             noPesanan = $('#txtNoPesanan').val();
             noPesananDef = $('#default_no_bukti').val();
-            textbrc = $('#txtScanBarcodePacking').val();
+            var textbrc = $('#txtScanBarcodePacking').val();
+            var pesananterakhir = $('#pesanan_terakhir').val();
             if (x == "open") {
                 noPesananDef = undefined;
+            }
+            if (prompt != undefined) {
+                noPesanan = prompt;
             }
             console.log(textbrc);
             if (noPesanan == undefined) {
                 noPesanan = "";
             }
-            var link = '@Html.Raw(Url.Action("OpenModalPackingPesanan", "Manage", new { nobuk = "replaceId", no_pesanan = "replaceNoPesanan", no_pesanan_default = "replacepdef"}))';
+            var link = '@Html.Raw(Url.Action("OpenModalPackingPesanan", "Manage", new { nobuk = "replaceId", no_pesanan = "replaceNoPesanan", no_pesanan_default = "replacepdef",no_check = "ncheck"}))';
             link = link.replace("replaceId", $('#packingList_NO_BUKTI').val());
-            if (textbrc != undefined) {
-                link = link.replace("replaceNoPesanan", textbrc);
-            } else
-            {
+            if (x == "open") {
                 link = link.replace("replaceNoPesanan", noPesanan);
+            } else {
+                if (textbrc.length > 0) {
+                    link = link.replace("replaceNoPesanan", textbrc);
+                } else {
+                    link = link.replace("replaceNoPesanan", noPesanan);
+                }
             }
+            
 
             link = link.replace("replacepdef", noPesananDef);
+            link = link.replace("ncheck", pesananterakhir);
 
             $.ajax({
                 type: "GET",
@@ -612,13 +621,14 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
-                    $('#default_no_bukti').val('');
+                    //$('#default_no_bukti').val('');
                     if (response.Errors != null) {
                         alert(response.Errors[0]);
                     } else {
                         $('#modal-packing').remove();
                         $('#modal-packing-body').append('<div id="modal-packing"></div>');
                         $('#modal-packing').html(response);
+                        $("#txtScanBarcodePacking").focus();
                         $('#modalPackingPesanan').modal('show');
                     }
                     $('#loading_spinner').hide();

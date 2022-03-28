@@ -79,6 +79,7 @@
         </thead>
         <tbody>
             @Html.HiddenFor(m => m.default_no_bukti)
+            @Html.HiddenFor(m => m.pesanan_terakhir)
             @*@foreach(var barang in Model.dataScan)*@
             @for (int i = 0; i < Model.dataScan.Count; i++)
             {
@@ -97,13 +98,13 @@
                         <label id="txtIsValid_@i"></label>
                     </td>
                     @*@if (barang.isValid)
-                        {
-                            <td>VALID</td>
-                        }
-                        else
-                        {
-                            <td>TIDAK VALID</td>
-                        }*@
+                {
+                    <td>VALID</td>
+                }
+                else
+                {
+                    <td>TIDAK VALID</td>
+                }*@
                 </tr>
             }
         </tbody>
@@ -166,8 +167,7 @@
         function afterPromptSetPesananPL(val) {
             //$('#promptHiddenField').val(val);
             $('#txtNoPesanan').val(val);
-
-            openModalPacking();
+            openModalPacking("", val);
     }
 
     function ScanPerBarang(barcode, index) {

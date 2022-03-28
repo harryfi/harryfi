@@ -38,6 +38,7 @@ namespace MasterOnline.ViewModels
         public string nobuk { get; set; }
         public int jmlOrder { get; set; }
         public int maxOrder { get; set; }
+        public string pesanan_terakhir { get; set; }
         public List<ScanBarcodePackingPesanan> dataScan { get; set; }
         public string default_no_bukti { get; set; }
     }
