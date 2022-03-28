@@ -4906,6 +4906,7 @@ namespace MasterOnline.Controllers
                             CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
                             CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
                             CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
+                            CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "";
                             CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
                             //add by nurul 3/2/2022
                             var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();

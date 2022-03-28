@@ -1629,7 +1629,7 @@ namespace MasterOnline.Controllers
         //add by Iman 15/04/2019
         [Route("admin/manage/reminder-expired")]
         [SessionAdminCheck]
-        public ActionResult AccountReminderExpired(string param)
+        public ActionResult AccountReminderExpired(int? page = 1, string search = "", string filter = "14")
         {
             //if (param != null)
             //{
@@ -1659,29 +1659,31 @@ namespace MasterOnline.Controllers
             //else
             //{
 
-            DateTime dateTime = DateTime.UtcNow.Date;
-            DateTime Nextmonth = dateTime.AddMonths(1);
-            param = dateTime.ToString("dd/MM/yyyy") + ";" + Nextmonth.ToString("dd/MM/yyyy");
-            //param = "29/04/2019;29/05/2019";
-            string dr = (param.Split(';')[param.Split(';').Length - 2]);
-            string sd = (param.Split(';')[param.Split(';').Length - 1]);
-            string tgl1 = (dr.Split('/')[dr.Split('/').Length - 3]);
-            string bln1 = (dr.Split('/')[dr.Split('/').Length - 2]);
-            string thn1 = (dr.Split('/')[dr.Split('/').Length - 1]);
-            string drtanggal = tgl1 + '/' + bln1 + '/' + thn1;
-            string tgl2 = (sd.Split('/')[sd.Split('/').Length - 3]);
-            string bln2 = (sd.Split('/')[sd.Split('/').Length - 2]);
-            string thn2 = (sd.Split('/')[sd.Split('/').Length - 1]);
-            string sdtanggal = tgl2 + '/' + bln2 + '/' + thn2;
-            var drTgl = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
-            var sdTgl = DateTime.ParseExact(sdtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
-            var vm = new MenuAccount
-            {
-                //ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION >= drTgl && a.TGL_SUBSCRIPTION <= sdTgl && a.Status == true).ToList(),
-                ListPartner = MoDbContext.Partner.ToList()
-            };
+            //DateTime dateTime = DateTime.UtcNow.Date;
+            //DateTime Nextmonth = dateTime.AddMonths(1);
+            //param = dateTime.ToString("dd/MM/yyyy") + ";" + Nextmonth.ToString("dd/MM/yyyy");
+            ////param = "29/04/2019;29/05/2019";
+            //string dr = (param.Split(';')[param.Split(';').Length - 2]);
+            //string sd = (param.Split(';')[param.Split(';').Length - 1]);
+            //string tgl1 = (dr.Split('/')[dr.Split('/').Length - 3]);
+            //string bln1 = (dr.Split('/')[dr.Split('/').Length - 2]);
+            //string thn1 = (dr.Split('/')[dr.Split('/').Length - 1]);
+            //string drtanggal = tgl1 + '/' + bln1 + '/' + thn1;
+            //string tgl2 = (sd.Split('/')[sd.Split('/').Length - 3]);
+            //string bln2 = (sd.Split('/')[sd.Split('/').Length - 2]);
+            //string thn2 = (sd.Split('/')[sd.Split('/').Length - 1]);
+            //string sdtanggal = tgl2 + '/' + bln2 + '/' + thn2;
+            //var drTgl = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            //var sdTgl = DateTime.ParseExact(sdtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            //var vm = new MenuAccount
+            //{
+            //    //ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION >= drTgl && a.TGL_SUBSCRIPTION <= sdTgl && a.Status == true).ToList(),
+            //    ListPartner = MoDbContext.Partner.ToList()
+            //};
 
-            return View("AccountReminderExpired", vm);
+            //return View("AccountReminderExpired", vm);
+
+            return View("AccountReminderExpired");
 
             //var date = DateTime.Today.AddMonths(+1);
             //var vm = new MenuAccount()
@@ -1774,7 +1776,274 @@ namespace MasterOnline.Controllers
             }
         }
 
+        public ActionResult RefreshTableReminderWillExpired(string take, int? page, string drTgl, string search = "", string filter = "0")//, string sdTgl
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["takeRecord"] = take;
+            ViewData["LastPage"] = page;
+            ViewData["getDrTgl"] = drTgl;
+            //ViewData["getSdTgl"] = sdTgl;
+            //ViewData["flag"] = flag;
+            ViewData["searchParam"] = search;
+            ViewData["filter"] = filter;
 
+            
+            if (filter == "" || filter == null)
+                filter = "0";
+            int filterDays = Convert.ToInt32(filter);
+
+            DateTime Drtgl;
+            DateTime Sdtgl;
+
+            if (!(String.IsNullOrEmpty(drTgl)))
+            {
+                Drtgl = DateTime.ParseExact(drTgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture).AddDays(filterDays);
+            }
+            else
+            {
+                Drtgl = DateTime.UtcNow.AddHours(7);
+            }
+
+            if (!(String.IsNullOrEmpty(drTgl)))
+            {
+                Sdtgl = DateTime.ParseExact(drTgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture).AddDays(filterDays);
+            }
+            else
+            {
+                Sdtgl = DateTime.UtcNow.AddHours(7).AddMonths(1);
+            }
+            //DateTime Drtgl = ((drTgl != "" || drTgl == null) ? DateTime.ParseExact(drTgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) : DateTime.UtcNow.AddHours(7));
+            //DateTime Sdtgl = ((sdTgl != "" || sdTgl == null) ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) : DateTime.UtcNow.AddHours(7).AddMonths(1));
+            //var Drtgl = DateTime.UtcNow.AddHours(7);
+            //var Sdtgl = DateTime.UtcNow.AddHours(7).AddMonths(1);
+            string tempDrtgl = Drtgl.ToString("yyyy-MM-dd");
+            string tempSdtgl = Sdtgl.ToString("yyyy-MM-dd");
+
+            string[] getkata = search.Split(' ');
+            string sSQLEmail = "";
+            string sSQLUsername = "";
+            string sSQLNohp = "";
+            string sSQLNamatoko = "";
+            string sSQLNamapartner = "";
+            string sSQLTglsubs = "";
+            string sSQLTipesubs = "";
+            string sSQLJumlahsubs = "";
+            string sSQLTglemail1 = "";
+            string sSQLTglemail2 = "";
+
+            if (getkata.Length > 0)
+            {
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sSQLEmail += " and ";
+                            sSQLUsername += " and ";
+                            sSQLNohp += " and ";
+                            sSQLNamatoko += " and ";
+                            sSQLNamapartner += " and ";
+                            sSQLTglsubs += " and ";
+                            sSQLTipesubs += " and ";
+                            sSQLJumlahsubs += " and ";
+                            sSQLTglemail1 += " and ";
+                            sSQLTglemail2 += " and ";
+                        }
+
+                        sSQLEmail += " ( A.Email like '%" + getkata[i] + "%' )";
+                        sSQLUsername += " ( A.Username like '%" + getkata[i] + "%' )";
+                        sSQLNohp += " ( A.NoHp like '%" + getkata[i] + "%' )";
+                        sSQLNamatoko += " ( A.NamaTokoOnline like '%" + getkata[i] + "%' )";
+                        sSQLNamapartner += " ( B.Username like '%" + getkata[i] + "%' )";
+                        sSQLTglsubs += " ( A.TGL_SUBSCRIPTION like '%" + getkata[i] + "%' )";
+                        sSQLTipesubs += " ( C.KETERANGAN like '%" + getkata[i] + "%' )";
+                        sSQLJumlahsubs += " ( A.jumlahUser like '%" + getkata[i] + "%' )";
+                        sSQLTglemail1 += " ( A.tgl_email1 like '%" + getkata[i] + "%' )";
+                        sSQLTglemail2 += " ( A.tgl_email2 like '%" + getkata[i] + "%' )";
+
+                    }
+                }
+            }
+
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.AccountId, A.Email, A.Username, A.NoHp, A.NamaTokoOnline, ISNULL(B.Username, '') [NamaPartner], ";
+            sSQLSelect += "A.TGL_SUBSCRIPTION , C.KETERANGAN, ISNULL(A.jumlahUser, 0) [JumlahUser], A.Status, A.tgl_email1, A.tgl_email2 ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.Email) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM Account A (NOLOCK) LEFT JOIN Partner B (NOLOCK) ON A.KODE_REFERRAL = B.PartnerId ";
+            sSQL2 += "LEFT JOIN Subscription C (NOLOCK) ON A.KODE_SUBSCRIPTION = C.KODE ";
+            sSQL2 += "WHERE A.TGL_SUBSCRIPTION >= '" + tempDrtgl + "' AND A.TGL_SUBSCRIPTION <= '" + tempSdtgl + "'";
+            //if (flag == "1")
+            //{
+            //    sSQL2 += "WHERE A.TGL_SUBSCRIPTION >= '" + tempDrtgl + "' AND A.TGL_SUBSCRIPTION <= '" + tempSdtgl + "'";
+            //}
+            //else
+            //{
+            //    sSQL2 += "WHERE A.TGL_SUBSCRIPTION <= '" + tempSdtgl + "'";
+            //}
+
+
+            if (search != "")
+            {
+                sSQL2 += " AND ( " + sSQLEmail + " or " + sSQLUsername + " or " + sSQLNohp + " or " + sSQLNamatoko + "  or " + sSQLNamapartner + " or "
+                                    + sSQLTglsubs + " or " + sSQLTipesubs + "   or " + sSQLJumlahsubs + " or " + sSQLTglemail1 + " or " + sSQLTglemail2 + " ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalReminderExpired = MoDbContext.Database.SqlQuery<int>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalReminderExpired)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY TGL_SUBSCRIPTION ASC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * Convert.ToInt32(take)) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT " + take + " ROWS ONLY ";
+
+            var reminderExpired = MoDbContext.Database.SqlQuery<REMINDER_EXPIRED_VIEW>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<REMINDER_EXPIRED_VIEW> pageOrders = new StaticPagedList<REMINDER_EXPIRED_VIEW>(reminderExpired, pagenumber + 1, Convert.ToInt32(take), totalReminderExpired); //Convert.ToInt32(take) //10
+
+            return PartialView("TableAccountReminderExpired", pageOrders);
+        }
+
+        public ActionResult RefreshTableReminderAlreadyExpired(string take, int? page, string drTgl, string sdTgl, string search = "", string filter = "0")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["takeRecord"] = take;
+            ViewData["LastPage"] = page;
+            ViewData["getDrTgl"] = drTgl;
+            ViewData["getSdTgl"] = sdTgl;
+            //ViewData["flag"] = flag;
+            ViewData["searchParam"] = search;
+            ViewData["filter"] = filter;
+
+
+            if (filter == "" || filter == null)
+                filter = "0";
+            int filterDays = Convert.ToInt32(filter);
+
+            DateTime Drtgl;
+            DateTime Sdtgl;
+
+            if (!(String.IsNullOrEmpty(drTgl)))
+            {
+                Drtgl = DateTime.ParseExact(drTgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture).AddDays(filterDays);
+            }
+            else
+            {
+                Drtgl = DateTime.UtcNow.AddHours(7);
+            }
+
+            if (!(String.IsNullOrEmpty(sdTgl)))
+            {
+                Sdtgl = DateTime.ParseExact(drTgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture).AddDays(filterDays);
+            }
+            else
+            {
+                Sdtgl = DateTime.UtcNow.AddHours(7).AddMonths(1);
+            }
+            //DateTime Drtgl = ((drTgl != "" || drTgl == null) ? DateTime.ParseExact(drTgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) : DateTime.UtcNow.AddHours(7));
+            //DateTime Sdtgl = ((sdTgl != "" || sdTgl == null) ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) : DateTime.UtcNow.AddHours(7).AddMonths(1));
+            //var Drtgl = DateTime.UtcNow.AddHours(7);
+            //var Sdtgl = DateTime.UtcNow.AddHours(7).AddMonths(1);
+            string tempDrtgl = Drtgl.ToString("yyyy-MM-dd");
+            string tempSdtgl = Sdtgl.ToString("yyyy-MM-dd");
+
+            string[] getkata = search.Split(' ');
+            string sSQLEmail = "";
+            string sSQLUsername = "";
+            string sSQLNohp = "";
+            string sSQLNamatoko = "";
+            string sSQLNamapartner = "";
+            string sSQLTglsubs = "";
+            string sSQLTipesubs = "";
+            string sSQLJumlahsubs = "";
+            string sSQLTglemail1 = "";
+            string sSQLTglemail2 = "";
+
+            if (getkata.Length > 0)
+            {
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sSQLEmail += " and ";
+                            sSQLUsername += " and ";
+                            sSQLNohp += " and ";
+                            sSQLNamatoko += " and ";
+                            //sSQLNamapartner += " and ";
+                            sSQLTglsubs += " and ";
+                            sSQLTipesubs += " and ";
+                            sSQLJumlahsubs += " and ";
+                            sSQLTglemail1 += " and ";
+                            sSQLTglemail2 += " and ";
+                        }
+
+                        sSQLEmail += " ( A.Email like '%" + getkata[i] + "%' )";
+                        sSQLUsername += " ( A.Username like '%" + getkata[i] + "%' )";
+                        sSQLNohp += " ( A.NoHp like '%" + getkata[i] + "%' )";
+                        sSQLNamatoko += " ( A.NamaTokoOnline like '%" + getkata[i] + "%' )";
+                        //sSQLNamapartner += " ( B.Username like '%" + getkata[i] + "%' )";
+                        sSQLTglsubs += " ( A.TGL_SUBSCRIPTION like '%" + getkata[i] + "%' )";
+                        sSQLTipesubs += " ( C.KETERANGAN like '%" + getkata[i] + "%' )";
+                        sSQLJumlahsubs += " ( A.jumlahUser like '%" + getkata[i] + "%' )";
+                        sSQLTglemail1 += " ( A.tgl_email1 like '%" + getkata[i] + "%' )";
+                        sSQLTglemail2 += " ( A.tgl_email2 like '%" + getkata[i] + "%' )";
+
+                    }
+                }
+            }
+
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.AccountId, A.Email, A.Username, A.NoHp, A.NamaTokoOnline, ISNULL(B.Username, '') [NamaPartner], ";
+            sSQLSelect += "A.TGL_SUBSCRIPTION , C.KETERANGAN, ISNULL(A.jumlahUser, 0) [JumlahUser], A.Status, A.tgl_email1, A.tgl_email2 ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.Email) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM Account A (NOLOCK) LEFT JOIN Partner B (NOLOCK) ON A.KODE_REFERRAL = B.PartnerId ";
+            sSQL2 += "LEFT JOIN Subscription C (NOLOCK) ON A.KODE_SUBSCRIPTION = C.KODE ";
+            sSQL2 += "WHERE A.TGL_SUBSCRIPTION <= '" + tempDrtgl + "'";
+
+            //if (flag == "1")
+            //{
+            //    sSQL2 += "WHERE A.TGL_SUBSCRIPTION >= '" + tempDrtgl + "' AND A.TGL_SUBSCRIPTION <= '" + tempSdtgl + "'";
+            //}
+            //else
+            //{
+            //    sSQL2 += "WHERE A.TGL_SUBSCRIPTION <= '" + tempSdtgl + "'";
+            //}
+
+
+            if (search != "")
+            {
+                sSQL2 += " AND ( " + sSQLEmail + " or " + sSQLUsername + " or " + sSQLNohp + " or " + sSQLNamatoko + "  or "
+                                    + sSQLTglsubs + " or " + sSQLTipesubs + "   or " + sSQLJumlahsubs + " or " + sSQLTglemail1 + " or " + sSQLTglemail2 + " ) "; // " + sSQLNamapartner + " or
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalReminderExpired = MoDbContext.Database.SqlQuery<int>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalReminderExpired)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY TGL_SUBSCRIPTION DESC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * Convert.ToInt32(take)) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT " + take + " ROWS ONLY ";
+
+            var reminderExpired = MoDbContext.Database.SqlQuery<REMINDER_EXPIRED_VIEW>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<REMINDER_EXPIRED_VIEW> pageOrders = new StaticPagedList<REMINDER_EXPIRED_VIEW>(reminderExpired, pagenumber + 1, Convert.ToInt32(take), totalReminderExpired); //Convert.ToInt32(take) //10
+
+            return PartialView("TableAccountSudahExpired", pageOrders);
+        }
 
         [SessionAdminCheck]
         public ActionResult AccountMenuSudahExpired(string param)
@@ -3065,7 +3334,7 @@ namespace MasterOnline.Controllers
                             var accountlist = MoDbContext.Account.Where(p => p.Email == accountEmail).SingleOrDefault();
                             DatabaseSQL EDB = new DatabaseSQL(accountlist.DatabasePathErasoft);
                             string dbSourceEra = "";
-#if (Debug_AWS)
+#if (Debug_AWS || DEBUG)
                             dbSourceEra = accountlist.DataSourcePathDebug;
 #else
                             dbSourceEra = accountlist.DataSourcePath;
@@ -3246,66 +3515,69 @@ namespace MasterOnline.Controllers
                                     {
                                         foreach (var barangvariant in checkBarangVariant)
                                         {
-                                            var resultCekSIVarian = (from a in ErasoftDbContext.SIT01B
-                                                                     join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
-                                                                     where a.BRG.ToUpper() == barangvariant.BRG.ToString().ToUpper()
-                                                                     select new
-                                                                     {
-                                                                         a.NO_BUKTI,
-                                                                         a.BRG,
-                                                                         b.ST_POSTING
-                                                                     }
-                                                                                    ).ToList();
-
-                                            var resultCekSTVarian = (from a in ErasoftDbContext.STT01B
-                                                                     join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
-                                                                     where a.Kobar.ToUpper() == barangvariant.BRG.ToString().ToUpper()
-                                                                     select new
-                                                                     {
-                                                                         a.Nobuk,
-                                                                         a.Kobar,
-                                                                         b.ST_Posting
-                                                                     }
-                                                ).ToList();
-
-                                            //add by nurul 25/5/2021
-                                            var resultCekPBVarian = (from a in ErasoftDbContext.PBT01B
-                                                                     join b in ErasoftDbContext.PBT01A on a.INV equals b.INV
-                                                                     where a.BRG.ToUpper() == barangvariant.BRG.ToString().ToUpper()
-                                                                     select new
-                                                                     {
-                                                                         a.INV,
-                                                                         a.BRG,
-                                                                         b.POSTING
-                                                                     }
-                                                ).ToList();
-                                            //var resultCekMultiSKUVarian = (from a in ErasoftDbContext.STF03C
-                                            //                         where a.BRG.ToLower() == barangvariant.BRG.ToString().ToLower() || a.BRG_ACUAN.ToLower() == barangvariant.BRG.ToString().ToLower()
+                                            //remark by nurul 21/1/2022, remark cek posting varian karna yg d ubah hanya part nya saja 
+                                            //var resultCekSIVarian = (from a in ErasoftDbContext.SIT01B
+                                            //                         join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
+                                            //                         where a.BRG.ToUpper() == barangvariant.BRG.ToString().ToUpper()
                                             //                         select new
                                             //                         {
-                                            //                             a.BRG_ACUAN,
-                                            //                             a.BRG
+                                            //                             a.NO_BUKTI,
+                                            //                             a.BRG,
+                                            //                             b.ST_POSTING
+                                            //                         }
+                                            //                                        ).ToList();
+
+                                            //var resultCekSTVarian = (from a in ErasoftDbContext.STT01B
+                                            //                         join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
+                                            //                         where a.Kobar.ToUpper() == barangvariant.BRG.ToString().ToUpper()
+                                            //                         select new
+                                            //                         {
+                                            //                             a.Nobuk,
+                                            //                             a.Kobar,
+                                            //                             b.ST_Posting
                                             //                         }
                                             //    ).ToList();
 
-                                            //var resultCekBundlingVarian = (from a in ErasoftDbContext.STF03
-                                            //                         where a.Brg.ToLower() == barangvariant.BRG.ToString().ToLower() || a.Unit.ToLower() == barangvariant.BRG.ToString().ToLower()
+                                            ////add by nurul 25/5/2021
+                                            //var resultCekPBVarian = (from a in ErasoftDbContext.PBT01B
+                                            //                         join b in ErasoftDbContext.PBT01A on a.INV equals b.INV
+                                            //                         where a.BRG.ToUpper() == barangvariant.BRG.ToString().ToUpper()
                                             //                         select new
                                             //                         {
-                                            //                             a.Unit,
-                                            //                             a.Brg
+                                            //                             a.INV,
+                                            //                             a.BRG,
+                                            //                             b.POSTING
                                             //                         }
                                             //    ).ToList();
+                                            ////var resultCekMultiSKUVarian = (from a in ErasoftDbContext.STF03C
+                                            ////                         where a.BRG.ToLower() == barangvariant.BRG.ToString().ToLower() || a.BRG_ACUAN.ToLower() == barangvariant.BRG.ToString().ToLower()
+                                            ////                         select new
+                                            ////                         {
+                                            ////                             a.BRG_ACUAN,
+                                            ////                             a.BRG
+                                            ////                         }
+                                            ////    ).ToList();
 
-                                            var checkResultPBVarian = resultCekPBVarian.Where(p => p.POSTING.Contains("Y")).ToList();
-                                            //end add by nurul 25/5/2021
+                                            ////var resultCekBundlingVarian = (from a in ErasoftDbContext.STF03
+                                            ////                         where a.Brg.ToLower() == barangvariant.BRG.ToString().ToLower() || a.Unit.ToLower() == barangvariant.BRG.ToString().ToLower()
+                                            ////                         select new
+                                            ////                         {
+                                            ////                             a.Unit,
+                                            ////                             a.Brg
+                                            ////                         }
+                                            ////    ).ToList();
 
-                                            var checkResultSIVarian = resultCekSIVarian.Where(p => p.ST_POSTING.Contains("Y")).ToList();
-                                            var checkResultSTVarian = resultCekSTVarian.Where(p => p.ST_Posting.Contains("Y")).ToList();
+                                            //var checkResultPBVarian = resultCekPBVarian.Where(p => p.POSTING.Contains("Y")).ToList();
+                                            ////end add by nurul 25/5/2021
 
-                                            //if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0)
-                                            if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0 && checkResultPBVarian.Count() == 0)
-                                            {
+                                            //var checkResultSIVarian = resultCekSIVarian.Where(p => p.ST_POSTING.Contains("Y")).ToList();
+                                            //var checkResultSTVarian = resultCekSTVarian.Where(p => p.ST_Posting.Contains("Y")).ToList();
+
+                                            ////if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0)
+                                            //if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0 && checkResultPBVarian.Count() == 0)
+                                            //{
+                                                //end remark by nurul 21/1/2022, remark cek posting varian karna yg d ubah hanya part nya saja 
+
                                                 //if (resultCekMultiSKUVarian.Count() == 0)
                                                 //{
                                                 //    if (resultCekBundlingVarian.Count() == 0)
@@ -3318,24 +3590,27 @@ namespace MasterOnline.Controllers
                                                     );
 
                                                 resultEdit = true;
-                                                //    }
-                                                //    else
-                                                //    {
-                                                //        //kondisi kalau sudah dijadikan barang bundling/komponen 
-                                                //        vlistKodeBundling += "" + barangvariant.BRG.ToString() + ",";
-                                                //    }
-                                                //}
-                                                //else
-                                                //{
-                                                //    //kondisi kalau sudah dijadikan barang multi sku/brg acuan 
-                                                //    vlistKodeMultiSKU += "" + barangvariant.BRG.ToString() + ",";
-                                                //}
-                                            }
-                                            else
-                                            {
-                                                // kondisi kalau sudah posting
-                                                vlistKodeSudahPosting += "" + barangvariant.BRG.ToString() + ",";
-                                            }
+                                            //    }
+                                            //    else
+                                            //    {
+                                            //        //kondisi kalau sudah dijadikan barang bundling/komponen 
+                                            //        vlistKodeBundling += "" + barangvariant.BRG.ToString() + ",";
+                                            //    }
+                                            //}
+                                            //else
+                                            //{
+                                            //    //kondisi kalau sudah dijadikan barang multi sku/brg acuan 
+                                            //    vlistKodeMultiSKU += "" + barangvariant.BRG.ToString() + ",";
+                                            //}
+
+                                            //remark by nurul 21/1/2022, remark cek posting varian karna yg d ubah hanya part nya saja 
+                                            //}
+                                            //else
+                                            //{
+                                            //    // kondisi kalau sudah posting
+                                            //    vlistKodeSudahPosting += "" + barangvariant.BRG.ToString() + ",";
+                                            //}
+                                            //end remark by nurul 21/1/2022, remark cek posting varian karna yg d ubah hanya part nya saja 
                                         }
                                     }
                                 }
@@ -3417,7 +3692,134 @@ namespace MasterOnline.Controllers
             }
         }
 
+        //add by nurul 22/2/2022
+        public class ListBarangEditMerge
+        {
+            public int no { get; set; }
+            public string brgLama { get; set; }
+            public string brgBaru { get; set; }
+        }
+        public ActionResult checkIndukSupportMenu(string listData)
+        {
+            var adaInduk = false;
+            var Label = "";
+            var result = false;
+            var errors = "";
+            try
+            {
+                if (!string.IsNullOrEmpty(listData))
+                {
+                    string[] dataSplitToko = listData.Split('|');
+                    string accountEmail = dataSplitToko[0];
+                    string listkodeBRGBaru = dataSplitToko[1];
+                    string listkodeBRGLama = dataSplitToko[2];
+                    string[] splitlistBRGBaru = listkodeBRGBaru.Split('^');
+                    string[] splitlistBRGLama = listkodeBRGLama.Split('^');
+                    if (!string.IsNullOrEmpty(listkodeBRGBaru) && !string.IsNullOrEmpty(listkodeBRGLama))
+                    {
+                        if (splitlistBRGBaru.Length == splitlistBRGLama.Length)
+                        {
+                            try
+                            {
+                                var accountlist = MoDbContext.Account.Where(p => p.Email == accountEmail).SingleOrDefault();
+                                DatabaseSQL EDB = new DatabaseSQL(accountlist.DatabasePathErasoft);
+                                string dbSourceEra = "";
+#if (Debug_AWS || DEBUG)
+                                dbSourceEra = accountlist.DataSourcePathDebug;
+#else
+                                dbSourceEra = accountlist.DataSourcePath;
+#endif
+                                ErasoftDbContext = new ErasoftContext(dbSourceEra, accountlist.DatabasePathErasoft);
 
+
+                                var cekBrgIndukExist = ErasoftDbContext.STF02.Where(a => splitlistBRGLama.Contains(a.BRG) && a.TYPE == "4").Select(a => a.BRG).ToList();
+                                if(cekBrgIndukExist.Count() > 0)
+                                {
+                                    var hitung = 0;
+                                    var listBrgNew = new List<ListBarangEditMerge>();
+                                    foreach(var barang in splitlistBRGLama)
+                                    {
+                                        hitung = hitung + 1;
+                                        var barangtemp = new ListBarangEditMerge
+                                        {
+                                            no = hitung,
+                                            brgBaru = splitlistBRGBaru[hitung - 1],
+                                            brgLama = splitlistBRGLama[hitung - 1]
+                                        };
+                                        listBrgNew.Add(barangtemp);
+                                    }
+                                    adaInduk = true;
+                                    var cekVarian = ErasoftDbContext.STF02.Where(a => cekBrgIndukExist.Contains(a.PART)).Select(s => new { s.BRG, s.PART }).ToList();
+                                    
+                                    foreach (var induk in cekBrgIndukExist)
+                                    {
+                                        var cekVarianPerInduk = cekVarian.Where(a => a.PART == induk).ToList();
+                                        var cekBarangBaru = listBrgNew.Where(a => a.brgLama == induk).FirstOrDefault();
+                                        var barangbaru = "";
+                                        if(cekBarangBaru != null)
+                                        {
+                                            barangbaru = cekBarangBaru.brgBaru;
+                                        }
+                                        Label = Label + "Merge / edit barang induk \"" + induk + "\" ke barang induk \"" + barangbaru + "\" akan ikut mengubah struktur varian barang induk \"" + barangbaru + "\" menjadi: " + System.Environment.NewLine;
+                                        //Label = Label + "Barang Induk \"" + induk + "\" jika diubah kode barangnya maka akan mengubah mapping induk pada variannya sebagai berikut : " + System.Environment.NewLine;
+                                        if (cekVarianPerInduk.Count() > 0)
+                                        {
+                                            var nomer = 0;
+                                            foreach (var varian in cekVarianPerInduk)
+                                            {
+                                                nomer = nomer + 1;
+                                                Label = Label + nomer + ". " + varian.BRG + System.Environment.NewLine;
+                                            }
+                                        }
+                                        Label = Label + System.Environment.NewLine;
+                                    }
+                                    result = true;
+                                }
+                                else
+                                {
+                                    result = true;
+                                    return new JsonResult { Data = new { success = result, induk = adaInduk, label = Label, error = errors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                result = false;
+                                errors = errors + ex.Message + System.Environment.NewLine;
+                            }
+                        }
+                        else
+                        {
+                            result = false;
+                            // alert bahwa jumlah list kode tidak sama.
+                            errors = errors + "Jumlah list kode barang tidak sama." + System.Environment.NewLine;
+                            return new JsonResult { Data = new { success = result, error = errors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        }
+                    }
+                    else
+                    {
+                        result = false;
+                        // alert bahwa List kode barang kosong.
+                        errors = errors + "List kode barang kosong" + System.Environment.NewLine;
+                        return new JsonResult { Data = new { success = result, error = errors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                else
+                {
+                    result = false;
+                    // alert bahwa List kode barang kosong.
+                    errors = errors + "List kode barang kosong" + System.Environment.NewLine;
+                    return new JsonResult { Data = new { success = result, error = errors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+            }
+            catch(Exception ex2)
+            {
+                result = false;
+                errors = errors + ex2.Message + System.Environment.NewLine;
+                return new JsonResult { Data = new { success = result, error = errors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            return new JsonResult { Data = new { success = true, induk = adaInduk, label = Label, error= errors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+        }
+        //end add by nurul 22/2/2022
         public async Task<ActionResult> ProsesMergeKode(string listData)
         {
             bool resultMerge = false;
@@ -3463,6 +3865,7 @@ namespace MasterOnline.Controllers
                             var checkToko = ErasoftDbContext.ARF01.ToList();
                             var checkMP = MoDbContext.Marketplaces.ToList();
 
+                            
                             foreach (var listKodeBaru in splitlistBRGBaru)
                             {
                                 var checkBarangBaru = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == listKodeBaru.ToUpper()).ToList();
@@ -3740,73 +4143,76 @@ namespace MasterOnline.Controllers
                                             //var kodeBrgBaruVariantCheck = checkBarangVariantBaru[iurutanVariant].BRG.ToString();
                                             //var checkBarangMPBaruVariant = ErasoftDbContext.STF02H.Where(p => p.BRG == kodeBrgBaruVariantCheck).ToList();
 
-                                            var resultCekSIVarian = (from a in ErasoftDbContext.SIT01B
-                                                                     join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
-                                                                     where a.BRG.ToUpper() == barangvariant.BRG.ToString().ToUpper()
-                                                                     select new
-                                                                     {
-                                                                         a.NO_BUKTI,
-                                                                         a.BRG,
-                                                                         b.ST_POSTING
-                                                                     }
-                                                                                    ).ToList();
+                                            //remark by nurul 21/1/2022, remark cek posting varian karna yg d ubah hanya part nya saja 
+                                            //var resultCekSIVarian = (from a in ErasoftDbContext.SIT01B
+                                            //                         join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
+                                            //                         where a.BRG.ToUpper() == barangvariant.BRG.ToString().ToUpper()
+                                            //                         select new
+                                            //                         {
+                                            //                             a.NO_BUKTI,
+                                            //                             a.BRG,
+                                            //                             b.ST_POSTING
+                                            //                         }
+                                            //                                        ).ToList();
 
-                                            var resultCekSTVarian = (from a in ErasoftDbContext.STT01B
-                                                                     join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
-                                                                     where a.Kobar.ToUpper() == barangvariant.BRG.ToString().ToUpper()
-                                                                     select new
-                                                                     {
-                                                                         a.Nobuk,
-                                                                         a.Kobar,
-                                                                         b.ST_Posting
-                                                                     }
-                                                ).ToList();
-
-                                            //add by nurul 25/5/2021
-                                            var resultCekPBVarian = (from a in ErasoftDbContext.PBT01B
-                                                                     join b in ErasoftDbContext.PBT01A on a.INV equals b.INV
-                                                                     where a.BRG.ToUpper() == barangvariant.BRG.ToString().ToUpper()
-                                                                     select new
-                                                                     {
-                                                                         a.INV,
-                                                                         a.BRG,
-                                                                         b.POSTING
-                                                                     }
-                                                ).ToList();
-
-                                            //var resultCekMultiSKUVarian = (from a in ErasoftDbContext.STF03C
-                                            //                               where a.BRG.ToLower() == barangvariant.BRG.ToString().ToLower() || a.BRG_ACUAN.ToLower() == barangvariant.BRG.ToString().ToLower()
-                                            //                               select new
-                                            //                               {
-                                            //                                   a.BRG_ACUAN,
-                                            //                                   a.BRG
-                                            //                               }
+                                            //var resultCekSTVarian = (from a in ErasoftDbContext.STT01B
+                                            //                         join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
+                                            //                         where a.Kobar.ToUpper() == barangvariant.BRG.ToString().ToUpper()
+                                            //                         select new
+                                            //                         {
+                                            //                             a.Nobuk,
+                                            //                             a.Kobar,
+                                            //                             b.ST_Posting
+                                            //                         }
                                             //    ).ToList();
 
-                                            //var resultCekBundlingVarian = (from a in ErasoftDbContext.STF03
-                                            //                               where a.Brg.ToLower() == barangvariant.BRG.ToString().ToLower() || a.Unit.ToLower() == barangvariant.BRG.ToString().ToLower()
-                                            //                               select new
-                                            //                               {
-                                            //                                   a.Unit,
-                                            //                                   a.Brg
-                                            //                               }
+                                            ////add by nurul 25/5/2021
+                                            //var resultCekPBVarian = (from a in ErasoftDbContext.PBT01B
+                                            //                         join b in ErasoftDbContext.PBT01A on a.INV equals b.INV
+                                            //                         where a.BRG.ToUpper() == barangvariant.BRG.ToString().ToUpper()
+                                            //                         select new
+                                            //                         {
+                                            //                             a.INV,
+                                            //                             a.BRG,
+                                            //                             b.POSTING
+                                            //                         }
                                             //    ).ToList();
 
-                                            var checkResultPBVarian = resultCekPBVarian.Where(p => p.POSTING.Contains("Y")).ToList();
-                                            //end add by nurul 25/5/2021
+                                            ////var resultCekMultiSKUVarian = (from a in ErasoftDbContext.STF03C
+                                            ////                               where a.BRG.ToLower() == barangvariant.BRG.ToString().ToLower() || a.BRG_ACUAN.ToLower() == barangvariant.BRG.ToString().ToLower()
+                                            ////                               select new
+                                            ////                               {
+                                            ////                                   a.BRG_ACUAN,
+                                            ////                                   a.BRG
+                                            ////                               }
+                                            ////    ).ToList();
 
-                                            var checkResultSIVarian = resultCekSIVarian.Where(p => p.ST_POSTING.Contains("Y")).ToList();
-                                            var checkResultSTVarian = resultCekSTVarian.Where(p => p.ST_Posting.Contains("Y")).ToList();
+                                            ////var resultCekBundlingVarian = (from a in ErasoftDbContext.STF03
+                                            ////                               where a.Brg.ToLower() == barangvariant.BRG.ToString().ToLower() || a.Unit.ToLower() == barangvariant.BRG.ToString().ToLower()
+                                            ////                               select new
+                                            ////                               {
+                                            ////                                   a.Unit,
+                                            ////                                   a.Brg
+                                            ////                               }
+                                            ////    ).ToList();
 
-                                            //if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0)
-                                            if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0 && checkResultPBVarian.Count() == 0)
-                                            {
-                                                //if (resultCekMultiSKUVarian.Count() == 0)
-                                                //{
-                                                //    if (resultCekBundlingVarian.Count() == 0)
-                                                //    {
-                                                // kondisi kalau belum posting
-                                                sqlListKodeLama += "'" + barangvariant.BRG.ToString() + "',";
+                                            //var checkResultPBVarian = resultCekPBVarian.Where(p => p.POSTING.Contains("Y")).ToList();
+                                            ////end add by nurul 25/5/2021
+
+                                            //var checkResultSIVarian = resultCekSIVarian.Where(p => p.ST_POSTING.Contains("Y")).ToList();
+                                            //var checkResultSTVarian = resultCekSTVarian.Where(p => p.ST_Posting.Contains("Y")).ToList();
+
+                                            ////if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0)
+                                            //if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0 && checkResultPBVarian.Count() == 0)
+                                            //{
+                                            //end remark by nurul 21/1/2022, remark cek posting varian karna yg d ubah hanya part nya saja 
+
+                                            //if (resultCekMultiSKUVarian.Count() == 0)
+                                            //{
+                                            //    if (resultCekBundlingVarian.Count() == 0)
+                                            //    {
+                                            // kondisi kalau belum posting
+                                            sqlListKodeLama += "'" + barangvariant.BRG.ToString() + "',";
 
                                                 //if (checkBarangMPBaruVariant.Count() >= checkBarangMPLamaVariant.Count()) {
                                                 //EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + barangvariant.BRG + "'; DELETE FROM STF02H WHERE BRG ='" + barangvariant.BRG + "'");
@@ -3821,24 +4227,27 @@ namespace MasterOnline.Controllers
                                                     );
 
                                                 resultMerge = true;
-                                                //    }
-                                                //    else
-                                                //    {
-                                                //        //kondisi kalau sudah dijadikan barang bundling/komponen 
-                                                //        vlistKodeBundling += "" + barangvariant.BRG.ToString() + ",";
-                                                //    }
-                                                //}
-                                                //else
-                                                //{
-                                                //    //kondisi kalau sudah dijadikan barang multi sku/brg acuan 
-                                                //    vlistKodeMultiSKU += "" + barangvariant.BRG.ToString() + ",";
-                                                //}
-                                            }
-                                            else
-                                            {
-                                                // kondisi kalau sudah posting
-                                                vlistKodeSudahPosting += "" + barangvariant.BRG.ToString() + ",";
-                                            }
+                                            //    }
+                                            //    else
+                                            //    {
+                                            //        //kondisi kalau sudah dijadikan barang bundling/komponen 
+                                            //        vlistKodeBundling += "" + barangvariant.BRG.ToString() + ",";
+                                            //    }
+                                            //}
+                                            //else
+                                            //{
+                                            //    //kondisi kalau sudah dijadikan barang multi sku/brg acuan 
+                                            //    vlistKodeMultiSKU += "" + barangvariant.BRG.ToString() + ",";
+                                            //}
+
+                                            //remark by nurul 21/1/2022, remark cek posting varian karna yg d ubah hanya part nya saja 
+                                            //}
+                                            //else
+                                            //{
+                                            //    // kondisi kalau sudah posting
+                                            //    vlistKodeSudahPosting += "" + barangvariant.BRG.ToString() + ",";
+                                            //}
+                                            //end remark by nurul 21/1/2022, remark cek posting varian karna yg d ubah hanya part nya saja 
 
                                             iurutanVariant += 1;
                                         }
@@ -6811,6 +7220,41 @@ namespace MasterOnline.Controllers
                                             {
                                                 var createJobSuccess = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBSUCCESS"]).AddHours(7);
                                                 if(listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().LASTCREATEJOBSUCCESS < createJobSuccess)
+                                                {
+                                                    listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().LASTCREATEJOBPROCESS = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBPROCESS"]).AddHours(7);
+                                                    listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().LASTCREATEJOBSUCCESS = createJobSuccess;
+                                                    listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().SELISIH = resultSelisih;
+                                                    listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().ID = Convert.ToInt32(resultDataJob.Tables[0].Rows[i]["ID"].ToString());
+                                                    listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().CREATEDAT = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["CREATEDAT"]).AddHours(7);
+                                                    listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().STATENAME = resultDataJob.Tables[0].Rows[i]["STATENAME"].ToString();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                else if (marketplace.ToUpper() == "TIKTOK")
+                                {
+                                    string[] splitArguments = resultDataJob.Tables[0].Rows[i]["ARGUMENTS"].ToString().Replace("\"", "").Replace("\\", "").Replace("[", "").Replace("]", "").Replace("{", "").Replace("}", "").Split(',');
+
+                                    if (splitArguments.Length > 0)
+                                    {
+                                        var no_custTik = splitArguments[4].ToString().Split(':');
+                                        var usernameTik = splitArguments[5].ToString().Split(':');
+                                        string queryCheckToko = "SELECT PERSO FROM ARF01 WHERE CUST = '" + no_custTik[1] + "'; ";
+                                        var resultDataToko = EDB.GetDataSet("SCon", "QUEUE_TOKO_TIKTOK", queryCheckToko);
+                                        if (resultDataToko.Tables[0].Rows.Count > 0)
+                                        {
+                                            namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() + " user:" + usernameTik[1];
+                                            var sMETHOD = resultConvertInvocation.Method + statusOrder;
+                                            var sMARKETPLACE = marketplace + " (" + namaToko + ")";
+                                            if (listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).ToList().Count == 0)
+                                            {
+                                                checkApprove = true;
+                                            }
+                                            else
+                                            {
+                                                var createJobSuccess = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBSUCCESS"]).AddHours(7);
+                                                if (listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().LASTCREATEJOBSUCCESS < createJobSuccess)
                                                 {
                                                     listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().LASTCREATEJOBPROCESS = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBPROCESS"]).AddHours(7);
                                                     listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().LASTCREATEJOBSUCCESS = createJobSuccess;

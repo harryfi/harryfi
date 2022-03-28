@@ -1,0 +1,176 @@
+﻿@using System.Globalization
+@using PagedList.Mvc
+@model MasterOnline.tempListPacking
+@{
+    var a = Model.CUST;
+}
+<script type="text/javascript">
+    function editNoResiTiktok($idPesanan) {
+
+            var $tr = 'tr[data-barang-id="' + $idPesanan + '"]';
+            var $noresiInitialSpan = $($tr + ' .noresi-initial');
+            var $noresiInputBox = $($tr + ' .noresi-input-box');
+            var $btnEdit = $($tr + ' .icon-btn-edit');
+            var $noresiAwal = $noresiInitialSpan.text();
+
+            if ($btnEdit.hasClass('glyphicon-pencil')) {
+                $btnEdit.parent().removeClass('btn-primary').addClass('btn-success');
+                $btnEdit.removeClass('glyphicon-pencil').addClass('glyphicon-floppy-disk');
+                $noresiInitialSpan.hide();
+                $noresiInputBox.val($noresiAwal).show();
+            } else {
+                if ($noresiInputBox.val() != '') {
+                    var noresiInitialBeforeValidation = $noresiInitialSpan.val();
+                    $noresiInitialSpan.text($noresiInputBox.val());//.show();
+                    simpanNoResiPesananTiktok($idPesanan, $noresiInputBox, $btnEdit, $noresiInitialSpan, noresiInitialBeforeValidation);
+                } else {
+                    alert('Field No Resi Harus diisi!');
+                    $noresiInputBox.focus();
+                }
+        }
+    }
+
+    function simpanNoResiPesananTiktok($idPesanan, $noresiInputBox, $btnEdit, $noresiInitialSpan, noresiInitialBeforeValidation) {
+            //if (!validateForm()) return false;
+
+                $postdata = {
+                    idpesanan: $idPesanan,
+                    noresi : $noresiInputBox.val()
+                };
+
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/json; charset=UTF-8",
+                    url: '@Url.Action("SaveNoResiPesananTiktok", "Manage")',
+                    data: JSON.stringify($postdata),
+                    cache: false,
+                    beforeSend: function() {
+                        $('#loading_spinner').show();
+                    },
+                    success: function (response) {
+
+                        if (response.Errors == null) {
+                            $modeEdit = 1; // 0 new, 1 edit
+                            $btnEdit.parent().removeClass('btn-success').addClass('btn-primary');
+                            $btnEdit.removeClass('glyphicon-floppy-disk').addClass('glyphicon-pencil');
+                            $noresiInitialSpan.show();
+                            $noresiInputBox.hide();
+                            $('#loading_spinner').hide();
+                        } else {
+                            $noresiInitialSpan.text(noresiInitialBeforeValidation);
+                            console.log(response.Errors);
+                            alert(response.Errors);
+                            $('#loading_spinner').hide();
+                        }
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+        }
+</script>
+<div class="hscroll table-responsive tbljurnal">
+    <table class="table table-striped table-bordered table-hover">
+        <thead>
+            <tr role="row">
+                <th class="sorting text-center center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 40px; align-self:flex-start"><input type="checkbox" onclick="allcheckboxpackingtiktokonclick('@Model.CUST');" class="dt-checkboxes-select-all center" id="all_checkbox_packing_tiktok__@Model.CUST" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" /></th>
+                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 10%;">No. Pesanan</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 20%;">No Referensi</th>
+                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">No. Resi</th>
+                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 25%;">Pembeli</th>
+                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 10%;">Tipe Pesanan</th>
+                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">Status Kirim</th>
+                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">Status Print</th>
+                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">Kurir</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model.listPacking.ToList())
+            {
+                var status_kirim = "Dalam Proses";
+                switch (order.status_kirim)
+                {
+                    case "0":
+                        status_kirim = "Dalam Proses";
+                        break;
+                    case "1":
+                        status_kirim = "Gagal Proses";
+                        break;
+                    case "2":
+                        status_kirim = "Siap Kirim";
+                        break;
+                    case "5":
+                        status_kirim = "Batal";
+                        break;
+                    default:
+                        status_kirim = "";
+                        break;
+                }
+                var st_print = "";
+                switch (order.status_print)
+                {
+                    case "1":
+                        st_print = "Sudah";
+                        break;
+                    default:
+                        st_print = "Belum";
+                        break;
+                }
+                //add by Tri 17 feb 2021
+                var tipe_pesanan = "";
+                if (order.TIPE_KIRIM.Value == 1)
+                {
+                    tipe_pesanan = "COD";
+                }
+                else if (order.TIPE_KIRIM.Value == 2)
+                {
+                    tipe_pesanan = "Preorder";
+                }
+                if (order.N_UCAPAN != "" && order.N_UCAPAN != "-" && order.N_UCAPAN != " ")
+                {
+                    if (tipe_pesanan != "")
+                    {
+                        tipe_pesanan += " " + order.N_UCAPAN;
+                    }
+                    else
+                    {
+                        tipe_pesanan = order.N_UCAPAN;
+                    }
+                }
+                //end add by Tri 17 feb 2021
+                <tr>
+                    <td style="text-align:center">
+                        @if (order.status_kirim == "5")
+                        {
+                            <input type="checkbox" class="dt-checkboxes center" style="align-self:flex-start; width:30px; height:28px;" disabled="disabled" />
+                        }
+                        else
+                        {
+                            <input type="checkbox" class="dt-checkboxes center checkbox_packing_tiktok" data-cust="@order.CUST" data-recnum="@order.so_recnum" data-bukti="@order.no_bukti" style="align-self:flex-start; width:30px; height:28px;" />
+                        }
+
+                    </td>
+                    <td>@order.no_bukti</td>
+                    <td>@order.no_referensi</td>
+                    <td>@order.tracking_no</td>
+                    @*<td>
+                        <input type="text" class="noresi-input-box" style="display: none; width: 150px;" />
+                        <span class="noresi-initial">@order.tracking_no</span>
+                    </td>*@
+                    <td>@order.nama_pemesan</td>
+                    <td>@tipe_pesanan</td>
+                    <td>@status_kirim</td>
+                    <td>@st_print</td>
+                    <td>@order.kurir</td>
+                    @*<td class="edit-hapus-col">
+                        <button type="button" class="btn btn-primary" onclick="editNoResiTiktok('@order.no_bukti')">
+                            <span class="icon-btn-edit glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                        </button>
+                    </td>*@
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+

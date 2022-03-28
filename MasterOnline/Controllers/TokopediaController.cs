@@ -1745,6 +1745,7 @@ namespace MasterOnline.Controllers
                     //    }
                     //}
                     if (result.data != null)
+                    {
                         if (!adaError)
                         {
                             ret.message = (page + 1).ToString();
@@ -1943,7 +1944,7 @@ namespace MasterOnline.Controllers
                                                     }
                                                 }
                                             }
-                                        if(item.extraAttribute != null)
+                                        if (item.extraAttribute != null)
                                         {
                                             newrecord.MIN_ORDER = item.extraAttribute.minOrder;
                                         }
@@ -2033,7 +2034,7 @@ namespace MasterOnline.Controllers
                                         //}
                                         ////end add by Tri 16 Jan 2020, get item detail
                                         #endregion
-                                        if(item.volume != null)
+                                        if (item.volume != null)
                                         {
                                             newrecord.PANJANG = item.volume.length;
                                             newrecord.LEBAR = item.volume.width;
@@ -2068,6 +2069,19 @@ namespace MasterOnline.Controllers
                                 ErasoftDbContext.SaveChanges();
                             }
                         }
+                    }
+                    else
+                    {
+                        if (retry < 4)
+                        {
+                            await Task.Delay(retry * 1000);
+                            ret = await GetItemListSemua(iden, page, recordCount, CUST, NAMA_CUST, recnumArf01, totalData, retry + 1);
+                        }
+                        else
+                        {
+
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {

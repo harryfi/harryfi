@@ -1051,7 +1051,7 @@
             getMerk();
 
             getLogisticShopee();
-
+            getLogisticTokped();
             $("#Stf02_HJUAL").off('focus').focus(function () {
                 $(this).val(convertToAngka($(this).val()));
             });
@@ -5463,6 +5463,16 @@
                                             $('#rdoAsuransi2_' + lMarket.RecNum).prop('checked', true);
                                         }
                                         $('#ListHargaJualPermarket_' + i + '__MIN_ORDER').val(valData.MIN_ORDER);
+                                        if (valData.AVALUE_39 != '' && valData.AVALUE_39 != null && valData.AVALUE_39 != undefined) {
+                                            $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val(valData.AVALUE_39);
+                                            var listLog = valData.AVALUE_39.split(',');
+                                            $('#LOGISTIC_TOKPED_' + lMarket.RecNum)[0].selectize.setValue(listLog, true);
+                                        }
+                                        else {
+                                            $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val('');
+                                            if ($('#LOGISTIC_TOKPED_' + lMarket.RecNum)[0].selectize != undefined)
+                                                $('#LOGISTIC_TOKPED_' + lMarket.RecNum)[0].selectize.setValue('', true);
+                                        }
                                     }
                                     if (lMarket.NAMA == "19")//jdid
                                     {
@@ -5550,16 +5560,16 @@
                             var fieldCategoryName = '#ListHargaJualPermarket_' + i + '__CATEGORY_NAME';
                             $(fieldCategoryCode).val('');
                             $(fieldCategoryName).val('');
-                            
+
                             if (lMarket.NAMA == "16")//blibli
                             {
                                 $('#ListHargaJualPermarket_' + i + '__PICKUP_POINT').val('');
                                 $('#PickupPoint' + i + 'Blibli').val('');
-                                        
+
                                 $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val('');
                                 if (CKEDITOR.instances['ListHargaJualPermarket_' + i + '__AVALUE_39'] != undefined)
                                     CKEDITOR.instances['ListHargaJualPermarket_' + i + '__AVALUE_39'].setData('');
-                                           
+
                                 $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val('');
                                 $('#ListHargaJualPermarket_' + i + '__ANAME_38').val('');
                                 $('#Brand' + i + 'Blibli').val('');
@@ -5580,11 +5590,11 @@
                                     $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val('');
                                     $('#ListHargaJualPermarket_' + i + '__ANAME_38').val('');
                                     $('#Brand' + i + 'Shopee').val('');
-                                       
+
                                     $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val('');
                                 if ($('#LOGISTIC_SHOPEE_' + lMarket.RecNum)[0].selectize != undefined)
                                     $('#LOGISTIC_SHOPEE_' + lMarket.RecNum)[0].selectize.setValue('', true);
-                                       
+
                             }
                             if (lMarket.NAMA == "15")//Tokopedia
                             {
@@ -5594,6 +5604,9 @@
                                     $('#rdoAsuransi1_' + lMarket.RecNum).prop('checked', false);
                                     $('#rdoAsuransi2_' + lMarket.RecNum).prop('checked', true);
                                 $('#ListHargaJualPermarket_' + i + '__MIN_ORDER').val('');
+                                $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val('');
+                                if ($('#LOGISTIC_TOKPED_' + lMarket.RecNum)[0].selectize != undefined)
+                                    $('#LOGISTIC_TOKPED_' + lMarket.RecNum)[0].selectize.setValue('', true);
                             }
                             if (lMarket.NAMA == "19")//jdid
                             {
@@ -5610,10 +5623,10 @@
                                 $('#ListHargaJualPermarket_' + i + '__ACODE_41').val('');
                                 $('#ListHargaJualPermarket_' + i + '__AVALUE_41').val('');
                                 $('#ListHargaJualPermarket_' + i + '__AVALUE_45').val('');
-                                        
+
                                     $('#rdoCODJDID1_' + lMarket.RecNum).prop('checked', false);
                                     $('#rdoCODJDID2_' + lMarket.RecNum).prop('checked', true);
-                                        
+
                                 $('#ListHargaJualPermarket_' + i + '__AVALUE_46').val('');
                                 $('#ListHargaJualPermarket_' + i + '__AVALUE_48').val('');
                                 $('#ListHargaJualPermarket_' + i + '__AVALUE_49').val('');
@@ -5638,7 +5651,7 @@
                                 $('#ListHargaJualPermarket_' + i + '__ANAME_38').val('');
                                 $('#Brand' + i + '82Cart').val('');
                             }
-                            
+
                             i = i + 1;
                         };
 
@@ -5731,8 +5744,9 @@
                         searchField: 'text',
                         options: listKategori,
                         onChange: function (value) {
-                            $('#ListHargaJualPermarket_' + i +'__AVALUE_39').val(value);
+                            //$('#ListHargaJualPermarket_' + i +'__AVALUE_39').val(value);
                             //$('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
+                            $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val($('#LOGISTIC_SHOPEE_' + idmarket).val())
                         }
                     });
                     if (kategoriSelect[0] != undefined) {
@@ -5740,7 +5754,63 @@
                         //kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val());
                         if ($('#ListHargaJualPermarket_' + i + '__AVALUE_39').val() != undefined) {
                             var listLog = $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val().split(',');
-                            kategoriSelect[0].selectize.setValue(listLog, true);
+                            //kategoriSelect[0].selectize.setValue(listLog, true);
+                            kategoriSelect[0].selectize.setValue(listLog);
+                        }
+                        //end change by calvin 15 februari 2019
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        function getLogisticTokped() {
+            var idMarketTokped = "15";
+            var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
+            for (var i = 0; i < listMarket.length; i++) {
+                if (listMarket[i].NAMA == idMarketTokped.toString()) {
+                    setComboBoxLogisticTokped(listMarket[i].RecNum, i);
+                }
+            }
+        }
+        function setComboBoxLogisticTokped(idmarket, i) {
+            var urll = '@Url.Action("GetLogisticTokped", "Manage")';
+            urll += "?idmarket=" + idmarket;
+            $.ajax({
+                type: "GET",
+                url: urll,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listKategori = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listKategori[i] = {
+                                id: item.KODE,
+                                text: item.KET
+                            };
+                        });
+
+                    var kategoriSelect = $('#LOGISTIC_TOKPED_' + idmarket).selectize({
+                        maxItems: 20,
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listKategori,
+                        onChange: function (value) {
+                            //$('#ListHargaJualPermarket_' + i +'__AVALUE_39').val(value);
+                            //$('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
+                            $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val($('#LOGISTIC_TOKPED_' + idmarket).val())
+                        }
+                    });
+                    if (kategoriSelect[0] != undefined) {
+                        //change by calvin 15 februari 2019, saat pertama kali load form, dan mengisi nilai default, jangan trigger kategoriSelect.onchange
+                        //kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val());
+                        if ($('#ListHargaJualPermarket_' + i + '__AVALUE_39').val() != undefined) {
+                            var listLog = $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val().split(',');
+                            //kategoriSelect[0].selectize.setValue(listLog, true);
+                            kategoriSelect[0].selectize.setValue(listLog);
                         }
                         //end change by calvin 15 februari 2019
                     }
