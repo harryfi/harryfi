@@ -1711,7 +1711,7 @@ namespace MasterOnline.Controllers
             myReq.ContentType = "application/json";
 
 
-            string myData = "{\"product_id\":\"" + brgmp[0] + "\", \"skus\" : { \"original_price\":\"" + price + "\",\"id\" : \"" + brgmp[1] + "\" } }";
+            string myData = "{\"product_id\":\"" + brgmp[0] + "\", \"skus\" : [{ \"original_price\":\"" + price + "\",\"id\" : \"" + brgmp[1] + "\" }] }";
 
             string responseFromServer = "";
             try
@@ -1746,81 +1746,18 @@ namespace MasterOnline.Controllers
 
             if (responseFromServer != "")
             {
-                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(TiktokPrintLabelResponse)) as TiktokPrintLabelResponse;
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(TiktokCommonResponse)) as TiktokCommonResponse;
                 if (result.code != 0)
                 {
-                    //throw new Exception(responseFromServer);
-                    return "error : " + responseFromServer;
+                    throw new Exception(responseFromServer);
+                    //return "error : " + responseFromServer;
                 }
-                else
-                {
-                    return result.data.doc_url;
-                }
+              
 
             }
             return ret;
         }
-        public string UpdatePrice_job2(string dbPathEra, string kdbrgMO, string log_CUST, string log_ActionCategory, string log_ActionName, string product_id, TTApiData iden, string price)
-        {
-            SetupContext(iden.DatabasePathErasoft, iden.username);
-            var brgmp = product_id.Split(';');
-            if (brgmp.Length != 2)
-            {
-                throw new Exception("Update harga gagal, Link barang salah.");
-            }
-
-            //string urll = "https://open-api.tiktokglobalshop.com/api/products/stocks?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
-            string urll = "https://open-api.tiktokglobalshop.com/api/products/prices?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
-            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
-            //string sign = eraAppSecretTikTok + "/api/products/stocksapp_key" + eraAppKeyTikTok + "shop_id" + apidata.shop_id + "timestamp" + timestamp + eraAppSecretTikTok;
-            string sign = eraAppSecret + "/api/products/pricesapp_key" + eraAppKey + "shop_id" + iden.shop_id + "timestamp" + timestamp + eraAppSecret;
-
-            string signencry = GetHash(sign, eraAppSecret);
-            var vformatUrl = String.Format(urll, iden.access_token, timestamp, signencry, eraAppKey, iden.shop_id);
-            string request_data = "{\"product_id\":\"" + brgmp[0] + "\", \"skus\" : { \"original_price\":\"" + price + "\",\"id\" : \"" + brgmp[1] + "\" } }";
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
-            myReq.Method = "PUT";
-            myReq.ContentType = "application/json";
-            myReq.Accept = "application/json";
-            string responseFromServer = "";
-            myReq.ContentLength = request_data.Length;
-            try
-            {
-                using (var dataStream = myReq.GetRequestStream())
-                {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(request_data), 0, request_data.Length);
-                }
-                using (WebResponse response = myReq.GetResponse())
-                {
-                    using (Stream stream = response.GetResponseStream())
-                    {
-                        StreamReader reader = new StreamReader(stream);
-                        responseFromServer = reader.ReadToEnd();
-                    }
-                }
-            }
-            catch (WebException e)
-            {
-                string err = e.Message;
-                if (e.Status == WebExceptionStatus.ProtocolError)
-                {
-                    WebResponse resp = e.Response;
-                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
-                    {
-                        err = sr.ReadToEnd();
-                    }
-                }
-                return "error : " + err;
-            }
-
-            if (responseFromServer != "")
-            {
-
-            }
-
-            return "";
-        }
-
+        
         public ATTRIBUTE_SHOPEE_AND_OPT_v2 GetAttributeList(TTApiData iden, string categoryCode)
         {
             SetupContext(iden.DatabasePathErasoft, iden.username);
