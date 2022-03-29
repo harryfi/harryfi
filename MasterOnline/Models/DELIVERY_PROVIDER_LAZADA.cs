@@ -24,4 +24,21 @@ namespace MasterOnline
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int? RECNUM { get; set; }
     }
+
+    public partial class DELIVERY_PROVIDER_TIKTOK
+    {
+        [Key]
+        [Column(Order = 0)]
+        public string CUST { get; set; }
+
+        [Key]
+        [Column(Order = 1)]
+        public string SHIPPING_ID { get; set; }
+
+        public string NAME { get; set; }
+
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int? RECNUM { get; set; }
+    }
 }

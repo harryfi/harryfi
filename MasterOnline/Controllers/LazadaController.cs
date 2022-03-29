@@ -231,11 +231,30 @@ namespace MasterOnline.Controllers
                 if (!response.IsError())
                 {
                     var bindAuth = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaAuth)) as LazadaAuth;
+                    var sellerid = GetShopID(bindAuth.access_token);
                     // add by fauzi 20 februari 2020
                     var dateExpired = DateTime.UtcNow.AddSeconds(bindAuth.expires_in).ToString("yyyy-MM-dd HH:mm:ss");
-                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + bindAuth.access_token + "', REFRESH_TOKEN = '" + bindAuth.refresh_token + "', STATUS_API = '1', TGL_EXPIRED = '" + dateExpired + "'  WHERE CUST = '" + cust + "'");
+                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + bindAuth.access_token 
+                        + "', REFRESH_TOKEN = '" + bindAuth.refresh_token + "', STATUS_API = '1', TGL_EXPIRED = '" + dateExpired
+                        + "', Sort1_Cust = '" + sellerid + "'  WHERE CUST = '" + cust + "'");
                     if (result == 1)
                     {
+                        var tblMapping = MoDbContext.TABEL_MAPPING_LAZADA.Where(m => m.DBPATHERA == user && m.CUST == cust).FirstOrDefault();
+                        if (tblMapping != null)
+                        {
+                            tblMapping.SHOPID = sellerid;
+                        }
+                        else
+                        {
+                            tblMapping = new TABEL_MAPPING_LAZADA
+                            {
+                                CUST = cust,
+                                SHOPID = sellerid,
+                                DBPATHERA = user
+                            };
+                            MoDbContext.TABEL_MAPPING_LAZADA.Add(tblMapping);
+                        }
+                        MoDbContext.SaveChanges();
                         manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, "", currentLog);
                         GetShipment(cust, bindAuth.access_token);
                     }
@@ -261,6 +280,26 @@ namespace MasterOnline.Controllers
                 return ex.ToString();
             }
 
+        }
+        public string GetShopID(string accessToken)
+        {
+            var ret = "";
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest("/seller/get");
+            request.SetHttpMethod("GET");
+
+            try
+            {
+                LazopResponse response = client.Execute(request, accessToken);
+
+                var resData = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(GetShopResponse)) as GetShopResponse;
+                ret = resData.data.seller_id.ToString();
+            }
+            catch (Exception ex)
+            {
+                //return null;
+            }
+            return ret;
         }
 
         public LazadaAuth GetRefToken(string cust, string refreshToken)

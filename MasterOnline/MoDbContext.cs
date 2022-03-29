@@ -59,6 +59,8 @@ namespace MasterOnline
         public DbSet<ATTRIBUTE_82CART> Attribute82Cart { get; set; }
         public DbSet<Tutorial_Header> Tutorial_Header { get; set; }
         public DbSet<Tutorial_Detail> Tutorial_Detail { get; set; }
+        public DbSet<TABEL_MAPPING_TIKTOK> TABEL_MAPPING_TIKTOK { get; set; }
+        public DbSet<TABEL_MAPPING_LAZADA> TABEL_MAPPING_LAZADA { get; set; }
 
         //add by Tri for bukalapak
         public DbSet<BUKALAPAK_TOKEN> BUKALAPAK_TOKEN { get; set; }
@@ -73,6 +75,9 @@ namespace MasterOnline
         public DbSet<TOKPED_SHOPID> TOKPED_SHOPID { get; set; }
         //end add by nurul 20/9/2021
         public DbSet<TABEL_LOG_GETORDERS> TABEL_LOG_GETORDERS { get; set; }
+
+        public DbSet<CATEGORY_TIKTOK> CATEGORY_TIKTOK { get; set; }
+
         public MoDbContext()
             : base("name=MoDbContext")
         {

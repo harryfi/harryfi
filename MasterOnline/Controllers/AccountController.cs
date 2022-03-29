@@ -990,8 +990,8 @@ namespace MasterOnline.Controllers
             #endregion
 
             #region lazada
-            try { 
             var kdLazada = 7;
+            try { 
             //var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
             var LazadaShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdLazada.ToString());
             if (id_single_account.HasValue)
@@ -1042,24 +1042,26 @@ namespace MasterOnline.Controllers
                         //add by fauzi 25 November 2019
                         if (tblCustomer.TIDAK_HIT_UANG_R == true)
                         {
+                                if (tblCustomer.Sort2_Cust != "1")
+                                {
 #if (DEBUG || Debug_AWS)
-                            string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            new LazadaControllerJob().GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);//pesanan sudah dibayar
+                                    string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                    new LazadaControllerJob().GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);//pesanan sudah dibayar
 
-                            connId_JobId = dbPathEra + "_lazada_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            new LazadaControllerJob().GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
+                                    connId_JobId = dbPathEra + "_lazada_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                    new LazadaControllerJob().GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
 
-                            connId_JobId = dbPathEra + "_lazada_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            new LazadaControllerJob().GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
+                                    connId_JobId = dbPathEra + "_lazada_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                    new LazadaControllerJob().GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
 
-                            connId_JobId = dbPathEra + "_lazada_pesanan_update_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            new LazadaControllerJob().GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);//update pesanan
+                                    connId_JobId = dbPathEra + "_lazada_pesanan_update_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                    new LazadaControllerJob().GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);//update pesanan
 
-                            connId_JobId = dbPathEra + "_lazada_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            new LazadaControllerJob().GetOrdersRTS(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);//pesanan sudah dibayar
+                                    connId_JobId = dbPathEra + "_lazada_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                    new LazadaControllerJob().GetOrdersRTS(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);//pesanan sudah dibayar
 
-                            connId_JobId = dbPathEra + "_lazada_pesanan_updatepaid_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            new LazadaControllerJob().GetOrderCekUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);//update pesanan unpaid
+                                    connId_JobId = dbPathEra + "_lazada_pesanan_updatepaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                    new LazadaControllerJob().GetOrderCekUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);//update pesanan unpaid
 #else
                             string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
                             recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
@@ -1086,8 +1088,51 @@ namespace MasterOnline.Controllers
                             recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrderCekUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(15), recurJobOpt);
 
 #endif
-                            //add by Tri 24 mei 2021, get order -3hari untuk akun baru go live
-                            if (!string.IsNullOrEmpty(sync_pesanan_stok))
+                                }
+                                else //webhook
+                                {
+#if (DEBUG || Debug_AWS)
+                                    string connId_JobId = dbPathEra + "_lazada_webhook_insert_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                    new LazadaControllerJob().GetOrder_webhook_lzd_insert(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
+
+                                    connId_JobId = dbPathEra + "_lazada_webhook_cancel_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                    new LazadaControllerJob().GetOrder_webhook_lzd_cancel(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
+
+                                    connId_JobId = dbPathEra + "_lazada_webhook_update_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                    new LazadaControllerJob().GetOrder_webhook_lzd_update(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
+#else
+                            string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.HourInterval(1), recurJobOpt);
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.HourInterval(1), recurJobOpt);
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersRTS(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.HourInterval(1), recurJobOpt);
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.HourInterval(1), recurJobOpt);
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_update_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), "0 18 * * *");
+                            
+                            connId_JobId = dbPathEra + "_lazada_pesanan_updatepaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrderCekUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(15), recurJobOpt);
+
+                            connId_JobId = dbPathEra + "_lazada_webhook_insert_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrder_webhook_lzd_insert(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+
+                            connId_JobId = dbPathEra + "_lazada_webhook_cancel_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrder_webhook_lzd_cancel(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+                            
+                            connId_JobId = dbPathEra + "_lazada_webhook_update_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrder_webhook_lzd_update(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(15), recurJobOpt);
+
+#endif
+
+                                }
+                                //add by Tri 24 mei 2021, get order -3hari untuk akun baru go live
+                                if (!string.IsNullOrEmpty(sync_pesanan_stok))
                             {
                                 if (sync_pesanan_stok == tblCustomer.CUST)
                                 {
@@ -1121,15 +1166,22 @@ namespace MasterOnline.Controllers
 
                             connId_JobId = dbPathEra + "_lazada_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
                             recurJobM.RemoveIfExists(connId_JobId);
-                        }
+
+                                connId_JobId = dbPathEra + "_lazada_webhook_insert_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.RemoveIfExists(connId_JobId);
+                                connId_JobId = dbPathEra + "_lazada_webhook_cancel_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.RemoveIfExists(connId_JobId);
+                                connId_JobId = dbPathEra + "_lazada_webhook_update_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.RemoveIfExists(connId_JobId);
+                            }
                     }
                 }
             }
             }
             catch (Exception ex) { }
-            #endregion
+#endregion
 
-            #region Blibli
+#region Blibli
             try { 
             //change by fauzi 18 Desember 2019
             var kdBli = 16;
@@ -1225,9 +1277,9 @@ namespace MasterOnline.Controllers
             }
             }
             catch (Exception ex) { }
-            #endregion
+#endregion
 
-            #region elevenia
+#region elevenia
             try { 
             var kdElevenia = 9;
             //var kdElevenia = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "ELEVENIA");
@@ -1289,9 +1341,9 @@ namespace MasterOnline.Controllers
             }
             }
             catch (Exception ex) { }
-            #endregion
+#endregion
 
-            #region Tokopedia
+#region Tokopedia
             var kdTokped = 15;
             try { 
             //var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
@@ -1499,9 +1551,9 @@ namespace MasterOnline.Controllers
             }
             }
             catch (Exception ex) { }
-            #endregion
+#endregion
 
-            #region Shopee
+#region Shopee
             try { 
             var kdShopee = 17;
             //var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
@@ -1516,7 +1568,7 @@ namespace MasterOnline.Controllers
                 //var shopeeApi = new ShopeeController();
                 foreach (ARF01 tblCustomer in listShopeeShop)
                 {
-                    #region refresh token shopee
+#region refresh token shopee
                     //add by fauzi 20 Februari 2020
                     ShopeeControllerJob.ShopeeAPIData iden = new ShopeeControllerJob.ShopeeAPIData();
                     iden.merchant_code = tblCustomer.Sort1_Cust;
@@ -1566,7 +1618,7 @@ namespace MasterOnline.Controllers
                         AdminController.ReminderNotifyExpiredAccountMP(dbPathEra, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED);
                     }
                     //end by fauzi 20 Februari 2020
-                    #endregion
+#endregion
 
                     string connId_JobId = "";
                     //add by fauzi 25 November 2019
@@ -1669,9 +1721,9 @@ namespace MasterOnline.Controllers
             }
             }
             catch (Exception ex) { }
-            #endregion
+#endregion
 
-            #region Shopify
+#region Shopify
             try { 
             var kdShopify = 21;
             var ShopifyShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopify.ToString());
@@ -1739,9 +1791,9 @@ namespace MasterOnline.Controllers
             }
             }
             catch (Exception ex) { }
-            #endregion
+#endregion
 
-            #region 82Cart
+#region 82Cart
             var kd82Cart = 20;
             try { 
 
@@ -1822,9 +1874,9 @@ namespace MasterOnline.Controllers
             }
             }
             catch (Exception ex) { }
-            #endregion
+#endregion
 
-            #region JDID
+#region JDID
             try { 
             var kdJDID = 19;
 
@@ -1839,7 +1891,7 @@ namespace MasterOnline.Controllers
                 foreach (ARF01 tblCustomer in listJDIDShop)
                 {
                     //add by nurul 5/5/2021
-                    #region refresh token JD.ID versi 2
+#region refresh token JD.ID versi 2
 
 //                    if (tblCustomer.KD_ANALISA == "2")
 //                    {
@@ -1861,7 +1913,7 @@ namespace MasterOnline.Controllers
 //                        Task.Run(() => new JDIDControllerJob().GetTokenJDID(iden, false, false)).Wait();
 //#endif
 //                    }
-                    #endregion refresh token JD.ID versi 2
+#endregion refresh token JD.ID versi 2
                     //end add by nurul 5/5/2021
 
                     string connId_JobId = "";
@@ -1974,9 +2026,9 @@ namespace MasterOnline.Controllers
             }
             }
             catch (Exception ex) { }
-            #endregion
+#endregion
 
-            #region Accurate
+#region Accurate
             try
             {
                 string idaddon = "7";
@@ -1993,9 +2045,9 @@ namespace MasterOnline.Controllers
                 }
             }
             catch (Exception ex) { }
-            #endregion
+#endregion
 
-            #region TADA
+#region TADA
             try
             {
                 string idaddontada = "8";
@@ -2014,8 +2066,116 @@ namespace MasterOnline.Controllers
                 }
             }
             catch (Exception ex) { }
-            #endregion
+#endregion
+#region TiktokShop
+            try
+            {
+                var tiktokshop = LocalErasoftDbContext.ARF01.Where(x => x.NAMA == "2021");
+                var lstwoshop = tiktokshop.ToList();
+                if (lstwoshop.Count > 0)
+                {
+                    foreach (ARF01 tblCustomer in lstwoshop)
+                    {
+                        if (!string.IsNullOrWhiteSpace(tblCustomer.TOKEN))
+                        {
+                            var idenTikTok = new TTApiData
+                            {
+                                access_token = tblCustomer.TOKEN,
+                                no_cust = tblCustomer.CUST,
+                                DatabasePathErasoft = dbPathEra,
+                                shop_id = tblCustomer.Sort1_Cust,
+                                username = username,
+                                expired_date = tblCustomer.TOKEN_EXPIRED.Value, 
+                                refresh_token = tblCustomer.REFRESH_TOKEN
+                            };
+                                var tikapijob = new TiktokControllerJob();
+                            if (tblCustomer.TOKEN_EXPIRED != null && tblCustomer.STATUS_API == "1")
+                            {
+#if (AWS || DEV)
+                            client.Enqueue<TiktokControllerJob>(x => x.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username, tblCustomer.TGL_EXPIRED,tblCustomer.TOKEN_EXPIRED));
 
+                                var accFromMoDB2 = MoDbContext.Account.Single(a => a.DatabasePathErasoft == dbPathEra);
+                                var connection_id_proses_checktoken = dbPathEra + "_proses_checktoken_expired_tiktok_" + tblCustomer.CUST.ToString();
+                        recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB2.Email, tblCustomer.PERSO, "Tiktok", tblCustomer.TGL_EXPIRED)), "0 1 * * *", recurJobOpt);
+
+#else
+                                //TiktokController tikapi = new TiktokController();
+                                await tikapijob.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username, tblCustomer.TGL_EXPIRED, tblCustomer.TOKEN_EXPIRED);
+                                AdminController.ReminderNotifyExpiredAccountMP(dbPathEra, tblCustomer.PERSO, "Tiktok", tblCustomer.TGL_EXPIRED);
+#endif
+                            }
+                            else
+                            {
+                                recurJobM.RemoveIfExists(dbPathEra + "_proses_checktoken_expired_tiktok_" + tblCustomer.CUST.ToString());
+
+                            }
+                            string connId_JobId = "";
+                            if (tblCustomer.TIDAK_HIT_UANG_R == true)
+                            {
+                                //order data
+
+#if (AWS || DEV)
+                            connId_JobId = dbPathEra + "_tiktok_pesanan_insert_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TiktokControllerJob>(x => x.GetOrder_Insert_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO)), Cron.HourInterval(1), recurJobOpt);
+                                 
+                                //connId_JobId = dbPathEra + "_tiktok_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TiktokControllerJob>(x => x.GetOrder_Complete_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO)), Cron.HourInterval(6), recurJobOpt);
+                                
+                                connId_JobId = dbPathEra + "_tiktok_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TiktokControllerJob>(x => x.GetOrder_Cancel_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO)), Cron.HourInterval(1), recurJobOpt);
+                                
+                                connId_JobId = dbPathEra + "_tiktok_pesanan_webhook_insert_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TiktokControllerJob>(x => x.GetOrderTiktok_webhook_Insert(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO)), Cron.MinuteInterval(5), recurJobOpt);
+                                
+                                connId_JobId = dbPathEra + "_tiktok_pesanan_webhook_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TiktokControllerJob>(x => x.GetOrderTiktok_webhook_Cancel(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO)), Cron.MinuteInterval(5), recurJobOpt);
+
+#else
+                                await tikapijob.GetOrder_Insert_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
+                                //await tikapijob.GetOrder_Complete_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
+                                await tikapijob.GetOrder_Cancel_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
+                                await tikapijob.GetOrderTiktok_webhook_Insert(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
+                                await tikapijob.GetOrderTiktok_webhook_Cancel(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
+#endif
+                                if (!string.IsNullOrEmpty(sync_pesanan_stok))
+                                {
+                                    if (sync_pesanan_stok == tblCustomer.CUST)
+                                    {
+#if (AWS || DEV)
+                                    client.Enqueue<TiktokControllerJob>(x => x.GetOrder_GoLive_Insert_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO));
+#else
+                                        await tikapijob.GetOrder_GoLive_Insert_Tiktok(idenTikTok, tblCustomer.CUST, tblCustomer.PERSO);
+#endif
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                connId_JobId = dbPathEra + "_tiktok_pesanan_insert_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.RemoveIfExists(connId_JobId);
+
+                                connId_JobId = dbPathEra + "_tiktok_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.RemoveIfExists(connId_JobId);
+
+                                connId_JobId = dbPathEra + "_tiktok_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.RemoveIfExists(connId_JobId);
+
+                                connId_JobId = dbPathEra + "_tiktok_pesanan_webhook_insert_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.RemoveIfExists(connId_JobId);
+
+                                connId_JobId = dbPathEra + "_tiktok_pesanan_webhook_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.RemoveIfExists(connId_JobId);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+#endregion
             return "";
         }
 
