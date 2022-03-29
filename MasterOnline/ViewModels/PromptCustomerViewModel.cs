@@ -61,6 +61,8 @@ namespace MasterOnline.ViewModels
     {
         public string NO_BUKTI { get; set; }
         public string NO_REF { get; set; }
+        public string NO_PO { get; set; }
+        public string NO_RESI { get; set; }
     }
 
     public class PromptAccountServerAkhirTahunViewModel
