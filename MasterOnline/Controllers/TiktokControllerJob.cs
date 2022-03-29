@@ -919,7 +919,7 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            var dsNewOrderPaid = EDB.GetDataSet("CString", "SO", "SELECT T.ORDERID FROM TABEL_WEBHOOK_TOKPED (NOLOCK) T LEFT JOIN SOT01A (NOLOCK) S ON S.NO_REFERENSI = T.ORDERID AND T.CUST = S.CUST WHERE T.TGL >= '"
+            var dsNewOrderPaid = EDB.GetDataSet("CString", "SO", "SELECT T.ORDERID FROM TABEL_WEBHOOK_TIKTOK (NOLOCK) T LEFT JOIN SOT01A (NOLOCK) S ON S.NO_REFERENSI = T.ORDERID AND T.CUST = S.CUST WHERE T.TGL >= '"
                 + daysNow.ToString("yyyy-MM-dd HH:mm:ss") + "' AND ORDER_STATUS = 'AWAITING_SHIPMENT' AND T.CUST = '" + CUST + "' AND ISNULL(S.NO_BUKTI, '') = ''");
 
             if (dsNewOrderPaid.Tables[0].Rows.Count > 0)
@@ -947,11 +947,86 @@ namespace MasterOnline.Controllers
             {
                 new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username, connIdProses.Substring(0, connIdProses.Length - 3));
             }
+            //add 29 mar 2022, update status to paid and set shipment/tracking number
+            var dsNewOrderUpdatePaid = EDB.GetDataSet("CString", "SO", "SELECT T.ORDERID FROM TABEL_WEBHOOK_TIKTOK (NOLOCK) T INNER JOIN SOT01A (NOLOCK) S ON S.NO_REFERENSI = T.ORDERID AND T.CUST = S.CUST WHERE T.TGL >= '"
+                + daysNow.ToString("yyyy-MM-dd HH:mm:ss") + "' AND ORDER_STATUS = 'AWAITING_SHIPMENT' AND T.CUST = '" + CUST + "' AND S.STATUS_TRANSAKSI NOT IN ('11', '12') AND ISNULL(S.SHIPMENT, '') = '' ");
 
+            if (dsNewOrderUpdatePaid.Tables[0].Rows.Count > 0)
+            {
+                for (int i = 0; i < dsNewOrderUpdatePaid.Tables[0].Rows.Count; i++)
+                {
+                    var insertData = dsNewOrderUpdatePaid.Tables[0].Rows[i]["ORDERID"].ToString();
+                    ordersn_list.Add(insertData);
+                    if (ordersn_list.Count >= 10 || i == dsNewOrderUpdatePaid.Tables[0].Rows.Count - 1)
+                    {
+                        string connId = Guid.NewGuid().ToString();
+
+                        await GetOrderDetailsUpdateStatus(iden, ordersn_list.ToArray(), connId, CUST, NAMA_CUST);
+                      
+                        ordersn_list = new List<string>();
+                    }
+                }
+            }
+            //end add 29 mar 2022, update status to paid and set shipment/tracking number
 
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust
                  + "%' and arguments like '%GetOrderTiktok_webhook_Insert%' and statename like '%Enque%'");
 
+            return ret;
+        }
+
+        public async Task<string> GetOrderDetailsUpdateStatus(TTApiData iden, string[] ordersn_list, string connID, string CUST, string NAMA_CUST)
+        {
+            var ret = "";
+            string urll = "https://open-api.tiktokglobalshop.com/api/orders/detail/query?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/orders/detail/queryapp_key" + eraAppKey + "shop_id" + iden.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, iden.access_token, timestamp, signencry, eraAppKey, iden.shop_id);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "POST";
+            myReq.ContentType = "application/json";
+
+            GetOrderDetailsData HttpBody = new GetOrderDetailsData
+            {
+                order_id_list = ordersn_list
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = System.Text.Encoding.UTF8.GetBytes(myData).Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, System.Text.Encoding.UTF8.GetBytes(myData).Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != "")
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(GetOrderDetailResponse)) as GetOrderDetailResponse;
+                
+                foreach (var order in result.data.order_list)
+                {
+                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SOT01A SET SHIPMENT = '"+order.shipping_provider+"', TRACKING_SHIPMENT = '"
+                        +order.tracking_number+ "' , STATUS_TRANSAKSI = CASE WHEN STATUS_TRANSAKSI = '0' THEN '01' ELSE STATUS_TRANSAKSI END WHERE NO_REFERENSI = '" 
+                        + order.order_id+"' AND CUST = '"+CUST+"' ");
+                }
+            }
             return ret;
         }
         [AutomaticRetry(Attempts = 2)]
