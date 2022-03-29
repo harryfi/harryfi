@@ -579,11 +579,14 @@
                         $("#linkMP").prop('checked', false);
                     }
 
-                    if (response.gd_default) {
+                    //change by nurul 28/3/2022
+                    //if (response.gd_default) {
+                    if (response.gd_default && response.Multilokasi != "1") {
                         $("#linkMP").attr('disabled', 'disabled');
                     } else {
                         $("#linkMP").removeAttr('disabled');
                     }
+                    //end change by nurul 28/3/2022
                     //end add by nurul 26/4/2019
 
                 },
