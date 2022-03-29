@@ -5021,14 +5021,29 @@ namespace MasterOnline.Controllers
                     responseFromServer = "";
                     try
                     {
-                        //using (WebResponse response = await myReq.GetResponseAsync())
-                        using (WebResponse response = myReq.GetResponse())
+                        if (DatabasePathErasoft.ToUpper() == "ERASOFT_120149" || DatabasePathErasoft.ToUpper() == "ERASOFT_1491309"
+                            || DatabasePathErasoft.ToUpper() == "ERASOFT_710298" || DatabasePathErasoft.ToUpper() == "ERASOFT_1481264")
                         {
-                            using (Stream stream = response.GetResponseStream())
+                            using (WebResponse response = myReq.GetResponse())
                             {
-                                StreamReader reader = new StreamReader(stream);
-                                responseFromServer = reader.ReadToEnd();
-                                responseApi = true; break;
+                                using (Stream stream = response.GetResponseStream())
+                                {
+                                    StreamReader reader = new StreamReader(stream);
+                                    responseFromServer = reader.ReadToEnd();
+                                    responseApi = true; break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            using (WebResponse response = await myReq.GetResponseAsync())
+                            {
+                                using (Stream stream = response.GetResponseStream())
+                                {
+                                    StreamReader reader = new StreamReader(stream);
+                                    responseFromServer = reader.ReadToEnd();
+                                    responseApi = true; break;
+                                }
                             }
                         }
                     }
