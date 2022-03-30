@@ -21,6 +21,7 @@ using Newtonsoft.Json;
 using System.Net;
 using System.Diagnostics;
 using System.Data.Entity.Validation;
+using System.Net.Http;
 
 namespace MasterOnline.Controllers
 {
@@ -1840,6 +1841,64 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+
+        public async Task<string> UpladImage(TTApiData iden, string url, string type)
+        {
+            SetupContext(iden.DatabasePathErasoft, iden.username);
+            var ret = "";
+            string urll = "https://open-api.tiktokglobalshop.com/api/products/upload_imgs?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/products/upload_imgsapp_key" + eraAppKey + "shop_id" + iden.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, iden.access_token, timestamp, signencry, eraAppKey, iden.shop_id);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "POST";
+            myReq.ContentType = "application/json";
+
+            #region url image into base 64
+            var base64String = "";
+            using (var client = new HttpClient())
+            {
+                var bytes = await client.GetByteArrayAsync(url);
+                 base64String = Convert.ToBase64String(bytes);
+            }
+            #endregion
+            string myData = "{\"img_data\":\"" + base64String + "\", \"img_scene\" : " + type;
+            //1:"PRODUCT_IMAGE" , 2:"DESCRIPTION_IMAGE" , 3:"ATTRIBUTE_IMAGE " , 4:"CERTIFICATION_IMAGE" , 5:"SIZE_CHART_IMAGE"
+            myData += "}";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = System.Text.Encoding.UTF8.GetBytes(myData).Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, System.Text.Encoding.UTF8.GetBytes(myData).Length);
+                }
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != "")
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(TiktokUploadImageResponse)) as TiktokUploadImageResponse;
+                if (result.code == 0)
+                {
+                    ret = result.data.img_id;
+                }
+
+            }
+            return ret;
+        }
         #region Encyrptor
         public static String GetHash(String text, String key)
         {
@@ -1880,6 +1939,16 @@ namespace MasterOnline.Controllers
         #endregion
 
     }
+}
+
+public class TiktokUploadImageResponse : TiktokCommonResponse
+{
+    public TiktokUploadImageData data { get; set; }
+}
+public class TiktokUploadImageData
+{
+    public string img_id { get; set; }
+
 }
 
 public class TiktokPrintLabelResponse : TiktokCommonResponse

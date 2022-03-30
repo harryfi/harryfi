@@ -52,4 +52,13 @@
         public string NAME { get; set; }
 
     }
+    [Table("TABEL_TIKTOK_BRAND")]
+    public partial class TABEL_TIKTOK_BRAND
+    {
+        [Key]
+        public string BRAND_ID { get; set; }
+
+        public string NAME { get; set; }
+
+    }
 }

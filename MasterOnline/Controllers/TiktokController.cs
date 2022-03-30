@@ -1064,6 +1064,64 @@ namespace MasterOnline.Controllers
         }
 
         #endregion
+        public string getBrand(TTApiData apidata)
+        {
+            string urll = "https://open-api.tiktokglobalshop.com/api/products/brands?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/products/brandsapp_key" + eraAppKey + "shop_id" + apidata.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, apidata.access_token, timestamp, signencry, eraAppKey, apidata.shop_id);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "GET";
+            myReq.ContentType = "application/json";
+            string ret = "";
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+            try
+            {
+                if (responseFromServer != null)
+                {
+                    TiktokGetBrandResponse respon = JsonConvert.DeserializeObject<TiktokGetBrandResponse>(responseFromServer);
+                    if(respon.code == 0)
+                    {
+                        if(respon.data != null)
+                        foreach (var brand in respon.data.brand_list)
+                        {
+                            var newData = new TABEL_TIKTOK_BRAND()
+                            {
+                                BRAND_ID = brand.id,
+                                NAME = brand.name.Replace('\'', '`')
+                            };
+                            if (ErasoftDbContext.TABEL_TIKTOK_BRAND.Where(m => m.BRAND_ID == newData.BRAND_ID).ToList().Count == 0)
+                            {
+                                ErasoftDbContext.TABEL_TIKTOK_BRAND.Add(newData);
+                                ErasoftDbContext.SaveChanges();
+                            }
+
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return ret;
+
+        }
         #region FetchBarang
         public async Task<BindingBase> getproduct(TTApiData iden, int IdMarket, int page, int recordCount, int totalData)
         {
@@ -2872,7 +2930,20 @@ namespace MasterOnline.Controllers
     }
 
     #region Model
+    public class TiktokGetBrandResponse : TiktokCommonResponse
+    {
+        public TiktokGetBrandResponseData data { get; set; }
 
+    }
+    public class TiktokGetBrandResponseData
+    {
+        public List<TiktokBrand> brand_list { get; set; }
+    }
+    public class TiktokBrand
+    {
+        public string id { get; set; }
+        public string name { get; set; }
+    }
     public class TiktokGetShipmentResponse
     {
         public int code { get; set; }
