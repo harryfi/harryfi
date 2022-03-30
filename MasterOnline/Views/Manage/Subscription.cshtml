@@ -946,7 +946,7 @@
             </div>
             <div class="modal-body">
                 <div class="row text-center">
-                    <h4>Apakah Anda yakin ingin menghapus berhenti berlangganan?</h4>
+                    <h4>Apakah Anda yakin ingin berhenti berlangganan?</h4>
                     <h5>
                         Dengan berhenti berlangganan, Anda <b>tidak dapat melakukan <i>login</i></b> kembali <br /> di Master Online dan data Anda akan <b>di hapus</b>!
                     </h5>
@@ -1242,9 +1242,23 @@
         }
 
         function clickSub(kode, bln) {
+            $('#txtTotal')[0].innerText = "";
             if ($('#ckBox')[0].checked) {
                 var queryStringAddon = "";
                 queryStringAddon = addonsArray.join(',');
+
+                var hitungtotal = convertToAngka($('#lbl_0_02')[0].innerText);
+                if (kode == "03") {
+                    hitungtotal = convertToAngka($('#lbl_0_03')[0].innerText);
+                }
+                if (bln == "3") {
+                    hitungtotal = hitungtotal * 3;
+                }
+                if (bln == "12") {
+                    hitungtotal = hitungtotal * 10;
+                }
+                hitungtotal = hitungtotal + (hitungtotal * 0.11);
+                $('#txtTotal')[0].innerText = convertToRupiah(hitungtotal);
                 //var bln = 0;
                 //switch (kode) {
                 //    case "01":

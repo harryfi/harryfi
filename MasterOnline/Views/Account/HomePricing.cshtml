@@ -1037,6 +1037,8 @@
 
 </div>
 <div class="text-center" style="margin-top: -15px; border-radius: 10px; padding-top: 40px; padding-bottom: 10px; background: #ffffff6b;">
+    <div class="row">Harga di atas belum termasuk PPN 11%</div>
+    <br />
     <div class="row"><input id="ckBox" type="checkbox" checked="checked" />&nbsp;Saya setuju dengan <a href="/Content/Static/termsandconditions.html#terms"><u>Syarat & Ketentuan</u></a></div>
     <br />
     <img src="~/Content/Images/payment_logo.png" width="25%" />
@@ -1349,7 +1351,7 @@
             //    var queryString = Object.keys(addonsArray[i]).map(key => key + '=' + addonsArray[i][key]).join('&');
             //});
 
-            debugger;
+            //debugger;
             var url = '@Url.Action("loginSubs", "Account")';
             url += "?Ref=" + '@referral' + "&kode=" + kode + "&bln=" + bln + "&jmlUser=" + $('#txtJmlUser')[0].innerText + "&addons=" + queryString;
             window.location.href = url;
