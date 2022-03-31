@@ -6604,36 +6604,67 @@ namespace MasterOnline.Controllers
                     //    "WHERE A.TGL BETWEEN '" + dt1 + "' AND '" + dt2 + "' " +
                     //    "AND A.JENIS_FORM = '2' " +
                     //    "ORDER BY A.TGL DESC, A.NO_BUKTI DESC";
-                    var delTemp = EDB.ExecuteSQL("CString", System.Data.CommandType.Text, "DROP TABLE #temp_FAKTUR_DESEMBER");
-                    if (delTemp > 0)
-                    {
+                    //var delTemp = EDB.ExecuteSQL("CString", System.Data.CommandType.Text, "DROP TABLE #temp_FAKTUR_DESEMBER");
+                    //if (delTemp > 0)
+                    //{
 
-                    }
+                    //}
                     string sSQL = "";
-                    sSQL += "SELECT ISNULL(A.NO_BUKTI,'') AS NO_FAKTUR, A.TGL AS TGL_FAKTUR, CASE WHEN A.STATUS ='1' THEN 'SELESAI' WHEN A.STATUS='2' THEN 'BATAL' ELSE '' END AS STATUS_FAKTUR, ISNULL(D.NO_BUKTI,'') AS NO_PESANAN, ISNULL(A.NO_REF, '') AS NO_REFERENSI, ";
-                    sSQL += "ISNULL(D.TGL, '') AS TGL_PESANAN, A.CUST AS CUST, ";
-                    sSQL += "ISNULL((SELECT top 1 NAMAMARKET + ' (' + PERSO + ')' FROM ARF01 X(NOLOCK) INNER JOIN MO..MARKETPLACE Y(NOLOCK) ON X.NAMA = Y.IDMARKET WHERE X.CUST = A.CUST),'') AS MARKETPLACE, ";
-                    sSQL += "ISNULL(A.PEMESAN, '') AS KODE_PEMBELI, ISNULL(A.NAMAPEMESAN, '') AS PEMBELI, ";
-                    sSQL += "(select isnull(tlp, '') from arf01c x(nolock) where x.buyer_code = a.PEMESAN) as TLP,  ";
-                    sSQL += "ISNULL(A.AL, '') AS ALAMAT_KIRIM, ISNULL(A.TERM, '') AS[TOP],  ";
-                    sSQL += "ISNULL(A.NAMAPENGIRIM, '') AS KURIR, ISNULL(A.TGL_JT_TEMPO, '') AS TGL_JATUH_TEMPO, ISNULL(D.KET, '') AS KETERANGAN, ISNULL(A.BRUTO, '') AS BRUTO, ISNULL(A.NILAI_DISC, '') AS DISC, ";
-                    sSQL += "ISNULL(A.PPN, '') AS PPN, ISNULL(A.NILAI_PPN, '') AS NILAI_PPN, ISNULL(A.MATERAI, '') AS ONGKOS_KIRIM, ISNULL(A.NETTO, '') AS NETTO, ";
-                    sSQL += "CASE WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '0' THEN 'BELUM BAYAR' WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '01' THEN 'SUDAH BAYAR' WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '02' THEN 'PACKING' WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '03' THEN 'FAKTUR' WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '04' THEN 'SELESAI' WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '11' THEN 'BATAL' WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '12' THEN 'BATAL COD' ELSE '' END AS STATUS_PESANAN,  ";
-                    sSQL += "ISNULL(G.BRG, '') AS KODE_BRG, ";
-                    sSQL += "ISNULL((SELECT ISNULL(NAMA + ' ' + ISNULL(NAMA2, ''), '') FROM STF02 WHERE BRG = G.BRG),'') AS NAMA_BARANG, ";
-                    sSQL += "ISNULL(QTY, '') AS QTY, ";
-                    sSQL += "ISNULL(H_SATUAN, '') AS HARGA_SATUAN, ISNULL(G.DISCOUNT, '') AS DISC1, ISNULL(G.NILAI_DISC_1, '') AS NDISC1, ISNULL(G.DISCOUNT_2, '') AS DISC2, ";
-                    sSQL += "ISNULL(G.NILAI_DISC_2, '') AS NDISC2, ISNULL(HARGA, '') AS TOTAL ";
-                    sSQL += "into #temp_FAKTUR_DESEMBER ";
-                    sSQL += "FROM SIT01A A(NOLOCK) INNER JOIN SIT01B G(NOLOCK) ON A.NO_BUKTI = G.NO_BUKTI ";
-                    sSQL += "LEFT JOIN(SELECT NO_BUKTI, TGL, KET, STATUS_TRANSAKSI FROM SOT01A (NOLOCK))D ON D.NO_BUKTI = A.NO_SO ";
-                    sSQL += "WHERE A.TGL >= '" + dt1 + "' AND A.TGL <= '" + dt2 + "' AND A.JENIS_FORM = '2' ORDER BY A.TGL DESC, A.NO_BUKTI DESC; " + System.Environment.NewLine;
+                    //sSQL += "SELECT ISNULL(A.NO_BUKTI,'') AS NO_FAKTUR, A.TGL AS TGL_FAKTUR, CASE WHEN A.STATUS ='1' THEN 'SELESAI' WHEN A.STATUS='2' THEN 'BATAL' ELSE '' END AS STATUS_FAKTUR, ISNULL(D.NO_BUKTI,'') AS NO_PESANAN, ISNULL(A.NO_REF, '') AS NO_REFERENSI, ";
+                    //sSQL += "ISNULL(D.TGL, '') AS TGL_PESANAN, A.CUST AS CUST, ";
+                    //sSQL += "ISNULL((SELECT top 1 NAMAMARKET + ' (' + PERSO + ')' FROM ARF01 X(NOLOCK) INNER JOIN MO..MARKETPLACE Y(NOLOCK) ON X.NAMA = Y.IDMARKET WHERE X.CUST = A.CUST),'') AS MARKETPLACE, ";
+                    //sSQL += "ISNULL(A.PEMESAN, '') AS KODE_PEMBELI, ISNULL(A.NAMAPEMESAN, '') AS PEMBELI, ";
+                    //sSQL += "(select isnull(tlp, '') from arf01c x(nolock) where x.buyer_code = a.PEMESAN) as TLP,  ";
+                    //sSQL += "ISNULL(A.AL, '') AS ALAMAT_KIRIM, ISNULL(A.TERM, '') AS[TOP],  ";
+                    //sSQL += "ISNULL(A.NAMAPENGIRIM, '') AS KURIR, ISNULL(A.TGL_JT_TEMPO, '') AS TGL_JATUH_TEMPO, ISNULL(D.KET, '') AS KETERANGAN, ISNULL(A.BRUTO, '') AS BRUTO, ISNULL(A.NILAI_DISC, '') AS DISC, ";
+                    //sSQL += "ISNULL(A.PPN, '') AS PPN, ISNULL(A.NILAI_PPN, '') AS NILAI_PPN, ISNULL(A.MATERAI, '') AS ONGKOS_KIRIM, ISNULL(A.NETTO, '') AS NETTO, ";
+                    //sSQL += "CASE WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '0' THEN 'BELUM BAYAR' WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '01' THEN 'SUDAH BAYAR' WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '02' THEN 'PACKING' WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '03' THEN 'FAKTUR' WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '04' THEN 'SELESAI' WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '11' THEN 'BATAL' WHEN ISNULL(D.STATUS_TRANSAKSI, '')= '12' THEN 'BATAL COD' ELSE '' END AS STATUS_PESANAN,  ";
+                    //sSQL += "ISNULL(G.BRG, '') AS KODE_BRG, ";
+                    //sSQL += "ISNULL((SELECT ISNULL(NAMA + ' ' + ISNULL(NAMA2, ''), '') FROM STF02 WHERE BRG = G.BRG),'') AS NAMA_BARANG, ";
+                    //sSQL += "ISNULL(QTY, '') AS QTY, ";
+                    //sSQL += "ISNULL(H_SATUAN, '') AS HARGA_SATUAN, ISNULL(G.DISCOUNT, '') AS DISC1, ISNULL(G.NILAI_DISC_1, '') AS NDISC1, ISNULL(G.DISCOUNT_2, '') AS DISC2, ";
+                    //sSQL += "ISNULL(G.NILAI_DISC_2, '') AS NDISC2, ISNULL(HARGA, '') AS TOTAL ";
+                    //sSQL += "into #temp_FAKTUR_DESEMBER ";
+                    //sSQL += "FROM SIT01A A(NOLOCK) INNER JOIN SIT01B G(NOLOCK) ON A.NO_BUKTI = G.NO_BUKTI ";
+                    //sSQL += "LEFT JOIN(SELECT NO_BUKTI, TGL, KET, STATUS_TRANSAKSI FROM SOT01A (NOLOCK))D ON D.NO_BUKTI = A.NO_SO ";
+                    //sSQL += "WHERE A.TGL >= '" + dt1 + "' AND A.TGL <= '" + dt2 + "' AND A.JENIS_FORM = '2' ORDER BY A.TGL DESC, A.NO_BUKTI DESC; " + System.Environment.NewLine;
 
-                    sSQL += "SELECT NO_FAKTUR, TGL_FAKTUR, STATUS_FAKTUR, NO_PESANAN, NO_REFERENSI, TGL_PESANAN, CUST, MARKETPLACE, KODE_PEMBELI, PEMBELI, TLP, REPLACE(REPLACE(ALAMAT_KIRIM, CHAR(13), ' '), CHAR(10), ' ') AS ALAMAT_KIRIM, ";
-                    sSQL += "[TOP], KURIR, TGL_JATUH_TEMPO, REPLACE(REPLACE(convert(nvarchar, KETERANGAN), CHAR(13), ' '), CHAR(10), ' ') AS KETERANGAN, BRUTO, DISC, PPN, NILAI_PPN, ONGKOS_KIRIM, NETTO, STATUS_PESANAN, KODE_BRG, NAMA_BARANG, QTY, HARGA_SATUAN, DISC1, NDISC1, DISC2, NDISC2, TOTAL ";
-                    sSQL += "FROM #temp_FAKTUR_DESEMBER; " + System.Environment.NewLine;
-                    sSQL += "DROP TABLE #temp_FAKTUR_DESEMBER; " + System.Environment.NewLine;
+                    //sSQL += "SELECT NO_FAKTUR, TGL_FAKTUR, STATUS_FAKTUR, NO_PESANAN, NO_REFERENSI, TGL_PESANAN, CUST, MARKETPLACE, KODE_PEMBELI, PEMBELI, TLP, REPLACE(REPLACE(ALAMAT_KIRIM, CHAR(13), ' '), CHAR(10), ' ') AS ALAMAT_KIRIM, ";
+                    //sSQL += "[TOP], KURIR, TGL_JATUH_TEMPO, REPLACE(REPLACE(convert(nvarchar, KETERANGAN), CHAR(13), ' '), CHAR(10), ' ') AS KETERANGAN, BRUTO, DISC, PPN, NILAI_PPN, ONGKOS_KIRIM, NETTO, STATUS_PESANAN, KODE_BRG, NAMA_BARANG, QTY, HARGA_SATUAN, DISC1, NDISC1, DISC2, NDISC2, TOTAL ";
+                    //sSQL += "FROM #temp_FAKTUR_DESEMBER; " + System.Environment.NewLine;
+                    //sSQL += "DROP TABLE #temp_FAKTUR_DESEMBER; " + System.Environment.NewLine;
                     //END CHANGE BY NURUL 25/1/2022
+
+                    sSQL = "select NO_BUKTI,TGL,CUST,PEMESAN,NAMAPEMESAN,AL,TERM,NAMAPENGIRIM,TGL_JT_TEMPO,BRUTO ,NILAI_DISC,PPN,NILAI_PPN,MATERAI,NETTO,NO_so, status, no_ref ";
+                    sSQL += "into #temp_sit01a from sit01a where TGL >= '" + dt1 + "' AND TGL <=  '" + dt2 + "' AND JENIS_FORM = '2' ; " + System.Environment.NewLine;
+                    sSQL += "select brg, qty ,DISCOUNT,DISCOUNT_2,NILAI_DISC_1, NILAI_DISC_2, HARGA,H_SATUAN,NO_BUKTI ";
+                    sSQL += "into #temp_sit01b from sit01b where NO_BUKTI in (select NO_BUKTI from #temp_sit01a) ; " + System.Environment.NewLine;
+                    sSQL += "select NO_BUKTI,TGL,KET,STATUS_TRANSAKSI into #temp_SOT01A from SOT01A where NO_BUKTI in (select NO_so from #temp_sit01a where isnull(no_so, '') <> '') ; " + System.Environment.NewLine;
+
+                    sSQL += "SELECT ISNULL(A.NO_BUKTI,'') AS NO_FAKTUR, A.TGL AS TGL_FAKTUR, CASE WHEN A.STATUS ='1' THEN 'SELESAI' WHEN A.STATUS='2' THEN 'BATAL' ELSE '' END AS STATUS_FAKTUR,  ";
+                    sSQL += "ISNULL(D.NO_BUKTI,'') AS NO_PESANAN, ISNULL(A.NO_REF, '') AS NO_REFERENSI,  ";
+                    sSQL += "ISNULL(D.TGL, '') AS TGL_PESANAN, A.CUST AS CUST, ";
+                    sSQL += "ISNULL((SELECT top 1 NAMAMARKET + ' (' + PERSO + ')' FROM ARF01 X(NOLOCK) INNER JOIN MO..MARKETPLACE Y (NOLOCK) ON X.NAMA=Y.IDMARKET WHERE X.CUST=A.CUST ORDER BY RECNUM DESC),'') AS MARKETPLACE, ";
+                    sSQL += "ISNULL(A.PEMESAN, '') AS KODE_PEMBELI, ISNULL(A.NAMAPEMESAN, '') AS PEMBELI,  ";
+                    sSQL += "(select isnull(tlp,'') from arf01c x(nolock) where x.buyer_code=a.PEMESAN) as TLP,  ";
+                    sSQL += "REPLACE(REPLACE(ISNULL(A.AL, ''), CHAR(13), ' '), CHAR(10), ' ') AS ALAMAT_KIRIM, ISNULL(A.TERM, '') AS [TOP],  ";
+                    sSQL += "ISNULL(A.NAMAPENGIRIM, '') AS KURIR, ISNULL(A.TGL_JT_TEMPO, '') AS TGL_JATUH_TEMPO, REPLACE(REPLACE(convert(nvarchar, ISNULL(D.KET,'')), CHAR(13), ' '), CHAR(10), ' ') AS KETERANGAN, ISNULL(A.BRUTO, '') AS BRUTO, ISNULL(A.NILAI_DISC, '') AS DISC,  ";
+                    sSQL += "ISNULL(A.PPN, '') AS PPN, ISNULL(A.NILAI_PPN, '') AS NILAI_PPN, ISNULL(A.MATERAI, '') AS ONGKOS_KIRIM, ISNULL(A.NETTO, '') AS NETTO,  ";
+                    sSQL += "CASE WHEN ISNULL(D.STATUS_TRANSAKSI, '')='0' THEN 'BELUM BAYAR' WHEN ISNULL(D.STATUS_TRANSAKSI, '')='01' THEN 'SUDAH BAYAR' WHEN ISNULL(D.STATUS_TRANSAKSI, '')='02' THEN 'PACKING' WHEN ISNULL(D.STATUS_TRANSAKSI, '')='03' THEN 'FAKTUR' WHEN ISNULL(D.STATUS_TRANSAKSI, '')='04' THEN 'SELESAI' WHEN ISNULL(D.STATUS_TRANSAKSI, '')='11' THEN 'BATAL' ELSE '' END AS STATUS_PESANAN,  ";
+                    sSQL += "ISNULL(G.BRG, '') AS KODE_BRG,  ";
+                    sSQL += "ISNULL((SELECT ISNULL(NAMA + ' ' + ISNULL(NAMA2,''),'') FROM STF02 WHERE BRG=G.BRG),'') AS NAMA_BARANG, ";
+                    sSQL += "ISNULL(QTY, '') AS QTY,  ";
+                    sSQL += "ISNULL(H_SATUAN, '') AS HARGA_SATUAN, ISNULL(G.DISCOUNT, '') AS DISC1, ISNULL(G.NILAI_DISC_1, '') AS NDISC1, ISNULL(G.DISCOUNT_2, '') AS DISC2,  ";
+                    sSQL += "ISNULL(G.NILAI_DISC_2, '') AS NDISC2, ISNULL(HARGA, '') AS TOTAL  ";
+                    sSQL += "FROM #temp_sit01a A INNER JOIN #temp_sit01b G ON A.NO_BUKTI = G.NO_BUKTI  ";
+                    sSQL += "LEFT JOIN  ";
+                    sSQL += "#temp_SOT01A D ON D.NO_BUKTI=A.NO_SO ";
+                    sSQL += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC; " + System.Environment.NewLine;
+
+                    sSQL += "drop table #temp_sit01a; " + System.Environment.NewLine;
+                    sSQL += "drop table #temp_sit01b; " + System.Environment.NewLine;
+                    sSQL += "drop table #temp_SOT01A ; " + System.Environment.NewLine;
+
 
                     var lsFaktur = EDB.GetDataSet("CString", "SIT01A", sSQL);
                     
