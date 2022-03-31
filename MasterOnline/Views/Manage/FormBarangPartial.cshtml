@@ -2550,8 +2550,105 @@
                                                                         {
                                                                             <label>Anda belum terintegrasi dengan akun marketplace ini.</label>
                                                                         }
-                                                                        else{
+                                                                        else
+                                                                        {
+                                                                            <div class="row" style="padding-bottom:10px">
+                                                                                <div class="row">
+                                                                                    <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                        @Html.Label("Nama Barang", new { @class = "control-label" })
+                                                                                    </div>
+                                                                                    <div class="col-md-10 col-sm-10 col-xs-12 form-group">
+                                                                                        @{
+                                                                                            string idNamaBrgMP = "ListHargaJualPermarket_" + i + "__NAMA_BARANG_MP";
+                                                                                            string ValueNamaBrgMP = HttpUtility.HtmlDecode(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.NAMA_BARANG_MP);
+                                                                                            string nameNamaBrgMP = "ListHargaJualPermarket[" + i + "].NAMA_BARANG_MP";
+                                                                                        }
+                                                                                        <input class="form-control namamp" type="text" id="@idNamaBrgMP" name="@nameNamaBrgMP" value="@ValueNamaBrgMP" maxlength="70" />
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="row">
+                                                                                    <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                        @Html.Label("Deskripsi Barang", new { @class = "control-label" })
+                                                                                    </div>
+                                                                                    <div class="col-md-10 col-sm-10 col-xs-12 form-group">
 
+                                                                                        @{
+                                                                                            string idDeskripsiMP = "ListHargaJualPermarket_" + i + "__DESKRIPSI_MP";
+                                                                                            string ValueDeskripsiMP = HttpUtility.HtmlDecode(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DESKRIPSI_MP);
+                                                                                            string nameDeskripsiMP = "ListHargaJualPermarket[" + i + "].DESKRIPSI_MP";
+                                                                                        }
+                                                                                        <textarea cols="20" data-val="true" class="form-control make_ckeditor deskripsimp" id="@idDeskripsiMP" name="@nameDeskripsiMP" rows="2" style="resize: none; width:100%;">@HttpUtility.HtmlDecode(ValueDeskripsiMP) </textarea>
+                                                                                    </div>
+                                                                                    <div class="form-group" id="div_@idDeskripsiMP" style="display:none">
+                                                                                        <div class="col-md-2 col-sm-2"></div>
+                                                                                        <div class="col-md-4 col-sm-4 col-xs-12"><span id="txt_@idDeskripsiMP"></span></div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_CODE, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_CODE })
+                                                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_NAME, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_NAME })
+                                                                            <div class="row">
+                                                                                <div class="col-md-1 col-sm-1 col-xs-12">
+                                                                                    <label>Category</label>
+                                                                                </div>
+                                                                                <div id="category_tiktok_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12 reset-data-to-copy">
+                                                                                </div>
+                                                                                <div id="category_tiktok_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12 reset-data-to-copy">
+                                                                                </div>
+                                                                                <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                    @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model.Stf02 != null ? Model.Stf02.BRG : ""))?.CATEGORY_CODE != null)
+                                                                                    {
+                                                                                        <button type="button" onclick="ClearCategoryTokped('category_tiktok_pertama_' + @recnumArf01, 'category_tiktok_selanjutnya_' + @recnumArf01, 'attribute_tiktok_' + @recnumArf01, @i, true);">Undo</button>
+                                                                                    }
+                                                                                    <button type="button" onclick="ClearCategoryTokped('category_tiktok_pertama_' + @recnumArf01, 'category_tiktok_selanjutnya_' + @recnumArf01, 'attribute_tiktok_' + @recnumArf01, @i, false);">Clear</button>
+                                                                                </div>
+                                                                                @*<div class="row">
+                                                                                    <div id="loading_attribute_@Convert.ToString(recnumArf01)" style="display:none" class="text-center">
+                                                                                        <img src="~/Content/Images/spinner.gif" width="100" />
+                                                                                    </div>
+                                                                                    <div id="attribute_tiktok_@Convert.ToString(recnumArf01)" class="col-md-12 reset-data-to-copy" style="margin-top:10px">
+                                                                                    </div>
+                                                                                </div>*@
+                                                                            </div>
+                                                                            <div class="x_panel" id="sales-info">
+                                                                                <div class="x_title">
+                                                                                    <h2 style="font-size: 16px">Sales Information</h2>
+                                                                                    <ul class="nav navbar-right panel_toolbox">
+                                                                                        <li>
+                                                                                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                                                                        </li>
+                                                                                    </ul>
+                                                                                    <div class="clearfix"></div>
+                                                                                </div>
+                                                                                <div class="x_content">
+                                                                                    <div id="attribute_tiktok_@Convert.ToString(recnumArf01)" class="col-md-12 reset-data-to-copy" style="margin-top:10px">
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="row" style="padding-top:10px">
+                                                                                <div class="col-md-1 col-sm-1 col-xs-12">
+                                                                                    @Html.Label("Etalase *", new { @class = "control-label" })
+                                                                                </div>
+                                                                                <div class="col-md-3 col-sm-3 col-xs-12 form-group">
+                                                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].PICKUP_POINT, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.PICKUP_POINT })
+                                                                                    <div class="input-group text">
+                                                                                        <table>
+                                                                                            <tr>
+                                                                                                <td>
+                                                                                                    @Html.TextBox("TOKPED_ETALASE" + i + "Box", "", new { @class = "form-control", data_valid_toggle_required = "1", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.PICKUP_POINT })
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    <span class="input-group-btn">
+                                                                                                        <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptEtalaseTokped(@i,@($"({recnumArf01})"))">
+                                                                                                            <span class="glyphicon glyphicon-option-horizontal"></span>
+                                                                                                        </button>
+                                                                                                    </span>
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        </table>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
                                                                         }
                                                                     </div>
                                                                 </div>
