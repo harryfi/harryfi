@@ -5021,8 +5021,8 @@ namespace MasterOnline.Controllers
                     responseFromServer = "";
                     try
                     {
-                        if (DatabasePathErasoft.ToUpper() == "ERASOFT_120149" || DatabasePathErasoft.ToUpper() == "ERASOFT_1491309"
-                            || DatabasePathErasoft.ToUpper() == "ERASOFT_710298" || DatabasePathErasoft.ToUpper() == "ERASOFT_1481264")
+                        //if (DatabasePathErasoft.ToUpper() == "ERASOFT_120149" || DatabasePathErasoft.ToUpper() == "ERASOFT_1491309"
+                        //    || DatabasePathErasoft.ToUpper() == "ERASOFT_710298" || DatabasePathErasoft.ToUpper() == "ERASOFT_1481264")
                         {
                             using (WebResponse response = myReq.GetResponse())
                             {
@@ -5034,18 +5034,18 @@ namespace MasterOnline.Controllers
                                 }
                             }
                         }
-                        else
-                        {
-                            using (WebResponse response = await myReq.GetResponseAsync())
-                            {
-                                using (Stream stream = response.GetResponseStream())
-                                {
-                                    StreamReader reader = new StreamReader(stream);
-                                    responseFromServer = reader.ReadToEnd();
-                                    responseApi = true; break;
-                                }
-                            }
-                        }
+                        //else
+                        //{
+                        //    using (WebResponse response = await myReq.GetResponseAsync())
+                        //    {
+                        //        using (Stream stream = response.GetResponseStream())
+                        //        {
+                        //            StreamReader reader = new StreamReader(stream);
+                        //            responseFromServer = reader.ReadToEnd();
+                        //            responseApi = true; break;
+                        //        }
+                        //    }
+                        //}
                     }
                     //catch (WebException ex)
                     //{
