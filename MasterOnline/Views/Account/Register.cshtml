@@ -163,6 +163,10 @@
         </div>
         <div class="modal-content-subs" style="margin:0px 5px 5px;height:80vh;">
             <div>
+                <p style="color:black;font-size:16px;">
+                    Total nilai : Rp. <span id="txtTotal"></span>
+                </p>
+                <br />
                 <p style="color:black">
                     Pembayaran dapat dilakukan dengan dua cara :
                     <br />
@@ -275,6 +279,8 @@
     @*<script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>*@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
+    @*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>*@
+    <script src="~/Scripts/jquery.number.js"></script>
     <script>
         var cekEmailsave = false;
         $(document).on('ready', function (event) {
@@ -305,7 +311,7 @@
                     $('#ConfirmPassword').closest('div').append('<span class="text-danger">Password tidak sama!</span>');
                     return false;
                 }
-                
+
                 //$('form').submit();
 
                 var $form = $('#btn-submit-daftar').parents('form');
@@ -326,6 +332,7 @@
                         if (response.error == null) {
                             if (response.token != null) {
                                 //snap.pay(response.token, { skipOrderSummary: true });
+                                $('#txtTotal')[0].innerText = convertToRupiah(response.total);
                                 $('#modalTransfer').modal('show');
                                 $('#txtSnapToken').val(response.token);
                             }
@@ -375,6 +382,15 @@
             });
         });
 
+        function convertToRupiah(angka) {
+            //change by calvin 26 september 2018
+            //var rupiah = '';
+            //var angkarev = angka.toString().split('').reverse().join('');
+            //for (var i = 0; i < angkarev.length; i++) if (i % 3 === 0) rupiah += angkarev.substr(i, 3) + '.';
+            //return rupiah.split('', rupiah.length - 1).reverse().join('') + ',00';
+            return $.number(angka, 2, ',', '.');
+            //end change by calvin 26 september 2018
+        }
         function openMidtrans() {
             if ($('#txtSnapToken').val() != "") {
                 snap.pay($('#txtSnapToken').val(), { skipOrderSummary: true });

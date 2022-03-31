@@ -1037,6 +1037,8 @@
 
 </div>
 <div class="text-center" style="margin-top: -15px; border-radius: 10px; padding-top: 40px; padding-bottom: 10px; background: #ffffff6b;">
+    <div class="row">Harga di atas belum termasuk PPN 11%</div>
+    <br />
     <div class="row"><input id="ckBox" type="checkbox" checked="checked" />&nbsp;Saya setuju dengan <a href="/Content/Static/termsandconditions.html#terms"><u>Syarat & Ketentuan</u></a></div>
     <br />
     <img src="~/Content/Images/payment_logo.png" width="25%" />
@@ -1108,6 +1110,7 @@
 <script type="text/javascript">
     //var addonsArray = [{ "addons": "82Cart", "harga": 0 }];
     var addonsArray = []; //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+    var addonsArray3 = [];
     $(document).ready(function () {
         $(".cbBox02_a").change(function () {
             if ($("#cbBox02_silver_a")[0].checked == true) {
@@ -1210,14 +1213,14 @@
                 //addonsArray.push({ "addons": "Shopify", "harga": 300000 });
                 //addonsArray.splice(addonsArray.indexOf("2"), 1);
                 //addonsArray.push("2");  --remark by fauzi 28 Des 2020 karena tidak boleh masuk auto di paket lain
-                addonsArray.push("3"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+                addonsArray3.push("3"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             } else if ($("#cbBox03_gold_a")[0].checked == false) {
                 $("#cbBox03_gold_a").prop('checked', false);
                 $(this).prop('checked', false);
                 checkPlugin03(-300000);
                 //addonsArray.splice(addonsArray.indexOf("Shopify"), 1);
                 //addonsArray.splice(addonsArray.indexOf("2"), 1);
-                addonsArray.splice(addonsArray.indexOf("3"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+                addonsArray3.splice(addonsArray3.indexOf("3"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             }
         });
 
@@ -1229,14 +1232,14 @@
                 //addonsArray.push({ "addons": "Multi SKU", "harga": 300000 });
                 //addonsArray.splice(addonsArray.indexOf("2"), 1);
                 //addonsArray.push("2");  --remark by fauzi 28 Des 2020 karena tidak boleh masuk auto di paket lain
-                addonsArray.push("4"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+                addonsArray3.push("4"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             } else if ($("#cbBox03_gold_b")[0].checked == false) {
                 $("#cbBox03_gold_b").prop('checked', false);
                 $(this).prop('checked', false);
                 checkPlugin03(-200000);
                 //addonsArray.splice(addonsArray.indexOf("Multi SKU"), 1);
                 //addonsArray.splice(addonsArray.indexOf("2"), 1);
-                addonsArray.splice(addonsArray.indexOf("4"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+                addonsArray3.splice(addonsArray3.indexOf("4"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             }
         });
 
@@ -1248,14 +1251,14 @@
                 //addonsArray.push({ "addons": "Multi SKU", "harga": 300000 });
                 //addonsArray.splice(addonsArray.indexOf("2"), 1);
                 //addonsArray.push("2");  --remark by fauzi 28 Des 2020 karena tidak boleh masuk auto di paket lain
-                addonsArray.push("5"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+                addonsArray3.push("5"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             } else if ($("#cbBox03_gold_c")[0].checked == false) {
                 $("#cbBox03_gold_c").prop('checked', false);
                 $(this).prop('checked', false);
                 checkPlugin03(-300000);
                 //addonsArray.splice(addonsArray.indexOf("Multi SKU"), 1);
                 //addonsArray.splice(addonsArray.indexOf("2"), 1);
-                addonsArray.splice(addonsArray.indexOf("5"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+                addonsArray3.splice(addonsArray3.indexOf("5"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             }
         });
 
@@ -1267,14 +1270,14 @@
                 //addonsArray.push({ "addons": "Multi SKU", "harga": 300000 });
                 //addonsArray.splice(addonsArray.indexOf("2"), 1);
                 //addonsArray.push("2");  --remark by fauzi 28 Des 2020 karena tidak boleh masuk auto di paket lain
-                addonsArray.push("6"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+                addonsArray3.push("6"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             } else if ($("#cbBox03_gold_d")[0].checked == false) {
                 $("#cbBox03_gold_d").prop('checked', false);
                 $(this).prop('checked', false);
                 checkPlugin03(-300000);
                 //addonsArray.splice(addonsArray.indexOf("Multi SKU"), 1);
                 //addonsArray.splice(addonsArray.indexOf("2"), 1);
-                addonsArray.splice(addonsArray.indexOf("6"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+                addonsArray3.splice(addonsArray3.indexOf("6"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             }
         });
 
@@ -1285,13 +1288,13 @@
                 checkPlugin03(150000);
                 //addonsArray.splice(addonsArray.indexOf("2"), 1);
                 //addonsArray.push("2");  --remark by fauzi 28 Des 2020 karena tidak boleh masuk auto di paket lain
-                addonsArray.push("7"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling, 7 accurate
+                addonsArray3.push("7"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling, 7 accurate
             } else if ($("#cbBox03_gold_e")[0].checked == false) {
                 $("#cbBox03_gold_e").prop('checked', false);
                 $(this).prop('checked', false);
                 checkPlugin03(-150000);
                 //addonsArray.splice(addonsArray.indexOf("2"), 1);
-                addonsArray.splice(addonsArray.indexOf("7"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling, 7 accurate
+                addonsArray3.splice(addonsArray3.indexOf("7"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling, 7 accurate
             }
         });
     });
@@ -1340,6 +1343,10 @@
         if ($('#ckBox')[0].checked) {
             var queryString = "";
             queryString = addonsArray.join(',');
+
+            if (kode == "03") {
+                queryString = addonsArray3.join(',');
+            }
             //var arrStr = encodeURIComponent(JSON.stringify(addonsArray));
             //for (var i = 0; i < addonsArray.length; ++i) {
             //    queryString += addonsArray[i] + "&";
@@ -1349,7 +1356,7 @@
             //    var queryString = Object.keys(addonsArray[i]).map(key => key + '=' + addonsArray[i][key]).join('&');
             //});
 
-            debugger;
+            //debugger;
             var url = '@Url.Action("loginSubs", "Account")';
             url += "?Ref=" + '@referral' + "&kode=" + kode + "&bln=" + bln + "&jmlUser=" + $('#txtJmlUser')[0].innerText + "&addons=" + queryString;
             window.location.href = url;
