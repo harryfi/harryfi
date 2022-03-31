@@ -527,6 +527,7 @@ namespace MasterOnline
         public virtual DbSet<TEMP_SHOPEE_BRAND> TEMP_SHOPEE_BRAND { get; set; }
         //end add by nurul 19/3/2021
         public virtual DbSet<TABEL_TIKTOK_BRAND> TABEL_TIKTOK_BRAND { get; set; }
+        public DbSet<CATEGORY_TIKTOK> CATEGORY_TIKTOK { get; set; }
 
         //add by nurul 25/8/2021
         public virtual DbSet<PEMBELI_FAKTUR_SHOPEE> PEMBELI_FAKTUR_SHOPEE { get; set; }

@@ -2544,15 +2544,22 @@
                                                                         @($"Tiktok ({listMarket[i].PERSO})")
                                                                     </h2>
                                                                 </div>
-                                                                <div>
-                                                                    <h3 style="font-size: 12px">(Fitur ini masih dalam pengembangan.)</h3>
-                                                                    <br />
+                                                                <div class="form-group">
+                                                                    <div class="col-md-12 col-sm-12 col-xs-12" id="div_detail_@(recnumArf01)">
+                                                                        @if (listMarket[i].STATUS_API == "0")
+                                                                        {
+                                                                            <label>Anda belum terintegrasi dengan akun marketplace ini.</label>
+                                                                        }
+                                                                        else{
+
+                                                                        }
+                                                                    </div>
                                                                 </div>
-                                                                <br />
+                                                                    <br />
+                                                                }
                                                             }
-                                                        }
                                                     </div>
-                                                </div>
+                                                    </div>
                                             </div>
                                         }
                                         @if (listMarket?.Count == 0)

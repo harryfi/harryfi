@@ -253,7 +253,7 @@ namespace MasterOnline.Controllers
                     string shopid = getShopId(tauth.Data.AccessToken);
                     var dateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.AccessTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                     var tokendateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken 
+                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken
                         + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + tokendateExpired
                         + "',TOKEN_EXPIRED = '" + dateExpired + "' , SORT1_CUST = '" + shopid + "' WHERE CUST = '" + cust + "'");
                     //MoDbContext.Database.ExecuteSqlCommand("INSERT INTO [TABEL_MAPPING_TIKTOK] (dbpathera, shopid,cust) values ('"+ user + "', '"+ shopid + "', '" + cust + "') ");
@@ -379,9 +379,9 @@ namespace MasterOnline.Controllers
                         string shopid = getShopId(tauth.Data.AccessToken);
                         var dateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.AccessTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                         var tokendateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-                        var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken 
-                            + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + tokendateExpired + "',TOKEN_EXPIRED = '" 
-                            +  dateExpired + "' , SORT1_CUST = '" + shopid + "' WHERE CUST = '" + cust + "'");
+                        var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken
+                            + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + tokendateExpired + "',TOKEN_EXPIRED = '"
+                            + dateExpired + "' , SORT1_CUST = '" + shopid + "' WHERE CUST = '" + cust + "'");
                         if (result == 1)
                         {
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, cust, currentLog);
@@ -940,12 +940,12 @@ namespace MasterOnline.Controllers
                         var result = JsonConvert.DeserializeObject(responseFromServer, typeof(TiktokGetShipmentResponse)) as TiktokGetShipmentResponse;
                         if (result.code == 0)
                         {
-                            if(result.data != null)
+                            if (result.data != null)
                             {
                                 var tempShipment = ErasoftDbContext.DELIVERY_PROVIDER_TIKTOK.Where(m => m.CUST == cust).ToList();
                                 foreach (var delivery in result.data.delivery_option_list)
                                 {
-                                    foreach(var shipment in delivery.shipping_provider_list)
+                                    foreach (var shipment in delivery.shipping_provider_list)
                                     {
                                         if (tempShipment.Where(m => m.SHIPPING_ID == shipment.shipping_provider_id).ToList().Count == 0)
                                         {
@@ -1000,59 +1000,59 @@ namespace MasterOnline.Controllers
                 if (responseFromServer != null)
                 {
                     ResProd respon = JsonConvert.DeserializeObject<ResProd>(responseFromServer);
-#if AWS
-                    string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-#elif Debug_AWS
-                    string con = "Data Source=54.151.175.62\\SQLEXPRESS,12354;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-#else
-                    string con = "Data Source=54.151.175.62\\SQLEXPRESS,45650;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-#endif
-                    using (SqlConnection oConnection = new SqlConnection(con))
-                    {
-                        oConnection.Open();
-                        //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
-                        //{
-                        using (SqlCommand oCommand = oConnection.CreateCommand())
-                        {
-                            //oCommand.CommandText = "DELETE FROM [CATEGORY_BLIBLI] WHERE ARF01_SORT1_CUST='" + data.merchant_code + "'";
-                            //oCommand.ExecuteNonQuery();
-                            //oCommand.Transaction = oTransaction;
-                            oCommand.CommandType = CommandType.Text;
-                            oCommand.CommandText = "INSERT INTO [CATEGORY_TIKTOK] ([CATEGORY_CODE], [CATEGORY_NAME], [PARENT_CODE], [IS_LAST_NODE], [MASTER_CATEGORY_CODE]) VALUES (@CATEGORY_CODE, @CATEGORY_NAME, @PARENT_CODE, @IS_LAST_NODE, @MASTER_CATEGORY_CODE)";
-                            //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
-                            oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
-                            oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
-                            oCommand.Parameters.Add(new SqlParameter("@PARENT_CODE", SqlDbType.NVarChar, 50));
-                            oCommand.Parameters.Add(new SqlParameter("@IS_LAST_NODE", SqlDbType.NVarChar, 1));
-                            oCommand.Parameters.Add(new SqlParameter("@MASTER_CATEGORY_CODE", SqlDbType.NVarChar, 50));
 
-                            try
+                    try
+                    {
+                        foreach (var item in respon.Data.CategoryList)
+                        {
+                            var newCategory = new CATEGORY_TIKTOK
                             {
-                                foreach (var item in respon.Data.CategoryList) //foreach parent level top
+                                CATEGORY_CODE = item.Id,
+                                CATEGORY_NAME = item.LocalDisplayName.Replace("'", "`"),
+                                IS_LAST_NODE = (item.IsLeaf) ? "1" : "0",
+                                PARENT_CODE = item.ParentId
+                            };
+                            if (item.IsLeaf)//cek category rule
+                            {
+                                var rule = getCategoryRule(apidata, item.Id);
+                                if(rule.category_rules != null)
                                 {
-                                    var checkcatalre = MoDbContext.CATEGORY_TIKTOK.FirstOrDefault(x => x.CATEGORY_CODE == item.Id);
-                                    if (checkcatalre == null)
+                                    if(rule.category_rules.Count > 0)
                                     {
-                                        oCommand.Parameters[0].Value = item.Id;
-                                        oCommand.Parameters[1].Value = item.LocalDisplayName;
-                                        oCommand.Parameters[2].Value = item.ParentId;
-                                        oCommand.Parameters[3].Value = item.IsLeaf ? "1" : "0";
-                                        oCommand.Parameters[4].Value = "";
-                                        if (oCommand.ExecuteNonQuery() < 1)
+                                        if (rule.category_rules[0].support_cod)
                                         {
-                                           
+                                            newCategory.COD = "1";
+                                        }
+                                        if (rule.category_rules[0].support_size_chart)
+                                        {
+                                            newCategory.SIZE_CHART = "1";
+                                        }
+                                        if (rule.category_rules[0].product_certifications != null)
+                                        {
+                                            if (rule.category_rules[0].product_certifications.Count > 0)
+                                            {
+                                                foreach(var pCert in rule.category_rules[0].product_certifications)
+                                                {
+                                                    if (pCert.is_mandatory)
+                                                    {
+                                                        newCategory.CERTIFICATION = pCert.id + ":" + pCert.name.Replace("'", "`") + ",";
+                                                    }
+                                                }
+                                                if(!string.IsNullOrEmpty(newCategory.CERTIFICATION))
+                                                newCategory.CERTIFICATION = newCategory.CERTIFICATION.Substring(0, newCategory.CERTIFICATION.Length - 1);
+                                            }
                                         }
                                     }
-
                                 }
-                                //oTransaction.Commit();
                             }
-                            catch (Exception ex)
-                            {
-                                //oTransaction.Rollback();
-                            }
+                            ErasoftDbContext.CATEGORY_TIKTOK.Add(newCategory);
+                            ErasoftDbContext.SaveChanges();
                         }
                     }
+                    catch (Exception ex)
+                    {
+                    }
+
                 }
             }
             catch (Exception ex)
@@ -1063,6 +1063,55 @@ namespace MasterOnline.Controllers
 
         }
 
+        public TiktokCategoryRuleData getCategoryRule(TTApiData apidata, string code)
+        {
+            string urll = "https://open-api.tiktokglobalshop.com/api/products/categories/rules?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}&category_id={5}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/products/categories/rulesapp_key" + eraAppKey + "category_id" + code
+                + "shop_id" + apidata.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, apidata.access_token, timestamp, signencry, eraAppKey, apidata.shop_id, code);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "GET";
+            myReq.ContentType = "application/json";
+            var ret = new TiktokCategoryRuleData();
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+            try
+            {
+                if (responseFromServer != null)
+                {
+                    TiktokCategoryRuleRespose respon = JsonConvert.DeserializeObject<TiktokCategoryRuleRespose>(responseFromServer);
+                    if(respon.code == 0)
+                    {
+                        ret = respon.data;
+                    }
+                    else
+                    {
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return ret;
+
+        }
         #endregion
         public string getBrand(TTApiData apidata)
         {
@@ -1095,23 +1144,23 @@ namespace MasterOnline.Controllers
                 if (responseFromServer != null)
                 {
                     TiktokGetBrandResponse respon = JsonConvert.DeserializeObject<TiktokGetBrandResponse>(responseFromServer);
-                    if(respon.code == 0)
+                    if (respon.code == 0)
                     {
-                        if(respon.data != null)
-                        foreach (var brand in respon.data.brand_list)
-                        {
-                            var newData = new TABEL_TIKTOK_BRAND()
+                        if (respon.data != null)
+                            foreach (var brand in respon.data.brand_list)
                             {
-                                BRAND_ID = brand.id,
-                                NAME = brand.name.Replace('\'', '`')
-                            };
-                            if (ErasoftDbContext.TABEL_TIKTOK_BRAND.Where(m => m.BRAND_ID == newData.BRAND_ID).ToList().Count == 0)
-                            {
-                                ErasoftDbContext.TABEL_TIKTOK_BRAND.Add(newData);
-                                ErasoftDbContext.SaveChanges();
-                            }
+                                var newData = new TABEL_TIKTOK_BRAND()
+                                {
+                                    BRAND_ID = brand.id,
+                                    NAME = brand.name.Replace('\'', '`')
+                                };
+                                if (ErasoftDbContext.TABEL_TIKTOK_BRAND.Where(m => m.BRAND_ID == newData.BRAND_ID).ToList().Count == 0)
+                                {
+                                    ErasoftDbContext.TABEL_TIKTOK_BRAND.Add(newData);
+                                    ErasoftDbContext.SaveChanges();
+                                }
 
-                        }
+                            }
                     }
                 }
             }
@@ -1185,7 +1234,7 @@ namespace MasterOnline.Controllers
             catch (Exception ex)
             {
                 //var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + iden.no_cust + "'");
-                ret.exception = 1; 
+                ret.exception = 1;
                 currentLog.REQUEST_EXCEPTION = ex.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden.no_cust, currentLog);
             }
@@ -2021,7 +2070,7 @@ namespace MasterOnline.Controllers
 
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ret.exception = 1;
             }
@@ -2761,7 +2810,7 @@ namespace MasterOnline.Controllers
                     #endregion
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ret.exception = 1;
             }
@@ -2930,6 +2979,32 @@ namespace MasterOnline.Controllers
     }
 
     #region Model
+
+    public class TiktokCategoryRuleRespose : TiktokCommonResponse
+    {
+        public TiktokCategoryRuleData data { get; set; }
+    }
+
+    public class TiktokCategoryRuleData
+    {
+        public List<Category_Rules> category_rules { get; set; }
+    }
+
+    public class Category_Rules
+    {
+        public List<TiktokCategoryRuleProduct_Certifications> product_certifications { get; set; }
+        public bool support_size_chart { get; set; }
+        public bool support_cod { get; set; }
+    }
+
+    public class TiktokCategoryRuleProduct_Certifications
+    {
+        public string name { get; set; }
+        public string id { get; set; }
+        public string sample { get; set; }
+        public bool is_mandatory { get; set; }
+    }
+
     public class TiktokGetBrandResponse : TiktokCommonResponse
     {
         public TiktokGetBrandResponseData data { get; set; }

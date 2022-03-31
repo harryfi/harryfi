@@ -76,7 +76,7 @@ namespace MasterOnline
         //end add by nurul 20/9/2021
         public DbSet<TABEL_LOG_GETORDERS> TABEL_LOG_GETORDERS { get; set; }
 
-        public DbSet<CATEGORY_TIKTOK> CATEGORY_TIKTOK { get; set; }
+        //public DbSet<CATEGORY_TIKTOK> CATEGORY_TIKTOK { get; set; }
 
         public MoDbContext()
             : base("name=MoDbContext")
