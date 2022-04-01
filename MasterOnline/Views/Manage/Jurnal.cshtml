@@ -1173,14 +1173,18 @@
         }
 
         function simpandetail($id) {
-            if (!validateForm()) return false;
+            $('#simpan-jurnal').attr('disabled', 'disabled');
+            if (!validateForm()) {
+                $('#simpan-jurnal').removeAttr('disabled');
+                return false
+            };
 
             if ($id == 'rek-0') {
                 if ($('#Jurnal_tgl').val() != '') {
                     $('#JurnalDetail_rek').val($('#REK').selectivity('val'));
                     //change by nurul 1/11/2018
                     //$('#JurnalDetail_nilai').val(convertToAngka($('tr[data-jurnal-id="0"] .nilai-rekening').text()));
-                                            
+
                     if ($('#JurnalDetail_dk').val() == 'D') {
                         if ($('#JurnalDetail_nilai').val() == "") {
                             $('#JurnalDetail_nilai').val("0");
@@ -1215,7 +1219,7 @@
                         data: $('#form-jurnal').serialize(),
                         success: function (response) {
                             if (response.Errors == null) {
-                                
+
                                 //$('.jurnal_table_section').hide();
                                 //$('.jurnal_editor_section').show();
                                 $('#form-partial').html(response);
@@ -1229,15 +1233,20 @@
                                 alert('Ada data yang tidak valid!');
                                 $saved = 0;
                             }
+                            $('#simpan-jurnal').removeAttr('disabled');
                         },
                         error: function (xhr) {
+                            $('#simpan-jurnal').removeAttr('disabled');
                             console.log(xhr);
                             $saved = 0;
                         }
                     });
                 } else {
                     alert('Silakan isi semua field terlebih dahulu!');
+                    $('#simpan-jurnal').removeAttr('disabled');
                 }
+            } else {
+                $('#simpan-jurnal').removeAttr('disabled');
             }
         }
     </script>
