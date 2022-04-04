@@ -1546,7 +1546,10 @@ namespace MasterOnline.Controllers
                                         shop_id = marketPlace.Sort1_Cust,
                                         DatabasePathErasoft = dbPathEra,
                                         username = uname,
-                                        access_token = marketPlace.TOKEN
+                                        access_token = marketPlace.TOKEN,
+                                        expired_date = marketPlace.TOKEN_EXPIRED.Value,
+                                        no_cust = marketPlace.CUST,
+                                        refresh_token = marketPlace.REFRESH_TOKEN
                                     };
                                     if (stf02h.BRG_MP.Contains("PENDING") || stf02h.BRG_MP.Contains("PEDITENDING"))
                                     {
@@ -2039,7 +2042,10 @@ namespace MasterOnline.Controllers
                                         shop_id = marketPlace.Sort1_Cust,
                                         DatabasePathErasoft = dbPathEra,
                                         username = uname,
-                                        access_token = marketPlace.TOKEN
+                                        access_token = marketPlace.TOKEN,
+                                        expired_date = marketPlace.TOKEN_EXPIRED.Value,
+                                        no_cust = marketPlace.CUST,
+                                        refresh_token = marketPlace.REFRESH_TOKEN
                                     };
                                     if (stf02h.BRG_MP.Contains("PENDING") || stf02h.BRG_MP.Contains("PEDITENDING"))
                                     {
@@ -3316,7 +3322,7 @@ namespace MasterOnline.Controllers
             myReq.ContentLength = request_data.Length;
             //try
             //{
-            using (var dataStream = myReq.GetRequestStream())
+                using (var dataStream = myReq.GetRequestStream())
             {
                 dataStream.Write(System.Text.Encoding.UTF8.GetBytes(request_data), 0, request_data.Length);
             }
@@ -3329,9 +3335,17 @@ namespace MasterOnline.Controllers
                 }
             }
             //}
-            //catch (Exception e)
+            //catch (WebException e)
             //{
-
+            //    string err = e.Message;
+            //    if (e.Status == WebExceptionStatus.ProtocolError)
+            //    {
+            //        WebResponse resp = e.Response;
+            //        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+            //        {
+            //            err = sr.ReadToEnd();
+            //        }
+            //    }
             //}
 
             if (responseFromServer != "")

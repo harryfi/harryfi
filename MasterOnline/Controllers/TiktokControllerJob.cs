@@ -69,13 +69,13 @@ namespace MasterOnline.Controllers
         public async Task<TiktokAuth> GetRefToken(string cust, string refreshToken, string dbpath, string username, DateTime? tanggal_exptoken, DateTime? tanggal_exprtok)
         {
             SetupContext(dbpath, username);
-            DateTime dateNow = DateTime.UtcNow.AddHours(7).AddMinutes(-30);
+            DateTime dateNow = DateTime.UtcNow.AddHours(7);
             DateTime parse = DateTime.Parse(tanggal_exprtok.ToString());
             TimeSpan ts = parse.Subtract(dateNow);
             bool ATExp = false;
 
             //if (ts.Days < 1 && ts.Hours < 24 && dateNow < tanggal_exptoken)
-            if (dateNow > tanggal_exprtok)
+            if (dateNow >= tanggal_exprtok)
             {
                 ATExp = true;
             }
@@ -176,11 +176,11 @@ namespace MasterOnline.Controllers
         {
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
-            DateTime dateNow = DateTime.UtcNow.AddHours(7).AddMinutes(-30);
+            DateTime dateNow = DateTime.UtcNow.AddHours(7);
             bool ATExp = false;
 
             //if (ts.Days < 1 && ts.Hours < 24 && dateNow < tanggal_exptoken)
-            if (dateNow > iden.expired_date)
+            if (dateNow >= iden.expired_date)
             {
                 var cekInDB = ErasoftDbContext.ARF01.Where(m => m.CUST == iden.no_cust).FirstOrDefault();
                 if (cekInDB != null)
