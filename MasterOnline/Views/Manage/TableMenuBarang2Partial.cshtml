@@ -87,6 +87,9 @@
                 var fordetailPesanan = barang.BRG + '|' + barang.NAMA + ' ' + barang.NAMA2 + '|' + barang.QOO;
                 var forDetailStok = barang.BRG + '|' + barang.NAMA + ' ' + barang.NAMA2 + '|' + barang.QOH;
                 var forDetailQtySiapJual = barang.BRG + '|' + barang.NAMA + ' ' + barang.NAMA2 + '|' + (barang.QOH - barang.QOO);
+
+                var fordetailPesanan2 = barang.BRG + '|' + barang.NAMA + ' ' + barang.NAMA2 + '|' + barang.QOO_ALL;
+                var forDetailQtySiapJual2 = barang.BRG + '|' + barang.NAMA + ' ' + barang.NAMA2 + '|' + (barang.QOH - barang.QOO_ALL);
             <tr>
                 <td class="text-center"><img width="50" height="50" src="@barang.LINK_GAMBAR_1" /></td>
                 <td>@barang.BRG</td>
@@ -114,26 +117,50 @@
                 <td>
                     @if (barang.QOO != 0)
                     {
-                        <div data-tip="Lihat Detail">
-                            <a class="user-link" href="#" data-toggle="modal" data-target="#modalDetailPesanan" onclick="LihatDetailPesanan('@fordetailPesanan')">@barang.QOO</a>
+                        <div>
+                            <a data-tip-qoo="Lihat Detail" class="user-link" href="#" data-toggle="modal" data-target="#modalDetailPesanan" onclick="LihatDetailPesanan('@fordetailPesanan', '1')">@barang.QOO</a>
+                            @if (barang.QOO_ALL != 0)
+                            {
+                                <a data-tip-qoo="Total qty pesanan dari gudang marketplace" class="user-link" href="#" data-toggle="modal" data-target="#modalDetailPesanan" onclick="LihatDetailPesanan('@fordetailPesanan2', '2')"> (@barang.QOO_ALL)</a>
+                            }
                         </div>
                     }
                     else
                     {
-                        @barang.QOO
+                        if (barang.QOO_ALL != 0)
+                        {
+                            <div>
+                                @barang.QOO
+                                <a data-tip-qoo="Total qty pesanan dari gudang marketplace" class="user-link" href="#" data-toggle="modal" data-target="#modalDetailPesanan" onclick="LihatDetailPesanan('@fordetailPesanan2', '2')"> (@barang.QOO_ALL)</a>
+                            </div>
+                        }
+                        else
+                        {
+                            @barang.QOO
+                        }
+
                     }
                 </td>
                 @*<td>@(barang.QOH - barang.QOO)</td>*@
                 <td>
-                    @if ((barang.QOH - barang.QOO) != 0)
+                    @if (barang.QOO_ALL != 0)
                     {
                         <div data-tip="Lihat Detail">
-                            <a class="user-link" href="#" data-toggle="modal" data-target="#modalDetailQtySiapJual" onclick="LihatDetailQtySiapJual('@forDetailQtySiapJual')">@(barang.QOH - barang.QOO)</a>
+                            <a class="user-link" href="#" data-toggle="modal" data-target="#modalDetailQtySiapJual" onclick="LihatDetailQtySiapJual('@forDetailQtySiapJual2','2')">@(barang.QOH - barang.QOO_ALL)</a>
                         </div>
                     }
                     else
                     {
-                        @(barang.QOH - barang.QOO)
+                        if ((barang.QOH - barang.QOO) != 0)
+                        {
+                            <div data-tip="Lihat Detail">
+                                <a class="user-link" href="#" data-toggle="modal" data-target="#modalDetailQtySiapJual" onclick="LihatDetailQtySiapJual('@forDetailQtySiapJual','1')">@(barang.QOH - barang.QOO)</a>
+                            </div>
+                        }
+                        else
+                        {
+                            @(barang.QOH - barang.QOO)
+                        }
                     }
                 </td>
                 <td class="edit-hapus-col">

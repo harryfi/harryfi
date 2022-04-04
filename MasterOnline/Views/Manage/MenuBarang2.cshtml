@@ -253,6 +253,61 @@
                 display: block;
             }
 
+        [data-tip-qoo] {
+            position: relative;
+        }
+
+            [data-tip-qoo]:before {
+                content: '';
+                /* hides the tooltip when not hovered */
+                display: none;
+                content: '';
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-bottom: 5px solid #1a1a1a;
+                position: absolute;
+                top: 30px;
+                /*left: 35px;*/
+                z-index: 8;
+                font-size: 0;
+                line-height: 0;
+                /*width: 0;
+                height: 0;*/
+                /*margin-left: -30px;*/
+                margin-left:0px;
+                left: 50%;
+            }
+
+            [data-tip-qoo]:after {
+                display: none;
+                content: attr(data-tip-qoo);
+                position: absolute;
+                top: 35px;
+                /*left: 0px;*/
+                padding: 2px 5px;
+                background: #1a1a1a;
+                color: #fff;
+                z-index: 9;
+                font-size: 0.85em;
+                height: auto;
+                line-break: normal;
+                max-width: 300px;
+                line-height: 18px;
+                -webkit-border-radius: 3px;
+                -moz-border-radius: 3px;
+                border-radius: 3px;
+                white-space: normal;
+                word-wrap: normal;
+                left: 30px;
+                margin-left: -50px;
+                width: 68px;
+            }
+
+            [data-tip-qoo]:hover:before,
+            [data-tip-qoo]:hover:after {
+                display: block;
+            }
+
         #modal-detail-pesanan {
             margin: auto;
         }
@@ -992,6 +1047,7 @@
                         </div>
                     </div>
                 </div>
+                <div id="type-print-1" style="display:none"></div>
                 <div id="list-detail"></div>
             </div>
             <div class="modal-footer">
@@ -1163,6 +1219,7 @@
                             </span>
                         </div>
                     </div>
+                    <div id="type-print" style="display:none"></div>
                 </div>
                 <div id="list-detail-qty"></div>
             </div>
@@ -2168,7 +2225,7 @@
         }
 
         //add by nurul 29/4/2020
-        function LihatDetailPesanan($req_id) {
+        function LihatDetailPesanan($req_id, $type) {
             if ($req_id != null && $req_id != undefined && $req_id != "") {
             var tempReqId = $req_id.split('|');
             tempBrg = tempReqId[0];
@@ -2177,8 +2234,9 @@
 
                 $('#search_detail').val('');
                 $('#txt_last_page_detail').val('');
+                $('#type-print-1').val($type);
                 //if ($('#filter2_' + $namaTab + '_field').val() == "")
-        var $link = '@Html.Raw(Url.Action("LihatDetailPesanan2", "Manage", new { brgId = "replaceID", page = "replaceLastPage", search = "replaceSearch", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang" }))';
+        var $link = '@Html.Raw(Url.Action("LihatDetailPesanan2", "Manage", new { brgId = "replaceID", page = "replaceLastPage", search = "replaceSearch", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang", type = "replaceType" }))';
             $link = $link.replace("replaceID", encodeURIComponent(tempBrg));
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_detail').val()));
                 $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_detail').val()));
@@ -2187,6 +2245,8 @@
                 var filtervalue2 = get_filtervalue2(filterby2);
                 $link = $link.replace("replaceFilter2", encodeURIComponent(filterby2));
                 $link = $link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
+
+                $link = $link.replace("replaceType", encodeURIComponent($type));
 
                 if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
                     $link = $link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
@@ -2253,7 +2313,7 @@
 
         function searchTableDetail() {
             if (tempBrg != null && tempBrg != undefined && tempBrg != "") {
-            var link = '@Html.Raw(Url.Action("LihatDetailPesanan2", "Manage", new { brgId = "replaceID", search = "replaceSearch", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang" }))';
+            var link = '@Html.Raw(Url.Action("LihatDetailPesanan2", "Manage", new { brgId = "replaceID", search = "replaceSearch", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang", type = "replaceType" }))';
             link = link.replace("replaceID", encodeURIComponent(tempBrg));
                 link = link.replace("replaceSearch", encodeURIComponent($('#search_detail').val()));
 
@@ -2261,6 +2321,8 @@
                 var filtervalue2 = get_filtervalue2(filterby2);
                 link = link.replace("replaceFilter2", encodeURIComponent(filterby2));
                 link = link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
+
+                link = link.replace("replaceType", encodeURIComponent($('#type-print-1').val()));
 
                 if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
                     link = link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
@@ -2486,15 +2548,16 @@
         //end add by nurul 13/5/2020
 
         //add by nurul 3/2/2022
-        function LihatDetailQtySiapJual($req_id_qty) {
+        function LihatDetailQtySiapJual($req_id_qty,$type) {
             if ($req_id_qty != null && $req_id_qty != undefined && $req_id_qty != "") {
                 var tempReqId = $req_id_qty.split('|');
                 tempBrgStok = tempReqId[0];
                 tempNamaStok = tempReqId[1];
                 tempStok = tempReqId[2];
                 $('#search_detail_qty').val('');
-                $('#txt_last_page_detail_qty').val('')
-                var $link = '@Html.Raw(Url.Action("LihatDetailQtySiapJual2", "Manage", new { brgId = "replaceID", page = "replaceLastPage", search = "replaceSearch", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang" }))';
+                $('#txt_last_page_detail_qty').val('');
+                $('#type-print').val($type);
+                var $link = '@Html.Raw(Url.Action("LihatDetailQtySiapJual2", "Manage", new { brgId = "replaceID", page = "replaceLastPage", search = "replaceSearch", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang", type = "replaceType" }))';
                 $link = $link.replace("replaceID", encodeURIComponent(tempBrgStok));
                 $link = $link.replace("replaceSearch", encodeURIComponent($('#search_detail_qty').val()));
                 $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_detail_qty').val()));
@@ -2503,6 +2566,8 @@
                 var filtervalue2 = get_filtervalue2(filterby2);
                 $link = $link.replace("replaceFilter2", encodeURIComponent(filterby2));
                 $link = $link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
+
+                $link = $link.replace("replaceType", encodeURIComponent($type));
 
                 if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
                     $link = $link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
@@ -2565,7 +2630,7 @@
 
         function searchTableDetailQtySiapJual() {
             if (tempBrgStok != null && tempBrgStok != undefined && tempBrgStok != "") {
-                var link = '@Html.Raw(Url.Action("LihatDetailQtySiapJual2", "Manage", new { brgId = "replaceID", search = "replaceSearch", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang" }))';
+                var link = '@Html.Raw(Url.Action("LihatDetailQtySiapJual2", "Manage", new { brgId = "replaceID", search = "replaceSearch", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang", type = "replaceType" }))';
                 link = link.replace("replaceID", encodeURIComponent(tempBrgStok));
                 link = link.replace("replaceSearch", encodeURIComponent($('#search_detail_qty').val()));
 
@@ -2573,6 +2638,8 @@
                 var filtervalue2 = get_filtervalue2(filterby2);
                 link = link.replace("replaceFilter2", encodeURIComponent(filterby2));
                 link = link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
+
+                link = link.replace("replaceType", encodeURIComponent($('#type-print').val()));
 
                 if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
                     link = link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));

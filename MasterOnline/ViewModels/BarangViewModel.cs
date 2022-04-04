@@ -37,6 +37,10 @@ namespace MasterOnline.ViewModels
         public string JENIS { get; set; }
         //END ADD BY NURUL 23/9/2019
 
+        //add by nurul 30/3/2022
+        public double QOO_ALL { get; set; }
+        //end add by nurul 30/3/2022
+
     }
     public class BarangPendingContent
     {
