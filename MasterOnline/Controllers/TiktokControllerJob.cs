@@ -1811,29 +1811,32 @@ namespace MasterOnline.Controllers
                     if (result.data != null)
                         foreach (var attribs in result.data.attributes)
                         {
-                            a = Convert.ToString(i + 1);
+                            if (attribs.attribute_type.ToString() == "2")
+                            {
+                                a = Convert.ToString(i + 1);
 
-                            returnData["ACODE_" + a] = attribs.id;
-                            returnData["ATYPE_" + a] = attribs.attribute_type.ToString();
-                            returnData["ANAME_" + a] = attribs.name;
-                            returnData["AOPTIONS_" + a] =  "0";
-                            returnData["AMANDATORY_" + a] = attribs.input_type.is_mandatory ? "1" : "0";
-                            returnData["AUNIT_" + a] = attribs.input_type.is_multiple_selected ? "MULTI" : "";
-                            if (attribs.input_type.is_customized)
-                            {
-                                returnData["AUNIT_" + a] += "CUSTOM";
-                            }
-                            if (attribs.values != null)
-                            {
-                                if (attribs.values.Count() > 0)
+                                returnData["ACODE_" + a] = attribs.id;
+                                returnData["ATYPE_" + a] = attribs.attribute_type.ToString();
+                                returnData["ANAME_" + a] = attribs.name;
+                                returnData["AOPTIONS_" + a] = "0";
+                                returnData["AMANDATORY_" + a] = attribs.input_type.is_mandatory ? "1" : "0";
+                                returnData["AUNIT_" + a] = attribs.input_type.is_multiple_selected ? "MULTI" : "";
+                                if (attribs.input_type.is_customized)
                                 {
-                                    returnData["AOPTIONS_" + a] = "1";
-                                    var optList = attribs.values.ToList();
-                                    var listOpt = optList.Select(x => new ATTRIBUTE_OPT_SHOPEE_V2(attribs.id, x.id, x.name)).ToList();
-                                    ret.attribute_opts_v2.AddRange(listOpt);
+                                    returnData["AUNIT_" + a] += "CUSTOM";
                                 }
+                                if (attribs.values != null)
+                                {
+                                    if (attribs.values.Count() > 0)
+                                    {
+                                        returnData["AOPTIONS_" + a] = "1";
+                                        var optList = attribs.values.ToList();
+                                        var listOpt = optList.Select(x => new ATTRIBUTE_OPT_SHOPEE_V2(attribs.id, x.id, x.name)).ToList();
+                                        ret.attribute_opts_v2.AddRange(listOpt);
+                                    }
+                                }
+                                i = i + 1;
                             }
-                            i = i + 1;
                         }
                     ret.attributes.Add(returnData);
                 }

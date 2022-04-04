@@ -1003,6 +1003,7 @@ namespace MasterOnline.Controllers
 
                     try
                     {
+                        EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM CATEGORY_TIKTOK WHERE CUST = '"+ apidata.no_cust + "'");
                         foreach (var item in respon.Data.CategoryList)
                         {
                             var newCategory = new CATEGORY_TIKTOK
@@ -1010,7 +1011,8 @@ namespace MasterOnline.Controllers
                                 CATEGORY_CODE = item.Id,
                                 CATEGORY_NAME = item.LocalDisplayName.Replace("'", "`"),
                                 IS_LAST_NODE = (item.IsLeaf) ? "1" : "0",
-                                PARENT_CODE = item.ParentId
+                                PARENT_CODE = item.ParentId,
+                                CUST = apidata.no_cust
                             };
                             if (item.IsLeaf)//cek category rule
                             {
@@ -1364,7 +1366,7 @@ namespace MasterOnline.Controllers
                         tempbarang.AVALUE_45 = detail.ProductName.Replace('\'', '`');
                         tempbarang.ACODE_31 = "warranty";
                         tempbarang.ANAME_31 = "Warranty Period";
-                        tempbarang.AVALUE_31 = detail.WarrantyPeriod.WarrantyDescription;
+                        tempbarang.AVALUE_31 = detail.WarrantyPeriod.WarrantyId.ToString();
                         tempbarang.ACODE_32 = "product_warranty";
                         tempbarang.ANAME_32 = "Warranty Policy";
                         tempbarang.AVALUE_32 = detail.WarrantyPolicy;
@@ -2720,7 +2722,8 @@ namespace MasterOnline.Controllers
                         tempbarang.AVALUE_45 = namabarang;
                         tempbarang.ACODE_31 = "warranty";
                         tempbarang.ANAME_31 = "Warranty Period";
-                        tempbarang.AVALUE_31 = detail.WarrantyPeriod.WarrantyDescription;
+                        //tempbarang.AVALUE_31 = detail.WarrantyPeriod.WarrantyDescription;
+                        tempbarang.AVALUE_31 = detail.WarrantyPeriod.WarrantyId.ToString();
                         tempbarang.ACODE_32 = "product_warranty";
                         tempbarang.ANAME_32 = "Warranty Policy";
                         tempbarang.AVALUE_32 = detail.WarrantyPolicy;

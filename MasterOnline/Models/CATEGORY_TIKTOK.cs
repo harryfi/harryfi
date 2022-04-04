@@ -25,6 +25,7 @@ namespace MasterOnline.Models
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int? RecNum { get; set; }
+        public string CUST { get; set; }
     }
     [Table("TABEL_MAPPING_TIKTOK")]
     public class TABEL_MAPPING_TIKTOK
