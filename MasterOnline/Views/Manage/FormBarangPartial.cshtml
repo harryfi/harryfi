@@ -105,6 +105,29 @@
         vertical-align: middle;
     }
 
+    .foto_produk_section_tiktok {
+        padding: 5px;
+    }
+
+        .foto_produk_section_tiktok > .box_upload_tiktok {
+            width: 100px;
+            height: 100px;
+            border: dashed 1.5px #bbb;
+            border-radius: 10px;
+            background-color: #f7f7f7;
+            background-image: url('');
+            text-align: center;
+            display: table;
+            margin: 0 auto;
+            cursor: pointer;
+        }
+
+    .box_upload_tiktok > .box_upload_placeholder {
+        color: #ccc;
+        font-size: 20px;
+        display: table-cell;
+        vertical-align: middle;
+    }
     .cke_wordcount {
         margin-top: 3px;
     }
@@ -267,6 +290,84 @@
         getFotoProdukBlibli();
         //end add by calvin 28 februari 2019
 
+        //tiktok
+
+        $('.btn_hapus_foto_produk_tiktok').each(function (i, item) {
+            var data_barang_level = $(item).attr("data-barang-level");
+            var data_barang_id = $(item).attr("data-barang-id");
+            //var data_barang_kode = $(item).attr("data-barang-kode");
+            $('#btn_hapus_tiktok_' + data_barang_level + '_' + data_barang_id).hide();
+            $('#btn_hapus_tiktok_' + data_barang_level + '_' + data_barang_id).off('click').on('click', function () {
+                var $link = '@Html.Raw(Url.Action("DeleteFotoProduktiktok", "Manage", new { brg = "replaceBrg", recnum = "replaceKode", urutan = "replaceUrutan" }))';
+                $link = $link.replace("replaceBrg", encodeURIComponent($('#Stf02_BRG').val()));
+                $link = $link.replace("replaceKode", encodeURIComponent(data_barang_id));
+                $link = $link.replace("replaceUrutan", encodeURIComponent(data_barang_level));
+
+                $.ajax({
+                    url: $link,
+                    type: 'GET',
+                    success: function () {
+                        var str = $('#hidden_url_gambar_tiktok_' + data_barang_level + '_' + data_barang_id).val();
+                        var n = str.lastIndexOf('/');
+                        var keyNameFile = str.substring(n + 1);
+
+                        deleteObjectByFileName(keyNameFile);
+
+                        $('#foto_produk_tiktok_' + data_barang_level + '_'+ data_barang_id).val(null);
+                        $('#box_upload_tiktok_' + data_barang_level + '_'+ data_barang_id).css('background-image', '');
+                        $('#box_upload_tiktok_' + data_barang_level + '_'+ data_barang_id + ' span').show();
+                        $('#btn_hapus_tiktok_' + data_barang_level + '_'+ data_barang_id).hide();
+                    },
+                    error: function () {
+                    }
+                });
+
+                return;
+            });
+        });
+
+        $('.foto_produk_tiktok').each(function (i, item) {
+            var validImagetiktok = ["image/jpeg", "image/png"];
+            var data_barang_level = $(item).attr("data-barang-level");
+            var data_barang_id = $(item).attr("data-barang-id");
+            $('#foto_produk_tiktok_' + data_barang_level + '_' + data_barang_id).hide();
+            $('#foto_produk_tiktok_' + data_barang_level + '_'+ data_barang_id).off('change').on('change', function () {
+                var file = this.files[0];
+                var fileType = file["type"];
+                if ($.inArray(fileType, validImagetiktok) < 0) {
+                    alert('Hanya boleh file berformat .jpg!');
+                    return;
+                }
+                var fileSize = file["size"];
+                if (fileSize > 4000000) {
+                    alert('Maximal size 4MB');
+                    $('#btn_hapus_tiktok_' + data_barang_level + '_' + data_barang_id).click();
+                    return false;
+                }
+                var reader = new FileReader();
+                reader.onloadend = function () {
+                    $('#box_upload_tiktok_' + data_barang_level + '_' + data_barang_id).css('background-image', 'url("' + reader.result + '")')
+                        .css('background-size', 'cover');
+                    $('#box_upload_tiktok_' + data_barang_level + '_' + data_barang_id + ' span').hide();
+                    $('#btn_hapus_tiktok_'+ data_barang_level + '_' + data_barang_id).show();
+                }
+                if (file) {
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+
+        $('.box_upload_tiktok').each(function (i, item) {
+            var data_barang_level = $(item).attr("data-barang-level");
+            var data_barang_id = $(item).attr("data-barang-id");
+            $(item).off('click').on('click', function () {
+                $('#foto_produk_tiktok_' + data_barang_level + '_' + data_barang_id).click();
+            });
+        });
+
+        getFotoProduktiktok();
+        //end tiktok
+
         //add by nurul 10/9/2019, buat preview nama barang
         $('#Stf02_NAMA').change(function () {
             $('#preview_Nama').val($('#Stf02_NAMA').val() + ' ' + $('#Stf02_NAMA2').val());
@@ -397,7 +498,7 @@
         });
     }
     function UpdateAllDeskripsi(val) {
-       
+
         for (var i in CKEDITOR.instances) {
             if (i.includes("_DESKRIPSI_MP")) {
                 if (CKEDITOR.instances[i].getData() == "" || CKEDITOR.instances[i].getData() == "null" || val) {
@@ -427,7 +528,19 @@
             $('#btn_hapus_blibli_' + data_barang_level + '_' + data_barang_id).show();
         });
     }
+    function getFotoProduktiktok() {
+        $('.hidden_url_gambar_tiktok').each(function (i, item) {
+            var data_barang_level = $(item).attr("data-barang-level");
+            var data_barang_id = $(item).attr("data-barang-id");
+            $('#box_upload_tiktok_' + data_barang_level + '_' + data_barang_id).css({
+                'background-image': 'url("' + $(item).val() + '")',
+                'background-size': 'cover'
+            });
+            $('#box_upload_tiktok_' + data_barang_level + '_' + data_barang_id + ' span').hide();
+            $('#btn_hapus_tiktok_' + data_barang_level + '_' + data_barang_id).show();
+        });
 
+    }
     function setTokpedAsuransi(i, value) {
         if (value != null) {
             $('#ListHargaJualPermarket_' + i + '__AVALUE_35').val(value);
@@ -2605,9 +2718,9 @@
                                                                                 <div class="col-md-2 col-sm-2 col-xs-12">
                                                                                     @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model.Stf02 != null ? Model.Stf02.BRG : ""))?.CATEGORY_CODE != null)
                                                                                     {
-                                                                                        <button type="button" onclick="ClearCategoryTokped('category_tiktok_pertama_' + @recnumArf01, 'category_tiktok_selanjutnya_' + @recnumArf01, 'attribute_tiktok_' + @recnumArf01, @i, true);">Undo</button>
+                                                                                        <button type="button" onclick="ClearCategorytiktok('category_tiktok_pertama_' + @recnumArf01, 'category_tiktok_selanjutnya_' + @recnumArf01, 'attribute_tiktok_' + @recnumArf01, @i, true);">Undo</button>
                                                                                     }
-                                                                                    <button type="button" onclick="ClearCategoryTokped('category_tiktok_pertama_' + @recnumArf01, 'category_tiktok_selanjutnya_' + @recnumArf01, 'attribute_tiktok_' + @recnumArf01, @i, false);">Clear</button>
+                                                                                    <button type="button" onclick="ClearCategorytiktok('category_tiktok_pertama_' + @recnumArf01, 'category_tiktok_selanjutnya_' + @recnumArf01, 'attribute_tiktok_' + @recnumArf01, @i, false);">Clear</button>
                                                                                 </div>
                                                                             </div>
                                                                             <div class="x_panel" id="sales-info">
@@ -2625,7 +2738,7 @@
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="row detail_mp_tiktok_gambar">
-                                                                                    <div class="col-md-12">
+                                                                                    <div class="col-md-3">
                                                                                         <div class="x_panel" id="upload-foto-section-tiktok">
                                                                                             <div class="x_title">
                                                                                                 <h2 style="font-size: 16px">Foto Produk</h2>
@@ -2638,7 +2751,7 @@
                                                                                             </div>
                                                                                             <div class="x_content">
                                                                                                 <div class="row">
-                                                                                                    <div class="col-md-2 foto_produk_section_tiktok">
+                                                                                                    <div class="col-md-12 foto_produk_section_tiktok">
                                                                                                         <div class="box_upload_tiktok" data-barang-level="1" data-barang-id="@recnumArf01" id="box_upload_tiktok_1_@recnumArf01">
                                                                                                             <span class="box_upload_placeholder">Tambah Gambar</span>
                                                                                                             <input type='file' id='foto_produk_tiktok_1_@recnumArf01' data-barang-level="1" data-barang-id="@recnumArf01" class="foto_produk_tiktok" accept=".jpg,.png" />
@@ -2649,7 +2762,7 @@
                                                                                                         </div>
                                                                                                     </div>
                                                                                                 </div>
-                                                                                            </div>
+                                                                                                </div>
                                                                                             <div class="x_content">
                                                                                                 <div id="lain-section">
                                                                                                     <div class="text-left">
@@ -2719,17 +2832,17 @@
                                                                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_39, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.AVALUE_39 })
                                                                                     @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_39 == "1")
                                                                                     {
-                                                                                        <input type="checkbox" id="ckcod_@Convert.ToString(recnumArf01)" name="codtiktok_@Convert.ToString(recnumArf01)" value="1" checked onclick="settiktokcod('@i')" />
+                                                                                        <input type="checkbox" id="ckcod_@Convert.ToString(recnumArf01)" name="codtiktok_@Convert.ToString(recnumArf01)" value="1" checked onclick="settiktokcod('@recnumArf01')" />
                                                                                     }
                                                                                     else
                                                                                     {
-                                                                                        <input type="checkbox" id="ckcod_@Convert.ToString(recnumArf01)" name="codtiktok_@Convert.ToString(recnumArf01)" value="0" onclick="settiktokcod('@i')" />
+                                                                                        <input type="checkbox" id="ckcod_@Convert.ToString(recnumArf01)" name="codtiktok_@Convert.ToString(recnumArf01)" value="0" onclick="settiktokcod('@recnumArf01')" />
                                                                                     }
 
                                                                                 </div>
                                                                             </div>
                                                                             <div class="row detail_mp_tiktok_gambar_chart" id="divcharttiktok_@Convert.ToString(recnumArf01)">
-                                                                                <div class="col-md-12">
+                                                                                <div class="col-md-3">
                                                                                     <div class="x_panel" id="upload-foto-section-tiktok-chart">
                                                                                         <div class="x_title">
                                                                                             <h2 style="font-size: 16px">Gambar Size Chart</h2>
@@ -2742,7 +2855,7 @@
                                                                                         </div>
                                                                                         <div class="x_content">
                                                                                             <div class="row">
-                                                                                                <div class="col-md-2 foto_produk_section_tiktok">
+                                                                                                <div class="col-md-12 foto_produk_section_tiktok">
                                                                                                     <div class="box_upload_tiktok" data-barang-level="1" data-barang-id="@recnumArf01" id="box_upload_tiktok_2_@recnumArf01">
                                                                                                         <span class="box_upload_placeholder">Tambah Gambar</span>
                                                                                                         <input type='file' id='foto_produk_tiktok_2_@recnumArf01' data-barang-level="2" data-barang-id="@recnumArf01" class="foto_produk_tiktok" accept=".jpg,.png" />
@@ -2752,6 +2865,10 @@
                                                                                                         <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_tiktok" data-barang-level="2" data-barang-id="@recnumArf01" id="btn_hapus_tiktok_2_@recnumArf01">Hapus</button>
                                                                                                     </div>
                                                                                                 </div>
+                                                                                                <div class="col-md-2"></div>
+                                                                                                <div class="col-md-2"></div>
+                                                                                                <div class="col-md-2"></div>
+                                                                                                <div class="col-md-2"></div>
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>

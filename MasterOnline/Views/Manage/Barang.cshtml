@@ -1036,7 +1036,7 @@
             //});
             //end remark by calvin 23 april 2019
 
-            getKategoriPertamaTiktok(-1);
+            getKategoriPertamaTiktok(-1, false);
             getKategoriPertamaLazada(-1);//add by Tri
             getKategoriPertamaBlibli(-1);
             getKategoriPertamaElevenia(-1);
@@ -2528,7 +2528,7 @@
         }
 
     // end add
-        function getKategoriPertamaTiktok(spec) {
+        function getKategoriPertamaTiktok(spec, clear) {
             var idMarketJD = "2021";
             var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
             for (var i = 0; i < listMarket.length; i++) {
@@ -2566,13 +2566,13 @@
                                 FuncGetKategoritiktokByChildCode(fieldCategoryCodeValue, listMarketRecNum, fieldCategoryCode, ListHargaJualPermarketView);
 
                                 var fielWarrantyCodeValue = $(fieldWarrantyName).val();
-                                FuncGetWarrantytiktok(fielWarrantyCodeValue, selectWarrantytiktok, listMarket[i].RecNum, fieldWarrantyName, listMarketRecNum, clear);
+                                FuncGetWarrantytiktok(fielWarrantyCodeValue, selectWarrantytiktok, listMarket[i].RecNum, fieldWarrantyName, clear);
                             }
                         }
                         else {
                             FuncGetKategoritiktokByCode(selectCategorytiktok, listMarket[i].RecNum, nextselectID, categorytiktokSelanjutnya, fieldCategoryCode, fieldCategoryName, fieldCatCode, fieldCatName, listMarketRecNum);
 
-                            FuncGetWarrantytiktok(null, selectWarrantytiktok, listMarket[i].RecNum, fieldWarrantyName, listMarketRecNum, clear);
+                            FuncGetWarrantytiktok(null, selectWarrantytiktok, listMarket[i].RecNum, fieldWarrantyName, clear);
                         }
                     }
                 }
@@ -2599,8 +2599,8 @@
                     $.each(data,
                         function (i, item) {
                             listKategori[i] = {
-                                id: item.CATEGORY_ID + '|;|' + item.LEAF,
-                                text: item.NAME
+                                id: item.CATEGORY_CODE + '|;|' + item.IS_LAST_NODE,
+                                text: item.CATEGORY_NAME
                             };
                         });
 
@@ -2610,7 +2610,7 @@
                         dataAttr: 'data-extra',
                         options: listKategori,
                         onChange: function (value) {
-                            KategoritiktokOnChange(value, nextselectID, selectCategorytiktok, categorytiktokSelanjutnya,2,fieldCategoryCode,fieldCategoryName,listMarketRecNum,this);
+                            KategoritiktokOnChange(value, nextselectID, selectCategorytiktok, categorytiktokSelanjutnya, 2, fieldCategoryCode, fieldCategoryName, listMarket_i_RecNum,this);
                         }
                     });
                 },
@@ -2658,12 +2658,12 @@
             s.disable();
             var values = value.split('|;|');
             $('#' + nextselectID).remove();
-            if (values[1] == "false") {
+            if (values[1] == "0") {
                 var nextselect = '<div class="col-md-3 col-sm-3 col-xs-12"><select id="' + nextselectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
                 $(categorytiktokSelanjutnya).append(nextselect);
                 getKategoriSelanjutnyatiktok(values[0], listMarketRecNum, nextselectID, next + 1, fieldCategoryCode, fieldCategoryName);
             }
-            else if (values[1] == "true") {
+            else if (values[1] == "1") {
                 $(fieldCategoryCode).val(values[0]);
                 $(fieldCategoryName).val($('#' + selectCategorytiktok + " option:selected").text());
                 getAttributetiktok(values[0], listMarketRecNum, fieldCategoryCode, null);
@@ -2689,8 +2689,8 @@
                     $.each(data,
                         function (i, item) {
                             listKategori[i] = {
-                                id: item.CATEGORY_ID + '|;|' + item.LEAF,
-                                text: item.NAME
+                                id: item.CATEGORY_CODE + '|;|' + item.IS_LAST_NODE,
+                                text: item.CATEGORY_NAME
                             };
                         });
 
@@ -2737,14 +2737,14 @@
 
                             for (var i = 0; i < 2; i++) {
                                 var ACODE = item["ACODE_" + (i + 1)];
-                                var ATYPE = item["ATYPE" + (i + 1)];
-                                var ANAME = item["ANAME" + (i + 1)];
-                                var AINPUT_TYPE = item["AINPUT_TYPE" + (i + 1)];
-                                var AMANDATORY = item["AMANDATORY" + (i + 1)];
+                                var ATYPE = item["ATYPE_" + (i + 1)];
+                                var ANAME = item["ANAME_" + (i + 1)];
+                                var AINPUT_TYPE = item["AUNIT_" + (i + 1)];
+                                var AMANDATORY = item["AMANDATORY_" + (i + 1)];
                                 if (ANAME != null) {
                                     if (ANAME != "") {
 
-                                        var label = '<label class="control-label">' + ALABEL;
+                                        var label = '<label class="control-label">' + ANAME;
                                         if (AMANDATORY == "1") {
                                             label += '*';
                                         }
@@ -2938,6 +2938,27 @@
             //$(fieldWarrantyName).val($('#' + selectWarrantytiktok + " option:selected").text());
         }
 
+        function ClearCategorytiktok(divIDpertama, divIDselanjutnya, divIDattribute, i, undoing) {
+            var fieldCategoryCode = '#ListHargaJualPermarket_' + i + '__CATEGORY_CODE';
+            var fieldCategoryName = '#ListHargaJualPermarket_' + i + '__CATEGORY_NAME';
+            var msg = "Kosongkan Kategori & Attribute ?";
+            if (undoing) {
+                msg = "Kembalikan Seperti Semula ?";
+            }
+            if (confirm(msg)) {
+                $('#' + divIDpertama).html('');
+                $('#' + divIDselanjutnya).html('');
+                $('#' + divIDattribute).html('');
+                if (!undoing) {
+                    $(fieldCategoryCode).val('');
+                    $(fieldCategoryName).val('');
+                }
+                else {
+                    $(fieldCategoryCode).val('undo');
+                }
+                getKategoriPertamaTiktok(i);
+            }
+        }
         //change by nurul 24/6/2021
         //function FuncGetKategoriJDByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
         function FuncGetKategoriJDByChildCode(fieldCategoryCodeValue, listMarketRecNum, fieldCategoryCode, ListHargaJualPermarketView, versiJD) {

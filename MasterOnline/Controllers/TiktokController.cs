@@ -1011,7 +1011,7 @@ namespace MasterOnline.Controllers
                                 CATEGORY_CODE = item.Id,
                                 CATEGORY_NAME = item.LocalDisplayName.Replace("'", "`"),
                                 IS_LAST_NODE = (item.IsLeaf) ? "1" : "0",
-                                PARENT_CODE = item.ParentId,
+                                PARENT_CODE = item.ParentId ?? "0",
                                 CUST = apidata.no_cust
                             };
                             if (item.IsLeaf)//cek category rule
