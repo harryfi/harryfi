@@ -11703,6 +11703,95 @@ namespace MasterOnline.Controllers
         }
         //end add by nurul 3/2/2021, new shipping label blibli
 
+        //add by nurul 5/4/2022
+        public async Task<string> GetPackageId(string dbPathEra, BlibliAPIData iden, string orderNo, string orderItemNo)
+        {
+            var result = "";
+            var token = SetupContext(iden);
+            iden.token = token;
+
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderDetail?";
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            if (iden.versiToken != "2")
+            {
+                string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+                string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+                string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+                string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mta/api/businesspartner/v1/order/orderDetail", iden.API_secret_key);
+
+                urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderDetail?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString());
+                urll += "&storeId=10001";
+                urll += "&orderNo=" + Uri.EscapeDataString(orderNo);
+                urll += "&orderItemNo=" + Uri.EscapeDataString(orderItemNo);
+                urll += "&channelId=MasterOnline";
+
+                myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+                myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+                myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("requestId", milis.ToString());
+                myReq.Headers.Add("sessionId", milis.ToString());
+                myReq.Headers.Add("username", userMTA);
+            }
+            else
+            {
+                string usernameMO = iden.API_client_username;
+                //string passMO = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk";
+                string passMO = iden.API_client_password;
+                string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+                string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+                string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+
+                urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderDetail?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString());
+                urll += "&storeId=10001";
+                urll += "&orderNo=" + Uri.EscapeDataString(orderNo);
+                urll += "&orderItemNo=" + Uri.EscapeDataString(orderItemNo);
+                urll += "&channelId=MasterOnline";
+
+                myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(usernameMO + ":" + passMO))));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("Api-Seller-Key", iden.API_secret_key.ToString());
+                myReq.Headers.Add("Signature-Time", milis.ToString());
+            }
+
+            string responseFromServer = "";
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            if (responseFromServer != "")
+            {
+                dynamic resultRespons = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                try
+                {
+                    var PackageId = resultRespons.value.packageId.Value;
+                    if (!string.IsNullOrEmpty(PackageId))
+                    {
+                        result = PackageId;
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+            return result;
+        }
+        //end add by nurul 5/4/2022
+
         public class CekProductRejectResult
         {
             public string requestId { get; set; }
