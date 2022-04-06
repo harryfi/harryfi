@@ -292,7 +292,7 @@
             }
         });
     }
-    function RequestPickupPackingTiktok(cust) {
+    function RequestPickupPackingTiktok(cust, tipe) {
         $('#modalPrintTiktok__label__' + cust).html('Proses Siap Kirim Pesanan Tiktok');
         $('#btnProsesTiktok__' + cust).attr("disabled", true);
         $('#modalPrintTiktok__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
@@ -315,7 +315,8 @@
             cust : cust,
             bukti : $('#packingList_NO_BUKTI').val(),
             //DeliveryProvider : $('#txtShipment__' + cust).val(),
-            rows_selected : rows_selected
+            rows_selected: rows_selected,
+            typeshipment : tipe
         };
 
         $.ajax({
@@ -837,9 +838,9 @@
         }
     }
 
-    function cekValidasiRTSTiktok(cust) {
+    function cekValidasiRTSTiktok(cust, tipe) {
         //if ($("#txtShipment__" + cust).val()) {
-            RequestPickupPackingTiktok(cust);
+            RequestPickupPackingTiktok(cust, tipe);
         //}
         //else {
         //    alert("Delivery Provider harus dipilih terlebih dahulu.");
@@ -1350,11 +1351,14 @@
                                         Proses <span class="caret"></span>
                                     </button>
                                     <div class="dropdown-menu">
-                                        @*<button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnProsesPackingTiktok__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="cekValidasiPackingTiktok('@(item.CUST)')">
-                                            <span aria-hidden="true"> Ambil Resi</span>
-                                        </button>*@
-                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnProsesTiktok__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="cekValidasiRTSTiktok('@(item.CUST)')">
+                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnProsesTiktok__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="cekValidasiRTSTiktok('@(item.CUST)',, '')">
                                             <span aria-hidden="true"> Ready To Ship</span>
+                                        </button>
+                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnProsesTiktok__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="cekValidasiRTSTiktok('@(item.CUST)', '2')">
+                                            <span aria-hidden="true">Ready To Ship Dropoff</span>
+                                        </button>
+                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnProsesTiktok__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="cekValidasiRTSTiktok('@(item.CUST)', '1')">
+                                            <span aria-hidden="true">Request Pickup</span>
                                         </button>
                                     </div>
                                 </div>
