@@ -2944,7 +2944,7 @@ namespace MasterOnline.Controllers
                                         myData += "{";
                                         myData += "\"gdnSku\": \"" + skuUpdate + "\",  ";
                                         myData += "\"stock\": " + Convert.ToString(QOHBlibli) + ", ";
-                                        myData += "\"minimumStock\": " + data.MinQty + ", ";
+                                        myData += "\"minimumStock\": " + data.MinQty + " ";
                                         //change by Tri 30 Jan 2020, harga dan harga promo ikut harga di blibli saja karena function ini untuk update stok
                                         //myData += "\"price\": " + data.Price + ", ";
                                         //myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
@@ -2953,9 +2953,9 @@ namespace MasterOnline.Controllers
                                         //myData += "\"salePrice\": " + result.value.items[0].prices[0].salePrice + ", ";
                                         //end change by Tri 30 Jan 2020, harga dan harga promo ikut harga di blibli saja karena function ini untuk update stok
                                         //myData += "\"buyable\": " + data.display + ", ";
-                                        myData += "\"buyable\": " + (data.Qty != "0" ? data.display : "false") + ", ";
+                                        //myData += "\"buyable\": " + (data.Qty != "0" ? data.display : "false") + ", ";
 
-                                        myData += "\"displayable\": " + data.display + " "; // true=tampil    
+                                        //myData += "\"displayable\": " + data.display + " "; // true=tampil    
                                         myData += "},";
                                     }
                                 }
