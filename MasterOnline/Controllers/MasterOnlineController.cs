@@ -95,49 +95,51 @@ namespace MasterOnline.Controllers
                                 }
                                 break;
                             case "9"://ELEVENIA
-                                //for (int i = 0; i < dsUpdate.Tables[0].Rows.Count; i++)
-                                //{
-                                //    var brg = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").SingleOrDefault(b => b.BRG == dsUpdate.Tables[0].Rows[i]["BRG"].ToString());
+                                {
+                                    //for (int i = 0; i < dsUpdate.Tables[0].Rows.Count; i++)
+                                    //{
+                                    //    var brg = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").SingleOrDefault(b => b.BRG == dsUpdate.Tables[0].Rows[i]["BRG"].ToString());
 
-                                //    string[] imgID = new string[3]; 
-                                //    for (int j = 0; j < 3; j++)
-                                //    {
-                                //        switch (j)
-                                //        {
-                                //            case 0:
-                                //                imgID[0] = brg.LINK_GAMBAR_1;
-                                //                break;
-                                //            case 1:
-                                //                imgID[1] = brg.LINK_GAMBAR_2;
-                                //                break;
-                                //            case 2:
-                                //                imgID[2] = brg.LINK_GAMBAR_3;
-                                //                break;
-                                //        }
-                                //    }
-                                //    //end change by calvin 4 desember 2018
-                                //    EleveniaController.EleveniaProductData data = new EleveniaController.EleveniaProductData
-                                //    {
-                                //        api_key = customer.API_KEY,
-                                //        kode = dsUpdate.Tables[0].Rows[i]["BRG"].ToString(),
-                                //        nama = brg.NAMA + ' ' + brg.NAMA2 + ' ' + brg.NAMA3,
-                                //        berat = (brg.BERAT / 1000).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
-                                //        imgUrl = imgID,
-                                //        Keterangan = brg.Deskripsi,
-                                //        Qty = Convert.ToString(qtyOnHand),
-                                //        DeliveryTempNo = hJualInDb.DeliveryTempElevenia.ToString(),
-                                //        IDMarket = customer.RecNum.ToString(),
-                                //    };
-                                //    data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == brg.Sort2 && m.LEVEL == "2").KET;
-                                //    data.Price = hargaJualBaru.ToString();
-                                //    data.kode_mp = hJualInDb.BRG_MP;
+                                    //    string[] imgID = new string[3]; 
+                                    //    for (int j = 0; j < 3; j++)
+                                    //    {
+                                    //        switch (j)
+                                    //        {
+                                    //            case 0:
+                                    //                imgID[0] = brg.LINK_GAMBAR_1;
+                                    //                break;
+                                    //            case 1:
+                                    //                imgID[1] = brg.LINK_GAMBAR_2;
+                                    //                break;
+                                    //            case 2:
+                                    //                imgID[2] = brg.LINK_GAMBAR_3;
+                                    //                break;
+                                    //        }
+                                    //    }
+                                    //    //end change by calvin 4 desember 2018
+                                    //    EleveniaController.EleveniaProductData data = new EleveniaController.EleveniaProductData
+                                    //    {
+                                    //        api_key = customer.API_KEY,
+                                    //        kode = dsUpdate.Tables[0].Rows[i]["BRG"].ToString(),
+                                    //        nama = brg.NAMA + ' ' + brg.NAMA2 + ' ' + brg.NAMA3,
+                                    //        berat = (brg.BERAT / 1000).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
+                                    //        imgUrl = imgID,
+                                    //        Keterangan = brg.Deskripsi,
+                                    //        Qty = Convert.ToString(qtyOnHand),
+                                    //        DeliveryTempNo = hJualInDb.DeliveryTempElevenia.ToString(),
+                                    //        IDMarket = customer.RecNum.ToString(),
+                                    //    };
+                                    //    data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == brg.Sort2 && m.LEVEL == "2").KET;
+                                    //    data.Price = hargaJualBaru.ToString();
+                                    //    data.kode_mp = hJualInDb.BRG_MP;
 
-                                //    var display = Convert.ToBoolean(hJualInDb.DISPLAY);
-                                //    if (!string.IsNullOrEmpty(data.kode_mp))
-                                //    {
-                                //        var result = new EleveniaController().UpdateProduct(data);
-                                //    }
-                                //}
+                                    //    var display = Convert.ToBoolean(hJualInDb.DISPLAY);
+                                    //    if (!string.IsNullOrEmpty(data.kode_mp))
+                                    //    {
+                                    //        var result = new EleveniaController().UpdateProduct(data);
+                                    //    }
+                                    //}
+                                }
                                 break;
                             case "15"://tokopedia
                                 TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
@@ -159,8 +161,11 @@ namespace MasterOnline.Controllers
                                     }
                                     else
                                     {
-                                        clientJobServer.Enqueue<TokopediaControllerJob>(x => x.UpdatePrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, 
-                                            Convert.ToInt64(dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString()), iden, Convert.ToInt32(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString())));
+                                        try
+                                        {
+                                            clientJobServer.Enqueue<TokopediaControllerJob>(x => x.UpdatePrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword,
+                                                Convert.ToInt64(dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString()), iden, Convert.ToInt32(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString())));
+                                        } catch(Exception ex) { }
                                     }
                                 }
                                     
@@ -209,11 +214,15 @@ namespace MasterOnline.Controllers
 
                                             //    }
                                             //}
-                                            dataJob.Price = dsUpdate.Tables[0].Rows[i]["HARGA_NORMAL"].ToString();
-                                            dataJob.MarketPrice = dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString();
-                                            var displayJob = Convert.ToBoolean(dsUpdate.Tables[0].Rows[i]["DISPLAY"].ToString());
-                                            dataJob.display = displayJob ? "true" : "false";
-                                            clientJobServer.Enqueue<BlibliControllerJob>(x => x.UpdateProdukQOH_Display_Job(dbPathEra, dataJob.kode, customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dataJob.kode_mp, idenJob, dataJob));
+                                            try
+                                            {
+                                                dataJob.Price = dsUpdate.Tables[0].Rows[i]["HARGA_NORMAL"].ToString();
+                                                dataJob.MarketPrice = dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString();
+                                                var displayJob = Convert.ToBoolean(dsUpdate.Tables[0].Rows[i]["DISPLAY"].ToString());
+                                                dataJob.display = displayJob ? "true" : "false";
+                                                clientJobServer.Enqueue<BlibliControllerJob>(x => x.UpdateProdukQOH_Display_Job(dbPathEra, dataJob.kode, customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dataJob.kode_mp, idenJob, dataJob));
+                                            }
+                                            catch (Exception ex) { }
                                         }
                                     }
                                 }
@@ -234,31 +243,37 @@ namespace MasterOnline.Controllers
                                         {
                                             if (brg_mp.Count() == 2)
                                             {
-
-                                                var ShopeeApiJob = new ShopeeControllerJob();
-                                                var hargaJualBaru = Convert.ToDouble(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString());
-
-                                                if (brg_mp[1] == "0")
+                                                try
                                                 {
-                                                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdatePrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), dataJob, (float)hargaJualBaru));
-                                                    //await new ShopeeControllerJob().UpdatePrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), dataJob, (float)hargaJualBaru);
+                                                    var ShopeeApiJob = new ShopeeControllerJob();
+                                                    var hargaJualBaru = Convert.ToDouble(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString());
+
+                                                    if (brg_mp[1] == "0")
+                                                    {
+                                                        clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdatePrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), dataJob, (float)hargaJualBaru));
+                                                        //await new ShopeeControllerJob().UpdatePrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), dataJob, (float)hargaJualBaru);
+                                                    }
+                                                    else if (brg_mp[1] != "")
+                                                    {
+                                                        clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdateVariationPrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), dataJob, (float)hargaJualBaru));
+                                                        //await new ShopeeControllerJob().UpdateVariationPrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), dataJob, (float)hargaJualBaru);
+                                                    }
                                                 }
-                                                else if (brg_mp[1] != "")
-                                                {
-                                                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdateVariationPrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), dataJob, (float)hargaJualBaru));
-                                                    //await new ShopeeControllerJob().UpdateVariationPrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), dataJob, (float)hargaJualBaru);
-                                                }
+                                                catch (Exception ex) { }
                                             }
                                         }
                                         else
                                         {
-                                            dataJob.token = customer.TOKEN;
-                                            dataJob.refresh_token = customer.REFRESH_TOKEN;
-                                            dataJob.token_expired = customer.TOKEN_EXPIRED;
-                                            dataJob.no_cust = customer.CUST;
-                                            var hargaJualBaru = Convert.ToDouble(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString());
-                                            clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdatePrice_Job_V2(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), dataJob, (float)hargaJualBaru));
-
+                                            try
+                                            {
+                                                dataJob.token = customer.TOKEN;
+                                                dataJob.refresh_token = customer.REFRESH_TOKEN;
+                                                dataJob.token_expired = customer.TOKEN_EXPIRED;
+                                                dataJob.no_cust = customer.CUST;
+                                                var hargaJualBaru = Convert.ToDouble(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString());
+                                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdatePrice_Job_V2(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), dataJob, (float)hargaJualBaru));
+                                            }
+                                            catch (Exception ex) { }
                                         }
                                     }
                                 }
@@ -280,18 +295,22 @@ namespace MasterOnline.Controllers
                                     var brg = ErasoftDbContext.STF02.Where(a => a.TYPE != "4" && a.BRG == kdBrg).FirstOrDefault();
                                     if (brg != null)
                                     {
-                                        string hargaJualDampakBaru = "0";
-                                        if (!string.IsNullOrEmpty(brg.PART))
+                                        try
                                         {
-                                            brg = ErasoftDbContext.STF02.Where(m => m.BRG == brg.PART).FirstOrDefault();
-                                            if (brg != null)
+                                            string hargaJualDampakBaru = "0";
+                                            if (!string.IsNullOrEmpty(brg.PART))
                                             {
-                                                hargaJualDampakBaru = (brg.HJUAL - Convert.ToDouble(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString())).ToString();
+                                                brg = ErasoftDbContext.STF02.Where(m => m.BRG == brg.PART).FirstOrDefault();
+                                                if (brg != null)
+                                                {
+                                                    hargaJualDampakBaru = (brg.HJUAL - Convert.ToDouble(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString())).ToString();
+                                                }
                                             }
+                                            clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(),
+                                                customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, data, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(),
+                                                Convert.ToInt32(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString()), hargaJualDampakBaru));
                                         }
-                                        clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(),
-                                            customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, data, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(),
-                                            Convert.ToInt32(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString()), hargaJualDampakBaru));
+                                        catch (Exception ex) { }
                                     }
                                 }
                                 break;
@@ -308,11 +327,14 @@ namespace MasterOnline.Controllers
                                     string[] brg_mp = dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString().Split(';');
                                     if (brg_mp.Count() == 2)
                                     {
-                                        var hargaJualBaru = Convert.ToDouble(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString());
+                                        try
+                                        {
+                                            var hargaJualBaru = Convert.ToDouble(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString());
 
-                                        clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_UpdatePrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(),
-                                            customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dataShopify, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), (float)hargaJualBaru));
-
+                                            clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_UpdatePrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(),
+                                                customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dataShopify, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), (float)hargaJualBaru));
+                                        }
+                                        catch (Exception ex) { }
                                     }
                                 }
                                 break;
@@ -335,18 +357,22 @@ namespace MasterOnline.Controllers
                                 };
                                 for (int i = 0; i < dsUpdate.Tables[0].Rows.Count; i++)
                                 {
-                                    if (customer.KD_ANALISA == "2")
+                                    try
                                     {
-                                        clientJobServer.Enqueue<JDIDControllerJob>(x => x.JD_updatePriceV2(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(),
-                                        customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dataJD, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(),
-                                        Convert.ToInt32(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString()), username));
-                                    }
-                                    else
-                                    {
-                                        clientJobServer.Enqueue<JDIDControllerJob>(x => x.JD_updatePrice(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(),
+                                        if (customer.KD_ANALISA == "2")
+                                        {
+                                            clientJobServer.Enqueue<JDIDControllerJob>(x => x.JD_updatePriceV2(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(),
                                             customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dataJD, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(),
                                             Convert.ToInt32(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString()), username));
+                                        }
+                                        else
+                                        {
+                                            clientJobServer.Enqueue<JDIDControllerJob>(x => x.JD_updatePrice(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(),
+                                                customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dataJD, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(),
+                                                Convert.ToInt32(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString()), username));
+                                        }
                                     }
+                                    catch (Exception ex) { }
                                 }
 
                                 break;
