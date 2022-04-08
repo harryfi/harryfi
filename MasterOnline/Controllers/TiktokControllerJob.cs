@@ -469,23 +469,24 @@ namespace MasterOnline.Controllers
                         if (order_status != 100)//update paid
                         {
                             string ordersn = "";
-                            var filteredSudahAda = ordersn_list.Where(p => SudahAdaDiMO.Contains(p));
-                            foreach (var item in filteredSudahAda)
-                            {
-                                ordersn = ordersn + "'" + item + "',";
-                            }
-                            if (!string.IsNullOrEmpty(ordersn))
-                            {
-                                ordersn = ordersn.Substring(0, ordersn.Length - 1);
-                                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0' AND CUST = '" + CUST + "'");
-                                if (rowAffected > 0)
-                                {
-                                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                                    contextNotif.Clients.Group(apidata.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(rowAffected) + " Pesanan terbayar dari TikTok.");
+                            var filteredSudahAda = ordersn_list.Where(p => SudahAdaDiMO.Contains(p)).ToArray();
+                                GetOrderDetailsUpdateStatus(iden, filteredSudahAda, connId, CUST, NAMA_CUST);
+                                //foreach (var item in filteredSudahAda)
+                                //{
+                                //    ordersn = ordersn + "'" + item + "',";
+                                //}
+                                //if (!string.IsNullOrEmpty(ordersn))
+                                //{
+                                //    ordersn = ordersn.Substring(0, ordersn.Length - 1);
+                                //    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0' AND CUST = '" + CUST + "'");
+                                //    if (rowAffected > 0)
+                                //    {
+                                //        var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                //        contextNotif.Clients.Group(apidata.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(rowAffected) + " Pesanan terbayar dari TikTok.");
 
-                                }
+                                //    }
+                                //}
                             }
-                        }
                     }
                 }
             }
