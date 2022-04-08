@@ -2105,6 +2105,37 @@ namespace MasterOnline.Controllers
             }
             else
             {
+                if (!string.IsNullOrEmpty(courier))
+                {
+                    if (courier.ToLower().Contains("grab"))
+                    {
+                        courier = "grab";
+                    }
+                    else if (courier.ToLower().Contains("gojek") || courier.ToUpper().Contains("GO-SEND"))
+                    {
+                        courier = "go-jek";
+                    }
+                    else if (courier.ToLower().Contains("sicepat"))
+                    {
+                        courier = "sicepat";
+                    }
+                    else if (courier.ToLower().Contains("ninja"))
+                    {
+                        courier = "ninjavan";
+                    }
+                    else if (courier.ToLower().Contains("lion"))
+                    {
+                        courier = "lionparcel";
+                    }
+                    else if (courier.ToLower().Contains("anteraja"))
+                    {
+                        courier = "anteraja";
+                    }
+                    else if (courier.ToUpper().Contains("J&T"))
+                    {
+                        courier = "jnt";
+                    }
+                }
                 data.payment_shipping.new_courier = courier;
             }
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
