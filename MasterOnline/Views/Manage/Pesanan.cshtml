@@ -4167,7 +4167,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" onclick="$('#konfGantiBarang').hide()">Tidak</button>
-                <button type="button" class="btn btn-success" onclick="saveGantiBarang($('#temp-nourut').val(),$('#temp-recnum').val(),$('#temp-kode').val(),'1');">Ya</button>
+                <button type="button" class="btn btn-success" id="save-ganti-brg" onclick="saveGantiBarang($('#temp-nourut').val(),$('#temp-recnum').val(),$('#temp-kode').val(),'1');">Ya</button>
             </div>
         </div>
     </div>
@@ -10045,9 +10045,8 @@
             });
         }
         function updateNotFound(sot01b_nourut, stf02h_recnum, kode) {
-
-            if (confirm("Perbaiki Kode Barang menjadi " + kode + " ?"))
-            {
+            $('#update-not-found').attr('disabled', 'disabled');
+            if (confirm("Perbaiki Kode Barang menjadi " + kode + " ?")) {
                 var link = '@Url.Action("CheckFixNotFound", "Manage", new { nourut = "replaceNoUrut" })';
                 link = link.replace("replaceNoUrut", encodeURIComponent(sot01b_nourut + ';' + stf02h_recnum));
 
@@ -10056,7 +10055,7 @@
                     url: link,
                     contentType: 'application/json',
                     cache: false,
-                    beforeSend: function() {
+                    beforeSend: function () {
                         $('#loading_spinner').show();
                     },
                     success: function (response) {
@@ -10083,11 +10082,15 @@
                             }
                         }
                         $('#loading_spinner').hide();
+                        $('#update-not-found').removeAttr('disabled');
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
+                        $('#update-not-found').removeAttr('disabled');
                         console.log(xhr);
                     }
                 });
+            } else {
+                $('#update-not-found').removeAttr('disabled');
             }
     }
     function HideNotFoundAll() {
@@ -10104,10 +10107,14 @@
         $('#modalFixNotFoundMassal').modal('hide');
         //HideNotFoundAll();
     }
-        function updateNotFoundProcessNew(all){
+        function updateNotFoundProcessNew(all) {
+            if (all == 1) {
+                $('btnUpdateAll').attr('disabled', 'disabled');
+            } else {
+                $('btnConf').attr('disabled', 'disabled');
+            }
             if (confirm("Perbaiki Kode Barang menjadi " + $('#txtKdBrg')[0].innerHTML
-                + (all == 1 ? " untuk " + $('#txtJmlPesanan')[0].innerHTML + " pesanan?\nQty siap jual " + $('#txtKdBrg')[0].innerHTML + " akan menjadi : " + qtynow : " untuk pesanan " + $('#Pesanan_NO_REFERENSI').val() + " ?")))
-            {
+                + (all == 1 ? " untuk " + $('#txtJmlPesanan')[0].innerHTML + " pesanan?\nQty siap jual " + $('#txtKdBrg')[0].innerHTML + " akan menjadi : " + qtynow : " untuk pesanan " + $('#Pesanan_NO_REFERENSI').val() + " ?"))) {
                 var link = '@Url.Action("UpdateFixNotFound", "Manage", new { nourut = "replaceNoUrut" })';
                 link = link.replace("replaceNoUrut", encodeURIComponent(codenotfound));
                 link += "&all=" + all;
@@ -10116,7 +10123,7 @@
                     url: link,
                     contentType: 'application/json',
                     cache: false,
-                    beforeSend: function() {
+                    beforeSend: function () {
                         $('#loading_spinner').show();
                     },
                     success: function (response) {
@@ -10161,13 +10168,29 @@
                         }
                         $('#loading_spinner').hide();
                         //end samakan dengan function lihatPesananSudahDibayar onSuccess
+                        if (all == 1) {
+                            $('btnUpdateAll').removeAttr('disabled');
+                        } else {
+                            $('btnConf').removeAttr('disabled');
+                        }
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
+                        if (all == 1) {
+                            $('btnUpdateAll').removeAttr('disabled');
+                        } else {
+                            $('btnConf').removeAttr('disabled');
+                        }
                         console.log(xhr);
                         //HideNotFoundAll();
                     }
                 });
 
+            } else {
+                if (all == 1) {
+                    $('btnUpdateAll').removeAttr('disabled');
+                } else {
+                    $('btnConf').removeAttr('disabled');
+                }
             }
         }
         function updateNotFoundProcess(sot01b_nourut,stf02h_recnum,kode){
