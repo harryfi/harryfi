@@ -470,7 +470,7 @@ namespace MasterOnline.Controllers
                         {
                             string ordersn = "";
                             var filteredSudahAda = ordersn_list.Where(p => SudahAdaDiMO.Contains(p)).ToArray();
-                                GetOrderDetailsUpdateStatus(iden, filteredSudahAda, connId, CUST, NAMA_CUST);
+                                GetOrderDetailsUpdateStatus(apidata, filteredSudahAda, connId, CUST, NAMA_CUST);
                                 //foreach (var item in filteredSudahAda)
                                 //{
                                 //    ordersn = ordersn + "'" + item + "',";
