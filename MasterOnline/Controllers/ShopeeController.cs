@@ -1645,7 +1645,6 @@ namespace MasterOnline.Controllers
                                     categoryName = categoryInDB.CATEGORY_NAME;
                                 }
                                 ret.status = 1;
-
                                 var sellerSku = "";
                                 if (itemRes.has_model)
                                 {
@@ -1869,7 +1868,23 @@ namespace MasterOnline.Controllers
                 }
             }
             //end add 21 mei 2021, logistic shopee
-
+            var descbrg = detailBrg.description ?? "";
+            if(detailBrg.description_info != null)
+            {
+                if (detailBrg.description_info.extended_description != null)
+                {
+                    if (detailBrg.description_info.extended_description.field_list != null)
+                    {
+                        foreach (var descExt in detailBrg.description_info.extended_description.field_list)
+                        {
+                            if(descExt.field_type == "")
+                            {
+                                descbrg = descExt.text;
+                            }
+                        }
+                    }
+                }
+            }
             var brandId = "";
             var brandName = "NO BRAND";
             if(detailBrg.brand != null)
@@ -1879,7 +1894,7 @@ namespace MasterOnline.Controllers
             }
             sSQL += "('" + barang_id + "' , '" + sellerSku + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
             sSQL += Convert.ToDouble(detailBrg.weight) * 1000 + "," + detailBrg.dimension.package_length + "," + detailBrg.dimension.package_width + "," + detailBrg.dimension.package_height + ", '";
-            sSQL += cust + "' , '" + urlBrg + "' , '" + listLogistic + "' , '" + brandId + "' , '" + "REPLACE_MEREK" + "' , '" + "<p>" + detailBrg.description.Replace('\'', '`').Replace("\n", "</p><p>") + "</p>" + "' , " + IdMarket + " , " + barang_price + " , " + barang_price;
+            sSQL += cust + "' , '" + urlBrg + "' , '" + listLogistic + "' , '" + brandId + "' , '" + "REPLACE_MEREK" + "' , '" + "<p>" + descbrg.Replace('\'', '`').Replace("\n", "</p><p>") + "</p>" + "' , " + IdMarket + " , " + barang_price + " , " + barang_price;
             sSQL += " , " + (barang_status.Contains("NORMAL") ? "1" : "0") + " , '" + categoryCode + "' , '" + categoryName + "' , '" + "REPLACE_MEREK" + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "'";
             sSQL += ", '" + (typeBrg == 2 ? kdBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
             sSQL += ",'" + (namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg) + "'"; 
@@ -7390,8 +7405,22 @@ namespace MasterOnline.Controllers
             public bool has_model { get; set; }
             public long promotion_id { get; set; }
             public Item_List_Brand brand { get; set; }
+            public Desc_Ext description_info { get; set; }
         }
 
+        public class Desc_Ext
+        {
+            public Desc_Ext_Detail extended_description { get; set; }
+        }
+        public class Desc_Ext_Detail
+        {
+            public Desc_Ext_list[] field_list { get; set; }
+        }
+        public class Desc_Ext_list
+        {
+            public string field_type { get; set; }
+            public string text { get; set; }
+        }
         public class Item_List_Image
         {
             public string[] image_url_list { get; set; }
