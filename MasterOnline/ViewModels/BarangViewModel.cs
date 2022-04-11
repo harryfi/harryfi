@@ -26,6 +26,8 @@ namespace MasterOnline.ViewModels
 
         public double MINI { get; set; }
 
+        public double MIN { get; set; }
+
         public double QOH { get; set; }
 
         public double QOO { get; set; }
