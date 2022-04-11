@@ -6303,6 +6303,23 @@ namespace MasterOnline.Controllers
         }
 
         [SessionAdminCheck]
+        public ActionResult AdminCheckHangfire(string pesan)
+        {
+            var ListServer = MoDbContext.Database.SqlQuery<Account>("SELECT DISTINCT datasourcepathdebug FROM ACCOUNT WHERE ISNULL(datasourcepathdebug, '') <> ''").ToList();
+            foreach(var db in ListServer)
+            {
+                var currentTime = DateTime.UtcNow.AddHours(7);
+
+                string sSQL = "declare @count as integer; set @count = 0; DECLARE @db_name NVARCHAR (MAX) DECLARE c_db_names CURSOR FOR SELECT name FROM sys.databases ";
+                sSQL += "WHERE name like ('erasoft_%') OPEN c_db_names FETCH c_db_names INTO @db_name WHILE @@Fetch_Status = 0 BEGIN set @count = 0;";
+                sSQL += "EXEC(' use '+ @db_name +' ; Declare @var3 int = 0; ";
+                sSQL += "select @var3 = count(*) from hangfire.job where statename like ''proc%'' and createdat <= ''"+currentTime.AddHours(-6).ToString("yyyy-MM-dd HH:mm:ss")+"'' ";
+                sSQL += "if @var3 > 0 begin ";
+                sSQL += "Declare @var1 int = 0; select @var3 = count(*) from hangfire.server where lastheartbeat >= ''" + currentTime.AddMinutes(-5).ToString("yyyy-MM-dd HH:mm:ss") + "'' ";
+                sSQL += "if @var3 > 0 begin ";
+            }
+        }
+        [SessionAdminCheck]
         public ActionResult AdminBroadcastMessage(string pesan)
         {
             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
