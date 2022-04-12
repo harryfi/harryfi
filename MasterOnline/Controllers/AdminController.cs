@@ -6303,21 +6303,58 @@ namespace MasterOnline.Controllers
         }
 
         [SessionAdminCheck]
-        public ActionResult AdminCheckHangfire(string pesan)
+        public ActionResult AdminCheckHangfire()
         {
-            var ListServer = MoDbContext.Database.SqlQuery<Account>("SELECT DISTINCT datasourcepathdebug FROM ACCOUNT WHERE ISNULL(datasourcepathdebug, '') <> ''").ToList();
-            foreach(var db in ListServer)
+            string dbpathString = "";
+            string ListJobStuck = "";
+            try
             {
-                var currentTime = DateTime.UtcNow.AddHours(7);
+#if DEBUG || Debug_AWS
+                dbpathString = "datasourcepathdebug";
+#else
+            dbpathString = "datasourcepath";
+#endif
+                var ListServer = MoDbContext.Database.SqlQuery<Account>("SELECT DISTINCT " + dbpathString + " FROM ACCOUNT WHERE ISNULL(" + dbpathString + ", '') <> ''").ToList();
+                MoDbContext.TABEL_CHECK_HANGFIRE.RemoveRange(MoDbContext.TABEL_CHECK_HANGFIRE.ToList());
+                MoDbContext.SaveChanges();
+                foreach (var db in ListServer)
+                {
+                    var currentTime = DateTime.UtcNow.AddHours(7);
 
-                string sSQL = "declare @count as integer; set @count = 0; DECLARE @db_name NVARCHAR (MAX) DECLARE c_db_names CURSOR FOR SELECT name FROM sys.databases ";
-                sSQL += "WHERE name like ('erasoft_%') OPEN c_db_names FETCH c_db_names INTO @db_name WHILE @@Fetch_Status = 0 BEGIN set @count = 0;";
-                sSQL += "EXEC(' use '+ @db_name +' ; Declare @var3 int = 0; ";
-                sSQL += "select @var3 = count(*) from hangfire.job where statename like ''proc%'' and createdat <= ''"+currentTime.AddHours(-6).ToString("yyyy-MM-dd HH:mm:ss")+"'' ";
-                sSQL += "if @var3 > 0 begin ";
-                sSQL += "Declare @var1 int = 0; select @var3 = count(*) from hangfire.server where lastheartbeat >= ''" + currentTime.AddMinutes(-5).ToString("yyyy-MM-dd HH:mm:ss") + "'' ";
-                sSQL += "if @var3 > 0 begin ";
+                    string sSQL = "declare @count as integer; set @count = 0; DECLARE @db_name NVARCHAR (MAX) DECLARE c_db_names CURSOR FOR SELECT name FROM sys.databases ";
+                    sSQL += "WHERE name like ('erasoft_%') OPEN c_db_names FETCH c_db_names INTO @db_name WHILE @@Fetch_Status = 0 BEGIN set @count = 0;";
+                    sSQL += "EXEC(' use '+ @db_name +' ; Declare @var3 int = 0; ";
+                    sSQL += "select @var3 = count(*) from hangfire.job nolock where statename like ''proc%'' and createdat <= ''" + currentTime.AddHours(-6).ToString("yyyy-MM-dd HH:mm:ss") + "'' ";
+                    sSQL += "if @var3 > 0 begin ";
+                    sSQL += "Declare @var1 int = 0; select @var3 = count(*) from hangfire.server where lastheartbeat >= ''" + currentTime.AddMinutes(-5).ToString("yyyy-MM-dd HH:mm:ss") + "'' ";
+                    sSQL += "if @var1 > 0 begin ";
+                    sSQL += "insert into [REGIS1_MO].MO.dbo.tabel_check_hangfire (DBPATHERA, ARG, TGL) ";
+                    sSQL += "select '''+ @db_name +''', invocationdata, max(b.CreatedAt) from hangfire.job (nolock) a inner join hangfire.state (nolock) b on a.id = b.jobid "
+                    sSQL += "where statename like 'proc%' and name = 'Processing' group by invocationdata; end end end ";
+                    sSQL += "FETCH c_db_names INTO @db_name END CLOSE c_db_names DEALLOCATE c_db_names";
+
+                }
+                var listData = MoDbContext.TABEL_CHECK_HANGFIRE.ToList();
+                if (listData.Count > 0)
+                {
+                    var ListServer = MoDbContext.Database.SqlQuery<TABEL_CHECK_HANGFIRE>("SELECT EMAIL AS DBPATHERA, ARG, B.TGL, B.RECNUM  FROM ACCOUNT A INNER JOIN TABEL_CHECK_HANGFIRE B ON A.DATABASEPATHERASOFT = B.DBPATHERA ORDER BY B.DBPATHERA").ToList();
+                    foreach (var hfjob in ListServer)
+                    {
+                        ListJobStuck += "EMAIL : " + hfjob.DBPATHERA + "\n";
+                        ListJobStuck += "TGL PROCESSING : " + hfjob.TGL + "\n";
+                        var resultConvertInvocation = Newtonsoft.Json.JsonConvert.DeserializeObject(hfjob.ARG, typeof(FieldInvocationData)) as FieldInvocationData;
+                        var sType = resultConvertInvocation.Type.Split(',');
+                        ListJobStuck += "JOB : " + sType[0] + " , " + resultConvertInvocation.Method + "\n";
+                    }
+                }
             }
+            catch(Exception ex)
+            {
+                return Json(new { success = false, status = "error : " + ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+            return Json(new { success = true, status = ListJobStuck }, JsonRequestBehavior.AllowGet);
+
         }
         [SessionAdminCheck]
         public ActionResult AdminBroadcastMessage(string pesan)
@@ -7430,7 +7467,7 @@ namespace MasterOnline.Controllers
                     var customer = ErasoftDbContextNew.ARF01.Where(c => c.NAMA == idmarket && c.EMAIL == email).FirstOrDefault();
                     if (customer != null)
                     {
-                        #region BLIBLI get token
+#region BLIBLI get token
                         if (!string.IsNullOrEmpty(customer.API_CLIENT_P) && !string.IsNullOrEmpty(customer.API_CLIENT_U))
                         {
                             var BliApi = new BlibliControllerJob();
@@ -7465,7 +7502,7 @@ namespace MasterOnline.Controllers
                             //return Json("Get Category & Attribute Blibli sedang berlangsung.", JsonRequestBehavior.AllowGet);
                             return "Get Category & Attribute Blibli sedang berlangsung.";
                         }
-                        #endregion
+#endregion
                     }
                 }
                 return "Akun tidak ditemukan.";
