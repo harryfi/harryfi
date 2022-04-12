@@ -2207,6 +2207,38 @@ namespace MasterOnline.Controllers
                         {
                             await GetActiveItemVariantByProductID(dbPathEra, kodeProduk, log_CUST, "", "", iden, brg, iden.idmarket, result.data.success_rows_data[0].product_id.ToString(), "");
                         }
+                        else
+                        {
+                            var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
+                            if (customer != null)
+                            {
+                                if (customer.TIDAK_HIT_UANG_R)
+                                {
+                                    StokControllerJob.TokopediaAPIData data = new StokControllerJob.TokopediaAPIData()
+                                    {
+                                    };
+                                    data.merchant_code = iden.merchant_code; //FSID
+                                    data.API_client_password = iden.API_client_password; //Client ID
+                                    data.API_client_username = iden.API_client_username; //Client Secret
+                                    data.API_secret_key = iden.API_secret_key; //Shop ID 
+                                    data.token = iden.token;
+                                    data.idmarket = iden.idmarket;
+
+                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+                                    var kdBrg = kodeProduk;
+
+#if (DEBUG || Debug_AWS)
+                                    Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kdBrg, log_CUST, "Stock", "Update Stok", data, result.data.success_rows_data[0].product_id, 0, username, null)).Wait();
+#else
+                                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                                            var Jobclient = new BackgroundJobClient(sqlStorage);
+                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kdBrg, log_CUST, "Stock", "Update Stok", data, result.data.success_rows_data[0].product_id, 0, username, null));
+#endif
+                                }
+                            }
+                        }
                     }
                     else
                     {
@@ -3535,6 +3567,38 @@ namespace MasterOnline.Controllers
                             if (brg_stf02.TYPE == "4")
                             {
                                 await GetActiveItemVariantByProductID(dbPathEra, kodeProduk, log_CUST, "", "", iden, brg, iden.idmarket, result.data.success_rows_data[0].product_id.ToString(), "");
+                            }
+                            else
+                            {
+                                var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
+                                if (customer != null)
+                                {
+                                    if (customer.TIDAK_HIT_UANG_R)
+                                    {
+                                        StokControllerJob.TokopediaAPIData data = new StokControllerJob.TokopediaAPIData()
+                                        {
+                                        };
+                                        data.merchant_code = iden.merchant_code; //FSID
+                                        data.API_client_password = iden.API_client_password; //Client ID
+                                        data.API_client_username = iden.API_client_username; //Client Secret
+                                        data.API_secret_key = iden.API_secret_key; //Shop ID 
+                                        data.token = iden.token;
+                                        data.idmarket = iden.idmarket;
+
+                                        StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+                                        var kdBrg = kodeProduk;
+                                        
+#if (DEBUG || Debug_AWS)
+                                        Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kdBrg, log_CUST, "Stock", "Update Stok", data, result.data.success_rows_data[0].product_id, 0, username, null)).Wait();
+#else
+                                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                                            var Jobclient = new BackgroundJobClient(sqlStorage);
+                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kdBrg, log_CUST, "Stock", "Update Stok", data, result.data.success_rows_data[0].product_id, 0, username, null));
+#endif
+                                    }
+                                }
                             }
                         }
                         else
