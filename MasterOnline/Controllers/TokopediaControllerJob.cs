@@ -2209,10 +2209,10 @@ namespace MasterOnline.Controllers
                         }
                         else
                         {
-                            var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
-                            if (customer != null)
+                            var tblcustomer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
+                            if (tblcustomer != null)
                             {
-                                if (customer.TIDAK_HIT_UANG_R)
+                                if (tblcustomer.TIDAK_HIT_UANG_R)
                                 {
                                     StokControllerJob.TokopediaAPIData data = new StokControllerJob.TokopediaAPIData()
                                     {
