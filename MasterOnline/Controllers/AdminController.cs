@@ -6307,6 +6307,7 @@ namespace MasterOnline.Controllers
         {
             string dbpathString = "";
             string ListJobStuck = "";
+            //var tgl1 = DateTime.UtcNow.AddHours(7);
             try
             {
 #if DEBUG || Debug_AWS
@@ -6314,37 +6315,72 @@ namespace MasterOnline.Controllers
 #else
             dbpathString = "datasourcepath";
 #endif
-                var ListServer = MoDbContext.Database.SqlQuery<Account>("SELECT DISTINCT " + dbpathString + " FROM ACCOUNT WHERE ISNULL(" + dbpathString + ", '') <> ''").ToList();
+                var ListServer = MoDbContext.Database.SqlQuery<mo_account>("SELECT DISTINCT " + dbpathString + " FROM ACCOUNT WHERE ISNULL(" + dbpathString + ", '') <> ''").ToList();
                 MoDbContext.TABEL_CHECK_HANGFIRE.RemoveRange(MoDbContext.TABEL_CHECK_HANGFIRE.ToList());
                 MoDbContext.SaveChanges();
                 foreach (var db in ListServer)
                 {
-                    var currentTime = DateTime.UtcNow.AddHours(7);
-
+                    var currentTime = DateTime.UtcNow;
+                    //string con = "Data Source="+db+";Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#if DEBUG || Debug_AWS
+                    string con = "Data Source="+db.datasourcepathdebug+";Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#else
+            string con = "Data Source="+db.datasourcepath+";Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#endif
                     string sSQL = "declare @count as integer; set @count = 0; DECLARE @db_name NVARCHAR (MAX) DECLARE c_db_names CURSOR FOR SELECT name FROM sys.databases ";
                     sSQL += "WHERE name like ('erasoft_%') OPEN c_db_names FETCH c_db_names INTO @db_name WHILE @@Fetch_Status = 0 BEGIN set @count = 0;";
                     sSQL += "EXEC(' use '+ @db_name +' ; Declare @var3 int = 0; ";
-                    sSQL += "select @var3 = count(*) from hangfire.job nolock where statename like ''proc%'' and createdat <= ''" + currentTime.AddHours(-6).ToString("yyyy-MM-dd HH:mm:ss") + "'' ";
+                    //sSQL += "select @var3 = count(*) from hangfire.job nolock where statename like ''proc%'' and createdat <= ''" + currentTime.AddHours(-6).ToString("yyyy-MM-dd HH:mm:ss") + "'' ";
+                    sSQL += "select @var3 = count(*) from hangfire.job nolock where statename like ''proc%'' ";
                     sSQL += "if @var3 > 0 begin ";
-                    sSQL += "Declare @var1 int = 0; select @var3 = count(*) from hangfire.server where lastheartbeat >= ''" + currentTime.AddMinutes(-5).ToString("yyyy-MM-dd HH:mm:ss") + "'' ";
+                    sSQL += "Declare @var1 int = 0; select @var1 = count(*) from hangfire.server where lastheartbeat >= ''" + currentTime.AddMinutes(-5).ToString("yyyy-MM-dd HH:mm:ss") + "'' ";
                     sSQL += "if @var1 > 0 begin ";
-                    sSQL += "insert into MO.dbo.tabel_check_hangfire (DBPATHERA, ARG, TGL) ";
+#if Debug_AWS || AWS
+                    sSQL += "insert into [REGIS1_MO].MO.dbo.tabel_check_hangfire (DBPATHERA, ARG, TGL) ";
+#else
+                    sSQL += "insert into [DEV_DB].MO.dbo.tabel_check_hangfire (DBPATHERA, ARG, TGL) ";
+#endif
                     sSQL += "select '''+ @db_name +''', invocationdata, max(b.CreatedAt) from hangfire.job (nolock) a inner join hangfire.state (nolock) b on a.id = b.jobid ";
-                    sSQL += "where statename like 'proc%' and name = 'Processing' group by invocationdata; end end end ";
+                    sSQL += "where statename like ''proc%'' and name = ''Processing'' group by invocationdata; end end ')";
                     sSQL += "FETCH c_db_names INTO @db_name END CLOSE c_db_names DEALLOCATE c_db_names";
-                    MoDbContext.Database.ExecuteSqlCommand(sSQL);
+                    //MoDbContext.Database.ExecuteSqlCommand(sSQL);
+                    using (SqlConnection oConnection = new SqlConnection(con))
+                    {
+                        oConnection.Open();
+                        //oConnection.ConnectionTimeout = 300;
+                        using (SqlCommand oCommand = oConnection.CreateCommand())
+                        {
+                            oCommand.CommandTimeout = 300;
+                            oCommand.CommandText = sSQL;
+                            oCommand.ExecuteNonQuery();
+                        }
+                    }
                 }
                 var listData = MoDbContext.TABEL_CHECK_HANGFIRE.ToList();
                 if (listData.Count > 0)
                 {
                     var ListHf = MoDbContext.Database.SqlQuery<TABEL_CHECK_HANGFIRE>("SELECT EMAIL AS DBPATHERA, ARG, B.TGL, B.RECNUM  FROM ACCOUNT A INNER JOIN TABEL_CHECK_HANGFIRE B ON A.DATABASEPATHERASOFT = B.DBPATHERA ORDER BY B.DBPATHERA").ToList();
+                    var currentacc = "";
                     foreach (var hfjob in ListHf)
                     {
-                        ListJobStuck += "EMAIL : " + hfjob.DBPATHERA + "\n";
-                        ListJobStuck += "TGL PROCESSING : " + hfjob.TGL + "\n";
+                        if(currentacc != hfjob.DBPATHERA)
+                        {
+                            ListJobStuck += "EMAIL : " + hfjob.DBPATHERA + "\n";
+                        }
+                        ListJobStuck += "TGL PROCESSING : " + hfjob.TGL.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "\n";
                         var resultConvertInvocation = Newtonsoft.Json.JsonConvert.DeserializeObject(hfjob.ARG, typeof(FieldInvocationData)) as FieldInvocationData;
                         var sType = resultConvertInvocation.Type.Split(',');
                         ListJobStuck += "JOB : " + sType[0] + " , " + resultConvertInvocation.Method + "\n";
+                        if (currentacc != hfjob.DBPATHERA)
+                        {
+                            if(currentacc != "")
+                            ListJobStuck += "\n===========================================================\n\n";
+                            currentacc = hfjob.DBPATHERA;
+                        }
+                        else
+                        {
+
+                        }
                     }
                 }
             }
@@ -6353,6 +6389,7 @@ namespace MasterOnline.Controllers
                 return Json(new { success = false, status = "error : " + ex.Message }, JsonRequestBehavior.AllowGet);
 
             }
+            //var tgl2 = DateTime.UtcNow.AddHours(7);
             return Json(new { success = true, status = ListJobStuck }, JsonRequestBehavior.AllowGet);
 
         }
@@ -7751,5 +7788,10 @@ namespace MasterOnline.Controllers
             }
         }
         //end add by nurul 27/5/2021
+    }
+    public class mo_account
+    {
+        public string datasourcepathdebug { get; set; }
+        public string datasourcepath { get; set; }
     }
 }
