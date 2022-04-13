@@ -900,8 +900,18 @@ namespace MasterOnline.Controllers
                                     CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
                                     CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                     CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
-
-                                    EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                    //add by nurul 3/2/2022
+                                    var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                                    if (multilokasi == "1")
+                                    {
+                                        EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
+                                    }
+                                    else
+                                    {
+                                        EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                                    }
+                                    //add by nurul 3/2/2022
+                                    //EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
 
                                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                                 }
@@ -1843,8 +1853,21 @@ namespace MasterOnline.Controllers
             string ret = "";
             //var qtyOnHand = new ManageController().GetQOHSTF08A(data.kode, "ALL");
             StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
-
-            var qtyOnHand = stokAPI.GetQOHSTF08A(data.kode, "ALL");
+            
+            //change by nurul 19/1/2022
+            //var qtyOnHand = stokAPI.GetQOHSTF08A(data.kode, "ALL");
+            var multilokasi = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().MULTILOKASI;
+            var cust = ErasoftDbContext.ARF01.Where(a => a.Sort1_Cust == iden.merchant_code).FirstOrDefault().CUST;
+            double qtyOnHand = 0;
+            if (multilokasi == "1")
+            {
+                qtyOnHand = stokAPI.GetQOHSTF08A_MultiLokasi(data.kode, "ALL", cust);
+            }
+            else
+            {
+                qtyOnHand = stokAPI.GetQOHSTF08A(data.kode, "ALL");
+            }
+            //end change by nurul 19/1/2022
 
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);

@@ -531,7 +531,21 @@ namespace MasterOnline.Controllers
                 //xmlString += "<color_family>Not Specified</color_family>";
 
                 //add by calvin 1 mei 2019
-                var qty_stock = new StokControllerJob(dbPathEra, uname).GetQOHSTF08A(data.kdBrg, "ALL");
+
+                //change by nurul 19/1/2022
+                //var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(data.kdBrg, "ALL");
+                var multilokasi = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().MULTILOKASI;
+                double qty_stock = 1;
+                if (multilokasi == "1")
+                {
+                    qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A_MultiLokasi(data.kdBrg, "ALL", log_CUST);
+                }
+                else
+                {
+                    qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(data.kdBrg, "ALL");
+                }
+                //end change by nurul 19/1/2022
+
                 if (qty_stock > 0)
                 {
                     xmlString += "<quantity>" + Convert.ToString(qty_stock) + "</quantity>";
@@ -716,7 +730,21 @@ namespace MasterOnline.Controllers
                                     }
                             }
                             //end change 8 Apriil 2019, get attr from api
-                            var qty_stock = new StokControllerJob(dbPathEra, uname).GetQOHSTF08A(item.BRG, "ALL");
+
+                            //change by nurul 19/1/2022
+                            //var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(item.BRG, "ALL");
+                            var multilokasi = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().MULTILOKASI;
+                            double qty_stock = 1;
+                            if (multilokasi == "1")
+                            {
+                                qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A_MultiLokasi(item.BRG, "ALL", log_CUST);
+                            }
+                            else
+                            {
+                                qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(item.BRG, "ALL");
+                            }
+                            //end change by nurul 19/1/2022
+
                             if (qty_stock > 0)
                             {
                                 xmlString += "<quantity>" + Convert.ToString(qty_stock) + "</quantity>";
@@ -812,16 +840,18 @@ namespace MasterOnline.Controllers
                         + "', AVALUE_34 = '" + urlBrg + "',LINK_ERROR = '0;;;' WHERE BRG = '" + item.seller_sku + "' AND IDMARKET = '" + data.idMarket + "'");
                     if (tblCustomer.TIDAK_HIT_UANG_R)
                     {
-                        
+                        //add by nurul 19/1/2022
+                        var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                        //end add by nurul 19/1/2022
 #if (DEBUG || Debug_AWS)
                         StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
-                        Task.Run(() => stokAPI.Lazada_updateStock(dbPathEra, item.seller_sku, log_CUST, "Stock", "Update Stok", item.seller_sku, "", "", data.token, username, null)).Wait();
+                        Task.Run(() => stokAPI.Lazada_updateStock(dbPathEra, item.seller_sku, log_CUST, "Stock", "Update Stok", item.seller_sku, "", "", data.token, username, null, Convert.ToInt32(multilokasi))).Wait();
 #else
                                                         string EDBConnID = EDB.GetConnectionString("ConnId");
                                                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                                         var Jobclient = new BackgroundJobClient(sqlStorage);
-                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(dbPathEra, item.seller_sku, log_CUST, "Stock", "Update Stok", item.seller_sku, "", "", data.token, username, null));
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(dbPathEra, item.seller_sku, log_CUST, "Stock", "Update Stok", item.seller_sku, "", "", data.token, username, null, Convert.ToInt32(multilokasi)));
 #endif
                     }
                 }
@@ -1380,17 +1410,19 @@ namespace MasterOnline.Controllers
                                 var brgInDB = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == tblCustomer.RecNum && m.BRG == item).FirstOrDefault();
                                 if (brgInDB != null)
                                 {
-
+                                    //add by nurul 19/1/2022
+                                    var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                                    //end add by nurul 19/1/2022
 #if (DEBUG || Debug_AWS)
                                     StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
                                     //Task.Run(() => stokAPI.Lazada_updateStock(dbPathEra, brgInDB.BRG, tblCustomer.CUST, "Stock", "Update Stok", item.seller_sku, "", "", data.token, username, null)).Wait();
-                                    Task.Run(() => stokAPI.Lazada_updateStock(dbPathEra, item, tblCustomer.CUST, "Stock", "Update Stok", brgInDB.BRG_MP, "", "", data.token, username, null)).Wait();
+                                    Task.Run(() => stokAPI.Lazada_updateStock(dbPathEra, item, tblCustomer.CUST, "Stock", "Update Stok", brgInDB.BRG_MP, "", "", data.token, username, null, Convert.ToInt32(multilokasi))).Wait();
 #else
                                                         string EDBConnID = EDB.GetConnectionString("ConnId");
                                                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                                         var Jobclient = new BackgroundJobClient(sqlStorage);
-                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(dbPathEra, item, tblCustomer.CUST, "Stock", "Update Stok", brgInDB.BRG_MP, "", "", data.token, username, null));
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(dbPathEra, item, tblCustomer.CUST, "Stock", "Update Stok", brgInDB.BRG_MP, "", "", data.token, username, null, Convert.ToInt32(multilokasi)));
 #endif
 
                                 }
@@ -2230,18 +2262,20 @@ namespace MasterOnline.Controllers
             {
                 if(dsOrder.Tables[0].Rows[0]["TIDAK_HIT_UANG_R"].ToString() == "True" && !string.IsNullOrEmpty(dsOrder.Tables[0].Rows[0]["BRG_MP"].ToString()))
                 {
-
+                    //add by nurul 19/1/2022
+                    var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                    //end add by nurul 19/1/2022
                     StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
 #if (DEBUG || Debug_AWS)
                     Task.Run(() => stokAPI.Lazada_updateStock(dbPathEra, dsOrder.Tables[0].Rows[0]["BRG"].ToString(), log_CUST, "Stock", "Update Stok",
-                        dsOrder.Tables[0].Rows[0]["BRG_MP"].ToString(), "", "",accessToken, username, null)).Wait();
+                        dsOrder.Tables[0].Rows[0]["BRG_MP"].ToString(), "", "",accessToken, username, null, Convert.ToInt32(multilokasi))).Wait();
 #else
                     string EDBConnID = EDB.GetConnectionString("ConnId");
                     var sqlStorage = new SqlServerStorage(EDBConnID);
 
                     var Jobclient = new BackgroundJobClient(sqlStorage);
                     Jobclient.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(dbPathEra, dsOrder.Tables[0].Rows[0]["BRG"].ToString(), log_CUST, "Stock", "Update Stok2",
-                        dsOrder.Tables[0].Rows[0]["BRG_MP"].ToString(), "", "",accessToken, username, null));
+                        dsOrder.Tables[0].Rows[0]["BRG_MP"].ToString(), "", "",accessToken, username, null, Convert.ToInt32(multilokasi)));
 #endif
                     #endregion
                 }
@@ -3244,8 +3278,19 @@ namespace MasterOnline.Controllers
                                 CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                 CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "";
                                 CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = cust;
-
-                                EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                                
+                                //change by nurul 28/3/2022
+                                //EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                                var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                                if (multilokasi == "1")
+                                {
+                                    EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
+                                }
+                                else
+                                {
+                                    EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                                }
+                                //end change by nurul 28/3/2022
                             }
 
 
@@ -4485,21 +4530,21 @@ namespace MasterOnline.Controllers
                                 }
 
                                 insertQ = insertQ.Substring(0, insertQ.Length - 2);
-                                if (adaInsert)
-                                {
-                                    var a = EDB.ExecuteSQL(username, CommandType.Text, insertQ);
+                            if (adaInsert)
+                            {
+                                var a = EDB.ExecuteSQL(username, CommandType.Text, insertQ);
 
-                                    //add by Tri 21 Feb 2020, gabung sp header dan detail move order
-                                    var getDetail = getMultiOrderItems2(listOrderId, accessToken, connectionID, dbPathEra, uname, cust);
-                                    if(getDetail.status == 1)
-                                    {
-                                        EDB.ExecuteSQL("MOConnectionString", CommandType.Text, getDetail.message);
-                                    }
-                                    else
-                                    {
-                                        throw new Exception(getDetail.message);
-                                    }
-                                    //end add by Tri 21 Feb 2020, gabung sp header dan detail move order
+                                //add by Tri 21 Feb 2020, gabung sp header dan detail move order
+                                var getDetail = getMultiOrderItems2(listOrderId, accessToken, connectionID, dbPathEra, uname, cust);
+                                if (getDetail.status == 1)
+                                {
+                                    EDB.ExecuteSQL("MOConnectionString", CommandType.Text, getDetail.message);
+                                }
+                                else
+                                {
+                                    throw new Exception(getDetail.message);
+                                }
+                                //end add by Tri 21 Feb 2020, gabung sp header dan detail move order
 
                                     CommandSQL = new SqlCommand();
                                     CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
@@ -4518,11 +4563,22 @@ namespace MasterOnline.Controllers
                                     CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "";
                                 CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = cust;
 
+                                //add by nurul 3/2/2022
+                                var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                                if (multilokasi == "1")
+                                {
+                                    EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
+                                }
+                                else
+                                {
                                     EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
                                 }
+                                //add by nurul 3/2/2022
+                                //EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                            }
 
 
-                                ret.status = 1;
+                            ret.status = 1;
                                 //ret.message = a.ToString();
 
                                 //SqlCommand CommandSQL = new SqlCommand();
@@ -5209,24 +5265,35 @@ namespace MasterOnline.Controllers
                                 CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                             CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "";
                             CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = cust;
-                                //remark to test
-                                EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
-                                //end remark to test
-
-                                //change 12 Maret 2019, handle record > 100
-                                //listOrderId = listOrderId.Substring(0, listOrderId.Length - 1) + "]";
-                                //getMultiOrderItems(listOrderId, accessToken, connectionID);
-
-                                //remark 24 feb 2020, gabung sp header dan detail move order
-                                //getMultiOrderItems2(listOrderId, accessToken, connectionID, dbPathEra, uname, cust);
-                                //end remark 24 feb 2020, gabung sp header dan detail move order
-
-                                //change 12 Maret 2019, handle record > 100
-                                //jmlhNewOrder++;
+                            //remark to test
+                            //add by nurul 3/2/2022
+                            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                            if (multilokasi == "1")
+                            {
+                                EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
                             }
-                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
+                            else
+                            {
+                                EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                            }
+                            //add by nurul 3/2/2022
+                            //EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                            //end remark to test
 
-                            if (jmlhNewOrder > 0)
+                            //change 12 Maret 2019, handle record > 100
+                            //listOrderId = listOrderId.Substring(0, listOrderId.Length - 1) + "]";
+                            //getMultiOrderItems(listOrderId, accessToken, connectionID);
+
+                            //remark 24 feb 2020, gabung sp header dan detail move order
+                            //getMultiOrderItems2(listOrderId, accessToken, connectionID, dbPathEra, uname, cust);
+                            //end remark 24 feb 2020, gabung sp header dan detail move order
+
+                            //change 12 Maret 2019, handle record > 100
+                            //jmlhNewOrder++;
+                        }
+                        //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
+
+                        if (jmlhNewOrder > 0)
                             {
                                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                 contextNotif.Clients.Group(dbPathEra).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari Lazada.");

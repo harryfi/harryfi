@@ -125,7 +125,7 @@ namespace MasterOnline.Controllers
             long milis = CurrentTimeMillis();
 
             var cekInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == kodeProduk && m.IDMARKET == iden.idmarket).FirstOrDefault();
-            if(cekInDB != null)
+            if (cekInDB != null)
             {
                 if (!string.IsNullOrEmpty(cekInDB.BRG_MP))
                 {
@@ -266,22 +266,22 @@ namespace MasterOnline.Controllers
                             }
                             else if (result.data.success_rows > 0)
                             {
-//                                if(result.data.success_rows_data != null)
-//                                {
-//                                    if (result.data.success_rows_data.Length > 0)
-//                                    {
-//#if (DEBUG || Debug_AWS)
-//                                        await new TokopediaControllerJob().getItemDetail(iden.DatabasePathErasoft, brg, log_CUST, "Barang", "Link Produk (Tahap 2 / 2) V2", iden, iden.idmarket, 1, result.data.success_rows_data[0].product_id);
-//#else
-//                                string EDBConnID = EDB.GetConnectionString("ConnId");
-//                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                //                                if(result.data.success_rows_data != null)
+                                //                                {
+                                //                                    if (result.data.success_rows_data.Length > 0)
+                                //                                    {
+                                //#if (DEBUG || Debug_AWS)
+                                //                                        await new TokopediaControllerJob().getItemDetail(iden.DatabasePathErasoft, brg, log_CUST, "Barang", "Link Produk (Tahap 2 / 2) V2", iden, iden.idmarket, 1, result.data.success_rows_data[0].product_id);
+                                //#else
+                                //                                string EDBConnID = EDB.GetConnectionString("ConnId");
+                                //                                var sqlStorage = new SqlServerStorage(EDBConnID);
 
-//                                var Jobclient = new BackgroundJobClient(sqlStorage);
-//                                Jobclient.Enqueue<TokopediaControllerJob>(x => x.getItemDetail(iden.DatabasePathErasoft, brg, log_CUST, "Barang", "Link Produk (Tahap 2 / 2) V2", iden, iden.idmarket, 1, result.data.success_rows_data[0].product_id));                                
-//#endif
-//                                        return ret;
-//                                    }
-//                                }
+                                //                                var Jobclient = new BackgroundJobClient(sqlStorage);
+                                //                                Jobclient.Enqueue<TokopediaControllerJob>(x => x.getItemDetail(iden.DatabasePathErasoft, brg, log_CUST, "Barang", "Link Produk (Tahap 2 / 2) V2", iden, iden.idmarket, 1, result.data.success_rows_data[0].product_id));                                
+                                //#endif
+                                //                                        return ret;
+                                //                                    }
+                                //                                }
 #if (DEBUG || Debug_AWS)
                                 await new TokopediaControllerJob().GetActiveItemListBySKU(iden.DatabasePathErasoft, brg, log_CUST, "Barang", "Link Produk (Tahap 2 / 2)", iden, 0, 50, iden.idmarket, brg, currentLog.REQUEST_ID);
 #else
@@ -398,11 +398,11 @@ namespace MasterOnline.Controllers
                     //{
                     //    urlBrg = result.data[0].other.url;
                     //}
-                    string sSQL = "UPDATE STF02H SET BRG_MP = '"+ product_id + "', AVALUE_34 = '"+ result.data[0].other.url 
+                    string sSQL = "UPDATE STF02H SET BRG_MP = '" + product_id + "', AVALUE_34 = '" + result.data[0].other.url
                         + "', LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")
                         + "',LINK_ERROR = '0;;;' WHERE BRG = '" + result.data[0].other.sku + "' AND IDMARKET = '" + recnumArf01 + "'";
                     EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
-                    if(result.data[0].variant != null)
+                    if (result.data[0].variant != null)
                     {
                         if (result.data[0].variant.isParent)
                         {
@@ -623,7 +623,7 @@ namespace MasterOnline.Controllers
                 //remark 8 des 2020, kalau exception perlu di retry
                 //var failed = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(product_id) + "' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
                 //end remark 8 des 2020, kalau exception perlu di retry
-                
+
                 //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                 if (e.Status == WebExceptionStatus.ProtocolError)
@@ -818,7 +818,7 @@ namespace MasterOnline.Controllers
                 var brg_stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == brg && p.IDMARKET == iden.idmarket).SingleOrDefault();
                 //string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/edit?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
                 string urll = "https://fs.tokopedia.net/v2/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/edit?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
-                if((brg_stf02h.BRG_MP ?? "").Contains("PENDING") || (brg_stf02h.BRG_MP ?? "").Contains("WAITING_FOR_HANGFIRE"))
+                if ((brg_stf02h.BRG_MP ?? "").Contains("PENDING") || (brg_stf02h.BRG_MP ?? "").Contains("WAITING_FOR_HANGFIRE"))
                 {
                     throw new Exception("Produk masih dalam proses create/upload ke Tokopedia, belum bisa di edit.");
                 }
@@ -887,9 +887,9 @@ namespace MasterOnline.Controllers
                         newDataProduct.is_must_insurance = true;
                     }
                 }
-                if(brg_stf02h.MIN_ORDER != null)
+                if (brg_stf02h.MIN_ORDER != null)
                 {
-                    if(brg_stf02h.MIN_ORDER.Value > 1)
+                    if (brg_stf02h.MIN_ORDER.Value > 1)
                     {
                         newDataProduct.min_order = brg_stf02h.MIN_ORDER.Value;
                     }
@@ -1521,8 +1521,8 @@ namespace MasterOnline.Controllers
                     {
                         //change by calvin 9 juni 2019
                         //await EditProductGetStatus(iden, brg, result.data.upload_id, currentLog.REQUEST_ID, product_id);
-                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = 'PEDITENDING;" + Convert.ToString(result.data.upload_id) 
-                            + ";" + Convert.ToString(currentLog.REQUEST_ID) + ";" + Convert.ToString(product_id) + "' WHERE BRG = '" + Convert.ToString(brg) 
+                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = 'PEDITENDING;" + Convert.ToString(result.data.upload_id)
+                            + ";" + Convert.ToString(currentLog.REQUEST_ID) + ";" + Convert.ToString(product_id) + "' WHERE BRG = '" + Convert.ToString(brg)
                             + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
 #if (DEBUG || Debug_AWS)
                         await EditProductGetStatus(iden.DatabasePathErasoft, brg, log_CUST, "Barang", "Edit Produk Get Status", iden, brg, result.data.upload_id, currentLog.REQUEST_ID, product_id);
@@ -2954,7 +2954,7 @@ namespace MasterOnline.Controllers
                                 + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '0;Buat Produk;;' WHERE BRG = '" + Convert.ToString(brg)
                                 + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
 #if (DEBUG || Debug_AWS)
-                        await CreateProductGetStatus(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Link Produk (Tahap 1 / 2 )", iden, brg, result.data.upload_id, currentLog.REQUEST_ID);
+                            await CreateProductGetStatus(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Link Produk (Tahap 1 / 2 )", iden, brg, result.data.upload_id, currentLog.REQUEST_ID);
 #else
                             string EDBConnID = EDB.GetConnectionString("ConnId");
                             var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -3004,7 +3004,7 @@ namespace MasterOnline.Controllers
 
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 string sSQL = "UPDATE STF02H SET BRG_MP = '' WHERE BRG_MP = 'WAITING_FOR_HANGFIRE' and BRG = '" + kodeProduk + "' AND IDMARKET = " + iden.idmarket;
                 EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
@@ -4043,20 +4043,20 @@ namespace MasterOnline.Controllers
                         throw new Exception("Update Status Accept Pesanan " + splitNoRef[1] + " ke Tokopedia Gagal. " + result.header.messages + ". " + result.header.reason);
                     }
 
-//                    if (sukses && type == 2)
-//                    {
-//#if (DEBUG || Debug_AWS)
-//                        JOBCOD1(iden, ordNo, noref);
-//#else
-//                        string EDBConnID = EDB.GetConnectionString("ConnId");
-//                        var sqlStorage = new SqlServerStorage(EDBConnID);
+                    //                    if (sukses && type == 2)
+                    //                    {
+                    //#if (DEBUG || Debug_AWS)
+                    //                        JOBCOD1(iden, ordNo, noref);
+                    //#else
+                    //                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                    //                        var sqlStorage = new SqlServerStorage(EDBConnID);
 
-//                        var Jobclient = new BackgroundJobClient(sqlStorage);
-//                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.JOBCOD1(iden, ordNo, noref));
-//#endif
-//                    }
+                    //                        var Jobclient = new BackgroundJobClient(sqlStorage);
+                    //                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.JOBCOD1(iden, ordNo, noref));
+                    //#endif
+                    //                    }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
 
                 }
@@ -4325,7 +4325,7 @@ namespace MasterOnline.Controllers
             //        }
             //    }
             //}
-            
+
             //if (responseFromServer != null)
             if (!string.IsNullOrEmpty(responseFromServer))
             {
@@ -4360,7 +4360,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        
+
         public async Task<string> JOBCOD1(TokopediaAPIData iden, string ordNo, string noref)
         {
             string ret = "";
@@ -4389,7 +4389,7 @@ namespace MasterOnline.Controllers
                     responseFromServer = reader.ReadToEnd();
                 }
             }
-            
+
             //if (responseFromServer != null)
             if (!string.IsNullOrEmpty(responseFromServer))
             {
@@ -4441,7 +4441,7 @@ namespace MasterOnline.Controllers
                     responseFromServer = reader.ReadToEnd();
                 }
             }
-            
+
             //if (responseFromServer != null)
             if (!string.IsNullOrEmpty(responseFromServer))
             {
@@ -4556,6 +4556,112 @@ namespace MasterOnline.Controllers
         }
         //end add by nurul 1/4/2020
 
+        //add by nurul 23/12/2021
+        public async Task<TokpedShopInfo> GetShopInfo(TokopediaAPIData iden)
+        {
+            var ret = new TokpedShopInfo();
+            var token = SetupContext(iden);
+            iden.token = token;
+
+            string urll = "https://fs.tokopedia.net/v1/shop/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/shop-info?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
+            long milis = CurrentTimeMillis();
+
+
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            string err = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                        //responseFromServer = sr.ReadToEnd();
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(responseFromServer))
+            {
+                try
+                {
+                    TokpedShopInfo result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedShopInfo)) as TokpedShopInfo;
+                    if (result.header != null) 
+                    {
+                        if (result.header.error_code == 0)
+                        {
+                            if (result.data != null)
+                            {
+                                ret = result;
+                            }
+                            else
+                            {
+                                var header = new HeaderShopInfo()
+                                {
+                                    messages = "Error: Gagal ambil gudang tokopedia. Data kosong."
+                                };
+                                ret.header = header;
+                            }
+                        }
+                        else
+                        {
+                            var header = new HeaderShopInfo()
+                            {
+                                messages = "Error: Gagal ambil gudang tokopedia. " + result.header.messages + " " + result.header.reason
+                            };
+                            ret.header = header;
+                        }
+                    }
+                    else
+                    {
+                        var header = new HeaderShopInfo()
+                        {
+                            messages = "Error: Gagal ambil gudang tokopedia. Header kosong."
+                        };
+                        ret.header = header;
+                    }
+                }
+                catch(Exception ex)
+                {
+                    var header = new HeaderShopInfo()
+                    {
+                        messages = "Error: Gagal ambil gudang tokopedia. " + ex.Message
+                    };
+                    ret.header = header;
+                }
+            }
+            else if(!string.IsNullOrEmpty(err))
+            {
+                var header = new HeaderShopInfo()
+                {
+                    messages = "Error: Gagal ambil gudang tokopedia. " + err
+                };
+                ret.header = header;
+            }
+
+            return ret;
+        }
+        //end add by nurul 23/12/2021
+
         public async Task<string> GetOrderList3days(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, long daysFrom, long daysTo, string ord_stat)
         {
             //if merchant code diisi. barulah GetOrderList
@@ -4608,8 +4714,8 @@ namespace MasterOnline.Controllers
             long unixTimestampFrom = daysFrom;
             long unixTimestampTo = daysTo;
             //end change 16 des 2020, fixed date
-            string urll = "https://fs.tokopedia.net/v2/order/list?fs_id=" + Uri.EscapeDataString(iden.merchant_code) + "&from_date=" 
-                + Convert.ToString(unixTimestampFrom) + "&to_date=" + Convert.ToString(unixTimestampTo) + "&page=" + Convert.ToString(page) 
+            string urll = "https://fs.tokopedia.net/v2/order/list?fs_id=" + Uri.EscapeDataString(iden.merchant_code) + "&from_date="
+                + Convert.ToString(unixTimestampFrom) + "&to_date=" + Convert.ToString(unixTimestampTo) + "&page=" + Convert.ToString(page)
                 + "&per_page=100&shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&encrypt=1";
             if (!string.IsNullOrEmpty(ord_stat))
             {
@@ -4638,7 +4744,7 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             //try
             //{
-                using (WebResponse response = await myReq.GetResponseAsync())
+            using (WebResponse response = await myReq.GetResponseAsync())
             {
                 using (Stream stream = response.GetResponseStream())
                 {
@@ -4882,7 +4988,7 @@ namespace MasterOnline.Controllers
                                                 expiredDate = orderDetail.data.shipment_fulfillment.confirm_shipping_deadline;
                                             }
                                             paymentDate = orderDetail.data.payment_date;
-                                            if(orderDetail.data.payment_info != null)
+                                            if (orderDetail.data.payment_info != null)
                                             {
                                                 var payment_info = !string.IsNullOrEmpty(orderDetail.data.payment_info.gateway_name) ? orderDetail.data.payment_info.gateway_name.Replace('\'', '`') : "";
                                                 if (payment_info.Length > 50)
@@ -4891,7 +4997,7 @@ namespace MasterOnline.Controllers
                                                 }
                                                 device_type = payment_info;
                                             }
-                                            if(orderDetail.data.preorder != null)
+                                            if (orderDetail.data.preorder != null)
                                             {
                                                 if (orderDetail.data.preorder.order_id.HasValue)
                                                 {
@@ -5052,8 +5158,18 @@ namespace MasterOnline.Controllers
                                         CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                                         CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "TOKPED";
                                         CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
-
-                                        EDB.ExecuteSQL("Con", "MoveOrderFromTempTableNew", CommandSQL);
+                                        //add by nurul 3/2/2022
+                                        var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                                        if (multilokasi == "1")
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTableNew_MultiLokasi", CommandSQL);
+                                        }
+                                        else
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTableNew", CommandSQL);
+                                        }
+                                        //add by nurul 3/2/2022
+                                        //EDB.ExecuteSQL("Con", "MoveOrderFromTempTableNew", CommandSQL);
                                         jmlhNewOrder++;
                                     }
                                 }
@@ -5076,8 +5192,18 @@ namespace MasterOnline.Controllers
                                         CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                         CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "";
                                         CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
-
-                                        EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                        //add by nurul 3/2/2022
+                                        var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                                        if (multilokasi == "1")
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
+                                        }
+                                        else
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                                        }
+                                        //add by nurul 3/2/2022
+                                        //EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
                                         jmlhNewOrder++;
                                     }
                                 }
@@ -5420,7 +5546,7 @@ namespace MasterOnline.Controllers
                                             newOrder.create_time = paymentDate.Value;
                                         }
                                         //add by nurul 23/11/2021
-                                        if(warehouse_id != 0 && warehouse_id != null)
+                                        if (warehouse_id != 0 && warehouse_id != null)
                                         {
                                             newOrder.warehouse_id = warehouse_id;
                                         }
@@ -5457,7 +5583,17 @@ namespace MasterOnline.Controllers
                                         CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                                         CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "TOKPED";
                                         CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
-
+                                        //add by nurul 3/2/2022
+                                        var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                                        if (multilokasi == "1")
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTableNew_MultiLokasi", CommandSQL);
+                                        }
+                                        else
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTableNew", CommandSQL);
+                                        }
+                                        //add by nurul 3/2/2022
                                         EDB.ExecuteSQL("Con", "MoveOrderFromTempTableNew", CommandSQL);
                                         jmlhNewOrder++;
                                     }
@@ -5481,8 +5617,18 @@ namespace MasterOnline.Controllers
                                         CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                         CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "";
                                         CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
-
-                                        EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                        //add by nurul 3/2/2022
+                                        var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                                        if (multilokasi == "1")
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
+                                        }
+                                        else
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                                        }
+                                        //add by nurul 3/2/2022
+                                        //EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
                                         jmlhNewOrder++;
                                     }
                                 }
@@ -6142,7 +6288,17 @@ namespace MasterOnline.Controllers
                                         CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                                         CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "TOKPED";
                                         CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
-
+                                        //add by nurul 3/2/2022
+                                        var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                                        if (multilokasi == "1")
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTableNew_MultiLokasi", CommandSQL);
+                                        }
+                                        else
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTableNew", CommandSQL);
+                                        }
+                                        //add by nurul 3/2/2022
                                         EDB.ExecuteSQL("Con", "MoveOrderFromTempTableNew", CommandSQL);
                                         jmlhNewOrder++;
                                     }
@@ -6166,8 +6322,18 @@ namespace MasterOnline.Controllers
                                         CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                         CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "";
                                         CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
-
-                                        EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                        //add by nurul 3/2/2022
+                                        var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                                        if (multilokasi == "1")
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
+                                        }
+                                        else
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                                        }
+                                        //add by nurul 3/2/2022
+                                        //EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
                                         jmlhNewOrder++;
                                     }
                                 }
@@ -6603,7 +6769,7 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             //try
             //{
-                using (WebResponse response = await myReq.GetResponseAsync())
+            using (WebResponse response = await myReq.GetResponseAsync())
             {
                 using (Stream stream = response.GetResponseStream())
                 {
@@ -6673,8 +6839,8 @@ namespace MasterOnline.Controllers
                     }
                     //end add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
                 }
-                    //end add by calvin 1 april 2019
-                }
+                //end add by calvin 1 april 2019
+            }
             //}
             //catch (Exception ex)
             //{
@@ -6784,7 +6950,7 @@ namespace MasterOnline.Controllers
             long unixTimestampTo = daysTo;
             //end change 16 des 2020, fixed date
 
-            
+
 
             string urll = "https://fs.tokopedia.net/v1/order/list?fs_id=" + Uri.EscapeDataString(iden.merchant_code) + "&from_date=" + Convert.ToString(unixTimestampFrom) + "&to_date=" + Convert.ToString(unixTimestampTo) + "&page=" + Convert.ToString(page) + "&per_page=100&shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
             if (!string.IsNullOrEmpty(ord_stat))
@@ -6849,8 +7015,8 @@ namespace MasterOnline.Controllers
                     if (ordersn != "")
                     {
                         ordersn = ordersn.Substring(0, ordersn.Length - 1);
-                        var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connId 
-                            + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn 
+                        var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connId
+                            + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn
                             + ") AND STATUS_TRANSAKSI NOT IN ('11', '12') AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) <> 1");
                         //change by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
                         //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
@@ -6867,7 +7033,7 @@ namespace MasterOnline.Controllers
                             //var delPLDetail = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03C WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN (" + ordersn + ")  AND STATUS_TRANSAKSI = '11' AND CUST = '" + CUST + "')");
                             //END remark by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
                             //end add by Tri 1 sep 2020, hapus packing list
-                            var dsOrders = EDB.GetDataSet("MOConnectionString", "SOT01", "SELECT A.NO_BUKTI, A.NO_REFERENSI FROM SOT01A A LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = '' AND NO_REFERENSI IN (" 
+                            var dsOrders = EDB.GetDataSet("MOConnectionString", "SOT01", "SELECT A.NO_BUKTI, A.NO_REFERENSI FROM SOT01A A LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = '' AND NO_REFERENSI IN ("
                                 + ordersn + ") AND STATUS_TRANSAKSI = '11' AND CUST = '" + CUST + "' AND ISNULL(TIPE_KIRIM,0) <> 1");
                             if (dsOrders.Tables[0].Rows.Count > 0)
                             {
@@ -6938,7 +7104,7 @@ namespace MasterOnline.Controllers
                                 if (nobuk.Length > 1)
                                 {
                                     var orderDetail = await GetCancelReasonV2(iden, nobuk[1]);
-                                    if(orderDetail.data != null)
+                                    if (orderDetail.data != null)
                                     {
                                         if (orderDetail.data.cancel_request_info != null)
                                         {
@@ -7055,7 +7221,7 @@ namespace MasterOnline.Controllers
                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                     contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrder) + " Pesanan dari Tokopedia dibatalkan.");
                 }
-                }
+            }
             //}
             //catch (Exception ex)
             //{
@@ -7076,7 +7242,7 @@ namespace MasterOnline.Controllers
             //    throw ex;
             //}
             //return "";
-            return ret; 
+            return ret;
         }
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
@@ -7149,7 +7315,7 @@ namespace MasterOnline.Controllers
             var queryStatus = "\\\"}\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","\"000003\""
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.API_secret_key + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderListCancel%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             // end add tuning no duplicate hangfire job get order
-            
+
             return ret;
         }
         public async Task<string> GetOrderListCancel_webhookON(TokopediaAPIData iden, string CUST, string NAMA_CUST, int page, int jmlhOrder)
@@ -7320,7 +7486,7 @@ namespace MasterOnline.Controllers
                     //        }
                     //    }
                     //}
-                    if(result.data != null)
+                    if (result.data != null)
                     {
                         ret = result;
                     }
@@ -8044,77 +8210,18 @@ namespace MasterOnline.Controllers
                                             //var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
                                             //if (createProduct)//remark 29 des 2020, update stok setelah update juga
                                             if (customer != null)
-                                                {
-                                                    if (customer.TIDAK_HIT_UANG_R)
-                                                    {
-                                                        //StokControllerJob.TokopediaAPIData data = new StokControllerJob.TokopediaAPIData()
-                                                        //{
-                                                        //    merchant_code = iden.merchant_code, //FSID
-                                                        //    API_client_password = iden.API_client_password, //Client ID
-                                                        //    API_client_username = iden.API_client_username, //Client Secret
-                                                        //    API_secret_key = iden.API_secret_key, //Shop ID 
-                                                        //    token = iden.token,
-                                                        //    idmarket = iden.idmarket
-                                                        //};
-                                                        StokControllerJob.TokopediaAPIData data = new StokControllerJob.TokopediaAPIData()
-                                                        {
-                                                            //merchant_code = iden.merchant_code, //FSID
-                                                            //API_client_password = iden.API_client_password, //Client ID
-                                                            //API_client_username = iden.API_client_username, //Client Secret
-                                                            //API_secret_key = iden.API_secret_key, //Shop ID 
-                                                            //token = iden.token,
-                                                            //idmarket = iden.idmarket
-                                                        };
-                                                        data.merchant_code = iden.merchant_code; //FSID
-                                                        data.API_client_password = iden.API_client_password; //Client ID
-                                                        data.API_client_username = iden.API_client_username; //Client Secret
-                                                        data.API_secret_key = iden.API_secret_key; //Shop ID 
-                                                        data.token = iden.token;
-                                                        data.idmarket = iden.idmarket;
-
-                                                        StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
-#if (DEBUG || Debug_AWS)
-                                                        Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null)).Wait();
-#else
-                                            string EDBConnID = EDB.GetConnectionString("ConnId");
-                                            var sqlStorage = new SqlServerStorage(EDBConnID);
-
-                                            var Jobclient = new BackgroundJobClient(sqlStorage);
-                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null));
-#endif
-                                                }
-                                            }
-                                            //end add by Tri 10 Jan 2019, update stok setelah create product sukses
-                                        }
-                                    }
-                                    else
-                                    {
-                                        var urlBrg = "";
-                                        if (item.other != null)
-                                        {
-                                            urlBrg = item.other.url;
-                                        }
-                                        string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception
-                                        var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" 
-                                            + Convert.ToString(item.basic.productID) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" 
-                                            + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error
-                                            + "', AVALUE_34 = '" + urlBrg
-                                            + "' WHERE BRG = '" + Convert.ToString(SKU) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
-                                        MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-                                        {
-                                            REQUEST_ID = log_request_id
-                                        };
-                                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-
-                                        //add by Tri 21 Jan 2019, update stok setelah create product sukses  
-                                        //var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
-                                        //if (createProduct)//remark 29 des 2020, update stok setelah update juga
-                                            if (customer != null)
                                             {
                                                 if (customer.TIDAK_HIT_UANG_R)
                                                 {
-                                                    //try
+                                                    //StokControllerJob.TokopediaAPIData data = new StokControllerJob.TokopediaAPIData()
                                                     //{
+                                                    //    merchant_code = iden.merchant_code, //FSID
+                                                    //    API_client_password = iden.API_client_password, //Client ID
+                                                    //    API_client_username = iden.API_client_username, //Client Secret
+                                                    //    API_secret_key = iden.API_secret_key, //Shop ID 
+                                                    //    token = iden.token,
+                                                    //    idmarket = iden.idmarket
+                                                    //};
                                                     StokControllerJob.TokopediaAPIData data = new StokControllerJob.TokopediaAPIData()
                                                     {
                                                         //merchant_code = iden.merchant_code, //FSID
@@ -8130,16 +8237,136 @@ namespace MasterOnline.Controllers
                                                     data.API_secret_key = iden.API_secret_key; //Shop ID 
                                                     data.token = iden.token;
                                                     data.idmarket = iden.idmarket;
-                                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
-#if (DEBUG || Debug_AWS)
-                                                    Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null)).Wait();
-#else
-                                            string EDBConnID = EDB.GetConnectionString("ConnId");
-                                            var sqlStorage = new SqlServerStorage(EDBConnID);
 
-                                            var Jobclient = new BackgroundJobClient(sqlStorage);
-                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null));
+                                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+                                                    //add by nurul 19/1/2022
+                                                    var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                                                    //end add by nurul 19/1/2022
+                                                    var cekMappingGudang = ErasoftDbContext.MAPPING_GUDANG.Where(a => a.CUST == log_CUST).ToList();
+#if (DEBUG || Debug_AWS)
+                                                    if (multilokasi == "1")
+                                                    {
+                                                        if (cekMappingGudang.Count() > 0)
+                                                        {
+                                                            foreach (var gudang in cekMappingGudang)
+                                                            {
+                                                                Task.Run(() => stokAPI.Tokped_updateStock_MULTILOKASI(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null, Convert.ToInt32(multilokasi), gudang.GD_MP, gudang.GD_MO)).Wait();
+                                                            }
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null, Convert.ToInt32(multilokasi))).Wait();
+                                                    }
+#else
+                                                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                                                    var Jobclient = new BackgroundJobClient(sqlStorage);
+                                                    if (multilokasi == "1")
+                                                    {
+                                                        if (cekMappingGudang.Count() > 0)
+                                                        {
+                                                            foreach (var gudang in cekMappingGudang)
+                                                            {
+                                                                Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock_MULTILOKASI(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null, Convert.ToInt32(multilokasi), gudang.GD_MP, gudang.GD_MO));
+                                                            }
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null, Convert.ToInt32(multilokasi)));
+                                                    }
 #endif
+                                                }
+                                            }
+                                            //end add by Tri 10 Jan 2019, update stok setelah create product sukses
+                                        }
+                                    }
+                                    else
+                                    {
+                                        var urlBrg = "";
+                                        if (item.other != null)
+                                        {
+                                            urlBrg = item.other.url;
+                                        }
+                                        string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception
+                                        var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '"
+                                            + Convert.ToString(item.basic.productID) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '"
+                                            + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error
+                                            + "', AVALUE_34 = '" + urlBrg
+                                            + "' WHERE BRG = '" + Convert.ToString(SKU) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                                        MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                        {
+                                            REQUEST_ID = log_request_id
+                                        };
+                                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+
+                                        //add by Tri 21 Jan 2019, update stok setelah create product sukses  
+                                        //var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
+                                        //if (createProduct)//remark 29 des 2020, update stok setelah update juga
+                                        if (customer != null)
+                                        {
+                                            if (customer.TIDAK_HIT_UANG_R)
+                                            {
+                                                //try
+                                                //{
+                                                StokControllerJob.TokopediaAPIData data = new StokControllerJob.TokopediaAPIData()
+                                                {
+                                                    //merchant_code = iden.merchant_code, //FSID
+                                                    //API_client_password = iden.API_client_password, //Client ID
+                                                    //API_client_username = iden.API_client_username, //Client Secret
+                                                    //API_secret_key = iden.API_secret_key, //Shop ID 
+                                                    //token = iden.token,
+                                                    //idmarket = iden.idmarket
+                                                };
+                                                data.merchant_code = iden.merchant_code; //FSID
+                                                data.API_client_password = iden.API_client_password; //Client ID
+                                                data.API_client_username = iden.API_client_username; //Client Secret
+                                                data.API_secret_key = iden.API_secret_key; //Shop ID 
+                                                data.token = iden.token;
+                                                data.idmarket = iden.idmarket;
+                                                StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+                                                //add by nurul 19/1/2022
+                                                var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                                                //end add by nurul 19/1/2022
+                                                var cekMappingGudang = ErasoftDbContext.MAPPING_GUDANG.Where(a => a.CUST == log_CUST).ToList();
+#if (DEBUG || Debug_AWS)
+                                                if (multilokasi == "1")
+                                                {
+                                                    if (cekMappingGudang.Count() > 0)
+                                                    {
+                                                        foreach (var gudang in cekMappingGudang)
+                                                        {
+                                                            Task.Run(() => stokAPI.Tokped_updateStock_MULTILOKASI(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null, Convert.ToInt32(multilokasi), gudang.GD_MP, gudang.GD_MO)).Wait();
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null, Convert.ToInt32(multilokasi))).Wait();
+                                                }
+#else
+                                                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                                                    var Jobclient = new BackgroundJobClient(sqlStorage);
+                                                    if (multilokasi == "1")
+                                                    {
+                                                        if (cekMappingGudang.Count() > 0)
+                                                        {
+                                                            foreach (var gudang in cekMappingGudang)
+                                                            {
+                                                                Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock_MULTILOKASI(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null, Convert.ToInt32(multilokasi), gudang.GD_MP, gudang.GD_MO));
+                                                            }
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt64(item.basic.productID), 0, username, null, Convert.ToInt32(multilokasi)));
+                                                    }
+#endif
+
                                                 //}
                                                 //catch (Exception ex)
                                                 //{
@@ -8428,9 +8655,9 @@ namespace MasterOnline.Controllers
                         {
                             var urlBrg = item.url;
 
-                            var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" 
-                                + Convert.ToString(item.product_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" 
-                                + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error 
+                            var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '"
+                                + Convert.ToString(item.product_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '"
+                                + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error
                                 + "' , AVALUE_34 = '" + urlBrg
                                 + "' WHERE BRG = '" + Convert.ToString(item.sku) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
                         }
@@ -8438,43 +8665,73 @@ namespace MasterOnline.Controllers
                         //add by Tri 21 Jan 2019, update stok setelah create product sukses 
                         //if (createBrg || brgInDB.DISPLAY)//remark 29 des 2020, update stok setelah update juga
                         if (customer != null)
+                        {
+                            if (customer.TIDAK_HIT_UANG_R)
                             {
-                                if (customer.TIDAK_HIT_UANG_R)
+                                StokControllerJob.TokopediaAPIData data = new StokControllerJob.TokopediaAPIData()
                                 {
-                                    StokControllerJob.TokopediaAPIData data = new StokControllerJob.TokopediaAPIData()
-                                    {
-                                        //merchant_code = iden.merchant_code, //FSID
-                                        //API_client_password = iden.API_client_password, //Client ID
-                                        //API_client_username = iden.API_client_username, //Client Secret
-                                        //API_secret_key = iden.API_secret_key, //Shop ID 
-                                        //token = iden.token,
-                                        //idmarket = iden.idmarket
-                                    };
-                                    data.merchant_code = iden.merchant_code; //FSID
-                                    data.API_client_password = iden.API_client_password; //Client ID
-                                    data.API_client_username = iden.API_client_username; //Client Secret
-                                    data.API_secret_key = iden.API_secret_key; //Shop ID 
-                                    data.token = iden.token;
-                                    data.idmarket = iden.idmarket;
+                                    //merchant_code = iden.merchant_code, //FSID
+                                    //API_client_password = iden.API_client_password, //Client ID
+                                    //API_client_username = iden.API_client_username, //Client Secret
+                                    //API_secret_key = iden.API_secret_key, //Shop ID 
+                                    //token = iden.token,
+                                    //idmarket = iden.idmarket
+                                };
+                                data.merchant_code = iden.merchant_code; //FSID
+                                data.API_client_password = iden.API_client_password; //Client ID
+                                data.API_client_username = iden.API_client_username; //Client Secret
+                                data.API_secret_key = iden.API_secret_key; //Shop ID 
+                                data.token = iden.token;
+                                data.idmarket = iden.idmarket;
 
-                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
-                                    var kdBrg = Convert.ToString(item.sku);
-                                    var varianInDB = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == customer.RecNum && m.BRG_MP == kdBrg).FirstOrDefault();
-                                    if (varianInDB != null)
-                                    {
-                                        kdBrg = varianInDB.BRG;
-                                    }
-#if (DEBUG || Debug_AWS)
-                                    Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kdBrg, log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null)).Wait();
-#else
-                                            string EDBConnID = EDB.GetConnectionString("ConnId");
-                                            var sqlStorage = new SqlServerStorage(EDBConnID);
-
-                                            var Jobclient = new BackgroundJobClient(sqlStorage);
-                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kdBrg, log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null));
-#endif
+                                StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+                                var kdBrg = Convert.ToString(item.sku);
+                                var varianInDB = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == customer.RecNum && m.BRG_MP == kdBrg).FirstOrDefault();
+                                if (varianInDB != null)
+                                {
+                                    kdBrg = varianInDB.BRG;
                                 }
+                                //add by nurul 19/1/2022
+                                var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                                //end add by nurul 19/1/2022
+                                var cekMappingGudang = ErasoftDbContext.MAPPING_GUDANG.Where(a => a.CUST == log_CUST).ToList();
+#if (DEBUG || Debug_AWS)
+                                if (multilokasi == "1")
+                                {
+                                    if (cekMappingGudang.Count() > 0)
+                                    {
+                                        foreach (var gudang in cekMappingGudang)
+                                        {
+                                            Task.Run(() => stokAPI.Tokped_updateStock_MULTILOKASI(dbPathEra, kdBrg, log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null, Convert.ToInt32(multilokasi), gudang.GD_MP, gudang.GD_MO)).Wait();
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kdBrg, log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null, Convert.ToInt32(multilokasi))).Wait();
+                                }
+#else
+                                                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                                                    var Jobclient = new BackgroundJobClient(sqlStorage);
+                                                    if (multilokasi == "1")
+                                                    {
+                                                        if (cekMappingGudang.Count() > 0)
+                                                        {
+                                                            foreach (var gudang in cekMappingGudang)
+                                                            {
+                                                                Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock_MULTILOKASI(dbPathEra, kdBrg, log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null, Convert.ToInt32(multilokasi), gudang.GD_MP, gudang.GD_MO));
+                                                            }
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kdBrg, log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null, Convert.ToInt32(multilokasi)));
+                                                    }
+#endif
                             }
+                        }
                         //end add by Tri 21 Jan 2019, update stok setelah create product sukses
                     }
 
@@ -9408,7 +9665,7 @@ namespace MasterOnline.Controllers
                                         else
                                         {
                                             var getConversation = ErasoftDbContext.TOKPED_LISTMESSAGE.Where(a => a.msg_id == message.msg_id).FirstOrDefault();
-                                            if(getConversation != null)
+                                            if (getConversation != null)
                                             {
                                                 getConversation.last_reply_time = message.last_reply_time;
                                                 getConversation.unreads = message.unreads;
@@ -9431,7 +9688,7 @@ namespace MasterOnline.Controllers
                                     var nextMessage = await ListMessage(iden, filter, page + 1);
                                     //ret.AddRange(nextOrders);
                                 }
-                                
+
                             }
                         }
                     }
@@ -9610,13 +9867,13 @@ namespace MasterOnline.Controllers
 
                                         if (message.reply_time < dateLast1Month)
                                         {
-                                            if(cekFirstReply != null)
+                                            if (cekFirstReply != null)
                                             {
                                                 message.is_first_reply = 1;
                                             }
                                             firstReply = true;
                                             var cekExist = ErasoftDbContext.TOKPED_LISTCHAT.Where(a => a.CUST == message.CUST && a.msg_id == message.msg_id && a.msg == message.msg && a.attachment_id == message.attachment_id && a.attachment_type == a.attachment_type && a.product_id == message.product_id).Count();
-                                            if(cekExist == 0)
+                                            if (cekExist == 0)
                                             {
                                                 listChat.Add(message);
                                             }
@@ -9702,7 +9959,7 @@ namespace MasterOnline.Controllers
                                     }
                                 }
 
-                                lastGetMessage = true;break;
+                                lastGetMessage = true; break;
                             }
                             if (listChat.Count() > 0)
                             {
@@ -11565,5 +11822,76 @@ namespace MasterOnline.Controllers
             public int ShippingProductID { get; set; }
         }
 
+
+        //add by nurul 23/12/2021
+        public class TokpedShopInfo
+        {
+            public HeaderShopInfo header { get; set; }
+            public DatumShopInfo[] data { get; set; }
+        }
+
+        public class HeaderShopInfo
+        {
+            public int process_time { get; set; }
+            public string messages { get; set; }
+            public string reason { get; set; }
+            public int error_code { get; set; }
+        }
+
+        public class DatumShopInfo
+        {
+            public int shop_id { get; set; }
+            public int user_id { get; set; }
+            public string shop_name { get; set; }
+            public string logo { get; set; }
+            public string shop_url { get; set; }
+            public int is_open { get; set; }
+            public int status { get; set; }
+            public string date_shop_created { get; set; }
+            public string domain { get; set; }
+            public int[] admin_id { get; set; }
+            public string reason { get; set; }
+            public int district_id { get; set; }
+            public string province_name { get; set; }
+            public Warehouse[] warehouses { get; set; }
+            public bool subscribe_tokocabang { get; set; }
+        }
+
+        public class Warehouse
+        {
+            public int warehouse_id { get; set; }
+            public Partner_Id partner_id { get; set; }
+            public Shop_Id shop_id { get; set; }
+            public string warehouse_name { get; set; }
+            public int district_id { get; set; }
+            public string district_name { get; set; }
+            public int city_id { get; set; }
+            public string city_name { get; set; }
+            public int province_id { get; set; }
+            public string province_name { get; set; }
+            public int status { get; set; }
+            public string postal_code { get; set; }
+            public int is_default { get; set; }
+            public string latlon { get; set; }
+            public string latitude { get; set; }
+            public string longitude { get; set; }
+            public string email { get; set; }
+            public string address_detail { get; set; }
+            public string phone { get; set; }
+            public string wh_type { get; set; }
+        }
+
+        public class Partner_Id
+        {
+            public int Int64 { get; set; }
+            public bool Valid { get; set; }
+        }
+
+        public class Shop_Id
+        {
+            public int Int64 { get; set; }
+            public bool Valid { get; set; }
+        }
+        //end add by nurul 23/12/2021
     }
 }

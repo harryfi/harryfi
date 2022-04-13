@@ -289,6 +289,7 @@ namespace MasterOnline
         public string SHIPMENT { get; set; }
         public string STATUS_TRANSAKSI { get; set; }
         public string BRG { get; set; }
+        public string LOKASI { get; set; }
     }
 
     //add by nurul 13/5/2020

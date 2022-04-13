@@ -231,5 +231,6 @@ namespace MasterOnline
 
         public DateTime? TGL_EXPIRED_CHAT { get; set; }
         //end add by nurul 19/8/2021,
+        
     }
 }

@@ -60,5 +60,10 @@ namespace MasterOnline.Models
         //add by nurul 29/3/2021
         public DateTime? CUTOFF_SERAH_TERIMA { get; set; }
         //end add by nurul 29/3/2021
+
+        //ADD BY NURUL 10/1/2022
+        [StringLength(1)]
+        public string MULTILOKASI { get; set; }
+        //END ADD BY NURUL 10/1/2022
     }
 }

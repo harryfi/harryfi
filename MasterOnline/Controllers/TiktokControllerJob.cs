@@ -872,8 +872,19 @@ namespace MasterOnline.Controllers
                             CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                             CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "TIKTOK";
                             CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
-
-                            EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                            
+                            //change by nurul 28/3/2022
+                            //EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                            if (multilokasi == "1")
+                            {
+                                EDB.ExecuteSQL("Con", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
+                            }
+                            else
+                            {
+                                EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                            }
+                            //end change by nurul 28/3/2022
                         }
                     }
                     catch (Exception ex3)

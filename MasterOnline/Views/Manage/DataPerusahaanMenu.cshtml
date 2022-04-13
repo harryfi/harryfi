@@ -136,6 +136,77 @@
             left: 48px;
         }
     </style>
+    <style>
+        .checkbox-container {
+            display: block;
+            position: relative;
+            /*padding-left: 35px;*/
+            margin-top: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+            /* Hide the browser's default checkbox */
+            .checkbox-container input {
+                position: relative;
+                opacity: 100;
+                cursor: pointer;
+                display: none;
+            }
+
+        /* Create a custom checkbox */
+        .checkmark {
+            position: absolute;
+            top: 0;
+            /*remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+            /*left: 18px;*/
+            /*end remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+            height: 25px;
+            width: 25px;
+            /*background-color: #eee;*/
+            background-color: #fff;
+            border: solid 1px #ccc;
+        }
+
+        /* On mouse-over, add a grey background color */
+        .checkbox-container:hover input ~ .checkmark {
+            background-color: #ccc;
+        }
+
+        /* When the checkbox is checked, add a blue background */
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: #2196F3;
+        }
+
+        /* Create the checkmark/indicator (hidden when not checked) */
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        /* Show the checkmark when checked */
+        .checkbox-container input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        /* Style the checkmark/indicator */
+        .checkbox-container .checkmark:after {
+            left: 9px;
+            top: 5px;
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            -webkit-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
+        }
+    </style>
 }
 
 <div class="row" id="data-usaha-section">
@@ -201,23 +272,23 @@
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 @{
                                                     var listMetoda = new List<MetodaHpp>()
-                                                                                                                                                                                                                                                {
-                                                                                                                                                                                                                                                    new MetodaHpp()
-                                                                                                                                                                                                                                                    {
-                                                                                                                                                                                                                                                        KODE = "1",
-                                                                                                                                                                                                                                                        KET = "FIFO"
-                                                                                                                                                                                                                                                    },
-                                                                                                                                                                                                                                                    new MetodaHpp()
-                                                                                                                                                                                                                                                    {
-                                                                                                                                                                                                                                                        KODE = "2",
-                                                                                                                                                                                                                                                        KET = "Rata-rata Perusahaan"
-                                                                                                                                                                                                                                                    },
-                                                                                                                                                                                                                                                    new MetodaHpp()
-                                                                                                                                                                                                                                                    {
-                                                                                                                                                                                                                                                        KODE = "3",
-                                                                                                                                                                                                                                                        KET = "Rata-rata Gudang"
-                                                                                                                                                                                                                                                    }
-                                                                                                                                                                                                                                                };
+                                                                                                                                                                                                                                                                                    {
+                                                                                                                                                                                                                                                                                        new MetodaHpp()
+                                                                                                                                                                                                                                                                                        {
+                                                                                                                                                                                                                                                                                            KODE = "1",
+                                                                                                                                                                                                                                                                                            KET = "FIFO"
+                                                                                                                                                                                                                                                                                        },
+                                                                                                                                                                                                                                                                                        new MetodaHpp()
+                                                                                                                                                                                                                                                                                        {
+                                                                                                                                                                                                                                                                                            KODE = "2",
+                                                                                                                                                                                                                                                                                            KET = "Rata-rata Perusahaan"
+                                                                                                                                                                                                                                                                                        },
+                                                                                                                                                                                                                                                                                        new MetodaHpp()
+                                                                                                                                                                                                                                                                                        {
+                                                                                                                                                                                                                                                                                            KODE = "3",
+                                                                                                                                                                                                                                                                                            KET = "Rata-rata Gudang"
+                                                                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                                                    };
                                                 }
                                                 @Html.HiddenFor(m => m.DataUsaha.METODA_NO)
                                                 <select class="form-control" id="DataUsaha_Metoda" name="DataUsaha.Metoda" required="required">
@@ -267,28 +338,28 @@
                                             @Html.Label("Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsahaTambahan.KODEPOS, new { @class = "form-control limited_number_textbox", type = "number", required = "required", maxlength = 5 })
-                                                                                                    : Html.TextBoxFor(m => m.DataUsahaTambahan.KODEPOS, new { @class = "form-control limited_number_textbox", type = "number", required = "required", Value = "", maxlength = 5 }))
+                                                                                                            : Html.TextBoxFor(m => m.DataUsahaTambahan.KODEPOS, new { @class = "form-control limited_number_textbox", type = "number", required = "required", Value = "", maxlength = 5 }))
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.DataUsahaTambahan.PERSON, "Contact Person *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsahaTambahan.PERSON, new { @class = "form-control", required = "required" })
-                                                                                                    : Html.TextBoxFor(m => m.DataUsahaTambahan.PERSON, new { @class = "form-control", required = "required", Value = "" }))
+                                                                                                            : Html.TextBoxFor(m => m.DataUsahaTambahan.PERSON, new { @class = "form-control", required = "required", Value = "" }))
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.DataUsahaTambahan.EMAIL, "Email CP *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsahaTambahan.EMAIL, new { @class = "form-control", required = "required", type = "email" })
-                                                                                                    : Html.TextBoxFor(m => m.DataUsahaTambahan.EMAIL, new { @class = "form-control", required = "required", Value = "", type = "email" }))
+                                                                                                            : Html.TextBoxFor(m => m.DataUsahaTambahan.EMAIL, new { @class = "form-control", required = "required", Value = "", type = "email" }))
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.DataUsahaTambahan.TELEPON, "Telepon CP *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsahaTambahan.TELEPON, new { @class = "form-control limited_number_textbox", type = "number", required = "required" })
-                                                                                              : Html.TextBoxFor(m => m.DataUsahaTambahan.TELEPON, new { @class = "form-control limited_number_textbox", type = "number", required = "required", Value = "" }))
+                                                                                                      : Html.TextBoxFor(m => m.DataUsahaTambahan.TELEPON, new { @class = "form-control limited_number_textbox", type = "number", required = "required", Value = "" }))
                                             </div>
                                         </div>
                                         //add by nurul 11/3/2019
@@ -366,6 +437,29 @@
                                                 </select>
                                             </div>
                                         </div>
+                                        //add by nurul 3/2/2022
+                                        <div class="form-group">
+                                            @Html.LabelFor(m => m.DataUsahaTambahan.MULTILOKASI, "Multi Lokasi", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            @Html.HiddenFor(m => m.DataUsahaTambahan.MULTILOKASI, new { data_cbx = $"cbx-MULTILOKASI", @class = "cbxMULTILOKASI" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @if ((Model.DataUsahaTambahan == null ? "" : Model.DataUsahaTambahan.MULTILOKASI) == "1")
+                                                {
+                                                    //memiliki multi lokasi
+                                                    <label class="checkbox-container">
+                                                        <input type="checkbox" id="cbxProfilMULTILOKASI" class="cbxMULTILOKASI" name="@($"cbx-Profil-MULTILOKASI")" checked />
+                                                        <span class="checkmark cm-MULTILOKASI" id="cbxProfilMULTILOKASI"></span>
+                                                    </label>
+                                                }
+                                                else
+                                                {
+                                                    <label class="checkbox-container">
+                                                        <input type="checkbox" id="cbxProfilMULTILOKASI" class="cbxMULTILOKASI" name="@($"cbx-Profil-MULTILOKASI")" />
+                                                        <span class="checkmark cm-MULTILOKASI" id="cbxProfilMULTILOKASI"></span>
+                                                    </label>
+                                                }
+                                            </div>
+                                        </div>
+                                        //end add by nurul 3/2/2022
                                         <div class="form-group">
                                             @Html.Label("Logo Toko *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             @*<div class="col-md-4 logo_perusahaan_section">
@@ -586,6 +680,58 @@
                 });
             $("#Tambahan_TYPE_LOGO").change();
             $('#Tambahan_TYPE_LOGO').val(tempType);
+
+            $('.cbxMULTILOKASI').each(function () {
+                var $this = $(this);
+                var temp = $('#DataUsahaTambahan_MULTILOKASI').val();
+                $this.click(function () {
+                    var $cbxTarget = $('.cbxMULTILOKASI[data-cbx="cbx-MULTILOKASI"]');
+                    if ($("#cbxProfilMULTILOKASI").is(":checked") == true) {
+                        if (confirm("Dengan mengaktifkan fitur MultiLokasi, maka seluruh update stok akan menyesuaikan gudang yang dimapping. Apakah Anda yakin akan mengaktifkan fitur MultiLokasi")) {
+                            $('#cbxProfilMULTILOKASI').prop('checked', true);
+                            $('#DataUsahaTambahan_MULTILOKASI').val('1');
+                            checkValidasiMultiLokasi();
+                        } else {
+                            if (temp == "1") {
+                                $('#cbxProfilMULTILOKASI').prop('checked', true);
+                            } else {
+                                $('#cbxProfilMULTILOKASI').prop('checked', false);
+                            }
+                        }
+                    } else {
+                        if (confirm("Dengan menonaktifkan fitur MultiLokasi, maka seluruh update stok akan mengakumulasi dari gudang yang linknya aktif. Apakah Anda yakin akan menonaktifkan fitur MultiLokasi")) {
+                            $('#DataUsahaTambahan_MULTILOKASI').val('0');
+                            $('#cbxProfilMULTILOKASI').prop('checked', false);
+                        } else {
+                            if (temp == "1") {
+                                $('#cbxProfilMULTILOKASI').prop('checked', true);
+                            } else {
+                                $('#cbxProfilMULTILOKASI').prop('checked', false);
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        function checkValidasiMultiLokasi() {
+            var link = '@Url.Action("validasiMultiLokasiAktif", "Manage", new { userId = "replaceUserId" })';
+            link = link.replace("replaceUserId", encodeURIComponent('@userId'));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    if (response.mo_error != null) {
+                        alert(response.mo_error);
+                        $('#cbxProfilMULTILOKASI').prop('checked', false);
+                        $('#DataUsahaTambahan_MULTILOKASI').val(0);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
         }
 
         function getFotoProduk() {

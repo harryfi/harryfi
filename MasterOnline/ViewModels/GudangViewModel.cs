@@ -14,5 +14,9 @@ namespace MasterOnline.ViewModels
         //add by nurul 5/11/2020
         public bool gd_default { get; set; }
         //end add by nurul 5/11/2020
+
+        //add by nurul 28/3/2022
+        public string Multilokasi { get; set; }
+        //end add by nurul 28/3/2022
     }
 }

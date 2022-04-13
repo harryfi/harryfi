@@ -537,8 +537,18 @@ namespace MasterOnline.Controllers
                                                         CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 1;
                                                     CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "";
                                                     CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
-
-                                                        EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                                    //add by nurul 3/2/2022
+                                                    var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                                                    if (multilokasi == "1")
+                                                    {
+                                                        EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
+                                                    }
+                                                    else
+                                                    {
+                                                        EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                                                    }
+                                                    //add by nurul 3/2/2022
+                                                    //EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
                                                     }
                                                 }
                                             }
@@ -1012,8 +1022,18 @@ namespace MasterOnline.Controllers
                                                             CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 1;
                                                         CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "";
                                                         CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
-
-                                                            EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                                        //add by nurul 3/2/2022
+                                                        var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                                                        if (multilokasi == "1")
+                                                        {
+                                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
+                                                        }
+                                                        else
+                                                        {
+                                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                                                        }
+                                                        //add by nurul 3/2/2022
+                                                        //EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
                                                         }
                                                     }
                                                 }
@@ -2322,6 +2342,9 @@ namespace MasterOnline.Controllers
                 {
                     if (resServer.product != null)
                     {
+                        //add by nurul 19/1/2022
+                        var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                        //end add by nurul 19/1/2022
                         if (brgInDb.TYPE == "4")
                         {
                             var brg_mp = "";
@@ -2366,12 +2389,12 @@ namespace MasterOnline.Controllers
                                         {
 #if (DEBUG || Debug_AWS)
 
-                                            await stokAPI.Shopify_updateStock(dbPathEra, itemVar.BRG, log_CUST, "Stock", "Update Stok", data, itemVar.BRG_MP, 0, username, null);
+                                            await stokAPI.Shopify_updateStock(dbPathEra, itemVar.BRG, log_CUST, "Stock", "Update Stok", data, itemVar.BRG_MP, 0, username, null, Convert.ToInt32(multilokasi));
 #else
                                             string EDBConnID = EDB.GetConnectionString("ConnId");
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
                                             var clients = new BackgroundJobClient(sqlStorage);
-                                            clients.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(dbPathEra, itemVar.BRG, log_CUST, "Stock", "Update Stok", data, itemVar.BRG_MP, 0, username, null));
+                                            clients.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(dbPathEra, itemVar.BRG, log_CUST, "Stock", "Update Stok", data, itemVar.BRG_MP, 0, username, null, Convert.ToInt32(multilokasi)));
 #endif
                                         }
                                     }
@@ -2413,12 +2436,12 @@ namespace MasterOnline.Controllers
 #if (DEBUG || Debug_AWS)
                                 StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
 
-                                await stokAPI.Shopify_updateStock(dbPathEra, resServer.product.variants[0].sku, log_CUST, "Stock", "Update Stok", data, brg_mp, 0, username, null);
+                                await stokAPI.Shopify_updateStock(dbPathEra, resServer.product.variants[0].sku, log_CUST, "Stock", "Update Stok", data, brg_mp, 0, username, null, Convert.ToInt32(multilokasi));
 #else
                                 string EDBConnID = EDB.GetConnectionString("ConnId");
                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                 var clients = new BackgroundJobClient(sqlStorage);
-                                clients.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(dbPathEra, resServer.product.variants[0].sku, log_CUST, "Stock", "Update Stok", data, brg_mp, 0, username, null));
+                                clients.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(dbPathEra, resServer.product.variants[0].sku, log_CUST, "Stock", "Update Stok", data, brg_mp, 0, username, null, Convert.ToInt32(multilokasi)));
 #endif
                             }
                         }
@@ -2725,15 +2748,18 @@ namespace MasterOnline.Controllers
                                 API_password = iden.API_password,
                                 email = iden.email
                             };
+                            //add by nurul 19/1/2022
+                            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then 0 else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                            //end add by nurul 19/1/2022
 #if (DEBUG || Debug_AWS)
                             StokControllerJob stokAPI = new StokControllerJob(iden.DatabasePathErasoft, username);
 
-                            await stokAPI.Shopify_updateStock(iden.DatabasePathErasoft, kode_brg, marketplace.CUST, "Stock", "Update Stok", data, resServer.variant.id.ToString(), 0, username, null);
+                            await stokAPI.Shopify_updateStock(iden.DatabasePathErasoft, kode_brg, marketplace.CUST, "Stock", "Update Stok", data, resServer.variant.id.ToString(), 0, username, null, Convert.ToInt32(multilokasi));
 #else
                             string EDBConnID = EDB.GetConnectionString("ConnId");
                             var sqlStorage = new SqlServerStorage(EDBConnID);
                             var clients = new BackgroundJobClient(sqlStorage);
-                            //clients.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(iden.DatabasePathErasoft, kode_brg, marketplace.CUST, "Stock", "Update Stok", data, item.BRG_MP, 0, username, null));
+                            //clients.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(iden.DatabasePathErasoft, kode_brg, marketplace.CUST, "Stock", "Update Stok", data, item.BRG_MP, 0, username, null, Convert.ToInt32(multilokasi)));
 #endif
                         }
                     }
@@ -3038,6 +3064,9 @@ namespace MasterOnline.Controllers
                         {
                             if (result.product != null)
                             {
+                                //add by nurul 19/1/2022
+                                var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then 0 else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                                //end add by nurul 19/1/2022
                                 if (brgInDb.TYPE == "4")
                                 {
                                     if (result.product.variants.Length > 0)
@@ -3093,12 +3122,12 @@ namespace MasterOnline.Controllers
                                                     {
 #if (DEBUG || Debug_AWS)
 
-                                                        await stokAPI.Shopify_updateStock(dbPathEra, brgStf02h.BRG, log_CUST, "Stock", "Update Stok", data, brgStf02h.BRG_MP, 0, username, null);
+                                                        await stokAPI.Shopify_updateStock(dbPathEra, brgStf02h.BRG, log_CUST, "Stock", "Update Stok", data, brgStf02h.BRG_MP, 0, username, null, Convert.ToInt32(multilokasi));
 #else
                                                         string EDBConnID = EDB.GetConnectionString("ConnId");
                                                         var sqlStorage = new SqlServerStorage(EDBConnID);
                                                         var clients = new BackgroundJobClient(sqlStorage);
-                                                        clients.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(dbPathEra, brgStf02h.BRG, log_CUST, "Stock", "Update Stok", data, brgStf02h.BRG_MP, 0, username, null));
+                                                        clients.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(dbPathEra, brgStf02h.BRG, log_CUST, "Stock", "Update Stok", data, brgStf02h.BRG_MP, 0, username, null, Convert.ToInt32(multilokasi)));
 #endif
                                                     }
                                                 }
@@ -3125,12 +3154,12 @@ namespace MasterOnline.Controllers
 
 #if (DEBUG || Debug_AWS)
 
-                                        await stokAPI.Shopify_updateStock(dbPathEra, detailBrg.BRG, log_CUST, "Stock", "Update Stok", data, detailBrg.BRG_MP, 0, username, null);
+                                        await stokAPI.Shopify_updateStock(dbPathEra, detailBrg.BRG, log_CUST, "Stock", "Update Stok", data, detailBrg.BRG_MP, 0, username, null, Convert.ToInt32(multilokasi));
 #else
                                         string EDBConnID = EDB.GetConnectionString("ConnId");
                                         var sqlStorage = new SqlServerStorage(EDBConnID);
                                         var clients = new BackgroundJobClient(sqlStorage);
-                                        clients.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(dbPathEra, detailBrg.BRG, log_CUST, "Stock", "Update Stok", data, detailBrg.BRG_MP, 0, username, null));
+                                        clients.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(dbPathEra, detailBrg.BRG, log_CUST, "Stock", "Update Stok", data, detailBrg.BRG_MP, 0, username, null, Convert.ToInt32(multilokasi)));
 #endif                                                
                                     }
                                 }

@@ -1,0 +1,2745 @@
+﻿@using System.Globalization
+@using MasterOnline.Models
+@using MasterOnline.ViewModels
+@model BarangViewModel
+@{
+    ViewBag.Title = "Barang";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+}
+@section styles
+{
+    <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link href="~/Content/selectize.css" rel="stylesheet" />
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+    <style>
+
+
+        .sub_title {
+            font-size: 16px;
+        }
+
+        .block_subtitle_label {
+            display: inline-block;
+            width: 135px;
+            font-weight: bold;
+        }
+
+        .user-link {
+            text-decoration: underline;
+        }
+
+        #div-scroll-list {
+            overflow-x: auto;
+            overflow-y: auto;
+            height: 400px;
+        }
+
+        #Stf02_Deskripsi {
+            resize: vertical;
+            height: 100px;
+            max-height: 150px;
+        }
+
+        .satuan {
+            text-align: left !important;
+            font-size: 10px;
+        }
+
+        #hapus_label {
+            color: orange;
+            font-weight: bold;
+        }
+
+        .foto_produk_section {
+            padding: 10px;
+        }
+
+            .foto_produk_section > .box_upload {
+                width: 250px;
+                height: 250px;
+                border: dashed 1.5px #bbb;
+                border-radius: 10px;
+                background-color: #f7f7f7;
+                background-image: url('');
+                text-align: center;
+                display: table;
+                margin: 0 auto;
+                cursor: pointer;
+            }
+
+        .box_upload > .box_upload_placeholder {
+            color: #ccc;
+            font-size: 20px;
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+        .btn_hapus_foto_produk {
+            position: absolute;
+            bottom: 15px;
+            left: 48px;
+        }
+
+        /* =============== Checkbox ================ */
+
+        /* Customize the label (the container) */
+        .checkbox-container {
+            display: block;
+            position: relative;
+            padding-left: 35px;
+            margin-top: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+            /* Hide the browser's default checkbox */
+            .checkbox-container input {
+                position: absolute;
+                opacity: 0;
+                cursor: pointer;
+            }
+
+        /* Create a custom checkbox */
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 25px;
+            width: 25px;
+            background-color: #eee;
+            border: solid 1px #ccc;
+        }
+
+        /* On mouse-over, add a grey background color */
+        .checkbox-container:hover input ~ .checkmark {
+            background-color: #ccc;
+        }
+
+        /* When the checkbox is checked, add a blue background */
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: #2196F3;
+        }
+
+        /* Create the checkmark/indicator (hidden when not checked) */
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        /* Show the checkmark when checked */
+        .checkbox-container input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        /* Style the checkmark/indicator */
+        .checkbox-container .checkmark:after {
+            left: 9px;
+            top: 5px;
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            -webkit-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
+        }
+
+        [data-tip] {
+            position: relative;
+        }
+
+            [data-tip]:before {
+                content: '';
+                /* hides the tooltip when not hovered */
+                display: none;
+                content: '';
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-bottom: 5px solid #1a1a1a;
+                position: absolute;
+                top: 30px;
+                /*left: 35px;*/
+                z-index: 8;
+                font-size: 0;
+                line-height: 0;
+                /*width: 0;
+                height: 0;*/
+                margin-left: -30px;
+                left: 50%;
+            }
+
+            [data-tip]:after {
+                display: none;
+                content: attr(data-tip);
+                position: absolute;
+                top: 35px;
+                /*left: 0px;*/
+                padding: 2px 5px;
+                background: #1a1a1a;
+                color: #fff;
+                z-index: 9;
+                font-size: 0.85em;
+                height: auto;
+                line-break: normal;
+                max-width: 300px;
+                line-height: 18px;
+                -webkit-border-radius: 3px;
+                -moz-border-radius: 3px;
+                border-radius: 3px;
+                white-space: normal;
+                word-wrap: normal;
+                left: 30px;
+                margin-left: -50px;
+                width: 68px;
+            }
+
+            [data-tip]:hover:before,
+            [data-tip]:hover:after {
+                display: block;
+            }
+
+        [data-tip-stok] {
+            position: relative;
+        }
+
+            [data-tip-stok]:before {
+                content: '';
+                /* hides the tooltip when not hovered */
+                display: none;
+                content: '';
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-bottom: 5px solid #1a1a1a;
+                position: absolute;
+                top: 30px;
+                z-index: 8;
+                font-size: 0;
+                line-height: 0;
+                left: 30%;
+                margin-left: -30px;
+            }
+
+            [data-tip-stok]:after {
+                display: none;
+                content: attr(data-tip-stok);
+                position: absolute;
+                top: 35px;
+                padding: 2px 5px;
+                background: #1a1a1a;
+                color: #fff;
+                z-index: 1;
+                font-size: 0.85em;
+                height: auto;
+                line-break: normal;
+                max-width: 300px;
+                line-height: 18px;
+                -webkit-border-radius: 3px;
+                -moz-border-radius: 3px;
+                border-radius: 3px;
+                white-space: normal;
+                word-wrap: normal;
+                left: 50px;
+                margin-left: -80px;
+                width:68px;
+            }
+
+            [data-tip-stok]:hover:before,
+            [data-tip-stok]:hover:after {
+                display: block;
+            }
+
+        [data-tip-qoo] {
+            position: relative;
+        }
+
+            [data-tip-qoo]:before {
+                content: '';
+                /* hides the tooltip when not hovered */
+                display: none;
+                content: '';
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-bottom: 5px solid #1a1a1a;
+                position: absolute;
+                top: 30px;
+                /*left: 35px;*/
+                z-index: 8;
+                font-size: 0;
+                line-height: 0;
+                /*width: 0;
+                height: 0;*/
+                /*margin-left: -30px;*/
+                margin-left:0px;
+                left: 50%;
+            }
+
+            [data-tip-qoo]:after {
+                display: none;
+                content: attr(data-tip-qoo);
+                position: absolute;
+                top: 35px;
+                /*left: 0px;*/
+                padding: 2px 5px;
+                background: #1a1a1a;
+                color: #fff;
+                z-index: 9;
+                font-size: 0.85em;
+                height: auto;
+                line-break: normal;
+                max-width: 300px;
+                line-height: 18px;
+                -webkit-border-radius: 3px;
+                -moz-border-radius: 3px;
+                border-radius: 3px;
+                white-space: normal;
+                word-wrap: normal;
+                left: 30px;
+                margin-left: -50px;
+                width: 68px;
+            }
+
+            [data-tip-qoo]:hover:before,
+            [data-tip-qoo]:hover:after {
+                display: block;
+            }
+
+        #modal-detail-pesanan {
+            margin: auto;
+        }
+
+            #modal-detail-pesanan .modal-content .modal-header {
+                -webkit-box-shadow: none;
+                box-shadow: none;
+                border: none;
+                background-color: white;
+            }
+
+            #modal-detail-pesanan .modal-content .modal-body {
+                height: 125px;
+                -webkit-box-shadow: none;
+                box-shadow: none;
+                background-color: white;
+            }
+    </style>
+}
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="" role="tabpanel" data-example-id="togglable-tabs">
+            <ul id="myTab" class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#tab_content1" id="barang-tab" role="tab" data-toggle="tab" aria-expanded="true">Barang</a>
+                </li>
+                <li role="presentation" class="">
+                    <a href="#tab_content2" role="tab" id="kosong-tab" data-toggle="tab" aria-expanded="false">Barang Kosong</a>
+                </li>
+                <li role="presentation" class="">
+                    <a href="#tab_content4" role="tab" id="tidaklaku-tab" data-toggle="tab" aria-expanded="false">Barang Tidak Laku</a>
+                </li>
+                <li role="presentation" class="">
+                    <a href="#tab_content6" role="tab" id="minimumstok-tab" data-toggle="tab" aria-expanded="false">Barang di Bawah Minimum Stok</a>
+                </li>
+                <li role="presentation" class="">
+                    <a href="#tab_content7" role="tab" id="palinglaku-tab" data-toggle="tab" aria-expanded="false">Barang Paling Laku</a>
+                </li>
+            </ul>
+            <div id="myTabContent" class="tab-content" style="padding-top:10px">
+                <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="barang-tab">
+                    <div class="row barang_table_section">
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="input-group">
+                                <input id="search_barang" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_barang_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-sm-3"></div>
+                        <div class="col-sm-3 pull-right">
+                            <div class="form-group">
+                                <label class="col-xs-12 col-sm-10 col-md-10" style="padding-top:13px; text-align:right">Multi Lokasi</label>
+                                @Html.HiddenFor(m => m.multilokasi, new { data_cbx = $"cbx-MultiLokasi", @class = "cbxMultiLokasi" })
+                                <div class="col-md-2 col-sm-2 col-xs-12 pull-left" style="padding-top:5px;">
+                                    @if ((Model.multilokasi == null ? "" : Model.multilokasi) == "1")
+                                    {
+                                        //memiliki multi lokasi
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" id="cbxCustomerMultiLokasi" class="cbxMultiLokasi" name="@($"cbx-Customer-MultiLokasi")" checked disabled="disabled" />
+                                            <span class="checkmark cm-multilokasi" style="cursor:not-allowed"></span>
+                                        </label>
+                                    }
+                                    else
+                                    {
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" id="cbxCustomerMultiLokasi" class="cbxMultiLokasi" name="@($"cbx-Customer-MultiLokasi")" disabled="disabled" />
+                                            <span class="checkmark cm-multilokasi" style="cursor:not-allowed"></span>
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        @*<div class="col-lg-8 col-sm-6">
+                                <div class="pull-right">
+                                    <button type="button" class="btn btn-default" data-style="expand-right">
+                                        <span>Refresh</span>
+                                        </button>
+                                </div>
+                            </div>*@
+                    </div>
+                    <div class="row barang_table_section">
+                        @*<div class="col-md-2">
+            @Html.Label("", "Urut Berdasarkan")
+            <div class="input-group text">
+                <select class="form-control" id="Order" name="Order" required="required">
+                    <option value="1">Qty Terjual</option>
+                    <option value="2">Qty Siap Jual</option>
+                </select>
+            </div>
+        </div>*@
+                        <div class=" col-md-5 col-sm-12 pull-left">
+                            <label class="col-lg-4 col-sm-12 col-md-4" style="padding-top:20px;">Urut Berdasarkan</label>
+                            <div class="col-lg-4 col-sm-6 col-md-4" style="margin-top:13px;">
+                                <select class="form-control" id="filter_barang_field" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="stok">Stok</option>
+                                    <option value="qty_pesanan">Qty Pesanan</option>
+                                    <option value="qty_jual">Qty Siap Jual</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-4 col-sm-6 col-md-4" style="margin-top:13px;">
+                                <div class="col-12" id="filter_barang_field_option_div">
+                                    <select class="form-control" id="filter_barang_field_option" required="required">
+                                        <option>Harap Pilih</option>
+                                        <option value="desc">Terbesar</option>
+                                        <option value="asc">Terkecil</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        @*//add by nurul 5/1/2022*@
+                        <div class=" col-md-7 col-sm-12 pull-right">
+                            <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
+                            <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
+                                <select class="form-control" id="filter2_barang_field" required="required" placeholder="Harap pilih">
+                                    <option>Harap Pilih</option>
+                                    <option value="provinsi">Provinsi Gudang</option>
+                                    <option value="marketplace">Marketplace</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
+                                <div class="col-12" id="filter2_barang_field_provinsi_div" style="display:none">
+                                    @*<select class="form-control" id="filter2_' + $namaTab + '_field_provinsi" required="required" placeholder="Harap pilih">
+                                        <option value="desc">Terbaru</option>
+                                        <option value="asc">Terlama</option>
+                                    </select>*@
+                                    <div id="prov_temp" hidden="hidden"></div>
+                                    <select class="form-group" id="filter2_barang_field_provinsi" placeholder="Harap Pilih" required="required"></select>
+                                </div>
+                                <div class="col-12" id="filter2_barang_field_marketplace_div" style="display:none">
+                                    @*<select class="form-control" id="filter2_barang_field_marketplace" required="required">
+            <option value="7">Lazada</option>
+            <option value="8">Bukalapak</option>
+            <option value="9">Elevenia</option>
+            <option value="15">Tokopedia</option>
+            <option value="16">Blibli</option>
+            <option value="17">Shopee</option>
+            <option value="19">JD.ID</option>
+            <option value="20">82Cart</option>
+            <option value="21">Shopify</option>
+            <option value="18">Offline</option>
+        </select>*@
+                                    <div id="market_temp" hidden="hidden"></div>
+                                    <select class="form-group" id="filter2_barang_field_marketplace" placeholder="Harap Pilih" required="required"></select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-6" style="margin-top:13px;">
+                                <div class="col-12" id="filter2_barang_field_gudang_div" style="display:none">
+                                    @*<select class="form-control" id="filter2_' + $namaTab + '_field_gudang" required="required">
+                                        <option value="desc">Terbaru</option>
+                                        <option value="asc">Terlama</option>
+                                    </select>*@
+                                    <div id="gudang_temp" hidden="hidden"></div>
+                                    <select class="form-group" id="filter2_barang_field_gudang" placeholder="Harap Pilih" required="required"></select>
+                                </div>
+                            </div>
+                        </div>
+                        @*//end add by nurul 5/1/2022*@
+                    </div>
+                    <div class="row" style="margin-top: 5px;">
+                        @* remark by calvin 24 mei 2019 <div id="loading_barang_tab" class="text-center">
+            <img src="~/Content/Images/spinner.gif" width="100" />
+        </div>*@
+                        <div id="loading_barang_tab" class="text-center">
+                            <img src="~/Content/Images/spinner.gif" width="100" />
+                        </div>
+                        <div class="col-sm-12 barang_table_section" id="table-barang-1-partial">
+                            @* remark by calvin 24 mei 2019 @Html.Partial("TableMenuBarang1Partial")*@
+                        </div>
+                    </div>
+                    <div class="row barang_editor_section" style="display: none;">
+                        <div class="col-lg-12">
+                            <div class="page-editor">
+                                <h2 class="editor-title">Barang</h2>
+                                <span class="title-accent"></span>
+                                <button id="close-editor-1" type="button" class="pull-right page-close">
+                                    <span class="close-btn thick"></span>
+                                </button>
+                                @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                {
+                                    foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                    {
+                                        <div class="alert alert-danger">
+                                            <span class="message-error">@modelError.ErrorMessage</span>
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    }
+                                }
+                                @using (Html.BeginForm("SaveBarang", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-barang" }))
+                                {
+                                    <div id="form-partial">
+                                        @* remark by calvin 24 mei 2019 @Html.Partial("FormBarangPartial")*@
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="kosong-tab">
+                    <div class="row">
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="input-group">
+                                <input id="search_kosong" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_kosong_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-sm-3"></div>
+                        <div class="col-sm-3 pull-right">
+                            <div class="form-group">
+                                <label class="col-xs-12 col-sm-10 col-md-10" style="padding-top:13px; text-align:right">Multi Lokasi</label>
+                                @Html.HiddenFor(m => m.multilokasi, new { data_cbx = $"cbx-MultiLokasi", @class = "cbxMultiLokasi" })
+                                <div class="col-md-2 col-sm-2 col-xs-12 pull-left" style="padding-top:5px;">
+                                    @if ((Model.multilokasi == null ? "" : Model.multilokasi) == "1")
+                                    {
+                                        //memiliki multi lokasi
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" id="cbxCustomerMultiLokasi" class="cbxMultiLokasi" name="@($"cbx-Customer-MultiLokasi")" checked disabled="disabled" />
+                                            <span class="checkmark cm-multilokasi" style="cursor:not-allowed"></span>
+                                        </label>
+                                    }
+                                    else
+                                    {
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" id="cbxCustomerMultiLokasi" class="cbxMultiLokasi" name="@($"cbx-Customer-MultiLokasi")" disabled="disabled" />
+                                            <span class="checkmark cm-multilokasi" style="cursor:not-allowed"></span>
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        @*<div class="col-lg-8 col-sm-6">
+            <div class="pull-right">
+                <button type="button" class="btn btn-default" data-style="expand-right">
+                        <span>Refresh</span>
+                    </button>
+            </div>
+        </div>*@
+                    </div>
+                    <div class="row">
+                        @*<div class=" col-md-5 col-sm-12 pull-left">
+                            <label class="col-lg-4 col-sm-12 col-md-4" style="padding-top:20px;">Urut Berdasarkan</label>
+                            <div class="col-lg-4 col-sm-6 col-md-4" style="margin-top:13px;">
+                                <select class="form-control" id="filter_barang_field" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="stok">Stok</option>
+                                    <option value="qty_pesanan">Qty Pesanan</option>
+                                    <option value="qty_jual">Qty Siap Jual</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-4 col-sm-6 col-md-4" style="margin-top:13px;">
+                                <div class="col-12" id="filter_barang_field_option_div">
+                                    <select class="form-control" id="filter_barang_field_option" required="required">
+                                        <option>Harap Pilih</option>
+                                        <option value="desc">Terbesar</option>
+                                        <option value="asc">Terkecil</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>*@
+                        <div class=" col-md-7 col-sm-12 pull-left">
+                            <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
+                            <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
+                                <select class="form-control" id="filter2_kosong_field" required="required" placeholder="Harap pilih">
+                                    <option>Harap Pilih</option>
+                                    <option value="provinsi">Provinsi Gudang</option>
+                                    <option value="marketplace">Marketplace</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
+                                <div class="col-12" id="filter2_kosong_field_provinsi_div" style="display:none">
+                                    <div id="prov_temp" hidden="hidden"></div>
+                                    <select class="form-group" id="filter2_kosong_field_provinsi" placeholder="Harap Pilih" required="required"></select>
+                                </div>
+                                <div class="col-12" id="filter2_kosong_field_marketplace_div" style="display:none">
+                                    <div id="market_temp" hidden="hidden"></div>
+                                    <select class="form-group" id="filter2_kosong_field_marketplace" placeholder="Harap Pilih" required="required"></select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-6" style="margin-top:13px;">
+                                <div class="col-12" id="filter2_kosong_field_gudang_div" style="display:none">
+                                    <div id="gudang_temp" hidden="hidden"></div>
+                                    <select class="form-group" id="filter2_kosong_field_gudang" placeholder="Harap Pilih" required="required"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class=" col-md-5 col-sm-12 "></div>
+                    </div>
+                    <div class="row" style="margin-top: 5px;">
+                        <div id="loading_kosong_tab" class="text-center">
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>
+                        <div class="col-sm-12" id="table-barang-kosong-partial">
+                            @* remark by calvin 24 mei 2019 @Html.Partial("TableBarangKosongPartial", new List<PenjualanBarang>())*@
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="tidaklaku-tab">
+                    <div class="row">
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="input-group">
+                                <input id="search_tidaklaku" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_tidaklaku_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-sm-3"></div>
+                        <div class="col-sm-3 pull-right">
+                            <div class="form-group">
+                                <label class="col-xs-12 col-sm-10 col-md-10" style="padding-top:13px; text-align:right">Multi Lokasi</label>
+                                @Html.HiddenFor(m => m.multilokasi, new { data_cbx = $"cbx-MultiLokasi", @class = "cbxMultiLokasi" })
+                                <div class="col-md-2 col-sm-2 col-xs-12 pull-left" style="padding-top:5px;">
+                                    @if ((Model.multilokasi == null ? "" : Model.multilokasi) == "1")
+                                    {
+                                        //memiliki multi lokasi
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" id="cbxCustomerMultiLokasi" class="cbxMultiLokasi" name="@($"cbx-Customer-MultiLokasi")" checked disabled="disabled" />
+                                            <span class="checkmark cm-multilokasi" style="cursor:not-allowed"></span>
+                                        </label>
+                                    }
+                                    else
+                                    {
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" id="cbxCustomerMultiLokasi" class="cbxMultiLokasi" name="@($"cbx-Customer-MultiLokasi")" disabled="disabled" />
+                                            <span class="checkmark cm-multilokasi" style="cursor:not-allowed"></span>
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        @*<div class="col-lg-8 col-sm-6">
+            <div class="pull-right">
+                <button type="button" class="btn btn-default" data-style="expand-right">
+                        <span>Refresh</span>
+                    </button>
+            </div>
+        </div>*@
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            @Html.Label("", "Dari Tanggal")
+                            <div class="input-group date">
+                                @*@Html.TextBox("DrTanggal", null, new { @class = "form-control", @disabled = "disable", Value = DateTime.Now.AddMonths(-3).ToString("dd/MM/yyyy") })*@
+                                @Html.TextBox("DrTanggal", null, new { @class = "form-control", @ReadOnly = true })
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            @Html.Label("", "S/d Tanggal")
+                            <div class="input-group date">
+                                @*@Html.TextBox("SdTanggal", null, new { @class = "form-control", @disabled = "disable", Value = DateTime.Now.ToString("dd/MM/yyyy") })*@
+                                @Html.TextBox("SdTanggal", null, new { @class = "form-control", @ReadOnly = true })
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                        </div>
+                        <div class=" col-md-7 col-sm-12 pull-right" style="padding-top:11px">
+                            <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
+                            <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
+                                <select class="form-control" id="filter2_tidaklaku_field" required="required" placeholder="Harap pilih">
+                                    <option>Harap Pilih</option>
+                                    <option value="provinsi">Provinsi Gudang</option>
+                                    <option value="marketplace">Marketplace</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
+                                <div class="col-12" id="filter2_tidaklaku_field_provinsi_div" style="display:none">
+                                    <div id="prov_temp" hidden="hidden"></div>
+                                    <select class="form-group" id="filter2_tidaklaku_field_provinsi" placeholder="Harap Pilih" required="required"></select>
+                                </div>
+                                <div class="col-12" id="filter2_tidaklaku_field_marketplace_div" style="display:none">
+                                    <div id="market_temp" hidden="hidden"></div>
+                                    <select class="form-group" id="filter2_tidaklaku_field_marketplace" placeholder="Harap Pilih" required="required"></select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-6" style="margin-top:13px;">
+                                <div class="col-12" id="filter2_tidaklaku_field_gudang_div" style="display:none">
+                                    <div id="gudang_temp" hidden="hidden"></div>
+                                    <select class="form-group" id="filter2_tidaklaku_field_gudang" placeholder="Harap Pilih" required="required"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top: 5px;">
+                        <div id="loading_tidak_laku_tab" class="text-center">
+                            <img src="~/Content/Images/spinner.gif" width="100" />
+                        </div>
+                        <div class="col-sm-12" id="table-barang-tidak-laku-partial">
+                            @* remark by calvin 24 mei 2019 @Html.Partial("TableBarangTidakLakuPartial", new List<PenjualanBarang>())*@
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content6" aria-labelledby="minimumstok-tab">
+                    <div class="row">
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="input-group">
+                                <input id="search_minimumstok" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_minimumstok_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-sm-3"></div>
+                        <div class="col-sm-3 pull-right">
+                            <div class="form-group">
+                                <label class="col-xs-12 col-sm-10 col-md-10" style="padding-top:13px; text-align:right">Multi Lokasi</label>
+                                @Html.HiddenFor(m => m.multilokasi, new { data_cbx = $"cbx-MultiLokasi", @class = "cbxMultiLokasi" })
+                                <div class="col-md-2 col-sm-2 col-xs-12 pull-left" style="padding-top:5px;">
+                                    @if ((Model.multilokasi == null ? "" : Model.multilokasi) == "1")
+                                    {
+                                        //memiliki multi lokasi
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" id="cbxCustomerMultiLokasi" class="cbxMultiLokasi" name="@($"cbx-Customer-MultiLokasi")" checked disabled="disabled" />
+                                            <span class="checkmark cm-multilokasi" style="cursor:not-allowed"></span>
+                                        </label>
+                                    }
+                                    else
+                                    {
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" id="cbxCustomerMultiLokasi" class="cbxMultiLokasi" name="@($"cbx-Customer-MultiLokasi")" disabled="disabled" />
+                                            <span class="checkmark cm-multilokasi" style="cursor:not-allowed"></span>
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        @*<div class="col-lg-8 col-sm-6">
+                <div class="pull-right">
+                    <button type="button" class="btn btn-default" data-style="expand-right">
+                            <span>Refresh</span>
+                        </button>
+                </div>
+            </div>*@
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            @Html.Label("", "Dari Tanggal")
+                            <div class="input-group date">
+                                @*@Html.TextBox("DrTanggal", null, new { @class = "form-control", @disabled = "disable", Value = DateTime.Now.AddMonths(-3).ToString("dd/MM/yyyy") })*@
+                                @Html.TextBox("DrTanggal2", null, new { @class = "form-control", @ReadOnly = true })
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            @Html.Label("", "S/d Tanggal")
+                            <div class="input-group date">
+                                @*@Html.TextBox("SdTanggal", null, new { @class = "form-control", @disabled = "disable", Value = DateTime.Now.ToString("dd/MM/yyyy") })*@
+                                @Html.TextBox("SdTanggal2", null, new { @class = "form-control", @ReadOnly = true })
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                        @*//ADD BY NURUL 25/9/2019*@
+                        <div class="col-md-2">
+                            @Html.Label("", "Urut Berdasarkan")
+                            <div class="input-group text">
+                                <select class="form-control" id="Order" name="Order" required="required">
+                                    <option value="1">Qty Terjual</option>
+                                    <option value="2">Qty Siap Jual</option>
+                                </select>
+                            </div>
+                        </div>
+                        @*//END ADD BY NURUL 25/9/2019*@
+                        <div class=" col-md-6 col-sm-12 pull-right" style="padding-top:11px">
+                            <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
+                            <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
+                                <select class="form-control" id="filter2_minimumstok_field" required="required" placeholder="Harap pilih">
+                                    <option>Harap Pilih</option>
+                                    <option value="provinsi">Provinsi Gudang</option>
+                                    <option value="marketplace">Marketplace</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
+                                <div class="col-12" id="filter2_minimumstok_field_provinsi_div" style="display:none">
+                                    <div id="prov_temp" hidden="hidden"></div>
+                                    <select class="form-group" id="filter2_minimumstok_field_provinsi" placeholder="Harap Pilih" required="required"></select>
+                                </div>
+                                <div class="col-12" id="filter2_minimumstok_field_marketplace_div" style="display:none">
+                                    <div id="market_temp" hidden="hidden"></div>
+                                    <select class="form-group" id="filter2_minimumstok_field_marketplace" placeholder="Harap Pilih" required="required"></select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-6" style="margin-top:13px;">
+                                <div class="col-12" id="filter2_minimumstok_field_gudang_div" style="display:none">
+                                    <div id="gudang_temp" hidden="hidden"></div>
+                                    <select class="form-group" id="filter2_minimumstok_field_gudang" placeholder="Harap Pilih" required="required"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top: 5px;">
+                        <div id="loading_minimum_stok_tab" class="text-center">
+                            <img src="~/Content/Images/spinner.gif" width="100" />
+                        </div>
+                        <div class="col-sm-12" id="table-barang-minimum-stok-partial">
+                            @* remark by calvin 24 mei 2019 @Html.Partial("TableBarangDibawahMinimumStokPartial", new List<PenjualanBarang>())*@
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content7" aria-labelledby="palinglaku-tab">
+                    <div class="row">
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="input-group">
+                                <input id="search_palinglaku" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_palinglaku_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-sm-3"></div>
+                        <div class="col-sm-3 pull-right">
+                            <div class="form-group">
+                                <label class="col-xs-12 col-sm-10 col-md-10" style="padding-top:13px; text-align:right">Multi Lokasi</label>
+                                @Html.HiddenFor(m => m.multilokasi, new { data_cbx = $"cbx-MultiLokasi", @class = "cbxMultiLokasi" })
+                                <div class="col-md-2 col-sm-2 col-xs-12 pull-left" style="padding-top:5px;">
+                                    @if ((Model.multilokasi == null ? "" : Model.multilokasi) == "1")
+                                    {
+                                        //memiliki multi lokasi
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" id="cbxCustomerMultiLokasi" class="cbxMultiLokasi" name="@($"cbx-Customer-MultiLokasi")" checked disabled="disabled" />
+                                            <span class="checkmark cm-multilokasi" style="cursor:not-allowed"></span>
+                                        </label>
+                                    }
+                                    else
+                                    {
+                                        <label class="checkbox-container">
+                                            <input type="checkbox" id="cbxCustomerMultiLokasi" class="cbxMultiLokasi" name="@($"cbx-Customer-MultiLokasi")" disabled="disabled" />
+                                            <span class="checkmark cm-multilokasi" style="cursor:not-allowed"></span>
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        @*<div class="col-sm-3">
+                <h4 style="border-bottom:solid; ">Periode 3 Bulan Terakhir</h4>
+            </div>*@
+                        @*<div class="col-lg-8 col-sm-6">
+                <div class="pull-right">
+                    <button type="button" class="btn btn-default" data-style="expand-right">
+                            <span>Refresh</span>
+                        </button>
+                </div>
+            </div>*@
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            @Html.Label("", "Dari Tanggal")
+                            <div class="input-group date">
+                                @*@Html.TextBox("DrTanggal1", null, new { @class = "form-control", @disabled = "disable", Value = DateTime.Now.AddMonths(-3).ToString("dd/MM/yyyy") })*@
+                                @Html.TextBox("DrTanggal1", null, new { @class = "form-control", @ReadOnly = true })
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            @Html.Label("", "S/d Tanggal")
+                            <div class="input-group date">
+                                @*@Html.TextBox("SdTanggal1", null, new { @class = "form-control", @disabled = "disable", Value = DateTime.Now.ToString("dd/MM/yyyy") })*@
+                                @Html.TextBox("SdTanggal1", null, new { @class = "form-control", @ReadOnly = true })
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                        </div>
+                        <div class=" col-md-7 col-sm-12 pull-right" style="padding-top:11px">
+                            <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
+                            <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
+                                <select class="form-control" id="filter2_palinglaku_field" required="required" placeholder="Harap pilih">
+                                    <option>Harap Pilih</option>
+                                    <option value="provinsi">Provinsi Gudang</option>
+                                    <option value="marketplace">Marketplace</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
+                                <div class="col-12" id="filter2_palinglaku_field_provinsi_div" style="display:none">
+                                    <div id="prov_temp" hidden="hidden"></div>
+                                    <select class="form-group" id="filter2_palinglaku_field_provinsi" placeholder="Harap Pilih" required="required"></select>
+                                </div>
+                                <div class="col-12" id="filter2_palinglaku_field_marketplace_div" style="display:none">
+                                    <div id="market_temp" hidden="hidden"></div>
+                                    <select class="form-group" id="filter2_palinglaku_field_marketplace" placeholder="Harap Pilih" required="required"></select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-6" style="margin-top:13px;">
+                                <div class="col-12" id="filter2_palinglaku_field_gudang_div" style="display:none">
+                                    <div id="gudang_temp" hidden="hidden"></div>
+                                    <select class="form-group" id="filter2_palinglaku_field_gudang" placeholder="Harap Pilih" required="required"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top: 5px;">
+                        <div id="loading_palinglaku_tab" class="text-center">
+                            <img src="~/Content/Images/spinner.gif" width="100" />
+                        </div>
+                        <div class="col-sm-12" id="table-barang-paling-laku-partial">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal Hapus customer -->
+<div class="modal fade" id="konfHapusBarang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus barang <span id="hapus_label"></span>?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="deleteBarang()">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*//add by nurul 29/4/2020*@
+<div class="modal fade" id="modalDetailPesanan" style="margin:0;padding:0;" tabindex="-1" role="dialog" aria-labelledby="modalDetailPesananLabel">
+    <div class="modal-dialog" role="document" style="margin:auto;width:1000px;margin-top:20px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalDetailPesananLabel">Detail Qty Pesanan</h4>
+
+                <div class="row" @*style="padding-left:15px"*@>
+                    @*<span class="control-label col-md-2 col-sm-2">Kode Barang </span><span id="kd-brg" class="col-md-9 col-sm-9 control-label" disabled = "disabled"></span>*@
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-2 col-sm-2" style="margin-right: 20px;">Kode Barang</label>
+                        <div class="col-md-2 col-sm-2">
+                            @*<span id="kd-brg" class="control-label" disabled="disabled"></span>*@
+                            @*<text id="kd-brg" class="control-label" disabled="disabled">Kode Barang</text>*@
+                            @Html.TextBox("kd-brg", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row" @*style="padding-left:15px"*@>
+                    @*<span class="control-label col-md-2 col-sm-2">Nama Barang </span><span id="nm-brg" class="col-md-9 col-sm-9 control-label" disabled = "disabled"></span>*@
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-2 col-sm-2" style="margin-right: 20px;">Nama Barang</label>
+                        <div class="col-md-8 col-sm-8">
+                            @*<span id="nm-brg" class="control-label" disabled="disabled"></span>*@
+                            @*<text id="nm-brg" class="control-label" disabled="disabled">Kode Barang</text>*@
+                            @Html.TextArea("nm-brg", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="marketplace_pesanan">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-2 col-sm-2" style="margin-right: 20px;">Marketplace</label>
+                        <div class="col-md-8 col-sm-8">
+                            @Html.TextBox("market-pesanan", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="provinsi_pesanan">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-2 col-sm-2" style="margin-right: 20px;">Provinsi</label>
+                        <div class="col-md-8 col-sm-8">
+                            @Html.TextBox("prov-pesanan", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="gudang_pesanan">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-2 col-sm-2" style="margin-right: 20px;">Gudang</label>
+                        <div class="col-md-8 col-sm-8">
+                            @Html.TextBox("gudang-pesanan", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row" @*style="padding-left:15px"*@>
+                    @*<span class="control-label col-md-2 col-sm-2">Total Qty Pesanan </span><span id="ttl-qty" class="col-md-9 col-sm-9 control-label" disabled = "disabled"></span>*@
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-2 col-sm-2" style="margin-right: 20px;">Total Qty Pesanan</label>
+                        <div class="col-md-8 col-sm-8">
+                            @*@Html.Label("ttl-qty", "", new { @class = "control-label", disabled = "disabled" })*@
+                            @*<span id="ttl-qty" class="control-label" disabled="disabled"></span>*@
+                            <label id="ttl-qty" class="control-label" disabled="disabled"></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" @*style="padding-left:15px"*@>
+                    @*<span class="control-label col-md-2 col-sm-2">Total Pesanan </span><span id="ttl-pesanan" class="col-md-9 col-sm-9 control-label" disabled = "disabled"></span>*@
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-2 col-sm-2" style="margin-right: 20px;">Total Pesanan</label>
+                        <div class="col-md-8 col-sm-8">
+                            @*<span id="ttl-pesanan" class="control-label" disabled="disabled"></span>*@
+                            <label id="ttl-pesanan" class="control-label" disabled="disabled"></label>
+                            @*@Html.Label("ttl-pesanan", "", new { @class = "control-label", disabled = "disabled" })*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-3 col-sm-6" style="margin-bottom:7px;">
+                        <div class="input-group">
+                            <input id="search_detail" type="text" class="form-control" placeholder="Pencarian">
+                            <span class="input-group-btn">
+                                <button type="button" id="search_detail_click" class="btn btn-primary">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div id="type-print-1" style="display:none"></div>
+                <div id="list-detail"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="close-detail" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*end add by nurul 29/4/2020*@
+@*//add by nurul 13/5/2020*@
+<div class="modal fade" id="modalDetailStok" style="margin:0;padding:0;" tabindex="-1" role="dialog" aria-labelledby="modalDetailStokLabel">
+    <div class="modal-dialog" role="document" style="margin:auto;width:700px;margin-top:20px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalDetailStokLabel">Detail Stok</h4>
+
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-3 col-sm-3">Kode Barang</label>
+                        <div class="col-md-3 col-sm-3">
+                            @Html.TextBox("kd-brg-stok", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-3 col-sm-3">Nama Barang</label>
+                        <div class="col-md-8 col-sm-8">
+                            @Html.TextArea("nm-brg-stok", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="marketplace_stok">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-3 col-sm-3">Marketplace</label>
+                        <div class="col-md-8 col-sm-8">
+                            @Html.TextBox("market-stok", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="provinsi_stok">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-3 col-sm-3">Provinsi</label>
+                        <div class="col-md-8 col-sm-8">
+                            @Html.TextBox("prov-stok", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="gudang_stok">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-3 col-sm-3">Gudang</label>
+                        <div class="col-md-8 col-sm-8">
+                            @Html.TextBox("gudang-stok", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-3 col-sm-3">Total Stok</label>
+                        <div class="col-md-8 col-sm-8">
+                            <label id="ttl-stok" class="control-label" disabled="disabled"></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-3 col-sm-3">Total Gudang</label>
+                        <div class="col-md-8 col-sm-8">
+                            <label id="ttl-gd" class="control-label" disabled="disabled"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-4 col-sm-6" style="margin-bottom:7px;">
+                        <div class="input-group">
+                            <input id="search_detail_stok" type="text" class="form-control" placeholder="Pencarian">
+                            <span class="input-group-btn">
+                                <button type="button" id="search_detail_stok_click" class="btn btn-primary">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div id="list-detail-stok"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="close-detail-stok" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*end add by nurul 13/5/2020*@
+@*//add by nurul 3/2/2022*@
+<div class="modal fade" id="modalDetailQtySiapJual" style="margin:0;padding:0;" tabindex="-1" role="dialog" aria-labelledby="modalDetailQtySiapJualLabel">
+    <div class="modal-dialog" role="document" style="margin:auto;width:700px;margin-top:20px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalDetailQtySiapJualLabel">Detail Quantity Siap Jual</h4>
+
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-3 col-sm-3">Kode Barang</label>
+                        <div class="col-md-3 col-sm-3">
+                            @Html.TextBox("kd-brg-qty", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-3 col-sm-3">Nama Barang</label>
+                        <div class="col-md-8 col-sm-8">
+                            @Html.TextArea("nm-brg-qty", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="marketplace_qty">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-3 col-sm-3">Marketplace</label>
+                        <div class="col-md-8 col-sm-8">
+                            @Html.TextBox("market-qty", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="provinsi_qty">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-3 col-sm-3">Provinsi</label>
+                        <div class="col-md-8 col-sm-8">
+                            @Html.TextBox("prov-qty", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="gudang_qty">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-3 col-sm-3">Gudang</label>
+                        <div class="col-md-8 col-sm-8">
+                            @Html.TextBox("gudang-qty", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-3 col-sm-3">Total Qty Siap Jual</label>
+                        <div class="col-md-8 col-sm-8">
+                            <label id="ttl-qty-siap" class="control-label" disabled="disabled"></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-3 col-sm-3">Total Gudang</label>
+                        <div class="col-md-8 col-sm-8">
+                            <label id="ttl-gd-siap" class="control-label" disabled="disabled"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-4 col-sm-6" style="margin-bottom:7px;">
+                        <div class="input-group">
+                            <input id="search_detail_qty" type="text" class="form-control" placeholder="Pencarian">
+                            <span class="input-group-btn">
+                                <button type="button" id="search_detail_qty_click" class="btn btn-primary">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                    <div id="type-print" style="display:none"></div>
+                </div>
+                <div id="list-detail-qty"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="close-detail-qty" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*//end add by nurul 3/2/2022*@
+@section scripts
+{
+    <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        var tempBrg = "";
+        var tempNama = "";
+        var tempQty = "";
+        var tempPesanan = "";
+
+        var tempBrgStok = "";
+        var tempNamaStok = "";
+        var tempStok = "";
+        var tempGd = "";
+
+        var $TabAktif = 0;// 0 barang, 1 kosong, 2 tidak laku, 3 minimum stok, 4 paling laku
+        var $namaTab = "barang";
+
+        //remark by calvin 24 mei 2019
+        //var table = $('#datatable').DataTable();
+        //var tableKosong = $('#datatable_kosong').DataTable();
+        //var tableTidakLaku = $('#datatable_tidaklaku').DataTable();
+        //var tableMinimumStok = $('#datatable_minimumstok').DataTable();
+        //var tablePalingLaku = $('#datatable_palinglaku').DataTable();
+
+        //$('#search_barang').keyup(function () {
+        //    table.search($(this).val()).draw();
+        //});
+
+        //$('#search_palinglaku').keyup(function () {
+        //    tablePalingLaku.search($(this).val()).draw();
+        //});
+
+        //$('#search_kosong').keyup(function () {
+        //    tableKosong.search($(this).val()).draw();
+        //});
+
+        //$('#search_tidaklaku').keyup(function () {
+        //    tableTidakLaku.search($(this).val()).draw();
+        //});
+
+        //$('#search_minimumstok').keyup(function () {
+        //    tableMinimumStok.search($(this).val()).draw();
+        //});
+        //end remark by calvin 24 mei 2019
+
+
+        $(document).ready(function () {
+            var d = new Date();
+            d.setMonth(d.getMonth() - 3);
+            var e = new Date();
+            e.setMonth(e.getMonth() - 1);
+            //tidaklaku-tab
+            $('#DrTanggal').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', e);
+            $('#DrTanggal').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).change(function () {
+                $('#DrTanggal').val($('#DrTanggal').val());
+                $('#DrTanggal').datepicker('hide');
+                refreshTableBarangTidakLaku();
+            });
+            $('#SdTanggal').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', '0');
+            $('#SdTanggal').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).change(function () {
+                $('#SdTanggal').val($('#SdTanggal').val());
+                $('#SdTanggal').datepicker('hide');
+                refreshTableBarangTidakLaku();
+            });
+            //palinglaku-tab
+            $('#DrTanggal1').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', e);
+            $('#DrTanggal1').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).change(function () {
+                $('#DrTanggal1').val($('#DrTanggal1').val());
+                $('#DrTanggal1').datepicker('hide');
+                refreshTablePalingLaku();
+            });
+            $('#SdTanggal1').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', '0');
+            $('#SdTanggal1').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).change(function () {
+                $('#SdTanggal1').val($('#SdTanggal1').val());
+                $('#SdTanggal1').datepicker('hide');
+                refreshTablePalingLaku();
+            });
+            //minimumstok-tab
+            $('#DrTanggal2').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', e)
+            $('#DrTanggal2').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).change(function () {
+                $('#DrTanggal2').val($('#DrTanggal2').val());
+                $('#DrTanggal2').datepicker('hide');
+                refreshTableMinimumStok();
+            });
+            $('#SdTanggal2').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', '0');
+            $('#SdTanggal2').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).change(function () {
+                $('#SdTanggal2').val($('#SdTanggal2').val());
+                $('#SdTanggal2').datepicker('hide');
+                refreshTableMinimumStok();
+            });
+
+            $('#search_barang').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableBarang();
+                    return false;
+                }
+            });
+            $('#search_barang_click').click(function () {
+                searchTableBarang();
+            });
+            $('#barang-tab').click(function () {
+                $TabAktif = 0;
+                $namaTab = "barang";
+                setFilter();
+                //refreshFilter();
+                refreshTableBarang();
+            });
+
+            $('#search_kosong').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableBarangKosong();
+                    return false;
+                }
+            });
+            $('#search_kosong_click').click(function () {
+                searchTableBarangKosong();
+            });
+            $('#kosong-tab').click(function () {
+                $TabAktif = 1;
+                $namaTab = "kosong";
+                setFilter();
+                //refreshFilter();
+                refreshTableBarangKosong();
+            });
+
+            $('#search_tidaklaku').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableBarangTidakLaku();
+                    return false;
+                }
+            });
+            $('#search_tidaklaku_click').click(function () {
+                searchTableBarangTidakLaku();
+            });
+            $('#tidaklaku-tab').click(function () {
+                $TabAktif = 2;
+                $namaTab = "tidaklaku";
+                setFilter();
+                //refreshFilter();
+                refreshTableBarangTidakLaku();
+            });
+
+
+            $('#search_palinglaku').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTablePalingLaku();
+                    return false;
+                }
+            });
+            $('#search_palinglaku_click').click(function () {
+                searchTablePalingLaku();
+            });
+            $('#palinglaku-tab').click(function () {
+                $TabAktif = 4;
+                $namaTab = "palinglaku";
+                setFilter();
+                //refreshFilter();
+                refreshTablePalingLaku();
+            });
+
+            $('#search_minimumstok').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableMinimumStok();
+                    return false;
+                }
+            });
+            $('#search_minimumstok_click').click(function () {
+                searchTableMinimumStok();
+            });
+            $('#minimumstok-tab').click(function () {
+                $TabAktif = 3;
+                $namaTab = "minimumstok";
+                setFilter();
+                //refreshFilter();
+                $('#Order').val("1");
+                refreshTableMinimumStok();
+            });
+
+            $('#barang-tab').click();
+
+            $('#Order').change(function () {
+                refreshTableMinimumStok();
+            });
+
+            $('#search_detail').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableDetail();
+                    return false;
+                }
+            });
+            $('#search_detail_click').click(function () {
+                searchTableDetail();
+            });
+
+            $('#close-detail').click(function () {
+                tempBrg = "";
+                tempNama = "";
+                tempQty = "";
+                tempPesanan = "";
+            });
+
+            $('#search_detail_stok').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableDetailStok();
+                    return false;
+                }
+            });
+            $('#search_detail_stok_click').click(function () {
+                searchTableDetailStok();
+            });
+
+            $('#search_detail_qty').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableDetailQtySiapJual();
+                    return false;
+                }
+            });
+            $('#search_detail_qty_click').click(function () {
+                searchTableDetailQtySiapJual();
+            });
+
+            //add by nurul 15/5/2020
+            $('#filter_barang_field').change(function () {
+                var filterBy = $(this).val();
+                //switch (filterBy) {
+                //    default:
+                //        $('#filter_detail_bayar_field_option_div').show();
+                //        break;
+                //}
+                $('#filter_barang_field_option_div').show();
+                if (filterBy != "Harap Pilih" && $('#filter_barang_field_option').val() != "Harap Pilih") {
+                    searchTableBarang();
+                }
+
+            });
+            $('#filter_barang_field_option').change(function () {
+                if ($('#filter_barang_field').val() != "Harap Pilih" && $('#filter_barang_field_option').val() != "Harap Pilih") {
+                    searchTableBarang();
+                }
+            });
+            //end add by nurul 15/5/2020
+
+            $('#close-detail-stok').click(function () {
+                tempBrgStok = "";
+                tempNamaStok = "";
+                tempStok = "";
+                tempGd = "";
+            });
+
+            //add by nurul 5/1/2022
+
+            
+            //end add by nurul 5/1/2022
+
+            //var gd1List = [];
+            //$('#filter2_' + $namaTab + '_field_gudang').selectize({
+            //    valueField: 'id',
+            //    searchField: 'text',
+            //    options: gd1List,
+            //});
+        });
+
+        function setFilter() {
+            $('#filter2_' + $namaTab + '_field').change(function () {
+                var filterBy = $(this).val();
+                switch (filterBy) {
+                    case "provinsi":
+                        $('#filter2_' + $namaTab + '_field_provinsi_div').show();
+                        $('#filter2_' + $namaTab + '_field_marketplace_div').hide();
+                        $('#filter2_' + $namaTab + '_field_gudang').hide();
+                        //$('#filter_packing_kirim_shopee__' + cust).val('Harap Pilih');
+                        //var provcombo = $('#filter2_' + $namaTab + '_field_provinsi').selectize();
+                        //provcombo[0].selectize.setValue(null, true);
+                        //var gudangcombo = $('#filter2_' + $namaTab + '_field_gudang').selectize();
+                        //gudangcombo[0].selectize.setValue(null, true);
+                        getProvinsiGudang();
+                        //$('#filter2_' + $namaTab + '_field_provinsi').val('harap pilih');
+                        //$('#filter2_' + $namaTab + '_field_gudang').val('harap pilih');
+                        if ($('#filter2_' + $namaTab + '_field_provinsi').val() != "Harap Pilih" && $('#filter2_' + $namaTab + '_field_provinsi').val() != "" && $('#filter2_' + $namaTab + '_field_provinsi').val() != null && $('#filter2_' + $namaTab + '_field_provinsi').val() != undefined ) {
+                            $('#filter2_' + $namaTab + '_field_provinsi').change();
+                        }
+                        break;
+                    case "marketplace":
+                        $('#filter2_' + $namaTab + '_field_provinsi_div').hide();
+                        $('#filter2_' + $namaTab + '_field_marketplace_div').show();
+                        getAkunMarket();
+                        //$('#filter2_' + $namaTab + '_field_marketplace').val('Harap Pilih');
+                        $('#filter2_' + $namaTab + '_field_gudang_div').hide();
+                        if ($('#filter2_' + $namaTab + '_field_marketplace').val() != "Harap Pilih" && $('#filter2_' + $namaTab + '_field_marketplace').val() != "" && $('#filter2_' + $namaTab + '_field_marketplace').val() != null && $('#filter2_' + $namaTab + '_field_marketplace').val() != undefined) {
+                            $('#filter2_' + $namaTab + '_field_marketplace').change();
+                        }
+                        break;
+                    default:
+                        $('#filter2_' + $namaTab + '_field_provinsi_div').hide();
+                        $('#filter2_' + $namaTab + '_field_marketplace_div').hide();
+                        $('#filter2_' + $namaTab + '_field_gudang_div').hide();
+                        break;
+                }
+            });
+            $('#filter2_' + $namaTab + '_field_marketplace').change(function () {
+                if ($TabAktif == 1) {
+                    searchTableBarangKosong();
+                } else if ($TabAktif == 2) {
+                    searchTableBarangTidakLaku();
+                } else if ($TabAktif == 3) {
+                    searchTableMinimumStok();
+                } else if ($TabAktif == 4) {
+                    searchTablePalingLaku();
+                } else {
+                    searchTableBarang();
+                }
+            });
+            $('#filter2_' + $namaTab + '_field_provinsi').change(function () {
+                var filterBy = $(this).val();
+                //var gudangcombo = $('#filter2_' + $namaTab + '_field_gudang').selectize();
+                //gudangcombo[0].selectize.clearOptions();
+                getListGudang(filterBy);
+                //$('#filter2_' + $namaTab + '_field_gudang').val('harap pilih');
+                if (filterBy != "0") {
+                    $('#filter2_' + $namaTab + '_field_gudang_div').show();
+                    //if ($('#filter2_' + $namaTab + '_field_provinsi').val() != "Harap Pilih" && $('#filter2_' + $namaTab + '_field_provinsi').val() != "" && $('#filter2_' + $namaTab + '_field_gudang').val() != "Harap Pilih" && $('#filter2_' + $namaTab + '_field_gudang').val() != "") {
+                    //    if ($TabAktif == 1) {
+                    //        searchTableBarangKosong();
+                    //    } else if ($TabAktif == 2) {
+                    //        searchTableBarangTidakLaku();
+                    //    } else if ($TabAktif == 3) {
+                    //        searchTableMinimumStok();
+                    //    } else if ($TabAktif == 4) {
+                    //        searchTablePalingLaku();
+                    //    } else {
+                    //        searchTableBarang();
+                    //    }
+                    //}
+                } else if (filterBy == "0") {
+                    $('#filter2_' + $namaTab + '_field_gudang_div').hide();
+                    if ($TabAktif == 1) {
+                        searchTableBarangKosong();
+                    } else if ($TabAktif == 2) {
+                        searchTableBarangTidakLaku();
+                    } else if ($TabAktif == 3) {
+                        searchTableMinimumStok();
+                    } else if ($TabAktif == 4) {
+                        searchTablePalingLaku();
+                    } else {
+                        searchTableBarang();
+                    }
+                }
+            });
+            $('#filter2_' + $namaTab + '_field_gudang').change(function () {
+                if ($('#filter2_' + $namaTab + '_field_provinsi').val() != "Harap Pilih" && $('#filter2_' + $namaTab + '_field_provinsi').val() != "" && $('#filter2_' + $namaTab + '_field_gudang').val() != "Harap Pilih" && $('#filter2_' + $namaTab + '_field_gudang').val() != "") {
+                    if ($TabAktif == 1) {
+                        searchTableBarangKosong();
+                    } else if ($TabAktif == 2) {
+                        searchTableBarangTidakLaku();
+                    } else if ($TabAktif == 3) {
+                        searchTableMinimumStok();
+                    } else if ($TabAktif == 4) {
+                        searchTablePalingLaku();
+                    } else {
+                        searchTableBarang();
+                    }
+                }
+            });
+        }
+        function refreshFilter() {
+            //$('#filter2_' + $namaTab + '_field').prop('selectedIndex', 0);
+            //$('#filter2_' + $namaTab + '_field_provinsi').prop('selectedIndex', 0);
+            //$('#filter2_' + $namaTab + '_field_gudang').prop('selectedIndex', 0);
+            //$('#filter2_' + $namaTab + '_field_marketplace').prop('selectedIndex', 0);
+
+            var MP1 = $('#filter2_' + $namaTab + '_field_provinsi').selectize();
+            MP1[0].selectize.setValue(null, true);
+            $('#filter2_' + $namaTab + '_field_provinsi')[0].selectize.enable(); 
+
+            var MP2 = $('#filter2_' + $namaTab + '_field_gudang').selectize();
+            MP2[0].selectize.setValue(null, true);
+            $('#filter2_' + $namaTab + '_field_gudang')[0].selectize.enable(); 
+
+            var MP3 = $('#filter2_' + $namaTab + '_field_marketplace').selectize();
+            MP3[0].selectize.setValue(null, true);
+            $('#filter2_' + $namaTab + '_field_marketplace')[0].selectize.enable(); 
+
+            $('#filter2_' + $namaTab + '_field_provinsi_div').hide();
+            $('#filter2_' + $namaTab + '_field_gudang_div').hide();
+            $('#filter2_' + $namaTab + '_field_marketplace_div').hide();
+        }
+        //add by nurul 15/5/2020
+        function get_filterby() {
+            return $('#filter_barang_field').val();
+        }
+        function get_filtervalue(filterby) {
+            var filtervalue = "";
+            switch (filterby) {
+                default:
+                    filtervalue = $('#filter_barang_field_option').val();
+                    break;
+            }
+            return filtervalue;
+        }
+        //end add by nurul 19/5/2020
+
+        //add by nurul 5/1/2022
+        function getAkunMarket() {
+            var link = '@Url.Action("getAkunMarketplace", "Manage")';
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var mpList = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            mpList[i] = {
+                                id: item.Kode,
+                                text: item.Nama
+                            };
+                        });
+
+                    var gudangSelect = $('#filter2_' + $namaTab + '_field_marketplace').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: mpList,
+                        //onChange: function (value) {
+                        //    var $objSup = $.grep(gdList, function (data) { return data.id == value });
+
+                        //    if (value == null) {
+                        //        $("#prov_temp").val('');
+                        //    } else {
+                        //        $("#prov_temp").val($objSup[0].text);
+                        //        //$("#MappingGudang_NAMA_GD_MP").val($objSup[0].nama);
+                        //    }
+                        //}
+                        //onChange: function (value) {
+                        //    var $objSup = $.grep(gdList, function (data) { return data.id == value });
+
+                        //    if (value == null) {
+                        //        $("#MappingGudang_GD_MP").val(null);
+                        //        $("#MappingGudang_NAMA_GD_MP").val(null);
+                        //    } else {
+                        //        $("#MappingGudang_GD_MP").val(value).trigger('change');
+                        //        $("#MappingGudang_NAMA_GD_MP").val($objSup[0].nama);
+                        //    }
+                        //}
+                    });
+
+                    //gudangSelect[0].selectize.setValue($('#MappingGudang_GD_MP').val());
+                    //if ($('#MappingGudang_GD_MP').val() != "") {
+                    //    $('#filter2_' + $namaTab + '_field_provinsi')[0].selectize.disable();
+                    //}
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        function getProvinsiGudang() {
+            var link = '@Url.Action("GetProvinsiGudang", "Manage")';
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    
+                    var gdList = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            gdList[i] = {
+                                id: item.Kode,
+                                text: item.Nama
+                            };
+                        });
+
+                    var gudangSelect = $('#filter2_' + $namaTab + '_field_provinsi').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: gdList,
+                        placeholder: 'Harap pilih'
+                        //onChange: function (value) {
+                        //    var $objSup = $.grep(gdList, function (data) { return data.id == value });
+
+                        //    if (value == null) {
+                        //        $("#prov_temp").val('');
+                        //    } else {
+                        //        $("#prov_temp").val($objSup[0].text);
+                        //        //$("#MappingGudang_NAMA_GD_MP").val($objSup[0].nama);
+                        //    }
+                        //}
+                        //onChange: function (value) {
+                        //    var $objSup = $.grep(gdList, function (data) { return data.id == value });
+
+                        //    if (value == null) {
+                        //        $("#MappingGudang_GD_MP").val(null);
+                        //        $("#MappingGudang_NAMA_GD_MP").val(null);
+                        //    } else {
+                        //        $("#MappingGudang_GD_MP").val(value).trigger('change');
+                        //        $("#MappingGudang_NAMA_GD_MP").val($objSup[0].nama);
+                        //    }
+                        //}
+                    });
+
+                    //gudangSelect[0].selectize.setValue($('#MappingGudang_GD_MP').val());
+                    //if ($('#MappingGudang_GD_MP').val() != "") {
+                    //    $('#filter2_' + $namaTab + '_field_provinsi')[0].selectize.disable();
+                    //}
+
+                    //$("#filter2_' + $namaTab + '_field_provinsi").empty();
+                    //$('#filter2_' + $namaTab + '_field_provinsi').selectivity({
+                    //    allowClear: true,
+                    //    items: gdList,
+                    //    placeholder: 'Harap pilih'
+                    //});
+
+                    //var $kdProv = $('#gudang_temp').val();
+
+                    ////$('#filter2_' + $namaTab + '_field_provinsi').change(function () {
+                    ////    var $val = $(this).selectivity('value');
+
+                    ////    if ($val === null) {
+                    ////        $("#gudang_temp").val(null);
+                    ////    } else {
+                    ////        $("#gudang_temp").val($val);
+                    ////    }
+                    ////});
+
+                    ////if ($kdProv !== null) {
+                    ////    $('#filter2_' + $namaTab + '_field_provinsi').selectivity('value', $kdProv);
+                    ////}
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function getListGudang($prov) {
+            var link = '@Url.Action("GetGudangForMenuBarang", "Manage", new { kodeProv = "replaceId" })';
+            link = link.replace("replaceId", encodeURIComponent($prov));
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    
+                    var gd2List = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            gd2List[i] = {
+                                id: item.Kode,
+                                text: item.Nama
+                                //text: item.Kode + ' (' + item.Nama + ')',
+                                //nama: item.Nama
+                            };
+                        });
+                    //$('#filter2_' + $namaTab + '_field_gudang')[0].selectize.clearOptions();
+                    
+                    var gudangcombo = $('#filter2_' + $namaTab + '_field_gudang').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: gd2List,
+                        placeholder: 'Harap pilih'
+                        //onChange: function (value) {
+                        //    var $objSup = $.grep(gd2List, function (data) { return data.id == value });
+
+                        //    if (value == null) {
+                        //        $("#gudang_temp").val('');
+                        //    } else {
+                        //        $("#gudang_temp").val($objSup[0].text);
+                        //        //$("#MappingGudang_NAMA_GD_MP").val($objSup[0].nama);
+                        //    }
+                        //}
+                    });
+                    
+                    if (gudangcombo[0].selectize.hasOptions) {
+                        gudangcombo[0].selectize.clearOptions();
+                        gudangcombo[0].selectize.addOption(gd2List);
+                    } else {
+                        gudangcombo[0].selectize.addOption(gd2List);
+                    }
+                    //gudangcombo[0].selectize.addOption(gd1List);
+                    //gudangSelect[0].selectize.setValue($('#gudang_temp').val(), true);
+                    //if ($('#MappingGudang_GD_MP').val() != "") {
+                    //    $('#filter2_' + $namaTab + '_field_gudang')[0].selectize.disable();
+                    //}
+
+                    //$("#filter2_' + $namaTab + '_field_gudang").empty();
+                    //$('#filter2_' + $namaTab + '_field_gudang').selectivity({
+                    //    allowClear: true,
+                    //    items: gd2List,
+                    //    placeholder: 'Harap pilih'
+                    //});
+
+                    //var $kdProv = $('#gudang_temp').val();
+
+                    ////$('#filter2_' + $namaTab + '_field_gudang').change(function () {
+                    ////    var $val = $(this).selectivity('value');
+
+                    ////    if ($val === null) {
+                    ////        $("#gudang_temp").val(null);
+                    ////    } else {
+                    ////        $("#gudang_temp").val($val);
+                    ////    }
+                    ////});
+
+                    ////if ($kdProv !== null) {
+                    ////    $('#filter2_' + $namaTab + '_field_gudang').selectivity('value', $kdProv);
+                    ////}
+                    
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function get_filterby2() {
+            return $('#filter2_' + $namaTab + '_field').val();
+        }
+        function get_filtervalue2(filterby2) {
+            var filtervalue2 = "";
+            switch (filterby2) {
+                case "provinsi":
+                    filtervalue2 = $('#filter2_' + $namaTab + '_field_provinsi').val();
+                    break;
+                case "marketplace":
+                    filtervalue2 = $('#filter2_' + $namaTab + '_field_marketplace').val();
+                    break;
+                default:
+                    break;
+            }
+            return filtervalue2;
+        }
+        //end add by nurul 5/1/2022
+
+        function searchTableBarang() {
+            @*var link = '@Html.Raw(Url.Action("RefreshTableMenuBarang", "Manage", new { search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';*@
+            var link = '@Html.Raw(Url.Action("RefreshTableMenuBarang2", "Manage", new { search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang" }))';
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_barang').val()));
+
+            var filterby = get_filterby();
+            var filtervalue = get_filtervalue(filterby);
+            link = link.replace("replaceFilter", encodeURIComponent(filterby));
+            link = link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+
+            var filterby2 = get_filterby2();
+            var filtervalue2 = get_filtervalue2(filterby2);
+            link = link.replace("replaceFilter2", encodeURIComponent(filterby2));
+            link = link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
+
+            if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
+                link = link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
+            }
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#table-barang-1-partial').hide();
+                    $('#loading_barang_tab').show();
+                },
+                success: function (response) {
+                    $('#table-barang-1-partial').html(response);
+                    $('#loading_barang_tab').hide();
+                    $('#table-barang-1-partial').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function refreshTableBarang() {
+            var link = '@Html.Raw(Url.Action("RefreshTableMenuBarang2", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_barang').val()));
+            link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_tmb1p').val()));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#table-barang-1-partial').hide();
+                    $('#loading_barang_tab').show();
+                },
+                success: function (response) {
+                    $('#table-barang-1-partial').html(response);
+                    $('#loading_barang_tab').hide();
+                    $('#table-barang-1-partial').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function searchTableBarangKosong() {
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangKosong2", "Manage", new { search = "replaceSearch", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang" }))';
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_kosong').val()));
+
+            var filterby2 = get_filterby2();
+            var filtervalue2 = get_filtervalue2(filterby2);
+            link = link.replace("replaceFilter2", encodeURIComponent(filterby2));
+            link = link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
+
+            if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
+                link = link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
+            }
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#table-barang-kosong-partial').hide();
+                    $('#loading_kosong_tab').show();
+                },
+                success: function (response) {
+                    $('#table-barang-kosong-partial').html(response);
+                    $('#loading_kosong_tab').hide();
+                    $('#table-barang-kosong-partial').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function refreshTableBarangKosong() {
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangKosong2", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_kosong').val()));
+            link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_tbkp').val()));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#table-barang-kosong-partial').hide();
+                    $('#loading_kosong_tab').show();
+                },
+                success: function (response) {
+                    $('#table-barang-kosong-partial').html(response);
+                    $('#loading_kosong_tab').hide();
+                    $('#table-barang-kosong-partial').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function searchTableBarangTidakLaku() {
+            @*change by nurul 16/1/2019 -- var link = '@Url.Action("RefreshTableBarangTidakLaku", "Manage")'; 'change by nurul 15/1/2019 *@
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangTidakLaku2", "Manage", new { search = "replaceSearch", param = "replacedrtgl;replacesdtgl", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang" }))';
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_tidaklaku').val()));
+            link = link.replace("replacedrtgl", encodeURIComponent($('#DrTanggal').val()));
+            link = link.replace("replacesdtgl", encodeURIComponent($('#SdTanggal').val()));
+
+            var filterby2 = get_filterby2();
+            var filtervalue2 = get_filtervalue2(filterby2);
+            link = link.replace("replaceFilter2", encodeURIComponent(filterby2));
+            link = link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
+
+            if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
+                link = link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
+            }
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#table-barang-tidak-laku-partial').hide();
+                    $('#loading_tidak_laku_tab').show();
+                },
+                success: function (response) {
+                    $('#table-barang-tidak-laku-partial').html(response);
+                    $('#loading_tidak_laku_tab').hide();
+                    $('#table-barang-tidak-laku-partial').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function refreshTableBarangTidakLaku() {
+            @*change by nurul 16/1/2019 -- var link = '@Url.Action("RefreshTableBarangTidakLaku", "Manage")'; 'change by nurul 15/1/2019 *@
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangTidakLaku2", "Manage", new { page = "replaceLastPage", search = "replaceSearch", param = "replacedrtgl;replacesdtgl" }))';
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_tidaklaku').val()));
+            link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_tbtlp').val()));
+            link = link.replace("replacedrtgl", encodeURIComponent($('#DrTanggal').val()));
+            link = link.replace("replacesdtgl", encodeURIComponent($('#SdTanggal').val()));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#table-barang-tidak-laku-partial').hide();
+                    $('#loading_tidak_laku_tab').show();
+                },
+                success: function (response) {
+                    $('#table-barang-tidak-laku-partial').html(response);
+                    $('#loading_tidak_laku_tab').hide();
+                    $('#table-barang-tidak-laku-partial').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function searchTablePalingLaku() {
+            @*change by nurul 16/1/2019 -- var link = '@Url.Action("RefreshTableBarangTidakLaku", "Manage")'; 'change by nurul 15/1/2019 *@
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangPalingLaku2", "Manage", new { search = "replaceSearch", param = "replacedrtgl;replacesdtgl", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang" }))';
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_palinglaku').val()));
+            link = link.replace("replacedrtgl", encodeURIComponent($('#DrTanggal1').val()));
+            link = link.replace("replacesdtgl", encodeURIComponent($('#SdTanggal1').val()));
+
+            var filterby2 = get_filterby2();
+            var filtervalue2 = get_filtervalue2(filterby2);
+            link = link.replace("replaceFilter2", encodeURIComponent(filterby2));
+            link = link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
+
+            if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
+                link = link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
+            }
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#table-barang-paling-laku-partial').hide();
+                    $('#loading_palinglaku_tab').show();
+                },
+                success: function (response) {
+                    $('#table-barang-paling-laku-partial').html(response);
+                    $('#loading_palinglaku_tab').hide();
+                    $('#table-barang-paling-laku-partial').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function refreshTablePalingLaku() {
+            @*change by nurul 16/1/2019 -- var link = '@Url.Action("RefreshTableBarangPalingLaku", "Manage")'; 'change by nurul 15/1/2019*@
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangPalingLaku2", "Manage", new { page = "replaceLastPage", search = "replaceSearch", param = "replacedrtgl;replacesdtgl" }))';
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_palinglaku').val()));
+            link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_tbpl').val()));
+            link = link.replace("replacedrtgl", encodeURIComponent($('#DrTanggal1').val()));
+            link = link.replace("replacesdtgl", encodeURIComponent($('#SdTanggal1').val()));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#table-barang-paling-laku-partial').hide();
+                    $('#loading_palinglaku_tab').show();
+                },
+                success: function (response) {
+                    $('#table-barang-paling-laku-partial').html(response);
+                    $('#loading_palinglaku_tab').hide();
+                    $('#table-barang-paling-laku-partial').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function searchTableMinimumStok() {
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangDibawahMinimumStok2", "Manage", new { search = "replaceSearch", param = "replacedrtgl;replacesdtgl", order = "replaceOrder", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang" }))';
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_minimumstok').val()));
+            link = link.replace("replacedrtgl", encodeURIComponent($('#DrTanggal2').val()));
+            link = link.replace("replacesdtgl", encodeURIComponent($('#SdTanggal2').val()));
+            link = link.replace("replaceOrder", $('#Order').val());
+
+            var filterby2 = get_filterby2();
+            var filtervalue2 = get_filtervalue2(filterby2);
+            link = link.replace("replaceFilter2", encodeURIComponent(filterby2));
+            link = link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
+
+            if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
+                link = link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
+            }
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#table-barang-minimum-stok-partial').hide();
+                    $('#loading_minimum_stok_tab').show();
+                },
+                success: function (response) {
+                    $('#table-barang-minimum-stok-partial').html(response);
+                    $('#loading_minimum_stok_tab').hide();
+                    $('#table-barang-minimum-stok-partial').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function refreshTableMinimumStok() {
+            //change by nurul 6/5/2019
+            @*var link = '@Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage")';*@
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangDibawahMinimumStok2", "Manage", new { page = "replaceLastPage", search = "replaceSearch", param = "replacedrtgl;replacesdtgl", order = "replaceOrder" }))';
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_minimumstok').val()));
+            link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_tbms').val()));
+            link = link.replace("replacedrtgl", encodeURIComponent($('#DrTanggal2').val()));
+            link = link.replace("replacesdtgl", encodeURIComponent($('#SdTanggal2').val()));
+            link = link.replace("replaceOrder", $('#Order').val());
+            //end add by nurul 6/5/2019
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#table-barang-minimum-stok-partial').hide();
+                    $('#loading_minimum_stok_tab').show();
+                },
+                success: function (response) {
+                    $('#table-barang-minimum-stok-partial').html(response);
+                    $('#loading_minimum_stok_tab').hide();
+                    $('#table-barang-minimum-stok-partial').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function ConvertToAngkaRupiah(source) {
+            if (source.value == '') {
+                source.value = 0;
+            }
+            source.value = (convertToAngka(source.value));
+            source.value = (convertToRupiah(source.value));
+        }
+
+        //add by nurul 29/4/2020
+        function LihatDetailPesanan($req_id, $type) {
+            if ($req_id != null && $req_id != undefined && $req_id != "") {
+            var tempReqId = $req_id.split('|');
+            tempBrg = tempReqId[0];
+            tempNama = tempReqId[1];
+            tempQty = tempReqId[2];
+
+                $('#search_detail').val('');
+                $('#txt_last_page_detail').val('');
+                $('#type-print-1').val($type);
+                //if ($('#filter2_' + $namaTab + '_field').val() == "")
+        var $link = '@Html.Raw(Url.Action("LihatDetailPesanan2", "Manage", new { brgId = "replaceID", page = "replaceLastPage", search = "replaceSearch", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang", type = "replaceType" }))';
+            $link = $link.replace("replaceID", encodeURIComponent(tempBrg));
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_detail').val()));
+                $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_detail').val()));
+
+                var filterby2 = get_filterby2();
+                var filtervalue2 = get_filtervalue2(filterby2);
+                $link = $link.replace("replaceFilter2", encodeURIComponent(filterby2));
+                $link = $link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
+
+                $link = $link.replace("replaceType", encodeURIComponent($type));
+
+                if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
+                    $link = $link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
+                }
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                $('#list-detail').hide();
+                $('#loading_detail_barang_tab').show();
+                //$('#kd-brg').text(tempBrg);
+                //$('#nm-brg').text(tempNama);
+                //$('#ttl-qty').text(tempQty);
+                $('#kd-brg').val(tempBrg);
+                $('#nm-brg').text(tempNama);
+                $('#ttl-qty').text(": " + tempQty);
+                if (filterby2 == "marketplace") {
+                    $('#marketplace_pesanan').show();
+                    $('#provinsi_pesanan').hide();
+                    $('#gudang_pesanan').hide();
+                    $('#market-pesanan').val($('#filter2_' + $namaTab + '_field_marketplace').text());
+                    $('#prov-pesanan').val('');
+                    $('#gudang-pesanan').val('');
+                } else if (filterby2 == "provinsi" && filtervalue2 != "") {
+                    $('#marketplace_pesanan').hide();
+                    $('#provinsi_pesanan').show();
+                    if ($('#filter2_' + $namaTab + '_field_gudang').val() != "") {
+                        $('#gudang_pesanan').show();
+                    } else {
+                        $('#gudang_pesanan').hide();
+                    }
+                    $('#market-pesanan').val('');
+                    $('#prov-pesanan').val($('#filter2_' + $namaTab + '_field_provinsi').text());
+                    $('#gudang-pesanan').val($('#filter2_' + $namaTab + '_field_gudang').text());
+                } else {
+                    $('#marketplace_pesanan').hide();
+                    $('#provinsi_pesanan').hide();
+                    $('#gudang_pesanan').hide();
+                    $('#market-pesanan').val('');
+                    $('#prov-pesanan').val('');
+                    $('#gudang-pesanan').val('');
+                }
+            },
+            success: function (value) {
+                $('#list-detail').html(value);
+                tempPesanan = qtyPesanan;
+                //$('#ttl-pesanan').text(tempPesanan);
+                $('#ttl-pesanan').text(": " + tempPesanan);
+                $('#loading_detail_barang_tab').hide();
+                $('#list-detail').show();
+            },
+            error: function (xhr, status, error) {
+                $('#loading_detail_barang_tab').hide();
+                alert(error);
+                console.log(error);
+            }
+            });
+        } else {
+            $('#loading_detail_barang_tab').hide();
+            alert("Tidak ada detail pesanan.");
+        }
+        }
+
+        function searchTableDetail() {
+            if (tempBrg != null && tempBrg != undefined && tempBrg != "") {
+            var link = '@Html.Raw(Url.Action("LihatDetailPesanan2", "Manage", new { brgId = "replaceID", search = "replaceSearch", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang", type = "replaceType" }))';
+            link = link.replace("replaceID", encodeURIComponent(tempBrg));
+                link = link.replace("replaceSearch", encodeURIComponent($('#search_detail').val()));
+
+                var filterby2 = get_filterby2();
+                var filtervalue2 = get_filtervalue2(filterby2);
+                link = link.replace("replaceFilter2", encodeURIComponent(filterby2));
+                link = link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
+
+                link = link.replace("replaceType", encodeURIComponent($('#type-print-1').val()));
+
+                if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
+                    link = link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
+                }
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#list-detail').hide();
+                    $('#loading_detail_barang_tab').show();
+                },
+                success: function (response) {
+                    $('#list-detail').html(response);
+                    $('#loading_detail_barang_tab').hide();
+                    $('#list-detail').show();
+                },
+                error: function (xhr, status, error) {
+                    $('#loading_detail_barang_tab').hide();
+                    console.log(error);
+                }
+                });
+            } else {
+                $('#loading_detail_barang_tab').hide();
+                alert("Tidak ada detail pesanan.");
+            }
+        }
+
+        function refreshTableDetail() {
+            if (tempBrg != null && tempBrg != undefined && tempBrg != "") {
+                var link = '@Html.Raw(Url.Action("LihatDetailPesanan2", "Manage", new { brgId = "replaceID", page = "replaceLastPage", search = "replaceSearch", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang" }))';
+                link = link.replace("replaceID", encodeURIComponent(tempBrg));
+                link = link.replace("replaceSearch", encodeURIComponent($('#search_detail').val()));
+                link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_detail').val()));
+
+                var filterby2 = get_filterby2();
+                var filtervalue2 = get_filtervalue2(filterby2);
+                link = link.replace("replaceFilter2", encodeURIComponent(filterby2));
+                link = link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
+
+                if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
+                    link = link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
+                }
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    beforeSend: function () {
+                        $('#list-detail').hide();
+                        $('#loading_detail_barang_tab').show();
+                    },
+                    success: function (response) {
+                        $('#list-detail').html(response);
+                        $('#loading_detail_barang_tab').hide();
+                        $('#list-detail').show();
+                    },
+                    error: function (xhr, status, error) {
+                        $('#loading_detail_barang_tab').hide();
+                        console.log(error);
+                    }
+                });
+            } else {
+                $('#loading_detail_barang_tab').hide();
+                alert("Tidak ada detail pesanan.");
+            }
+        }
+        //end add by nurul 29/4/2020
+
+        //add by nurul 13/5/2020
+        function LihatDetailStok($req_id_stok) {
+            if ($req_id_stok != null && $req_id_stok != undefined && $req_id_stok != "") {
+                var tempReqId = $req_id_stok.split('|');
+            tempBrgStok = tempReqId[0];
+            tempNamaStok = tempReqId[1];
+            tempStok = tempReqId[2];
+                $('#search_detail_stok').val('');
+                $('#txt_last_page_detail_stok').val('')
+        var $link = '@Html.Raw(Url.Action("LihatDetailStok2", "Manage", new { brgId = "replaceID", page = "replaceLastPage", search = "replaceSearch", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang" }))';
+            $link = $link.replace("replaceID", encodeURIComponent(tempBrgStok));
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_detail_stok').val()));
+                $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_detail_stok').val()));
+
+                var filterby2 = get_filterby2();
+                var filtervalue2 = get_filtervalue2(filterby2);
+                $link = $link.replace("replaceFilter2", encodeURIComponent(filterby2));
+                $link = $link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
+
+                if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
+                    $link = $link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
+                }
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                $('#list-detail-stok').hide();
+                $('#loading_detail_stok_barang_tab').show();
+                $('#kd-brg-stok').val(tempBrgStok);
+                $('#nm-brg-stok').text(tempNamaStok);
+                $('#ttl-stok').text(": " + tempStok);
+                if (filterby2 == "marketplace") {
+                    $('#marketplace_stok').show();
+                    $('#provinsi_stok').hide();
+                    $('#gudang_stok').hide();
+                    $('#market-stok').val($('#filter2_' + $namaTab + '_field_marketplace').text());
+                    $('#prov-stok').val('');
+                    $('#gudang-stok').val('');
+                } else if (filterby2 == "provinsi" && filtervalue2 != "") {
+                    $('#marketplace_stok').hide();
+                    $('#provinsi_stok').show();
+                    if ($('#filter2_' + $namaTab + '_field_gudang').val() != "") {
+                        $('#gudang_stok').show();
+                    } else {
+                        $('#gudang_stok').hide();
+                    }
+                    $('#market-stok').val('');
+                    $('#prov-stok').val($('#filter2_' + $namaTab + '_field_provinsi').text());
+                    $('#gudang-stok').val($('#filter2_' + $namaTab + '_field_gudang').text());
+                } else {
+                    $('#marketplace_stok').hide();
+                    $('#provinsi_stok').hide();
+                    $('#gudang_stok').hide();
+                    $('#market-stok').val('');
+                    $('#prov-stok').val('');
+                    $('#gudang-stok').val('');
+                }
+            },
+            success: function (value) {
+                $('#list-detail-stok').html(value);
+                tempGd = qtyGd;
+                $('#ttl-gd').text(": " + tempGd);
+                $('#loading_detail_stok_barang_tab').hide();
+                $('#list-detail-stok').show();
+            },
+            error: function (xhr, status, error) {
+                $('#loading_detail_stok_barang_tab').hide();
+                alert(error);
+                console.log(error);
+            }
+            });
+        } else {
+                $('#loading_detail_stok_barang_tab').hide();
+            alert("Tidak ada detail stok.");
+        }
+        }
+
+        function searchTableDetailStok() {
+            if (tempBrgStok != null && tempBrgStok != undefined && tempBrgStok != "") {
+            var link = '@Html.Raw(Url.Action("LihatDetailStok2", "Manage", new { brgId = "replaceID", search = "replaceSearch", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang" }))';
+            link = link.replace("replaceID", encodeURIComponent(tempBrgStok));
+                link = link.replace("replaceSearch", encodeURIComponent($('#search_detail_stok').val()));
+
+                var filterby2 = get_filterby2();
+                var filtervalue2 = get_filtervalue2(filterby2);
+                link = link.replace("replaceFilter2", encodeURIComponent(filterby2));
+                link = link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
+
+                if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
+                    link = link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
+                }
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#list-detail-stok').hide();
+                    $('#loading_detail_stok_barang_tab').show();
+                },
+                success: function (response) {
+                    $('#list-detail-stok').html(response);
+                    $('#loading_detail_stok_barang_tab').hide();
+                    $('#list-detail-stok').show();
+                },
+                error: function (xhr, status, error) {
+                    $('#loading_detail_stok_barang_tab').hide();
+                    console.log(error);
+                }
+                });
+            } else {
+                $('#loading_detail_stok_barang_tab').hide();
+                alert("Tidak ada detail stok.");
+            }
+        }
+
+        function refreshTableDetailStok() {
+            if (tempBrgStok != null && tempBrgStok != undefined && tempBrgStok != "") {
+                var link = '@Html.Raw(Url.Action("LihatDetailStok2", "Manage", new { brgId = "replaceID", page = "replaceLastPage", search = "replaceSearch", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang" }))';
+                link = link.replace("replaceID", encodeURIComponent(tempBrgStok));
+                link = link.replace("replaceSearch", encodeURIComponent($('#search_detail_stok').val()));
+                link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_detail_stok').val()));
+
+                var filterby2 = get_filterby2();
+                var filtervalue2 = get_filtervalue2(filterby2);
+                link = link.replace("replaceFilter2", encodeURIComponent(filterby2));
+                link = link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
+
+                if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
+                    link = link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
+                }
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    beforeSend: function () {
+                        $('#list-detail-stok').hide();
+                        $('#loading_detail_stok_barang_tab').show();
+                    },
+                    success: function (response) {
+                        $('#list-detail-stok').html(response);
+                        $('#loading_detail_stok_barang_tab').hide();
+                        $('#list-detail-stok').show();
+                    },
+                    error: function (xhr, status, error) {
+                        $('#loading_detail_stok_barang_tab').hide();
+                        console.log(error);
+                    }
+                });
+            } else {
+                $('#loading_detail_stok_barang_tab').hide();
+                alert("Tidak ada detail stok.");
+            }
+        }
+        //end add by nurul 13/5/2020
+
+        //add by nurul 3/2/2022
+        function LihatDetailQtySiapJual($req_id_qty,$type) {
+            if ($req_id_qty != null && $req_id_qty != undefined && $req_id_qty != "") {
+                var tempReqId = $req_id_qty.split('|');
+                tempBrgStok = tempReqId[0];
+                tempNamaStok = tempReqId[1];
+                tempStok = tempReqId[2];
+                $('#search_detail_qty').val('');
+                $('#txt_last_page_detail_qty').val('');
+                $('#type-print').val($type);
+                var $link = '@Html.Raw(Url.Action("LihatDetailQtySiapJual2", "Manage", new { brgId = "replaceID", page = "replaceLastPage", search = "replaceSearch", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang", type = "replaceType" }))';
+                $link = $link.replace("replaceID", encodeURIComponent(tempBrgStok));
+                $link = $link.replace("replaceSearch", encodeURIComponent($('#search_detail_qty').val()));
+                $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_detail_qty').val()));
+
+                var filterby2 = get_filterby2();
+                var filtervalue2 = get_filtervalue2(filterby2);
+                $link = $link.replace("replaceFilter2", encodeURIComponent(filterby2));
+                $link = $link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
+
+                $link = $link.replace("replaceType", encodeURIComponent($type));
+
+                if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
+                    $link = $link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
+                }
+
+                $.ajax({
+                    type: "GET",
+                    url: $link,
+                    beforeSend: function () {
+                        $('#list-detail-qty').hide();
+                        $('#loading_detail_qty_barang_tab').show();
+                        $('#kd-brg-qty').val(tempBrgStok);
+                        $('#nm-brg-qty').text(tempNamaStok);
+                        $('#ttl-qty-siap').text(": " + tempStok);
+                        if (filterby2 == "marketplace") {
+                            $('#marketplace_qty').show();
+                            $('#provinsi_qty').hide();
+                            $('#gudang_qty').hide();
+                            $('#market-qty').val($('#filter2_' + $namaTab + '_field_marketplace').text());
+                            $('#prov-qty').val('');
+                            $('#gudang-qty').val('');
+                        } else if (filterby2 == "provinsi" && filtervalue2 != "") {
+                            $('#marketplace_qty').hide();
+                            $('#provinsi_qty').show();
+                            if ($('#filter2_' + $namaTab + '_field_gudang').val() != "") {
+                                $('#gudang_qty').show();
+                            } else {
+                                $('#gudang_qty').hide();
+                            }
+                            $('#market-qty').val('');
+                            $('#prov-qty').val($('#filter2_' + $namaTab + '_field_provinsi').text());
+                            $('#gudang-qty').val($('#filter2_' + $namaTab + '_field_gudang').text());
+                        } else {
+                            $('#marketplace_qty').hide();
+                            $('#provinsi_qty').hide();
+                            $('#gudang_qty').hide();
+                            $('#market-qty').val('');
+                            $('#prov-qty').val('');
+                            $('#gudang-qty').val('');
+                        }
+                    },
+                    success: function (value) {
+                        $('#list-detail-qty').html(value);
+                        tempGd = qtyGd;
+                        $('#ttl-gd-siap').text(": " + tempGd);
+                        $('#loading_detail_qty_barang_tab').hide();
+                        $('#list-detail-qty').show();
+                    },
+                    error: function (xhr, status, error) {
+                        $('#loading_detail_qty_barang_tab').hide();
+                        alert(error);
+                        console.log(error);
+                    }
+                });
+            } else {
+                $('#loading_detail_qty_barang_tab').hide();
+                alert("Tidak ada detail qty siap jual.");
+            }
+        }
+
+        function searchTableDetailQtySiapJual() {
+            if (tempBrgStok != null && tempBrgStok != undefined && tempBrgStok != "") {
+                var link = '@Html.Raw(Url.Action("LihatDetailQtySiapJual2", "Manage", new { brgId = "replaceID", search = "replaceSearch", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang", type = "replaceType" }))';
+                link = link.replace("replaceID", encodeURIComponent(tempBrgStok));
+                link = link.replace("replaceSearch", encodeURIComponent($('#search_detail_qty').val()));
+
+                var filterby2 = get_filterby2();
+                var filtervalue2 = get_filtervalue2(filterby2);
+                link = link.replace("replaceFilter2", encodeURIComponent(filterby2));
+                link = link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
+
+                link = link.replace("replaceType", encodeURIComponent($('#type-print').val()));
+
+                if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
+                    link = link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
+                }
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    beforeSend: function () {
+                        $('#list-detail-qty').hide();
+                        $('#loading_detail_qty_barang_tab').show();
+                    },
+                    success: function (response) {
+                        $('#list-detail-qty').html(response);
+                        $('#loading_detail_qty_barang_tab').hide();
+                        $('#list-detail-qty').show();
+                    },
+                    error: function (xhr, status, error) {
+                        $('#loading_detail_qty_barang_tab').hide();
+                        console.log(error);
+                    }
+                });
+            } else {
+                $('#loading_detail_qty_barang_tab').hide();
+                alert("Tidak ada detail qty siap jual.");
+            }filter2_
+        }
+
+        function refreshTableDetailQtySiapJual() {
+            if (tempBrgStok != null && tempBrgStok != undefined && tempBrgStok != "") {
+                var link = '@Html.Raw(Url.Action("LihatDetailQtySiapJual2", "Manage", new { brgId = "replaceID", page = "replaceLastPage", search = "replaceSearch", filter2 = "replaceFilter2", filtervalue2 = "replaceValueFilter2", filter2gudang = "replaceFilter2gudang" }))';
+                link = link.replace("replaceID", encodeURIComponent(tempBrgStok));
+                link = link.replace("replaceSearch", encodeURIComponent($('#search_detail_qty').val()));
+                link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_detail_qty').val()));
+
+                var filterby2 = get_filterby2();
+                var filtervalue2 = get_filtervalue2(filterby2);
+                link = link.replace("replaceFilter2", encodeURIComponent(filterby2));
+                link = link.replace("replaceValueFilter2", encodeURIComponent(filtervalue2));
+
+                if (filterby2 != "" && filterby2 != null && filterby2 != "0" && filterby2 != undefined) {
+                    link = link.replace("replaceFilter2gudang", encodeURIComponent($('#filter2_' + $namaTab + '_field_gudang').val()));
+                }
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    beforeSend: function () {
+                        $('#list-detail-qty').hide();
+                        $('#loading_detail_qty_barang_tab').show();
+                    },
+                    success: function (response) {
+                        $('#list-detail-qty').html(response);
+                        $('#loading_detail_qty_barang_tab').hide();
+                        $('#list-detail-qty').show();
+                    },
+                    error: function (xhr, status, error) {
+                        $('#loading_detail_qty_barang_tab').hide();
+                        console.log(error);
+                    }
+                });
+            } else {
+                $('#loading_detail_qty_barang_tab').hide();
+                alert("Tidak ada detail qty siap jual.");
+            }
+        }
+        //end add by nurul 3/2/2022
+
+        //add by Tri 13 Aug 2020, refresh stok per brg
+
+        function UpdateStokPerBarang(idBarang, id) {
+            var link = '@Html.Raw(Url.Action("UpdateStokPerBarang", "Manage", new { brg = "replaceBrg"}))';
+            link = link.replace("replaceBrg", encodeURIComponent(idBarang));
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    beforeSend: function () {
+                        //$('#list-detail-stok').hide();
+                        $('#loading_' + id).show();
+                        $('#btnRefresh_' + id).hide();
+                    },
+                    success: function (response) {
+                        //$('#list-detail-stok').html(response);
+                        //$('#loading_detail_stok_barang_tab').hide();
+                        //$('#list-detail-stok').show();
+                        //alert('Barang ini akan di-update stok ke semua marketplace');
+                        $('#loading_' + id).hide();
+                        $('#btnRefresh_' + id).show();
+                    },
+                    error: function (xhr, status, error) {
+                        //$('#loading_detail_stok_barang_tab').hide();
+                        $('#loading_' + id).hide();
+                        $('#btnRefresh_' + id).show();
+                        console.log(error);
+                    }
+                });
+        }
+
+        //end add by Tri, refresh stok per brg
+
+    </script>
+}

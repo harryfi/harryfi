@@ -24,6 +24,8 @@ namespace MasterOnline.ViewModels
 
         public string LINK_GAMBAR_1 { get; set; }
 
+        public double MINI { get; set; }
+
         public double MIN { get; set; }
 
         public double QOH { get; set; }
@@ -36,6 +38,10 @@ namespace MasterOnline.ViewModels
         public double SELISIH { get; set; }
         public string JENIS { get; set; }
         //END ADD BY NURUL 23/9/2019
+
+        //add by nurul 30/3/2022
+        public double QOO_ALL { get; set; }
+        //end add by nurul 30/3/2022
 
     }
     public class BarangPendingContent
@@ -79,6 +85,7 @@ namespace MasterOnline.ViewModels
         //add by nurul 24/11/2021
         public double HjualBundling { get; set; }
         //end add by nurul 24/11/2021
+        public string multilokasi { get; set; }
     }
     
 }
