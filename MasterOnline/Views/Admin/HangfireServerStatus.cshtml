@@ -196,10 +196,6 @@
                         onclick="StartActiveUserServersNew()">
                     <span>Hangfire Bootstraper</span>
                 </button>
-                <button class="btn btn-primary" type="button" style="height:34px; border:1px;padding:2px 8px 2px 8px;margin:0px" title="Start Recurring Jobs"
-                        onclick="CekHangfireStuk()">
-                    <span>Cek Hangfire Stuk</span>
-                </button>
             </div>
             <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12" style="text-align: right">
                 @*<button class="btn btn-primary" type="button" style="height:34px; border:1px;padding:2px 8px 2px 8px;margin:0px" title="Proses Akhir Tahun Per Server"
@@ -254,6 +250,10 @@
             <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12" style="text-align: right">
                 <button id="renew_webhook_btn" type="button" class="btn btn-primary" onclick="callRenewWebhook()">
                     Renew Webhook Accurate
+                </button>
+
+                <button class="btn btn-primary" type="button btn-primary" onclick="CekHangfireStuk()">
+                    <span>Cek Hangfire</span>
                 </button>
             </div>
         </div>
@@ -582,7 +582,8 @@
                         contentType: 'application/json',
                         cache: false,
                         beforeSend: function () {
-                            $('#modalHangfireStuk').modal('show')
+                            $('#txtListHangfire').val('');
+                            $('#modalHangfireStuk').modal('show');
                             $('#loading_job_2').show();
                         },
                         success: function (response) {
@@ -592,6 +593,7 @@
                             }
                             else {
                                 alert(response.status);
+                                //$('#modalHangfireStuk').modal('hide');
                             }
                         },
                         error: function (response) {

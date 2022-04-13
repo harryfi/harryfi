@@ -6328,17 +6328,17 @@ namespace MasterOnline.Controllers
                     sSQL += "if @var3 > 0 begin ";
                     sSQL += "Declare @var1 int = 0; select @var3 = count(*) from hangfire.server where lastheartbeat >= ''" + currentTime.AddMinutes(-5).ToString("yyyy-MM-dd HH:mm:ss") + "'' ";
                     sSQL += "if @var1 > 0 begin ";
-                    sSQL += "insert into [REGIS1_MO].MO.dbo.tabel_check_hangfire (DBPATHERA, ARG, TGL) ";
-                    sSQL += "select '''+ @db_name +''', invocationdata, max(b.CreatedAt) from hangfire.job (nolock) a inner join hangfire.state (nolock) b on a.id = b.jobid "
+                    sSQL += "insert into MO.dbo.tabel_check_hangfire (DBPATHERA, ARG, TGL) ";
+                    sSQL += "select '''+ @db_name +''', invocationdata, max(b.CreatedAt) from hangfire.job (nolock) a inner join hangfire.state (nolock) b on a.id = b.jobid ";
                     sSQL += "where statename like 'proc%' and name = 'Processing' group by invocationdata; end end end ";
                     sSQL += "FETCH c_db_names INTO @db_name END CLOSE c_db_names DEALLOCATE c_db_names";
-
+                    MoDbContext.Database.ExecuteSqlCommand(sSQL);
                 }
                 var listData = MoDbContext.TABEL_CHECK_HANGFIRE.ToList();
                 if (listData.Count > 0)
                 {
-                    var ListServer = MoDbContext.Database.SqlQuery<TABEL_CHECK_HANGFIRE>("SELECT EMAIL AS DBPATHERA, ARG, B.TGL, B.RECNUM  FROM ACCOUNT A INNER JOIN TABEL_CHECK_HANGFIRE B ON A.DATABASEPATHERASOFT = B.DBPATHERA ORDER BY B.DBPATHERA").ToList();
-                    foreach (var hfjob in ListServer)
+                    var ListHf = MoDbContext.Database.SqlQuery<TABEL_CHECK_HANGFIRE>("SELECT EMAIL AS DBPATHERA, ARG, B.TGL, B.RECNUM  FROM ACCOUNT A INNER JOIN TABEL_CHECK_HANGFIRE B ON A.DATABASEPATHERASOFT = B.DBPATHERA ORDER BY B.DBPATHERA").ToList();
+                    foreach (var hfjob in ListHf)
                     {
                         ListJobStuck += "EMAIL : " + hfjob.DBPATHERA + "\n";
                         ListJobStuck += "TGL PROCESSING : " + hfjob.TGL + "\n";
