@@ -3900,14 +3900,14 @@
                 alert('Pembayaran belum terbentuk.');
                 return false;
             }
-            var rows_detail = [];
-            $('.checkbox_detail_bayar').each(function (i, item) {
-                rows_detail.push($(item).attr("data-recnum"));
-            });
-            if (rows_detail.length < 1) {
-                alert('Pembayaran tidak memiliki detail.');
-                return false;
-            }
+            //var rows_detail = [];
+            //$('.checkbox_detail_bayar').each(function (i, item) {
+            //    rows_detail.push($(item).attr("data-recnum"));
+            //});
+            //if (rows_detail.length < 1) {
+            //    alert('Pembayaran tidak memiliki detail.');
+            //    return false;
+            //}
 
             $('#loading_download').show();
             //$('#modalDownload').modal('show');
