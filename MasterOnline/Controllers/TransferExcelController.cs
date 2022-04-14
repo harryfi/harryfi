@@ -2422,7 +2422,47 @@ namespace MasterOnline.Controllers
                                                                                     {
                                                                                         if (dataToko.STATUS_API == "0" || string.IsNullOrEmpty(dataToko.STATUS_API))
                                                                                         {
-                                                                                            if (dataToko.NAMA == "15" && !string.IsNullOrEmpty(gudang) && cekMultiLokasi != "1")
+                                                                                            //if (dataToko.NAMA == "15" && !string.IsNullOrEmpty(gudang) && cekMultiLokasi != "1")
+                                                                                            if (dataToko.NAMA == "15" && string.IsNullOrEmpty(gudang) && cekMultiLokasi == "1")
+                                                                                            {
+                                                                                                iProcess = iProcess + 1;
+                                                                                                //Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                                                                Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll));
+
+                                                                                                int IDMarket = Convert.ToInt32(dataToko.NAMA);
+                                                                                                var dataMP = MoDbContext.Marketplaces.AsNoTracking().Where(p => p.IdMarket == IDMarket).SingleOrDefault();
+                                                                                                messageErrorLog = "Mohon lengkapi gudang pada no referensi " + no_referensi + " kode barang " + kode_brg + " dan toko " + dataToko.PERSO + " (" + dataMP.NamaMarket.ToString() + ")";
+                                                                                                tw.WriteLine(messageErrorLog);
+                                                                                                var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
+                                                                                                if (cekLog == null)
+                                                                                                {
+                                                                                                    string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
+                                                                                                    (dataToko.CUST),
+                                                                                                    (connID),
+                                                                                                    ("Upload Excel Pesanan"),
+                                                                                                    (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                                    ("FAILED"),
+                                                                                                    //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                                    (success + " / " + Convert.ToInt32(ret.countAll)),
+                                                                                                    (username),
+                                                                                                    (filename));
+                                                                                                    var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
+                                                                                                    // log error masukan ke log tidak ada databarang marketplace di STF02H
+                                                                                                }
+                                                                                                var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
+                                                                                                if (checkDuplicateHeader != null)
+                                                                                                {
+                                                                                                    //transaction.Rollback();
+                                                                                                    eraDB.SOT01A.Remove(checkDuplicateHeader);
+                                                                                                    eraDB.SaveChanges();
+                                                                                                    //var result1 = EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+
+                                                                                                    string listAddBrg = "('" + kode_brg + "', '" + connID + "')";
+                                                                                                    EDB.ExecuteSQL("Constring", CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + listAddBrg);
+                                                                                                    new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                                                }
+                                                                                            }
+                                                                                            else
                                                                                             {
                                                                                                 var KodeBRGMP = "";
                                                                                                 //var dataBarang = ErasoftDbContext.STF02H.Where(p => p.BRG == item.KODE_BRG && p.IDMARKET == dataToko.RecNum).FirstOrDefault();
@@ -2873,45 +2913,45 @@ namespace MasterOnline.Controllers
                                                                                                     }
                                                                                                 }
                                                                                             }
-                                                                                            else
-                                                                                            {
-                                                                                                iProcess = iProcess + 1;
-                                                                                                    //Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
-                                                                                                    Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll));
+                                                                                            //else
+                                                                                            //{
+                                                                                            //    iProcess = iProcess + 1;
+                                                                                            //        //Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+                                                                                            //        Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll));
 
-                                                                                                    int IDMarket = Convert.ToInt32(dataToko.NAMA);
-                                                                                                    var dataMP = MoDbContext.Marketplaces.AsNoTracking().Where(p => p.IdMarket == IDMarket).SingleOrDefault();
-                                                                                                    messageErrorLog = "Mohon lengkapi gudang pada no referensi " + no_referensi + " kode barang " + kode_brg + " dan toko " + dataToko.PERSO + " (" + dataMP.NamaMarket.ToString() + ")";
-                                                                                                    tw.WriteLine(messageErrorLog);
-                                                                                                    var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
-                                                                                                    if (cekLog == null)
-                                                                                                    {
-                                                                                                        string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
-                                                                                                        (dataToko.CUST),
-                                                                                                        (connID),
-                                                                                                        ("Upload Excel Pesanan"),
-                                                                                                        (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
-                                                                                                        ("FAILED"),
-                                                                                                        //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
-                                                                                                        (success + " / " + Convert.ToInt32(ret.countAll)),
-                                                                                                        (username),
-                                                                                                        (filename));
-                                                                                                        var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
-                                                                                                        // log error masukan ke log tidak ada databarang marketplace di STF02H
-                                                                                                    }
-                                                                                                    var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
-                                                                                                    if (checkDuplicateHeader != null)
-                                                                                                    {
-                                                                                                        //transaction.Rollback();
-                                                                                                        eraDB.SOT01A.Remove(checkDuplicateHeader);
-                                                                                                        eraDB.SaveChanges();
-                                                                                                        //var result1 = EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                                            //        int IDMarket = Convert.ToInt32(dataToko.NAMA);
+                                                                                            //        var dataMP = MoDbContext.Marketplaces.AsNoTracking().Where(p => p.IdMarket == IDMarket).SingleOrDefault();
+                                                                                            //        messageErrorLog = "Mohon lengkapi gudang pada no referensi " + no_referensi + " kode barang " + kode_brg + " dan toko " + dataToko.PERSO + " (" + dataMP.NamaMarket.ToString() + ")";
+                                                                                            //        tw.WriteLine(messageErrorLog);
+                                                                                            //        var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
+                                                                                            //        if (cekLog == null)
+                                                                                            //        {
+                                                                                            //            string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
+                                                                                            //            (dataToko.CUST),
+                                                                                            //            (connID),
+                                                                                            //            ("Upload Excel Pesanan"),
+                                                                                            //            (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                            //            ("FAILED"),
+                                                                                            //            //(success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                            //            (success + " / " + Convert.ToInt32(ret.countAll)),
+                                                                                            //            (username),
+                                                                                            //            (filename));
+                                                                                            //            var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
+                                                                                            //            // log error masukan ke log tidak ada databarang marketplace di STF02H
+                                                                                            //        }
+                                                                                            //        var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
+                                                                                            //        if (checkDuplicateHeader != null)
+                                                                                            //        {
+                                                                                            //            //transaction.Rollback();
+                                                                                            //            eraDB.SOT01A.Remove(checkDuplicateHeader);
+                                                                                            //            eraDB.SaveChanges();
+                                                                                            //            //var result1 = EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
 
-                                                                                                        string listAddBrg = "('" + kode_brg + "', '" + connID + "')";
-                                                                                                        EDB.ExecuteSQL("Constring", CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + listAddBrg);
-                                                                                                        new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
-                                                                                                    }
-                                                                                            }
+                                                                                            //            string listAddBrg = "('" + kode_brg + "', '" + connID + "')";
+                                                                                            //            EDB.ExecuteSQL("Constring", CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + listAddBrg);
+                                                                                            //            new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                                            //        }
+                                                                                            //}
                                                                                         }
                                                                                         else
                                                                                         {
