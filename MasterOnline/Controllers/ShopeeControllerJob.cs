@@ -11709,6 +11709,66 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+        public ShopeeController.Item_List GetItemDetail_V2(ShopeeAPIData iden, long item_id)
+        {
+            var ret = new ShopeeController.Item_List();
+
+            //iden = await RefreshTokenShopee_V2(iden, false);
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            int MOPartnerID = MOPartnerIDV2;
+            string MOPartnerKey = MOPartnerKeyV2;
+            string urll = shopeeV2Url;
+            string path = "/api/v2/product/get_item_base_info";
+
+            var baseString = MOPartnerID + path + seconds + iden.token + iden.merchant_code;
+            var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
+
+
+            string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds + "&sign=" + sign
+                + "&access_token=" + iden.token + "&shop_id=" + iden.merchant_code + "&item_id_list=" + item_id;
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
+            myReq.Method = "GET";
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            if (responseFromServer != null)
+            {
+                try
+                {
+                    var detailBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeController.ShopeeGetItemDetailResult_V2)) as ShopeeController.ShopeeGetItemDetailResult_V2;
+                    if (detailBrg != null)
+                    {
+                        if (detailBrg.response != null)
+                        {
+                            return detailBrg.response.item_list[0];
+                        }
+
+                    }
+                }
+                catch (Exception ex2)
+                {
+                }
+            }
+            return ret;
+        }
 
         [AutomaticRetry(Attempts = 0)]
         [Queue("1_create_product")]
@@ -11934,6 +11994,14 @@ namespace MasterOnline.Controllers
                 if (detailBrg.DESKRIPSI_MP != "null")
                     HttpBody.description = detailBrg.DESKRIPSI_MP.Replace("’", "`");
             }
+            #region check ext desc on shopee
+            var extDesc = false;
+            var brgInShopee = GetItemDetail_V2(iden, item_id);
+            if(brgInShopee.description_info != null)
+            {
+                extDesc = true;
+            }
+            #endregion
             HttpBody.item_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(HttpBody.item_name).Replace("&nbsp;", " ").Replace("&#160;", " ").Replace("&#xA0;", " "));
             HttpBody.dimension.package_height = Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI);
             HttpBody.dimension.package_length = Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG);
@@ -11968,7 +12036,21 @@ namespace MasterOnline.Controllers
             //HttpBody.description = HttpBody.description.Replace("&nbsp;", "");
             HttpBody.description = System.Text.RegularExpressions.Regex.Replace(HttpBody.description, "<.*?>", String.Empty);
             //end add by nurul 20/1/2020, handle <p> dan enter double di shopee
-
+            if (extDesc)
+            {
+                var moveDesc = HttpBody.description;
+                HttpBody.description_type = "extended";
+                HttpBody.description_info = new ShopeeDescInfo();
+                HttpBody.description_info.extended_description = new ShopeeExtDesc();
+                HttpBody.description_info.extended_description.field_list = new List<ShopeeFieldList>();
+                var newExtDesc = new ShopeeFieldList
+                {
+                    field_type = "text",
+                    text = moveDesc
+                };
+                HttpBody.description_info.extended_description.field_list.Add(newExtDesc);
+                HttpBody.description = null;
+            }
             #region image
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
             {
@@ -14720,6 +14802,24 @@ namespace MasterOnline.Controllers
         public class ShopeeUpdateProductData_V2 : ShopeeProductData_V2
         {
             public long item_id { get; set; }
+            public ShopeeDescInfo description_info { get; set; }
+            public string description_type { get; set; }
+        }
+        public class ShopeeDescInfo
+        {
+            public ShopeeExtDesc extended_description { get; set; }
+
+        }
+        public class ShopeeExtDesc
+        {
+            public List<ShopeeFieldList> field_list { get; set; }
+
+        }
+        public class ShopeeFieldList
+        {
+            public string field_type { get; set; }
+            public string text { get; set; }
+
         }
         public class ShopeeUpdateProductData
         {
