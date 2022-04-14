@@ -1723,7 +1723,7 @@ namespace MasterOnline.Controllers
             myReq.ContentType = "application/json";
 
 
-            string myData = "{\"package_id\":\"" + ordersn + "\"";
+            string myData = "{\"package_id\":\"" + package_id + "\"";
             if (typeDelivery == "1")
             {
                 myData += ", \"pick_up_type\" : 1";
