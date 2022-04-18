@@ -1690,6 +1690,195 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        [AutomaticRetry(Attempts = 0)]
+        [Queue("1_create_product")]
+        [NotifyOnFailed("Create Product {obj} ke Tiktok gagal.")]
+        public async Task<string> CreateProduct_tiktok(string dbPathEra, string kdbrgMO, string log_CUST, string log_ActionCategory, string log_ActionName, TTApiData iden)
+        {
+            SetupContext(iden.DatabasePathErasoft, iden.username);
+            iden = RefreshTokenTikTok(iden);
+
+            var ret = "";
+            var brginDb = ErasoftDbContext.STF02.Where(m => m.BRG == kdbrgMO).FirstOrDefault();
+            var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
+            var brg_stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == kdbrgMO && p.IDMARKET == tblCustomer.RecNum).SingleOrDefault();
+            var postData = new CreateProductTiktok
+            {
+                images = new List<CreateImage>(),
+                category_id = brg_stf02h.CATEGORY_CODE,
+                package_height = Convert.ToInt32( brginDb.TINGGI),
+                package_length = Convert.ToInt32(brginDb.PANJANG),
+                package_width = Convert.ToInt32(brginDb.LEBAR),
+                package_weight = brginDb.BERAT.ToString(),
+                skus = new List<CreateSku>(),
+                product_name = brginDb.NAMA,
+
+            };
+            string descBrg = brginDb.Deskripsi;
+            if (!string.IsNullOrEmpty(brginDb.NAMA2))
+            {
+                postData.product_name += " " + brginDb.NAMA2;
+            }
+            if (!string.IsNullOrEmpty(brg_stf02h.ANAME_38))
+            {
+                postData.brand_id = brg_stf02h.ANAME_38;
+            }
+            if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_31))
+            {
+                postData.warranty_period = Convert.ToInt32(brg_stf02h.AVALUE_31);
+            }
+            if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_32))
+            {
+                postData.warranty_policy = brg_stf02h.AVALUE_32;
+            }
+            if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_39))
+            {
+                postData.is_cod_open = (brg_stf02h.AVALUE_39 == "1" ? true : false);
+            }
+            if (!string.IsNullOrEmpty(brg_stf02h.NAMA_BARANG_MP))
+            {
+                postData.product_name = brg_stf02h.NAMA_BARANG_MP;
+            }
+            if (!string.IsNullOrEmpty(brg_stf02h.DESKRIPSI_MP))
+            {
+                descBrg = brg_stf02h.DESKRIPSI_MP;
+            }
+            descBrg = System.Net.WebUtility.HtmlDecode(descBrg).Replace(System.Environment.NewLine, "<br>").Replace("&nbsp;", " ");
+            postData.description = descBrg;
+
+            #region gambar induk
+            var img_induk = new CreateImage();
+            if (!string.IsNullOrEmpty(brginDb.LINK_GAMBAR_1))
+            {
+                img_induk.id = await UpladImage(iden, brginDb.LINK_GAMBAR_1, "1");
+                postData.images.Add(img_induk);
+            }
+            if (!string.IsNullOrEmpty(brginDb.LINK_GAMBAR_2))
+            {
+                img_induk.id = await UpladImage(iden, brginDb.LINK_GAMBAR_2, "1");
+                postData.images.Add(img_induk);
+            }
+            if (!string.IsNullOrEmpty(brginDb.LINK_GAMBAR_3))
+            {
+                img_induk.id = await UpladImage(iden, brginDb.LINK_GAMBAR_3, "1");
+                postData.images.Add(img_induk);
+            }
+            if (!string.IsNullOrEmpty(brginDb.LINK_GAMBAR_4))
+            {
+                img_induk.id = await UpladImage(iden, brginDb.LINK_GAMBAR_4, "1");
+                postData.images.Add(img_induk);
+            }
+            if (!string.IsNullOrEmpty(brginDb.LINK_GAMBAR_5))
+            {
+                img_induk.id = await UpladImage(iden, brginDb.LINK_GAMBAR_5, "1");
+                postData.images.Add(img_induk);
+            }
+            #endregion
+            if (brginDb.TYPE == "4")
+            {
+
+            }
+            else
+            {
+                var itemskus = new CreateSku()
+                {
+                    original_price = brg_stf02h.HJUAL.ToString(),
+                    seller_sku = kdbrgMO,
+                    sales_attributes = new List<CreateSales_Attributes>(),
+                    //stock_infos = new List<CreateStock_Infos>()
+                };
+                var sales_attr = new CreateSales_Attributes();
+                if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_1))
+                {
+                    sales_attr.custom_value = brg_stf02h.AVALUE_1;
+                    sales_attr.attribute_id = brg_stf02h.ACODE_1;
+                    if (!string.IsNullOrEmpty(brg_stf02h.LINK_GAMBAR_5))
+                    {
+                        sales_attr.sku_img = new Sku_Img()
+                        {
+                            id = await UpladImage(iden, brg_stf02h.LINK_GAMBAR_5, "3"),
+                        };
+                    }
+                    itemskus.sales_attributes.Add(sales_attr);
+                }
+                if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_2))
+            {
+                sales_attr = new CreateSales_Attributes();
+                sales_attr.custom_value = brg_stf02h.AVALUE_2;
+                sales_attr.attribute_id = brg_stf02h.ACODE_2;
+                if (string.IsNullOrEmpty(brg_stf02h.AVALUE_1))
+                {
+                    if (!string.IsNullOrEmpty(brg_stf02h.LINK_GAMBAR_5))
+                    {
+                        sales_attr.sku_img = new Sku_Img()
+                        {
+                            id = await UpladImage(iden, brg_stf02h.LINK_GAMBAR_5, "3"),
+                        };
+                    }
+                }
+                itemskus.sales_attributes.Add(sales_attr);
+            };
+                postData.skus.Add(itemskus);
+            };
+
+            string urll = "https://open-api.tiktokglobalshop.com/api/products?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/productsapp_key" + eraAppKey + "shop_id" + iden.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, iden.access_token, timestamp, signencry, eraAppKey, iden.shop_id);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "POST";
+            myReq.ContentType = "application/json";
+
+            string myData = JsonConvert.SerializeObject(postData);
+
+            //string myData = "{\"product_id\":\"" + brgmp[0] + "\", \"skus\" : [{ \"original_price\":\"" + price + "\",\"id\" : \"" + brgmp[1] + "\" }] }";
+
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = System.Text.Encoding.UTF8.GetBytes(myData).Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, System.Text.Encoding.UTF8.GetBytes(myData).Length);
+                }
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                string err = e.Message;
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                }
+                return "error : " + err;
+            }
+
+            if (responseFromServer != "")
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(TiktokCommonResponse)) as TiktokCommonResponse;
+                if (result.code != 0)
+                {
+                    throw new Exception(responseFromServer);
+                    //return "error : " + responseFromServer;
+                }
+
+
+            }
+            return ret;
+        }
+
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Update Harga Jual Produk {obj} ke Tiktok gagal.")]
@@ -1753,17 +1942,17 @@ namespace MasterOnline.Controllers
                     throw new Exception(responseFromServer);
                     //return "error : " + responseFromServer;
                 }
-              
+
 
             }
             return ret;
         }
-        
+
         public ATTRIBUTE_SHOPEE_AND_OPT_v2 GetAttributeList(TTApiData iden, string categoryCode)
         {
             SetupContext(iden.DatabasePathErasoft, iden.username);
             var ret = new ATTRIBUTE_SHOPEE_AND_OPT_v2();
-            
+
             string urll = "https://open-api.tiktokglobalshop.com/api/products/attributes?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}&category_id={5}";
             int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
             string sign = eraAppSecret + "/api/products/attributesapp_key" + eraAppKey + "category_id" + categoryCode
@@ -1863,7 +2052,7 @@ namespace MasterOnline.Controllers
             using (var client = new HttpClient())
             {
                 var bytes = await client.GetByteArrayAsync(url);
-                 base64String = Convert.ToBase64String(bytes);
+                base64String = Convert.ToBase64String(bytes);
             }
             #endregion
             string myData = "{\"img_data\":\"" + base64String + "\", \"img_scene\" : " + type;
@@ -1942,6 +2131,74 @@ namespace MasterOnline.Controllers
         #endregion
 
     }
+}
+
+public class CreateProductTiktok
+{
+    public string product_name { get; set; }
+    public string description { get; set; }
+    public string category_id { get; set; }
+    public string brand_id { get; set; }
+    public List<CreateImage> images { get; set; }
+    public int warranty_period { get; set; }
+    public string warranty_policy { get; set; }
+    public int package_length { get; set; }
+    public int package_width { get; set; }
+    public int package_height { get; set; }
+    public string package_weight { get; set; }
+    //public CreateProduct_Certifications[] product_certifications { get; set; }
+    public bool is_cod_open { get; set; }
+    public List<CreateSku> skus { get; set; }
+}
+
+public class CreateImage
+{
+    public string id { get; set; }
+}
+
+//public class CreateProduct_Certifications
+//{
+//    public string id { get; set; }
+//    public File[] files { get; set; }
+//    public Image1[] images { get; set; }
+//}
+
+//public class File
+//{
+//    public string id { get; set; }
+//    public string name { get; set; }
+//    public string type { get; set; }
+//}
+
+//public class Image1
+//{
+//    public string id { get; set; }
+//}
+
+public class CreateSku
+{
+    public List<CreateSales_Attributes> sales_attributes { get; set; }
+    public List<CreateStock_Infos> stock_infos { get; set; }
+    public string seller_sku { get; set; }
+    public string original_price { get; set; }
+}
+
+public class CreateSales_Attributes
+{
+    public string attribute_id { get; set; }
+    public string custom_value { get; set; }
+    public Sku_Img sku_img { get; set; }
+}
+
+public class Sku_Img
+{
+    public string id { get; set; }
+}
+
+public class CreateStock_Infos
+{
+    public string warehouse_id { get; set; }
+    public int available_stock { get; set; }
 }
 
 public class TiktokUploadImageResponse : TiktokCommonResponse

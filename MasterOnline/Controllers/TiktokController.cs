@@ -1371,6 +1371,7 @@ namespace MasterOnline.Controllers
                         tempbarang.ANAME_32 = "Warranty Policy";
                         tempbarang.AVALUE_32 = detail.WarrantyPolicy;
                         tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
+                        tempbarang.ANAME_38 = detail.Brand == null ? "" : detail.Brand.Id;
                         tempbarang.AVALUE_38 = tempbarang.MEREK;
                         tempbarang.DISPLAY = (detail.ProductStatus == 4 ? true : false);
                         tempbarang.SELLER_SKU = kdmp;
@@ -2728,6 +2729,7 @@ namespace MasterOnline.Controllers
                         tempbarang.ANAME_32 = "Warranty Policy";
                         tempbarang.AVALUE_32 = detail.WarrantyPolicy;
                         tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
+                        tempbarang.ANAME_38 = detail.Brand == null ? "" : detail.Brand.Id;
                         tempbarang.AVALUE_38 = tempbarang.MEREK;
                         tempbarang.AVALUE_34 = "https://shop.tiktok.com/view/product/" + productid;
                         tempbarang.DISPLAY = (detail.ProductStatus == 4 ? true : false);
