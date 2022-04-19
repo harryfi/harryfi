@@ -2811,11 +2811,11 @@ namespace MasterOnline.Controllers
                         myData += "\"stock\": null, ";
                         myData += "\"minimumStock\": null, ";
                         myData += "\"price\": " + data.Price + ", ";
-                        myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
+                        myData += "\"salePrice\": " + data.MarketPrice + " ";// harga yg tercantum di display blibli
                                                                               //myData += "\"salePrice\": " + item.sellingPrice + ", ";// harga yg promo di blibli
                         //myData += "\"buyable\": " + data.display + ", ";
-                        myData += "\"buyable\": " + (qtyOnHand > 0 ? data.display : "false") + ", ";
-                        myData += "\"displayable\": " + data.display + " "; // true=tampil    
+                        //myData += "\"buyable\": " + (qtyOnHand > 0 ? data.display : "false") + ", ";
+                        //myData += "\"displayable\": " + data.display + " "; // true=tampil    
                         myData += "},";
                     }
                 }
