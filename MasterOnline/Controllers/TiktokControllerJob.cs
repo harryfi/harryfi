@@ -469,23 +469,24 @@ namespace MasterOnline.Controllers
                         if (order_status != 100)//update paid
                         {
                             string ordersn = "";
-                            var filteredSudahAda = ordersn_list.Where(p => SudahAdaDiMO.Contains(p));
-                            foreach (var item in filteredSudahAda)
-                            {
-                                ordersn = ordersn + "'" + item + "',";
-                            }
-                            if (!string.IsNullOrEmpty(ordersn))
-                            {
-                                ordersn = ordersn.Substring(0, ordersn.Length - 1);
-                                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0' AND CUST = '" + CUST + "'");
-                                if (rowAffected > 0)
-                                {
-                                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                                    contextNotif.Clients.Group(apidata.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(rowAffected) + " Pesanan terbayar dari TikTok.");
+                            var filteredSudahAda = ordersn_list.Where(p => SudahAdaDiMO.Contains(p)).ToArray();
+                                GetOrderDetailsUpdateStatus(apidata, filteredSudahAda, connId, CUST, NAMA_CUST);
+                                //foreach (var item in filteredSudahAda)
+                                //{
+                                //    ordersn = ordersn + "'" + item + "',";
+                                //}
+                                //if (!string.IsNullOrEmpty(ordersn))
+                                //{
+                                //    ordersn = ordersn.Substring(0, ordersn.Length - 1);
+                                //    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0' AND CUST = '" + CUST + "'");
+                                //    if (rowAffected > 0)
+                                //    {
+                                //        var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                //        contextNotif.Clients.Group(apidata.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(rowAffected) + " Pesanan terbayar dari TikTok.");
 
-                                }
+                                //    }
+                                //}
                             }
-                        }
                     }
                 }
             }
@@ -972,7 +973,7 @@ namespace MasterOnline.Controllers
                     {
                         string connId = Guid.NewGuid().ToString();
 
-                        await GetOrderDetailsUpdateStatus(iden, ordersn_list.ToArray(), connId, CUST, NAMA_CUST);
+                        GetOrderDetailsUpdateStatus(iden, ordersn_list.ToArray(), connId, CUST, NAMA_CUST);
                       
                         ordersn_list = new List<string>();
                     }
@@ -986,7 +987,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> GetOrderDetailsUpdateStatus(TTApiData iden, string[] ordersn_list, string connID, string CUST, string NAMA_CUST)
+        public string GetOrderDetailsUpdateStatus(TTApiData iden, string[] ordersn_list, string connID, string CUST, string NAMA_CUST)
         {
             var ret = "";
             string urll = "https://open-api.tiktokglobalshop.com/api/orders/detail/query?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
@@ -1013,7 +1014,8 @@ namespace MasterOnline.Controllers
                 {
                     dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, System.Text.Encoding.UTF8.GetBytes(myData).Length);
                 }
-                using (WebResponse response = await myReq.GetResponseAsync())
+                //using (WebResponse response = await myReq.GetResponseAsync())
+                using (WebResponse response = myReq.GetResponse())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {
@@ -1033,9 +1035,17 @@ namespace MasterOnline.Controllers
                 
                 foreach (var order in result.data.order_list)
                 {
-                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SOT01A SET SHIPMENT = '"+order.shipping_provider+"', TRACKING_SHIPMENT = '"
-                        +order.tracking_number+ "' , STATUS_TRANSAKSI = CASE WHEN STATUS_TRANSAKSI = '0' THEN '01' ELSE STATUS_TRANSAKSI END WHERE NO_REFERENSI = '" 
-                        + order.order_id+"' AND CUST = '"+CUST+"' ");
+                    string sSQL = "UPDATE SOT01A SET SHIPMENT = '" + order.shipping_provider + "', TRACKING_SHIPMENT = '"
+                        + order.tracking_number + "' , STATUS_TRANSAKSI = CASE WHEN STATUS_TRANSAKSI = '0' THEN '01' ELSE STATUS_TRANSAKSI END ";
+                    if (order.package_list != null)
+                    {
+                        sSQL += ", NO_PO_CUST = '" + order.package_list[0].package_id + "' ";
+                    }
+                    sSQL += "WHERE NO_REFERENSI = '" + order.order_id + "' AND CUST = '" + CUST + "' ";
+                    //EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SOT01A SET SHIPMENT = '"+order.shipping_provider+"', TRACKING_SHIPMENT = '"
+                    //    +order.tracking_number+ "' , STATUS_TRANSAKSI = CASE WHEN STATUS_TRANSAKSI = '0' THEN '01' ELSE STATUS_TRANSAKSI END WHERE NO_REFERENSI = '" 
+                    //    + order.order_id+"' AND CUST = '"+CUST+"' ");
+                    EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
                 }
             }
             return ret;
@@ -1710,6 +1720,75 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Update Status Ready To Ship Pesanan {obj} ke TikTok Gagal.")]
+        public string UpdateStatus_RTS_new(TTApiData iden, string ordersn, string no_bukti, string typeDelivery, string package_id)
+        {
+            SetupContext(iden.DatabasePathErasoft, iden.username);
+            var ret = "";
+            string urll = "https://open-api.tiktokglobalshop.com/api/fulfillment/rts?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/fulfillment/rtsapp_key" + eraAppKey + "shop_id" + iden.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, iden.access_token, timestamp, signencry, eraAppKey, iden.shop_id);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "POST";
+            myReq.ContentType = "application/json";
+
+
+            string myData = "{\"package_id\":\"" + package_id + "\"";
+            if (typeDelivery == "1")
+            {
+                myData += ", \"pick_up_type\" : 1";
+            }
+            myData += "}";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = System.Text.Encoding.UTF8.GetBytes(myData).Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, System.Text.Encoding.UTF8.GetBytes(myData).Length);
+                }
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != "")
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(TiktokRTSResponse)) as TiktokRTSResponse;
+                if (result.code != 0)
+                {
+                    EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='1' WHERE NO_BUKTI = '" + no_bukti + "'");
+                    throw new Exception(responseFromServer);
+                }
+                else
+                {
+                    if(result.data != null)
+                    {
+                        if(result.data.fail_packages != null)
+                        {
+                            EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='1' WHERE NO_BUKTI = '" + no_bukti + "'");
+                            throw new Exception(responseFromServer);
+                        }
+                    }
+                    EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='2' WHERE NO_BUKTI = '" + no_bukti + "'");
+                }
+
+            }
+            return ret;
+        }
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Update Status Ready To Ship Pesanan {obj} ke TikTok Gagal.")]
         public string GetShippingDoc(TTApiData iden, string ordersn)
         {
             SetupContext(iden.DatabasePathErasoft, iden.username);
@@ -1775,6 +1854,74 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Update Status Ready To Ship Pesanan {obj} ke TikTok Gagal.")]
+        public string GetShippingDoc_new(TTApiData iden, string package_id)
+        {
+            SetupContext(iden.DatabasePathErasoft, iden.username);
+            var ret = "";
+            var tipedoc = "1";
+            string urll = "https://open-api.tiktokglobalshop.com/api/fulfillment/shipping_document?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}&package_id={5}&document_type={6}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/fulfillment/shipping_documentapp_key" + eraAppKey + "document_type"+ tipedoc + "package_id" + package_id
+                + "shop_id" + iden.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, iden.access_token, timestamp, signencry, eraAppKey, iden.shop_id, package_id, tipedoc);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "GET";
+            myReq.ContentType = "application/json";
+
+
+            //string myData = "{\"order_id\":\"" + ordersn + "\", \"document_type\" : \"SHIPPING_LABEL\", \"document_size\" : \"A6\"}";
+
+            string responseFromServer = "";
+            try
+            {
+                //myReq.ContentLength = System.Text.Encoding.UTF8.GetBytes(myData).Length;
+                //using (var dataStream = myReq.GetRequestStream())
+                //{
+                //    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, System.Text.Encoding.UTF8.GetBytes(myData).Length);
+                //}
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                string err = e.Message;
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                }
+                return "error : " + err;
+            }
+
+            if (responseFromServer != "")
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(TiktokPrintLabelResponse)) as TiktokPrintLabelResponse;
+                if (result.code != 0)
+                {
+                    //throw new Exception(responseFromServer);
+                    return "error : " + responseFromServer;
+                }
+                else
+                {
+                    return result.data.doc_url;
+                }
+
+            }
+            return ret;
+        }
         #region Encyrptor
         public static String GetHash(String text, String key)
         {
@@ -1815,6 +1962,23 @@ namespace MasterOnline.Controllers
         #endregion
 
     }
+}
+
+public class TiktokRTSResponse : TiktokCommonResponse
+{
+    public TiktokRTSData data { get; set; }
+}
+public class TiktokRTSData
+{
+    public List<TiktokFailedRTS> fail_packages { get; set; }
+
+}
+public class TiktokFailedRTS
+{
+    public int fail_code { get; set; }
+    public string fail_reason { get; set; }
+    public string package_id { get; set; }
+
 }
 
 public class TiktokPrintLabelResponse : TiktokCommonResponse
@@ -1906,6 +2070,11 @@ public class OrderDetail_List
     public long update_time { get; set; }
     public string cancel_reason { get; set; }
     public string cancel_user { get; set; }
+    public TiktokPackage[] package_list { get; set; }
+}
+public class TiktokPackage
+{
+    public string package_id { get; set; }
 }
 
 public class Payment_Info
