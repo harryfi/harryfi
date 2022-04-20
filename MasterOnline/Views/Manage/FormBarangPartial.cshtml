@@ -2832,11 +2832,11 @@
                                                                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_39, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.AVALUE_39 })
                                                                                     @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_39 == "1")
                                                                                     {
-                                                                                        <input type="checkbox" id="ckcod_@Convert.ToString(recnumArf01)" name="codtiktok_@Convert.ToString(recnumArf01)" value="1" checked onclick="settiktokcod('@recnumArf01')" />
+                                                                                        <input type="checkbox" id="ckcod_@Convert.ToString(i)" name="codtiktok_@Convert.ToString(i)" value="1" checked onclick="settiktokcod('@i')" />
                                                                                     }
                                                                                     else
                                                                                     {
-                                                                                        <input type="checkbox" id="ckcod_@Convert.ToString(recnumArf01)" name="codtiktok_@Convert.ToString(recnumArf01)" value="0" onclick="settiktokcod('@recnumArf01')" />
+                                                                                        <input type="checkbox" id="ckcod_@Convert.ToString(i)" name="codtiktok_@Convert.ToString(i)" value="0" onclick="settiktokcod('@i')" />
                                                                                     }
 
                                                                                 </div>

@@ -2620,7 +2620,7 @@
             });
         }
         function FuncGetKategoritiktokByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
-            var link = '@Url.Action("GetKategoriLazadaByChildCode", "Manage", new { code = "replaceCode" })';
+            var link = '@Url.Action("GetKategoriTiktokByChildCode", "Manage", new { code = "replaceCode" })';
             link = link.replace("replaceCode", encodeURIComponent(fieldCategoryCodeValue));
             link += "&idmarket=" + listMarketRecNum;
             $.ajax({
@@ -2635,11 +2635,11 @@
                     $.each(data,
                         function (i, item) {
                             if (i == 0) {
-                                var textbox = '<input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.NAME +'">';
+                                var textbox = '<input type="text" data-val="true" disabled="disabled" class="form-control" value="' + item.CATEGORY_NAME +'">';
                                 $('#category_tiktok_pertama_' + listMarketRecNum).append(textbox);
                             }
                             else {
-                                var textbox = '<div class="col-md-3 col-sm-3 col-xs-12"><input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.NAME +'"></div>';
+                                var textbox = '<div class="col-md-3 col-sm-3 col-xs-12"><input type="text" data-val="true" disabled="disabled" class="form-control" value="' + item.CATEGORY_NAME +'"></div>';
                                 $('#category_tiktok_selanjutnya_' + listMarketRecNum).append(textbox);
                             }
                         });
