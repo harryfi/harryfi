@@ -7747,6 +7747,10 @@ namespace MasterOnline.Controllers
             public string[] dropoff { get; set; }
             public string[] non_integrated { get; set; }
             public string request_id { get; set; }
+            //add by nurul 19/4/2022
+            public string msg { get; set; }
+            public string error { get; set; }
+            //end add by nurul 19/4/2022
         }
 
         public class ShopeeInitLogisticDropOffData

@@ -11782,9 +11782,14 @@ namespace MasterOnline.Controllers
         //end add by nurul 3/2/2021, new shipping label blibli
 
         //add by nurul 5/4/2022
-        public async Task<string> GetPackageId(string dbPathEra, BlibliAPIData iden, string orderNo, string orderItemNo)
+        public class tempPackageId_Status
         {
-            var result = "";
+            public string packageid { get; set; }
+            public string status { get; set; }
+        }
+        public async Task<tempPackageId_Status> GetPackageId(string dbPathEra, BlibliAPIData iden, string orderNo, string orderItemNo)
+        {
+            var result = new tempPackageId_Status();
             var token = SetupContext(iden);
             iden.token = token;
 
@@ -11858,7 +11863,8 @@ namespace MasterOnline.Controllers
                     var PackageId = resultRespons.value.packageId.Value;
                     if (!string.IsNullOrEmpty(PackageId))
                     {
-                        result = PackageId;
+                        result.packageid = PackageId;
+                        result.status = resultRespons.value.orderStatus.Value;
                     }
                 }
                 catch (Exception ex)
