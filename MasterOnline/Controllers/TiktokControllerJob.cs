@@ -961,7 +961,7 @@ namespace MasterOnline.Controllers
             }
             //add 29 mar 2022, update status to paid and set shipment/tracking number
             var dsNewOrderUpdatePaid = EDB.GetDataSet("CString", "SO", "SELECT T.ORDERID FROM TABEL_WEBHOOK_TIKTOK (NOLOCK) T INNER JOIN SOT01A (NOLOCK) S ON S.NO_REFERENSI = T.ORDERID AND T.CUST = S.CUST WHERE T.TGL >= '"
-                + daysNow.ToString("yyyy-MM-dd HH:mm:ss") + "' AND ORDER_STATUS = 'AWAITING_SHIPMENT' AND T.CUST = '" + CUST + "' AND S.STATUS_TRANSAKSI NOT IN ('11', '12') AND ISNULL(S.SHIPMENT, '') = '' ");
+                + daysNow.ToString("yyyy-MM-dd HH:mm:ss") + "' AND ORDER_STATUS = 'AWAITING_SHIPMENT' AND T.CUST = '" + CUST + "' AND S.STATUS_TRANSAKSI NOT IN ('11', '12') AND (ISNULL(S.SHIPMENT, '') = '' or isnull(no_po_cust, '') = '') ");
 
             if (dsNewOrderUpdatePaid.Tables[0].Rows.Count > 0)
             {
@@ -990,6 +990,7 @@ namespace MasterOnline.Controllers
         public string GetOrderDetailsUpdateStatus(TTApiData iden, string[] ordersn_list, string connID, string CUST, string NAMA_CUST)
         {
             var ret = "";
+            SetupContext(iden.DatabasePathErasoft, iden.username);
             string urll = "https://open-api.tiktokglobalshop.com/api/orders/detail/query?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
             int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
             string sign = eraAppSecret + "/api/orders/detail/queryapp_key" + eraAppKey + "shop_id" + iden.shop_id + "timestamp" + timestamp + eraAppSecret;
