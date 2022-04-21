@@ -1709,7 +1709,7 @@ namespace MasterOnline.Controllers
                 package_height = Convert.ToInt32( brginDb.TINGGI),
                 package_length = Convert.ToInt32(brginDb.PANJANG),
                 package_width = Convert.ToInt32(brginDb.LEBAR),
-                package_weight = brginDb.BERAT.ToString(),
+                package_weight = (brginDb.BERAT/1000).ToString(),
                 skus = new List<CreateSku>(),
                 product_name = brginDb.NAMA,
 
@@ -1743,7 +1743,7 @@ namespace MasterOnline.Controllers
             {
                 descBrg = brg_stf02h.DESKRIPSI_MP;
             }
-            descBrg = System.Net.WebUtility.HtmlDecode(descBrg).Replace(System.Environment.NewLine, "<br>").Replace("&nbsp;", " ");
+            descBrg = System.Net.WebUtility.HtmlDecode(descBrg).Replace("&nbsp;", " ");
             postData.description = descBrg;
 
             #region gambar induk
@@ -1785,39 +1785,48 @@ namespace MasterOnline.Controllers
                     original_price = brg_stf02h.HJUAL.ToString(),
                     seller_sku = kdbrgMO,
                     sales_attributes = new List<CreateSales_Attributes>(),
-                    //stock_infos = new List<CreateStock_Infos>()
+                    stock_infos = new List<CreateStock_Infos>()
                 };
+                var stockInfo = new CreateStock_Infos();
+                stockInfo.warehouse_id = brg_stf02h.PICKUP_POINT;
+                stockInfo.available_stock = 0;
+                var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(kdbrgMO, "ALL");
+                if (qty_stock > 0)
+                {
+                    stockInfo.available_stock = Convert.ToInt32(qty_stock);
+                }
+                itemskus.stock_infos.Add(stockInfo);
                 var sales_attr = new CreateSales_Attributes();
                 if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_1))
                 {
                     sales_attr.custom_value = brg_stf02h.AVALUE_1;
                     sales_attr.attribute_id = brg_stf02h.ACODE_1;
-                    if (!string.IsNullOrEmpty(brg_stf02h.LINK_GAMBAR_5))
+                    if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_50))
                     {
                         sales_attr.sku_img = new Sku_Img()
                         {
-                            id = await UpladImage(iden, brg_stf02h.LINK_GAMBAR_5, "3"),
+                            id = await UpladImage(iden, brg_stf02h.AVALUE_50, "3"),
                         };
                     }
                     itemskus.sales_attributes.Add(sales_attr);
                 }
                 if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_2))
-            {
-                sales_attr = new CreateSales_Attributes();
-                sales_attr.custom_value = brg_stf02h.AVALUE_2;
-                sales_attr.attribute_id = brg_stf02h.ACODE_2;
-                if (string.IsNullOrEmpty(brg_stf02h.AVALUE_1))
                 {
-                    if (!string.IsNullOrEmpty(brg_stf02h.LINK_GAMBAR_5))
+                    sales_attr = new CreateSales_Attributes();
+                    sales_attr.custom_value = brg_stf02h.AVALUE_2;
+                    sales_attr.attribute_id = brg_stf02h.ACODE_2;
+                    if (string.IsNullOrEmpty(brg_stf02h.AVALUE_1))
                     {
-                        sales_attr.sku_img = new Sku_Img()
+                        if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_50))
                         {
-                            id = await UpladImage(iden, brg_stf02h.LINK_GAMBAR_5, "3"),
-                        };
+                            sales_attr.sku_img = new Sku_Img()
+                            {
+                                id = await UpladImage(iden, brg_stf02h.AVALUE_50, "3"),
+                            };
+                        }
                     }
-                }
-                itemskus.sales_attributes.Add(sales_attr);
-            };
+                    itemskus.sales_attributes.Add(sales_attr);
+                };
                 postData.skus.Add(itemskus);
             };
 

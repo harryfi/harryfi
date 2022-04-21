@@ -7455,6 +7455,22 @@
             $('#ListHargaJualPermarket_' + PromptWarehouseTiktokTextBox + '__PICKUP_POINT').val(val);
         }
 
+        var PromptBrandTiktokTextBox = "";
+        function PromptBrandtiktok(i, r) {
+            PromptBrandTiktokTextBox = i;
+            showPromptBrandTiktokTextBoxWindow(r);
+        }
+
+        function showPromptBrandTiktokTextBoxWindow(val) {
+            var $link = '@Url.Action("PromptBrandTiktok", "Manage",new { recnum = "replaceRecnum"})';
+            $link = $link.replace("replaceRecnum", encodeURIComponent(val));
+            window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+        }
+        function afterPromptBrandTiktok(val) {
+            $('#Brand' + PromptBrandTiktokTextBox + 'tiktok').val(val);
+            $('#ListHargaJualPermarket_' + PromptBrandTiktokTextBox + '__ANAME_38').val(val);
+        }
+
         var PromptPickupPointBlibliTextBox = "";
         function PromptPickupPointBlibli(i, r) {
             PromptPickupPointBlibliTextBox = i;

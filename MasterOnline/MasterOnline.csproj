@@ -7028,6 +7028,8 @@
     <Content Include="Views\Manage\PackingListTiktok.cshtml" />
     <Content Include="Views\Manage\ListDetailPackingListTiktok.cshtml" />
     <Content Include="Views\Manage\PromptDeliveryProviderTiktok.cshtml" />
+    <Content Include="Views\Manage\PromptWarehouseTiktok.cshtml" />
+    <Content Include="Views\Manage\PromptBrandTiktok.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

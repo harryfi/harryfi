@@ -1003,7 +1003,7 @@ namespace MasterOnline.Controllers
 
                     try
                     {
-                        EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM CATEGORY_TIKTOK WHERE CUST = '"+ apidata.no_cust + "'");
+                        EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM CATEGORY_TIKTOK WHERE CUST = '" + apidata.no_cust + "'");
                         foreach (var item in respon.Data.CategoryList)
                         {
                             var newCategory = new CATEGORY_TIKTOK
@@ -1017,9 +1017,9 @@ namespace MasterOnline.Controllers
                             if (item.IsLeaf)//cek category rule
                             {
                                 var rule = getCategoryRule(apidata, item.Id);
-                                if(rule.category_rules != null)
+                                if (rule.category_rules != null)
                                 {
-                                    if(rule.category_rules.Count > 0)
+                                    if (rule.category_rules.Count > 0)
                                     {
                                         if (rule.category_rules[0].support_cod)
                                         {
@@ -1033,15 +1033,15 @@ namespace MasterOnline.Controllers
                                         {
                                             if (rule.category_rules[0].product_certifications.Count > 0)
                                             {
-                                                foreach(var pCert in rule.category_rules[0].product_certifications)
+                                                foreach (var pCert in rule.category_rules[0].product_certifications)
                                                 {
                                                     if (pCert.is_mandatory)
                                                     {
                                                         newCategory.CERTIFICATION = pCert.id + ":" + pCert.name.Replace("'", "`") + ",";
                                                     }
                                                 }
-                                                if(!string.IsNullOrEmpty(newCategory.CERTIFICATION))
-                                                newCategory.CERTIFICATION = newCategory.CERTIFICATION.Substring(0, newCategory.CERTIFICATION.Length - 1);
+                                                if (!string.IsNullOrEmpty(newCategory.CERTIFICATION))
+                                                    newCategory.CERTIFICATION = newCategory.CERTIFICATION.Substring(0, newCategory.CERTIFICATION.Length - 1);
                                             }
                                         }
                                     }
@@ -1097,7 +1097,7 @@ namespace MasterOnline.Controllers
                 if (responseFromServer != null)
                 {
                     TiktokCategoryRuleRespose respon = JsonConvert.DeserializeObject<TiktokCategoryRuleRespose>(responseFromServer);
-                    if(respon.code == 0)
+                    if (respon.code == 0)
                     {
                         ret = respon.data;
                     }
@@ -1115,7 +1115,7 @@ namespace MasterOnline.Controllers
 
         }
         #endregion
-        public string getBrand(TTApiData apidata)
+        public List<TiktokBrand> getBrand(TTApiData apidata)
         {
             string urll = "https://open-api.tiktokglobalshop.com/api/products/brands?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
             int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
@@ -1125,7 +1125,7 @@ namespace MasterOnline.Controllers
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
             myReq.Method = "GET";
             myReq.ContentType = "application/json";
-            string ret = "";
+            var ret = new List<TiktokBrand>();
             string responseFromServer = "";
             try
             {
@@ -1143,26 +1143,72 @@ namespace MasterOnline.Controllers
             }
             try
             {
-                if (responseFromServer != null)
+                if (responseFromServer != "")
                 {
                     TiktokGetBrandResponse respon = JsonConvert.DeserializeObject<TiktokGetBrandResponse>(responseFromServer);
                     if (respon.code == 0)
                     {
                         if (respon.data != null)
-                            foreach (var brand in respon.data.brand_list)
-                            {
-                                var newData = new TABEL_TIKTOK_BRAND()
-                                {
-                                    BRAND_ID = brand.id,
-                                    NAME = brand.name.Replace('\'', '`')
-                                };
-                                if (ErasoftDbContext.TABEL_TIKTOK_BRAND.Where(m => m.BRAND_ID == newData.BRAND_ID).ToList().Count == 0)
-                                {
-                                    ErasoftDbContext.TABEL_TIKTOK_BRAND.Add(newData);
-                                    ErasoftDbContext.SaveChanges();
-                                }
+                            ret = respon.data.brand_list;
+                        //foreach (var brand in respon.data.brand_list)
+                        //{
+                        //var newData = new TABEL_TIKTOK_BRAND()
+                        //{
+                        //    BRAND_ID = brand.id,
+                        //    NAME = brand.name.Replace('\'', '`')
+                        //};
+                        //if (ErasoftDbContext.TABEL_TIKTOK_BRAND.Where(m => m.BRAND_ID == newData.BRAND_ID).ToList().Count == 0)
+                        //{
+                        //    ErasoftDbContext.TABEL_TIKTOK_BRAND.Add(newData);
+                        //    ErasoftDbContext.SaveChanges();
+                        //}
 
-                            }
+                        //}
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return ret;
+
+        }
+        public List<TiktokWarehouse> getWarehouse(TTApiData apidata)
+        {
+            string urll = "https://open-api.tiktokglobalshop.com/api/logistics/get_warehouse_list?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/logistics/get_warehouse_listapp_key" + eraAppKey + "shop_id" + apidata.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, apidata.access_token, timestamp, signencry, eraAppKey, apidata.shop_id);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "GET";
+            myReq.ContentType = "application/json";
+            var ret = new List<TiktokWarehouse>();
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+            try
+            {
+                if (responseFromServer != "")
+                {
+                    TiktokGetWarehouseResponse respon = JsonConvert.DeserializeObject<TiktokGetWarehouseResponse>(responseFromServer);
+                    if (respon.code == 0)
+                    {
+                        if (respon.data != null)
+                            ret = respon.data.warehouse_list;
                     }
                 }
             }
@@ -2124,6 +2170,19 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                             }
+                            if(skudata.Count == 1)
+                            {
+                                if (string.IsNullOrEmpty(tempbarang.AVALUE_50))
+                                {
+                                    if (satik.SkuImg != null)
+                                    {
+                                        if (satik.SkuImg.UrlList != null)
+                                        {
+                                            tempbarang.AVALUE_50 = satik.SkuImg.UrlList[0];
+                                        }
+                                    }
+                                }
+                            }
                         }
                         if (string.IsNullOrEmpty(tempbarang.IMAGE) && skudata.Count == 1)// non varian tidak set gambar
                         {
@@ -3008,6 +3067,39 @@ namespace MasterOnline.Controllers
         public string id { get; set; }
         public string sample { get; set; }
         public bool is_mandatory { get; set; }
+    }
+    public class TiktokGetWarehouseResponse : TiktokCommonResponse
+    {
+        public TiktokGetWarehouseResponseData data { get; set; }
+
+    }
+    public class TiktokGetWarehouseResponseData
+    {
+        public List<TiktokWarehouse> warehouse_list { get; set; }
+    }
+
+    public class TiktokWarehouse
+    {
+        //public Warehouse_Address warehouse_address { get; set; }
+        public int warehouse_effect_status { get; set; }
+        public string warehouse_id { get; set; }
+        public string warehouse_name { get; set; }
+        public int warehouse_sub_type { get; set; }
+        public int warehouse_type { get; set; }
+    }
+
+    public class Warehouse_Address
+    {
+        public string city { get; set; }
+        public string contact_person { get; set; }
+        public string district { get; set; }
+        public string full_address { get; set; }
+        public string phone { get; set; }
+        public string region { get; set; }
+        public string region_code { get; set; }
+        public string state { get; set; }
+        public string town { get; set; }
+        public string zipcode { get; set; }
     }
 
     public class TiktokGetBrandResponse : TiktokCommonResponse
