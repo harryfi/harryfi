@@ -7439,6 +7439,22 @@
         }
         //PromptEtalaseTokped
 
+        var PromptWarehouseTiktokTextBox = "";
+        function PromptWarehouseTiktok(i, r) {
+            PromptWarehouseTiktokTextBox = i;
+            showPromptWarehouseTiktokTextBoxWindow(r);
+        }
+
+        function showPromptWarehouseTiktokTextBoxWindow(val) {
+            var $link = '@Url.Action("PromptWarehouseTiktok", "Manage",new { recnum = "replaceRecnum"})';
+            $link = $link.replace("replaceRecnum", encodeURIComponent(val));
+            window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+        }
+        function afterPromptWarehouseTiktok(val) {
+            $('#TIKTOK_WAREHOUSEID' + PromptWarehouseTiktokTextBox + 'Box').val(val);
+            $('#ListHargaJualPermarket_' + PromptWarehouseTiktokTextBox + '__PICKUP_POINT').val(val);
+        }
+
         var PromptPickupPointBlibliTextBox = "";
         function PromptPickupPointBlibli(i, r) {
             PromptPickupPointBlibliTextBox = i;
