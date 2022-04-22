@@ -3324,6 +3324,9 @@ namespace MasterOnline.Controllers
                 //add by nurul 27/12/2021
                 var vlistKodeLamaBaruSama = "";
                 //end add by nurul 27/12/2021
+                //add by nurul 22/4/2022
+                var vlistKodeBrgHarusUpdateStok = "";
+                //end add by nurul 22/4/2022
 
                 if (!string.IsNullOrEmpty(listkodeBRGBaru) && !string.IsNullOrEmpty(listkodeBRGLama))
                 {
@@ -3367,7 +3370,11 @@ namespace MasterOnline.Controllers
                                                                {
                                                                    a.NO_BUKTI,
                                                                    a.BRG,
-                                                                   b.ST_POSTING
+                                                                   b.ST_POSTING,
+                                                                   //add by nurul 22/4/2022
+                                                                   b.TGL,
+                                                                   b.CUST
+                                                                   //end add by nurul 22/4/2022
                                                                }
                                                 ).ToList();
 
@@ -3378,7 +3385,10 @@ namespace MasterOnline.Controllers
                                                                {
                                                                    a.Nobuk,
                                                                    a.Kobar,
-                                                                   b.ST_Posting
+                                                                   b.ST_Posting,
+                                                                   //add by nurul 22/4/2022
+                                                                   b.Tgl
+                                                                   //end add by nurul 22/4/2022
                                                                }
                                                 ).ToList();
 
@@ -3390,7 +3400,11 @@ namespace MasterOnline.Controllers
                                                                {
                                                                    a.INV,
                                                                    a.BRG,
-                                                                   b.POSTING
+                                                                   b.POSTING,
+                                                                   //add by nurul 22/4/2022
+                                                                   b.TGL,
+                                                                   b.SUPP
+                                                                   //end add by nurul 22/4/2022
                                                                }
                                                 ).ToList();
                                             var checkResultPB = resultCekPB.Where(p => p.POSTING.Contains("Y")).ToList();
@@ -3433,6 +3447,106 @@ namespace MasterOnline.Controllers
                                                 {
                                                     if (resultCekBundling.Count() == 0)
                                                     {
+                                                        //add by nurul 22/4/2022
+                                                        var listBrg__ = new List<tempProsesAkhirTahun>();
+                                                        var listCust__ = new List<tempProsesAkhirTahun>();
+                                                        var listSupp__ = new List<tempProsesAkhirTahun>();
+                                                        var tahunProses = DateTime.UtcNow.AddHours(7).Year;
+                                                        var cekTglSI = resultCekSI.Where(a => a.TGL.Year < DateTime.UtcNow.AddHours(7).Year).ToList();
+                                                        if (cekTglSI.Count() > 0)
+                                                        {
+                                                            for (int i = 2018; i < tahunProses; i++)
+                                                            {
+                                                                var cekPerTahun = cekTglSI.Where(a => a.TGL.Year == i).ToList();
+                                                                if (cekPerTahun.Count() > 0)
+                                                                {
+                                                                    var getBrg = cekPerTahun.Select(a => a.BRG).Distinct().ToList();
+                                                                    if (getBrg.Count() > 0)
+                                                                    {
+                                                                        foreach (var brg in getBrg)
+                                                                        {
+                                                                            listBrg__.Add(new tempProsesAkhirTahun
+                                                                            {
+                                                                                kode = listKodeBaru,
+                                                                                tahun = i
+                                                                            });
+                                                                        }
+                                                                    }
+                                                                    var getCust = cekPerTahun.Select(a => a.CUST).Distinct().ToList();
+                                                                    if (getCust.Count() > 0)
+                                                                    {
+                                                                        foreach (var cust in getCust)
+                                                                        {
+                                                                            listCust__.Add(new tempProsesAkhirTahun
+                                                                            {
+                                                                                kode = cust,
+                                                                                tahun = i
+                                                                            });
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        var cekTglPB = resultCekPB.Where(a => a.TGL.Value.Year < DateTime.UtcNow.AddHours(7).Year).ToList();
+                                                        if (cekTglSI.Count() > 0)
+                                                        {
+                                                            for (int i = 2018; i < tahunProses; i++)
+                                                            {
+                                                                var cekPerTahun = cekTglPB.Where(a => a.TGL.Value.Year == i).ToList();
+                                                                if (cekPerTahun.Count() > 0)
+                                                                {
+                                                                    var getBrg = cekPerTahun.Select(a => a.BRG).Distinct().ToList();
+                                                                    if (getBrg.Count() > 0)
+                                                                    {
+                                                                        foreach (var brg in getBrg)
+                                                                        {
+                                                                            listBrg__.Add(new tempProsesAkhirTahun
+                                                                            {
+                                                                                kode = listKodeBaru,
+                                                                                tahun = i
+                                                                            });
+                                                                        }
+                                                                    }
+                                                                    var getSupp = cekPerTahun.Select(a => a.SUPP).Distinct().ToList();
+                                                                    if (getSupp.Count() > 0)
+                                                                    {
+                                                                        foreach (var supp in getSupp)
+                                                                        {
+                                                                            listSupp__.Add(new tempProsesAkhirTahun
+                                                                            {
+                                                                                kode = supp,
+                                                                                tahun = i
+                                                                            });
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        var cekTglST = resultCekST.Where(a => a.Tgl.Value.Year < DateTime.UtcNow.AddHours(7).Year).ToList();
+                                                        if (cekTglSI.Count() > 0)
+                                                        {
+                                                            for (int i = 2018; i < tahunProses; i++)
+                                                            {
+                                                                var cekPerTahun = cekTglST.Where(a => a.Tgl.Value.Year == i).ToList();
+                                                                if (cekPerTahun.Count() > 0)
+                                                                {
+                                                                    var getBrg = cekPerTahun.Select(a => a.Kobar).Distinct().ToList();
+                                                                    if (getBrg.Count() > 0)
+                                                                    {
+                                                                        foreach (var brg in getBrg)
+                                                                        {
+                                                                            listBrg__.Add(new tempProsesAkhirTahun
+                                                                            {
+                                                                                kode = listKodeBaru,
+                                                                                tahun = i
+                                                                            });
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        //end add by nurul 22/4/2022
+
                                                         // kondisi kalau belum posting
                                                         sqlListKodeLama += "'" + listKodeBaru + "',";
 
@@ -3477,6 +3591,43 @@ namespace MasterOnline.Controllers
                                                                 dqtyTemp = 0;
                                                             }
                                                         }
+
+                                                        //add by nurul 22/4/2022
+                                                        for (int xy = 2018; xy < tahunProses; xy++)
+                                                        {
+                                                            var cekPerTahun = listBrg__.Where(a => a.tahun == xy).ToList();
+                                                            if (cekPerTahun.Count() > 0)
+                                                            {
+                                                                ProsesAkhirTahunPerBarang(dbSourceEra, accountlist.DatabasePathErasoft, Convert.ToString(xy), listKodeBaru, "", "");
+                                                                ProsesAkhirTahunPerBarang(dbSourceEra, accountlist.DatabasePathErasoft, Convert.ToString(xy), kodeBrgLamaCheck, "", "");
+                                                            }
+                                                            var cekPerTahunCust = listCust__.Where(a => a.tahun == xy).ToList();
+                                                            var getCust = cekPerTahunCust.Select(a => a.kode).Distinct().ToList();
+                                                            if (getCust.Count() > 0)
+                                                            {
+                                                                foreach (var kode in getCust)
+                                                                {
+                                                                    ProsesAkhirTahunPerBarang(dbSourceEra, accountlist.DatabasePathErasoft, Convert.ToString(xy), "", "", kode);
+                                                                }
+                                                            }
+                                                            var cekPerTahunSupp = listSupp__.Where(a => a.tahun == xy).ToList();
+                                                            var getSupp = cekPerTahunSupp.Select(a => a.kode).Distinct().ToList();
+                                                            if (getSupp.Count() > 0)
+                                                            {
+                                                                foreach (var kode in getSupp)
+                                                                {
+                                                                    ProsesAkhirTahunPerBarang(dbSourceEra, accountlist.DatabasePathErasoft, Convert.ToString(xy), "", kode, "");
+                                                                }
+                                                            }
+                                                        }
+                                                        if (listBrg__.Count() > 0)
+                                                        {
+                                                            if (listBrg__.Count() > 0)
+                                                            {
+                                                                vlistKodeBrgHarusUpdateStok += "" + listKodeBaru + ", " + kodeBrgLamaCheck + ", ";
+                                                            }
+                                                        }
+                                                        //end add by nurul 22/4/2022
 
                                                         resultEdit = true;
                                                     }
@@ -3681,6 +3832,12 @@ namespace MasterOnline.Controllers
                 {
                     errors = errors + " Terdapat kode barang yang merupakan barang bundling / komponen : " + vlistKodeBundling + System.Environment.NewLine;
                 }
+                //add by nurul 22/4/2022
+                if (!string.IsNullOrEmpty(vlistKodeBrgHarusUpdateStok))
+                {
+                    errors = errors + "***Note : Terdapat kode barang yang harus dilakukan update stok : " + vlistKodeBrgHarusUpdateStok + System.Environment.NewLine;
+                }
+                //end add by nurul 22/4/2022
 
                 return new JsonResult { Data = new { success = resultEdit, dataposting = errors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 //end change by nurul 25/5/2021
@@ -3820,6 +3977,94 @@ namespace MasterOnline.Controllers
             return new JsonResult { Data = new { success = true, induk = adaInduk, label = Label, error= errors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
         //end add by nurul 22/2/2022
+
+        //add by nurul 22/4/2022
+        public class tempProsesAkhirTahun
+        {
+            public string kode { get; set; }
+            public int tahun { get; set; }
+        }
+        //[Queue("3_general")]
+        public ActionResult ProsesAkhirTahunPerBarang(string db_source, string db_name, string tahun, string brg, string supp, string cust)
+        {
+            try
+            {
+                var getIP = "";
+                var getPort = "1433";
+                var getFullIP = "";
+                if (db_source != "" && db_source != null)
+                {
+                    getIP = db_source.Split('\'').First();
+                    getPort = db_source.Split(new string[] { ", " }, StringSplitOptions.None).Last();
+                    if (db_source.Contains("\\SQLEXPRESS,"))
+                    {
+                        getFullIP = db_source.Replace("\\SQLEXPRESS, ", ", ");
+                    }
+                    else
+                    {
+                        getFullIP = db_source.Replace("\"SQLEXPRESS, ", ", ");
+                    }
+                }
+                if (db_source != "" && db_source != null)
+                {
+                    var RemoteMODbContext = new MoDbContext(getPort, getFullIP);
+
+                    try
+                    {
+                        var cekExist = RemoteMODbContext.Database.ExecuteSqlCommand("use " + db_name);
+
+                        //var tahunProses = Convert.ToInt16(tahun);
+
+                        //object[] spParams = {
+                        //new SqlParameter("@db_name", db_name),
+                        //new SqlParameter("@THN", tahunProses)
+                        //};
+                        //RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @THN", spParams);
+
+
+                        var tahunProses = Convert.ToInt16(tahun);
+                        var brg_ = "";
+                        var cust_ = "";
+                        var supp_ = "";
+                        if (!string.IsNullOrEmpty(brg))
+                        {
+                            brg_ = brg;
+                        }
+                        if (!string.IsNullOrEmpty(supp))
+                        {
+                            supp_ = supp;
+                        }
+                        if (!string.IsNullOrEmpty(cust))
+                        {
+                            cust_ = cust;
+                        }
+
+                        object[] spParams = {
+                        new SqlParameter("@db_name", db_name),
+                        new SqlParameter("@THN", tahunProses),
+                        new SqlParameter("@BRG", brg_),
+                        new SqlParameter("@SUPP", supp_),
+                        new SqlParameter("@CUST", cust_),
+                        };
+                        //MoDbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN_PERBRG] @db_name, @THN, @BRG, @SUPP, @CUST", spParams);
+                        RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN_PERBRG] @db_name, @THN, @BRG, @SUPP, @CUST", spParams);
+                    }
+                    catch
+                    {
+                        //return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Database " + db_name + " tidak ditemukan." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+
+                    //return new JsonResult { Data = new { mo_message = "Sukses memproses akhir tahun." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                //return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+                //return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            return new EmptyResult();
+        }
+        //end add by nurul 22/4/2022
         public async Task<ActionResult> ProsesMergeKode(string listData)
         {
             bool resultMerge = false;
@@ -3844,6 +4089,9 @@ namespace MasterOnline.Controllers
                 //add by nurul 27/12/2021
                 var vlistKodeLamaBaruSama = "";
                 //end add by nurul 27/12/2021
+                //add by nurul 22/4/2022
+                var vlistKodeBrgHarusUpdateStok = "";
+                //end add by nurul 22/4/2022
 
                 if (!string.IsNullOrEmpty(listkodeBRGBaru) && !string.IsNullOrEmpty(listkodeBRGLama))
                 {
@@ -3894,7 +4142,11 @@ namespace MasterOnline.Controllers
                                                            {
                                                                a.NO_BUKTI,
                                                                a.BRG,
-                                                               b.ST_POSTING
+                                                               b.ST_POSTING,
+                                                               //add by nurul 22/4/2022
+                                                               b.TGL,
+                                                               b.CUST
+                                                               //end add by nurul 22/4/2022
                                                            }
                                             ).ToList();
 
@@ -3905,7 +4157,10 @@ namespace MasterOnline.Controllers
                                                            {
                                                                a.Nobuk,
                                                                a.Kobar,
-                                                               b.ST_Posting
+                                                               b.ST_Posting,
+                                                               //add by nurul 22/4/2022
+                                                               b.Tgl
+                                                               //end add by nurul 22/4/2022
                                                            }
                                             ).ToList();
 
@@ -3916,7 +4171,11 @@ namespace MasterOnline.Controllers
                                                            {
                                                                a.INV,
                                                                a.BRG,
-                                                               b.POSTING
+                                                               b.POSTING,
+                                                               //add by nurul 22/4/2022
+                                                               b.TGL,
+                                                               b.SUPP
+                                                               //end add by nurul 22/4/2022
                                                            }
                                             ).ToList();
 
@@ -4020,6 +4279,106 @@ namespace MasterOnline.Controllers
                                                     //    "update detailpromosis set KODE_BRG ='" + listKodeBaru + "' where KODE_BRG ='" + kodeBrgLamaCheck + "'; " +
                                                     //    "update sot03c set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
 
+                                                    //add by nurul 22/4/2022
+                                                    var listBrg__ = new List<tempProsesAkhirTahun>();
+                                                    var listCust__ = new List<tempProsesAkhirTahun>();
+                                                    var listSupp__ = new List<tempProsesAkhirTahun>();
+                                                    var tahunProses = DateTime.UtcNow.AddHours(7).Year;
+                                                    var cekTglSI = resultCekSI.Where(a => a.TGL.Year < DateTime.UtcNow.AddHours(7).Year).ToList();
+                                                    if(cekTglSI.Count() > 0)
+                                                    {
+                                                        for (int i = 2018; i < tahunProses; i++)
+                                                        {
+                                                            var cekPerTahun = cekTglSI.Where(a => a.TGL.Year == i).ToList();
+                                                            if(cekPerTahun.Count() > 0)
+                                                            {
+                                                                var getBrg = cekPerTahun.Select(a => a.BRG).Distinct().ToList();
+                                                                if(getBrg.Count() > 0)
+                                                                {
+                                                                    foreach (var brg in getBrg)
+                                                                    {
+                                                                        listBrg__.Add(new tempProsesAkhirTahun
+                                                                        {
+                                                                            kode = listKodeBaru,
+                                                                            tahun=i
+                                                                        });
+                                                                    }
+                                                                }
+                                                                var getCust = cekPerTahun.Select(a => a.CUST).Distinct().ToList();
+                                                                if (getCust.Count() > 0)
+                                                                {
+                                                                    foreach (var cust in getCust)
+                                                                    {
+                                                                        listCust__.Add(new tempProsesAkhirTahun
+                                                                        {
+                                                                            kode = cust,
+                                                                            tahun = i
+                                                                        });
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    var cekTglPB = resultCekPB.Where(a => a.TGL.Value.Year < DateTime.UtcNow.AddHours(7).Year).ToList();
+                                                    if (cekTglSI.Count() > 0)
+                                                    {
+                                                        for (int i = 2018; i < tahunProses; i++)
+                                                        {
+                                                            var cekPerTahun = cekTglPB.Where(a => a.TGL.Value.Year == i).ToList();
+                                                            if (cekPerTahun.Count() > 0)
+                                                            {
+                                                                var getBrg = cekPerTahun.Select(a => a.BRG).Distinct().ToList();
+                                                                if (getBrg.Count() > 0)
+                                                                {
+                                                                    foreach (var brg in getBrg)
+                                                                    {
+                                                                        listBrg__.Add(new tempProsesAkhirTahun
+                                                                        {
+                                                                            kode = listKodeBaru,
+                                                                            tahun = i
+                                                                        });
+                                                                    }
+                                                                }
+                                                                var getSupp = cekPerTahun.Select(a => a.SUPP).Distinct().ToList();
+                                                                if (getSupp.Count() > 0)
+                                                                {
+                                                                    foreach (var supp in getSupp)
+                                                                    {
+                                                                        listSupp__.Add(new tempProsesAkhirTahun
+                                                                        {
+                                                                            kode = supp,
+                                                                            tahun = i
+                                                                        });
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    var cekTglST = resultCekST.Where(a => a.Tgl.Value.Year < DateTime.UtcNow.AddHours(7).Year).ToList();
+                                                    if (cekTglSI.Count() > 0)
+                                                    {
+                                                        for (int i = 2018; i < tahunProses; i++)
+                                                        {
+                                                            var cekPerTahun = cekTglST.Where(a => a.Tgl.Value.Year == i).ToList();
+                                                            if (cekPerTahun.Count() > 0)
+                                                            {
+                                                                var getBrg = cekPerTahun.Select(a => a.Kobar).Distinct().ToList();
+                                                                if (getBrg.Count() > 0)
+                                                                {
+                                                                    foreach (var brg in getBrg)
+                                                                    {
+                                                                        listBrg__.Add(new tempProsesAkhirTahun
+                                                                        {
+                                                                            kode = listKodeBaru,
+                                                                            tahun = i
+                                                                        });
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    //end add by nurul 22/4/2022
+
                                                     EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "update stf02h set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
                                                     EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "update stf02 set brg='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
                                                     EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "update sot01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
@@ -4077,6 +4436,43 @@ namespace MasterOnline.Controllers
                                                         }
                                                     }
 
+                                                    //add by nurul 22/4/2022
+                                                    for (int xy = 2018; xy < tahunProses; xy++)
+                                                    {
+                                                        var cekPerTahun = listBrg__.Where(a => a.tahun == xy).ToList();
+                                                        if (cekPerTahun.Count() > 0)
+                                                        {
+                                                            ProsesAkhirTahunPerBarang(dbSourceEra, accountlist.DatabasePathErasoft, Convert.ToString(xy), listKodeBaru, "", "");
+                                                            ProsesAkhirTahunPerBarang(dbSourceEra, accountlist.DatabasePathErasoft, Convert.ToString(xy), kodeBrgLamaCheck, "", "");
+                                                        }
+                                                        var cekPerTahunCust = listCust__.Where(a => a.tahun == xy).ToList();
+                                                        var getCust = cekPerTahunCust.Select(a => a.kode).Distinct().ToList();
+                                                        if (getCust.Count() > 0)
+                                                        {
+                                                            foreach (var kode in getCust)
+                                                            {
+                                                                ProsesAkhirTahunPerBarang(dbSourceEra, accountlist.DatabasePathErasoft, Convert.ToString(xy), "", "", kode);
+                                                            }
+                                                        }
+                                                        var cekPerTahunSupp = listSupp__.Where(a => a.tahun == xy).ToList();
+                                                        var getSupp = cekPerTahunSupp.Select(a => a.kode).Distinct().ToList();
+                                                        if (getSupp.Count() > 0)
+                                                        {
+                                                            foreach (var kode in getSupp)
+                                                            {
+                                                                ProsesAkhirTahunPerBarang(dbSourceEra, accountlist.DatabasePathErasoft, Convert.ToString(xy), "", kode, "");
+                                                            }
+                                                        }
+                                                    }
+                                                    if (listBrg__.Count() > 0)
+                                                    {
+                                                        if (listBrg__.Count() > 0)
+                                                        {
+                                                            vlistKodeBrgHarusUpdateStok += "" + listKodeBaru + ", " + kodeBrgLamaCheck + ", ";
+                                                        }
+                                                    }
+                                                    //end add by nurul 22/4/2022
+
                                                     //var checkDuplicateBrgMP = ErasoftDbContext.STF02H.Where(p => p.BRG.ToUpper() == listKodeBaru.ToUpper()).GroupBy(x => x.IDMARKET).Where(p => p.Count() > 1).ToList();
                                                     ////foreach(var tes in checkDuplicateBrgMP)
                                                     //if (checkDuplicateBrgMP.Count() > 0)
@@ -4112,19 +4508,19 @@ namespace MasterOnline.Controllers
                                                 else
                                                 {
                                                     //kondisi kalau sudah dijadikan barang bundling/brg komponen 
-                                                    vlistKodeBundling += "" + kodeBrgLamaCheck + ",";
+                                                    vlistKodeBundling += "" + kodeBrgLamaCheck + ", ";
                                                 }
                                             }
                                             else
                                             {
                                                 //kondisi kalau sudah dijadikan barang multi sku/brg acuan 
-                                                vlistKodeMultiSKU += "" + kodeBrgLamaCheck + ",";
+                                                vlistKodeMultiSKU += "" + kodeBrgLamaCheck + ", ";
                                             }
                                         }
                                         else
                                         {
                                             // kondisi kalau sudah posting
-                                            vlistKodeSudahPosting += kodeBrgLamaCheck + " ,";
+                                            vlistKodeSudahPosting += kodeBrgLamaCheck + ", ";
                                         }
                                     }
                                     else
@@ -4256,7 +4652,7 @@ namespace MasterOnline.Controllers
                                 else
                                 {
                                     //alert jika kode lama dan baru sama 
-                                    vlistKodeLamaBaruSama += "" + kodeBrgLamaCheck + ",";
+                                    vlistKodeLamaBaruSama += "" + kodeBrgLamaCheck + ", ";
                                 }
 
                                 iurutan += 1;
@@ -4328,6 +4724,12 @@ namespace MasterOnline.Controllers
                 {
                     errors = errors + " Terdapat kode barang yang merupakan barang bundling / komponen : " + vlistKodeBundling + System.Environment.NewLine;
                 }
+                //add by nurul 22/4/2022
+                if (!string.IsNullOrEmpty(vlistKodeBrgHarusUpdateStok))
+                {
+                    errors = errors + "***Note : Terdapat kode barang yang harus dilakukan update stok : " + vlistKodeBrgHarusUpdateStok + System.Environment.NewLine;
+                }
+                //end add by nurul 22/4/2022
 
                 return new JsonResult { Data = new { success = resultMerge, dataposting = errors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 //end change by nurul 25/5/2021
@@ -4360,6 +4762,9 @@ namespace MasterOnline.Controllers
                 var vlistKodeSudahPosting = "";
                 var vlistKodeMultiSKU = "";
                 var vlistKodeBundling = "";
+                //add by nurul 22/4/2022
+                var vlistKodeBrgHarusUpdateStok = "";
+                //end add by nurul 22/4/2022
 
                 if (!string.IsNullOrEmpty(listkodeBRGBaru))
                 {
@@ -4401,7 +4806,11 @@ namespace MasterOnline.Controllers
                                                        {
                                                            a.NO_BUKTI,
                                                            a.BRG,
-                                                           b.ST_POSTING
+                                                           b.ST_POSTING,
+                                                           //add by nurul 22/4/2022
+                                                           b.TGL,
+                                                           b.CUST
+                                                           //end add by nurul 22/4/2022
                                                        }
                                         ).ToList();
 
@@ -4412,7 +4821,10 @@ namespace MasterOnline.Controllers
                                                        {
                                                            a.Nobuk,
                                                            a.Kobar,
-                                                           b.ST_Posting
+                                                           b.ST_Posting,
+                                                           //add by nurul 22/4/2022
+                                                           b.Tgl
+                                                           //end add by nurul 22/4/2022
                                                        }
                                         ).ToList();
 
@@ -4423,7 +4835,11 @@ namespace MasterOnline.Controllers
                                                        {
                                                            a.INV,
                                                            a.BRG,
-                                                           b.POSTING
+                                                           b.POSTING,
+                                                           //add by nurul 22/4/2022
+                                                           b.TGL,
+                                                           b.SUPP
+                                                           //end add by nurul 22/4/2022
                                                        }
                                         ).ToList();
 
@@ -4458,6 +4874,106 @@ namespace MasterOnline.Controllers
                                         {
                                             if (resultCekBundling.Count() == 0)
                                             {
+                                                //add by nurul 22/4/2022
+                                                var listBrg__ = new List<tempProsesAkhirTahun>();
+                                                var listCust__ = new List<tempProsesAkhirTahun>();
+                                                var listSupp__ = new List<tempProsesAkhirTahun>();
+                                                var tahunProses = DateTime.UtcNow.AddHours(7).Year;
+                                                var cekTglSI = resultCekSI.Where(a => a.TGL.Year < DateTime.UtcNow.AddHours(7).Year).ToList();
+                                                if (cekTglSI.Count() > 0)
+                                                {
+                                                    for (int i = 2018; i < tahunProses; i++)
+                                                    {
+                                                        var cekPerTahun = cekTglSI.Where(a => a.TGL.Year == i).ToList();
+                                                        if (cekPerTahun.Count() > 0)
+                                                        {
+                                                            var getBrg = cekPerTahun.Select(a => a.BRG).Distinct().ToList();
+                                                            if (getBrg.Count() > 0)
+                                                            {
+                                                                foreach (var brg in getBrg)
+                                                                {
+                                                                    listBrg__.Add(new tempProsesAkhirTahun
+                                                                    {
+                                                                        kode = listKodeBaru,
+                                                                        tahun = i
+                                                                    });
+                                                                }
+                                                            }
+                                                            var getCust = cekPerTahun.Select(a => a.CUST).Distinct().ToList();
+                                                            if (getCust.Count() > 0)
+                                                            {
+                                                                foreach (var cust in getCust)
+                                                                {
+                                                                    listCust__.Add(new tempProsesAkhirTahun
+                                                                    {
+                                                                        kode = cust,
+                                                                        tahun = i
+                                                                    });
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                var cekTglPB = resultCekPB.Where(a => a.TGL.Value.Year < DateTime.UtcNow.AddHours(7).Year).ToList();
+                                                if (cekTglSI.Count() > 0)
+                                                {
+                                                    for (int i = 2018; i < tahunProses; i++)
+                                                    {
+                                                        var cekPerTahun = cekTglPB.Where(a => a.TGL.Value.Year == i).ToList();
+                                                        if (cekPerTahun.Count() > 0)
+                                                        {
+                                                            var getBrg = cekPerTahun.Select(a => a.BRG).Distinct().ToList();
+                                                            if (getBrg.Count() > 0)
+                                                            {
+                                                                foreach (var brg in getBrg)
+                                                                {
+                                                                    listBrg__.Add(new tempProsesAkhirTahun
+                                                                    {
+                                                                        kode = listKodeBaru,
+                                                                        tahun = i
+                                                                    });
+                                                                }
+                                                            }
+                                                            var getSupp = cekPerTahun.Select(a => a.SUPP).Distinct().ToList();
+                                                            if (getSupp.Count() > 0)
+                                                            {
+                                                                foreach (var supp in getSupp)
+                                                                {
+                                                                    listSupp__.Add(new tempProsesAkhirTahun
+                                                                    {
+                                                                        kode = supp,
+                                                                        tahun = i
+                                                                    });
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                var cekTglST = resultCekST.Where(a => a.Tgl.Value.Year < DateTime.UtcNow.AddHours(7).Year).ToList();
+                                                if (cekTglSI.Count() > 0)
+                                                {
+                                                    for (int i = 2018; i < tahunProses; i++)
+                                                    {
+                                                        var cekPerTahun = cekTglST.Where(a => a.Tgl.Value.Year == i).ToList();
+                                                        if (cekPerTahun.Count() > 0)
+                                                        {
+                                                            var getBrg = cekPerTahun.Select(a => a.Kobar).Distinct().ToList();
+                                                            if (getBrg.Count() > 0)
+                                                            {
+                                                                foreach (var brg in getBrg)
+                                                                {
+                                                                    listBrg__.Add(new tempProsesAkhirTahun
+                                                                    {
+                                                                        kode = listKodeBaru,
+                                                                        tahun = i
+                                                                    });
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                //end add by nurul 22/4/2022
+
                                                 // kondisi kalau belum posting
                                                 sqlListKodeBaru += "'" + listKodeBaru + "',";
                                                 EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, " " +
@@ -4469,6 +4985,41 @@ namespace MasterOnline.Controllers
                                                     "delete from detailpromosis where KODE_BRG ='" + listKodeBaru + "'; " +
                                                     "delete from sot03c where brg ='" + listKodeBaru + "';");
 
+                                                //add by nurul 22/4/2022
+                                                for (int xy = 2018; xy < tahunProses; xy++)
+                                                {
+                                                    var cekPerTahun = listBrg__.Where(a => a.tahun == xy).ToList();
+                                                    if (cekPerTahun.Count() > 0)
+                                                    {
+                                                        ProsesAkhirTahunPerBarang(dbSourceEra, accountlist.DatabasePathErasoft, Convert.ToString(xy), listKodeBaru, "", "");
+                                                    }
+                                                    var cekPerTahunCust = listCust__.Where(a => a.tahun == xy).ToList();
+                                                    var getCust = cekPerTahunCust.Select(a => a.kode).Distinct().ToList();
+                                                    if (getCust.Count() > 0)
+                                                    {
+                                                        foreach (var kode in getCust)
+                                                        {
+                                                            ProsesAkhirTahunPerBarang(dbSourceEra, accountlist.DatabasePathErasoft, Convert.ToString(xy), "", "", kode);
+                                                        }
+                                                    }
+                                                    var cekPerTahunSupp = listSupp__.Where(a => a.tahun == xy).ToList();
+                                                    var getSupp = cekPerTahunSupp.Select(a => a.kode).Distinct().ToList();
+                                                    if (getSupp.Count() > 0)
+                                                    {
+                                                        foreach (var kode in getSupp)
+                                                        {
+                                                            ProsesAkhirTahunPerBarang(dbSourceEra, accountlist.DatabasePathErasoft, Convert.ToString(xy), "", kode, "");
+                                                        }
+                                                    }
+                                                }
+                                                if (listBrg__.Count() > 0)
+                                                {
+                                                    if (listBrg__.Count() > 0)
+                                                    {
+                                                        vlistKodeBrgHarusUpdateStok += "" + listKodeBaru + ", ";
+                                                    }
+                                                }
+                                                //end add by nurul 22/4/2022
 
                                                 resultDelete = true;
                                             }
@@ -4611,6 +5162,12 @@ namespace MasterOnline.Controllers
                 {
                     errors = errors + " Terdapat kode barang yang merupakan barang bundling / komponen : " + vlistKodeBundling + System.Environment.NewLine;
                 }
+                //add by nurul 22/4/2022
+                if (!string.IsNullOrEmpty(vlistKodeBrgHarusUpdateStok))
+                {
+                    errors = errors + "***Note : Terdapat kode barang yang harus dilakukan update stok : " + vlistKodeBrgHarusUpdateStok + System.Environment.NewLine;
+                }
+                //end add by nurul 22/4/2022
 
                 return new JsonResult { Data = new { success = resultDelete, dataposting = errors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 //end change by nurul 25/5/2021
