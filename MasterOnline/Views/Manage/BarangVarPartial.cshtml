@@ -16,7 +16,7 @@
 //}
 }
 @Html.AntiForgeryToken()
-    <script type="text/javascript">
+<script type="text/javascript">
     $(document).ready(function () {
         if ($('#Stf02_ID').val() == "") {
             $('#Stf02_ID').val($('#txtStf02ID').val());
@@ -2274,6 +2274,25 @@
             }
         }
     }
+    function validasiAutoloadStf02VariantTiktok() {
+        $(".txtVariantTiktokLv1_").each(function (i, item) {
+            if ($(item).val() == "") {
+                validasi_autoloadStf02Variant = false;
+            }
+        });
+        $(".txtVariantTiktokLv2_").each(function (i, item) {
+            if ($(item).val() == "") {
+                validasi_autoloadStf02Variant = false;
+            }
+        });
+        message_validasi_autoloadStf02Variant = "Mohon isi semua Opsi Tiktok.";
+        if (validasi_autoloadStf02Variant) {
+            if (!$('#save_map_var_tiktok').prop('disabled')) {
+                message_validasi_autoloadStf02Variant = "Mohon simpan setting Opsi Tiktok.";
+            }
+        }
+
+    }
     function validasiAutoloadStf02VariantJdid() {
         $(".txtVariantJdidLv1_").each(function (i, item) {
             if ($(item).val() == "") {
@@ -2799,7 +2818,81 @@
                 alert(message_validasi_autoloadStf02Variant);
             }
         }
-    }
+        }
+        function SaveMapVarTiktok() {
+            validasi_autoloadStf02Variant = true;
+            message_validasi_autoloadStf02Variant = "";
+
+            var Tiktok_code = "";
+            var ada_Tiktok = false;
+            if ($('#txtTiktokCategoryCodeFound').val() != undefined) {
+                if ($('#txtTiktokCategoryCodeFound').val() > -1) {
+                    ada_Tiktok = true;
+                    var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtTiktokCategoryCodeFound').val() + '__CATEGORY_CODE';
+                    Tiktok_code = $(fieldCategoryCode).val();
+                    validasiAutoloadStf02VariantTiktok();
+                }
+            }
+
+        if (validasi_autoloadStf02Variant) {
+            var validate = ValidateMappingVarian('Tiktok');
+            if (!validate) {
+                return false;
+            }
+        }
+
+        if (validasi_autoloadStf02Variant) {
+            var listVariantTiktokLv1 = [];
+            var listVariantTiktokLv2 = [];
+
+            $(".txtVariantTiktokLv1_").each(function (i, item) {
+                listVariantTiktokLv1[i] = $(item).val();
+            });
+            $(".txtVariantTiktokLv2_").each(function (i, item) {
+                listVariantTiktokLv2[i] = $(item).val();
+            });
+
+            var post_data = {
+                brg: $('#Stf02_BRG').val(),
+                code: $('#txtKodeKategori').val(),
+                opt_selected_1: $('#select_opt_level_1').val(),
+                opt_selected_2: $('#select_opt_level_2').val(),
+                lazada: {
+                    code: Tiktok_code,
+                    var_judul: {
+                        lv_1: $("#txtJudulVariantTiktokLv1").val(),
+                        lv_2: $("#txtJudulVariantTiktokLv2").val()
+                    },
+                    var_detail: {
+                        lv_1: listVariantTiktokLv1,
+                        lv_2: listVariantTiktokLv2
+                    }
+                }
+            }
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SaveMappingVarTiktok", "Manage")',
+                data: post_data,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $('#save_map_var_tiktok').attr('disabled', 'disabled');
+                    $('#loading_spinner').hide();
+                    $('#proses_detail_var_btn').removeAttr('disabled');
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                    $('#loading_spinner').hide();
+                }
+            });
+        }
+        else {
+            if (message_validasi_autoloadStf02Variant != "") {
+                alert(message_validasi_autoloadStf02Variant);
+            }
+        }
+        }
     function SaveMapVarJdid() {
         validasi_autoloadStf02Variant = true;
         message_validasi_autoloadStf02Variant = "";
@@ -2930,7 +3023,7 @@
             });
             return true;
         }
-    </script>
+</script>
 <div class="form-horizontal">
     <div class="modal fade" id="KonfKodeBarangVariasi" tabindex="-1" role="dialog" aria-labelledby="KonfKodeBarangVariasiLabel">
         <div class="modal-dialog" role="document">
@@ -3361,11 +3454,11 @@
                                                                 <td>
                                                                     <select id="selectJudulVariantBlibliLv1" placeholder="Nama Variasi" required="required"></select>
                                                                     @Html.Hidden("txtJudulVariantBlibliLv1", textJudulVar1)
-                                                                <div style="display:none">
-                                                                    <select id="selectJudulVariantBlibliFCLv1" placeholder="Nama Variasi" required="required" style="display:none"></select>
-                                                                    @Html.Hidden("txtJudulVariantBlibliFCLv1", "FAMILY COLOUR")
-                                                                </div>
-                                                                    
+                                                                    <div style="display:none">
+                                                                        <select id="selectJudulVariantBlibliFCLv1" placeholder="Nama Variasi" required="required" style="display:none"></select>
+                                                                        @Html.Hidden("txtJudulVariantBlibliFCLv1", "FAMILY COLOUR")
+                                                                    </div>
+
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -3392,28 +3485,28 @@
                                                                 {
                                                                     textKetVar1 = KetVar1.KET_VAR;
                                                                 }
-                                                            <tr>
-                                                                <td>
-                                                                    @Html.TextBox("txtOpsiMOBlibliLv1", textKetVar1, new
-                                                               {
-                                                                   @class = "form-control",
-                                                                   disabled = "disabled",
-                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                               })
-                                                                </td>
-                                                                <td>
-                                                                    <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM">
-                                                                        <select id="selectVariantBlibliLv1_@(VariantPerMpBlibliLv1[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM" class="selectVariantBlibliLv1_" placeholder="Nama Variasi" required="required"></select>
-                                                                        @Html.Hidden("txtVariantBlibliLv1_" + VariantPerMpBlibliLv1[i].RECNUM, VariantPerMpBlibliLv1[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv1_" })
-                                                                    </div>
-                                                                </td>
-                                                                <td class="td_opsiFC_1" style="display:none">
-                                                                    <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM">
-                                                                        <select id="selectVariantBlibliFCLv1_@(VariantPerMpBlibliLv1[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM" class="selectVariantBlibliFCLv1_" placeholder="Nama Variasi" required="required"></select>
-                                                                        @Html.Hidden("txtVariantBlibliFCLv1_" + VariantPerMpBlibliLv1[i].RECNUM, VariantPerMpBlibliLv1[i].MP_VALUE_FC_VAR, new { @class = "txtVariantBlibliFCLv1_" })
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.TextBox("txtOpsiMOBlibliLv1", textKetVar1, new
+                                                                   {
+                                                                       @class = "form-control",
+                                                                       disabled = "disabled",
+                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                                   })
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM">
+                                                                            <select id="selectVariantBlibliLv1_@(VariantPerMpBlibliLv1[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM" class="selectVariantBlibliLv1_" placeholder="Nama Variasi" required="required"></select>
+                                                                            @Html.Hidden("txtVariantBlibliLv1_" + VariantPerMpBlibliLv1[i].RECNUM, VariantPerMpBlibliLv1[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv1_" })
+                                                                        </div>
+                                                                    </td>
+                                                                    <td class="td_opsiFC_1" style="display:none">
+                                                                        <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM">
+                                                                            <select id="selectVariantBlibliFCLv1_@(VariantPerMpBlibliLv1[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM" class="selectVariantBlibliFCLv1_" placeholder="Nama Variasi" required="required"></select>
+                                                                            @Html.Hidden("txtVariantBlibliFCLv1_" + VariantPerMpBlibliLv1[i].RECNUM, VariantPerMpBlibliLv1[i].MP_VALUE_FC_VAR, new { @class = "txtVariantBlibliFCLv1_" })
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
                                                             }
                                                         </tbody>
                                                     </table>
@@ -3463,10 +3556,10 @@
                                                                 <td>
                                                                     <select id="selectJudulVariantBlibliLv2" placeholder="Nama Variasi" required="required"></select>
                                                                     @Html.Hidden("txtJudulVariantBlibliLv2", textJudulVar2)
-                                                                <div style="display:none">
-                                                                    <select id="selectJudulVariantBlibliFCLv2" placeholder="Nama Variasi" required="required"></select>
-                                                                    @Html.Hidden("txtJudulVariantBlibliFCLv2", "FAMILY COLOUR")
-                                                                </div>
+                                                                    <div style="display:none">
+                                                                        <select id="selectJudulVariantBlibliFCLv2" placeholder="Nama Variasi" required="required"></select>
+                                                                        @Html.Hidden("txtJudulVariantBlibliFCLv2", "FAMILY COLOUR")
+                                                                    </div>
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -3493,28 +3586,28 @@
                                                                 {
                                                                     textKetVar2 = KetVar2.KET_VAR;
                                                                 }
-                                                            <tr>
-                                                                <td>
-                                                                    @Html.TextBox("txtOpsiMOBlibliLv2", textKetVar2, new
-                                                               {
-                                                                   @class = "form-control",
-                                                                   disabled = "disabled",
-                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                               })
-                                                                </td>
-                                                                <td>
-                                                                    <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM">
-                                                                        <select id="selectVariantBlibliLv2_@(VariantPerMpBlibliLv2[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM" class="selectVariantBlibliLv2_" placeholder="Nama Variasi" required="required"></select>
-                                                                        @Html.Hidden("txtVariantBlibliLv2_" + VariantPerMpBlibliLv2[i].RECNUM, VariantPerMpBlibliLv2[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv2_" })
-                                                                    </div>
-                                                                </td>
-                                                                <td class="td_opsiFC_2" style="display:none">
-                                                                    <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM">
-                                                                        <select id="selectVariantBlibliFCLv2_@(VariantPerMpBlibliLv2[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM" class="selectVariantBlibliFCLv2_" placeholder="Nama Variasi" required="required"></select>
-                                                                        @Html.Hidden("txtVariantBlibliFCLv2_" + VariantPerMpBlibliLv2[i].RECNUM, VariantPerMpBlibliLv2[i].MP_VALUE_FC_VAR, new { @class = "txtVariantBlibliFCLv2_" })
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.TextBox("txtOpsiMOBlibliLv2", textKetVar2, new
+                                                                   {
+                                                                       @class = "form-control",
+                                                                       disabled = "disabled",
+                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                                   })
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM">
+                                                                            <select id="selectVariantBlibliLv2_@(VariantPerMpBlibliLv2[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM" class="selectVariantBlibliLv2_" placeholder="Nama Variasi" required="required"></select>
+                                                                            @Html.Hidden("txtVariantBlibliLv2_" + VariantPerMpBlibliLv2[i].RECNUM, VariantPerMpBlibliLv2[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv2_" })
+                                                                        </div>
+                                                                    </td>
+                                                                    <td class="td_opsiFC_2" style="display:none">
+                                                                        <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM">
+                                                                            <select id="selectVariantBlibliFCLv2_@(VariantPerMpBlibliLv2[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM" class="selectVariantBlibliFCLv2_" placeholder="Nama Variasi" required="required"></select>
+                                                                            @Html.Hidden("txtVariantBlibliFCLv2_" + VariantPerMpBlibliLv2[i].RECNUM, VariantPerMpBlibliLv2[i].MP_VALUE_FC_VAR, new { @class = "txtVariantBlibliFCLv2_" })
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
                                                             }
                                                         </tbody>
                                                     </table>
@@ -5161,6 +5254,219 @@
                                 <div class="form-group">
                                     <div class="col-md-12 col-sm-12 col-xs-12" style="margin: auto;display: flex;flex-direction: row;justify-content: center;">
                                         <input type="button" class="btn btn-primary pull-right" id="save_map_var_tokped" disabled="disabled" style="margin:0px;padding-left:10px;padding-right:10px" value="Simpan" onclick="SaveMapVarTokped()" />
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+            <div id="tiktok_detail_tab_variant" class="tab-pane fade in">
+                <div class="row" style="padding-top:10px">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div class="form-group" style="display:none">
+                            @Html.Label("lblKodeKategoriTiktok", "Kode Kategori", new { @class = "control-label col-md-2 col-sm-2 col-xs-12" })
+                            <div class="col-md-4 col-sm-4 col-xs-12">
+                                @Html.TextBox("txtKodeKategoriTiktok", "", new { @class = "form-control", disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("lblNamaKategoriMOTiktok", "Kategori MO", new { @class = "control-label col-md-2 col-sm-2 col-xs-12" })
+                            <div class="col-md-4 col-sm-4 col-xs-12">
+                                @Html.TextBox("txtNamaKategoriMOTiktok", Model.Kategori.KET, new { @class = "form-control", disabled = "disabled" })
+                            </div>
+                            @Html.Label("lblNamaKategoriTiktok", "Kategori Tiktok", new { @class = "control-label col-md-2 col-sm-2 col-xs-12" })
+                            <div class="col-md-4 col-sm-4 col-xs-12">
+                                @Html.TextBox("txtNamaKategoriTiktok", "", new { @class = "form-control", disabled = "disabled" })
+                            </div>
+                        </div>
+                        @{
+                            var adaSettingTiktok = false;
+                            var VariantPerMpTiktokLv1 = Model.VariantPerMP.Where(p => p.LEVEL_VAR == 1 && p.CATEGORY_MO == code_kategori && p.MARKET == "TIKTOK").OrderBy(p => p.RECNUM).ToList();
+                            if (VariantPerMpTiktokLv1.Count() > 0)
+                            {
+                                adaSettingTiktok = true;
+                                var textJudulVar1 = "";
+                                var judulVar1 = VariantPerMpTiktokLv1.FirstOrDefault();
+                                if (judulVar1 != null)
+                                {
+                                    textJudulVar1 = judulVar1.MP_JUDUL_VAR;
+                                }
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <table style="width:100%">
+                                            <tr>
+                                                <td style="width:50%; vertical-align:top !important;">
+                                                    <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="border-right:none;text-align:center">Judul Variasi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Tiktok</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>
+                                                                    @Html.TextBox("txtJudulMOTiktokLv1", Model.Variant_Level_1.VALUE_JUDUL_VAR, new
+                                                               {
+                                                                   @class = "form-control",
+                                                                   disabled = "disabled",
+                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                               })
+                                                                </td>
+                                                                <td>
+                                                                    <select id="selectJudulVariantTiktokLv1" placeholder="Nama Variasi" required="required"></select>
+                                                                    @Html.Hidden("txtJudulVariantTiktokLv1", textJudulVar1)
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td style="width:50%; vertical-align:top !important">
+                                                    <table class="table table-bordered" style="width:100%" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Tiktok</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (int i = 0; i < VariantPerMpTiktokLv1.Count(); i++)
+                                                            {
+                                                                var textKetVar1 = "";
+                                                                var KetVar1 = VariantOptMasterLv1.Where(p => p.KODE_VAR == VariantPerMpTiktokLv1[i].KODE_VAR).FirstOrDefault();
+                                                                if (KetVar1 != null)
+                                                                {
+                                                                    textKetVar1 = KetVar1.KET_VAR;
+                                                                }
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.TextBox("txtOpsiMOTiktokLv1", textKetVar1, new
+                                                                   {
+                                                                       @class = "form-control",
+                                                                       disabled = "disabled",
+                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                                   })
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("txtVariantTiktokLv1_" + VariantPerMpTiktokLv1[i].RECNUM, VariantPerMpTiktokLv1[i].MP_VALUE_VAR, new
+                                                                   {
+                                                                       @class = "form-control txtVariantTiktokLv1_"
+                                                                       //@style = "display:none;"
+                                                                   })
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            }
+
+                            var VariantPerMpTiktokLv2 = Model.VariantPerMP.Where(p => p.LEVEL_VAR == 2 && p.CATEGORY_MO == code_kategori && p.MARKET == "TIKTOK").OrderBy(p => p.RECNUM).ToList();
+                            if (VariantPerMpTiktokLv2.Count() > 0)
+                            {
+                                adaSettingTiktok = true;
+                                var textJudulVar2 = "";
+                                var judulVar2 = VariantPerMpTiktokLv2.FirstOrDefault();
+                                if (judulVar2 != null)
+                                {
+                                    textJudulVar2 = judulVar2.MP_JUDUL_VAR;
+                                }
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <table style="width:100%">
+                                            <tr>
+                                                <td style="width:50%; vertical-align:top !important;">
+                                                    <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="border-right:none;text-align:center">Judul Variasi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Tiktok</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>
+                                                                    @Html.TextBox("txtJudulMOTiktokLv2", Model.Variant_Level_2.VALUE_JUDUL_VAR, new
+                                                               {
+                                                                   @class = "form-control",
+                                                                   disabled = "disabled",
+                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                               })
+                                                                </td>
+                                                                <td>
+                                                                    <select id="selectJudulVariantTiktokLv2" placeholder="Nama Variasi" required="required"></select>
+                                                                    @Html.Hidden("txtJudulVariantTiktokLv2", textJudulVar2)
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td style="width:50%; vertical-align:top !important">
+                                                    <table class="table table-bordered" style="width:100%" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Tiktok</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (int i = 0; i < VariantPerMpTiktokLv2.Count(); i++)
+                                                            {
+                                                                var textKetVar2 = "";
+                                                                var KetVar2 = VariantOptMasterLv2.Where(p => p.KODE_VAR == VariantPerMpTiktokLv2[i].KODE_VAR).FirstOrDefault();
+                                                                if (KetVar2 != null)
+                                                                {
+                                                                    textKetVar2 = KetVar2.KET_VAR;
+                                                                }
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.TextBox("txtOpsiMOTiktokLv2", textKetVar2, new
+                                                                   {
+                                                                       @class = "form-control",
+                                                                       disabled = "disabled",
+                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                                   })
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("txtVariantTiktokLv2_" + VariantPerMpTiktokLv2[i].RECNUM, VariantPerMpTiktokLv2[i].MP_VALUE_VAR, new
+                                                                   {
+                                                                       @class = "form-control txtVariantTiktokLv2_"
+                                                                       //@style = "display:none;"
+                                                                   })
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            }
+
+                            if (adaSettingTiktok)
+                            {
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12" style="margin: auto;display: flex;flex-direction: row;justify-content: center;">
+                                        <input type="button" class="btn btn-primary pull-right" id="save_map_var_tiktok" disabled="disabled" style="margin:0px;padding-left:10px;padding-right:10px" value="Simpan" onclick="SaveMapVarTiktok()" />
                                     </div>
                                 </div>
                             }

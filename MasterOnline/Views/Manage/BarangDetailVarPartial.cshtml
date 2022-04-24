@@ -1985,6 +1985,7 @@
                         @{
                             var listMarket = Model.ListMarket;
                             var adaElevenia_variant = 0;
+                            var adatiktok_variant = 0;
                             var adaBlibli_variant = 0;
                             var adaBukalapak_variant = 0;
                             var adaLazada_variant = 0;
@@ -2033,6 +2034,10 @@
                             {
                                 adashopify_variant = 1;
                             }
+                            else if (idMarket == 2021)
+                            {
+                                adatiktok_variant = 1;
+                            }
                         }
                         @if (adaShopee_variant == 1)
                         {
@@ -2065,6 +2070,10 @@
                         @if (adashopify_variant == 1)
                         {
                             <li><a data-toggle="tab" href="#shopify_detail_tab_variant_2">Shopify</a></li>
+                        }
+                        @if (adatiktok_variant == 1)
+                        {
+                            <li><a data-toggle="tab" href="#tiktok_detail_tab_variant_2">Tiktok</a></li>
                         }
                     </ul>
                 </td>
@@ -2146,47 +2155,47 @@
                             <tbody>
                                 @foreach (var barang in Model.VariantMO)
                                 {
-                                <tr>
-                                    <td>@barang.BRG</td>
-                                    <td>
-                                        <div class="form-group">
-                                            <input class="form-control barcode_variant" data-val="true" id="data_barcode_@barang.ID" id-brg="@barang.ID" value="@barang.Ket_Sort7" />
-                                        </div>
-                                    </td>
-                                    <td>@barang.NAMA @barang.NAMA2</td>
-                                    <td>
-                                        <div class="form-group">
-                                            <input class="form-control" data-val="true" id="data_rak_@barang.ID" id-brg="@barang.ID" value="@barang.LKS" />
-                                        </div>
-                                    </td>
-                                    <td class="text-center">
-                                        <table style="margin:auto;">
-                                            <tr>
-                                                <td style="padding-right:5px;">
-                                                    <div class="foto_produk_section">
-                                                        <div class="box_upload_var" data-barang-id="@barang.ID" id="box_upload_var_@barang.ID">
-                                                            <span class="box_upload_placeholder">Tambah Gambar</span>
-                                                            <input type='file' id='foto_produk_var_@barang.ID' data-barang-id="@barang.ID" class="foto_produk_var" accept=".jpg,.png" />
-                                                            <input type="hidden" id="hidden_url_gambar_var_@barang.ID" data-barang-id="@barang.ID" class="hidden_url_gambar_var" value="@(barang.LINK_GAMBAR_1)" />
+                                    <tr>
+                                        <td>@barang.BRG</td>
+                                        <td>
+                                            <div class="form-group">
+                                                <input class="form-control barcode_variant" data-val="true" id="data_barcode_@barang.ID" id-brg="@barang.ID" value="@barang.Ket_Sort7" />
+                                            </div>
+                                        </td>
+                                        <td>@barang.NAMA @barang.NAMA2</td>
+                                        <td>
+                                            <div class="form-group">
+                                                <input class="form-control" data-val="true" id="data_rak_@barang.ID" id-brg="@barang.ID" value="@barang.LKS" />
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <table style="margin:auto;">
+                                                <tr>
+                                                    <td style="padding-right:5px;">
+                                                        <div class="foto_produk_section">
+                                                            <div class="box_upload_var" data-barang-id="@barang.ID" id="box_upload_var_@barang.ID">
+                                                                <span class="box_upload_placeholder">Tambah Gambar</span>
+                                                                <input type='file' id='foto_produk_var_@barang.ID' data-barang-id="@barang.ID" class="foto_produk_var" accept=".jpg,.png" />
+                                                                <input type="hidden" id="hidden_url_gambar_var_@barang.ID" data-barang-id="@barang.ID" class="hidden_url_gambar_var" value="@(barang.LINK_GAMBAR_1)" />
+                                                            </div>
+                                                            <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@barang.ID" id="btn_hapus_var_@barang.ID">Hapus</button>
                                                         </div>
-                                                        <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@barang.ID" id="btn_hapus_var_@barang.ID">Hapus</button>
-                                                    </div>
-                                                </td>
-                                                <td style="padding-left:5px;display:none;">
-                                                    @* add 6/9/2019, barang varian 2 gambar *@
-                                                    <div class="foto_produk_section">
-                                                        <div class="box_upload_var_2" data-barang-id="@barang.ID" id="box_upload_var2_@barang.ID">
-                                                            <span class="box_upload_placeholder">Tambah Gambar</span>
-                                                            <input type='file' id='foto_produk_var2_@barang.ID' data-barang-id="@barang.ID" class="foto_produk_var_2" accept=".jpg,.png" />
-                                                            <input type="hidden" id="hidden_url_gambar_var2_@barang.ID" data-barang-id="@barang.ID" class="hidden_url_gambar_var_2" value="@(barang.LINK_GAMBAR_2)" />
+                                                    </td>
+                                                    <td style="padding-left:5px;display:none;">
+                                                        @* add 6/9/2019, barang varian 2 gambar *@
+                                                        <div class="foto_produk_section">
+                                                            <div class="box_upload_var_2" data-barang-id="@barang.ID" id="box_upload_var2_@barang.ID">
+                                                                <span class="box_upload_placeholder">Tambah Gambar</span>
+                                                                <input type='file' id='foto_produk_var2_@barang.ID' data-barang-id="@barang.ID" class="foto_produk_var_2" accept=".jpg,.png" />
+                                                                <input type="hidden" id="hidden_url_gambar_var2_@barang.ID" data-barang-id="@barang.ID" class="hidden_url_gambar_var_2" value="@(barang.LINK_GAMBAR_2)" />
+                                                            </div>
+                                                            <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var_2" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@barang.ID" id="btn_hapus_var2_@barang.ID">Hapus</button>
                                                         </div>
-                                                        <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var_2" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@barang.ID" id="btn_hapus_var2_@barang.ID">Hapus</button>
-                                                    </div>
-                                                    @* end add 6/9/2019, barang varian 2 gambar *@
-                                                </td>
-                                            </tr>
-                                        </table>
-                                </tr>
+                                                        @* end add 6/9/2019, barang varian 2 gambar *@
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                    </tr>
                                 }
                             </tbody>
                         </table>
@@ -2235,73 +2244,73 @@
                                                     bundling = getBundling;
                                                 }
                                                 @*//end add by nurul 19/10/2020*@
-                                        <tr>
-                                            <td>@barang.BRG</td>
-                                            <td>@(string.IsNullOrEmpty(VarStf02H.NAMA_BARANG_MP) ? (@barang.NAMA + ' ' + @barang.NAMA2) : VarStf02H.NAMA_BARANG_MP )</td>
-                                            <td style="text-align:right">
-                                                @if (bundling == "")
-                                                {
-                                                    @Html.TextBox("txtHargaNormalVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", (VarStf02H.HARGA_NORMAL ?? barang.HJUAL)), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hnormal_var", data_hjual_recnum = VarStf02H.RecNum })
-                                                }
-                                                else
-                                                {
-                                                    <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
-                                                        @Html.TextBox("txtHargaNormalVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", (VarStf02H.HARGA_NORMAL ?? barang.HJUAL)), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hnormal_var", data_hjual_recnum = VarStf02H.RecNum, @readonly = "readonly" })
-                                                    </div>
-                                                }
-                                            </td>
-                                            <td style="text-align:right">
-                                                @*//change by nurul 19/10/2020*@
-                                                @*@Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })*@
-                                                @if (bundling == "")
-                                                {
-                                                    @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
-                                                }
-                                                else
-                                                {
-                                                    <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
-                                                        @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum, @readonly = "readonly" })
-                                                    </div>
-                                                }
-                                                @*//end change by nurul 19/10/2020*@
-                                            </td>
-                                            <td class="text-center">
-                                                <table style="margin:auto;">
-                                                    <tr>
-                                                        <td style="padding-right:5px;">
-                                                            <div class="foto_produk_section">
-                                                                <div class="box_upload_var_blibli" data-barang-id="@VarStf02H.RecNum" id="box_upload_var_blibli_@VarStf02H.RecNum">
-                                                                    <span class="box_upload_placeholder">Tambah Gambar</span>
-                                                                    <input type='file' id='foto_produk_var_blibli_@VarStf02H.RecNum' data-barang-id="@VarStf02H.RecNum" class="foto_produk_var_blibli" accept=".jpg,.png" />
-                                                                    <input type="hidden" id="hidden_url_gambar_var_blibli_@VarStf02H.RecNum" data-barang-id="@VarStf02H.RecNum" class="hidden_url_gambar_var_blibli" value="@(VarStf02H.AVALUE_50)" />
-                                                                </div>
-                                                                <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var_blibli" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@VarStf02H.RecNum" id="btn_hapus_var_blibli_@VarStf02H.RecNum">Hapus</button>
+                                                <tr>
+                                                    <td>@barang.BRG</td>
+                                                    <td>@(string.IsNullOrEmpty(VarStf02H.NAMA_BARANG_MP) ? (@barang.NAMA + ' ' + @barang.NAMA2) : VarStf02H.NAMA_BARANG_MP )</td>
+                                                    <td style="text-align:right">
+                                                        @if (bundling == "")
+                                                        {
+                                                            @Html.TextBox("txtHargaNormalVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", (VarStf02H.HARGA_NORMAL ?? barang.HJUAL)), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hnormal_var", data_hjual_recnum = VarStf02H.RecNum })
+                                                        }
+                                                        else
+                                                        {
+                                                            <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
+                                                                @Html.TextBox("txtHargaNormalVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", (VarStf02H.HARGA_NORMAL ?? barang.HJUAL)), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hnormal_var", data_hjual_recnum = VarStf02H.RecNum, @readonly = "readonly" })
                                                             </div>
-                                                        </td>
-                                                        <td style="padding-left:5px;display:none;">
-                                                            @* add 6/9/2019, barang varian 2 gambar *@
-                                                            <div class="foto_produk_section">
-                                                                <div class="box_upload_var_blibli_2" data-barang-id="@VarStf02H.RecNum" id="box_upload_var_blibli2_@VarStf02H.RecNum">
-                                                                    <span class="box_upload_placeholder">Tambah Gambar</span>
-                                                                    <input type='file' id='foto_produk_var_blibli2_@VarStf02H.RecNum' data-barang-id="@VarStf02H.RecNum" class="foto_produk_var_blibli_2" accept=".jpg,.png" />
-                                                                    <input type="hidden" id="hidden_url_gambar_var_blibli2_@VarStf02H.RecNum" data-barang-id="@VarStf02H.RecNum" class="hidden_url_gambar_var_blibli_2" value="@(VarStf02H.AVALUE_49)" />
-                                                                </div>
-                                                                <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var_blibli_2" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@VarStf02H.RecNum" id="btn_hapus_var_blibli2_@VarStf02H.RecNum">Hapus</button>
+                                                        }
+                                                    </td>
+                                                    <td style="text-align:right">
+                                                        @*//change by nurul 19/10/2020*@
+                                                        @*@Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })*@
+                                                        @if (bundling == "")
+                                                        {
+                                                            @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
+                                                        }
+                                                        else
+                                                        {
+                                                            <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
+                                                                @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum, @readonly = "readonly" })
                                                             </div>
-                                                            @* end add 6/9/2019, barang varian 2 gambar *@
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                            </td>
+                                                        }
+                                                        @*//end change by nurul 19/10/2020*@
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <table style="margin:auto;">
+                                                            <tr>
+                                                                <td style="padding-right:5px;">
+                                                                    <div class="foto_produk_section">
+                                                                        <div class="box_upload_var_blibli" data-barang-id="@VarStf02H.RecNum" id="box_upload_var_blibli_@VarStf02H.RecNum">
+                                                                            <span class="box_upload_placeholder">Tambah Gambar</span>
+                                                                            <input type='file' id='foto_produk_var_blibli_@VarStf02H.RecNum' data-barang-id="@VarStf02H.RecNum" class="foto_produk_var_blibli" accept=".jpg,.png" />
+                                                                            <input type="hidden" id="hidden_url_gambar_var_blibli_@VarStf02H.RecNum" data-barang-id="@VarStf02H.RecNum" class="hidden_url_gambar_var_blibli" value="@(VarStf02H.AVALUE_50)" />
+                                                                        </div>
+                                                                        <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var_blibli" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@VarStf02H.RecNum" id="btn_hapus_var_blibli_@VarStf02H.RecNum">Hapus</button>
+                                                                    </div>
+                                                                </td>
+                                                                <td style="padding-left:5px;display:none;">
+                                                                    @* add 6/9/2019, barang varian 2 gambar *@
+                                                                    <div class="foto_produk_section">
+                                                                        <div class="box_upload_var_blibli_2" data-barang-id="@VarStf02H.RecNum" id="box_upload_var_blibli2_@VarStf02H.RecNum">
+                                                                            <span class="box_upload_placeholder">Tambah Gambar</span>
+                                                                            <input type='file' id='foto_produk_var_blibli2_@VarStf02H.RecNum' data-barang-id="@VarStf02H.RecNum" class="foto_produk_var_blibli_2" accept=".jpg,.png" />
+                                                                            <input type="hidden" id="hidden_url_gambar_var_blibli2_@VarStf02H.RecNum" data-barang-id="@VarStf02H.RecNum" class="hidden_url_gambar_var_blibli_2" value="@(VarStf02H.AVALUE_49)" />
+                                                                        </div>
+                                                                        <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var_blibli_2" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@VarStf02H.RecNum" id="btn_hapus_var_blibli2_@VarStf02H.RecNum">Hapus</button>
+                                                                    </div>
+                                                                    @* end add 6/9/2019, barang varian 2 gambar *@
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
 
 
-                                            <td>
-                                                @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
-                                                {
-                                                    <label>Sukses</label>
-                                                }
-                                            </td>
-                                        </tr>
+                                                    <td>
+                                                        @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
+                                                        {
+                                                            <label>Sukses</label>
+                                                        }
+                                                    </td>
+                                                </tr>
                                             }
                                         }
                                     </tbody>
@@ -2327,11 +2336,11 @@
                         <div class="row" style="padding-top:10px">
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 @*@if (string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
-                                    {
-                                        <label>Gagal Sync, Item tidak akan diupload ke akun ini.</label>
-                                    }
-                                    else
-                                    {*@
+                            {
+                                <label>Gagal Sync, Item tidak akan diupload ke akun ini.</label>
+                            }
+                            else
+                            {*@
                                 <table id="datatable_detail_var_lazada" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
                                     <thead>
                                         <tr role="row">
@@ -2355,31 +2364,31 @@
                                                     bundling = getBundling;
                                                 }
                                                 @*//end add by nurul 19/10/2020*@
-                                        <tr>
-                                            <td>@barang.BRG</td>
-                                            <td>@(string.IsNullOrEmpty(VarStf02H.NAMA_BARANG_MP) ? (@barang.NAMA + ' ' + @barang.NAMA2) : VarStf02H.NAMA_BARANG_MP )</td>
-                                            <td style="text-align:right">
-                                                @*//change by nurul 19/10/2020*@
-                                                @*@Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })*@
-                                                @if (bundling == "")
-                                                {
-                                                    @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
-                                                }
-                                                else
-                                                {
-                                                    <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
-                                                        @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum, @readonly = "readonly" })
-                                                    </div>
-                                                }
-                                                @*//end change by nurul 19/10/2020*@
-                                            </td>
-                                            <td>
-                                                @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
-                                                {
-                                                    <label>Sukses</label>
-                                                }
-                                            </td>
-                                        </tr>
+                                                <tr>
+                                                    <td>@barang.BRG</td>
+                                                    <td>@(string.IsNullOrEmpty(VarStf02H.NAMA_BARANG_MP) ? (@barang.NAMA + ' ' + @barang.NAMA2) : VarStf02H.NAMA_BARANG_MP )</td>
+                                                    <td style="text-align:right">
+                                                        @*//change by nurul 19/10/2020*@
+                                                        @*@Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })*@
+                                                        @if (bundling == "")
+                                                        {
+                                                            @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
+                                                        }
+                                                        else
+                                                        {
+                                                            <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
+                                                                @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum, @readonly = "readonly" })
+                                                            </div>
+                                                        }
+                                                        @*//end change by nurul 19/10/2020*@
+                                                    </td>
+                                                    <td>
+                                                        @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
+                                                        {
+                                                            <label>Sukses</label>
+                                                        }
+                                                    </td>
+                                                </tr>
                                             }
                                         }
                                     </tbody>
@@ -2405,11 +2414,11 @@
                         <div class="row" style="padding-top:10px">
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 @*@if (string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
-                                    {
-                                        <label>Gagal Sync, Item tidak akan diupload ke akun ini.</label>
-                                    }
-                                    else
-                                    {*@
+                            {
+                                <label>Gagal Sync, Item tidak akan diupload ke akun ini.</label>
+                            }
+                            else
+                            {*@
                                 <table id="datatable_detail_var_shopee" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
                                     <thead>
                                         <tr role="row">
@@ -2433,31 +2442,31 @@
                                                     bundling = getBundling;
                                                 }
                                                 @*//end add by nurul 19/10/2020*@
-                                        <tr>
-                                            <td>@barang.BRG</td>
-                                            <td>@(string.IsNullOrEmpty(VarStf02H.NAMA_BARANG_MP) ? (@barang.NAMA + ' ' + @barang.NAMA2) : VarStf02H.NAMA_BARANG_MP )</td>
-                                            <td style="text-align:right">
-                                                @*//change by nurul 19/10/2020*@
-                                                @*@Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })*@
-                                                @if (bundling == "")
-                                                {
-                                                    @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
-                                                }
-                                                else
-                                                {
-                                                    <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
-                                                        @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum, @readonly = "readonly" })
-                                                    </div>
-                                                }
-                                                @*//end change by nurul 19/10/2020*@
-                                            </td>
-                                            <td>
-                                                @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
-                                                {
-                                                    <label>Sukses</label>
-                                                }
-                                            </td>
-                                        </tr>
+                                                <tr>
+                                                    <td>@barang.BRG</td>
+                                                    <td>@(string.IsNullOrEmpty(VarStf02H.NAMA_BARANG_MP) ? (@barang.NAMA + ' ' + @barang.NAMA2) : VarStf02H.NAMA_BARANG_MP )</td>
+                                                    <td style="text-align:right">
+                                                        @*//change by nurul 19/10/2020*@
+                                                        @*@Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })*@
+                                                        @if (bundling == "")
+                                                        {
+                                                            @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
+                                                        }
+                                                        else
+                                                        {
+                                                            <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
+                                                                @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum, @readonly = "readonly" })
+                                                            </div>
+                                                        }
+                                                        @*//end change by nurul 19/10/2020*@
+                                                    </td>
+                                                    <td>
+                                                        @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
+                                                        {
+                                                            <label>Sukses</label>
+                                                        }
+                                                    </td>
+                                                </tr>
                                             }
                                         }
                                     </tbody>
@@ -2483,11 +2492,11 @@
                         <div class="row" style="padding-top:10px">
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 @*@if (string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
-                                    {
-                                        <label>Gagal Sync, Item tidak akan diupload ke akun ini.</label>
-                                    }
-                                    else
-                                    {*@
+                            {
+                                <label>Gagal Sync, Item tidak akan diupload ke akun ini.</label>
+                            }
+                            else
+                            {*@
                                 <table id="datatable_detail_var_82Cart" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
                                     <thead>
                                         <tr role="row">
@@ -2511,31 +2520,31 @@
                                                     bundling = getBundling;
                                                 }
                                                 @*//end add by nurul 19/10/2020*@
-                                        <tr>
-                                            <td>@barang.BRG</td>
-                                            <td>@(string.IsNullOrEmpty(VarStf02H.NAMA_BARANG_MP) ? (@barang.NAMA + ' ' + @barang.NAMA2) : VarStf02H.NAMA_BARANG_MP )</td>
-                                            <td style="text-align:right">
-                                                @*//change by nurul 19/10/2020*@
-                                                @*@Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })*@
-                                                @if (bundling == "")
-                                                {
-                                                    @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
-                                                }
-                                                else
-                                                {
-                                                    <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
-                                                        @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum, @readonly = "readonly" })
-                                                    </div>
-                                                }
-                                                @*//end change by nurul 19/10/2020*@
-                                            </td>
-                                            <td>
-                                                @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
-                                                {
-                                                    <label>Sukses</label>
-                                                }
-                                            </td>
-                                        </tr>
+                                                <tr>
+                                                    <td>@barang.BRG</td>
+                                                    <td>@(string.IsNullOrEmpty(VarStf02H.NAMA_BARANG_MP) ? (@barang.NAMA + ' ' + @barang.NAMA2) : VarStf02H.NAMA_BARANG_MP )</td>
+                                                    <td style="text-align:right">
+                                                        @*//change by nurul 19/10/2020*@
+                                                        @*@Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })*@
+                                                        @if (bundling == "")
+                                                        {
+                                                            @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
+                                                        }
+                                                        else
+                                                        {
+                                                            <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
+                                                                @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum, @readonly = "readonly" })
+                                                            </div>
+                                                        }
+                                                        @*//end change by nurul 19/10/2020*@
+                                                    </td>
+                                                    <td>
+                                                        @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
+                                                        {
+                                                            <label>Sukses</label>
+                                                        }
+                                                    </td>
+                                                </tr>
                                             }
                                         }
                                     </tbody>
@@ -2561,11 +2570,11 @@
                         <div class="row" style="padding-top:10px">
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 @*@if (string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
-                                    {
-                                        <label>Gagal Sync, Item tidak akan diupload ke akun ini.</label>
-                                    }
-                                    else
-                                    {*@
+                            {
+                                <label>Gagal Sync, Item tidak akan diupload ke akun ini.</label>
+                            }
+                            else
+                            {*@
                                 <table id="datatable_detail_var_shopify" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
                                     <thead>
                                         <tr role="row">
@@ -2589,31 +2598,31 @@
                                                     bundling = getBundling;
                                                 }
                                                 @*//end add by nurul 19/10/2020*@
-                                        <tr>
-                                            <td>@barang.BRG</td>
-                                            <td>@(string.IsNullOrEmpty(VarStf02H.NAMA_BARANG_MP) ? (@barang.NAMA + ' ' + @barang.NAMA2) : VarStf02H.NAMA_BARANG_MP )</td>
-                                            <td style="text-align:right">
-                                                @*//change by nurul 19/10/2020*@
-                                                @*@Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })*@
-                                                @if (bundling == "")
-                                                {
-                                                    @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
-                                                }
-                                                else
-                                                {
-                                                    <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
-                                                        @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum, @readonly = "readonly" })
-                                                    </div>
-                                                }
-                                                @*//end change by nurul 19/10/2020*@
-                                            </td>
-                                            <td>
-                                                @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
-                                                {
-                                                    <label>Sukses</label>
-                                                }
-                                            </td>
-                                        </tr>
+                                                <tr>
+                                                    <td>@barang.BRG</td>
+                                                    <td>@(string.IsNullOrEmpty(VarStf02H.NAMA_BARANG_MP) ? (@barang.NAMA + ' ' + @barang.NAMA2) : VarStf02H.NAMA_BARANG_MP )</td>
+                                                    <td style="text-align:right">
+                                                        @*//change by nurul 19/10/2020*@
+                                                        @*@Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })*@
+                                                        @if (bundling == "")
+                                                        {
+                                                            @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
+                                                        }
+                                                        else
+                                                        {
+                                                            <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
+                                                                @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum, @readonly = "readonly" })
+                                                            </div>
+                                                        }
+                                                        @*//end change by nurul 19/10/2020*@
+                                                    </td>
+                                                    <td>
+                                                        @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
+                                                        {
+                                                            <label>Sukses</label>
+                                                        }
+                                                    </td>
+                                                </tr>
                                             }
                                         }
                                     </tbody>
@@ -2639,11 +2648,11 @@
                         <div class="row" style="padding-top:10px">
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 @*@if (string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
-                                    {
-                                        <label>Gagal Sync, Item tidak akan diupload ke akun ini.</label>
-                                    }
-                                    else
-                                    {*@
+                            {
+                                <label>Gagal Sync, Item tidak akan diupload ke akun ini.</label>
+                            }
+                            else
+                            {*@
                                 <table id="datatable_detail_var_tokped" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
                                     <thead>
                                         <tr role="row">
@@ -2667,31 +2676,31 @@
                                                     bundling = getBundling;
                                                 }
                                                 @*//end add by nurul 19/10/2020*@
-                                        <tr>
-                                            <td>@barang.BRG</td>
-                                            <td>@(string.IsNullOrEmpty(VarStf02H.NAMA_BARANG_MP) ? (@barang.NAMA + ' ' + @barang.NAMA2) : VarStf02H.NAMA_BARANG_MP )</td>
-                                            <td style="text-align:right">
-                                                @*//change by nurul 19/10/2020*@
-                                                @*@Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })*@
-                                                @if (bundling == "")
-                                                {
-                                                    @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
-                                                }
-                                                else
-                                                {
-                                                    <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
-                                                        @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum, @readonly = "readonly" })
-                                                    </div>
-                                                }
-                                                @*//end change by nurul 19/10/2020*@
-                                            </td>
-                                            <td>
-                                                @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
-                                                {
-                                                    <label>Sukses</label>
-                                                }
-                                            </td>
-                                        </tr>
+                                                <tr>
+                                                    <td>@barang.BRG</td>
+                                                    <td>@(string.IsNullOrEmpty(VarStf02H.NAMA_BARANG_MP) ? (@barang.NAMA + ' ' + @barang.NAMA2) : VarStf02H.NAMA_BARANG_MP )</td>
+                                                    <td style="text-align:right">
+                                                        @*//change by nurul 19/10/2020*@
+                                                        @*@Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })*@
+                                                        @if (bundling == "")
+                                                        {
+                                                            @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
+                                                        }
+                                                        else
+                                                        {
+                                                            <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
+                                                                @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum, @readonly = "readonly" })
+                                                            </div>
+                                                        }
+                                                        @*//end change by nurul 19/10/2020*@
+                                                    </td>
+                                                    <td>
+                                                        @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
+                                                        {
+                                                            <label>Sukses</label>
+                                                        }
+                                                    </td>
+                                                </tr>
                                             }
                                         }
                                     </tbody>
@@ -2717,11 +2726,11 @@
                         <div class="row" style="padding-top:10px">
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 @*@if (string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
-                                    {
-                                        <label>Gagal Sync, Item tidak akan diupload ke akun ini.</label>
-                                    }
-                                    else
-                                    {*@
+                            {
+                                <label>Gagal Sync, Item tidak akan diupload ke akun ini.</label>
+                            }
+                            else
+                            {*@
                                 <table id="datatable_detail_var_jdid" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
                                     <thead>
                                         <tr role="row">
@@ -2745,31 +2754,104 @@
                                                     bundling = getBundling;
                                                 }
                                                 @*//end add by nurul 19/10/2020*@
-                                        <tr>
-                                            <td>@barang.BRG</td>
-                                            <td>@(string.IsNullOrEmpty(VarStf02H.NAMA_BARANG_MP) ? (@barang.NAMA + ' ' + @barang.NAMA2) : VarStf02H.NAMA_BARANG_MP )</td>
-                                            <td style="text-align:right">
-                                                @*//change by nurul 19/10/2020*@
-                                                @*@Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })*@
-                                                @if (bundling == "")
-                                                {
-                                                    @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
-                                                }
-                                                else
-                                                {
-                                                    <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
-                                                        @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum, @readonly = "readonly" })
-                                                    </div>
-                                                }
-                                                @*//end change by nurul 19/10/2020*@
-                                            </td>
-                                            <td>
-                                                @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
-                                                {
-                                                    <label>Sukses</label>
-                                                }
-                                            </td>
+                                                <tr>
+                                                    <td>@barang.BRG</td>
+                                                    <td>@(string.IsNullOrEmpty(VarStf02H.NAMA_BARANG_MP) ? (@barang.NAMA + ' ' + @barang.NAMA2) : VarStf02H.NAMA_BARANG_MP )</td>
+                                                    <td style="text-align:right">
+                                                        @*//change by nurul 19/10/2020*@
+                                                        @*@Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })*@
+                                                        @if (bundling == "")
+                                                        {
+                                                            @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
+                                                        }
+                                                        else
+                                                        {
+                                                            <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
+                                                                @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum, @readonly = "readonly" })
+                                                            </div>
+                                                        }
+                                                        @*//end change by nurul 19/10/2020*@
+                                                    </td>
+                                                    <td>
+                                                        @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
+                                                        {
+                                                            <label>Sukses</label>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                                @*}*@
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+            <div id="tiktok_detail_tab_variant_2" class="tab-pane fade in">
+                @for (var i = 0; i < listMarket.ToList().Count; i++)
+                {
+                    var idMarket = Convert.ToInt32(listMarket[i].NAMA);
+                    var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
+                    if (idMarket == 2021)
+                    {
+                        <div>
+                            <h2 style="font-size: 14px">
+                                @($"Tiktok ({listMarket[i].PERSO})")
+                            </h2>
+                        </div>
+                        <div class="row" style="padding-top:10px">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                            
+                                <table id="datatable_detail_var_tiktok" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+                                    <thead>
+                                        <tr role="row">
+                                            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 20%;">Kode</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 35%;">Nama</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 30%;">Harga</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 15%;">Status Link Marketplace</th>
                                         </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var barang in Model.VariantMO)
+                                        {
+                                            var VarStf02H = Model.VariantMO_H.Where(p => p.BRG.ToLower() == barang.BRG.ToLower() && p.IDMARKET == recnumArf01).FirstOrDefault();
+                                            if (VarStf02H != null)
+                                            {
+                                                @*//add by nurul 19/10/2020*@
+                                                var bundling = "";
+                                                var getBundling = Model.VarianMOCekBundling.Where(a => a.brgVarianMo.ToLower() == barang.BRG.ToLower()).Select(a => a.brgBundling).FirstOrDefault();
+                                                if (getBundling != null)
+                                                {
+                                                    bundling = getBundling;
+                                                }
+                                                @*//end add by nurul 19/10/2020*@
+                                                <tr>
+                                                    <td>@barang.BRG</td>
+                                                    <td>@(string.IsNullOrEmpty(VarStf02H.NAMA_BARANG_MP) ? (@barang.NAMA + ' ' + @barang.NAMA2) : VarStf02H.NAMA_BARANG_MP )</td>
+                                                    <td style="text-align:right">
+                                                        @*//change by nurul 19/10/2020*@
+                                                        @*@Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })*@
+                                                        @if (bundling == "")
+                                                        {
+                                                            @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
+                                                        }
+                                                        else
+                                                        {
+                                                            <div data-tip="Barang ini termasuk barang bundling. Perubahan harga jual dilakukan dari menu barang bundling.">
+                                                                @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum, @readonly = "readonly" })
+                                                            </div>
+                                                        }
+                                                        @*//end change by nurul 19/10/2020*@
+                                                    </td>
+                                                    <td>
+                                                        @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
+                                                        {
+                                                            <label>Sukses</label>
+                                                        }
+                                                    </td>
+                                                </tr>
                                             }
                                         }
                                     </tbody>

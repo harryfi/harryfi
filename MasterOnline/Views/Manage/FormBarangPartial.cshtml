@@ -2723,7 +2723,7 @@
                                                                                     <button type="button" onclick="ClearCategorytiktok('category_tiktok_pertama_' + @recnumArf01, 'category_tiktok_selanjutnya_' + @recnumArf01, 'attribute_tiktok_' + @recnumArf01, @i, false);">Clear</button>
                                                                                 </div>
                                                                             </div>
-                                                                            <div class="x_panel" id="sales-info" style="padding-top:10px;">
+                                                                            <div class="x_panel" id="sales-info" style="margin-top:10px;">
                                                                                 <div class="x_title">
                                                                                     <h2 style="font-size: 16px">Sales Information</h2>
                                                                                     <ul class="nav navbar-right panel_toolbox">
@@ -2736,8 +2736,11 @@
                                                                                 <div class="x_content">
                                                                                     <div id="attribute_tiktok_@Convert.ToString(recnumArf01)" class="col-md-12 reset-data-to-copy" style="margin-top:10px">
                                                                                     </div>
+                                                                                    <div class="text-left">
+                                                                                        <h5>**Wajib diisi satu attribute</h5>
+                                                                                    </div>
                                                                                 </div>
-                                                                                <div class="row detail_mp_tiktok_gambar">
+                                                                                <div class="row detail_mp_tiktok_gambar not_parent_attr">
                                                                                     <div class="col-md-3">
                                                                                         <div class="x_panel" id="upload-foto-section-tiktok">
                                                                                             <div class="x_title">
@@ -2852,20 +2855,32 @@
                                                                                 <div class="col-md-2 col-sm-2 col-xs-12">
                                                                                     @Html.Label("Cash On Delivery", new { @class = "control-label" })
                                                                                 </div>
-                                                                                <div class="col-md-3 col-sm-3 col-xs-12 form-group" style="padding-top:10px">
+                                                                                <div class="col-md-3 col-sm-3 col-xs-12 form-group">
                                                                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_39, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.AVALUE_39 })
                                                                                     @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_39 == "1")
                                                                                     {
-                                                                                        <input type="checkbox" id="ckcod_@Convert.ToString(i)" name="codtiktok_@Convert.ToString(i)" value="1" checked onclick="settiktokcod('@i')" />
+                                                                                        <label class="checkbox-container">
+                                                                                            <input type="checkbox" id="ckcod_@Convert.ToString(i)" class="cbxtype" name="codtiktok_@Convert.ToString(i)" onclick="settiktokcod('@i')" checked />
+                                                                                            <span class="checkmark"></span>
+                                                                                        </label>
                                                                                     }
                                                                                     else
                                                                                     {
-                                                                                        <input type="checkbox" id="ckcod_@Convert.ToString(i)" name="codtiktok_@Convert.ToString(i)" value="0" onclick="settiktokcod('@i')" />
+                                                                                        <label class="checkbox-container">
+                                                                                            <input type="checkbox" id="ckcod_@Convert.ToString(i)" class="cbxtype" name="codtiktok_@Convert.ToString(i)" onclick="settiktokcod('@i')" />
+                                                                                            <span class="checkmark"></span>
+                                                                                        </label>
                                                                                     }
-
+                                                                                    @*{
+            <input type="checkbox" id="ckcod_@Convert.ToString(i)" name="codtiktok_@Convert.ToString(i)" value="1" checked onclick="settiktokcod('@i')" />
+        }
+        else
+        {
+            <input type="checkbox" id="ckcod_@Convert.ToString(i)" name="codtiktok_@Convert.ToString(i)" value="0" onclick="settiktokcod('@i')" />
+        }*@
                                                                                 </div>
                                                                             </div>
-                                                                            <div class="row detail_mp_tiktok_gambar_chart" id="divcharttiktok_@Convert.ToString(recnumArf01)">
+                                                                            <div class="row detail_mp_tiktok_gambar_chart" id="divcharttiktok_@Convert.ToString(recnumArf01)" style="padding-top:15px">
                                                                                 <div class="col-md-3">
                                                                                     <div class="x_panel" id="upload-foto-section-tiktok-chart">
                                                                                         <div class="x_title">

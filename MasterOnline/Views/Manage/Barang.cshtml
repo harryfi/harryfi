@@ -2745,10 +2745,10 @@
                                     if (ANAME != "") {
 
                                         var label = '<label class="control-label">' + ANAME;
-                                        if (AMANDATORY == "1") {
-                                            label += '*';
-                                        }
-                                        label += '</label>';
+                                        //if (AMANDATORY == "1") {
+                                        //    label += '*';
+                                        //}
+                                        label += '**</label>';
                                         var fieldACODE = '<input data-val="true" class="form-control" data-val-length-max="50" id="ListHargaJualPermarket_' + listmarket_i + '__ACODE_' + (i + 1) + '" name="ListHargaJualPermarket[' + listmarket_i + '].ACODE_' + (i + 1) + '" type="hidden" value="' + ACODE  + '" maxlength="50">';
                                         var fieldANAME = '<input data-val="true" class="form-control" data-val-length-max="250" id="ListHargaJualPermarket_' + listmarket_i + '__ANAME_' + (i + 1) + '" name="ListHargaJualPermarket[' + listmarket_i + '].ANAME_' + (i + 1) + '" type="hidden" value="' + ANAME + '" maxlength="250">';
 
@@ -2774,10 +2774,10 @@
                                         }
                                         {
                                             //textbox
-                                            if (AMANDATORY == "1") {
-                                                    fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
-                                            }
-                                            else
+                                            //if (AMANDATORY == "1") {
+                                            //        fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                            //}
+                                            //else
                                             {
                                                     fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" data-val-length-max="250"  class="form-control" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
 
