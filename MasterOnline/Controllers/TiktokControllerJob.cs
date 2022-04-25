@@ -1776,7 +1776,76 @@ namespace MasterOnline.Controllers
             #endregion
             if (brginDb.TYPE == "4")
             {
+                var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == kdbrgMO).ToList();
+                var var_strukturVar = ErasoftDbContext.STF02I.Where(p => p.BRG == kdbrgMO && p.MARKET == "TIKTOK").ToList().OrderBy(p => p.RECNUM);
+                var var_stf02_brg_list = var_stf02.Select(p => p.BRG).ToList();
+                var var_stf02h = ErasoftDbContext.STF02H.Where(p => var_stf02_brg_list.Contains(p.BRG) && p.IDMARKET == tblCustomer.RecNum).ToList();
 
+                string category_mo = var_strukturVar.Select(p => p.CATEGORY_MO).FirstOrDefault();
+                var var_stf20 = ErasoftDbContext.STF20B.Where(p => p.CATEGORY_MO == category_mo).ToList();
+
+                foreach (var item_var in var_stf02)
+                {
+                    var price_var = var_stf02h.Where(p => p.BRG == item_var.BRG).FirstOrDefault();
+                    var itemskus = new CreateSku()
+                    {
+                        original_price = price_var.HJUAL.ToString(),
+                        seller_sku = item_var.BRG,
+                        sales_attributes = new List<CreateSales_Attributes>(),
+                        stock_infos = new List<CreateStock_Infos>()
+                    };
+                    var stockInfo = new CreateStock_Infos();
+                    stockInfo.warehouse_id = brg_stf02h.PICKUP_POINT;
+                    stockInfo.available_stock = 0;
+                    var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(item_var.BRG, "ALL");
+                    if (qty_stock > 0)
+                    {
+                        stockInfo.available_stock = Convert.ToInt32(qty_stock);
+                    }
+                    itemskus.stock_infos.Add(stockInfo);
+                    var sales_attr = new CreateSales_Attributes();
+
+                    if (!string.IsNullOrEmpty(item_var.Sort8))
+                    {
+                        var recnumVariasi = var_strukturVar.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item_var.Sort8).FirstOrDefault();
+                        if (recnumVariasi != null)
+                        {
+                            sales_attr.custom_value = recnumVariasi.MP_VALUE_VAR;
+                            sales_attr.attribute_id = recnumVariasi.MP_JUDUL_VAR;
+                            if (!string.IsNullOrEmpty(item_var.LINK_GAMBAR_1))
+                            {
+                                sales_attr.sku_img = new Sku_Img()
+                                {
+                                    id = await UpladImage(iden, item_var.LINK_GAMBAR_1, "3"),
+                                };
+                            }
+                            itemskus.sales_attributes.Add(sales_attr);
+                        }
+                        
+                    }
+                    if (!string.IsNullOrEmpty(item_var.Sort9))
+                    {
+                        var recnumVariasi = var_strukturVar.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item_var.Sort9).FirstOrDefault();
+                        if (recnumVariasi != null)
+                        {
+                            sales_attr = new CreateSales_Attributes();
+                            sales_attr.custom_value = recnumVariasi.MP_VALUE_VAR;
+                            sales_attr.attribute_id = recnumVariasi.MP_JUDUL_VAR;
+                            if (string.IsNullOrEmpty(item_var.LINK_GAMBAR_1))
+                            {
+                                if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_50))
+                                {
+                                    sales_attr.sku_img = new Sku_Img()
+                                    {
+                                        id = await UpladImage(iden, item_var.LINK_GAMBAR_1, "3"),
+                                    };
+                                }
+                            }
+                            itemskus.sales_attributes.Add(sales_attr);
+                        }
+                    };
+                    postData.skus.Add(itemskus);
+                }
             }
             else
             {
