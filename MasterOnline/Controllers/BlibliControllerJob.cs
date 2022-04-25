@@ -11857,20 +11857,30 @@ namespace MasterOnline.Controllers
             }
             if (responseFromServer != "")
             {
-                dynamic resultRespons = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
-                try
+                //dynamic resultRespons = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                var resultRespons = JsonConvert.DeserializeObject(responseFromServer, typeof(BlibliGetOrderDetail)) as BlibliGetOrderDetail;
+                if (string.IsNullOrEmpty(Convert.ToString(resultRespons.errorCode)))
                 {
-                    var PackageId = resultRespons.value.packageId.Value;
-                    if (!string.IsNullOrEmpty(PackageId))
+                    try
                     {
-                        result.packageid = PackageId;
-                        result.status = resultRespons.value.orderStatus.Value;
+                        var PackageId = resultRespons.value.packageId;
+                        var status = resultRespons.value.orderStatus;
+                        if(resultRespons.value.orderHistory.Count() > 0)
+                        {
+                            status = resultRespons.value.orderHistory.FirstOrDefault().orderStatus;
+                        }
+                        if (!string.IsNullOrEmpty(PackageId))
+                        {
+                            result.packageid = PackageId;
+                            result.status = status;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
                     }
                 }
-                catch (Exception ex)
-                {
 
-                }
             }
             return result;
         }
