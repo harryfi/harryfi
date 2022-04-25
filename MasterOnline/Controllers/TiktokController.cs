@@ -1208,7 +1208,7 @@ namespace MasterOnline.Controllers
                     if (respon.code == 0)
                     {
                         if (respon.data != null)
-                            ret = respon.data.warehouse_list;
+                            ret = respon.data.warehouse_list.Where(m => m.warehouse_type == 1).ToList();
                     }
                 }
             }

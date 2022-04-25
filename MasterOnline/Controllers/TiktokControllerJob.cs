@@ -1706,10 +1706,10 @@ namespace MasterOnline.Controllers
             {
                 images = new List<CreateImage>(),
                 category_id = brg_stf02h.CATEGORY_CODE,
-                package_height = Convert.ToInt32( brginDb.TINGGI),
+                package_height = Convert.ToInt32(brginDb.TINGGI),
                 package_length = Convert.ToInt32(brginDb.PANJANG),
                 package_width = Convert.ToInt32(brginDb.LEBAR),
-                package_weight = (brginDb.BERAT/1000).ToString(),
+                package_weight = (brginDb.BERAT / 1000).ToString(),
                 skus = new List<CreateSku>(),
                 product_name = brginDb.NAMA,
 
@@ -1743,7 +1743,7 @@ namespace MasterOnline.Controllers
             {
                 descBrg = brg_stf02h.DESKRIPSI_MP;
             }
-            descBrg = System.Net.WebUtility.HtmlDecode(descBrg).Replace("&nbsp;", " ");
+            descBrg = System.Net.WebUtility.HtmlDecode(descBrg).Replace("&nbsp;", " ").Replace("</p>\\r\\n", "</p>").Replace("\\r\\n", "<p></p>");
             postData.description = descBrg;
 
             #region gambar induk
@@ -1876,11 +1876,38 @@ namespace MasterOnline.Controllers
 
             if (responseFromServer != "")
             {
-                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(TiktokCommonResponse)) as TiktokCommonResponse;
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(CreateProductResponse)) as CreateProductResponse;
                 if (result.code != 0)
                 {
                     throw new Exception(responseFromServer);
                     //return "error : " + responseFromServer;
+                }
+                else
+                {
+                    if(brginDb.TYPE != "4")
+                    {
+                        string sSQL = "UPDATE STF02H SET BRG_MP = '" + result.data.product_id + ";" + result.data.skus[0].id + "', AVALUE_34 = '" 
+                            + "https://shop.tiktok.com/view/product/" + result.data.product_id
+                        + "', LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")
+                        + "',LINK_ERROR = '0;;;' WHERE BRG = '" + kdbrgMO + "' AND IDMARKET = '" + tblCustomer.RecNum + "'";
+                        EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                    }
+                    else
+                    {
+                        string sSQL = "UPDATE STF02H SET BRG_MP = '" + result.data.product_id + ";0" + "', AVALUE_34 = '"
+                            + "https://shop.tiktok.com/view/product/" + result.data.product_id
+                        + "', LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")
+                        + "',LINK_ERROR = '0;;;' WHERE BRG = '" + kdbrgMO + "' AND IDMARKET = '" + tblCustomer.RecNum + "'";
+                        EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                        foreach(var varianResult in result.data.skus)
+                        {
+                            sSQL = "UPDATE STF02H SET BRG_MP = '" + result.data.product_id + ";" + varianResult.id + "', AVALUE_34 = '"
+                            + "https://shop.tiktok.com/view/product/" + result.data.product_id
+                        + "', LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss")
+                        + "',LINK_ERROR = '0;;;' WHERE BRG = '" + varianResult.seller_sku + "' AND IDMARKET = '" + tblCustomer.RecNum + "'";
+                            EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                        }
+                    }
                 }
 
 
@@ -1962,7 +1989,7 @@ namespace MasterOnline.Controllers
             SetupContext(iden.DatabasePathErasoft, iden.username);
             var ret = new ATTRIBUTE_TIKTOK_AND_OPT_v2();
             var katInDB = ErasoftDbContext.CATEGORY_TIKTOK.Where(k => k.CATEGORY_CODE == categoryCode && k.CUST == iden.no_cust).FirstOrDefault();
-            if(katInDB != null)
+            if (katInDB != null)
             {
                 ret.cod = katInDB.COD ?? "";
                 ret.size_chart = katInDB.SIZE_CHART ?? "";
@@ -2145,6 +2172,33 @@ namespace MasterOnline.Controllers
         #endregion
 
     }
+}
+
+public class CreateProductResponse : TiktokCommonResponse
+{
+    //public int code { get; set; }
+    //public string message { get; set; }
+    //public string request_id { get; set; }
+    public CreateProductResponseData data { get; set; }
+}
+
+public class CreateProductResponseData
+{
+    public string product_id { get; set; }
+    public CreateProductResponseSku[] skus { get; set; }
+}
+
+public class CreateProductResponseSku
+{
+    public string id { get; set; }
+    public CreateProductResponseSales_Attributes[] sales_attributes { get; set; }
+    public string seller_sku { get; set; }
+}
+
+public class CreateProductResponseSales_Attributes
+{
+    public string attribute_id { get; set; }
+    public string value_id { get; set; }
 }
 
 public class CreateProductTiktok
