@@ -12038,17 +12038,17 @@ namespace MasterOnline.Controllers
             //end add by nurul 20/1/2020, handle <p> dan enter double di shopee
             if (extDesc)
             {
-                var moveDesc = HttpBody.description;
-                HttpBody.description_type = "extended";
-                HttpBody.description_info = new ShopeeDescInfo();
-                HttpBody.description_info.extended_description = new ShopeeExtDesc();
-                HttpBody.description_info.extended_description.field_list = new List<ShopeeFieldList>();
-                var newExtDesc = new ShopeeFieldList
-                {
-                    field_type = "text",
-                    text = moveDesc
-                };
-                HttpBody.description_info.extended_description.field_list.Add(newExtDesc);
+                //var moveDesc = HttpBody.description;
+                //HttpBody.description_type = "extended";
+                //HttpBody.description_info = new ShopeeDescInfo();
+                //HttpBody.description_info.extended_description = new ShopeeExtDesc();
+                //HttpBody.description_info.extended_description.field_list = new List<ShopeeFieldList>();
+                //var newExtDesc = new ShopeeFieldList
+                //{
+                //    field_type = "text",
+                //    text = moveDesc
+                //};
+                //HttpBody.description_info.extended_description.field_list.Add(newExtDesc);
                 HttpBody.description = null;
             }
             #region image

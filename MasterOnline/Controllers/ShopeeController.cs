@@ -1873,16 +1873,17 @@ namespace MasterOnline.Controllers
             {
                 if (detailBrg.description_info.extended_description != null)
                 {
-                    if (detailBrg.description_info.extended_description.field_list != null)
-                    {
-                        foreach (var descExt in detailBrg.description_info.extended_description.field_list)
-                        {
-                            if(descExt.field_type == "")
-                            {
-                                descbrg = descExt.text;
-                            }
-                        }
-                    }
+                    //if (detailBrg.description_info.extended_description.field_list != null)
+                    //{
+                    //    foreach (var descExt in detailBrg.description_info.extended_description.field_list)
+                    //    {
+                    //        if(descExt.field_type == "")
+                    //        {
+                    //            descbrg = descExt.text;
+                    //        }
+                    //    }
+                    //}
+                    descbrg = "extended description sedang dalam pengembangan";
                 }
             }
             var brandId = "";

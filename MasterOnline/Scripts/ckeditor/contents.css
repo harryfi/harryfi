@@ -18,7 +18,13 @@ body
 
 	margin: 20px;
 }
-
+	body:read-only {
+		cursor: not-allowed;
+		font-family: sans-serif, Arial, Verdana, "Trebuchet MS", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+		font-size: 12px;
+		background-color: #eee;
+		margin: 20px;
+	}
 .cke_editable
 {
 	font-size: 13px;
