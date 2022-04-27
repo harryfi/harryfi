@@ -3624,7 +3624,7 @@ namespace MasterOnline.Controllers
                                                         {
                                                             if (listBrg__.Count() > 0)
                                                             {
-                                                                vlistKodeBrgHarusUpdateStok += "" + listKodeBaru + ", " + kodeBrgLamaCheck + ", ";
+                                                                vlistKodeBrgHarusUpdateStok += "" + listKodeBaru + ", ";
                                                             }
                                                         }
                                                         //end add by nurul 22/4/2022
@@ -3833,13 +3833,14 @@ namespace MasterOnline.Controllers
                     errors = errors + " Terdapat kode barang yang merupakan barang bundling / komponen : " + vlistKodeBundling + System.Environment.NewLine;
                 }
                 //add by nurul 22/4/2022
+                var note = "";
                 if (!string.IsNullOrEmpty(vlistKodeBrgHarusUpdateStok))
                 {
-                    errors = errors + "***Note : Terdapat kode barang yang harus dilakukan update stok : " + vlistKodeBrgHarusUpdateStok + System.Environment.NewLine;
+                    note = System.Environment.NewLine + note + "***Note : Terdapat kode barang yang harus dilakukan update stok : " + vlistKodeBrgHarusUpdateStok + System.Environment.NewLine;
                 }
                 //end add by nurul 22/4/2022
 
-                return new JsonResult { Data = new { success = resultEdit, dataposting = errors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { success = resultEdit, dataposting = errors, tambahan = note }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 //end change by nurul 25/5/2021
             }
             else
@@ -4468,7 +4469,7 @@ namespace MasterOnline.Controllers
                                                     {
                                                         if (listBrg__.Count() > 0)
                                                         {
-                                                            vlistKodeBrgHarusUpdateStok += "" + listKodeBaru + ", " + kodeBrgLamaCheck + ", ";
+                                                            vlistKodeBrgHarusUpdateStok += "" + listKodeBaru + ", ";
                                                         }
                                                     }
                                                     //end add by nurul 22/4/2022
@@ -4725,13 +4726,14 @@ namespace MasterOnline.Controllers
                     errors = errors + " Terdapat kode barang yang merupakan barang bundling / komponen : " + vlistKodeBundling + System.Environment.NewLine;
                 }
                 //add by nurul 22/4/2022
+                var note = "";
                 if (!string.IsNullOrEmpty(vlistKodeBrgHarusUpdateStok))
                 {
-                    errors = errors + "***Note : Terdapat kode barang yang harus dilakukan update stok : " + vlistKodeBrgHarusUpdateStok + System.Environment.NewLine;
+                    note = System.Environment.NewLine + note + "***Note : Terdapat kode barang yang harus dilakukan update stok : " + vlistKodeBrgHarusUpdateStok + System.Environment.NewLine;
                 }
                 //end add by nurul 22/4/2022
 
-                return new JsonResult { Data = new { success = resultMerge, dataposting = errors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { success = resultMerge, dataposting = errors, tambahan = note }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 //end change by nurul 25/5/2021
             }
             else
@@ -5163,13 +5165,14 @@ namespace MasterOnline.Controllers
                     errors = errors + " Terdapat kode barang yang merupakan barang bundling / komponen : " + vlistKodeBundling + System.Environment.NewLine;
                 }
                 //add by nurul 22/4/2022
+                var note = "";
                 if (!string.IsNullOrEmpty(vlistKodeBrgHarusUpdateStok))
                 {
-                    errors = errors + "***Note : Terdapat kode barang yang harus dilakukan update stok : " + vlistKodeBrgHarusUpdateStok + System.Environment.NewLine;
+                    note = System.Environment.NewLine + note + "***Note : Terdapat kode barang yang harus dilakukan update stok : " + vlistKodeBrgHarusUpdateStok + System.Environment.NewLine;
                 }
                 //end add by nurul 22/4/2022
 
-                return new JsonResult { Data = new { success = resultDelete, dataposting = errors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { success = resultDelete, dataposting = errors, tambahan = note }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 //end change by nurul 25/5/2021
 
             }
