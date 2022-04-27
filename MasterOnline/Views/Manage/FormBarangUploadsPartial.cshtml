@@ -508,7 +508,7 @@
                     <div class="form-group">
                         @{
                             string idDeskripsiMP = "Stf02_Deskripsi";
-                            string ValueDeskripsiMP = Model?.Stf02?.Deskripsi;
+                            string ValueDeskripsiMP = Model?.TempBrg?.Deskripsi;
                             string nameDeskripsiMP = "Stf02.Deskripsi";
                             var extDesc = false;
                             if (!string.IsNullOrEmpty(ValueDeskripsiMP))
@@ -525,25 +525,28 @@
                             @Html.Label("Deskripsi *", new { @class = "control-label" })
                             @if (extDesc)
                             {
-                            <div class="extDescShopee"><span>Deskripsi Extended</span><input type="checkbox" disabled checked data-toggle="toggle"></div>
+                                <div id="extDescShopee" class="col-md-12 col-sm-12 col-xs-12" style="text-align:right">
+                                    <div class="col-md-9 col-sm-9 col-xs-12"><span>Deskripsi Extended</span></div>
+                                    <div class="col-md-3 col-sm-3 col-xs-12">
+                                        <input type="checkbox" disabled checked data-toggle="toggle">
+                                    </div>
+                                </div>
                             }
                             else
                             {
-                        <div class="extDescShopee" style="display:none;">
-                            <span>Deskripsi Extended</span><input style="display:none;" type="checkbox" disabled checked data-toggle="toggle">
-                        </div>
+                                <div id="extDescShopee" class="col-md-12 col-sm-12 col-xs-12" style="text-align: right; display: none;">
+                                    <div class="col-md-9 col-sm-9 col-xs-12"><span>Deskripsi Extended</span></div>
+                                    <div class="col-md-3 col-sm-3 col-xs-12">
+                                        <input type="checkbox" disabled checked data-toggle="toggle">
+                                    </div>
+                                </div>
                             }
                         </div>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             @*@Html.TextAreaFor(m => m.Stf02.Deskripsi, new { @class = "form-control make_ckeditor", required = "required", minlength = 30 })*@
-                            @if (extDesc)
-                            {
-                                <textarea cols="20" disabled data-val="true" class="form-control make_ckeditor extDescShopee" id="@idDeskripsiMP" name="@nameDeskripsiMP" rows="2" style="resize: none; width:100%;">@ValueDeskripsiMP </textarea>
-                            }
-                            else
-                            {
+                            
                                 <textarea cols="20" data-val="true" class="form-control make_ckeditor extDescShopee" id="@idDeskripsiMP" name="@nameDeskripsiMP" rows="2" style="resize: none; width:100%;">@ValueDeskripsiMP </textarea>
-                            }
+                            
                             @*@Html.EditorFor(m => m.Stf02.Deskripsi)*@
                         </div>
                     </div>
