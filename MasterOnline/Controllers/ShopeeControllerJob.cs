@@ -11997,9 +11997,10 @@ namespace MasterOnline.Controllers
             #region check ext desc on shopee
             var extDesc = false;
             var brgInShopee = GetItemDetail_V2(iden, item_id);
-            if(brgInShopee.description_info != null)
+            if(brgInShopee.description_info == null)
+            //if(brgInShopee.description_info != null)
             {
-                extDesc = true;
+                    extDesc = true;
             }
             #endregion
             HttpBody.item_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(HttpBody.item_name).Replace("&nbsp;", " ").Replace("&#160;", " ").Replace("&#xA0;", " "));

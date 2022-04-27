@@ -253,6 +253,8 @@
 
     @Html.HiddenFor(m => m.Stf02.MAXI, new { Value = 99 })
 </div>
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 <script src="~/Scripts/ckeditor/ckeditor.js"></script>
 <script type="text/javascript">
     function initCKEditor() {
@@ -260,10 +262,11 @@
             if ($('#cke_' + item.id).length == 0) {
                 CKEDITOR.replace(item.id);
             }
-        });        
+        });
         $(window).on('load', function () {
             $('#cke_' + item.id).CKEDITOR();
         });
+
     }
     $(document).ready(function () {
         Initialize();
@@ -365,8 +368,8 @@
                 <div class="x_content">
                     <div class="form-group">
                         @*<div class="col-md-3 col-sm-3 col-xs-12">
-                <label class="control-label col-md-3 col-sm-3 col-xs-12">Kode Barang MO *</label>
-            </div>*@
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Kode Barang MO *</label>
+                            </div>*@
                         <label class="control-label col-md-3 col-sm-3 col-xs-12">Kode Barang MO *</label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <table>
@@ -419,7 +422,7 @@
                         </div>
                     </div>
                     @*@if (Model.TempBrg.TYPE == "3" && Model.TempBrg.KODE_BRG_INDUK != "")
-        {*@
+                        {*@
                     <div class="form-group" id="divBrgInduk">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12">Kode Barang Induk**</label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
@@ -431,12 +434,12 @@
                                         <label>**Kode Barang Induk wajib diisi untuk barang varian</label>
                                     </td>
                                     @*<td>
-                            <span class="input-group-btn">
-                                <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptBarang('4');">
-                                    <span class="glyphicon glyphicon-option-horizontal"></span>
-                                </button>
-                            </span>
-                        </td>*@
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptBarang('4');">
+                                                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                                                </button>
+                                            </span>
+                                        </td>*@
                                 </tr>
                             </table>
                         </div>
@@ -444,19 +447,19 @@
                     @*  }*@
                     @*//add by nurul 17/9/2020*@
                     @*<div class="form-group" id="divBrgMultiSKU">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Kode Barang Acuan</label>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
-                            <table>
-                                <tr>
-                                    <td>
-                                        @Html.HiddenFor(m => m.TempBrg.KODE_BRG_INDUK)
-                                        <input maxlength="20" value="" class="form-control" id="txtBrgInduk" name="txtBrgInduk" type="text">
-                                        <label>**Kode Barang Induk wajib diisi untuk barang varian</label>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>*@
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Kode Barang Acuan</label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <table>
+                                    <tr>
+                                        <td>
+                                            @Html.HiddenFor(m => m.TempBrg.KODE_BRG_INDUK)
+                                            <input maxlength="20" value="" class="form-control" id="txtBrgInduk" name="txtBrgInduk" type="text">
+                                            <label>**Kode Barang Induk wajib diisi untuk barang varian</label>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>*@
                     @*//end add by nurul 17/9/2020*@
                     <div class="form-group">
                         @Html.LabelFor(m => m.Stf02.Sort1, "Kategori Barang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
@@ -491,21 +494,56 @@
                         </div>
                     </div>
                     @*<div class="form-group">
-                        @Html.LabelFor(m => m.Stf02.MAXI, "Stok Maksimum *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                        <div class="col-md-2 col-sm-2 col-xs-12">
-                            @Html.TextBoxFor(m => m.Stf02.MAXI, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 999, maxlength = 3 })
-                        </div>
-                    </div>*@
+                            @Html.LabelFor(m => m.Stf02.MAXI, "Stok Maksimum *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                            <div class="col-md-2 col-sm-2 col-xs-12">
+                                @Html.TextBoxFor(m => m.Stf02.MAXI, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 999, maxlength = 3 })
+                            </div>
+                        </div>*@
                     <div class="form-group">
                         @Html.LabelFor(m => m.Stf02.LKS, "Lokasi Rak", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                            @Html.TextBoxFor(m => m.Stf02.LKS, new { @class = "form-control", maxlength = 10})
+                            @Html.TextBoxFor(m => m.Stf02.LKS, new { @class = "form-control", maxlength = 10 })
                         </div>
                     </div>
                     <div class="form-group">
-                        @Html.LabelFor(m => m.Stf02.Deskripsi, "Deskripsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        @{
+                            string idDeskripsiMP = "Stf02_Deskripsi";
+                            string ValueDeskripsiMP = Model?.Stf02?.Deskripsi;
+                            string nameDeskripsiMP = "Stf02.Deskripsi";
+                            var extDesc = false;
+                            if (!string.IsNullOrEmpty(ValueDeskripsiMP))
+                            {
+                                if (ValueDeskripsiMP.ToLower().Contains("extended description"))
+                                {
+                                    extDesc = true;
+                                }
+
+                            }
+                        }
+                        @*@Html.LabelFor(m => m.Stf02.Deskripsi, "Deskripsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })*@
+                        <div class="col-md-3 col-sm-3 col-xs-12" style="text-align:right">
+                            @Html.Label("Deskripsi *", new { @class = "control-label" })
+                            @if (extDesc)
+                            {
+                            <div class="extDescShopee"><span>Deskripsi Extended</span><input type="checkbox" disabled checked data-toggle="toggle"></div>
+                            }
+                            else
+                            {
+                        <div class="extDescShopee" style="display:none;">
+                            <span>Deskripsi Extended</span><input style="display:none;" type="checkbox" disabled checked data-toggle="toggle">
+                        </div>
+                            }
+                        </div>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                            @Html.TextAreaFor(m => m.Stf02.Deskripsi, new { @class = "form-control make_ckeditor", required = "required", minlength = 30 })
+                            @*@Html.TextAreaFor(m => m.Stf02.Deskripsi, new { @class = "form-control make_ckeditor", required = "required", minlength = 30 })*@
+                            @if (extDesc)
+                            {
+                                <textarea cols="20" disabled data-val="true" class="form-control make_ckeditor extDescShopee" id="@idDeskripsiMP" name="@nameDeskripsiMP" rows="2" style="resize: none; width:100%;">@ValueDeskripsiMP </textarea>
+                            }
+                            else
+                            {
+                                <textarea cols="20" data-val="true" class="form-control make_ckeditor extDescShopee" id="@idDeskripsiMP" name="@nameDeskripsiMP" rows="2" style="resize: none; width:100%;">@ValueDeskripsiMP </textarea>
+                            }
                             @*@Html.EditorFor(m => m.Stf02.Deskripsi)*@
                         </div>
                     </div>
