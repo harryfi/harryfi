@@ -6634,7 +6634,7 @@
                                         //getBarangMultiSKUForBarang();
                                         //refreshInputan();
                                         //refreshNetto();
-
+                                        
                                         $('#Pesanan_NETTO').val(convertToRupiah(0));
                                         $('#Pesanan_BRUTO').val(convertToRupiah(0));
                                         $('#Pesanan_NILAI_DISC').val(convertToRupiah(0));
@@ -6667,6 +6667,29 @@
                 }
             });
         }
+
+        //add by nurul 26/4/2022
+        function getWarehouseId() {
+            if ($('#Pesanan_WAREHOUSE_ID').val() == "") {
+                var link = '@Url.Action("GetWarehouseId", "Manage", new { kode = "replaceKode" })';
+                link = link.replace("replaceKode", encodeURIComponent($('#Pesanan_CUST').val()));
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    beforeSend: function () {
+                    },
+                    success: function (response) {
+                        if (response != null && response != undefined) {
+                            $('#Pesanan_WAREHOUSE_ID').val(response);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            }
+        }
+        //end add by nurul 26/4/2022
 
         function getTanggal() {
             //change by nurul 1/11/2018
@@ -7651,6 +7674,12 @@
 
                                 $('#bundling-select').show();
                                 getBarangBundling();
+                                
+                                //add by nurul 26/4/2022
+                                if (multi_lokasi == "1") {
+                                    getWarehouseId();
+                                }
+                                //end add by nurul 26/4/2022
                             }
                             $('#btn-simpan-perubahan-row').show();
                         }

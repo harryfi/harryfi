@@ -2332,6 +2332,9 @@ namespace MasterOnline.Controllers
                                 //add by nurul 20/1/2021, bundling
 
                                 var cekMultiLokasi = ErasoftDbContext.SIFSYS_TAMBAHAN.AsNoTracking().FirstOrDefault().MULTILOKASI;
+                                //add by nurul 21/4/2022
+                                var cekMappingGudang = ErasoftDbContext.MAPPING_GUDANG.AsNoTracking().ToList();
+                                //end add by nurul 21/4/2022
                                 // start looping
                                 for (int i = Convert.ToInt32(prog[0]); i <= worksheet.Dimension.End.Row; i++)
                                 {
@@ -2558,6 +2561,22 @@ namespace MasterOnline.Controllers
                                                                                                         kodePembeli = dataPembeli.BUYER_CODE;
                                                                                                     }
 
+                                                                                                    //add by nurul 21/4/2022
+                                                                                                    if(cekMultiLokasi == "1")
+                                                                                                    {
+                                                                                                        var cust__ = no_cust[0].ToString();
+                                                                                                        var getGudangMapping = cekMappingGudang.Where(a => a.CUST == cust__).OrderBy(a => a.RecNum).FirstOrDefault();
+                                                                                                        if (getGudangMapping != null)
+                                                                                                        {
+                                                                                                            default_gudang = getGudangMapping.GD_MO;
+                                                                                                        }
+                                                                                                        else
+                                                                                                        {
+                                                                                                            default_gudang = "";
+                                                                                                        }
+                                                                                                    }
+                                                                                                    //end add by nurul 21/4/2022
+
                                                                                                     var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
                                                                                                     if (checkDuplicateHeader == null)
                                                                                                     {
@@ -2635,6 +2654,13 @@ namespace MasterOnline.Controllers
                                                                                                             status_kirim = "0",
                                                                                                             status_print = "0"
                                                                                                         };
+
+                                                                                                        //add by nurul 21/4/2022
+                                                                                                        if (cekMultiLokasi == "1")
+                                                                                                        {
+                                                                                                            sot01a.WAREHOUSE_ID = default_gudang;
+                                                                                                        }
+                                                                                                        //end add by nurul 21/4/2022
 
                                                                                                         try
                                                                                                         {
