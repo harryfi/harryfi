@@ -2974,6 +2974,35 @@
                 getKategoriPertamaTiktok(i);
             }
         }
+        function RefreshCategorytiktok(divIDpertama, divIDselanjutnya, divIDattribute, i, idmrkt) {
+            var fieldCategoryCode = '#ListHargaJualPermarket_' + i + '__CATEGORY_CODE';
+            var fieldCategoryName = '#ListHargaJualPermarket_' + i + '__CATEGORY_NAME';
+            var msg = "Refresh Kategori & Attribute ?";
+            
+            if (confirm(msg)) {
+                $('#' + divIDpertama).html('');
+                $('#' + divIDselanjutnya).html('');
+                $('#' + divIDattribute).html('');
+               
+                    $(fieldCategoryCode).val('');
+                    $(fieldCategoryName).val('');
+                
+                var urll = '@Url.Action("GetKategoriTiktokByCode", "Manage")';
+                urll += "?idmarket="+idmrkt+"&refresh=1";
+                $.ajax({
+                    type: "GET",
+                    url: urll,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (data) {
+                        getKategoriPertamaTiktok(i);
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }
+        }
         //change by nurul 24/6/2021
         //function FuncGetKategoriJDByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
         function FuncGetKategoriJDByChildCode(fieldCategoryCodeValue, listMarketRecNum, fieldCategoryCode, ListHargaJualPermarketView, versiJD) {
