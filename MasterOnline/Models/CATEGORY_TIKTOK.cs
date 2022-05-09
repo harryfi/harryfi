@@ -10,7 +10,6 @@ namespace MasterOnline.Models
     [Table("CATEGORY_TIKTOK")]
     public class CATEGORY_TIKTOK
     {
-        [Key]
         public string CATEGORY_CODE { get; set; }
 
         public string CATEGORY_NAME { get; set; }
@@ -23,6 +22,7 @@ namespace MasterOnline.Models
         public string COD { get; set; }
         public string CERTIFICATION { get; set; }
 
+        [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int? RecNum { get; set; }
         public string CUST { get; set; }

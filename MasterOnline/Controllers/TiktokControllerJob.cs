@@ -1743,7 +1743,7 @@ namespace MasterOnline.Controllers
             {
                 descBrg = brg_stf02h.DESKRIPSI_MP;
             }
-            descBrg = System.Net.WebUtility.HtmlDecode(descBrg).Replace("&nbsp;", " ").Replace("</p>\\r\\n", "</p>").Replace("\\r\\n", "<p></p>");
+            descBrg = System.Net.WebUtility.HtmlDecode(descBrg).Replace("&nbsp;", " ").Replace("</p>\r\n", "</p>").Replace("\r\n", "<p></p>");
             postData.description = descBrg;
 
             #region gambar induk
@@ -1831,9 +1831,9 @@ namespace MasterOnline.Controllers
                             sales_attr = new CreateSales_Attributes();
                             sales_attr.custom_value = recnumVariasi.MP_VALUE_VAR;
                             sales_attr.attribute_id = recnumVariasi.MP_JUDUL_VAR;
-                            if (string.IsNullOrEmpty(item_var.LINK_GAMBAR_1))
+                            if (!string.IsNullOrEmpty(item_var.LINK_GAMBAR_1))
                             {
-                                if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_50))
+                                if (sales_attr.sku_img == null)
                                 {
                                     sales_attr.sku_img = new Sku_Img()
                                     {

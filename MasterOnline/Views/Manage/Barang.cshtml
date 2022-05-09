@@ -2733,18 +2733,22 @@
                     var fieldAVALUE = "";
                     var SelectList = [];
                     if (data.cod == "1") {
-                        alert('cod true');
+                        //alert('cod true');
+                        $('#divcodtiktok_' + listMarketRecNum).show();
                     }
                     else {
-                        alert('cod false');
+                        //alert('cod false');
+                        $('#divcodtiktok_' + listMarketRecNum).hide();
 
                     }
                     if (data.size_chart == "1") {
-                        alert('size_chart true');
+                        //alert('size_chart true');
+                        $('#divcharttiktok_' + listMarketRecNum).show();
 
                     }
                     else {
-                        alert('size_chart false');
+                        //alert('size_chart false');
+                        $('#divcharttiktok_' + listMarketRecNum).hide();
 
                     }
                     $.each(data.attributes,
