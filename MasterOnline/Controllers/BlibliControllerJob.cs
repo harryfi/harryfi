@@ -11865,7 +11865,7 @@ namespace MasterOnline.Controllers
                     {
                         var PackageId = resultRespons.value.packageId;
                         var status = resultRespons.value.orderStatus;
-                        if(resultRespons.value.orderHistory.Count() > 0)
+                        if (resultRespons.value.orderHistory.Count() > 0)
                         {
                             status = resultRespons.value.orderHistory.FirstOrDefault().orderStatus;
                         }
