@@ -2185,7 +2185,7 @@ namespace MasterOnline.Controllers
                 var orderDetail = ErasoftDbContext.SOT01B.Where(p => p.ORDER_ITEM_ID == orderid).FirstOrDefault();
 
                 EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='1' WHERE NO_BUKTI = '" + orderDetail.NO_BUKTI + "'");
-                throw new Exception(ret.message);
+                //throw new Exception(ret.message);//remark 10 mei 2022, tidak di throw
                 //currentLog.REQUEST_EXCEPTION = ret.message;
                 //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
             }
