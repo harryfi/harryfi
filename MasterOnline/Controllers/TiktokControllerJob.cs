@@ -1712,7 +1712,7 @@ namespace MasterOnline.Controllers
                 package_weight = (brginDb.BERAT / 1000).ToString(),
                 skus = new List<CreateSku>(),
                 product_name = brginDb.NAMA,
-
+                product_attributes = new List<CreateProduct_attr>()
             };
             string descBrg = brginDb.Deskripsi;
             if (!string.IsNullOrEmpty(brginDb.NAMA2))
@@ -1772,6 +1772,82 @@ namespace MasterOnline.Controllers
             {
                 img_induk.id = await UpladImage(iden, brginDb.LINK_GAMBAR_5, "1");
                 postData.images.Add(img_induk);
+            }
+            #endregion
+
+            #region product attribute
+            var listAttrTiktokResponse = GetAttributeTiktok(iden, brg_stf02h.CATEGORY_CODE);
+            try
+            {
+                var listAttrTiktok = listAttrTiktokResponse.Where(m => m.attribute_type != 2).ToList();// 2= sales attr
+                for (int i = 1; i <= 30; i++)
+                {
+                    string attribute_id = Convert.ToString(brg_stf02h["ACODE_" + i.ToString()]);
+                    string value = Convert.ToString(brg_stf02h["AVALUE_" + i.ToString()]);
+                    if (!string.IsNullOrWhiteSpace(attribute_id) && !string.IsNullOrWhiteSpace(value))
+                    {
+                        if (value != "null")
+                        {
+                            var newAttr = new CreateProduct_attr
+                            {
+                                attribute_id = attribute_id,
+                                attribute_values = new List<CreateProduct_attrvalue>()
+                            };
+                            var listValue = value.Split(',');
+                            var dataAttr = listAttrTiktok.Where(p => p.id == attribute_id).FirstOrDefault();
+                            if (dataAttr != null)
+                            {
+                                if (listValue.Length > 0 && !dataAttr.input_type.is_multiple_selected)
+                                {
+                                    listValue = new string[1];
+                                    listValue[0] = value;
+                                }
+                                foreach (var singleAttr in listValue)
+                                {
+                                    var attrValue = new CreateProduct_attrvalue();
+                                    long n;
+                                    bool isNumeric = long.TryParse(singleAttr.Trim(), out n);
+                                    if (isNumeric)
+                                    {
+                                        attrValue.value_id = singleAttr;
+
+                                        if (listAttrTiktok.Count > 0)
+                                        {
+                                            if (dataAttr.values != null)
+                                            {
+                                                var cekVal = dataAttr.values.Where(m => m.id == singleAttr).ToList();
+                                                if (cekVal.Count == 0)
+                                                {
+                                                    attrValue.value_id = null;
+                                                    attrValue.value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(singleAttr.Trim()).Replace("&nbsp;", " ").Replace("&#160;", " ").Replace("&#xA0;", " "));
+                                                }
+                                            }
+                                            else
+                                            {
+                                                attrValue.value_id = null;
+                                                attrValue.value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(value.Trim()).Replace("&nbsp;", " ").Replace("&#160;", " ").Replace("&#xA0;", " "));
+                                            }                                                
+                                        }                                        
+                                    }
+                                    else
+                                    {
+                                        var currentAttr = singleAttr;
+
+                                        attrValue.value_id = null;
+                                        attrValue.value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(currentAttr.Trim()).Replace("&nbsp;", " ").Replace("&#160;", " ").Replace("&#xA0;", " "));
+                                    }
+                                    newAttr.attribute_values.Add(attrValue);
+                                }
+                                postData.product_attributes.Add(newAttr);
+                            }
+                        }
+
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+
             }
             #endregion
             if (brginDb.TYPE == "4")
@@ -1844,7 +1920,36 @@ namespace MasterOnline.Controllers
                             itemskus.sales_attributes.Add(sales_attr);
                         }
                     };
+
+                    var listSalesAttrTiktok = listAttrTiktokResponse.Where(m => m.attribute_type == 2).ToList();
+                    foreach(var sattr2 in listSalesAttrTiktok)
+                    {
+                        if(itemskus.sales_attributes.Where(m => m.attribute_id == sattr2.id).FirstOrDefault() == null)// sales attr tidak di mapping varian, ambil dari induk
+                        {
+                            for (int i = 1; i <= 30; i++)
+                            {
+                                string sattribute_id = Convert.ToString(brg_stf02h["ACODE_" + i.ToString()]);
+                                string svalue = Convert.ToString(brg_stf02h["AVALUE_" + i.ToString()]);
+                                if(sattribute_id == sattr2.id)
+                                {
+                                    if (!string.IsNullOrWhiteSpace(sattribute_id) && !string.IsNullOrWhiteSpace(svalue))
+                                    {
+                                        if (svalue != "null")
+                                        {
+                                            sales_attr = new CreateSales_Attributes();
+                                            sales_attr.custom_value = svalue;
+                                            sales_attr.attribute_id = sattribute_id;
+                                           
+                                            itemskus.sales_attributes.Add(sales_attr);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                     postData.skus.Add(itemskus);
+
+
                 }
             }
             else
@@ -1866,36 +1971,65 @@ namespace MasterOnline.Controllers
                 }
                 itemskus.stock_infos.Add(stockInfo);
                 var sales_attr = new CreateSales_Attributes();
-                if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_1))
+                var listSalesAttrTiktok = listAttrTiktokResponse.Where(m => m.attribute_type == 2).ToList();
+                for (int i = 1; i <= 30; i++)
                 {
-                    sales_attr.custom_value = brg_stf02h.AVALUE_1;
-                    sales_attr.attribute_id = brg_stf02h.ACODE_1;
-                    if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_50))
+                    string sattribute_id = Convert.ToString(brg_stf02h["ACODE_" + i.ToString()]);
+                    string svalue = Convert.ToString(brg_stf02h["AVALUE_" + i.ToString()]);
+                    if (!string.IsNullOrWhiteSpace(sattribute_id) && !string.IsNullOrWhiteSpace(svalue))
                     {
-                        sales_attr.sku_img = new Sku_Img()
+                        if(svalue != "null")
                         {
-                            id = await UpladImage(iden, brg_stf02h.AVALUE_50, "3"),
-                        };
-                    }
-                    itemskus.sales_attributes.Add(sales_attr);
-                }
-                if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_2))
-                {
-                    sales_attr = new CreateSales_Attributes();
-                    sales_attr.custom_value = brg_stf02h.AVALUE_2;
-                    sales_attr.attribute_id = brg_stf02h.ACODE_2;
-                    if (string.IsNullOrEmpty(brg_stf02h.AVALUE_1))
-                    {
-                        if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_50))
-                        {
-                            sales_attr.sku_img = new Sku_Img()
+                            var datasAttr = listSalesAttrTiktok.Where(p => p.id == sattribute_id).FirstOrDefault();
+                            if (datasAttr != null)
                             {
-                                id = await UpladImage(iden, brg_stf02h.AVALUE_50, "3"),
-                            };
+                                sales_attr.custom_value = svalue;
+                                sales_attr.attribute_id = sattribute_id;
+                                if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_50) && sales_attr.sku_img == null)
+                                {
+                                    sales_attr.sku_img = new Sku_Img()
+                                    {
+                                        id = await UpladImage(iden, brg_stf02h.AVALUE_50, "3"),
+                                    };
+                                }
+                                itemskus.sales_attributes.Add(sales_attr);
+                            }
                         }
                     }
-                    itemskus.sales_attributes.Add(sales_attr);
-                };
+
+                }
+                #region remark change function
+                //if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_1))
+                //{
+                //    sales_attr.custom_value = brg_stf02h.AVALUE_1;
+                //    sales_attr.attribute_id = brg_stf02h.ACODE_1;
+                //    if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_50))
+                //    {
+                //        sales_attr.sku_img = new Sku_Img()
+                //        {
+                //            id = await UpladImage(iden, brg_stf02h.AVALUE_50, "3"),
+                //        };
+                //    }
+                //    itemskus.sales_attributes.Add(sales_attr);
+                //}
+                //if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_2))
+                //{
+                //    sales_attr = new CreateSales_Attributes();
+                //    sales_attr.custom_value = brg_stf02h.AVALUE_2;
+                //    sales_attr.attribute_id = brg_stf02h.ACODE_2;
+                //    if (string.IsNullOrEmpty(brg_stf02h.AVALUE_1))
+                //    {
+                //        if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_50))
+                //        {
+                //            sales_attr.sku_img = new Sku_Img()
+                //            {
+                //                id = await UpladImage(iden, brg_stf02h.AVALUE_50, "3"),
+                //            };
+                //        }
+                //    }
+                //    itemskus.sales_attributes.Add(sales_attr);
+                //};
+                #endregion
                 postData.skus.Add(itemskus);
             };
 
@@ -2110,7 +2244,7 @@ namespace MasterOnline.Controllers
                     if (result.data != null)
                         foreach (var attribs in result.data.attributes)
                         {
-                            if (attribs.attribute_type.ToString() == "2")
+                            //if (attribs.attribute_type.ToString() == "2")// sudah ada attribute tipe 3
                             {
                                 a = Convert.ToString(i + 1);
 
@@ -2130,7 +2264,7 @@ namespace MasterOnline.Controllers
                                     {
                                         returnData["AOPTIONS_" + a] = "1";
                                         var optList = attribs.values.ToList();
-                                        var listOpt = optList.Select(x => new ATTRIBUTE_OPT_SHOPEE_V2(attribs.id, x.id, x.name)).ToList();
+                                        var listOpt = optList.Select(x => new ATTRIBUTE_OPT_SHOPEE_V2(attribs.id, x.name, x.id)).ToList();
                                         ret.attribute_opts_v2.AddRange(listOpt);
                                     }
                                 }
@@ -2144,6 +2278,61 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        public List<TiktokAttribute> GetAttributeTiktok(TTApiData iden, string categoryCode)
+        {
+            SetupContext(iden.DatabasePathErasoft, iden.username);
+            var ret = new List<TiktokAttribute>();
+            
+            string urll = "https://open-api.tiktokglobalshop.com/api/products/attributes?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}&category_id={5}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/products/attributesapp_key" + eraAppKey + "category_id" + categoryCode
+                + "shop_id" + iden.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, iden.access_token, timestamp, signencry, eraAppKey, iden.shop_id, categoryCode);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "GET";
+            myReq.ContentType = "application/json";
+
+
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                string err = e.Message;
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                }
+            }
+
+            if (responseFromServer != "")
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(TiktokAttributeResponse)) as TiktokAttributeResponse;
+                if (result.code == 0)
+                {
+                    if (result.data != null)
+                    {
+                        return result.data.attributes.ToList();
+                    }
+                }
+
+            }
+            return ret;
+        }
         public async Task<string> UpladImage(TTApiData iden, string url, string type)
         {
             SetupContext(iden.DatabasePathErasoft, iden.username);
@@ -2286,6 +2475,17 @@ public class CreateProductTiktok
     //public CreateProduct_Certifications[] product_certifications { get; set; }
     public bool is_cod_open { get; set; }
     public List<CreateSku> skus { get; set; }
+    public List<CreateProduct_attr> product_attributes { get; set; }
+}
+public class CreateProduct_attr
+{
+    public string attribute_id { get; set; }
+    public List<CreateProduct_attrvalue> attribute_values { get; set; }
+}
+public class CreateProduct_attrvalue
+{
+    public string value_id { get; set; }
+    public string value_name { get; set; }
 }
 
 public class CreateImage

@@ -2737,9 +2737,9 @@
                                                                                 <div class="x_content">
                                                                                     <div id="attribute_tiktok_@Convert.ToString(recnumArf01)" class="col-md-12 reset-data-to-copy" style="margin-top:10px">
                                                                                     </div>
-                                                                                    <div class="text-left">
+                                                                                    @*<div class="text-left">
                                                                                         <h5>**Wajib diisi satu attribute</h5>
-                                                                                    </div>
+                                                                                    </div>*@
                                                                                 </div>
                                                                                 <div class="row detail_mp_tiktok_gambar not_parent_attr">
                                                                                     <div class="col-md-3">
@@ -2780,10 +2780,10 @@
                                                                                 </div>
                                                                             </div>
                                                                             <div class="row" style="padding-top:10px">
-                                                                                <div class="col-md-1 col-sm-1 col-xs-12">
+                                                                                <div class="col-md-2 col-sm-2 col-xs-12">
                                                                                     @Html.Label("Brand ", new { @class = "control-label" })
                                                                                 </div>
-                                                                                <div class="col-md-3 col-sm-3 col-xs-12 form-group">
+                                                                                <div class="col-md-4 col-sm-4 col-xs-12 form-group">
                                                                                     @*@Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_38, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_38 })*@
                                                                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_38, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_38 })
                                                                                     <div class="input-group text">
@@ -2805,10 +2805,10 @@
                                                                                 </div>
                                                                             </div>
                                                                             <div class="row" style="padding-top:10px">
-                                                                                <div class="col-md-1 col-sm-1 col-xs-12">
+                                                                                <div class="col-md-2 col-sm-2 col-xs-12">
                                                                                     @Html.Label("Warehouse*", new { @class = "control-label" })
                                                                                 </div>
-                                                                                <div class="col-md-3 col-sm-3 col-xs-12 form-group">
+                                                                                <div class="col-md-4 col-sm-4 col-xs-12 form-group">
                                                                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].PICKUP_POINT, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.PICKUP_POINT })
                                                                                     <div class="input-group text">
                                                                                         <table>
@@ -2829,10 +2829,10 @@
                                                                                 </div>
                                                                             </div>
                                                                             <div class="row">
-                                                                                <div class="col-md-1 col-sm-1 col-xs-12">
+                                                                                <div class="col-md-2 col-sm-2 col-xs-12">
                                                                                     @Html.Label("Warranty Period", new { @class = "control-label" })
                                                                                 </div>
-                                                                                <div class="col-md-5 col-sm-5 col-xs-12 form-group">
+                                                                                <div class="col-md-4 col-sm-4 col-xs-12 form-group">
                                                                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_31, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_31 })
                                                                                     <div id="div_warranty_period_@Convert.ToString(recnumArf01)" class="reset-data-to-copy">
                                                                                     </div>

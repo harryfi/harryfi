@@ -1281,11 +1281,13 @@
                         var counter = 0;
                         $.each(data.attributes,
                             function (i, item) {
-                                for (var i = 0; i < 2; i++) {
+                                for (var i = 0; i < 30; i++) {
 
                                     var ACODE = item["ACODE_" + (i + 1)];
                                     var ANAME = item["ANAME_" + (i + 1)];
-                                    //if (ASALE_PROP == "1")
+                                    var ATYPE = item["ATYPE_" + (i + 1)];
+
+                                    if (ATYPE == "2")
                                     {
                                         if (ANAME != null && ANAME != "") {
                                             SelectList[counter] = {

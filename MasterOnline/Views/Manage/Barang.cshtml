@@ -2754,20 +2754,21 @@
                     $.each(data.attributes,
                         function (i, item) {
 
-                            for (var i = 0; i < 2; i++) {
+                            for (var i = 0; i < 30; i++) {
                                 var ACODE = item["ACODE_" + (i + 1)];
                                 var ATYPE = item["ATYPE_" + (i + 1)];
                                 var ANAME = item["ANAME_" + (i + 1)];
+                                var AOPTIONS = item["AOPTIONS_" + (i + 1)];
                                 var AINPUT_TYPE = item["AUNIT_" + (i + 1)];
                                 var AMANDATORY = item["AMANDATORY_" + (i + 1)];
                                 if (ANAME != null) {
                                     if (ANAME != "") {
 
                                         var label = '<label class="control-label">' + ANAME;
-                                        //if (AMANDATORY == "1") {
-                                        //    label += '*';
-                                        //}
-                                        label += '**</label>';
+                                        if (AMANDATORY == "1") {
+                                            label += '*';
+                                        }
+                                        //label += '**</label>';
                                         var fieldACODE = '<input data-val="true" class="form-control" data-val-length-max="50" id="ListHargaJualPermarket_' + listmarket_i + '__ACODE_' + (i + 1) + '" name="ListHargaJualPermarket[' + listmarket_i + '].ACODE_' + (i + 1) + '" type="hidden" value="' + ACODE  + '" maxlength="50">';
                                         var fieldANAME = '<input data-val="true" class="form-control" data-val-length-max="250" id="ListHargaJualPermarket_' + listmarket_i + '__ANAME_' + (i + 1) + '" name="ListHargaJualPermarket[' + listmarket_i + '].ANAME_' + (i + 1) + '" type="hidden" value="' + ANAME + '" maxlength="250">';
 
@@ -2791,12 +2792,48 @@
                                         else if (adaValue.includes( "<p>null</p>")) {
                                             adaValue = "";
                                         }
+
+                                        if (AOPTIONS == "1") {
+                                            
+                                            {
+                                                ////hidden
+                                                //fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
+
+                                                ////select
+                                                //var selectID = 'attribute_select_shopee_' + listMarketRecNum + '_' + (i + 1);
+                                                //SelectList.push(ACODE, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, AINPUT_TYPE);
+                                                ////change by calvin 1 maret 2019
+                                                ////fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                                //if (AMANDATORY == "1") {
+                                                //    fieldAVALUE += '<div class="col-md-2"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                                //}
+                                                //else {
+                                                //    fieldAVALUE += '<div class="col-md-2"><select id="' + selectID + '" placeholder="Harap pilih"></select></div>';
+                                                //}
+
+                                                fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
+
+                                                //select
+                                                var selectID = 'attribute_select_tiktok_' + listMarketRecNum + '_' + (i + 1);
+                                                SelectList.push(ACODE, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, AINPUT_TYPE);
+                                                //change by calvin 1 maret 2019
+                                                //fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                                if (AMANDATORY == "1") {
+                                                    fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                                }
+                                                else {
+                                                    fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih"></select></div>';
+                                                }
+                                                //end change by calvin 1 maret 2019
+                                            }
+                                        }
+                                        else
                                         {
                                             //textbox
-                                            //if (AMANDATORY == "1") {
-                                            //        fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
-                                            //}
-                                            //else
+                                            if (AMANDATORY == "1") {
+                                                    fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                            }
+                                            else
                                             {
                                                     fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" data-val-length-max="250"  class="form-control" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
 
@@ -2820,16 +2857,34 @@
 
                                             fieldAVALUE = "";
                                             loop = 2;
-                                            //for (var i = 0; i < (SelectList.length / 6); i++) {
-                                            //    getAttributeOptionLazada(SelectList[(i * 6) + 0], SelectList[(i * 6) + 1], SelectList[(i * 6) + 2], SelectList[(i * 6) + 3], SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], categoryCode);
-                                            //}
+                                            for (var i = 0; i < (SelectList.length / 6); i++) {
+                                                getAttributeOptionTiktok(SelectList[(i * 6) + 0], SelectList[(i * 6) + 1], SelectList[(i * 6) + 2], SelectList[(i * 6) + 3], SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], data.attribute_opts_v2);
+                                            }
                                         }
                                         else if (loop == 0) {
                                             loop = 2;
-                                            //for (var i = 0; i < (SelectList.length / 6); i++) {
-                                            //    getAttributeOptionLazada(SelectList[(i * 6) + 0], SelectList[(i * 6) + 1], SelectList[(i * 6) + 2], SelectList[(i * 6) + 3], SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], categoryCode);
-                                            //}
+                                            for (var i = 0; i < (SelectList.length / 6); i++) {
+                                                getAttributeOptionTiktok(SelectList[(i * 6) + 0], SelectList[(i * 6) + 1], SelectList[(i * 6) + 2], SelectList[(i * 6) + 3], SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], data.attribute_opts_v2);
+                                            }
                                         }
+                                    }
+                                }
+                                else {
+                                    if (loop == 1) {
+                                        $('#attribute_tiktok_' + listMarketRecNum).append('<div class="row" style="padding-top:5px">' + fieldAVALUE + '</div>');
+                                        fieldAVALUE = "";
+                                        loop = 2;
+                                        for (var i = 0; i < (SelectList.length / 6); i++) {
+                                            getAttributeOptionTiktok(SelectList[(i * 6) + 0], SelectList[(i * 6) + 1], SelectList[(i * 6) + 2], SelectList[(i * 6) + 3], SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], data.attribute_opts_v2);
+                                        }
+
+                                    }
+                                    else if (loop == 0) {
+                                        loop = 2;
+                                        for (var i = 0; i < (SelectList.length / 6); i++) {
+                                            getAttributeOptionTiktok(SelectList[(i * 6) + 0], SelectList[(i * 6) + 1], SelectList[(i * 6) + 2], SelectList[(i * 6) + 3], SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], data.attribute_opts_v2);
+                                        }
+
                                     }
                                 }
                             }
@@ -2841,6 +2896,125 @@
             });
         }
 
+        function getAttributeOptionTiktok(ACODE, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, ATYPE, optAttributes) {
+           
+            var listAttributeOpt = [];
+                    
+                        $.each(optAttributes.filter(p => p.ACODE == ACODE),
+                            function (i, item) {
+                                listAttributeOpt[i] = {
+                                    id: item.OPTION_VALUE,
+                                    text: item.OPTION_NAME
+                                };
+                            });
+                    
+                    //if (ATYPE == "DEFINING_ATTRIBUTE") {
+            if (ATYPE.includes("CUSTOM")) {
+                        if (ATYPE.includes("MULTI")) {
+                            var AttributeOptSelectMultiple = $('#' + selectID).selectize({
+                                maxItems: 5,
+                                valueField: 'id',
+                                searchField: 'text',
+                                options: listAttributeOpt,
+                                persist: true,
+                                create: function (input) {
+                                    return {
+                                        id: input,
+                                        text: input,
+                                    };
+                                },
+                                onChange: function (value) {
+                                    $('#' + fieldAVALUE_ID).val(value);
+                                }
+                            });
+
+                            if (adaValue != "" && adaValue != null) {
+                                var adaValues = adaValue.split(',');
+                                for (const val of adaValues) {
+                                    if (listAttributeOpt.filter(e => e.id === val).length == 0 && val != "null") {
+                                        //console.log('nodata : ' + val);
+                                        var customVal = {
+                                            id: val,
+                                            text: val
+                                        };
+                                        AttributeOptSelectMultiple[0].selectize.addOption(customVal);
+                                    }
+                                };
+                                //for (const val of adaValues) {
+                                //    listAttributeOpt.id
+
+                                //};
+                                AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
+                            }
+                        }
+                        else {
+                            var AttributeOptSelect = $('#' + selectID).selectize({
+                                valueField: 'id',
+                                searchField: 'text',
+                                options: listAttributeOpt,
+                                persist: true,
+                                create: function (input) {
+                                    return {
+                                        id: input,
+                                        text: input,
+                                    };
+                                },
+                                onChange: function (value) {
+                                    $('#' + fieldAVALUE_ID).val(value);
+                                }
+                            });
+
+                            if (adaValue != "" && adaValue != null) {
+                                if (listAttributeOpt.filter(e => e.id === adaValue).length == 0 && adaValue != "null") {
+                                    //console.log('nodata : ' + val);
+                                    var customVal = {
+                                        id: adaValue,
+                                        text: adaValue
+                                    };
+                                    AttributeOptSelect[0].selectize.addOption(customVal);
+                                }
+                                AttributeOptSelect[0].selectize.setValue(adaValue, true);
+                            }
+                        }
+                    }
+                    else {
+                        if (ATYPE.includes("MULTI")) {
+                            var AttributeOptSelectMultiple = $('#' + selectID).selectize({
+                                maxItems: 5,
+                                valueField: 'id',
+                                searchField: 'text',
+                                options: listAttributeOpt,
+                                onChange: function (value) {
+                                    $('#' + fieldAVALUE_ID).val(value);
+                                }
+                            });
+
+                            if (adaValue != "" && adaValue != null) {
+                                var adaValues = adaValue.split(',');
+                                AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
+                            }
+                        }
+                        else {
+                            var AttributeOptSelect = $('#' + selectID).selectize({
+                                valueField: 'id',
+                                searchField: 'text',
+                                options: listAttributeOpt,
+                                onChange: function (value) {
+                                    $('#' + fieldAVALUE_ID).val(value);
+                                }
+                            });
+
+                            if (adaValue != "" && adaValue != null) {
+                                AttributeOptSelect[0].selectize.setValue(adaValue, true);
+                            }
+                        }
+                    }
+                    //    },
+                    //    error: function (xhr) {
+                    //        console.log(xhr);
+                    //    }
+                    //});
+                }
 
         function FuncGetWarrantytiktok(valueWarranty, selectWarrantytiktok, listMarket_i_RecNum, fieldWarrantyName, clear) {
 
