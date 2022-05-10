@@ -2055,7 +2055,7 @@ namespace MasterOnline.Controllers
 
                 //EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='1' WHERE NO_BUKTI = '" + orderDetail.NO_BUKTI + "'");
                 //end remark by nurul 15/3/2022
-                throw new Exception(ret.message);
+                //throw new Exception(ret.message); // remark 10 mei 2022, handle error
             }
             //}
             //catch (Exception ex)
