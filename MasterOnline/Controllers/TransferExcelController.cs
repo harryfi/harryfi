@@ -7777,7 +7777,7 @@ namespace MasterOnline.Controllers
 
                                     //add by nurul 9/2/2021
                                     var tempRef = "";
-                                    var getListNoref = EDB.GetDataSet("CString", "SOT01A", "select brg, ISNULL(SUM(qty),0) AS QTY,isnull(no_referensi,'') as no_referensi from sot01a a (nolock) inner join sot01b b (nolock) on a.no_bukti=b.no_bukti where brg='" + lsPicking.Tables[0].Rows[i]["BRG"] + "' and a.no_bukti in (select no_pesanan from sot03b where no_bukti='" + noPackingList + "') GROUP BY brg,no_referensi");
+                                    var getListNoref = EDB.GetDataSet("CString", "SOT01A", "select brg, ISNULL(SUM(qty),0) AS QTY,isnull(no_referensi,'') as no_referensi from sot01a a (nolock) inner join sot01b b (nolock) on a.no_bukti=b.no_bukti where brg='" + lsPicking.Tables[0].Rows[i]["BRG"] + "' and isnull(a.status_kirim,'') <> '5' and a.no_bukti in (select no_pesanan from sot03b (nolock) where no_bukti='" + noPackingList + "') GROUP BY brg,no_referensi");
                                     if (getListNoref.Tables[0].Rows.Count > 0)
                                     {
                                         for (int a = 0; a < getListNoref.Tables[0].Rows.Count; a++)
@@ -7847,7 +7847,7 @@ namespace MasterOnline.Controllers
 
                                     //add by nurul 9/2/2021
                                     var tempRef = "";
-                                    var getListNoref = EDB.GetDataSet("CString", "SOT01A", "select brg, ISNULL(SUM(qty),0) AS QTY,isnull(no_referensi,'') as no_referensi from sot01a a (nolock) inner join sot01b b (nolock) on a.no_bukti=b.no_bukti where brg='" + lsPicking.Tables[0].Rows[i]["BRG"] + "' and a.no_bukti in (select no_pesanan from sot03b where no_bukti='" + noPackingList + "') GROUP BY brg,no_referensi");
+                                    var getListNoref = EDB.GetDataSet("CString", "SOT01A", "select brg, ISNULL(SUM(qty),0) AS QTY,isnull(no_referensi,'') as no_referensi from sot01a a (nolock) inner join sot01b b (nolock) on a.no_bukti=b.no_bukti where brg='" + lsPicking.Tables[0].Rows[i]["BRG"] + "' and isnull(a.status_kirim,'') <> '5' and a.no_bukti in (select no_pesanan from sot03b (nolock) where no_bukti='" + noPackingList + "') GROUP BY brg,no_referensi");
                                     if (getListNoref.Tables[0].Rows.Count > 0)
                                     {
                                         for (int a = 0; a < getListNoref.Tables[0].Rows.Count; a++)
