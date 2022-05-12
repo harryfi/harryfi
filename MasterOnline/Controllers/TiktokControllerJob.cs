@@ -2769,7 +2769,7 @@ namespace MasterOnline.Controllers
             var tipedoc = "1";
             string urll = "https://open-api.tiktokglobalshop.com/api/fulfillment/shipping_document?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}&package_id={5}&document_type={6}";
             int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
-            string sign = eraAppSecret + "/api/fulfillment/shipping_documentapp_key" + eraAppKey + "document_type"+ tipedoc + "package_id" + package_id
+            string sign = eraAppSecret + "/api/fulfillment/shipping_documentapp_key" + eraAppKey + "document_type" + tipedoc + "package_id" + package_id
                 + "shop_id" + iden.shop_id + "timestamp" + timestamp + eraAppSecret;
             string signencry = GetHash(sign, eraAppSecret);
             var vformatUrl = String.Format(urll, iden.access_token, timestamp, signencry, eraAppKey, iden.shop_id, package_id, tipedoc);
@@ -2823,8 +2823,10 @@ namespace MasterOnline.Controllers
                 {
                     return result.data.doc_url;
                 }
-
-        public ATTRIBUTE_SHOPEE_AND_OPT_v2 GetAttributeList(TTApiData iden, string categoryCode)
+            }
+            return ret;
+        }
+            public ATTRIBUTE_SHOPEE_AND_OPT_v2 GetAttributeList(TTApiData iden, string categoryCode)
         {
             SetupContext(iden.DatabasePathErasoft, iden.username);
             var ret = new ATTRIBUTE_TIKTOK_AND_OPT_v2();
@@ -2843,11 +2845,7 @@ namespace MasterOnline.Controllers
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
             myReq.Method = "GET";
             myReq.ContentType = "application/json";
-
-
-            }
-            return ret;
-        }
+          
             string responseFromServer = "";
             try
             {
