@@ -307,7 +307,7 @@ namespace MasterOnline.Controllers
             bool ATExp = false;
 
             //if (ts.Days < 1 && ts.Hours < 24 && dateNow < tanggal_exptoken)
-            if (dateNow > tanggal_exptoken)
+            if (dateNow >= tanggal_exptoken)
             {
                 ATExp = true;
             }

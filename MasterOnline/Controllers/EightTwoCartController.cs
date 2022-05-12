@@ -945,8 +945,22 @@ namespace MasterOnline.Controllers
             //end handle image
 
             //start handle stock
+
+            //change by nurul 19/1/2022
+            //double qty_stock = 1;
+            //qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(kodeProduk, "ALL");
+            var multilokasi = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().MULTILOKASI;
             double qty_stock = 1;
-            qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(kodeProduk, "ALL");
+            if (multilokasi == "1")
+            {
+                qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A_MultiLokasi(kodeProduk, "ALL", log_CUST);
+            }
+            else
+            {
+                qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(kodeProduk, "ALL");
+            }
+            //end change by nurul 19/1/2022
+
             if (qty_stock > 0)
             {
                 postData += "&quantity=" + Uri.EscapeDataString(qty_stock.ToString());
@@ -3004,8 +3018,18 @@ namespace MasterOnline.Controllers
                                             CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 1;
                                             CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                             CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
-
-                                            EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                            //add by nurul 3/2/2022
+                                            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                                            if (multilokasi == "1")
+                                            {
+                                                EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
+                                            }
+                                            else
+                                            {
+                                                EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                                            }
+                                            //add by nurul 3/2/2022
+                                            //EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
                                         }
                                     }
                                 }

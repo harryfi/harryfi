@@ -81,6 +81,10 @@ namespace MasterOnline.ViewModels
         public string idmarket { get; set; }
         public PesananDetail_GantiBarang PesananDetail_GantiBarang { get; set; }
         //end add by nurul 15/6/2021
+
+        //add by nurul 26/4/2022
+        public string multilokasi { get; set; }
+        //end add by nurul 26/4/2022
     }
 
     //add by nurul 24/3/2020

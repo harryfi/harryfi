@@ -1897,6 +1897,9 @@ namespace MasterOnline.Controllers
                                     appSecret = data.appSecret,
                                 };
                                 StokControllerJob stokAPI = new StokControllerJob(data.DatabasePathErasoft, username);
+                                //add by nurul 19/1/2022
+                                var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                                //end add by nurul 19/1/2022
                                 if (stf02.TYPE == "4")
                                 {
                                     var listStf02 = ErasoftDbContext.STF02.Where(m => m.PART == brg).ToList();
@@ -1908,13 +1911,13 @@ namespace MasterOnline.Controllers
                                             if (!string.IsNullOrEmpty(stf02h.BRG_MP))
                                             {
 #if (DEBUG || Debug_AWS)
-                                                Task.Run(() => stokAPI.JD_updateStock(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null)).Wait();
+                                                Task.Run(() => stokAPI.JD_updateStock(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null, Convert.ToInt32(multilokasi))).Wait();
 #else
                                                 string EDBConnID = EDB.GetConnectionString("ConnId");
                                                 var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                                 var Jobclient = new BackgroundJobClient(sqlStorage);
-                                                Jobclient.Enqueue<StokControllerJob>(x => x.JD_updateStock(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null));
+                                                Jobclient.Enqueue<StokControllerJob>(x => x.JD_updateStock(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null, Convert.ToInt32(multilokasi)));
 #endif
                                             }
                                         }
@@ -1928,13 +1931,13 @@ namespace MasterOnline.Controllers
                                         if (!string.IsNullOrEmpty(stf02h.BRG_MP))
                                         {
 #if (DEBUG || Debug_AWS)
-                                            Task.Run(() => stokAPI.JD_updateStock(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null)).Wait();
+                                            Task.Run(() => stokAPI.JD_updateStock(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null, Convert.ToInt32(multilokasi))).Wait();
 #else
                                             string EDBConnID = EDB.GetConnectionString("ConnId");
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                             var Jobclient = new BackgroundJobClient(sqlStorage);
-                                            Jobclient.Enqueue<StokControllerJob>(x => x.JD_updateStock(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null));
+                                            Jobclient.Enqueue<StokControllerJob>(x => x.JD_updateStock(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null, Convert.ToInt32(multilokasi)));
 #endif
                                         }
                                     }
@@ -4576,8 +4579,18 @@ namespace MasterOnline.Controllers
                     CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                     CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "";
                     CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = data.no_cust;
-
-                    EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                    //add by nurul 3/2/2022
+                    var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                    if (multilokasi == "1")
+                    {
+                        EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
+                    }
+                    else
+                    {
+                        EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                    }
+                    //add by nurul 3/2/2022
+                    //EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
 
                     if (newRecord > 0)
                     {
@@ -5175,8 +5188,18 @@ namespace MasterOnline.Controllers
                                             CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                         CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "";
                                         CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = data.no_cust;
-
+                                        //add by nurul 3/2/2022
+                                        var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                                        if (multilokasi == "1")
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
+                                        }
+                                        else
+                                        {
                                             EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                                        }
+                                        //add by nurul 3/2/2022
+                                        //EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
                                         }
                                     }
                                 }
@@ -5834,8 +5857,18 @@ namespace MasterOnline.Controllers
                                                 CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                             CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "";
                                             CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = data.no_cust;
-
+                                            //add by nurul 3/2/2022
+                                            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                                            if (multilokasi == "1")
+                                            {
+                                                EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
+                                            }
+                                            else
+                                            {
                                                 EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                                            }
+                                            //add by nurul 3/2/2022
+                                            //EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
                                             }
                                         }
                                     }
@@ -6667,6 +6700,9 @@ namespace MasterOnline.Controllers
                                             //add by nurul 6/6/2021
                                         };
                                         StokControllerJob stokAPI = new StokControllerJob(data.DatabasePathErasoft, username);
+                                        //add by nurul 19/1/2022
+                                        var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                                        //end add by nurul 19/1/2022
                                         if (stf02.TYPE == "4")
                                         {
                                             var listStf02 = ErasoftDbContext.STF02.Where(m => m.PART == brg).ToList();
@@ -6681,26 +6717,26 @@ namespace MasterOnline.Controllers
                                                         if (tblCustomer.KD_ANALISA == "2")
                                                         {
 #if (DEBUG || Debug_AWS)
-                                                            Task.Run(() => stokAPI.JD_updateStockV2(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null)).Wait();
+                                                            Task.Run(() => stokAPI.JD_updateStockV2(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null, Convert.ToInt32(multilokasi))).Wait();
 #else
                                                     string EDBConnID = EDB.GetConnectionString("ConnId");
                                                 var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                                 var Jobclient = new BackgroundJobClient(sqlStorage);
-                                                Jobclient.Enqueue<StokControllerJob>(x => x.JD_updateStockV2(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null));
+                                                Jobclient.Enqueue<StokControllerJob>(x => x.JD_updateStockV2(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null, Convert.ToInt32(multilokasi)));
 #endif
                                                         }
                                                         else
                                                         //end add by nurul 4/5/2021, JDID versi 2
                                                         {
 #if (DEBUG || Debug_AWS)
-                                                            Task.Run(() => stokAPI.JD_updateStock(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null)).Wait();
+                                                            Task.Run(() => stokAPI.JD_updateStock(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null, Convert.ToInt32(multilokasi))).Wait();
 #else
                                                 string EDBConnID = EDB.GetConnectionString("ConnId");
                                                 var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                                 var Jobclient = new BackgroundJobClient(sqlStorage);
-                                                Jobclient.Enqueue<StokControllerJob>(x => x.JD_updateStock(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null));
+                                                Jobclient.Enqueue<StokControllerJob>(x => x.JD_updateStock(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null, Convert.ToInt32(multilokasi)));
 #endif
                                                         }
                                                     }
@@ -6718,26 +6754,26 @@ namespace MasterOnline.Controllers
                                                     if (tblCustomer.KD_ANALISA == "2")
                                                     {
 #if (DEBUG || Debug_AWS)
-                                                        Task.Run(() => stokAPI.JD_updateStockV2(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null)).Wait();
+                                                        Task.Run(() => stokAPI.JD_updateStockV2(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null, Convert.ToInt32(multilokasi))).Wait();
 #else
                                             string EDBConnID = EDB.GetConnectionString("ConnId");
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                             var Jobclient = new BackgroundJobClient(sqlStorage);
-                                            Jobclient.Enqueue<StokControllerJob>(x => x.JD_updateStockV2(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null));
+                                            Jobclient.Enqueue<StokControllerJob>(x => x.JD_updateStockV2(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null, Convert.ToInt32(multilokasi)));
 #endif
                                                     }
                                                     else
                                                     //end add by nurul 4/5/2021, JDID versi 2
                                                     {
 #if (DEBUG || Debug_AWS)
-                                                        Task.Run(() => stokAPI.JD_updateStock(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null)).Wait();
+                                                        Task.Run(() => stokAPI.JD_updateStock(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null, Convert.ToInt32(multilokasi))).Wait();
 #else
                                             string EDBConnID = EDB.GetConnectionString("ConnId");
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                             var Jobclient = new BackgroundJobClient(sqlStorage);
-                                            Jobclient.Enqueue<StokControllerJob>(x => x.JD_updateStock(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null));
+                                            Jobclient.Enqueue<StokControllerJob>(x => x.JD_updateStock(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null, Convert.ToInt32(multilokasi)));
 #endif
                                                     }
                                                 }

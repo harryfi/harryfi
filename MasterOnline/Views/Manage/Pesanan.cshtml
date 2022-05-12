@@ -4167,7 +4167,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" onclick="$('#konfGantiBarang').hide()">Tidak</button>
-                <button type="button" class="btn btn-success" onclick="saveGantiBarang($('#temp-nourut').val(),$('#temp-recnum').val(),$('#temp-kode').val(),'1');">Ya</button>
+                <button type="button" class="btn btn-success" id="save-ganti-brg" onclick="saveGantiBarang($('#temp-nourut').val(),$('#temp-recnum').val(),$('#temp-kode').val(),'1');">Ya</button>
             </div>
         </div>
     </div>
@@ -6634,7 +6634,7 @@
                                         //getBarangMultiSKUForBarang();
                                         //refreshInputan();
                                         //refreshNetto();
-
+                                        
                                         $('#Pesanan_NETTO').val(convertToRupiah(0));
                                         $('#Pesanan_BRUTO').val(convertToRupiah(0));
                                         $('#Pesanan_NILAI_DISC').val(convertToRupiah(0));
@@ -6667,6 +6667,29 @@
                 }
             });
         }
+
+        //add by nurul 26/4/2022
+        function getWarehouseId() {
+            if ($('#Pesanan_WAREHOUSE_ID').val() == "") {
+                var link = '@Url.Action("GetWarehouseId", "Manage", new { kode = "replaceKode" })';
+                link = link.replace("replaceKode", encodeURIComponent($('#Pesanan_CUST').val()));
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    beforeSend: function () {
+                    },
+                    success: function (response) {
+                        if (response != null && response != undefined) {
+                            $('#Pesanan_WAREHOUSE_ID').val(response);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            }
+        }
+        //end add by nurul 26/4/2022
 
         function getTanggal() {
             //change by nurul 1/11/2018
@@ -7651,6 +7674,12 @@
 
                                 $('#bundling-select').show();
                                 getBarangBundling();
+                                
+                                //add by nurul 26/4/2022
+                                if (multi_lokasi == "1") {
+                                    getWarehouseId();
+                                }
+                                //end add by nurul 26/4/2022
                             }
                             $('#btn-simpan-perubahan-row').show();
                         }
@@ -10045,9 +10074,8 @@
             });
         }
         function updateNotFound(sot01b_nourut, stf02h_recnum, kode) {
-
-            if (confirm("Perbaiki Kode Barang menjadi " + kode + " ?"))
-            {
+            $('#update-not-found').attr('disabled', 'disabled');
+            if (confirm("Perbaiki Kode Barang menjadi " + kode + " ?")) {
                 var link = '@Url.Action("CheckFixNotFound", "Manage", new { nourut = "replaceNoUrut" })';
                 link = link.replace("replaceNoUrut", encodeURIComponent(sot01b_nourut + ';' + stf02h_recnum));
 
@@ -10056,7 +10084,7 @@
                     url: link,
                     contentType: 'application/json',
                     cache: false,
-                    beforeSend: function() {
+                    beforeSend: function () {
                         $('#loading_spinner').show();
                     },
                     success: function (response) {
@@ -10083,11 +10111,15 @@
                             }
                         }
                         $('#loading_spinner').hide();
+                        $('#update-not-found').removeAttr('disabled');
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
+                        $('#update-not-found').removeAttr('disabled');
                         console.log(xhr);
                     }
                 });
+            } else {
+                $('#update-not-found').removeAttr('disabled');
             }
     }
     function HideNotFoundAll() {
@@ -10104,10 +10136,14 @@
         $('#modalFixNotFoundMassal').modal('hide');
         //HideNotFoundAll();
     }
-        function updateNotFoundProcessNew(all){
+        function updateNotFoundProcessNew(all) {
+            if (all == 1) {
+                $('btnUpdateAll').attr('disabled', 'disabled');
+            } else {
+                $('btnConf').attr('disabled', 'disabled');
+            }
             if (confirm("Perbaiki Kode Barang menjadi " + $('#txtKdBrg')[0].innerHTML
-                + (all == 1 ? " untuk " + $('#txtJmlPesanan')[0].innerHTML + " pesanan?\nQty siap jual " + $('#txtKdBrg')[0].innerHTML + " akan menjadi : " + qtynow : " untuk pesanan " + $('#Pesanan_NO_REFERENSI').val() + " ?")))
-            {
+                + (all == 1 ? " untuk " + $('#txtJmlPesanan')[0].innerHTML + " pesanan?\nQty siap jual " + $('#txtKdBrg')[0].innerHTML + " akan menjadi : " + qtynow : " untuk pesanan " + $('#Pesanan_NO_REFERENSI').val() + " ?"))) {
                 var link = '@Url.Action("UpdateFixNotFound", "Manage", new { nourut = "replaceNoUrut" })';
                 link = link.replace("replaceNoUrut", encodeURIComponent(codenotfound));
                 link += "&all=" + all;
@@ -10116,7 +10152,7 @@
                     url: link,
                     contentType: 'application/json',
                     cache: false,
-                    beforeSend: function() {
+                    beforeSend: function () {
                         $('#loading_spinner').show();
                     },
                     success: function (response) {
@@ -10161,13 +10197,29 @@
                         }
                         $('#loading_spinner').hide();
                         //end samakan dengan function lihatPesananSudahDibayar onSuccess
+                        if (all == 1) {
+                            $('btnUpdateAll').removeAttr('disabled');
+                        } else {
+                            $('btnConf').removeAttr('disabled');
+                        }
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
+                        if (all == 1) {
+                            $('btnUpdateAll').removeAttr('disabled');
+                        } else {
+                            $('btnConf').removeAttr('disabled');
+                        }
                         console.log(xhr);
                         //HideNotFoundAll();
                     }
                 });
 
+            } else {
+                if (all == 1) {
+                    $('btnUpdateAll').removeAttr('disabled');
+                } else {
+                    $('btnConf').removeAttr('disabled');
+                }
             }
         }
         function updateNotFoundProcess(sot01b_nourut,stf02h_recnum,kode){

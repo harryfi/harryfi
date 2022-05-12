@@ -783,7 +783,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public async Task<BindingBase> ChangeOrderStatus_setCourrier(BukaLapakKey data, string noref, string courrier, string serviceType)
+        public async Task<BindingBase> ChangeOrderStatus_setCourrier(BukaLapakKey data, string noref, string courier, string serviceType)
         {
             //SetupContext(DatabasePathErasoft, username);
             //data = new BukaLapakControllerJob().RefreshToken(data);
@@ -793,11 +793,43 @@ namespace MasterOnline.Controllers
             //if (string.IsNullOrEmpty(courrier))
             {
                 var orderinDB = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == noref && p.CUST == data.cust).FirstOrDefault();
-                courrier = orderinDB.SHIPMENT;
+                courier = orderinDB.SHIPMENT;
+            }
+
+            if (!string.IsNullOrEmpty(courier))
+            {
+                if (courier.ToLower().Contains("grab"))
+                {
+                    courier = "grab";
+                }
+                else if (courier.ToLower().Contains("gojek") || courier.ToUpper().Contains("GO-SEND"))
+                {
+                    courier = "go-jek";
+                }
+                else if (courier.ToLower().Contains("sicepat"))
+                {
+                    courier = "sicepat";
+                }
+                else if (courier.ToLower().Contains("ninja"))
+                {
+                    courier = "ninjavan";
+                }
+                else if (courier.ToLower().Contains("lion"))
+                {
+                    courier = "lionparcel";
+                }
+                else if (courier.ToLower().Contains("anteraja"))
+                {
+                    courier = "anteraja";
+                }
+                else if (courier.ToUpper().Contains("J&T"))
+                {
+                    courier = "jnt";
+                }
             }
             string urll = "https://api.bukalapak.com/_partners/logistic-bookings";
 
-            string myData = "{\"transaction_id\":\""+transid+ "\",\"courier_selection\":\"" + courrier + "\",\"service_type\":\"" + serviceType + "\"}";
+            string myData = "{\"transaction_id\":\""+transid+ "\",\"courier_selection\":\"" + courier + "\",\"service_type\":\"" + serviceType + "\"}";
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "POST";
@@ -1686,8 +1718,18 @@ namespace MasterOnline.Controllers
                         CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
                         CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                         CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = Cust;
-
-                        EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                        //add by nurul 3/2/2022
+                        var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                        if (multilokasi == "1")
+                        {
+                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
+                        }
+                        else
+                        {
+                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                        }
+                        //add by nurul 3/2/2022
+                        //EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
                         #endregion
                     }
                     else

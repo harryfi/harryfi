@@ -4908,8 +4908,18 @@ namespace MasterOnline.Controllers
                             CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                             CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "";
                             CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
-
-                            EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                            //add by nurul 3/2/2022
+                            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                            if (multilokasi == "1")
+                            {
+                                EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
+                            }
+                            else
+                            {
+                                EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                            }
+                            //add by nurul 3/2/2022
+                            //EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
                         }
                     }
                     catch (Exception ex3)
@@ -8719,6 +8729,9 @@ namespace MasterOnline.Controllers
                             item.AVALUE_34 = urlBrg;
                             ErasoftDbContext.SaveChanges();
 
+                            //add by nurul 19/1/2022
+                            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                            //end add by nurul 19/1/2022
                             if (brgInDb.TYPE == "4")
                             {
                                 //await InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, resServer.item_id, marketplace);
@@ -8745,13 +8758,13 @@ namespace MasterOnline.Controllers
                                     //};
 #if (DEBUG || Debug_AWS)
                                     StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
-                                    Task.Run(() => stokAPI.Shopee_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, item.BRG_MP, 0, username, null)).Wait();
+                                    Task.Run(() => stokAPI.Shopee_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, item.BRG_MP, 0, username, null, Convert.ToInt32(multilokasi))).Wait();
 #else
                                                         string EDBConnID = EDB.GetConnectionString("ConnId");
                                                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                                         var Jobclient = new BackgroundJobClient(sqlStorage);
-                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, item.BRG_MP, 0, username, null));
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, item.BRG_MP, 0, username, null, Convert.ToInt32(multilokasi)));
 #endif
                                 }
                             }
@@ -9285,6 +9298,9 @@ namespace MasterOnline.Controllers
                             item.AVALUE_34 = urlBrg;
                             ErasoftDbContext.SaveChanges();
 
+                            //add by nurul 19/1/2022
+                            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                            //end add by nurul 19/1/2022
                             if (brgInDb.TYPE == "4")
                             {
                                 //await InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, resServer.item_id, marketplace);
@@ -9311,13 +9327,13 @@ namespace MasterOnline.Controllers
                                     //};
 #if (DEBUG || Debug_AWS)
                                     StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
-                                    Task.Run(() => stokAPI.Shopee_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, item.BRG_MP, 0, username, null)).Wait();
+                                    Task.Run(() => stokAPI.Shopee_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, item.BRG_MP, 0, username, null, Convert.ToInt32(multilokasi))).Wait();
 #else
                                                         string EDBConnID = EDB.GetConnectionString("ConnId");
                                                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                                         var Jobclient = new BackgroundJobClient(sqlStorage);
-                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, item.BRG_MP, 0, username, null));
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, item.BRG_MP, 0, username, null, Convert.ToInt32(multilokasi)));
 #endif
                                 }
                             }
@@ -9595,16 +9611,19 @@ namespace MasterOnline.Controllers
                             //    merchant_code = iden.merchant_code,
                             //};
                             StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+                            //add by nurul 19/1/2022
+                            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                            //end add by nurul 19/1/2022
                             for (int i = 0; i < listBrg.Tables[0].Rows.Count; i++)
                             {
 #if (Debug_AWS || DEBUG)
                                 await UpdateVariationPrice(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, log_ActionCategory, log_ActionName, iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString()));
                                 if (customer.TIDAK_HIT_UANG_R)
-                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null)).Wait();
+                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null, Convert.ToInt32(multilokasi))).Wait();
 #else
                                 client.Enqueue<ShopeeControllerJob>(x => x.UpdateVariationPrice(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, log_ActionCategory, log_ActionName, iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString())));
                                 if (customer.TIDAK_HIT_UANG_R)
-                                client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null));
+                                client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null, Convert.ToInt32(multilokasi)));
 #endif
                             }
                         }
@@ -10432,6 +10451,9 @@ namespace MasterOnline.Controllers
                         if (resServer.variation_id_list.Count() > 0)
                         {
                             var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
+                            //add by nurul 19/1/2022
+                            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                            //end add by nurul 19/1/2022
                             foreach (var variasi in resServer.variation_id_list)
                             {
                                 string key_map_tier_index_recnum = "";
@@ -10459,13 +10481,13 @@ namespace MasterOnline.Controllers
 
 #if (DEBUG || Debug_AWS)
                                     StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
-                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id), 0, username, null)).Wait();
+                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id), 0, username, null, Convert.ToInt32(multilokasi))).Wait();
 #else
                                                         string EDBConnID = EDB.GetConnectionString("ConnId");
                                                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                                         var Jobclient = new BackgroundJobClient(sqlStorage);
-                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id), 0, username, null));
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", iden, Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id), 0, username, null, Convert.ToInt32(multilokasi)));
 #endif
                                 }
                             }
@@ -10949,18 +10971,21 @@ namespace MasterOnline.Controllers
                             if (listBrg.Tables[0].Rows.Count > 0)
                             {
                                 StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+                                //add by nurul 19/1/2022
+                                var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                                //end add by nurul 19/1/2022
                                 for (int i = 0; i < listBrg.Tables[0].Rows.Count; i++)
                                 {
 #if (Debug_AWS || DEBUG)
                                     await UpdatePrice_Job_V2(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, log_ActionCategory, log_ActionName,
                                         listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), iden, float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString()));
                                     if (tblCustomer.TIDAK_HIT_UANG_R)
-                                        Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null)).Wait();
+                                        Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null, Convert.ToInt32(multilokasi))).Wait();
 #else
                                     client.Enqueue<ShopeeControllerJob>(x => x.UpdatePrice_Job_V2(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, 
                                         log_ActionCategory, log_ActionName, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), iden, float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString())));
                                     if (tblCustomer.TIDAK_HIT_UANG_R)
-                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null));
+                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null, Convert.ToInt32(multilokasi)));
 #endif
                                 }
                             }
@@ -11105,19 +11130,21 @@ namespace MasterOnline.Controllers
                             var sqlStorage = new SqlServerStorage(EDBConnID);
 
                             var Jobclient = new BackgroundJobClient(sqlStorage);
-
+                            //add by nurul 19/1/2022
+                            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                            //end add by nurul 19/1/2022
                             for (int i = 0; i < listBrg.Tables[0].Rows.Count; i++)
                             {
 #if (Debug_AWS || DEBUG)
                                 await UpdatePrice_Job_V2(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, log_ActionCategory, log_ActionName,
                                     listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), iden, float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString()));
                                 if (tblCustomer.TIDAK_HIT_UANG_R)
-                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null)).Wait();
+                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null, Convert.ToInt32(multilokasi))).Wait();
 #else
                                     Jobclient.Enqueue<ShopeeControllerJob>(x => x.UpdatePrice_Job_V2(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, 
                                         log_ActionCategory, log_ActionName, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), iden, float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString())));
                                     if (tblCustomer.TIDAK_HIT_UANG_R)
-                                        Jobclient.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null));
+                                        Jobclient.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null, Convert.ToInt32(multilokasi)));
 #endif
                             }
                         }
@@ -11271,18 +11298,21 @@ namespace MasterOnline.Controllers
                             if (listBrg.Tables[0].Rows.Count > 0)
                             {
                                 StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+                                //add by nurul 19/1/2022
+                                var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan").FirstOrDefault();
+                                //end add by nurul 19/1/2022
                                 for (int i = 0; i < listBrg.Tables[0].Rows.Count; i++)
                                 {
 #if (Debug_AWS || DEBUG)
                                     await UpdatePrice_Job_V2(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, log_ActionCategory, log_ActionName,
                                         listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), iden, float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString()));
                                     if (tblCustomer.TIDAK_HIT_UANG_R)
-                                        Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null)).Wait();
+                                        Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null, Convert.ToInt32(multilokasi))).Wait();
 #else
                                     Jobclient.Enqueue<ShopeeControllerJob>(x => x.UpdatePrice_Job_V2(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, 
                                         log_ActionCategory, log_ActionName, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), iden, float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString())));
                                     if (tblCustomer.TIDAK_HIT_UANG_R)
-                                        Jobclient.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null));
+                                        Jobclient.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null, Convert.ToInt32(multilokasi)));
 #endif
                                 }
                             }
@@ -11709,6 +11739,66 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+        public ShopeeController.Item_List GetItemDetail_V2(ShopeeAPIData iden, long item_id)
+        {
+            var ret = new ShopeeController.Item_List();
+
+            //iden = await RefreshTokenShopee_V2(iden, false);
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            int MOPartnerID = MOPartnerIDV2;
+            string MOPartnerKey = MOPartnerKeyV2;
+            string urll = shopeeV2Url;
+            string path = "/api/v2/product/get_item_base_info";
+
+            var baseString = MOPartnerID + path + seconds + iden.token + iden.merchant_code;
+            var sign = CreateSignAuthenShop_V2(baseString, MOPartnerKey);
+
+
+            string param = "?partner_id=" + MOPartnerID + "&timestamp=" + seconds + "&sign=" + sign
+                + "&access_token=" + iden.token + "&shop_id=" + iden.merchant_code + "&item_id_list=" + item_id;
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + path + param);
+            myReq.Method = "GET";
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            if (responseFromServer != null)
+            {
+                try
+                {
+                    var detailBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeController.ShopeeGetItemDetailResult_V2)) as ShopeeController.ShopeeGetItemDetailResult_V2;
+                    if (detailBrg != null)
+                    {
+                        if (detailBrg.response != null)
+                        {
+                            return detailBrg.response.item_list[0];
+                        }
+
+                    }
+                }
+                catch (Exception ex2)
+                {
+                }
+            }
+            return ret;
+        }
 
         [AutomaticRetry(Attempts = 0)]
         [Queue("1_create_product")]
@@ -11934,6 +12024,15 @@ namespace MasterOnline.Controllers
                 if (detailBrg.DESKRIPSI_MP != "null")
                     HttpBody.description = detailBrg.DESKRIPSI_MP.Replace("’", "`");
             }
+            #region check ext desc on shopee
+            var extDesc = false;
+            var brgInShopee = GetItemDetail_V2(iden, item_id);
+            //if(brgInShopee.description_info == null)
+            if (brgInShopee.description_info != null)
+            {
+                extDesc = true;
+            }
+            #endregion
             HttpBody.item_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(HttpBody.item_name).Replace("&nbsp;", " ").Replace("&#160;", " ").Replace("&#xA0;", " "));
             HttpBody.dimension.package_height = Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI);
             HttpBody.dimension.package_length = Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG);
@@ -11968,7 +12067,21 @@ namespace MasterOnline.Controllers
             //HttpBody.description = HttpBody.description.Replace("&nbsp;", "");
             HttpBody.description = System.Text.RegularExpressions.Regex.Replace(HttpBody.description, "<.*?>", String.Empty);
             //end add by nurul 20/1/2020, handle <p> dan enter double di shopee
-
+            if (extDesc)
+            {
+                //var moveDesc = HttpBody.description;
+                //HttpBody.description_type = "extended";
+                //HttpBody.description_info = new ShopeeDescInfo();
+                //HttpBody.description_info.extended_description = new ShopeeExtDesc();
+                //HttpBody.description_info.extended_description.field_list = new List<ShopeeFieldList>();
+                //var newExtDesc = new ShopeeFieldList
+                //{
+                //    field_type = "text",
+                //    text = moveDesc
+                //};
+                //HttpBody.description_info.extended_description.field_list.Add(newExtDesc);
+                HttpBody.description = null;
+            }
             #region image
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
             {
@@ -14720,6 +14833,24 @@ namespace MasterOnline.Controllers
         public class ShopeeUpdateProductData_V2 : ShopeeProductData_V2
         {
             public long item_id { get; set; }
+            public ShopeeDescInfo description_info { get; set; }
+            public string description_type { get; set; }
+        }
+        public class ShopeeDescInfo
+        {
+            public ShopeeExtDesc extended_description { get; set; }
+
+        }
+        public class ShopeeExtDesc
+        {
+            public List<ShopeeFieldList> field_list { get; set; }
+
+        }
+        public class ShopeeFieldList
+        {
+            public string field_type { get; set; }
+            public string text { get; set; }
+
         }
         public class ShopeeUpdateProductData
         {

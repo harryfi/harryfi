@@ -900,8 +900,18 @@ namespace MasterOnline.Controllers
                                     CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
                                     CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                     CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
-
-                                    EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                    //add by nurul 3/2/2022
+                                    var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                                    if (multilokasi == "1")
+                                    {
+                                        EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
+                                    }
+                                    else
+                                    {
+                                        EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                                    }
+                                    //add by nurul 3/2/2022
+                                    //EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
 
                                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                                 }
@@ -1843,8 +1853,21 @@ namespace MasterOnline.Controllers
             string ret = "";
             //var qtyOnHand = new ManageController().GetQOHSTF08A(data.kode, "ALL");
             StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
-
-            var qtyOnHand = stokAPI.GetQOHSTF08A(data.kode, "ALL");
+            
+            //change by nurul 19/1/2022
+            //var qtyOnHand = stokAPI.GetQOHSTF08A(data.kode, "ALL");
+            var multilokasi = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().MULTILOKASI;
+            var cust = ErasoftDbContext.ARF01.Where(a => a.Sort1_Cust == iden.merchant_code).FirstOrDefault().CUST;
+            double qtyOnHand = 0;
+            if (multilokasi == "1")
+            {
+                qtyOnHand = stokAPI.GetQOHSTF08A_MultiLokasi(data.kode, "ALL", cust);
+            }
+            else
+            {
+                qtyOnHand = stokAPI.GetQOHSTF08A(data.kode, "ALL");
+            }
+            //end change by nurul 19/1/2022
 
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -2767,7 +2790,7 @@ namespace MasterOnline.Controllers
                                 insertParent = true;
                                 //change 16/9/19, brg induk ambil 1 gambar
                                 //sSQLInduk += sqlValueBrgInduk(result, kdBrgInduk, cust, IdMarket, display, urlImage, urlImage2, urlImage3, iden);
-                                sSQLInduk += sqlValueBrgInduk(result, kdBrgInduk, cust, IdMarket, display, urlImage, "", "", iden);
+                                sSQLInduk += sqlValueBrgInduk(result, kdBrgInduk, cust, IdMarket, 1, urlImage, "", "", iden);
                                 //end change 16/9/19, brg induk ambil 1 gambar
                             }
                             else if (brgIndukinDB != null)
@@ -2776,10 +2799,10 @@ namespace MasterOnline.Controllers
                             }
                             else if (tempBrgIndukinDB != null)
                             {
-                                if(display == 0 && tempBrgIndukinDB.DISPLAY)
-                                {
-                                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET DISPLAY = 0 WHERE BRG_MP = '" + tempBrgIndukinDB.BRG_MP + "' AND CUST = '" + cust+"'");
-                                }
+                                //if(display == 0 && tempBrgIndukinDB.DISPLAY)
+                                //{
+                                //    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET DISPLAY = 0 WHERE BRG_MP = '" + tempBrgIndukinDB.BRG_MP + "' AND CUST = '" + cust+"'");
+                                //}
                             }
                         }
                         //end add, check ada varian
@@ -2803,13 +2826,13 @@ namespace MasterOnline.Controllers
                         if (numVarian > 1)
                         {
                             ////change 19/9/19, varian ambil 2 barang
-                            sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + blibliBrand.Replace("\'", "`") + "' , '" + urlImage + "' , '' , '', '', ''";
+                            sSQL += " , 1 , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + blibliBrand.Replace("\'", "`") + "' , '" + urlImage + "' , '' , '', '', ''";
                             //sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '" + urlImage2 + "', '', '', ''";
                             ////end change 19/9/19, varian ambil 2 barang
                         }
                         else
                         {
-                            sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + blibliBrand.Replace("\'", "`") + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "'";
+                            sSQL += " , 1 , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + blibliBrand.Replace("\'", "`") + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "'";
                         }
                         //end change 21/8/2019, barang varian ambil 1 gambar saja
                         //add kode brg induk dan type brg

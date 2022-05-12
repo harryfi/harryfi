@@ -101,6 +101,10 @@ namespace MasterOnline.Controllers
                         data.transaction_details.gross_amount = ((Convert.ToInt64(price) + Convert.ToInt64(priceAddon) + 100000 * (accCount - 5)) * bln) ?? 0;
                     }
                     //add change 3 Maret 2019, handle jumlah user
+                    //add 30 mar 2022, add tax 11%
+                    data.transaction_details.gross_amount = data.transaction_details.gross_amount + Convert.ToInt64(data.transaction_details.gross_amount * 0.11);
+                    retError.total = data.transaction_details.gross_amount;
+                    //end add 30 mar 2022, add tax 11%
                     data.transaction_details.order_id = noTrans;
                     data.credit_card = new CreditCard();
                     data.credit_card.secure = true;
@@ -739,6 +743,7 @@ namespace MasterOnline.Controllers
     public class bindMidtrans
     {
         public string token { get; set; }
+        public long total { get; set; }
         public string error { get; set; }
     }
 }

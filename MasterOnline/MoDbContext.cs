@@ -45,7 +45,7 @@ namespace MasterOnline
         //add by fauzi for JDID
         public DbSet<BRAND_JDID> BrandJDID { get; set; }
         //end by fauzi
-
+        public DbSet<TABEL_CHECK_HANGFIRE> TABEL_CHECK_HANGFIRE { get; set; }
 
         public DbSet<CATEGORY_JDID> CATEGORY_JDID { get; set; }
         public DbSet<CATEGORY_SHOPIFY> CategoryShopify { get; set; }

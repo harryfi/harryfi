@@ -545,6 +545,10 @@ namespace MasterOnline
         public virtual DbSet<LAZADA_MESSAGES> LAZADA_MESSAGES { get; set; }
         //end add by nurul 8/2/2022
 
+        //add by nurul 2/1/2022
+        public virtual DbSet<MAPPING_GUDANG> MAPPING_GUDANG { get; set; }
+        //add by nurul 2/1/2022
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
 

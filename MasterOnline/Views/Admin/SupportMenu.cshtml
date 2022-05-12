@@ -677,16 +677,32 @@
                     if (response.success) {
                         $('#loading_account2').hide();
                         if (response.dataposting != "") {
-                            alert("Tidak berhasil Edit Kode Barang. " + response.dataposting);
+                            if (response.note != "") {
+                                alert("Tidak berhasil Edit Kode Barang. " + response.dataposting + " " + response.note);
+                            } else {
+                                alert("Tidak berhasil Edit Kode Barang. " + response.dataposting);
+                            }
                         } else {
-                            alert("Berhasil Edit Kode Barang.");
+                            if (response.note != "") {
+                                alert("Berhasil Edit Kode Barang. " + response.note);
+                            } else {
+                                alert("Berhasil Edit Kode Barang.");
+                            }
                         }
                     } else {
                         $('#loading_account2').hide();
                         if (response.dataposting != "") {
-                            alert("Tidak berhasil Edit Kode Barang. " + response.dataposting);
+                            if (response.note != "") {
+                                alert("Tidak berhasil Edit Kode Barang. " + response.dataposting + " " + response.note);
+                            } else {
+                                alert("Tidak berhasil Edit Kode Barang. " + response.dataposting);
+                            }
                         } else {
-                            alert("Gagal Edit Kode Barang.");
+                            if (response.note != "") {
+                                alert("Gagal Edit Kode Barang. " + response.note);
+                            } else {
+                                alert("Gagal Edit Kode Barang.");
+                            }
                         }
                     }
                 },
@@ -716,16 +732,32 @@
                     if (response.success) {
                         $('#loading_account3').hide();
                         if (response.dataposting != "") {
-                            alert("Tidak berhasil Merge Kode Barang. " + response.dataposting);
+                            if (response.note != "") {
+                                alert("Tidak berhasil Merge Kode Barang. " + response.dataposting + " " + response.note);
+                            } else {
+                                alert("Tidak berhasil Merge Kode Barang. " + response.dataposting);
+                            }
                         } else {
-                            alert("Berhasil Merge Kode Barang.");
+                            if (response.note != "") {
+                                alert("Berhasil Merge Kode Barang. " + response.note);
+                            } else {
+                                alert("Berhasil Merge Kode Barang.");
+                            }
                         }
                     } else {
                         $('#loading_account3').hide();
                         if (response.dataposting != "") {
-                            alert("Tidak berhasil Merge Kode Barang. " + response.dataposting);
+                            if (response.note != "") {
+                                alert("Tidak berhasil Merge Kode Barang. " + response.dataposting + " " + response.note);
+                            } else {
+                                alert("Tidak berhasil Merge Kode Barang. " + response.dataposting);
+                            }
                         } else {
-                            alert("Gagal Merge Kode Barang.");
+                            if (response.note != "") {
+                                alert("Gagal Merge Kode Barang. "  + response.note);
+                            } else {
+                                alert("Gagal Merge Kode Barang.");
+                            }
                         }
                     }
                 },
@@ -874,16 +906,32 @@
                     if (response.success) {
                         $('#loading_account5').hide();
                         if (response.dataposting != "") {
-                            alert("Tidak berhasil Delete Kode Barang. " + response.dataposting);
+                            if (response.note != "") {
+                                alert("Tidak berhasil Delete Kode Barang. " + response.dataposting + " " + response.note);
+                            } else {
+                                alert("Tidak berhasil Delete Kode Barang. " + response.dataposting);
+                            }
                         } else {
-                            alert("Berhasil Delete Kode Barang.");
+                            if (response.note != "") {
+                                alert("Berhasil Delete Kode Barang. "  + response.note);
+                            } else {
+                                alert("Berhasil Delete Kode Barang.");
+                            }
                         }
                     } else {
                         $('#loading_account5').hide();
                         if (response.dataposting != "") {
-                            alert("Tidak berhasil Delete Kode Barang. " + response.dataposting);
+                            if (response.note != "") {
+                                alert("Tidak berhasil Delete Kode Barang. " + response.dataposting + " " + response.note);
+                            } else {
+                                alert("Tidak berhasil Delete Kode Barang. " + response.dataposting);
+                            }
                         } else {
-                            alert("Gagal Delete Kode Barang.");
+                            if (response.note != "") {
+                                alert("Gagal Delete Kode Barang. "  + response.note);
+                            } else {
+                                alert("Gagal Delete Kode Barang.");
+                            }
                         }
                     }
                 },

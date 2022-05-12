@@ -1434,8 +1434,18 @@ namespace MasterOnline.Controllers
                                     CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                     CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "";
                                     CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
-
-                                    EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                    //add by nurul 3/2/2022
+                                    var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                                    if (multilokasi == "1")
+                                    {
+                                        EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
+                                    }
+                                    else
+                                    {
+                                        EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                                    }
+                                    //add by nurul 3/2/2022
+                                    //EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
 
                                     //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                                 }
@@ -2756,8 +2766,20 @@ namespace MasterOnline.Controllers
             //if merchant code diisi. barulah upload produk
             string ret = "";
             StokControllerJob stokAPI = new StokControllerJob(dbPathEra, iden.username);
-
-            var qtyOnHand = stokAPI.GetQOHSTF08A(data.kode, "ALL");
+            
+            //change by nurul 19/1/2022
+            //var qtyOnHand = stokAPI.GetQOHSTF08A(data.kode, "ALL");
+            var multilokasi = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().MULTILOKASI;
+            double qtyOnHand = 0;
+            if (multilokasi == "1")
+            {
+                qtyOnHand = stokAPI.GetQOHSTF08A_MultiLokasi(data.kode, "ALL", log_CUST);
+            }
+            else
+            {
+                qtyOnHand = stokAPI.GetQOHSTF08A(data.kode, "ALL");
+            }
+            //end change by nurul 19/1/2022
 
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -2789,11 +2811,11 @@ namespace MasterOnline.Controllers
                         myData += "\"stock\": null, ";
                         myData += "\"minimumStock\": null, ";
                         myData += "\"price\": " + data.Price + ", ";
-                        myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
+                        myData += "\"salePrice\": " + data.MarketPrice + " ";// harga yg tercantum di display blibli
                                                                               //myData += "\"salePrice\": " + item.sellingPrice + ", ";// harga yg promo di blibli
                         //myData += "\"buyable\": " + data.display + ", ";
-                        myData += "\"buyable\": " + (qtyOnHand > 0 ? data.display : "false") + ", ";
-                        myData += "\"displayable\": " + data.display + " "; // true=tampil    
+                        //myData += "\"buyable\": " + (qtyOnHand > 0 ? data.display : "false") + ", ";
+                        //myData += "\"displayable\": " + data.display + " "; // true=tampil    
                         myData += "},";
                     }
                 }
@@ -8544,7 +8566,21 @@ namespace MasterOnline.Controllers
                 //end add by Tri, 1 july 2021
 
                 //add by calvin 15 agustus 2019
-                var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(data.dataBarangInDb.BRG, "ALL");
+
+                //change by nurul 19/1/2022
+                //var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(data.dataBarangInDb.BRG, "ALL");
+                var multilokasi = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().MULTILOKASI;
+                double qty_stock = 1;
+                if (multilokasi == "1")
+                {
+                    qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A_MultiLokasi(data.dataBarangInDb.BRG, "ALL", log_CUST);
+                }
+                else
+                {
+                    qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(data.dataBarangInDb.BRG, "ALL");
+                }
+                //end change by nurul 19/1/2022
+
                 if (qty_stock > 0)
                 {
                     newVarItem.stock = Convert.ToInt32(qty_stock);
@@ -8892,7 +8928,21 @@ namespace MasterOnline.Controllers
                     //end add by Tri, 1 july 2021
 
                     //add by calvin 15 agustus 2019
-                    var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(var_item.BRG, "ALL");
+
+                    //change by nurul 19/1/2022
+                    //var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(var_item.BRG, "ALL");
+                    var multilokasi = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().MULTILOKASI;
+                    double qty_stock = 1;
+                    if (multilokasi == "1")
+                    {
+                        qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A_MultiLokasi(var_item.BRG, "ALL", log_CUST);
+                    }
+                    else
+                    {
+                        qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(var_item.BRG, "ALL");
+                    }
+                    //end change by nurul 19/1/2022
+
                     if (qty_stock > 0)
                     {
                         newVarItem.stock = Convert.ToInt32(qty_stock);
@@ -10242,7 +10292,21 @@ namespace MasterOnline.Controllers
                     sale = Convert.ToInt32(stf02h.HJUAL),
                 };
                 //add by calvin 15 agustus 2019
-                var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(data.dataBarangInDb.BRG, "ALL");
+
+                //change by nurul 19/1/2022
+                //var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(data.dataBarangInDb.BRG, "ALL");
+                var multilokasi = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().MULTILOKASI;
+                double qty_stock = 1;
+                if (multilokasi == "1")
+                {
+                    qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A_MultiLokasi(data.dataBarangInDb.BRG, "ALL", log_CUST);
+                }
+                else
+                {
+                    qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(data.dataBarangInDb.BRG, "ALL");
+                }
+                //end change by nurul 19/1/2022
+
                 if (qty_stock > 0)
                 {
                     newVarItem.stock = Convert.ToInt32(qty_stock);
@@ -10592,7 +10656,21 @@ namespace MasterOnline.Controllers
                         sale = Convert.ToInt32(var_stf02h_item.HJUAL),
                     };
                     //add by calvin 15 agustus 2019
-                    var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(var_item.BRG, "ALL");
+
+                    //change by nurul 19/1/2022
+                    //var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(var_item.BRG, "ALL");
+                    var multilokasi = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault().MULTILOKASI;
+                    double qty_stock = 1;
+                    if (multilokasi == "1")
+                    {
+                        qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A_MultiLokasi(var_item.BRG, "ALL", log_CUST);
+                    }
+                    else
+                    {
+                        qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(var_item.BRG, "ALL");
+                    }
+                    //end change by nurul 19/1/2022
+
                     if (qty_stock > 0)
                     {
                         newVarItem.stock = Convert.ToInt32(qty_stock);
@@ -11702,6 +11780,111 @@ namespace MasterOnline.Controllers
             return result;
         }
         //end add by nurul 3/2/2021, new shipping label blibli
+
+        //add by nurul 5/4/2022
+        public class tempPackageId_Status
+        {
+            public string packageid { get; set; }
+            public string status { get; set; }
+        }
+        public async Task<tempPackageId_Status> GetPackageId(string dbPathEra, BlibliAPIData iden, string orderNo, string orderItemNo)
+        {
+            var result = new tempPackageId_Status();
+            var token = SetupContext(iden);
+            iden.token = token;
+
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderDetail?";
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            if (iden.versiToken != "2")
+            {
+                string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+                string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+                string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+                string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mta/api/businesspartner/v1/order/orderDetail", iden.API_secret_key);
+
+                urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderDetail?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString());
+                urll += "&storeId=10001";
+                urll += "&orderNo=" + Uri.EscapeDataString(orderNo);
+                urll += "&orderItemNo=" + Uri.EscapeDataString(orderItemNo);
+                urll += "&channelId=MasterOnline";
+
+                myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+                myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+                myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("requestId", milis.ToString());
+                myReq.Headers.Add("sessionId", milis.ToString());
+                myReq.Headers.Add("username", userMTA);
+            }
+            else
+            {
+                string usernameMO = iden.API_client_username;
+                //string passMO = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk";
+                string passMO = iden.API_client_password;
+                string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+                string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+                string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+
+                urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderDetail?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString());
+                urll += "&storeId=10001";
+                urll += "&orderNo=" + Uri.EscapeDataString(orderNo);
+                urll += "&orderItemNo=" + Uri.EscapeDataString(orderItemNo);
+                urll += "&channelId=MasterOnline";
+
+                myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(usernameMO + ":" + passMO))));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("Api-Seller-Key", iden.API_secret_key.ToString());
+                myReq.Headers.Add("Signature-Time", milis.ToString());
+            }
+
+            string responseFromServer = "";
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            if (responseFromServer != "")
+            {
+                //dynamic resultRespons = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                var resultRespons = JsonConvert.DeserializeObject(responseFromServer, typeof(BlibliGetOrderDetail)) as BlibliGetOrderDetail;
+                if (string.IsNullOrEmpty(Convert.ToString(resultRespons.errorCode)))
+                {
+                    try
+                    {
+                        var PackageId = resultRespons.value.packageId;
+                        var status = resultRespons.value.orderStatus;
+                        if (resultRespons.value.orderHistory.Count() > 0)
+                        {
+                            status = resultRespons.value.orderHistory.FirstOrDefault().orderStatus;
+                        }
+                        if (!string.IsNullOrEmpty(PackageId))
+                        {
+                            result.packageid = PackageId;
+                            result.status = status;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                }
+
+            }
+            return result;
+        }
+        //end add by nurul 5/4/2022
 
         public class CekProductRejectResult
         {

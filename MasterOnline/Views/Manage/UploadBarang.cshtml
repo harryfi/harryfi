@@ -1706,6 +1706,14 @@
                     $("#cmbVar").val('1').change();
                 }
             }
+            if ($('#Stf02_Deskripsi').val().includes("extended description")) {
+                CKEDITOR.instances['Stf02_Deskripsi'].setReadOnly(true);
+                $('#extDescShopee').show();
+            }
+            else {
+                CKEDITOR.instances['Stf02_Deskripsi'].setReadOnly(false);
+                $('#extDescShopee').hide();
+            }
             Initialize();
         }
 

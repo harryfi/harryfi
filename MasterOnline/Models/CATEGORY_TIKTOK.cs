@@ -49,4 +49,16 @@ namespace MasterOnline.Models
         public string CUST { get; set; }
 
     }
+
+    [Table("TABEL_CHECK_HANGFIRE")]
+    public class TABEL_CHECK_HANGFIRE
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int RECNUM { get; set; }
+        public string DBPATHERA { get; set; }
+        public string ARG { get; set; }
+        public DateTime TGL { get; set; }
+
+    }
 }

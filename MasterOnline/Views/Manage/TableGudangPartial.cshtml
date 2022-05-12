@@ -45,6 +45,8 @@
         <tr role="row">
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1">Kode</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1">Nama Gudang</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1">Provinsi</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1">Dikelola</th>
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="max-width: 200px; width: 200px;">Link Qty ke Marketplace</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="max-width: 60px; width: 55px;">Edit</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="max-width: 60px; width: 55px;">Hapus</th>
@@ -54,9 +56,16 @@
         @*@foreach (var gudang in Model.ListGudang)*@
         @foreach (var gudang in Model)
         {
+            var dikelolaOleh = "Sendiri";
+            if(gudang.DIKELOLA == "1")
+            {
+                dikelolaOleh = "Pihak Ketiga";
+            }
             <tr>
                 <td>@gudang.Kode_Gudang</td>
                 <td>@gudang.Nama_Gudang</td>
+                <td>@gudang.NAMAPROVINSI</td>
+                <td>@dikelolaOleh</td>
                 <td class="text-center" style="max-width: 200px; width: 200px;">
                     @if (gudang.KD_HARGA_JUAL != "0" && gudang.KD_HARGA_JUAL != "" && gudang.KD_HARGA_JUAL != " " && gudang.KD_HARGA_JUAL != null)
                     {

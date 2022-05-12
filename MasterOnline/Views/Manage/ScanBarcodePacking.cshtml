@@ -60,7 +60,7 @@
                 <label>Scan Barcode</label>
             </div>
             <div class="col-md-3">
-                <input class="form-control" data-val="true" id="txtScanBarcodePacking" name="txtScanBarcodePacking" />
+                <input class="form-control" style="width: 500px" data-val="true" id="txtScanBarcodePacking" name="txtScanBarcodePacking" placeholder="No. Pesanan/ No. Referensi/ No. Resi/ Kode Booking" />
             </div>
         </div>
     </div>
@@ -78,6 +78,8 @@
             </tr>
         </thead>
         <tbody>
+            @Html.HiddenFor(m => m.default_no_bukti)
+            @Html.HiddenFor(m => m.pesanan_terakhir)
             @*@foreach(var barang in Model.dataScan)*@
             @for (int i = 0; i < Model.dataScan.Count; i++)
             {
@@ -109,38 +111,55 @@
     </table>
 </div>
 <script>
-    $("#txtScanBarcodePacking").keyup(function (event) {
-        event.preventDefault();
-        if (event.keyCode === 13 || event.keyCode === 9) {
-            if ($('#txtNoPesanan').val() == "") {
-                alert('Silahkan pilih pesanan terlebih dahulu.');
+    $(document).ready(function () {
+        $("#txtScanBarcodePacking").keyup(function (event) {
+            if (event.keyCode === 17 || event.keyCode === 74) {
+                event.preventDefault();
+            }
+            if (event.keyCode === 13 || event.keyCode === 9) {
+                if ($('#txtNoPesanan').val() == "") {
+                    alert('Silahkan pilih pesanan terlebih dahulu.');
+                    return false;
+                }
+                if ($("#txtScanBarcodePacking").val() == '') {
+                    alert('Silahkan scan barcode barang.');
+                }
+                else {
+                    //ScanBarcodeBarangPacking();
+                    for (i = 0; i < $('#maxDataPacking').val(); i++) {
+                        if ($('#dataScan_' + i + '__code').val() == $("#txtScanBarcodePacking").val()) {
+                            document.getElementById('txtIsValid_' + i).innerText = "VALID";
+                            $("#txtScanBarcode_" + i).val($("#txtScanBarcodePacking").val());
+                            $("#txtScanBarcodePacking").val('');
+                            $("#txtScanBarcodePacking").focus();
+                            return false;
+                        }
+                    }
+                    checkrpre();
+                    $("#txtScanBarcodePacking").val('');
+                    $("#txtScanBarcodePacking").focus();
+                }
+            }
+            return false;
+        });
+    });
+
+    function checkrpre()
+    {
+        for (i = 0; i < $('#maxDataPacking').val(); i++) {
+            if (document.getElementById('txtIsValid_' + i).innerText != "") {
+                alert("Selesaikan Packing List Untuk Pesanan Ini");
                 return false;
             }
-            if ($("#txtScanBarcodePacking").val() == '') {
-                alert('Silahkan scan barcode barang.');
-            }
-            else {
-                //ScanBarcodeBarangPacking();
-                for (i = 0; i < $('#maxDataPacking').val(); i++) {
-                    if ($('#dataScan_' + i + '__code').val() == $("#txtScanBarcodePacking").val()) {
-                        document.getElementById('txtIsValid_' + i).innerText = "VALID";
-                        $("#txtScanBarcode_" + i).val($("#txtScanBarcodePacking").val());
-                        $("#txtScanBarcodePacking").val('');
-                        $("#txtScanBarcodePacking").focus();
-                        return false;
-                    }
-                }
-                alert('Barang yang anda scan : ' + $("#txtScanBarcodePacking").val() + ' tidak ada dipesanan ini.');
-                $("#txtScanBarcodePacking").val('');
-                $("#txtScanBarcodePacking").focus();
-            }
         }
-        return false;
-    });
+        openModalPacking();
+
+    }
 
     function PromptPesanan() {
             showPromptPesananTextBoxWindow();
-        }
+    }
+
 
     function showPromptPesananTextBoxWindow() {
         var $link = '@Url.Action("PromptPesananPL", "Manage")';
@@ -150,8 +169,7 @@
         function afterPromptSetPesananPL(val) {
             //$('#promptHiddenField').val(val);
             $('#txtNoPesanan').val(val);
-
-            openModalPacking();
+            openModalPacking("", val);
     }
 
     function ScanPerBarang(barcode, index) {

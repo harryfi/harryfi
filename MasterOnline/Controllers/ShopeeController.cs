@@ -1645,7 +1645,6 @@ namespace MasterOnline.Controllers
                                     categoryName = categoryInDB.CATEGORY_NAME;
                                 }
                                 ret.status = 1;
-
                                 var sellerSku = "";
                                 if (itemRes.has_model)
                                 {
@@ -1869,7 +1868,24 @@ namespace MasterOnline.Controllers
                 }
             }
             //end add 21 mei 2021, logistic shopee
-
+            var descbrg = detailBrg.description ?? "";
+            if(detailBrg.description_info != null)
+            {
+                if (detailBrg.description_info.extended_description != null)
+                {
+                    //if (detailBrg.description_info.extended_description.field_list != null)
+                    //{
+                    //    foreach (var descExt in detailBrg.description_info.extended_description.field_list)
+                    //    {
+                    //        if(descExt.field_type == "")
+                    //        {
+                    //            descbrg = descExt.text;
+                    //        }
+                    //    }
+                    //}
+                    descbrg = "extended description sedang dalam pengembangan";
+                }
+            }
             var brandId = "";
             var brandName = "NO BRAND";
             if(detailBrg.brand != null)
@@ -1879,7 +1895,7 @@ namespace MasterOnline.Controllers
             }
             sSQL += "('" + barang_id + "' , '" + sellerSku + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
             sSQL += Convert.ToDouble(detailBrg.weight) * 1000 + "," + detailBrg.dimension.package_length + "," + detailBrg.dimension.package_width + "," + detailBrg.dimension.package_height + ", '";
-            sSQL += cust + "' , '" + urlBrg + "' , '" + listLogistic + "' , '" + brandId + "' , '" + "REPLACE_MEREK" + "' , '" + "<p>" + detailBrg.description.Replace('\'', '`').Replace("\n", "</p><p>") + "</p>" + "' , " + IdMarket + " , " + barang_price + " , " + barang_price;
+            sSQL += cust + "' , '" + urlBrg + "' , '" + listLogistic + "' , '" + brandId + "' , '" + "REPLACE_MEREK" + "' , '" + "<p>" + descbrg.Replace('\'', '`').Replace("\n", "</p><p>") + "</p>" + "' , " + IdMarket + " , " + barang_price + " , " + barang_price;
             sSQL += " , " + (barang_status.Contains("NORMAL") ? "1" : "0") + " , '" + categoryCode + "' , '" + categoryName + "' , '" + "REPLACE_MEREK" + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "'";
             sSQL += ", '" + (typeBrg == 2 ? kdBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
             sSQL += ",'" + (namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg) + "'"; 
@@ -3785,8 +3801,18 @@ namespace MasterOnline.Controllers
                                 CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
                                 CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                 CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
-
-                                EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                //add by nurul 3/2/2022
+                                var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                                if (multilokasi == "1")
+                                {
+                                    EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
+                                }
+                                else
+                                {
+                                    EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                                }
+                                //add by nurul 3/2/2022
+                                //EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
                             }
                         }
                         catch (Exception ex3)
@@ -7390,8 +7416,22 @@ namespace MasterOnline.Controllers
             public bool has_model { get; set; }
             public long promotion_id { get; set; }
             public Item_List_Brand brand { get; set; }
+            public Desc_Ext description_info { get; set; }
         }
 
+        public class Desc_Ext
+        {
+            public Desc_Ext_Detail extended_description { get; set; }
+        }
+        public class Desc_Ext_Detail
+        {
+            public Desc_Ext_list[] field_list { get; set; }
+        }
+        public class Desc_Ext_list
+        {
+            public string field_type { get; set; }
+            public string text { get; set; }
+        }
         public class Item_List_Image
         {
             public string[] image_url_list { get; set; }
@@ -7737,6 +7777,10 @@ namespace MasterOnline.Controllers
             public string[] dropoff { get; set; }
             public string[] non_integrated { get; set; }
             public string request_id { get; set; }
+            //add by nurul 19/4/2022
+            public string msg { get; set; }
+            public string error { get; set; }
+            //end add by nurul 19/4/2022
         }
 
         public class ShopeeInitLogisticDropOffData

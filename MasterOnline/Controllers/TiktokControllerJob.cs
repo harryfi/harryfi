@@ -70,13 +70,13 @@ namespace MasterOnline.Controllers
         public async Task<TiktokAuth> GetRefToken(string cust, string refreshToken, string dbpath, string username, DateTime? tanggal_exptoken, DateTime? tanggal_exprtok)
         {
             SetupContext(dbpath, username);
-            DateTime dateNow = DateTime.UtcNow.AddHours(7).AddMinutes(-30);
+            DateTime dateNow = DateTime.UtcNow.AddHours(7);
             DateTime parse = DateTime.Parse(tanggal_exprtok.ToString());
             TimeSpan ts = parse.Subtract(dateNow);
             bool ATExp = false;
 
             //if (ts.Days < 1 && ts.Hours < 24 && dateNow < tanggal_exptoken)
-            if (dateNow > tanggal_exprtok)
+            if (dateNow >= tanggal_exprtok)
             {
                 ATExp = true;
             }
@@ -177,11 +177,11 @@ namespace MasterOnline.Controllers
         {
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
-            DateTime dateNow = DateTime.UtcNow.AddHours(7).AddMinutes(-30);
+            DateTime dateNow = DateTime.UtcNow.AddHours(7);
             bool ATExp = false;
 
             //if (ts.Days < 1 && ts.Hours < 24 && dateNow < tanggal_exptoken)
-            if (dateNow > iden.expired_date)
+            if (dateNow >= iden.expired_date)
             {
                 var cekInDB = ErasoftDbContext.ARF01.Where(m => m.CUST == iden.no_cust).FirstOrDefault();
                 if (cekInDB != null)
@@ -873,8 +873,19 @@ namespace MasterOnline.Controllers
                             CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                             CommandSQL.Parameters.Add("@MARKET", SqlDbType.VarChar).Value = "TIKTOK";
                             CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
-
-                            EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                            
+                            //change by nurul 28/3/2022
+                            //EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                            var multilokasi = ErasoftDbContext.Database.SqlQuery<string>("select top 1 case when isnull(multilokasi,'')='' then '0' else multilokasi end as multilokasi from sifsys_tambahan (nolock)").FirstOrDefault();
+                            if (multilokasi == "1")
+                            {
+                                EDB.ExecuteSQL("Con", "MoveOrderFromTempTable_MultiLokasi", CommandSQL);
+                            }
+                            else
+                            {
+                                EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                            }
+                            //end change by nurul 28/3/2022
                         }
                     }
                     catch (Exception ex3)
@@ -920,7 +931,7 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            var dsNewOrderPaid = EDB.GetDataSet("CString", "SO", "SELECT T.ORDERID FROM TABEL_WEBHOOK_TOKPED (NOLOCK) T LEFT JOIN SOT01A (NOLOCK) S ON S.NO_REFERENSI = T.ORDERID AND T.CUST = S.CUST WHERE T.TGL >= '"
+            var dsNewOrderPaid = EDB.GetDataSet("CString", "SO", "SELECT T.ORDERID FROM TABEL_WEBHOOK_TIKTOK (NOLOCK) T LEFT JOIN SOT01A (NOLOCK) S ON S.NO_REFERENSI = T.ORDERID AND T.CUST = S.CUST WHERE T.TGL >= '"
                 + daysNow.ToString("yyyy-MM-dd HH:mm:ss") + "' AND ORDER_STATUS = 'AWAITING_SHIPMENT' AND T.CUST = '" + CUST + "' AND ISNULL(S.NO_BUKTI, '') = ''");
 
             if (dsNewOrderPaid.Tables[0].Rows.Count > 0)
@@ -948,11 +959,96 @@ namespace MasterOnline.Controllers
             {
                 new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username, connIdProses.Substring(0, connIdProses.Length - 3));
             }
+            //add 29 mar 2022, update status to paid and set shipment/tracking number
+            var dsNewOrderUpdatePaid = EDB.GetDataSet("CString", "SO", "SELECT T.ORDERID FROM TABEL_WEBHOOK_TIKTOK (NOLOCK) T INNER JOIN SOT01A (NOLOCK) S ON S.NO_REFERENSI = T.ORDERID AND T.CUST = S.CUST WHERE T.TGL >= '"
+                + daysNow.ToString("yyyy-MM-dd HH:mm:ss") + "' AND ORDER_STATUS = 'AWAITING_SHIPMENT' AND T.CUST = '" + CUST + "' AND S.STATUS_TRANSAKSI NOT IN ('11', '12') AND (ISNULL(S.SHIPMENT, '') = '' or isnull(no_po_cust, '') = '') ");
 
+            if (dsNewOrderUpdatePaid.Tables[0].Rows.Count > 0)
+            {
+                for (int i = 0; i < dsNewOrderUpdatePaid.Tables[0].Rows.Count; i++)
+                {
+                    var insertData = dsNewOrderUpdatePaid.Tables[0].Rows[i]["ORDERID"].ToString();
+                    ordersn_list.Add(insertData);
+                    if (ordersn_list.Count >= 10 || i == dsNewOrderUpdatePaid.Tables[0].Rows.Count - 1)
+                    {
+                        string connId = Guid.NewGuid().ToString();
+
+                        GetOrderDetailsUpdateStatus(iden, ordersn_list.ToArray(), connId, CUST, NAMA_CUST);
+                      
+                        ordersn_list = new List<string>();
+                    }
+                }
+            }
+            //end add 29 mar 2022, update status to paid and set shipment/tracking number
 
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust
                  + "%' and arguments like '%GetOrderTiktok_webhook_Insert%' and statename like '%Enque%'");
 
+            return ret;
+        }
+
+        public string GetOrderDetailsUpdateStatus(TTApiData iden, string[] ordersn_list, string connID, string CUST, string NAMA_CUST)
+        {
+            var ret = "";
+            SetupContext(iden.DatabasePathErasoft, iden.username);
+            string urll = "https://open-api.tiktokglobalshop.com/api/orders/detail/query?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/orders/detail/queryapp_key" + eraAppKey + "shop_id" + iden.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, iden.access_token, timestamp, signencry, eraAppKey, iden.shop_id);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "POST";
+            myReq.ContentType = "application/json";
+
+            GetOrderDetailsData HttpBody = new GetOrderDetailsData
+            {
+                order_id_list = ordersn_list
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = System.Text.Encoding.UTF8.GetBytes(myData).Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, System.Text.Encoding.UTF8.GetBytes(myData).Length);
+                }
+                //using (WebResponse response = await myReq.GetResponseAsync())
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != "")
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(GetOrderDetailResponse)) as GetOrderDetailResponse;
+                
+                foreach (var order in result.data.order_list)
+                {
+                    string sSQL = "UPDATE SOT01A SET SHIPMENT = '" + order.shipping_provider + "', TRACKING_SHIPMENT = '"
+                        + order.tracking_number + "' , STATUS_TRANSAKSI = CASE WHEN STATUS_TRANSAKSI = '0' THEN '01' ELSE STATUS_TRANSAKSI END ";
+                    if (order.package_list != null)
+                    {
+                        sSQL += ", NO_PO_CUST = '" + order.package_list[0].package_id + "' ";
+                    }
+                    sSQL += "WHERE NO_REFERENSI = '" + order.order_id + "' AND CUST = '" + CUST + "' ";
+                    //EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SOT01A SET SHIPMENT = '"+order.shipping_provider+"', TRACKING_SHIPMENT = '"
+                    //    +order.tracking_number+ "' , STATUS_TRANSAKSI = CASE WHEN STATUS_TRANSAKSI = '0' THEN '01' ELSE STATUS_TRANSAKSI END WHERE NO_REFERENSI = '" 
+                    //    + order.order_id+"' AND CUST = '"+CUST+"' ");
+                    EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                }
+            }
             return ret;
         }
         [AutomaticRetry(Attempts = 2)]
@@ -1622,6 +1718,75 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Update Status Ready To Ship Pesanan {obj} ke TikTok Gagal.")]
+        public string UpdateStatus_RTS_new(TTApiData iden, string ordersn, string no_bukti, string typeDelivery, string package_id)
+        {
+            SetupContext(iden.DatabasePathErasoft, iden.username);
+            var ret = "";
+            string urll = "https://open-api.tiktokglobalshop.com/api/fulfillment/rts?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/fulfillment/rtsapp_key" + eraAppKey + "shop_id" + iden.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, iden.access_token, timestamp, signencry, eraAppKey, iden.shop_id);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "POST";
+            myReq.ContentType = "application/json";
+
+
+            string myData = "{\"package_id\":\"" + package_id + "\"";
+            if (typeDelivery == "1")
+            {
+                myData += ", \"pick_up_type\" : 1";
+            }
+            myData += "}";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = System.Text.Encoding.UTF8.GetBytes(myData).Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, System.Text.Encoding.UTF8.GetBytes(myData).Length);
+                }
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != "")
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(TiktokRTSResponse)) as TiktokRTSResponse;
+                if (result.code != 0)
+                {
+                    EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='1' WHERE NO_BUKTI = '" + no_bukti + "'");
+                    throw new Exception(responseFromServer);
+                }
+                else
+                {
+                    if(result.data != null)
+                    {
+                        if(result.data.fail_packages != null)
+                        {
+                            EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='1' WHERE NO_BUKTI = '" + no_bukti + "'");
+                            throw new Exception(responseFromServer);
+                        }
+                    }
+                    EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='2' WHERE NO_BUKTI = '" + no_bukti + "'");
+                }
+
+            }
+            return ret;
+        }
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Update Status Ready To Ship Pesanan {obj} ke TikTok Gagal.")]
@@ -2594,6 +2759,71 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Update Status Ready To Ship Pesanan {obj} ke TikTok Gagal.")]
+        public string GetShippingDoc_new(TTApiData iden, string package_id)
+        {
+            SetupContext(iden.DatabasePathErasoft, iden.username);
+            var ret = "";
+            var tipedoc = "1";
+            string urll = "https://open-api.tiktokglobalshop.com/api/fulfillment/shipping_document?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}&package_id={5}&document_type={6}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/fulfillment/shipping_documentapp_key" + eraAppKey + "document_type"+ tipedoc + "package_id" + package_id
+                + "shop_id" + iden.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, iden.access_token, timestamp, signencry, eraAppKey, iden.shop_id, package_id, tipedoc);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "GET";
+            myReq.ContentType = "application/json";
+
+
+            //string myData = "{\"order_id\":\"" + ordersn + "\", \"document_type\" : \"SHIPPING_LABEL\", \"document_size\" : \"A6\"}";
+
+            string responseFromServer = "";
+            try
+            {
+                //myReq.ContentLength = System.Text.Encoding.UTF8.GetBytes(myData).Length;
+                //using (var dataStream = myReq.GetRequestStream())
+                //{
+                //    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, System.Text.Encoding.UTF8.GetBytes(myData).Length);
+                //}
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                string err = e.Message;
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                }
+                return "error : " + err;
+            }
+
+            if (responseFromServer != "")
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(TiktokPrintLabelResponse)) as TiktokPrintLabelResponse;
+                if (result.code != 0)
+                {
+                    //throw new Exception(responseFromServer);
+                    return "error : " + responseFromServer;
+                }
+                else
+                {
+                    return result.data.doc_url;
+                }
+
         public ATTRIBUTE_SHOPEE_AND_OPT_v2 GetAttributeList(TTApiData iden, string categoryCode)
         {
             SetupContext(iden.DatabasePathErasoft, iden.username);
@@ -2615,6 +2845,9 @@ namespace MasterOnline.Controllers
             myReq.ContentType = "application/json";
 
 
+            }
+            return ret;
+        }
             string responseFromServer = "";
             try
             {
@@ -2960,6 +3193,23 @@ public class TiktokUploadImageData
 
 }
 
+public class TiktokRTSResponse : TiktokCommonResponse
+{
+    public TiktokRTSData data { get; set; }
+}
+public class TiktokRTSData
+{
+    public List<TiktokFailedRTS> fail_packages { get; set; }
+
+}
+public class TiktokFailedRTS
+{
+    public int fail_code { get; set; }
+    public string fail_reason { get; set; }
+    public string package_id { get; set; }
+
+}
+
 public class TiktokPrintLabelResponse : TiktokCommonResponse
 {
     public TiktokPrintLabelData data { get; set; }
@@ -3080,6 +3330,11 @@ public class OrderDetail_List
     public long update_time { get; set; }
     public string cancel_reason { get; set; }
     public string cancel_user { get; set; }
+    public TiktokPackage[] package_list { get; set; }
+}
+public class TiktokPackage
+{
+    public string package_id { get; set; }
 }
 
 public class Payment_Info

@@ -80,54 +80,60 @@
                     }
                 </tr>
                 }*@
-            @for (int i = 0; i < Model.dataScan.Count; i++)
-            {
-            <tr>
-                @Html.HiddenFor(m => m.dataScan[i].code)
-                @Html.HiddenFor(m => m.dataScan[i].brg)
-                @Html.HiddenFor(m => m.dataScan[i].qty)
-                @Html.HiddenFor(m => m.dataScan[i].isValid)
-                @Html.HiddenFor(m => m.dataScan[i].rak)
-                <td style="width: 40px; max-width: 40px; align-self:center; text-align:center;">
-                    <input type="checkbox" class="dt-checkboxes checkbox_delete_picking_barang center" id-brg="@Model.dataScan[i].brg" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />
-                </td>
-                <td class="get_data_picking kode_barcode" id-brg="@Model.dataScan[i].brg">@Model.dataScan[i].code</td>
-                <td class="get_data_picking" id-brg="@Model.dataScan[i].brg">
-                    <div class="form-group">
-                        <input class="form-control limited_number_textbox num-only" data-val="true" id="data_qty_@i" id-brg="@Model.dataScan[i].brg"
-                               value="@Model.dataScan[i].input_qty" onchange="changeQtyPacking('data_qty_@i', @Model.dataScan[i].qty);" />
-                        @*@Html.TextBoxFor(m => m.dataScan[i].qty, new { @class = "form-control limited_number_textbox num-only", min = 1, max = 99999999, maxlength = 8 })*@
-                    </div>
-                </td>
-                <td class="get_data_picking" id-brg="@Model.dataScan[i].brg">@Model.dataScan[i].rak</td>
-                @if (Model.dataScan[i].isValid)
+            <div id="bodytable">
+                @for (int i = 0; i < Model.dataScan.Count; i++)
                 {
-                    <td class="get_data_picking" id="data_isvalid_@i">VALID</td>
-                }
-                else
-                {
-                    <td class="get_data_picking" id="data_isvalid_@i">TIDAK VALID</td>
-                }
-            </tr>
+                <tr>
+                    @Html.HiddenFor(m => m.dataScan[i].code)
+                    @Html.HiddenFor(m => m.dataScan[i].brg)
+                    @Html.HiddenFor(m => m.dataScan[i].qty)
+                    @Html.HiddenFor(m => m.dataScan[i].isValid)
+                    @Html.HiddenFor(m => m.dataScan[i].input_qty)
+                    @Html.HiddenFor(m => m.dataScan[i].rak)
+                    <td style="width: 40px; max-width: 40px; align-self:center; text-align:center;">
+                        <input type="checkbox" class="dt-checkboxes checkbox_delete_picking_barang center" id-brg="@Model.dataScan[i].brg" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />
+                    </td>
+                    <td class="get_data_picking kode_barcode" id-brg="@Model.dataScan[i].brg">@Model.dataScan[i].code</td>
+                    <td class="get_data_picking" id-brg="@Model.dataScan[i].brg">
+                        <div class="form-group">
+                            <b><label id="data_qty_@i" id-brg="@Model.dataScan[i].brg">@Model.dataScan[i].input_qty</label></b>
+                            @*<input class="form-control limited_number_textbox num-only" data-val="true" id="data_qty_@i" id-brg="@Model.dataScan[i].brg"
+                                value="@Model.dataScan[i].input_qty" onchange="changeQtyPacking('data_qty_@i', @Model.dataScan[i].qty);" />*@
+                            @*@Html.TextBoxFor(m => m.dataScan[i].qty, new { @class = "form-control limited_number_textbox num-only", min = 1, max = 99999999, maxlength = 8 })*@
+                        </div>
+                    </td>
+                    <td class="get_data_picking" id-brg="@Model.dataScan[i].brg">@Model.dataScan[i].rak</td>
+                    @if (Model.dataScan[i].isValid)
+                    {
+                        <td class="get_data_picking" id="data_isvalid_@i">VALID</td>
+                    }
+                    else
+                    {
+                        <td class="get_data_picking" id="data_isvalid_@i">TIDAK VALID</td>
+                    }
+                </tr>
             }
-        <tr>
-            <td style="width: 40px; max-width: 40px; align-self:flex-start;">
-            </td>
-            <td>
-                <input class="form-control" data-val="true" id="txtScanBarcode" name="txtScanBarcode" id-brg="0" autofocus />
-            </td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        </tbody>
+    </div>
+    <tr>
+        <td style="width: 40px; max-width: 40px; align-self:flex-start;">
+        </td>
+        <td>
+            <input class="form-control" data-val="true" id="txtScanBarcode" name="txtScanBarcode" id-brg="0" autofocus />
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    </tbody>
     </table>
-</div>
+    </div>
 
-<script type="text/javascript" charset="utf-8">
+    <script type="text/javascript" charset="utf-8">
     $(document).ready(function () {
         //alert('test');
         $("#txtScanBarcode").focus();
+
+        
     });
 
     $("input.num-only").off('keydown').on('keydown',
@@ -148,6 +154,23 @@
             }
         });
 
+
+        $("#txtScanBarcode").keyup(function (event) {
+            if (event.keyCode === 17 || event.keyCode === 74)
+            {
+                event.preventDefault();
+            }
+            if (event.keyCode === 13 || event.keyCode === 9) {
+                if ($("#txtScanBarcode").val() == '') {
+                    alert('Silahkan scan barcode barang.');
+                }
+                else {
+                    ScanBarcodeBarang();
+                }
+            }
+            return false;
+        });
+
     function changeQtyPacking(id, qty) {
         //alert('id : ' + id + ' ,qty : ' + qty + ' ,value : ' + $('#' + id).val());
         if ($('#' + id).val() != qty) {
@@ -165,22 +188,22 @@
             }
             $('#dataScan_' + id.split('_')[2] + '__isValid').val('True');
             document.getElementById('data_isvalid_' + id.split('_')[2]).innerText = "VALID";
-            
+
         }
     }
 
-    $("#txtScanBarcode").keyup(function (event) {
-        event.preventDefault();
-        if (event.keyCode === 13 || event.keyCode === 9) {
-            if ($("#txtScanBarcode").val() == '') {
-                alert('Silahkan scan barcode barang.');
-            }
-            else {
-                ScanBarcodeBarang();
-            }
-        }
-        return false;
-    });
+    //$("#txtScanBarcode").keyup(function (event) {
+    //    event.preventDefault();
+    //    if (event.keyCode === 13 || event.keyCode === 9) {
+    //        if ($("#txtScanBarcode").val() == '') {
+    //            alert('Silahkan scan barcode barang.');
+    //        }
+    //        else {
+    //            ScanBarcodeBarang();
+    //        }
+    //    }
+    //    return false;
+    //});
 
     function ScanBarcodeBarang() {
         listBrg = [];
@@ -190,10 +213,9 @@
                     code: $('#dataScan_'+i+'__code').val(),
                     qty: $('#dataScan_' + i + '__qty').val(),
                     isValid: $('#dataScan_' + i + '__isValid').val(),
-                    input_qty: $('#data_qty_' + i).val(),
+                    input_qty: $('#data_qty_' + i).text(),
                     rak: $('#dataScan_' + i + '__rak').val(),
                 };
-
             }
             $postdata = {
                 NO_PL: document.getElementById('txtNoPL').innerText,
@@ -203,8 +225,8 @@
                 jmlQty: document.getElementById('txtJmlQty').innerText,
                 dataScan: listBrg,
                 currentScan: $("#txtScanBarcode").val(),
-            };
-
+        };
+        console.log(listBrg);
             var $link = '@Url.Action("ScanBarcodeBarang", "Manage")';
                 $.ajax({
                     type: "POST",
@@ -222,6 +244,8 @@
                         //$('#modalPickingBarang').modal('hide');
                         if (response.Errors == undefined) {
                             //editPackinglist1(response.Errors[0]);
+                            $('#modal-picking').remove();
+                            $('#modal-picking-body').append('<div id="modal-picking"></div>');
                             $('#modal-picking').html(response);
                             $("#txtScanBarcode").focus();
                         }
@@ -239,6 +263,9 @@
                     }
                 });
     }
+
+
+
 
     function HapusPickingBarang() {
         var cekTrue = [];
@@ -260,7 +287,7 @@
                     code: $('#dataScan_'+i+'__code').val(),
                     qty: $('#dataScan_' + i + '__qty').val(),
                     isValid: $('#dataScan_' + i + '__isValid').val(),
-                    input_qty: $('#data_qty_' + i).val(),
+                    input_qty: $('#data_qty_' + i).text(),
                     rak: $('#dataScan_' + i + '__rak').val(),
                 };
 
@@ -309,4 +336,4 @@
                 });
     }
 
-</script>
+    </script>
