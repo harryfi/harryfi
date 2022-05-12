@@ -1420,8 +1420,10 @@ namespace MasterOnline.Controllers
                         tempbarang.ANAME_38 = detail.Brand == null ? "" : detail.Brand.Id;
                         tempbarang.AVALUE_38 = tempbarang.MEREK;
                         tempbarang.DISPLAY = (detail.ProductStatus == 4 ? true : false);
-                        tempbarang.SELLER_SKU = kdmp;
+                        tempbarang.SELLER_SKU = "";
                         tempbarang.TYPE = "4";
+                        tempbarang.HJUAL = Convert.ToDouble( detail.Skus[0].Price.OriginalPrice);
+                        tempbarang.HJUAL_MP = Convert.ToDouble(detail.Skus[0].Price.OriginalPrice);
                         tempbarang.AVALUE_34 = "https://shop.tiktok.com/view/product/" + detail.ProductId;
                         tempbarang.AVALUE_39 = (detail.IsCodOpen ? "1" : "0");
                         //foreach (SkuTik satikd in detail.Skus)
