@@ -2074,7 +2074,8 @@ namespace MasterOnline.Controllers
                         err = sr.ReadToEnd();
                     }
                 }
-                return "error : " + err;
+                //return "error : " + err;
+                throw new Exception(err);
             }
 
             if (responseFromServer != "")
@@ -2481,7 +2482,8 @@ namespace MasterOnline.Controllers
                         err = sr.ReadToEnd();
                     }
                 }
-                return "error : " + err;
+                //return "error : " + err;
+                throw new Exception(err);
             }
 
             if (responseFromServer != "")
@@ -2549,6 +2551,17 @@ namespace MasterOnline.Controllers
 
             string myData = "{\"product_id\":\"" + brgmp[0] + "\", \"skus\" : [{ \"original_price\":\"" + price + "\",\"id\" : \"" + brgmp[1] + "\" }] }";
 
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "Update Price", //ganti
+                REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
+                REQUEST_ATTRIBUTE_1 = log_CUST,
+                REQUEST_ATTRIBUTE_2 = kdbrgMO,
+                REQUEST_STATUS = "Pending",
+            };
+
             string responseFromServer = "";
             try
             {
@@ -2577,7 +2590,10 @@ namespace MasterOnline.Controllers
                         err = sr.ReadToEnd();
                     }
                 }
-                return "error : " + err;
+                //return "error : " + err;
+                currentLog.REQUEST_EXCEPTION = err;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, log_CUST, currentLog);
+                throw new Exception(err);
             }
 
             if (responseFromServer != "")
@@ -2585,10 +2601,33 @@ namespace MasterOnline.Controllers
                 var result = JsonConvert.DeserializeObject(responseFromServer, typeof(TiktokCommonResponse)) as TiktokCommonResponse;
                 if (result.code != 0)
                 {
+                    currentLog.REQUEST_EXCEPTION = responseFromServer;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, log_CUST, currentLog);
                     throw new Exception(responseFromServer);
                     //return "error : " + responseFromServer;
                 }
-
+                if (log_ActionName.Contains("UPDATE_MASSAL"))
+                {
+                    var dataLog = log_ActionName.Split('_');
+                    if (dataLog.Length >= 4)
+                    {
+                        var nobuk = dataLog[2];
+                        var indexData = Convert.ToInt32(dataLog[3]);
+                        var log_b = ErasoftDbContext.LOG_HARGAJUAL_B.Where(m => m.NO_BUKTI == nobuk && m.NO_FILE == indexData).FirstOrDefault();
+                        if (log_b != null)
+                        {
+                            var currentProgress = log_b.KET.Split('/');
+                            if (currentProgress.Length == 2)
+                            {
+                                log_b.KET = (Convert.ToInt32(currentProgress[0]) + 1) + "/" + currentProgress[1];
+                                ErasoftDbContext.SaveChanges();
+                                currentLog.CUST_ATTRIBUTE_2 = (Convert.ToInt32(currentProgress[0]) + 1).ToString();
+                                currentLog.CUST_ATTRIBUTE_3 = currentProgress[1];
+                            }
+                        }
+                    }
+                }
+                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, log_CUST, currentLog);
 
             }
             return ret;
@@ -2836,6 +2875,83 @@ namespace MasterOnline.Controllers
         }
         #endregion
 
+        public enum api_status
+        {
+            Pending = 1,
+            Success = 2,
+            Failed = 3,
+            Exception = 4
+        }
+        public void manageAPI_LOG_MARKETPLACE(api_status action, ErasoftContext db, string iden, API_LOG_MARKETPLACE data)
+        {
+            switch (action)
+            {
+                case api_status.Pending:
+                    {
+                        var arf01 = ErasoftDbContext.ARF01.Where(p => p.CUST == iden).FirstOrDefault();
+                        var apiLog = new MasterOnline.API_LOG_MARKETPLACE
+                        {
+                            CUST = arf01 != null ? arf01.CUST : "",
+                            CUST_ATTRIBUTE_1 = arf01 != null ? arf01.PERSO : "",
+                            CUST_ATTRIBUTE_2 = data.CUST_ATTRIBUTE_2 != null ? data.CUST_ATTRIBUTE_2 : "",
+                            CUST_ATTRIBUTE_3 = data.CUST_ATTRIBUTE_3 != null ? data.CUST_ATTRIBUTE_3 : "",
+                            CUST_ATTRIBUTE_4 = data.CUST_ATTRIBUTE_4 != null ? data.CUST_ATTRIBUTE_4 : "",
+                            CUST_ATTRIBUTE_5 = data.CUST_ATTRIBUTE_5 != null ? data.CUST_ATTRIBUTE_5 : "",
+                            MARKETPLACE = "TikTok",
+                            REQUEST_ACTION = data.REQUEST_ACTION,
+                            REQUEST_ATTRIBUTE_1 = data.REQUEST_ATTRIBUTE_1 != null ? data.REQUEST_ATTRIBUTE_1 : "",
+                            REQUEST_ATTRIBUTE_2 = data.REQUEST_ATTRIBUTE_2 != null ? data.REQUEST_ATTRIBUTE_2 : "",
+                            REQUEST_ATTRIBUTE_3 = data.REQUEST_ATTRIBUTE_3 != null ? data.REQUEST_ATTRIBUTE_3 : "",
+                            REQUEST_ATTRIBUTE_4 = data.REQUEST_ATTRIBUTE_4 != null ? data.REQUEST_ATTRIBUTE_4 : "",
+                            REQUEST_ATTRIBUTE_5 = data.REQUEST_ATTRIBUTE_5 != null ? data.REQUEST_ATTRIBUTE_5 : "",
+                            REQUEST_DATETIME = data.REQUEST_DATETIME,
+                            REQUEST_ID = data.REQUEST_ID,
+                            REQUEST_STATUS = data.REQUEST_STATUS,
+                            REQUEST_EXCEPTION = data.REQUEST_EXCEPTION != null ? data.REQUEST_EXCEPTION : "",
+                            REQUEST_RESULT = data.REQUEST_RESULT != null ? data.REQUEST_RESULT : "",
+                        };
+                        ErasoftDbContext.API_LOG_MARKETPLACE.Add(apiLog);
+                        ErasoftDbContext.SaveChanges();
+                    }
+                    break;
+                case api_status.Success:
+                    {
+                        var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
+                        if (apiLogInDb != null)
+                        {
+                            apiLogInDb.REQUEST_STATUS = "Success";
+                            apiLogInDb.REQUEST_RESULT = data.REQUEST_RESULT;
+                            apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    break;
+                case api_status.Failed:
+                    {
+                        var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
+                        if (apiLogInDb != null)
+                        {
+                            apiLogInDb.REQUEST_STATUS = "Failed";
+                            apiLogInDb.REQUEST_RESULT = data.REQUEST_RESULT;
+                            apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    break;
+                case api_status.Exception:
+                    {
+                        var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.FirstOrDefault(p => p.REQUEST_ID == data.REQUEST_ID);
+                        if (apiLogInDb != null)
+                        {
+                            apiLogInDb.REQUEST_STATUS = "Failed";
+                            apiLogInDb.REQUEST_RESULT = "Exception";
+                            apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    break;
+            }
+        }
     }
 }
 

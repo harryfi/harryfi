@@ -348,6 +348,28 @@ namespace MasterOnline.Controllers
                                             Convert.ToInt32(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString()), username));
                                     }
                                 }
+                                break;
+                            case "2021"://tiktok
+                                var idenTikTok = new TTApiData
+                                {
+                                    access_token = customer.TOKEN,
+                                    no_cust = customer.CUST,
+                                    DatabasePathErasoft = dbPathEra,
+                                    shop_id = customer.Sort1_Cust,
+                                    username = customer.USERNAME,
+                                    expired_date = customer.TOKEN_EXPIRED.Value,
+                                    refresh_token = customer.REFRESH_TOKEN
+                                };
+                                for (int i = 0; i < dsUpdate.Tables[0].Rows.Count; i++)
+                                {
+                                    string[] brg_mp = dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString().Split(';');
+                                    if (brg_mp.Count() == 2)
+                                    {
+                                        clientJobServer.Enqueue<TiktokControllerJob>(x => x.UpdatePrice_job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(),
+                                            customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), idenTikTok, dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString()));
+
+                                    }
+                                }
 
                                 break;
                         }
