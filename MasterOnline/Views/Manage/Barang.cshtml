@@ -2763,91 +2763,90 @@
                                 var AMANDATORY = item["AMANDATORY_" + (i + 1)];
                                 if (ANAME != null) {
                                     if (ANAME != "") {
+                                        if ( ATYPE == "2") {
+                                            var label = '<label class="control-label">' + ANAME;
+                                            if (AMANDATORY == "1") {
+                                                label += '*';
+                                            }
+                                            //label += '**</label>';
+                                            var fieldACODE = '<input data-val="true" class="form-control" data-val-length-max="50" id="ListHargaJualPermarket_' + listmarket_i + '__ACODE_' + (i + 1) + '" name="ListHargaJualPermarket[' + listmarket_i + '].ACODE_' + (i + 1) + '" type="hidden" value="' + ACODE + '" maxlength="50">';
+                                            var fieldANAME = '<input data-val="true" class="form-control" data-val-length-max="250" id="ListHargaJualPermarket_' + listmarket_i + '__ANAME_' + (i + 1) + '" name="ListHargaJualPermarket[' + listmarket_i + '].ANAME_' + (i + 1) + '" type="hidden" value="' + ANAME + '" maxlength="250">';
 
-                                        var label = '<label class="control-label">' + ANAME;
-                                        if (AMANDATORY == "1") {
-                                            label += '*';
-                                        }
-                                        //label += '**</label>';
-                                        var fieldACODE = '<input data-val="true" class="form-control" data-val-length-max="50" id="ListHargaJualPermarket_' + listmarket_i + '__ACODE_' + (i + 1) + '" name="ListHargaJualPermarket[' + listmarket_i + '].ACODE_' + (i + 1) + '" type="hidden" value="' + ACODE  + '" maxlength="50">';
-                                        var fieldANAME = '<input data-val="true" class="form-control" data-val-length-max="250" id="ListHargaJualPermarket_' + listmarket_i + '__ANAME_' + (i + 1) + '" name="ListHargaJualPermarket[' + listmarket_i + '].ANAME_' + (i + 1) + '" type="hidden" value="' + ANAME + '" maxlength="250">';
+                                            fieldAVALUE += '<div class="col-md-2">' + label + fieldACODE + fieldANAME + '</div>'
 
-                                        fieldAVALUE += '<div class="col-md-2">' + label + fieldACODE + fieldANAME + '</div>'
+                                            var fieldAVALUE_ID = 'ListHargaJualPermarket_' + listmarket_i + '__AVALUE_' + (i + 1);
 
-                                        var fieldAVALUE_ID = 'ListHargaJualPermarket_' + listmarket_i + '__AVALUE_' + (i + 1);
-
-                                        var adaValue = "";
-                                        if (ListHargaJualPermarketView != null) {
-                                            if (ListHargaJualPermarketView.length > 0) {
-                                                var keyName = getKeyByValue(ListHargaJualPermarketView[0],ANAME);
-                                                if (keyName != undefined) {
-                                                    keyName = keyName.replace('ANAME_', 'AVALUE_');
-                                                    adaValue = ListHargaJualPermarketView[0][keyName];
+                                            var adaValue = "";
+                                            if (ListHargaJualPermarketView != null) {
+                                                if (ListHargaJualPermarketView.length > 0) {
+                                                    var keyName = getKeyByValue(ListHargaJualPermarketView[0], ANAME);
+                                                    if (keyName != undefined) {
+                                                        keyName = keyName.replace('ANAME_', 'AVALUE_');
+                                                        adaValue = ListHargaJualPermarketView[0][keyName];
+                                                    }
                                                 }
                                             }
-                                        }
-                                        if (adaValue == null) {
-                                            adaValue = "";
-                                        }
-                                        else if (adaValue.includes( "<p>null</p>")) {
-                                            adaValue = "";
-                                        }
+                                            if (adaValue == null) {
+                                                adaValue = "";
+                                            }
+                                            else if (adaValue.includes("<p>null</p>")) {
+                                                adaValue = "";
+                                            }
 
-                                        if (AOPTIONS == "1") {
-                                            
-                                            {
-                                                ////hidden
-                                                //fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
+                                            if (AOPTIONS == "1") {
 
-                                                ////select
-                                                //var selectID = 'attribute_select_shopee_' + listMarketRecNum + '_' + (i + 1);
-                                                //SelectList.push(ACODE, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, AINPUT_TYPE);
-                                                ////change by calvin 1 maret 2019
-                                                ////fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
-                                                //if (AMANDATORY == "1") {
-                                                //    fieldAVALUE += '<div class="col-md-2"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
-                                                //}
-                                                //else {
-                                                //    fieldAVALUE += '<div class="col-md-2"><select id="' + selectID + '" placeholder="Harap pilih"></select></div>';
-                                                //}
+                                                {
+                                                    ////hidden
+                                                    //fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
 
-                                                fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
+                                                    ////select
+                                                    //var selectID = 'attribute_select_shopee_' + listMarketRecNum + '_' + (i + 1);
+                                                    //SelectList.push(ACODE, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, AINPUT_TYPE);
+                                                    ////change by calvin 1 maret 2019
+                                                    ////fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                                    //if (AMANDATORY == "1") {
+                                                    //    fieldAVALUE += '<div class="col-md-2"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                                    //}
+                                                    //else {
+                                                    //    fieldAVALUE += '<div class="col-md-2"><select id="' + selectID + '" placeholder="Harap pilih"></select></div>';
+                                                    //}
 
-                                                //select
-                                                var selectID = 'attribute_select_tiktok_' + listMarketRecNum + '_' + (i + 1);
-                                                SelectList.push(ACODE, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, AINPUT_TYPE);
-                                                //change by calvin 1 maret 2019
-                                                //fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                                    fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
+
+                                                    //select
+                                                    var selectID = 'attribute_select_tiktok_' + listMarketRecNum + '_' + (i + 1);
+                                                    SelectList.push(ACODE, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, AINPUT_TYPE);
+                                                    //change by calvin 1 maret 2019
+                                                    //fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                                    if (AMANDATORY == "1") {
+                                                        fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                                    }
+                                                    else {
+                                                        fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih"></select></div>';
+                                                    }
+                                                    //end change by calvin 1 maret 2019
+                                                }
+                                            }
+                                            else {
+                                                //textbox
                                                 if (AMANDATORY == "1") {
-                                                    fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                                    fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
                                                 }
                                                 else {
-                                                    fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih"></select></div>';
-                                                }
-                                                //end change by calvin 1 maret 2019
-                                            }
-                                        }
-                                        else
-                                        {
-                                            //textbox
-                                            if (AMANDATORY == "1") {
-                                                    fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
-                                            }
-                                            else
-                                            {
                                                     fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" data-val-length-max="250"  class="form-control" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
 
+                                                }
                                             }
-                                        }
 
-                                        if (loop == 0) {
-                                            loop = 1;
-                                        }
-                                        else if (loop == 1) {
-                                            $('#attribute_tiktok_' + listMarketRecNum).append('<div class="row" style="padding-top:5px">' + fieldAVALUE + '</div>');
+                                            if (loop == 0) {
+                                                loop = 1;
+                                            }
+                                            else if (loop == 1) {
+                                                $('#attribute_tiktok_' + listMarketRecNum).append('<div class="row" style="padding-top:5px">' + fieldAVALUE + '</div>');
 
-                                            fieldAVALUE = "";
-                                            loop = 0;
+                                                fieldAVALUE = "";
+                                                loop = 0;
+                                            }
                                         }
                                         //}
                                     }
@@ -2889,13 +2888,142 @@
                                 }
                             }
                         });
+                    setOtherTiktokAttr(data.attributes, listmarket_i, ListHargaJualPermarketView, listMarketRecNum, data.attribute_opts_v2);
+
                 },
                 error: function (xhr) {
                     console.log(xhr);
                 }
             });
         }
+        function setOtherTiktokAttr(listattr, listmarket_i, ListHargaJualPermarketView, listMarketRecNum, attribute_opts_v2) {
+            var loop = 0;
+            var fieldAVALUE = "";
+            var SelectList = [];
+            $.each(listattr,
+                function (j, item) {
 
+                    for (var j = 0; j < 30; j++) {
+                        var ACODE = item["ACODE_" + (j + 1)];
+                        var ATYPE = item["ATYPE_" + (j + 1)];
+                        var ANAME = item["ANAME_" + (j + 1)];
+                        var AOPTIONS = item["AOPTIONS_" + (j + 1)];
+                        var AINPUT_TYPE = item["AUNIT_" + (j + 1)];
+                        var AMANDATORY = item["AMANDATORY_" + (j + 1)];
+                        if (ANAME != null) {
+                            if (ANAME != "" ) {
+                                if (ATYPE != "2") {
+                                    var label = '<label class="control-label">' + ANAME;
+                                    if (AMANDATORY == "1") {
+                                        label += '*';
+                                    }
+                                    //label += '**</label>';
+                                    var fieldACODE = '<input data-val="true" class="form-control" data-val-length-max="50" id="ListHargaJualPermarket_' + listmarket_i + '__ACODE_' + (j + 1) + '" name="ListHargaJualPermarket[' + listmarket_i + '].ACODE_' + (j + 1) + '" type="hidden" value="' + ACODE + '" maxlength="50">';
+                                    var fieldANAME = '<input data-val="true" class="form-control" data-val-length-max="250" id="ListHargaJualPermarket_' + listmarket_i + '__ANAME_' + (j + 1) + '" name="ListHargaJualPermarket[' + listmarket_i + '].ANAME_' + (j + 1) + '" type="hidden" value="' + ANAME + '" maxlength="250">';
+
+                                    fieldAVALUE += '<div class="col-md-2">' + label + fieldACODE + fieldANAME + '</div>'
+
+                                    var fieldAVALUE_ID = 'ListHargaJualPermarket_' + listmarket_i + '__AVALUE_' + (j + 1);
+
+                                    var adaValue = "";
+                                    if (ListHargaJualPermarketView != null) {
+                                        if (ListHargaJualPermarketView.length > 0) {
+                                            var keyName = getKeyByValue(ListHargaJualPermarketView[0], ANAME);
+                                            if (keyName != undefined) {
+                                                keyName = keyName.replace('ANAME_', 'AVALUE_');
+                                                adaValue = ListHargaJualPermarketView[0][keyName];
+                                            }
+                                        }
+                                    }
+                                    if (adaValue == null) {
+                                        adaValue = "";
+                                    }
+                                    else if (adaValue.includes("<p>null</p>")) {
+                                        adaValue = "";
+                                    }
+
+                                    if (AOPTIONS == "1") {
+
+                                        {
+
+                                            fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (j + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
+
+                                            //select
+                                            var selectID = 'attribute_select_tiktok_' + listMarketRecNum + '_' + (j + 1);
+                                            SelectList.push(ACODE, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, AINPUT_TYPE);
+                                            //change by calvin 1 maret 2019
+                                            //fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                            if (AMANDATORY == "1") {
+                                                fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                            }
+                                            else {
+                                                fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih"></select></div>';
+                                            }
+                                            //end change by calvin 1 maret 2019
+                                        }
+                                    }
+                                    else {
+                                        //textbox
+                                        if (AMANDATORY == "1") {
+                                            fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (j + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                        }
+                                        else {
+                                            fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" data-val-length-max="250"  class="form-control" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (j + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+
+                                        }
+                                    }
+
+                                    if (loop == 0) {
+                                        loop = 1;
+                                    }
+                                    else if (loop == 1) {
+                                        $('#attribute_tiktok2_' + listMarketRecNum).append('<div class="row" style="padding-top:5px">' + fieldAVALUE + '</div>');
+
+                                        fieldAVALUE = "";
+                                        loop = 0;
+                                    }
+                                }
+                                //}
+                            }
+                            else {
+                                if (loop == 1) {
+                                    $('#attribute_tiktok2_' + listMarketRecNum).append('<div class="row" style="padding-top:5px">' + fieldAVALUE + '</div>');
+
+                                    fieldAVALUE = "";
+                                    loop = 2;
+                                    for (var i = 0; i < (SelectList.length / 6); i++) {
+                                        getAttributeOptionTiktok(SelectList[(i * 6) + 0], SelectList[(i * 6) + 1], SelectList[(i * 6) + 2], SelectList[(i * 6) + 3], SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], attribute_opts_v2);
+                                    }
+                                }
+                                else if (loop == 0) {
+                                    loop = 2;
+                                    for (var i = 0; i < (SelectList.length / 6); i++) {
+                                        getAttributeOptionTiktok(SelectList[(i * 6) + 0], SelectList[(i * 6) + 1], SelectList[(i * 6) + 2], SelectList[(i * 6) + 3], SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], attribute_opts_v2);
+                                    }
+                                }
+                            }
+                        }
+                        else {
+                            if (loop == 1) {
+                                $('#attribute_tiktok2_' + listMarketRecNum).append('<div class="row" style="padding-top:5px">' + fieldAVALUE + '</div>');
+                                fieldAVALUE = "";
+                                loop = 2;
+                                for (var i = 0; i < (SelectList.length / 6); i++) {
+                                    getAttributeOptionTiktok(SelectList[(i * 6) + 0], SelectList[(i * 6) + 1], SelectList[(i * 6) + 2], SelectList[(i * 6) + 3], SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], attribute_opts_v2);
+                                }
+
+                            }
+                            else if (loop == 0) {
+                                loop = 2;
+                                for (var i = 0; i < (SelectList.length / 6); i++) {
+                                    getAttributeOptionTiktok(SelectList[(i * 6) + 0], SelectList[(i * 6) + 1], SelectList[(i * 6) + 2], SelectList[(i * 6) + 3], SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], attribute_opts_v2);
+                                }
+
+                            }
+                        }
+                    }
+                });
+        }
         function getAttributeOptionTiktok(ACODE, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, ATYPE, optAttributes) {
            
             var listAttributeOpt = [];
@@ -3164,7 +3292,8 @@
                
                     $(fieldCategoryCode).val('');
                     $(fieldCategoryName).val('');
-                
+                $('#loading_attribute_' + idmrkt).show();
+
                 var urll = '@Url.Action("GetKategoriTiktokByCode", "Manage")';
                 urll += "?idmarket="+idmrkt+"&refresh=1";
                 $.ajax({
@@ -3174,9 +3303,11 @@
                     cache: false,
                     success: function (data) {
                         getKategoriPertamaTiktok(i);
+                        $('#loading_attribute_' + idmrkt).hide();
                     },
                     error: function (xhr) {
                         console.log(xhr);
+                        $('#loading_attribute_' + idmrkt).hide();
                     }
                 });
             }
@@ -6008,7 +6139,8 @@
                         //searchField: 'text',
                         placeholder: 'Harap pilih',
                         items: listBarang,
-                    }).change( function () {
+                    }).
+                        change( function () {
                         var val = $(this).selectivity('value');
                         var $objSup = $.grep(listBarang, function (data) { return data.id == val });
                         CopyDataAttrFromBrg(val, $objSup[0].namabrg);
@@ -6181,6 +6313,20 @@
                                         $('#ListHargaJualPermarket_' + i + '__ANAME_38').val(valData.ANAME_38);
                                         $('#Brand' + i + '82Cart').val(valData.ANAME_38);
                                     }
+                                    if (lMarket.NAMA == "2021")//tiktok
+                                    {
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val(valData.AVALUE_38);
+                                        $('#ListHargaJualPermarket_' + i + '__ANAME_38').val(valData.ANAME_38);
+                                        $('#Brand' + i + 'tiktok').val(valData.ANAME_38);
+                                        $('#TIKTOK_WAREHOUSEID' + i + 'Box').val(valData.PICKUP_POINT);
+                                        $('#ListHargaJualPermarket_' + i + '__AVALUE_32').val(valData.AVALUE_32);
+                                        if (valData.AVALUE_39 == '1') {
+                                            $('#ckcod_' + i).prop('checked', true);
+                                        }
+                                        else {
+                                            $('#ckcod_' + i).prop('checked', false);
+                                        }
+                                    }
                                 }
                             }
                             i = i + 1;
@@ -6195,6 +6341,7 @@
                         getKategoriPertamaJD(-1, false);
                         getKategoriPertama82Cart(-1);
                         getAttributeGroupPertama82Cart(-1);
+                        getKategoriPertamaTiktok(-1);
                     },
                     error: function (xhr) {
                         console.log(xhr);
@@ -6305,7 +6452,15 @@
                                 $('#ListHargaJualPermarket_' + i + '__ANAME_38').val('');
                                 $('#Brand' + i + '82Cart').val('');
                             }
-
+                            if (lMarket.NAMA == "2021")//tiktok
+                            {
+                                $('#ListHargaJualPermarket_' + i + '__AVALUE_38').val('');
+                                $('#ListHargaJualPermarket_' + i + '__ANAME_38').val('');
+                                $('#Brand' + i + 'tiktok').val('');
+                                $('#TIKTOK_WAREHOUSEID' + i + 'Box').val('');
+                                $('#ListHargaJualPermarket_' + i + '__AVALUE_32').val('');
+                                
+                            }
                             i = i + 1;
                         };
 
@@ -6317,7 +6472,8 @@
                         //getKategoriPertamaBukalapak(-1); //remark 9 feb 2021, tutup sementara
                         getKategoriPertamaJD(-1, false);
                         getKategoriPertama82Cart(-1);
-                        getAttributeGroupPertama82Cart(-1);
+                getAttributeGroupPertama82Cart(-1);
+                getKategoriPertamaTiktok(-1);
             }
         }
         //END ADD BY CALVIN 6 FEBRUARI 2019

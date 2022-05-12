@@ -2261,9 +2261,18 @@ namespace MasterOnline.Controllers
                                     else
                                     {
                                         var currentAttr = singleAttr;
-
                                         attrValue.value_id = null;
                                         attrValue.value_name = WebUtility.HtmlDecode(WebUtility.HtmlEncode(currentAttr.Trim()).Replace("&nbsp;", " ").Replace("&#160;", " ").Replace("&#xA0;", " "));
+
+                                        if (dataAttr.values != null /*&& !dataAttr.input_type.is_customized*/)
+                                        {
+                                            var optid = dataAttr.values.Where(m => m.name == currentAttr).FirstOrDefault();
+                                            if(optid != null)
+                                            {
+                                                attrValue.value_id = optid.id;
+                                                attrValue.value_name = "";
+                                            }
+                                        }
                                     }
                                     newAttr.attribute_values.Add(attrValue);
                                 }
