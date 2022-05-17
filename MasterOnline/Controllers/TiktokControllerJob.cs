@@ -1909,7 +1909,7 @@ namespace MasterOnline.Controllers
                             sales_attr.attribute_id = recnumVariasi.MP_JUDUL_VAR;
                             if (!string.IsNullOrEmpty(item_var.LINK_GAMBAR_1))
                             {
-                                if (sales_attr.sku_img == null)
+                                if (string.IsNullOrEmpty(item_var.Sort8))
                                 {
                                     sales_attr.sku_img = new Sku_Img()
                                     {
@@ -1970,7 +1970,6 @@ namespace MasterOnline.Controllers
                     stockInfo.available_stock = Convert.ToInt32(qty_stock);
                 }
                 itemskus.stock_infos.Add(stockInfo);
-                var sales_attr = new CreateSales_Attributes();
                 var listSalesAttrTiktok = listAttrTiktokResponse.Where(m => m.attribute_type == 2).ToList();
                 for (int i = 1; i <= 30; i++)
                 {
@@ -1983,9 +1982,10 @@ namespace MasterOnline.Controllers
                             var datasAttr = listSalesAttrTiktok.Where(p => p.id == sattribute_id).FirstOrDefault();
                             if (datasAttr != null)
                             {
+                                var sales_attr = new CreateSales_Attributes();
                                 sales_attr.custom_value = svalue;
                                 sales_attr.attribute_id = sattribute_id;
-                                if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_50) && sales_attr.sku_img == null)
+                                if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_50) && itemskus.sales_attributes.Count < 1)
                                 {
                                     sales_attr.sku_img = new Sku_Img()
                                     {
