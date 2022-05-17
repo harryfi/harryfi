@@ -963,12 +963,12 @@ namespace MasterOnline.Controllers
             }
             string primCategory = EDB.GetFieldValue("MOConnectionString", "STF02H", "BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'", "category_code").ToString();
             string xmlString = "{\"Request\":{ ";
-            xmlString = "\"Product\": {\"PrimaryCategory\":\"" + primCategory + "\",";
-            xmlString += "\"Attributes\": {\"PrimaryCategory\":\"" + namabrg.Replace("\"", "\\\"") + "\",";
+            xmlString += "\"Product\": {\"PrimaryCategory\":\"" + primCategory + "\",";
+            xmlString += "\"Attributes\": {\"name\":\"" + namabrg.Replace("\"", "\\\"") + "\",";
             //xmlString += "<description><![CDATA[" + System.Net.WebUtility.HtmlDecode(deskripsibrg).Replace(System.Environment.NewLine, "<br>") + "]]></description>";
-            xmlString += "\"description\":\"" + HttpUtility.JavaScriptStringEncode(System.Net.WebUtility.HtmlDecode(deskripsibrg)) + "\",";
+            xmlString += "\"description\":\"" + HttpUtility.JavaScriptStringEncode(System.Net.WebUtility.HtmlDecode(deskripsibrg).Replace(System.Environment.NewLine, "<br>")) + "\",";
 
-            xmlString += "\"brand\":\"" + stf02h.ANAME_38 + "\",";
+            xmlString += "\"brand\":\"" + stf02h.ANAME_38 + "\"";
 
             Dictionary<string, string> lzdAttrWithVal = new Dictionary<string, string>();
             Dictionary<string, string> lzdAttrSkuWithVal = new Dictionary<string, string>();
@@ -997,8 +997,7 @@ namespace MasterOnline.Controllers
            
             foreach (var lzdAttr in lzdAttrWithVal)
             {
-                //xmlString += "<" + lzdAttr.Key + ">";
-                xmlString += "\"" + lzdAttr.Key + "\":\"";
+                xmlString += ",\"" + lzdAttr.Key + "\":\"";
                 if (lzdAttr.Value.ToString().Contains("<p>"))
                 {
                     //xmlString += "<![CDATA[" + lzdAttr.Value.ToString().Replace("\r\n", "").Replace("&nbsp;", " ").Replace("<em>", "<i>").Replace("</em>", "</i>").Replace(System.Environment.NewLine, "<br>") + "]]>";
@@ -1008,23 +1007,24 @@ namespace MasterOnline.Controllers
                 {
                     xmlString += HttpUtility.JavaScriptStringEncode(lzdAttr.Value.ToString());
                 }
-                //xmlString += "</" + lzdAttr.Key + ">";
+                xmlString += "\"";
             }
+            xmlString += "},"; // close attr
 
-            xmlString += "</Attributes>";
             //add 16 agustus 2021, perubahan image lzd
-            xmlString += "<Images>";
+            xmlString += "\"Images\": { \"Image\": [";
             if (!string.IsNullOrEmpty(data.imageUrl))
-                xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
+                xmlString += "\"" + data.imageUrl + "\",";
             if (!string.IsNullOrEmpty(data.imageUrl2))
-                xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
+                xmlString += "\"" + data.imageUrl2 + "\",";
             if (!string.IsNullOrEmpty(data.imageUrl3))
-                xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
+                xmlString += "\"" + data.imageUrl3 + "\",";
             if (!string.IsNullOrEmpty(data.imageUrl4))
-                xmlString += "<Image><![CDATA[" + data.imageUrl4 + "]]></Image>";
+                xmlString += "\"" + data.imageUrl4 + "\",";
             if (!string.IsNullOrEmpty(data.imageUrl5))
-                xmlString += "<Image><![CDATA[" + data.imageUrl5 + "]]></Image>";
-            xmlString += "</Images>";
+                xmlString += "\"" + data.imageUrl5 + "\",";
+            xmlString = xmlString.Substring(0, xmlString.Length - 1);
+            xmlString += "]},";
             //end add 16 agustus 2021, perubahan image lzd
 
             var stf02 = ErasoftDbContext.STF02.Where(p => p.BRG == data.kdBrg).FirstOrDefault();
@@ -1033,9 +1033,8 @@ namespace MasterOnline.Controllers
             if (Convert.ToString(stf02.TYPE) == "3" || Convert.ToString(stf02.TYPE) == "6")
             //change by nurul 14/9/2020, handle barang multi sku juga 
             {
-
-                xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(data.kdBrg) + "</SellerSku>";
-                xmlString += "<Status>" + (data.activeProd ? "active" : "inactive") + "</Status>";
+                xmlString += "\"Skus\": { \"Sku\": [ { \"SellerSku\":\"" + HttpUtility.JavaScriptStringEncode(data.kdBrg) + "\",";
+                xmlString += "\"Status\":\"" + (data.activeProd ? "active" : "inactive") + "\",";
                 
                 //change by nurul 19/1/2022
                 //var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(data.kdBrg, "ALL");
@@ -1053,25 +1052,25 @@ namespace MasterOnline.Controllers
 
                 if (qty_stock > 0)
                 {
-                    xmlString += "<quantity>" + Convert.ToString(qty_stock) + "</quantity>";
+                    xmlString += "\"quantity\":\"" + Convert.ToString(qty_stock) + "\",";
                 }
                 //end add by calvin 1 mei 2019
 
-                //xmlString += "<quantity>1</quantity>";
-                xmlString += "<price>" + data.harga + "</price>";
-                //xmlString += "<size>Int: One size</size>";
-                xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
-                xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
+                xmlString += "\"price\":\"" + data.harga + "\",";
+                xmlString += "\"package_length\":\"" + data.length + "\",\"package_height\":\"" + data.height + "\",";
+                xmlString += "\"package_width\":\"" + data.width + "\",\"package_weight\":\"" + Convert.ToDouble(data.weight) / 1000 + "\",";//weight in kg
                 
                 foreach (var lzdSkuAttr in lzdAttrSkuWithVal)
                 {
-                    xmlString += "<" + lzdSkuAttr.Key + ">";
-                    //xmlString += XmlEscape(lzdSkuAttr.Value.ToString());
-                    xmlString += "<![CDATA[" + XmlEscape(Convert.ToString(lzdSkuAttr.Value).Replace(System.Environment.NewLine, "<br>")) + "]]>";
-                    xmlString += "</" + lzdSkuAttr.Key + ">";
+                    xmlString += "\"" + lzdSkuAttr.Key + "\":\"";
+                    xmlString += HttpUtility.JavaScriptStringEncode(Convert.ToString(lzdSkuAttr.Value).Replace(System.Environment.NewLine, "<br>"));
+                    xmlString += "\",";
                 }
-                
-                xmlString += "</Sku></Skus>";
+                if(lzdAttrSkuWithVal.Count > 0)
+                {
+                    xmlString = xmlString.Substring(0, xmlString.Length - 1);
+                }
+                xmlString += " } ] }";
             }
             else if (Convert.ToString(stf02.TYPE) == "4")
             {
@@ -1085,9 +1084,9 @@ namespace MasterOnline.Controllers
                 var list_BRGMP_created = "";
                 if (list_STF02H_created.Count > 0)
                 {
-                    list_BRGMP_created = "<AssociatedSku>";
+                    list_BRGMP_created = "\"AssociatedSku\":\"";
                     list_BRGMP_created += list_STF02H_created[0].BRG_MP;
-                    list_BRGMP_created += "</AssociatedSku>";
+                    list_BRGMP_created += "\",";
 
                 }
                 //end 14-08-2019,add validasi tambah varian
@@ -1123,7 +1122,7 @@ namespace MasterOnline.Controllers
                 {
                     xmlString += list_BRGMP_created;
                 }
-                xmlString += "<Skus>";
+                xmlString += "\"Skus\": { \"Sku\": [ ";
                 foreach (var item in ListStf02Var)
                 {
                     attributesAdded = new List<string>();
@@ -1141,15 +1140,15 @@ namespace MasterOnline.Controllers
                     {
                         if (string.IsNullOrEmpty(GetStf02h.BRG_MP))
                         {
-                            xmlString += "<Sku><SellerSku>" + XmlEscape(item.BRG) + "</SellerSku>";
-                            xmlString += "<Status>" + (data.activeProd ? "active" : "inactive") + "</Status>";
+                            xmlString += "{ \"SellerSku\":\"" + XmlEscape(item.BRG) + "\",";
+                            xmlString += "\"Status\":\"" + (data.activeProd ? "active" : "inactive") + "\",";
 
                             foreach (var attribute in KombinasiAttribute)
                             {
                                 if (attribute.Value == item.BRG)
                                 {
                                     string[] getId = attribute.Key.Split(new string[] { "[;]" }, StringSplitOptions.None);
-                                    xmlString += "<" + getId[0] + ">" + XmlEscape(getId[1]) + "</" + getId[0] + ">";
+                                    xmlString += "\"" + getId[0] + "\":\"" + XmlEscape(getId[1]) + "\",";
                                     attributesAdded.Add(getId[0]);
                                 }
                             }
@@ -1169,9 +1168,9 @@ namespace MasterOnline.Controllers
                                         try
                                         {
                                             var getAttrValue = lzdAttrSkuWithVal[dsSku[i].ToString()].ToString();
-                                            xmlString += "<" + dsSku[i].ToString() + ">";
+                                            xmlString += "\"" + dsSku[i].ToString() + "\":\"";
                                             xmlString += XmlEscape(getAttrValue);
-                                            xmlString += "</" + dsSku[i].ToString() + ">";
+                                            xmlString += "\",";
                                         }
                                         catch (Exception ex)
                                         {
@@ -1196,21 +1195,21 @@ namespace MasterOnline.Controllers
 
                             if (qty_stock > 0)
                             {
-                                xmlString += "<quantity>" + Convert.ToString(qty_stock) + "</quantity>";
+                                xmlString += "\"quantity\":\"" + Convert.ToString(qty_stock) + "\",";
                             }
                             //change 1/8/2019, gunakan hjual stf02h
-                            xmlString += "<price>" + GetStf02h.HJUAL + "</price>";
+                            xmlString += "\"price\":\"" + GetStf02h.HJUAL + "\",";
                             //change 1/8/2019, gunakan hjual stf02h
-                            xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
-                            xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
-                            xmlString += "<Images>";
+                            xmlString += "\"package_length\":\"" + data.length + "\",\"package_height\":\"" + data.height + "\",";
+                            xmlString += "\"package_width\":\"" + data.width + "\",\"package_weight\":\"" + Convert.ToDouble(data.weight) / 1000 + "\",";//weight in kg
+                            xmlString += "\"Images\": { \"Image\": [ ";
                             //CHANGE BY CALVIN 10 JUNI 2019
                             if (!string.IsNullOrEmpty(item.LINK_GAMBAR_1))
                             {
                                 var uploadImg = UploadImage(item.LINK_GAMBAR_1, data.token);
                                 if (uploadImg.status == 1)
                                 {
-                                    xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                                    xmlString += "\"" + uploadImg.message + "\",";
                                 }
                             }
                             if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
@@ -1218,18 +1217,19 @@ namespace MasterOnline.Controllers
                                 var uploadImg = UploadImage(item.LINK_GAMBAR_2, data.token);
                                 if (uploadImg.status == 1)
                                 {
-                                    xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                                    xmlString += "\"" + uploadImg.message + "\",";
                                 }
                             }
-                           
-                            xmlString += "</Images>";
-                            xmlString += "</Sku>";
+                            xmlString = xmlString.Substring(0, xmlString.Length - 1);
+
+                            xmlString += "] } } ,";
                         }
                     }
                 }
-                xmlString += "</Skus>";
+                xmlString = xmlString.Substring(0, xmlString.Length - 1);
+                xmlString += " ] }";
             }
-            xmlString += "</Product></Request>";
+            xmlString += "} } }";
 
 
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
