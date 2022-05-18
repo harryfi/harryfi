@@ -1755,23 +1755,27 @@ namespace MasterOnline.Controllers
             }
             if (!string.IsNullOrEmpty(brginDb.LINK_GAMBAR_2))
             {
-                img_induk.id = await UpladImage(iden, brginDb.LINK_GAMBAR_2, "1");
-                postData.images.Add(img_induk);
+                var img_induk2 = new CreateImage();
+                img_induk2.id = await UpladImage(iden, brginDb.LINK_GAMBAR_2, "1");
+                postData.images.Add(img_induk2);
             }
             if (!string.IsNullOrEmpty(brginDb.LINK_GAMBAR_3))
             {
-                img_induk.id = await UpladImage(iden, brginDb.LINK_GAMBAR_3, "1");
-                postData.images.Add(img_induk);
+                var img_induk3 = new CreateImage();
+                img_induk3.id = await UpladImage(iden, brginDb.LINK_GAMBAR_3, "1");
+                postData.images.Add(img_induk3);
             }
             if (!string.IsNullOrEmpty(brginDb.LINK_GAMBAR_4))
             {
-                img_induk.id = await UpladImage(iden, brginDb.LINK_GAMBAR_4, "1");
-                postData.images.Add(img_induk);
+                var img_induk4 = new CreateImage();
+                img_induk4.id = await UpladImage(iden, brginDb.LINK_GAMBAR_4, "1");
+                postData.images.Add(img_induk4);
             }
             if (!string.IsNullOrEmpty(brginDb.LINK_GAMBAR_5))
             {
-                img_induk.id = await UpladImage(iden, brginDb.LINK_GAMBAR_5, "1");
-                postData.images.Add(img_induk);
+                var img_induk5 = new CreateImage();
+                img_induk5.id = await UpladImage(iden, brginDb.LINK_GAMBAR_5, "1");
+                postData.images.Add(img_induk5);
             }
             #endregion
 
@@ -2185,23 +2189,27 @@ namespace MasterOnline.Controllers
             }
             if (!string.IsNullOrEmpty(brginDb.LINK_GAMBAR_2))
             {
-                img_induk.id = await UpladImage(iden, brginDb.LINK_GAMBAR_2, "1");
-                postData.images.Add(img_induk);
+                var img_induk2 = new CreateImage();
+                img_induk2.id = await UpladImage(iden, brginDb.LINK_GAMBAR_2, "1");
+                postData.images.Add(img_induk2);
             }
             if (!string.IsNullOrEmpty(brginDb.LINK_GAMBAR_3))
             {
-                img_induk.id = await UpladImage(iden, brginDb.LINK_GAMBAR_3, "1");
-                postData.images.Add(img_induk);
+                var img_induk3 = new CreateImage();
+                img_induk3.id = await UpladImage(iden, brginDb.LINK_GAMBAR_3, "1");
+                postData.images.Add(img_induk3);
             }
             if (!string.IsNullOrEmpty(brginDb.LINK_GAMBAR_4))
             {
-                img_induk.id = await UpladImage(iden, brginDb.LINK_GAMBAR_4, "1");
-                postData.images.Add(img_induk);
+                var img_induk4 = new CreateImage();
+                img_induk4.id = await UpladImage(iden, brginDb.LINK_GAMBAR_4, "1");
+                postData.images.Add(img_induk4);
             }
             if (!string.IsNullOrEmpty(brginDb.LINK_GAMBAR_5))
             {
-                img_induk.id = await UpladImage(iden, brginDb.LINK_GAMBAR_5, "1");
-                postData.images.Add(img_induk);
+                var img_induk5 = new CreateImage();
+                img_induk5.id = await UpladImage(iden, brginDb.LINK_GAMBAR_5, "1");
+                postData.images.Add(img_induk5);
             }
             #endregion
 
@@ -2348,7 +2356,7 @@ namespace MasterOnline.Controllers
                             sales_attr.attribute_id = recnumVariasi.MP_JUDUL_VAR;
                             if (!string.IsNullOrEmpty(item_var.LINK_GAMBAR_1))
                             {
-                                if (sales_attr.sku_img == null)
+                                if (string.IsNullOrEmpty(item_var.Sort8))
                                 {
                                     sales_attr.sku_img = new Sku_Img()
                                     {
@@ -2409,7 +2417,6 @@ namespace MasterOnline.Controllers
                     stockInfo.available_stock = Convert.ToInt32(qty_stock);
                 }
                 itemskus.stock_infos.Add(stockInfo);
-                var sales_attr = new CreateSales_Attributes();
                 var listSalesAttrTiktok = listAttrTiktokResponse.Where(m => m.attribute_type == 2).ToList();
                 for (int i = 1; i <= 30; i++)
                 {
@@ -2422,9 +2429,10 @@ namespace MasterOnline.Controllers
                             var datasAttr = listSalesAttrTiktok.Where(p => p.id == sattribute_id).FirstOrDefault();
                             if (datasAttr != null)
                             {
+                                var sales_attr = new CreateSales_Attributes();
                                 sales_attr.custom_value = svalue;
                                 sales_attr.attribute_id = sattribute_id;
-                                if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_50) && sales_attr.sku_img == null)
+                                if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_50) && itemskus.sales_attributes.Count < 1)
                                 {
                                     sales_attr.sku_img = new Sku_Img()
                                     {
@@ -2522,6 +2530,70 @@ namespace MasterOnline.Controllers
                     }
                 }
 
+
+            }
+            return ret;
+        }
+
+        [AutomaticRetry(Attempts = 0)]
+        [Queue("1_create_product")]
+        public string UpdateStatus_tiktok(string dbPathEra, string kdbrgMO, string log_CUST, string log_ActionCategory, string log_ActionName, string[] product_id, TTApiData iden, string state)
+        {
+            SetupContext(iden.DatabasePathErasoft, iden.username);
+           
+            var ret = "";
+            string urll = "https://open-api.tiktokglobalshop.com/api/products/" + state + "?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/products/"+state+"app_key" + eraAppKey + "shop_id" + iden.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, iden.access_token, timestamp, signencry, eraAppKey, iden.shop_id);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "POST";
+            myReq.ContentType = "application/json";
+
+            //string myData = JsonConvert.SerializeObject(product_id);
+
+            string myData = "{ \"product_ids\" : [\"" + product_id[0] + "\" ] }";
+
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = System.Text.Encoding.UTF8.GetBytes(myData).Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, System.Text.Encoding.UTF8.GetBytes(myData).Length);
+                }
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                string err = e.Message;
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                }
+                throw new Exception(err);
+            }
+
+            if (responseFromServer != "")
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(TiktokCommonResponse)) as TiktokCommonResponse;
+                //if (result.code != 0)
+                //{
+                //    throw new Exception(responseFromServer);
+                //    //return "error : " + responseFromServer;
+                //}
 
             }
             return ret;
