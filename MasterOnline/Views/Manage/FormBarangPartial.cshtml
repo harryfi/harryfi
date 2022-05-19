@@ -2718,9 +2718,9 @@
                                                                                     <button type="button" onclick="RefreshCategorytiktok('category_tiktok_pertama_' + @recnumArf01, 'category_tiktok_selanjutnya_' + @recnumArf01, 'attribute_tiktok_' + @recnumArf01, @i, @recnumArf01);">Refresh</button>
                                                                                     @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model.Stf02 != null ? Model.Stf02.BRG : ""))?.CATEGORY_CODE != null)
                                                                                     {
-                                                                                        <button type="button" onclick="ClearCategorytiktok('category_tiktok_pertama_' + @recnumArf01, 'category_tiktok_selanjutnya_' + @recnumArf01, 'attribute_tiktok_' + @recnumArf01, @i, true);">Undo</button>
+                                                                                        <button type="button" onclick="ClearCategorytiktok('category_tiktok_pertama_' + @recnumArf01, 'category_tiktok_selanjutnya_' + @recnumArf01,  @recnumArf01, @i, true);">Undo</button>
                                                                                     }
-                                                                                    <button type="button" onclick="ClearCategorytiktok('category_tiktok_pertama_' + @recnumArf01, 'category_tiktok_selanjutnya_' + @recnumArf01, 'attribute_tiktok_' + @recnumArf01, @i, false);">Clear</button>
+                                                                                    <button type="button" onclick="ClearCategorytiktok('category_tiktok_pertama_' + @recnumArf01, 'category_tiktok_selanjutnya_' + @recnumArf01,  @recnumArf01, @i, false);">Clear</button>
                                                                                 </div>
                                                                             </div>
                                                                             <div class="row">
@@ -2867,14 +2867,14 @@
                                                                                     @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_39 == "1")
                                                                                     {
                                                                                         <label class="checkbox-container">
-                                                                                            <input type="checkbox" id="ckcod_@Convert.ToString(i)" class="cbxtype" name="codtiktok_@Convert.ToString(i)" onclick="settiktokcod('@i')" checked />
+                                                                                            <input type="checkbox" id="ckcod_@Convert.ToString(i)" name="codtiktok_@Convert.ToString(i)" onclick="settiktokcod('@i')" checked />
                                                                                             <span class="checkmark"></span>
                                                                                         </label>
                                                                                     }
                                                                                     else
                                                                                     {
                                                                                         <label class="checkbox-container">
-                                                                                            <input type="checkbox" id="ckcod_@Convert.ToString(i)" class="cbxtype" name="codtiktok_@Convert.ToString(i)" onclick="settiktokcod('@i')" />
+                                                                                            <input type="checkbox" id="ckcod_@Convert.ToString(i)" name="codtiktok_@Convert.ToString(i)" onclick="settiktokcod('@i')" />
                                                                                             <span class="checkmark"></span>
                                                                                         </label>
                                                                                     }
