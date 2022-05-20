@@ -20,6 +20,11 @@ namespace MasterOnline.Models
         public List<ATTRIBUTE_OPT_SHOPEE_V2> attribute_opts_v2 { get; set; } = new List<ATTRIBUTE_OPT_SHOPEE_V2>();
         public List<ATTRIBUTE_UNIT_SHOPEE_V2> attribute_unit { get; set; } = new List<ATTRIBUTE_UNIT_SHOPEE_V2>();
     }
+    public class ATTRIBUTE_TIKTOK_AND_OPT_v2 : ATTRIBUTE_SHOPEE_AND_OPT_v2
+    {
+        public string cod { get; set; }
+        public string size_chart { get; set; }
+    }
     [Table("ATTRIBUTE_SHOPEE")]
     public class ATTRIBUTE_SHOPEE
     {

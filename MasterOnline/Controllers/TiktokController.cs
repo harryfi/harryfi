@@ -253,7 +253,7 @@ namespace MasterOnline.Controllers
                     string shopid = getShopId(tauth.Data.AccessToken);
                     var dateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.AccessTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                     var tokendateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken 
+                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken
                         + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + tokendateExpired
                         + "',TOKEN_EXPIRED = '" + dateExpired + "' , SORT1_CUST = '" + shopid + "' WHERE CUST = '" + cust + "'");
                     //MoDbContext.Database.ExecuteSqlCommand("INSERT INTO [TABEL_MAPPING_TIKTOK] (dbpathera, shopid,cust) values ('"+ user + "', '"+ shopid + "', '" + cust + "') ");
@@ -276,6 +276,18 @@ namespace MasterOnline.Controllers
                     if (result == 1)
                     {
                         //GetShippingProvider(cust);
+                        var tblCustomer = ErasoftDbContext.ARF01.Where(p => p.CUST == cust).FirstOrDefault();
+                        var idenTikTok = new TTApiData
+                        {
+                            access_token = tblCustomer.TOKEN,
+                            no_cust = tblCustomer.CUST,
+                            DatabasePathErasoft = user,
+                            shop_id = tblCustomer.Sort1_Cust,
+                            username = "",
+                            expired_date = tblCustomer.TOKEN_EXPIRED.Value,
+                            refresh_token = tblCustomer.REFRESH_TOKEN
+                        };
+                        getCategory(idenTikTok);
                         manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, cust, currentLog);
                         return ret;
                     }
@@ -379,9 +391,9 @@ namespace MasterOnline.Controllers
                         string shopid = getShopId(tauth.Data.AccessToken);
                         var dateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.AccessTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                         var tokendateExpired = DateTimeOffset.FromUnixTimeSeconds(tauth.Data.RefreshTokenExpireIn).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-                        var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken 
-                            + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + tokendateExpired + "',TOKEN_EXPIRED = '" 
-                            +  dateExpired + "' , SORT1_CUST = '" + shopid + "' WHERE CUST = '" + cust + "'");
+                        var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + tauth.Data.AccessToken
+                            + "', REFRESH_TOKEN = '" + tauth.Data.RefreshToken + "', STATUS_API = '1', TGL_EXPIRED = '" + tokendateExpired + "',TOKEN_EXPIRED = '"
+                            + dateExpired + "' , SORT1_CUST = '" + shopid + "' WHERE CUST = '" + cust + "'");
                         if (result == 1)
                         {
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, cust, currentLog);
@@ -940,12 +952,12 @@ namespace MasterOnline.Controllers
                         var result = JsonConvert.DeserializeObject(responseFromServer, typeof(TiktokGetShipmentResponse)) as TiktokGetShipmentResponse;
                         if (result.code == 0)
                         {
-                            if(result.data != null)
+                            if (result.data != null)
                             {
                                 var tempShipment = ErasoftDbContext.DELIVERY_PROVIDER_TIKTOK.Where(m => m.CUST == cust).ToList();
                                 foreach (var delivery in result.data.delivery_option_list)
                                 {
-                                    foreach(var shipment in delivery.shipping_provider_list)
+                                    foreach (var shipment in delivery.shipping_provider_list)
                                     {
                                         if (tempShipment.Where(m => m.SHIPPING_ID == shipment.shipping_provider_id).ToList().Count == 0)
                                         {
@@ -969,7 +981,7 @@ namespace MasterOnline.Controllers
         }
         #region Fetch Function
         #region Category
-        public async Task<string> getCategory(TTApiData apidata)
+        public string getCategory(TTApiData apidata)
         {
             string urll = "https://open-api.tiktokglobalshop.com/api/products/categories?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
             int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
@@ -1000,55 +1012,61 @@ namespace MasterOnline.Controllers
                 if (responseFromServer != null)
                 {
                     ResProd respon = JsonConvert.DeserializeObject<ResProd>(responseFromServer);
-#if AWS
-                    string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-#elif Debug_AWS
-                    string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-#else
-                    string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-#endif
-                    using (SqlConnection oConnection = new SqlConnection(con))
+
+                    try
                     {
-                        oConnection.Open();
-                        //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
-                        //{
-                        using (SqlCommand oCommand = oConnection.CreateCommand())
+                        EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM CATEGORY_TIKTOK WHERE CUST = '" + apidata.no_cust + "'");
+                        foreach (var item in respon.Data.CategoryList)
                         {
-                            //oCommand.CommandText = "DELETE FROM [CATEGORY_BLIBLI] WHERE ARF01_SORT1_CUST='" + data.merchant_code + "'";
-                            //oCommand.ExecuteNonQuery();
-                            //oCommand.Transaction = oTransaction;
-                            oCommand.CommandType = CommandType.Text;
-                            oCommand.CommandText = "INSERT INTO [CATEGORY_TIKTOK] ([CATEGORY_CODE], [CATEGORY_NAME], [PARENT_CODE], [IS_LAST_NODE], [MASTER_CATEGORY_CODE]) VALUES (@CATEGORY_CODE, @CATEGORY_NAME, @PARENT_CODE, @IS_LAST_NODE, @MASTER_CATEGORY_CODE)";
-                            //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
-                            oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
-                            oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
-                            oCommand.Parameters.Add(new SqlParameter("@PARENT_CODE", SqlDbType.NVarChar, 50));
-                            oCommand.Parameters.Add(new SqlParameter("@IS_LAST_NODE", SqlDbType.NVarChar, 1));
-                            oCommand.Parameters.Add(new SqlParameter("@MASTER_CATEGORY_CODE", SqlDbType.NVarChar, 50));
-
-                            try
+                            var newCategory = new CATEGORY_TIKTOK
                             {
-                                foreach (var item in respon.Data.CategoryList) //foreach parent level top
-                                {
-                                    var checkcatalre = MoDbContext.CATEGORY_TIKTOK.FirstOrDefault(x => x.CATEGORY_CODE == item.Id);
-                                    if (checkcatalre == null)
-                                    {
-                                        oCommand.Parameters[0].Value = item.Id;
-                                        oCommand.Parameters[1].Value = item.LocalDisplayName;
-                                        oCommand.Parameters[2].Value = item.ParentId;
-                                        oCommand.Parameters[3].Value = item.IsLeaf ? "0" : "1";
-                                        oCommand.Parameters[4].Value = "";
-                                    }
-
-                                }
-                                //oTransaction.Commit();
-                            }
-                            catch (Exception ex)
+                                CATEGORY_CODE = item.Id,
+                                CATEGORY_NAME = item.LocalDisplayName.Replace("'", "`"),
+                                IS_LAST_NODE = (item.IsLeaf) ? "1" : "0",
+                                PARENT_CODE = item.ParentId ?? "0",
+                                CUST = apidata.no_cust
+                            };
+                            if (item.IsLeaf)//cek category rule //remark, pindah cek category rule saat ambil attr agar tidak lama saat insert category
                             {
-                                //oTransaction.Rollback();
+                                //var rule = getCategoryRule(apidata, item.Id);
+                                //if (rule   != null)
+                                //{
+                                //    if (rule.category_rules.Count > 0)
+                                //    {
+                                //        if (rule.category_rules[0].support_cod)
+                                //        {
+                                //            newCategory.COD = "1";
+                                //        }
+                                //        if (rule.category_rules[0].support_size_chart)
+                                //        {
+                                //            newCategory.SIZE_CHART = "1";
+                                //        }
+                                //        if (rule.category_rules[0].product_certifications != null)
+                                //        {
+                                //            if (rule.category_rules[0].product_certifications.Count > 0)
+                                //            {
+                                //                foreach (var pCert in rule.category_rules[0].product_certifications)
+                                //                {
+                                //                    if (pCert.is_mandatory)
+                                //                    {
+                                //                        newCategory.CERTIFICATION = pCert.id + ":" + pCert.name.Replace("'", "`") + ",";
+                                //                    }
+                                //                }
+                                //                if (!string.IsNullOrEmpty(newCategory.CERTIFICATION))
+                                //                    newCategory.CERTIFICATION = newCategory.CERTIFICATION.Substring(0, newCategory.CERTIFICATION.Length - 1);
+                                //            }
+                                //        }
+                                //    }
+                                //}
                             }
+                            ErasoftDbContext.CATEGORY_TIKTOK.Add(newCategory);
+                            ErasoftDbContext.SaveChanges();
                         }
                     }
+                    catch (Exception ex)
+                    {
+                    }
+
                 }
             }
             catch (Exception ex)
@@ -1059,7 +1077,160 @@ namespace MasterOnline.Controllers
 
         }
 
+        public TiktokCategoryRuleData getCategoryRule(TTApiData apidata, string code)
+        {
+            string urll = "https://open-api.tiktokglobalshop.com/api/products/categories/rules?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}&category_id={5}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/products/categories/rulesapp_key" + eraAppKey + "category_id" + code
+                + "shop_id" + apidata.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, apidata.access_token, timestamp, signencry, eraAppKey, apidata.shop_id, code);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "GET";
+            myReq.ContentType = "application/json";
+            var ret = new TiktokCategoryRuleData();
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+            try
+            {
+                if (responseFromServer != null)
+                {
+                    TiktokCategoryRuleRespose respon = JsonConvert.DeserializeObject<TiktokCategoryRuleRespose>(responseFromServer);
+                    if (respon.code == 0)
+                    {
+                        ret = respon.data;
+                    }
+                    else
+                    {
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return ret;
+
+        }
         #endregion
+        public List<TiktokBrand> getBrand(TTApiData apidata)
+        {
+            string urll = "https://open-api.tiktokglobalshop.com/api/products/brands?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/products/brandsapp_key" + eraAppKey + "shop_id" + apidata.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, apidata.access_token, timestamp, signencry, eraAppKey, apidata.shop_id);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "GET";
+            myReq.ContentType = "application/json";
+            var ret = new List<TiktokBrand>();
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+            try
+            {
+                if (responseFromServer != "")
+                {
+                    TiktokGetBrandResponse respon = JsonConvert.DeserializeObject<TiktokGetBrandResponse>(responseFromServer);
+                    if (respon.code == 0)
+                    {
+                        if (respon.data != null)
+                            ret = respon.data.brand_list;
+                        //foreach (var brand in respon.data.brand_list)
+                        //{
+                        //var newData = new TABEL_TIKTOK_BRAND()
+                        //{
+                        //    BRAND_ID = brand.id,
+                        //    NAME = brand.name.Replace('\'', '`')
+                        //};
+                        //if (ErasoftDbContext.TABEL_TIKTOK_BRAND.Where(m => m.BRAND_ID == newData.BRAND_ID).ToList().Count == 0)
+                        //{
+                        //    ErasoftDbContext.TABEL_TIKTOK_BRAND.Add(newData);
+                        //    ErasoftDbContext.SaveChanges();
+                        //}
+
+                        //}
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return ret;
+
+        }
+        public List<TiktokWarehouse> getWarehouse(TTApiData apidata)
+        {
+            string urll = "https://open-api.tiktokglobalshop.com/api/logistics/get_warehouse_list?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
+            int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            string sign = eraAppSecret + "/api/logistics/get_warehouse_listapp_key" + eraAppKey + "shop_id" + apidata.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string signencry = GetHash(sign, eraAppSecret);
+            var vformatUrl = String.Format(urll, apidata.access_token, timestamp, signencry, eraAppKey, apidata.shop_id);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "GET";
+            myReq.ContentType = "application/json";
+            var ret = new List<TiktokWarehouse>();
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+            try
+            {
+                if (responseFromServer != "")
+                {
+                    TiktokGetWarehouseResponse respon = JsonConvert.DeserializeObject<TiktokGetWarehouseResponse>(responseFromServer);
+                    if (respon.code == 0)
+                    {
+                        if (respon.data != null)
+                            ret = respon.data.warehouse_list.Where(m => m.warehouse_type == 1).ToList();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return ret;
+
+        }
         #region FetchBarang
         public async Task<BindingBase> getproduct(TTApiData iden, int IdMarket, int page, int recordCount, int totalData)
         {
@@ -1123,7 +1294,7 @@ namespace MasterOnline.Controllers
             catch (Exception ex)
             {
                 //var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + iden.no_cust + "'");
-                ret.exception = 1; 
+                ret.exception = 1;
                 currentLog.REQUEST_EXCEPTION = ex.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden.no_cust, currentLog);
             }
@@ -1253,17 +1424,21 @@ namespace MasterOnline.Controllers
                         tempbarang.AVALUE_45 = detail.ProductName.Replace('\'', '`');
                         tempbarang.ACODE_31 = "warranty";
                         tempbarang.ANAME_31 = "Warranty Period";
-                        tempbarang.AVALUE_31 = detail.WarrantyPeriod.WarrantyDescription;
+                        tempbarang.AVALUE_31 = detail.WarrantyPeriod.WarrantyId.ToString();
                         tempbarang.ACODE_32 = "product_warranty";
                         tempbarang.ANAME_32 = "Warranty Policy";
                         tempbarang.AVALUE_32 = detail.WarrantyPolicy;
                         tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
+                        tempbarang.ANAME_38 = detail.Brand == null ? "" : detail.Brand.Id;
                         tempbarang.AVALUE_38 = tempbarang.MEREK;
                         tempbarang.DISPLAY = (detail.ProductStatus == 4 ? true : false);
-                        tempbarang.SELLER_SKU = kdmp;
+                        tempbarang.SELLER_SKU = "";
                         tempbarang.TYPE = "4";
+                        tempbarang.HJUAL = Convert.ToDouble( detail.Skus[0].Price.OriginalPrice);
+                        tempbarang.HJUAL_MP = Convert.ToDouble(detail.Skus[0].Price.OriginalPrice);
                         tempbarang.AVALUE_34 = "https://shop.tiktok.com/view/product/" + detail.ProductId;
                         tempbarang.AVALUE_39 = (detail.IsCodOpen ? "1" : "0");
+                        tempbarang.PICKUP_POINT = detail.Skus[0].StockInfos[0].WarehouseId;
                         //foreach (SkuTik satikd in detail.Skus)
                         {
                             foreach (SalesAttributeTik satik in detail.Skus[0].SalesAttributes)
@@ -1296,7 +1471,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_3 += ",";
                                             }
-                                            tempbarang.AVALUE_3 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_3 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_3 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_4 == null)
@@ -1309,7 +1491,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_4 += ",";
                                             }
-                                            tempbarang.AVALUE_4 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_4 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_4 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_5 == null)
@@ -1322,7 +1511,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_5 += ",";
                                             }
-                                            tempbarang.AVALUE_5 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_5 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_5 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_6 == null)
@@ -1335,7 +1531,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_6 += ",";
                                             }
-                                            tempbarang.AVALUE_6 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_6 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_6 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_7 == null)
@@ -1348,7 +1551,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_7 += ",";
                                             }
-                                            tempbarang.AVALUE_7 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_7 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_7 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_8 == null)
@@ -1361,7 +1571,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_8 += ",";
                                             }
-                                            tempbarang.AVALUE_8 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_8 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_8 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_9 == null)
@@ -1374,7 +1591,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_9 += ",";
                                             }
-                                            tempbarang.AVALUE_9 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_9 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_9 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_10 == null)
@@ -1387,7 +1611,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_10 += ",";
                                             }
-                                            tempbarang.AVALUE_10 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_10 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_10 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_11 == null)
@@ -1400,7 +1631,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_11 += ",";
                                             }
-                                            tempbarang.AVALUE_11 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_11 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_11 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_12 == null)
@@ -1413,7 +1651,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_12 += ",";
                                             }
-                                            tempbarang.AVALUE_12 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_12 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_12 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_13 == null)
@@ -1426,7 +1671,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_13 += ",";
                                             }
-                                            tempbarang.AVALUE_13 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_13 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_13 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_14 == null)
@@ -1439,7 +1691,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_14 += ",";
                                             }
-                                            tempbarang.AVALUE_14 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_14 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_14 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_15 == null)
@@ -1452,7 +1711,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_15 += ",";
                                             }
-                                            tempbarang.AVALUE_15 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_15 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_15 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_16 == null)
@@ -1465,7 +1731,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_16 += ",";
                                             }
-                                            tempbarang.AVALUE_16 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_16 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_16 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_17 == null)
@@ -1478,7 +1751,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_17 += ",";
                                             }
-                                            tempbarang.AVALUE_17 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_17 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_17 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_18 == null)
@@ -1491,7 +1771,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_18 += ",";
                                             }
-                                            tempbarang.AVALUE_18 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_18 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_18 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_19 == null)
@@ -1504,7 +1791,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_19 += ",";
                                             }
-                                            tempbarang.AVALUE_19 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_19 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_19 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_20 == null)
@@ -1517,7 +1811,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_20 += ",";
                                             }
-                                            tempbarang.AVALUE_20 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_20 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_20 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_21 == null)
@@ -1530,7 +1831,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_21 += ",";
                                             }
-                                            tempbarang.AVALUE_21 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_21 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_21 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_22 == null)
@@ -1543,7 +1851,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_22 += ",";
                                             }
-                                            tempbarang.AVALUE_22 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_22 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_22 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_23 == null)
@@ -1556,7 +1871,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_23 += ",";
                                             }
-                                            tempbarang.AVALUE_23 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_23 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_23 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_24 == null)
@@ -1569,7 +1891,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_24 += ",";
                                             }
-                                            tempbarang.AVALUE_24 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_24 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_24 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_25 == null)
@@ -1582,7 +1911,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_25 += ",";
                                             }
-                                            tempbarang.AVALUE_25 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_25 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_25 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_26 == null)
@@ -1595,7 +1931,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_26 += ",";
                                             }
-                                            tempbarang.AVALUE_26 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_26 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_26 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_27 == null)
@@ -1608,7 +1951,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_27 += ",";
                                             }
-                                            tempbarang.AVALUE_27 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_27 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_27 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_28 == null)
@@ -1621,7 +1971,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_28 += ",";
                                             }
-                                            tempbarang.AVALUE_28 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_28 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_28 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_29 == null)
@@ -1634,7 +1991,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_29 += ",";
                                             }
-                                            tempbarang.AVALUE_29 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_29 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_29 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                     else if (tempbarang.ACODE_30 == null)
@@ -1647,7 +2011,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 tempbarang.AVALUE_30 += ",";
                                             }
-                                            tempbarang.AVALUE_30 += attrVal.name.Replace('\'', '`');
+                                            if ((attrVal.Id ?? "").Length > 10)
+                                            {
+                                                tempbarang.AVALUE_30 += attrVal.name.Replace('\'', '`');
+                                            }
+                                            else
+                                            {
+                                                tempbarang.AVALUE_30 += attrVal.Id.Replace('\'', '`');
+                                            }
                                         }
                                     }
                                 }
@@ -1959,7 +2330,7 @@ namespace MasterOnline.Controllers
 
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ret.exception = 1;
             }
@@ -2010,6 +2381,19 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                             }
+                            if(skudata.Count == 1)
+                            {
+                                if (string.IsNullOrEmpty(tempbarang.AVALUE_50))
+                                {
+                                    if (satik.SkuImg != null)
+                                    {
+                                        if (satik.SkuImg.UrlList != null)
+                                        {
+                                            tempbarang.AVALUE_50 = satik.SkuImg.UrlList[0];
+                                        }
+                                    }
+                                }
+                            }
                         }
                         if (string.IsNullOrEmpty(tempbarang.IMAGE) && skudata.Count == 1)// non varian tidak set gambar
                         {
@@ -2040,7 +2424,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_3 += ",";
                                         }
-                                        tempbarang.AVALUE_3 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_3 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_3 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_4 == null)
@@ -2053,7 +2444,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_4 += ",";
                                         }
-                                        tempbarang.AVALUE_4 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_4 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_4 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_5 == null)
@@ -2066,7 +2464,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_5 += ",";
                                         }
-                                        tempbarang.AVALUE_5 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_5 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_5 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_6 == null)
@@ -2079,7 +2484,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_6 += ",";
                                         }
-                                        tempbarang.AVALUE_6 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_6 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_6 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_7 == null)
@@ -2092,7 +2504,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_7 += ",";
                                         }
-                                        tempbarang.AVALUE_7 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_7 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_7 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_8 == null)
@@ -2105,7 +2524,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_8 += ",";
                                         }
-                                        tempbarang.AVALUE_8 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_8 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_8 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_9 == null)
@@ -2118,7 +2544,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_9 += ",";
                                         }
-                                        tempbarang.AVALUE_9 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_9 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_9 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_10 == null)
@@ -2131,7 +2564,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_10 += ",";
                                         }
-                                        tempbarang.AVALUE_10 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_10 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_10 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_11 == null)
@@ -2144,7 +2584,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_11 += ",";
                                         }
-                                        tempbarang.AVALUE_11 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_11 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_11 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_12 == null)
@@ -2157,7 +2604,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_12 += ",";
                                         }
-                                        tempbarang.AVALUE_12 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_12 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_12 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_13 == null)
@@ -2170,7 +2624,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_13 += ",";
                                         }
-                                        tempbarang.AVALUE_13 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_13 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_13 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_14 == null)
@@ -2183,7 +2644,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_14 += ",";
                                         }
-                                        tempbarang.AVALUE_14 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_14 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_14 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_15 == null)
@@ -2196,7 +2664,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_15 += ",";
                                         }
-                                        tempbarang.AVALUE_15 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_15 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_15 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_16 == null)
@@ -2209,7 +2684,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_16 += ",";
                                         }
-                                        tempbarang.AVALUE_16 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_16 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_16 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_17 == null)
@@ -2222,7 +2704,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_17 += ",";
                                         }
-                                        tempbarang.AVALUE_17 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_17 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_17 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_18 == null)
@@ -2235,7 +2724,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_18 += ",";
                                         }
-                                        tempbarang.AVALUE_18 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_18 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_18 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_19 == null)
@@ -2248,7 +2744,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_19 += ",";
                                         }
-                                        tempbarang.AVALUE_19 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_19 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_19 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_20 == null)
@@ -2261,7 +2764,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_20 += ",";
                                         }
-                                        tempbarang.AVALUE_20 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_20 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_20 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_21 == null)
@@ -2274,7 +2784,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_21 += ",";
                                         }
-                                        tempbarang.AVALUE_21 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_21 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_21 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_22 == null)
@@ -2287,7 +2804,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_22 += ",";
                                         }
-                                        tempbarang.AVALUE_22 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_22 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_22 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_23 == null)
@@ -2300,7 +2824,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_23 += ",";
                                         }
-                                        tempbarang.AVALUE_23 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_23 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_23 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_24 == null)
@@ -2313,7 +2844,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_24 += ",";
                                         }
-                                        tempbarang.AVALUE_24 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_24 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_24 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_25 == null)
@@ -2326,7 +2864,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_25 += ",";
                                         }
-                                        tempbarang.AVALUE_25 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_25 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_25 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_26 == null)
@@ -2339,7 +2884,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_26 += ",";
                                         }
-                                        tempbarang.AVALUE_26 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_26 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_26 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_27 == null)
@@ -2352,7 +2904,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_27 += ",";
                                         }
-                                        tempbarang.AVALUE_27 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_27 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_27 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_28 == null)
@@ -2365,7 +2924,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_28 += ",";
                                         }
-                                        tempbarang.AVALUE_28 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_28 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_28 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_29 == null)
@@ -2378,7 +2944,14 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_29 += ",";
                                         }
-                                        tempbarang.AVALUE_29 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_29 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_29 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                                 else if (tempbarang.ACODE_30 == null)
@@ -2391,10 +2964,18 @@ namespace MasterOnline.Controllers
                                         {
                                             tempbarang.AVALUE_30 += ",";
                                         }
-                                        tempbarang.AVALUE_30 += attrVal.name.Replace('\'', '`');
+                                        if ((attrVal.Id ?? "").Length > 10)
+                                        {
+                                            tempbarang.AVALUE_30 += attrVal.name.Replace('\'', '`');
+                                        }
+                                        else
+                                        {
+                                            tempbarang.AVALUE_30 += attrVal.Id.Replace('\'', '`');
+                                        }
                                     }
                                 }
                             }
+
                         }
                         #region old attr
                         //foreach (SalesAttributeTik satik in sku.SalesAttributes)
@@ -2609,11 +3190,13 @@ namespace MasterOnline.Controllers
                         tempbarang.AVALUE_45 = namabarang;
                         tempbarang.ACODE_31 = "warranty";
                         tempbarang.ANAME_31 = "Warranty Period";
-                        tempbarang.AVALUE_31 = detail.WarrantyPeriod.WarrantyDescription;
+                        //tempbarang.AVALUE_31 = detail.WarrantyPeriod.WarrantyDescription;
+                        tempbarang.AVALUE_31 = detail.WarrantyPeriod.WarrantyId.ToString();
                         tempbarang.ACODE_32 = "product_warranty";
                         tempbarang.ANAME_32 = "Warranty Policy";
                         tempbarang.AVALUE_32 = detail.WarrantyPolicy;
                         tempbarang.MEREK = detail.Brand == null ? "No Brand" : detail.Brand.Name;
+                        tempbarang.ANAME_38 = detail.Brand == null ? "" : detail.Brand.Id;
                         tempbarang.AVALUE_38 = tempbarang.MEREK;
                         tempbarang.AVALUE_34 = "https://shop.tiktok.com/view/product/" + productid;
                         tempbarang.DISPLAY = (detail.ProductStatus == 4 ? true : false);
@@ -2624,6 +3207,7 @@ namespace MasterOnline.Controllers
                             tempbarang.KODE_BRG_INDUK = "";
                         };
                         tempbarang.TYPE = "3";
+                        tempbarang.PICKUP_POINT = sku.StockInfos[0].WarehouseId;
                         insertJml++;
                         newrec.Add(tempbarang);
                     }
@@ -2699,7 +3283,7 @@ namespace MasterOnline.Controllers
                     #endregion
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ret.exception = 1;
             }
@@ -2869,6 +3453,78 @@ namespace MasterOnline.Controllers
 
     #region Model
 
+    public class TiktokCategoryRuleRespose : TiktokCommonResponse
+    {
+        public TiktokCategoryRuleData data { get; set; }
+    }
+
+    public class TiktokCategoryRuleData
+    {
+        public List<Category_Rules> category_rules { get; set; }
+    }
+
+    public class Category_Rules
+    {
+        public List<TiktokCategoryRuleProduct_Certifications> product_certifications { get; set; }
+        public bool support_size_chart { get; set; }
+        public bool support_cod { get; set; }
+    }
+
+    public class TiktokCategoryRuleProduct_Certifications
+    {
+        public string name { get; set; }
+        public string id { get; set; }
+        public string sample { get; set; }
+        public bool is_mandatory { get; set; }
+    }
+    public class TiktokGetWarehouseResponse : TiktokCommonResponse
+    {
+        public TiktokGetWarehouseResponseData data { get; set; }
+
+    }
+    public class TiktokGetWarehouseResponseData
+    {
+        public List<TiktokWarehouse> warehouse_list { get; set; }
+    }
+
+    public class TiktokWarehouse
+    {
+        //public Warehouse_Address warehouse_address { get; set; }
+        public int warehouse_effect_status { get; set; }
+        public string warehouse_id { get; set; }
+        public string warehouse_name { get; set; }
+        public int warehouse_sub_type { get; set; }
+        public int warehouse_type { get; set; }
+    }
+
+    public class Warehouse_Address
+    {
+        public string city { get; set; }
+        public string contact_person { get; set; }
+        public string district { get; set; }
+        public string full_address { get; set; }
+        public string phone { get; set; }
+        public string region { get; set; }
+        public string region_code { get; set; }
+        public string state { get; set; }
+        public string town { get; set; }
+        public string zipcode { get; set; }
+    }
+
+    public class TiktokGetBrandResponse : TiktokCommonResponse
+    {
+        public TiktokGetBrandResponseData data { get; set; }
+
+    }
+    public class TiktokGetBrandResponseData
+    {
+        public List<TiktokBrand> brand_list { get; set; }
+    }
+    public class TiktokBrand
+    {
+        public string id { get; set; }
+        public string name { get; set; }
+    }
     public class TiktokGetShipmentResponse
     {
         public int code { get; set; }

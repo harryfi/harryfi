@@ -233,7 +233,11 @@ namespace MasterOnline.Services
                 {
                     inputSteram = ResizeImageFile(imageStream, 1024);
                 }
-
+                if(url.Substring(url.Length -1, 1) == "?")
+                {
+                    url = url.Substring(0,url.Length - 1);
+                    path = path.Substring(0, path.Length - 1);
+                }
                 //add by nurul 13/2/2020, penambahan type file 
                 if(url.Split('.').Last() != "jpeg" && url.Split('.').Last() != "png" && url.Split('.').Last() != "jpg" && url.Split('.').Last() != "gif")
                 {                    

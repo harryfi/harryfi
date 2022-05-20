@@ -107,6 +107,29 @@
         vertical-align: middle;
     }
 
+    .foto_produk_section_tiktok {
+        padding: 5px;
+    }
+
+        .foto_produk_section_tiktok > .box_upload_tiktok {
+            width: 100px;
+            height: 100px;
+            border: dashed 1.5px #bbb;
+            border-radius: 10px;
+            background-color: #f7f7f7;
+            background-image: url('');
+            text-align: center;
+            display: table;
+            margin: 0 auto;
+            cursor: pointer;
+        }
+
+    .box_upload_tiktok > .box_upload_placeholder {
+        color: #ccc;
+        font-size: 20px;
+        display: table-cell;
+        vertical-align: middle;
+    }
     .cke_wordcount {
         margin-top: 3px;
     }
@@ -269,6 +292,84 @@
         getFotoProdukBlibli();
         //end add by calvin 28 februari 2019
 
+        //tiktok
+
+        $('.btn_hapus_foto_produk_tiktok').each(function (i, item) {
+            var data_barang_level = $(item).attr("data-barang-level");
+            var data_barang_id = $(item).attr("data-barang-id");
+            //var data_barang_kode = $(item).attr("data-barang-kode");
+            $('#btn_hapus_tiktok_' + data_barang_level + '_' + data_barang_id).hide();
+            $('#btn_hapus_tiktok_' + data_barang_level + '_' + data_barang_id).off('click').on('click', function () {
+                var $link = '@Html.Raw(Url.Action("DeleteFotoProduktiktok", "Manage", new { brg = "replaceBrg", recnum = "replaceKode", urutan = "replaceUrutan" }))';
+                $link = $link.replace("replaceBrg", encodeURIComponent($('#Stf02_BRG').val()));
+                $link = $link.replace("replaceKode", encodeURIComponent(data_barang_id));
+                $link = $link.replace("replaceUrutan", encodeURIComponent(data_barang_level));
+
+                $.ajax({
+                    url: $link,
+                    type: 'GET',
+                    success: function () {
+                        var str = $('#hidden_url_gambar_tiktok_' + data_barang_level + '_' + data_barang_id).val();
+                        var n = str.lastIndexOf('/');
+                        var keyNameFile = str.substring(n + 1);
+
+                        deleteObjectByFileName(keyNameFile);
+
+                        $('#foto_produk_tiktok_' + data_barang_level + '_'+ data_barang_id).val(null);
+                        $('#box_upload_tiktok_' + data_barang_level + '_'+ data_barang_id).css('background-image', '');
+                        $('#box_upload_tiktok_' + data_barang_level + '_'+ data_barang_id + ' span').show();
+                        $('#btn_hapus_tiktok_' + data_barang_level + '_'+ data_barang_id).hide();
+                    },
+                    error: function () {
+                    }
+                });
+
+                return;
+            });
+        });
+
+        $('.foto_produk_tiktok').each(function (i, item) {
+            var validImagetiktok = ["image/jpeg", "image/png"];
+            var data_barang_level = $(item).attr("data-barang-level");
+            var data_barang_id = $(item).attr("data-barang-id");
+            $('#foto_produk_tiktok_' + data_barang_level + '_' + data_barang_id).hide();
+            $('#foto_produk_tiktok_' + data_barang_level + '_'+ data_barang_id).off('change').on('change', function () {
+                var file = this.files[0];
+                var fileType = file["type"];
+                if ($.inArray(fileType, validImagetiktok) < 0) {
+                    alert('Hanya boleh file berformat .jpg!');
+                    return;
+                }
+                var fileSize = file["size"];
+                if (fileSize > 4000000) {
+                    alert('Maximal size 4MB');
+                    $('#btn_hapus_tiktok_' + data_barang_level + '_' + data_barang_id).click();
+                    return false;
+                }
+                var reader = new FileReader();
+                reader.onloadend = function () {
+                    $('#box_upload_tiktok_' + data_barang_level + '_' + data_barang_id).css('background-image', 'url("' + reader.result + '")')
+                        .css('background-size', 'cover');
+                    $('#box_upload_tiktok_' + data_barang_level + '_' + data_barang_id + ' span').hide();
+                    $('#btn_hapus_tiktok_'+ data_barang_level + '_' + data_barang_id).show();
+                }
+                if (file) {
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+
+        $('.box_upload_tiktok').each(function (i, item) {
+            var data_barang_level = $(item).attr("data-barang-level");
+            var data_barang_id = $(item).attr("data-barang-id");
+            $(item).off('click').on('click', function () {
+                $('#foto_produk_tiktok_' + data_barang_level + '_' + data_barang_id).click();
+            });
+        });
+
+        getFotoProduktiktok();
+        //end tiktok
+
         //add by nurul 10/9/2019, buat preview nama barang
         $('#Stf02_NAMA').change(function () {
             $('#preview_Nama').val($('#Stf02_NAMA').val() + ' ' + $('#Stf02_NAMA2').val());
@@ -430,14 +531,33 @@
             $('#btn_hapus_blibli_' + data_barang_level + '_' + data_barang_id).show();
         });
     }
+    function getFotoProduktiktok() {
+        $('.hidden_url_gambar_tiktok').each(function (i, item) {
+            var data_barang_level = $(item).attr("data-barang-level");
+            var data_barang_id = $(item).attr("data-barang-id");
+            $('#box_upload_tiktok_' + data_barang_level + '_' + data_barang_id).css({
+                'background-image': 'url("' + $(item).val() + '")',
+                'background-size': 'cover'
+            });
+            $('#box_upload_tiktok_' + data_barang_level + '_' + data_barang_id + ' span').hide();
+            $('#btn_hapus_tiktok_' + data_barang_level + '_' + data_barang_id).show();
+        });
 
+    }
     function setTokpedAsuransi(i, value) {
         if (value != null) {
             $('#ListHargaJualPermarket_' + i + '__AVALUE_35').val(value);
             //alert($('#ListHargaJualPermarket_' + i + '__AVALUE_35').val());
         }
     }
-
+    function settiktokcod(i) {
+        if ($('#ckcod_' + i)[0].checked) {
+            $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val('1');
+        }
+        else {
+            $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val('0');
+        }
+    }
     function setCODJDID(i, value) {
         if (value != null) {
             $('#ListHargaJualPermarket_' + i + '__AVALUE_45').val(value);
@@ -1164,7 +1284,6 @@
                                                             <label>Copy dari Barang :</label>
                                                         </div>
                                                         <div class="col-md-6 col-sm-6 col-xs-12 form-group">
-                                                            @*<select id="COPY_ATTR" placeholder="Harap pilih"></select>*@
                                                             <div id="COPY_ATTR" class="selectivity-input"></div>
                                                         </div>
                                                         <div class="col-md-2 col-sm-2"></div>
@@ -2570,15 +2689,272 @@
                                                                         @($"Tiktok ({listMarket[i].PERSO})")
                                                                     </h2>
                                                                 </div>
-                                                                <div>
-                                                                    <h3 style="font-size: 12px">(Fitur ini masih dalam pengembangan.)</h3>
-                                                                    <br />
+                                                                <div class="form-group">
+                                                                    <div class="col-md-12 col-sm-12 col-xs-12" id="div_detail_@(recnumArf01)">
+                                                                        @if (listMarket[i].STATUS_API == "0")
+                                                                        {
+                                                                            <label>Anda belum terintegrasi dengan akun marketplace ini.</label>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <div class="row" style="padding-bottom:10px">
+                                                                                <div class="row">
+                                                                                    <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                        @Html.Label("Nama Barang", new { @class = "control-label" })
+                                                                                    </div>
+                                                                                    <div class="col-md-10 col-sm-10 col-xs-12 form-group">
+                                                                                        @{
+                                                                                            string idNamaBrgMP = "ListHargaJualPermarket_" + i + "__NAMA_BARANG_MP";
+                                                                                            string ValueNamaBrgMP = HttpUtility.HtmlDecode(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.NAMA_BARANG_MP);
+                                                                                            string nameNamaBrgMP = "ListHargaJualPermarket[" + i + "].NAMA_BARANG_MP";
+                                                                                        }
+                                                                                        <input class="form-control namamp" type="text" id="@idNamaBrgMP" name="@nameNamaBrgMP" value="@ValueNamaBrgMP" maxlength="70" />
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="row">
+                                                                                    <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                        @Html.Label("Deskripsi Barang", new { @class = "control-label" })
+                                                                                    </div>
+                                                                                    <div class="col-md-10 col-sm-10 col-xs-12 form-group">
+
+                                                                                        @{
+                                                                                            string idDeskripsiMP = "ListHargaJualPermarket_" + i + "__DESKRIPSI_MP";
+                                                                                            string ValueDeskripsiMP = HttpUtility.HtmlDecode(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DESKRIPSI_MP);
+                                                                                            string nameDeskripsiMP = "ListHargaJualPermarket[" + i + "].DESKRIPSI_MP";
+                                                                                        }
+                                                                                        <textarea cols="20" data-val="true" class="form-control make_ckeditor deskripsimp" id="@idDeskripsiMP" name="@nameDeskripsiMP" rows="2" style="resize: none; width:100%;">@HttpUtility.HtmlDecode(ValueDeskripsiMP) </textarea>
+                                                                                    </div>
+                                                                                    <div class="form-group" id="div_@idDeskripsiMP" style="display:none">
+                                                                                        <div class="col-md-2 col-sm-2"></div>
+                                                                                        <div class="col-md-4 col-sm-4 col-xs-12"><span id="txt_@idDeskripsiMP"></span></div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_CODE, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_CODE })
+                                                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_NAME, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_NAME })
+                                                                            <div class="row">
+                                                                                <div class="col-md-1 col-sm-1 col-xs-12">
+                                                                                    <label>Category</label>
+                                                                                </div>
+                                                                                <div id="category_tiktok_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12 reset-data-to-copy">
+                                                                                </div>
+                                                                                <div id="category_tiktok_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12 reset-data-to-copy">
+                                                                                </div>
+                                                                                <div class="col-md-9 col-sm-9 col-xs-12" style="display:none;" id="txtRefresh_@Convert.ToString(recnumArf01)"><span>Proses Pengambilan Kategori masih Berlangsung</span></div>
+                                                                                <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                    @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model.Stf02 != null ? Model.Stf02.BRG : ""))?.CATEGORY_CODE != null)
+                                                                                    {
+                                                                                        <button type="button" onclick="ClearCategorytiktok('category_tiktok_pertama_' + @recnumArf01, 'category_tiktok_selanjutnya_' + @recnumArf01,  @recnumArf01, @i, true);">Undo</button>
+                                                                                    }
+                                                                                    <button type="button" onclick="ClearCategorytiktok('category_tiktok_pertama_' + @recnumArf01, 'category_tiktok_selanjutnya_' + @recnumArf01,  @recnumArf01, @i, false);">Clear</button>
+                                                                                    <button type="button" onclick="RefreshCategorytiktok('category_tiktok_pertama_' + @recnumArf01, 'category_tiktok_selanjutnya_' + @recnumArf01, 'attribute_tiktok_' + @recnumArf01, @i, @recnumArf01);">Refresh</button>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="row">
+                                                                                <div id="loading_attribute_@Convert.ToString(recnumArf01)" style="display:none" class="text-center">
+                                                                                    <img src="~/Content/Images/spinner.gif" width="100" />
+                                                                                </div>
+                                                                                <div id="attribute_tiktok2_@Convert.ToString(recnumArf01)" class="col-md-12 reset-data-to-copy" style="margin-top:10px">
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="x_panel" id="sales-info" style="margin-top:10px;">
+                                                                                <div class="x_title">
+                                                                                    <h2 style="font-size: 16px">Sales Information</h2>
+                                                                                    <ul class="nav navbar-right panel_toolbox">
+                                                                                        <li>
+                                                                                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                                                                        </li>
+                                                                                    </ul>
+                                                                                    <div class="clearfix"></div>
+                                                                                </div>
+                                                                                <div class="x_content">
+                                                                                    <div id="attribute_tiktok_@Convert.ToString(recnumArf01)" class="col-md-12 reset-data-to-copy" style="margin-top:10px">
+                                                                                    </div>
+                                                                                    @*<div class="text-left">
+                        <h5>**Wajib diisi satu attribute</h5>
+                    </div>*@
+                                                                                </div>
+                                                                                <div class="row detail_mp_tiktok_gambar not_parent_attr">
+                                                                                    <div class="col-md-3">
+                                                                                        <div class="x_panel" id="upload-foto-section-tiktok">
+                                                                                            <div class="x_title">
+                                                                                                <h2 style="font-size: 16px">Foto Produk</h2>
+                                                                                                <ul class="nav navbar-right panel_toolbox">
+                                                                                                    <li>
+                                                                                                        <a class="collapse-link" id="collapse-link-upload-foto-section"><i class="fa fa-chevron-up"></i></a>
+                                                                                                    </li>
+                                                                                                </ul>
+                                                                                                <div class="clearfix"></div>
+                                                                                            </div>
+                                                                                            <div class="x_content">
+                                                                                                <div class="row">
+                                                                                                    <div class="col-md-12 foto_produk_section_tiktok">
+                                                                                                        <div class="box_upload_tiktok" data-barang-level="1" data-barang-id="@recnumArf01" id="box_upload_tiktok_1_@recnumArf01">
+                                                                                                            <span class="box_upload_placeholder">Tambah Gambar</span>
+                                                                                                            <input type='file' id='foto_produk_tiktok_1_@recnumArf01' data-barang-level="1" data-barang-id="@recnumArf01" class="foto_produk_tiktok" accept=".jpg,.png" />
+                                                                                                            <input type="hidden" id="hidden_url_gambar_tiktok_1_@recnumArf01" data-barang-level="1" data-barang-id="@recnumArf01" class="hidden_url_gambar_tiktok" value="@(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_50)" />
+                                                                                                        </div>
+                                                                                                        <div style="width:100%;text-align:center">
+                                                                                                            <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_tiktok" data-barang-level="1" data-barang-id="@recnumArf01" id="btn_hapus_tiktok_1_@recnumArf01">Hapus</button>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div class="x_content">
+                                                                                                <div id="lain-section">
+                                                                                                    <div class="text-left">
+                                                                                                        <h5>Ketentuan :</h5>
+                                                                                                        <h5>minimal : 600 x 600, maksimal : 2000 x 2000</h5>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="row" style="padding-top:10px">
+                                                                                <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                    @Html.Label("Brand ", new { @class = "control-label" })
+                                                                                </div>
+                                                                                <div class="col-md-4 col-sm-4 col-xs-12 form-group">
+                                                                                    @*@Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_38, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_38 })*@
+                                                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_38, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_38 })
+                                                                                    <div class="input-group text">
+                                                                                        <table>
+                                                                                            <tr>
+                                                                                                <td>
+                                                                                                    @Html.TextBox("Brand" + i + "tiktok", "", new { @class = "form-control", data_valid_toggle_required = "0", @MaxLength = "10", disabled = "disabled", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_38 })
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    <span class="input-group-btn">
+                                                                                                        <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptBrandtiktok(@i,@($"({recnumArf01})"))">
+                                                                                                            <span class="glyphicon glyphicon-option-horizontal"></span>
+                                                                                                        </button>
+                                                                                                    </span>
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        </table>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="row" style="padding-top:10px">
+                                                                                <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                    @Html.Label("Warehouse*", new { @class = "control-label" })
+                                                                                </div>
+                                                                                <div class="col-md-4 col-sm-4 col-xs-12 form-group">
+                                                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].PICKUP_POINT, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.PICKUP_POINT })
+                                                                                    <div class="input-group text">
+                                                                                        <table>
+                                                                                            <tr>
+                                                                                                <td>
+                                                                                                    @Html.TextBox("TIKTOK_WAREHOUSEID" + i + "Box", "", new { @class = "form-control", data_valid_toggle_required = "1", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.PICKUP_POINT })
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    <span class="input-group-btn">
+                                                                                                        <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptWarehouseTiktok(@i,@($"({recnumArf01})"))">
+                                                                                                            <span class="glyphicon glyphicon-option-horizontal"></span>
+                                                                                                        </button>
+                                                                                                    </span>
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        </table>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="row">
+                                                                                <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                    @Html.Label("Warranty Period", new { @class = "control-label" })
+                                                                                </div>
+                                                                                <div class="col-md-4 col-sm-4 col-xs-12 form-group">
+                                                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_31, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_31 })
+                                                                                    <div id="div_warranty_period_@Convert.ToString(recnumArf01)" class="reset-data-to-copy">
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                    @Html.Label("Warranty Policy", new { @class = "control-label" })
+                                                                                </div>
+                                                                                <div class="col-md-4 col-sm-4 col-xs-12 form-group">
+                                                                                    <div class="input-group text">
+                                                                                        <table>
+                                                                                            <tr>
+                                                                                                <td>
+                                                                                                    @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].AVALUE_32, new { @class = "form-control", style = "width:300px", id = "tiktok_warranty_policy" + i, @MaxLength = "99", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_32 })
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        </table>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="row" style="padding-top: 10px; display: none;" id="divcodtiktok_@Convert.ToString(recnumArf01)">
+                                                                                <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                    @Html.Label("Cash On Delivery", new { @class = "control-label" })
+                                                                                </div>
+                                                                                <div class="col-md-3 col-sm-3 col-xs-12 form-group">
+                                                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_39, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.AVALUE_39 })
+                                                                                    @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_39 == "1")
+                                                                                    {
+                                                                                        <label class="checkbox-container">
+                                                                                            <input type="checkbox" id="ckcod_@Convert.ToString(i)" name="codtiktok_@Convert.ToString(i)" onclick="settiktokcod('@i')" checked />
+                                                                                            <span class="checkmark"></span>
+                                                                                        </label>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <label class="checkbox-container">
+                                                                                            <input type="checkbox" id="ckcod_@Convert.ToString(i)" name="codtiktok_@Convert.ToString(i)" onclick="settiktokcod('@i')" />
+                                                                                            <span class="checkmark"></span>
+                                                                                        </label>
+                                                                                    }
+                                                                                    @*{
+                        <input type="checkbox" id="ckcod_@Convert.ToString(i)" name="codtiktok_@Convert.ToString(i)" value="1" checked onclick="settiktokcod('@i')" />
+                    }
+                    else
+                    {
+                        <input type="checkbox" id="ckcod_@Convert.ToString(i)" name="codtiktok_@Convert.ToString(i)" value="0" onclick="settiktokcod('@i')" />
+                    }*@
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="row detail_mp_tiktok_gambar_chart" id="divcharttiktok_@Convert.ToString(recnumArf01)" style="padding-top:15px;display:none;">
+                                                                                <div class="col-md-3">
+                                                                                    <div class="x_panel" id="upload-foto-section-tiktok-chart">
+                                                                                        <div class="x_title">
+                                                                                            <h2 style="font-size: 16px">Gambar Size Chart</h2>
+                                                                                            <ul class="nav navbar-right panel_toolbox">
+                                                                                                <li>
+                                                                                                    <a class="collapse-link" id="collapse-link-upload-foto-section"><i class="fa fa-chevron-up"></i></a>
+                                                                                                </li>
+                                                                                            </ul>
+                                                                                            <div class="clearfix"></div>
+                                                                                        </div>
+                                                                                        <div class="x_content">
+                                                                                            <div class="row">
+                                                                                                <div class="col-md-12 foto_produk_section_tiktok">
+                                                                                                    <div class="box_upload_tiktok" data-barang-level="1" data-barang-id="@recnumArf01" id="box_upload_tiktok_2_@recnumArf01">
+                                                                                                        <span class="box_upload_placeholder">Tambah Gambar</span>
+                                                                                                        <input type='file' id='foto_produk_tiktok_2_@recnumArf01' data-barang-level="2" data-barang-id="@recnumArf01" class="foto_produk_tiktok" accept=".jpg,.png" />
+                                                                                                        <input type="hidden" id="hidden_url_gambar_tiktok_2_@recnumArf01" data-barang-level="2" data-barang-id="@recnumArf01" class="hidden_url_gambar_tiktok" value="@(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_49)" />
+                                                                                                    </div>
+                                                                                                    <div style="width:100%;text-align:center">
+                                                                                                        <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_tiktok" data-barang-level="2" data-barang-id="@recnumArf01" id="btn_hapus_tiktok_2_@recnumArf01">Hapus</button>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                                <div class="col-md-2"></div>
+                                                                                                <div class="col-md-2"></div>
+                                                                                                <div class="col-md-2"></div>
+                                                                                                <div class="col-md-2"></div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        }
+                                                                    </div>
                                                                 </div>
-                                                                <br />
+                                                                    <br />
+                                                                }
                                                             }
-                                                        }
                                                     </div>
-                                                </div>
+                                                    </div>
                                             </div>
                                         }
                                         @if (listMarket?.Count == 0)

@@ -10,24 +10,22 @@ namespace MasterOnline.Models
     [Table("CATEGORY_TIKTOK")]
     public class CATEGORY_TIKTOK
     {
-        [Key]
-        [StringLength(50)]
         public string CATEGORY_CODE { get; set; }
 
-        [StringLength(250)]
         public string CATEGORY_NAME { get; set; }
 
-        [StringLength(50)]
         public string PARENT_CODE { get; set; }
 
-        [StringLength(1)]
         public string IS_LAST_NODE { get; set; }
 
-        [StringLength(50)]
-        public string MASTER_CATEGORY_CODE { get; set; }
+        public string SIZE_CHART { get; set; }
+        public string COD { get; set; }
+        public string CERTIFICATION { get; set; }
 
+        [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int? RecNum { get; set; }
+        public string CUST { get; set; }
     }
     [Table("TABEL_MAPPING_TIKTOK")]
     public class TABEL_MAPPING_TIKTOK
