@@ -1026,38 +1026,38 @@ namespace MasterOnline.Controllers
                                 PARENT_CODE = item.ParentId ?? "0",
                                 CUST = apidata.no_cust
                             };
-                            if (item.IsLeaf)//cek category rule
+                            if (item.IsLeaf)//cek category rule //remark, pindah cek category rule saat ambil attr agar tidak lama saat insert category
                             {
-                                var rule = getCategoryRule(apidata, item.Id);
-                                if (rule.category_rules != null)
-                                {
-                                    if (rule.category_rules.Count > 0)
-                                    {
-                                        if (rule.category_rules[0].support_cod)
-                                        {
-                                            newCategory.COD = "1";
-                                        }
-                                        if (rule.category_rules[0].support_size_chart)
-                                        {
-                                            newCategory.SIZE_CHART = "1";
-                                        }
-                                        if (rule.category_rules[0].product_certifications != null)
-                                        {
-                                            if (rule.category_rules[0].product_certifications.Count > 0)
-                                            {
-                                                foreach (var pCert in rule.category_rules[0].product_certifications)
-                                                {
-                                                    if (pCert.is_mandatory)
-                                                    {
-                                                        newCategory.CERTIFICATION = pCert.id + ":" + pCert.name.Replace("'", "`") + ",";
-                                                    }
-                                                }
-                                                if (!string.IsNullOrEmpty(newCategory.CERTIFICATION))
-                                                    newCategory.CERTIFICATION = newCategory.CERTIFICATION.Substring(0, newCategory.CERTIFICATION.Length - 1);
-                                            }
-                                        }
-                                    }
-                                }
+                                //var rule = getCategoryRule(apidata, item.Id);
+                                //if (rule   != null)
+                                //{
+                                //    if (rule.category_rules.Count > 0)
+                                //    {
+                                //        if (rule.category_rules[0].support_cod)
+                                //        {
+                                //            newCategory.COD = "1";
+                                //        }
+                                //        if (rule.category_rules[0].support_size_chart)
+                                //        {
+                                //            newCategory.SIZE_CHART = "1";
+                                //        }
+                                //        if (rule.category_rules[0].product_certifications != null)
+                                //        {
+                                //            if (rule.category_rules[0].product_certifications.Count > 0)
+                                //            {
+                                //                foreach (var pCert in rule.category_rules[0].product_certifications)
+                                //                {
+                                //                    if (pCert.is_mandatory)
+                                //                    {
+                                //                        newCategory.CERTIFICATION = pCert.id + ":" + pCert.name.Replace("'", "`") + ",";
+                                //                    }
+                                //                }
+                                //                if (!string.IsNullOrEmpty(newCategory.CERTIFICATION))
+                                //                    newCategory.CERTIFICATION = newCategory.CERTIFICATION.Substring(0, newCategory.CERTIFICATION.Length - 1);
+                                //            }
+                                //        }
+                                //    }
+                                //}
                             }
                             ErasoftDbContext.CATEGORY_TIKTOK.Add(newCategory);
                             ErasoftDbContext.SaveChanges();
