@@ -2941,11 +2941,20 @@ namespace MasterOnline.Controllers
         {
             SetupContext(iden.DatabasePathErasoft, iden.username);
             var ret = new ATTRIBUTE_TIKTOK_AND_OPT_v2();
-            var katInDB = ErasoftDbContext.CATEGORY_TIKTOK.Where(k => k.CATEGORY_CODE == categoryCode && k.CUST == iden.no_cust).FirstOrDefault();
-            if (katInDB != null)
+            //var katInDB = ErasoftDbContext.CATEGORY_TIKTOK.Where(k => k.CATEGORY_CODE == categoryCode && k.CUST == iden.no_cust).FirstOrDefault();
+            var rule = new TiktokController().getCategoryRule(iden, categoryCode);
+            if (rule.category_rules != null)
             {
-                ret.cod = katInDB.COD ?? "";
-                ret.size_chart = katInDB.SIZE_CHART ?? "";
+                if (rule.category_rules[0].support_cod)
+                {
+                    ret.cod = "1";
+                }
+                if (rule.category_rules[0].support_size_chart)
+                {
+                    ret.size_chart = "1";
+                }
+                //ret.cod = katInDB.COD ?? "";
+                //ret.size_chart = katInDB.SIZE_CHART ?? "";
             }
             string urll = "https://open-api.tiktokglobalshop.com/api/products/attributes?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}&category_id={5}";
             int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
