@@ -276,6 +276,18 @@ namespace MasterOnline.Controllers
                     if (result == 1)
                     {
                         //GetShippingProvider(cust);
+                        var tblCustomer = ErasoftDbContext.ARF01.Where(p => p.CUST == cust).FirstOrDefault();
+                        var idenTikTok = new TTApiData
+                        {
+                            access_token = tblCustomer.TOKEN,
+                            no_cust = tblCustomer.CUST,
+                            DatabasePathErasoft = dbPathEra,
+                            shop_id = tblCustomer.Sort1_Cust,
+                            username = usernameLogin,
+                            expired_date = tblCustomer.TOKEN_EXPIRED.Value,
+                            refresh_token = tblCustomer.REFRESH_TOKEN
+                        };
+                        getCategory(idenTikTok);
                         manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, cust, currentLog);
                         return ret;
                     }
