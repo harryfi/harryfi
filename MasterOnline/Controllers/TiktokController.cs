@@ -281,9 +281,9 @@ namespace MasterOnline.Controllers
                         {
                             access_token = tblCustomer.TOKEN,
                             no_cust = tblCustomer.CUST,
-                            DatabasePathErasoft = dbPathEra,
+                            DatabasePathErasoft = user,
                             shop_id = tblCustomer.Sort1_Cust,
-                            username = usernameLogin,
+                            username = "",
                             expired_date = tblCustomer.TOKEN_EXPIRED.Value,
                             refresh_token = tblCustomer.REFRESH_TOKEN
                         };
