@@ -1567,7 +1567,7 @@ namespace MasterOnline.Controllers
                                             DatabasePathErasoft = dbPathEra,
                                             username = uname,
                                             access_token = marketPlace.TOKEN,
-                                            expired_date = marketPlace.TOKEN_EXPIRED,
+                                            expired_date = marketPlace.TOKEN_EXPIRED.Value,
                                             refresh_token = marketPlace.REFRESH_TOKEN,
                                             no_cust = marketPlace.CUST
                                         };
@@ -2073,7 +2073,7 @@ namespace MasterOnline.Controllers
                                             DatabasePathErasoft = dbPathEra,
                                             username = uname,
                                             access_token = marketPlace.TOKEN,
-                                            expired_date = marketPlace.TOKEN_EXPIRED,
+                                            expired_date = marketPlace.TOKEN_EXPIRED.Value,
                                             refresh_token = marketPlace.REFRESH_TOKEN,
                                             no_cust = marketPlace.CUST
                                         };
