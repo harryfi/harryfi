@@ -1741,6 +1741,10 @@ namespace MasterOnline.Controllers
             {
                 myData += ", \"pick_up_type\" : 1";
             }
+            else
+            {
+                myData += ", \"pick_up_type\" : 2";//perlu set jg untuk drop off, karena default ny pickup
+            }
             myData += "}";
             string responseFromServer = "";
             try
