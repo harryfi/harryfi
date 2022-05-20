@@ -1721,10 +1721,11 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Update Status Ready To Ship Pesanan {obj} ke TikTok Gagal.")]
-        public string UpdateStatus_RTS_new(TTApiData iden, string ordersn, string no_bukti, string typeDelivery, string package_id)
+        public BindingBase UpdateStatus_RTS_new(TTApiData iden, string ordersn, string no_bukti, string typeDelivery, string package_id)
         {
             SetupContext(iden.DatabasePathErasoft, iden.username);
-            var ret = "";
+            var ret = new BindingBase();
+            ret.status = 1;
             string urll = "https://open-api.tiktokglobalshop.com/api/fulfillment/rts?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
             int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
             string sign = eraAppSecret + "/api/fulfillment/rtsapp_key" + eraAppKey + "shop_id" + iden.shop_id + "timestamp" + timestamp + eraAppSecret;
@@ -1758,18 +1759,30 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            catch (Exception ex)
+            catch (WebException e)
             {
-
+                string err = "";
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                }
+                ret.status = 0;
+                ret.message = err;
             }
-
+           
             if (responseFromServer != "")
             {
                 var result = JsonConvert.DeserializeObject(responseFromServer, typeof(TiktokRTSResponse)) as TiktokRTSResponse;
                 if (result.code != 0)
                 {
                     EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='1' WHERE NO_BUKTI = '" + no_bukti + "'");
-                    throw new Exception(responseFromServer);
+                    //throw new Exception(responseFromServer);
+                    ret.status = 0;
+                    ret.message = responseFromServer;
                 }
                 else
                 {
@@ -1778,7 +1791,10 @@ namespace MasterOnline.Controllers
                         if(result.data.fail_packages != null)
                         {
                             EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='1' WHERE NO_BUKTI = '" + no_bukti + "'");
-                            throw new Exception(responseFromServer);
+                            //throw new Exception(responseFromServer);
+                            ret.status = 0;
+                            ret.message = responseFromServer;
+                            return ret;
                         }
                     }
                     EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='2' WHERE NO_BUKTI = '" + no_bukti + "'");
