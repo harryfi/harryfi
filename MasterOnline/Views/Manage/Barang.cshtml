@@ -3269,7 +3269,8 @@
             if (confirm(msg)) {
                 $('#' + divIDpertama).html('');
                 $('#' + divIDselanjutnya).html('');
-                $('#' + divIDattribute).html('');
+                $('#attribute_tiktok_' + divIDattribute).html('');
+                $('#attribute_tiktok2_' + divIDattribute).html('');
                 if (!undoing) {
                     $(fieldCategoryCode).val('');
                     $(fieldCategoryName).val('');
@@ -3283,16 +3284,20 @@
         function RefreshCategorytiktok(divIDpertama, divIDselanjutnya, divIDattribute, i, idmrkt) {
             var fieldCategoryCode = '#ListHargaJualPermarket_' + i + '__CATEGORY_CODE';
             var fieldCategoryName = '#ListHargaJualPermarket_' + i + '__CATEGORY_NAME';
-            var msg = "Refresh Kategori & Attribute ?";
+            var msg = "Refresh untuk Memperbarui Data Kategori dan Attribute?";
             
             if (confirm(msg)) {
                 $('#' + divIDpertama).html('');
                 $('#' + divIDselanjutnya).html('');
                 $('#' + divIDattribute).html('');
+                $('#attribute_tiktok2_' + idmrkt).html('');
                
                     $(fieldCategoryCode).val('');
                     $(fieldCategoryName).val('');
                 $('#loading_attribute_' + idmrkt).show();
+                $('#txtRefresh_' + idmrkt).show();
+                $('#category_tiktok_pertama_' + idmrkt).hide();
+                $('#category_tiktok_selanjutnya_' + idmrkt).hide();
 
                 var urll = '@Url.Action("GetKategoriTiktokByCode", "Manage")';
                 urll += "?idmarket="+idmrkt+"&refresh=1";
@@ -3304,10 +3309,16 @@
                     success: function (data) {
                         getKategoriPertamaTiktok(i);
                         $('#loading_attribute_' + idmrkt).hide();
+                        $('#txtRefresh_' + idmrkt).hide();
+                        $('#category_tiktok_pertama_' + idmrkt).show();
+                        $('#category_tiktok_selanjutnya_' + idmrkt).show();
                     },
                     error: function (xhr) {
                         console.log(xhr);
                         $('#loading_attribute_' + idmrkt).hide();
+                        $('#txtRefresh_' + idmrkt).hide();
+                        $('#category_tiktok_pertama_' + idmrkt).show();
+                        $('#category_tiktok_selanjutnya_' + idmrkt).show();
                     }
                 });
             }
