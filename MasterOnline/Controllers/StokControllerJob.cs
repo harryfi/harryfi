@@ -1566,7 +1566,10 @@ namespace MasterOnline.Controllers
                                             shop_id = marketPlace.Sort1_Cust,
                                             DatabasePathErasoft = dbPathEra,
                                             username = uname,
-                                            access_token = marketPlace.TOKEN
+                                            access_token = marketPlace.TOKEN,
+                                            expired_date = marketPlace.TOKEN_EXPIRED.Value,
+                                            refresh_token = marketPlace.REFRESH_TOKEN,
+                                            no_cust = marketPlace.CUST
                                         };
                                         if (stf02h.BRG_MP.Contains("PENDING") || stf02h.BRG_MP.Contains("PEDITENDING"))
                                         {
@@ -2069,7 +2072,10 @@ namespace MasterOnline.Controllers
                                             shop_id = marketPlace.Sort1_Cust,
                                             DatabasePathErasoft = dbPathEra,
                                             username = uname,
-                                            access_token = marketPlace.TOKEN
+                                            access_token = marketPlace.TOKEN,
+                                            expired_date = marketPlace.TOKEN_EXPIRED.Value,
+                                            refresh_token = marketPlace.REFRESH_TOKEN,
+                                            no_cust = marketPlace.CUST
                                         };
                                         if (stf02h.BRG_MP.Contains("PENDING") || stf02h.BRG_MP.Contains("PEDITENDING"))
                                         {
