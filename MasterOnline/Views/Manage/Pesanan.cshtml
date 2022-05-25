@@ -13519,6 +13519,16 @@
                     @*var link = '@Url.Action("saveGantiBarang", "Manage", new { nourut = "replaceNoUrut" })';
                     link = link.replace("replaceNoUrut", encodeURIComponent(sot01b_nourut + ';' + stf02h_recnum + ';' + $('#textType').val()));*@
                     var link = '@Url.Action("saveGantiBarang", "Manage")';
+                    if (sot01b_nourut != "" && sot01b_nourut != null && sot01b_nourut != undefined) {
+
+                    } else {
+                        sot01b_nourut = $('#txt_no_recnum').val();
+                    }
+                    if (sot01b_nourut != "" && sot01b_nourut != null && sot01b_nourut != undefined) {
+
+                    } else {
+                        sot01b_nourut = nourut;
+                    }
                     var replaceNoUrut = sot01b_nourut + ';' + stf02h_recnum + ';' + $('#textType').val();
                     var replaceApproved = approve;
 
