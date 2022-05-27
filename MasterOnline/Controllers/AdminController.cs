@@ -3343,7 +3343,7 @@ namespace MasterOnline.Controllers
                                     else
                                     {
                                         var cekBunding = ErasoftDbContext.STF03.Where(m => m.Unit == brginduk || m.Brg == brginduk).FirstOrDefault();
-                                        if (cekBunding == null)
+                                        if (cekBunding != null)
                                         {
                                             errors += "Kode barang : " + brginduk + " adalah barang bundling/komponen, tidak bisa diubah menjadi barang induk.\n";
                                             resultEdit = false;
@@ -3355,76 +3355,80 @@ namespace MasterOnline.Controllers
                                             var other_trans = ErasoftDbContext.STF09A.Where(m => m.Brg == brginduk).ToList();
                                             if (so_brg.Count > 0 || other_trans.Count > 0)
                                             {
-                                                //cek posting
-                                                var stf08_brg = ErasoftDbContext.STF08.Where(m => m.BRG == brginduk).ToList();
-                                                var stf09_brg = ErasoftDbContext.STF09.Where(m => m.Brg == brginduk).ToList();
-                                                var stf10_brg = ErasoftDbContext.STF10.Where(m => m.BRG == brginduk).ToList();
-                                                if (stf08_brg.Count > 0 || stf09_brg.Count > 0 || stf10_brg.Count > 0)
-                                                {
-                                                    errors += "Kode barang : " + brginduk + " memiliki transaksi dan sudah posting, tidak bisa diubah menjadi barang induk.\n";
-                                                    resultEdit = false;
-                                                }
-                                                else
-                                                {
-                                                    if (string.IsNullOrEmpty(brgvar))
-                                                    {
-                                                        errors += "Kode barang induk : " + brginduk + " memiliki transaksi, transaksi perlu dipindah ke barang lain\nKode barang tujuan perlu diisi.\n";
-                                                        resultEdit = false;
-                                                    }
-                                                    else
-                                                    {
-                                                        brgindb = ErasoftDbContext.STF02.Where(m => m.BRG == brgvar).FirstOrDefault();
-                                                        if(brgindb == null)
-                                                        {
-                                                            errors += "Kode barang tujuan : " + brgvar + " tidak ditemukan.\n";
-                                                            resultEdit = false;
-                                                        }
-                                                        else
-                                                        {
-                                                            //pindah transaksi
-                                                            var sSQL = "declare @fbrg nvarchar(20) = '"+ brginduk + "', declare @tbrg nvarchar(20) = '" + brgvar + "';";
-                                                            sSQL += "UPDATE SOT01B SET BRG = @tbrg WHERE BRG = @fbrg;";
-                                                            sSQL += "UPDATE SOT03B SET BRG = @tbrg WHERE BRG = @fbrg;";
-                                                            sSQL += "UPDATE SIT01B SET BRG = @tbrg WHERE BRG = @fbrg;";
-                                                            sSQL += "UPDATE STT01B SET KOBAR = @tbrg WHERE KOBAR = @fbrg;";
-                                                            sSQL += "UPDATE STT04B SET BRG = @tbrg WHERE BRG = @fbrg;";
-                                                            sSQL += "UPDATE PBT01B SET BRG = @tbrg WHERE BRG = @fbrg;";
-                                                            sSQL += "UPDATE SOT01B SET BRG = @tbrg WHERE BRG = @fbrg;";
-                                                            sSQL += "UPDATE DETAILPROMOSIS SET KODE_BRG = @tbrg WHERE KODE_BRG = @fbrg;";
-                                                            EDB.ExecuteSQL("CSTRING", System.Data.CommandType.Text, sSQL);
-                                                            EDB.ExecuteSQL("CSTRING", System.Data.CommandType.Text, "UPDATE STF02 SET PART = '', TYPE = '4' WHERE BRG = '" + brginduk + "'");
-                                                            foreach (var cBrg in splitlistBRGVar)
-                                                            {
-                                                                var brgindb2 = ErasoftDbContext.STF02.Where(m => m.BRG == cBrg).FirstOrDefault();
-                                                                if (brgindb2 == null)
-                                                                {
-                                                                    errors += "Kode barang : " + cBrg + " tidak ditemukan.\n";
-                                                                    resultEdit = false;
-                                                                }
-                                                                else
-                                                                {
-                                                                    if (brgindb2.TYPE == "4")
-                                                                    {
-                                                                        var cekListVar = ErasoftDbContext.STF02.Where(m => m.PART == cBrg).ToList();
-                                                                        if (cekListVar.Count > 0)
-                                                                        {
-                                                                            errors += "Kode barang : " + cBrg + " adalah barang induk dan memiliki varian.\nUbah barang varian dari barang ini menjadi barang non varian atau pindahkan ke barang induk lain terlebih dahulu.\n";
-                                                                            resultEdit = false;
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            EDB.ExecuteSQL("CSTRING", System.Data.CommandType.Text, "UPDATE STF02 SET PART = '', TYPE = '3' WHERE BRG = '" + cBrg + "'");
-                                                                        }
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        EDB.ExecuteSQL("CSTRING", System.Data.CommandType.Text, "UPDATE STF02 SET PART = '' WHERE BRG = '" + cBrg + "'");
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
+                                                #region gagal kalau ada transaksi
+                                                ////cek posting
+                                                //var stf08_brg = ErasoftDbContext.STF08.Where(m => m.BRG == brginduk).ToList();
+                                                //var stf09_brg = ErasoftDbContext.STF09.Where(m => m.Brg == brginduk).ToList();
+                                                //var stf10_brg = ErasoftDbContext.STF10.Where(m => m.BRG == brginduk).ToList();
+                                                //if (stf08_brg.Count > 0 || stf09_brg.Count > 0 || stf10_brg.Count > 0)
+                                                //{
+                                                //    errors += "Kode barang : " + brginduk + " memiliki transaksi dan sudah posting, tidak bisa diubah menjadi barang induk.\n";
+                                                //    resultEdit = false;
+                                                //}
+                                                //else
+                                                //{
+                                                //    if (string.IsNullOrEmpty(brgvar))
+                                                //    {
+                                                //        errors += "Kode barang induk : " + brginduk + " memiliki transaksi, transaksi perlu dipindah ke barang lain\nKode barang tujuan perlu diisi.\n";
+                                                //        resultEdit = false;
+                                                //    }
+                                                //    else
+                                                //    {
+                                                //        brgindb = ErasoftDbContext.STF02.Where(m => m.BRG == brgvar).FirstOrDefault();
+                                                //        if(brgindb == null)
+                                                //        {
+                                                //            errors += "Kode barang tujuan : " + brgvar + " tidak ditemukan.\n";
+                                                //            resultEdit = false;
+                                                //        }
+                                                //        else
+                                                //        {
+                                                //            //pindah transaksi
+                                                //            var sSQL = "declare @fbrg nvarchar(20) = '"+ brginduk + "', declare @tbrg nvarchar(20) = '" + brgvar + "';";
+                                                //            sSQL += "UPDATE SOT01B SET BRG = @tbrg WHERE BRG = @fbrg;";
+                                                //            sSQL += "UPDATE SOT03B SET BRG = @tbrg WHERE BRG = @fbrg;";
+                                                //            sSQL += "UPDATE SIT01B SET BRG = @tbrg WHERE BRG = @fbrg;";
+                                                //            sSQL += "UPDATE STT01B SET KOBAR = @tbrg WHERE KOBAR = @fbrg;";
+                                                //            sSQL += "UPDATE STT04B SET BRG = @tbrg WHERE BRG = @fbrg;";
+                                                //            sSQL += "UPDATE PBT01B SET BRG = @tbrg WHERE BRG = @fbrg;";
+                                                //            sSQL += "UPDATE SOT01B SET BRG = @tbrg WHERE BRG = @fbrg;";
+                                                //            sSQL += "UPDATE DETAILPROMOSIS SET KODE_BRG = @tbrg WHERE KODE_BRG = @fbrg;";
+                                                //            EDB.ExecuteSQL("CSTRING", System.Data.CommandType.Text, sSQL);
+                                                //            EDB.ExecuteSQL("CSTRING", System.Data.CommandType.Text, "UPDATE STF02 SET PART = '', TYPE = '4' WHERE BRG = '" + brginduk + "'");
+                                                //            foreach (var cBrg in splitlistBRGVar)
+                                                //            {
+                                                //                var brgindb2 = ErasoftDbContext.STF02.Where(m => m.BRG == cBrg).FirstOrDefault();
+                                                //                if (brgindb2 == null)
+                                                //                {
+                                                //                    errors += "Kode barang : " + cBrg + " tidak ditemukan.\n";
+                                                //                    resultEdit = false;
+                                                //                }
+                                                //                else
+                                                //                {
+                                                //                    if (brgindb2.TYPE == "4")
+                                                //                    {
+                                                //                        var cekListVar = ErasoftDbContext.STF02.Where(m => m.PART == cBrg).ToList();
+                                                //                        if (cekListVar.Count > 0)
+                                                //                        {
+                                                //                            errors += "Kode barang : " + cBrg + " adalah barang induk dan memiliki varian.\nUbah barang varian dari barang ini menjadi barang non varian atau pindahkan ke barang induk lain terlebih dahulu.\n";
+                                                //                            resultEdit = false;
+                                                //                        }
+                                                //                        else
+                                                //                        {
+                                                //                            EDB.ExecuteSQL("CSTRING", System.Data.CommandType.Text, "UPDATE STF02 SET PART = '', TYPE = '3' WHERE BRG = '" + cBrg + "'");
+                                                //                        }
+                                                //                    }
+                                                //                    else
+                                                //                    {
+                                                //                        EDB.ExecuteSQL("CSTRING", System.Data.CommandType.Text, "UPDATE STF02 SET PART = '' WHERE BRG = '" + cBrg + "'");
+                                                //                    }
+                                                //                }
+                                                //            }
+                                                //        }
+                                                //    }
+                                                //}
+                                                #endregion
+                                                errors += "Kode barang : " + brginduk + " sudah memiliki transaksi, tidak bisa diubah menjadi barang induk.\n";
+                                                resultEdit = false;
                                             }
                                             else //brg INDUK TIDAK ADA TRANSAKSI
                                             {

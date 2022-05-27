@@ -395,8 +395,11 @@
                                         <textarea id="txtChangeStructure_listvar" cols="100" rows="10" style="width:50%;" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."></textarea>
                                     </div>
                                 </div>
+                                <button id="btnChangeStructure" type="button" class=" btn btn-primary" data-style="expand-right" onclick="ConfirmChangeStructure();">
+                                    <span>Ubah Struktur Barang</span>
+                                </button>
                             </div>
-                            <div class="col-md-4 col-sm-4">
+                            @*<div class="col-md-4 col-sm-4">
                                 <div class="input-group">
                                     <span class="txt1 p-b-11">
                                         @Html.Label("Jika ada transaksi stok di kode barang induk, transaksi akan dipindah ke barang :")
@@ -408,7 +411,7 @@
                                 <button id="btnChangeStructure" type="button" class=" btn btn-primary" data-style="expand-right" onclick="ConfirmChangeStructure();">
                                     <span>Ubah Struktur Barang</span>
                                 </button>
-                            </div>
+                            </div>*@
                         </div>
                     </div>
                 </div>
@@ -704,10 +707,11 @@
         }
         function ProcessChangeStructure() {
             
-            var link = '@Url.Action("ProsesChangeStructure", "Admin")';
-            link += "?accountEmail=" + encodeURIComponent($('#SelectedAccount').val());
+            var link = '@Url.Action("ProcessChangeStructure", "Admin")';
+            link += "?accountEmail=" + encodeURIComponent($('#SelectedAccount6').val());
             link += "&brginduk=" + encodeURIComponent($('#txtChangeStructure_parent').val());
-            link += "&brgvar=" + encodeURIComponent($('#txtChangeStructure_tovar').val());
+            //link += "&brgvar=" + encodeURIComponent($('#txtChangeStructure_tovar').val());
+            link += "&brgvar=";
             link += "&listvar=" + encodeURIComponent($('#txtChangeStructure_listvar').val().replace(/\n/g, "^"));
 
             $.ajax({
