@@ -141,6 +141,9 @@
                 <li role="presentation" class="">
                     <a href="#tab_content4" id="cekvariantkode-tab" role="tab" data-toggle="tab" aria-expanded="false">Cek Barang Variant</a>
                 </li>
+                <li role="presentation" class="">
+                    <a href="#tab_content6" id="ubahstruktur-tab" role="tab" data-toggle="tab" aria-expanded="false">Ubah Struktur Barang</a>
+                </li>
             </ul>
             <div id="myTabContent" class="tab-content">
                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="unlink-tab">
@@ -272,39 +275,39 @@
                     </div>
                 </div>
                 @*<div role="tabpanel" class="tab-pane fade" id="tab_content5" aria-labelledby="deletekode-tab">
-                    <div class="row">
-                        <div class="row user_table_section col-sm-12">
-                            <div class="col-md-4 col-sm-4">
-                                <div class="col-md-12 input-group">
-                                    <span class="txt1 p-b-11">
-                                        @Html.Label("Pilih Akun")
-                                    </span>
-                                    <div class="wrap-input100 validate-input m-b-36" style="border: none">
-                                        <select id="ACCOUNT5" placeholder="Harap pilih" required="required"></select>
-                                    </div>
-                                    <div id="loading_account5" hidden class="text-center">
-                                        <img src="~/Content/Images/spinner.gif" width="100" />
-                                    </div>
-                                    <div class="row" hidden id="SelectedAccount5">
-                                    </div>
-                                </div>
+            <div class="row">
+                <div class="row user_table_section col-sm-12">
+                    <div class="col-md-4 col-sm-4">
+                        <div class="col-md-12 input-group">
+                            <span class="txt1 p-b-11">
+                                @Html.Label("Pilih Akun")
+                            </span>
+                            <div class="wrap-input100 validate-input m-b-36" style="border: none">
+                                <select id="ACCOUNT5" placeholder="Harap pilih" required="required"></select>
                             </div>
-                            <div class="col-md-4 col-sm-4">
-                                <div class="input-group">
-                                    <span class="txt1 p-b-11">
-                                        @Html.Label("Masukan Kode Barang yang akan di delete:")
-                                    </span>
-                                    <div class="wrap-input100 validate-input m-b-36" style="border: none">
-                                        <textarea id="kode-brg-delete" cols="100" rows="20" style="width:50%;" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."></textarea>
-                                    </div>
-                                </div>
-                                <button id="prosesdeletekode" type="button" class=" btn btn-primary" data-style="expand-right">
-                                    <span>Proses Delete</span>
-                                </button>
+                            <div id="loading_account5" hidden class="text-center">
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>
+                            <div class="row" hidden id="SelectedAccount5">
                             </div>
                         </div>
                     </div>
-                </div>*@
+                    <div class="col-md-4 col-sm-4">
+                        <div class="input-group">
+                            <span class="txt1 p-b-11">
+                                @Html.Label("Masukan Kode Barang yang akan di delete:")
+                            </span>
+                            <div class="wrap-input100 validate-input m-b-36" style="border: none">
+                                <textarea id="kode-brg-delete" cols="100" rows="20" style="width:50%;" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."></textarea>
+                            </div>
+                        </div>
+                        <button id="prosesdeletekode" type="button" class=" btn btn-primary" data-style="expand-right">
+                            <span>Proses Delete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>*@
                 <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="cekvariantkode-tab">
                     <div class="row">
                         <div class="row user_table_section col-sm-12">
@@ -320,7 +323,7 @@
                                         <img src="~/Content/Images/spinner.gif" width="100" />
                                     </div>
                                     @*<div class="row" id="list-mp-toko3">
-                </div>*@
+                            </div>*@
                                     <div class="row" hidden id="SelectedAccount4">
                                     </div>
                                 </div>
@@ -354,6 +357,61 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content6" aria-labelledby="ubahstruktur-tab">
+                    <div class="row">
+                        <div class="row user_table_section col-sm-12">
+                            <div class="col-md-4 col-sm-4">
+                                <div class="col-md-12 input-group">
+                                    <span class="txt1 p-b-11">
+                                        @Html.Label("Pilih Akun")
+                                    </span>
+                                    <div class="wrap-input100 validate-input m-b-36" style="border: none">
+                                        <select id="ACCOUNT6" placeholder="Harap pilih" required="required"></select>
+                                    </div>
+                                    <div id="loading_account6" hidden class="text-center">
+                                        <img src="~/Content/Images/spinner.gif" width="100" />
+                                    </div>
+                                    @*<div class="row" id="list-mp-toko3">
+                </div>*@
+                                    <div class="row" hidden id="SelectedAccount6">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-4">
+                                <div class="input-group">
+                                    <span class="txt1 p-b-11">
+                                        @Html.Label("Kode Induk")
+                                    </span>
+                                    <div class="wrap-input100 validate-input m-b-36" style="border: none">
+                                        <input id="txtChangeStructure_parent" style="width:50%;" />
+                                    </div>
+                                    <span class="txt1 p-b-11">
+                                        @Html.Label("Kode Variant")
+                                    </span>
+                                    <div class="wrap-input100 validate-input m-b-36" style="border: none">
+                                        <textarea id="txtChangeStructure_listvar" cols="100" rows="10" style="width:50%;" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."></textarea>
+                                    </div>
+                                </div>
+                                <button id="btnChangeStructure" type="button" class=" btn btn-primary" data-style="expand-right" onclick="ConfirmChangeStructure();">
+                                    <span>Ubah Struktur Barang</span>
+                                </button>
+                            </div>
+                            @*<div class="col-md-4 col-sm-4">
+                                <div class="input-group">
+                                    <span class="txt1 p-b-11">
+                                        @Html.Label("Jika ada transaksi stok di kode barang induk, transaksi akan dipindah ke barang :")
+                                    </span>
+                                    <div class="wrap-input100 validate-input m-b-36" style="border: none">
+                                        <input id="txtChangeStructure_tovar" style="width:50%;"/>
+                                    </div>
+                                </div>
+                                <button id="btnChangeStructure" type="button" class=" btn btn-primary" data-style="expand-right" onclick="ConfirmChangeStructure();">
+                                    <span>Ubah Struktur Barang</span>
+                                </button>
+                            </div>*@
                         </div>
                     </div>
                 </div>
@@ -419,7 +477,7 @@
         // Add by Fauzi 25 November 2020
         var rows_selected = [];
         window.selected_cust = [];
-               
+
         $(document).on('ready',
             function () {
                 var model_listAkun = @Html.Raw(Json.Encode(model_accountList));
@@ -496,6 +554,18 @@
                         }
                     });
                 }
+                if ($('#ACCOUNT6').length > 0) {
+                    var AccountSelect = $('#ACCOUNT6').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listAccount,
+                        onChange: function (value) {
+                            rows_selected.shift();
+                            //$('#list-mp-toko6').html('');
+                            $('#SelectedAccount6').val(value);
+                        }
+                    });
+                }
 
                 $('.ckCustomers').each(function (i, item) {
                     $(item).prop('checked', false);
@@ -510,7 +580,7 @@
                         $(item).prop('checked', true);
                     });
                 }
-                
+
                 $('#prosesunlink').click(function () {
                     $('.ckCustomers').each(function (i, item) {
                         if ($(item).is(":checked")) {
@@ -623,7 +693,48 @@
 
             });
 
+        function ConfirmChangeStructure() {
+            if ($('#txtChangeStructure_parent').val() == "") {
+                if (confirm("Ubah list barang variant menjadi non varian?")) {
+                    ProcessChangeStructure();
+                }
+            }
+            else {
+                if (confirm("Ubah struktur barang menjadi barang induk dan varian?")) {
+                    ProcessChangeStructure();
+                }
+            }
+        }
+        function ProcessChangeStructure() {
+            
+            var link = '@Url.Action("ProcessChangeStructure", "Admin")';
+            link += "?accountEmail=" + encodeURIComponent($('#SelectedAccount6').val());
+            link += "&brginduk=" + encodeURIComponent($('#txtChangeStructure_parent').val());
+            //link += "&brgvar=" + encodeURIComponent($('#txtChangeStructure_tovar').val());
+            link += "&brgvar=";
+            link += "&listvar=" + encodeURIComponent($('#txtChangeStructure_listvar').val().replace(/\n/g, "^"));
 
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_account6').show();
+                },
+                success: function (response) {
+                    $('#loading_account6').hide();
+                    rows_selected.shift();
+                    if (response.success) {
+                        alert('Ubah struktur barang sukses')
+                    } else {
+                        alert('Ubah struktur barang gagal.\nError : ' + response.err_msg)
+
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
         function ProsesUnlinkMP(emailAccount, listTokoMP, listKodeBRG) {
             var link = '@Url.Action("ProsesUnlinkMP", "Admin", new { listTokoMP = "replaceEmail|replaceId|replaceKode" })';
             link = link.replace("replaceEmail", encodeURIComponent(emailAccount));
@@ -657,7 +768,7 @@
                     console.log(error);
                 }
             });
-        } 
+        }
 
         function ProsesEditKodeLanjut(emailAccount, listKodeBRGLama, listKodeBRGBaru) {
             var link = '@Url.Action("ProsesEditKode", "Admin", new { listData = "replaceEmail|replaceKodeBaru|replaceKodeLama" })';
@@ -711,7 +822,7 @@
                     $('#loading_account2').hide();
                 }
             });
-        } 
+        }
 
 
         function ProsesMergeKodeLanjut(emailAccount, listKodeBRGLama, listKodeBRGBaru) {
@@ -777,7 +888,7 @@
             }
         }
         function ProsesEditKode(emailAccount, listKodeBRGLama, listKodeBRGBaru) {
-            
+
             @*var link2 = '@Url.Action("checkIndukSupportMenu", "Admin", new { listData = "replaceEmail|replaceKodeBaru|replaceKodeLama" })';
             link2 = link2.replace("replaceEmail", encodeURIComponent(emailAccount));
             link2 = link2.replace("replaceKodeBaru", encodeURIComponent(listKodeBRGBaru));
@@ -833,7 +944,7 @@
                     $('#loading_account3').hide();
                 }
             });
-        } 
+        }
         function ProsesMergeKode(emailAccount, listKodeBRGLama, listKodeBRGBaru) {
 
             var link1 = '@Url.Action("checkIndukSupportMenu", "Admin", new { listData = "replaceEmail|replaceKodeBaru|replaceKodeLama" })';
@@ -940,7 +1051,7 @@
                     $('#loading_account5').hide();
                 }
             });
-        } 
+        }
 
         function ProsesCekVariantKode(emailAccount, listKodeBRG) {
             var link = '@Url.Action("ProsesCekVariantKode", "Admin", new { listData = "replaceEmail|replaceKode" })';
@@ -990,7 +1101,7 @@
                     $('#loading_account4').hide();
                 }
             });
-        } 
+        }
 
         function GetMarketplaceAccount(emailAccount) {
             var link = '@Url.Action("GetMarketplaceAccount", "Admin", new { emailAccount = "replaceId" })';
