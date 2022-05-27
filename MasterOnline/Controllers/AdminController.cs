@@ -3301,7 +3301,7 @@ namespace MasterOnline.Controllers
 
         public ActionResult ProcessChangeStructure(string accountEmail, string brginduk, string brgvar, string listvar)
         {
-            bool resultEdit = false;
+            bool resultEdit = true;
 
             //if (!string.IsNullOrEmpty(listData))
             {
@@ -3453,12 +3453,12 @@ namespace MasterOnline.Controllers
                                                             }
                                                             else
                                                             {
-                                                                EDB.ExecuteSQL("CSTRING", System.Data.CommandType.Text, "UPDATE STF02 SET PART = '', TYPE = '3' WHERE BRG = '" + cBrg + "'");
+                                                                EDB.ExecuteSQL("CSTRING", System.Data.CommandType.Text, "UPDATE STF02 SET PART = '" + brginduk + "', TYPE = '3' WHERE BRG = '" + cBrg + "'");
                                                             }
                                                         }
                                                         else
                                                         {
-                                                            EDB.ExecuteSQL("CSTRING", System.Data.CommandType.Text, "UPDATE STF02 SET PART = '' WHERE BRG = '" + cBrg + "'");
+                                                            EDB.ExecuteSQL("CSTRING", System.Data.CommandType.Text, "UPDATE STF02 SET PART = '" + brginduk + "' WHERE BRG = '" + cBrg + "'");
                                                         }
                                                     }
                                                 }
