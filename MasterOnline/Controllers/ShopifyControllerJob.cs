@@ -709,8 +709,8 @@ namespace MasterOnline.Controllers
 
                 if (responseServer != null)
                 {
-                try
-                {
+                //try
+                //{
                     var listOrder = JsonConvert.DeserializeObject(responseServer, typeof(ResultOrderShopify)) as ResultOrderShopify;
                     if (listOrder != null)
                         if (listOrder.orders != null)
@@ -1080,11 +1080,11 @@ namespace MasterOnline.Controllers
                                 }
                             }
                         }
-                }
-                catch (Exception ex)
-                {
+                //}
+                //catch (Exception ex)
+                //{
 
-                }
+                //}
             }
             //}catch(Exception ex)
             //{
