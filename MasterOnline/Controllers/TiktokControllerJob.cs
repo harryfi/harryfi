@@ -1928,7 +1928,12 @@ namespace MasterOnline.Controllers
             {
                 descBrg = brg_stf02h.DESKRIPSI_MP;
             }
-            descBrg = System.Net.WebUtility.HtmlDecode(descBrg).Replace("&nbsp;", " ").Replace("</p>\r\n", "</p>").Replace("\r\n", "<p></p>");
+            //descBrg = System.Net.WebUtility.HtmlDecode(descBrg.Replace("&nbsp;", " ")).Replace("&nbsp;", " ").Replace("</p>\r\n", "</p>").Replace("\r\n", "<p></p>");
+            descBrg = System.Net.WebUtility.HtmlDecode(descBrg.Replace("&nbsp;", " ")).Replace("&nbsp;", " ").Replace("</p>", "").Replace("<p>", "").Replace("<br />", "").Replace("<br/>", "");
+            descBrg = "<p>" + descBrg.Replace("\r\n", "</p><p>") + "</p>";
+            descBrg = descBrg.Replace("<ul><p></p>", "<ul>").Replace("<p></p></ul>", "</ul>");
+            descBrg = descBrg.Replace("<li><p></p>", "<li>").Replace("<p></p></li>", "</li>").Replace("<p></p><li>", "<li>");
+            descBrg = descBrg.Replace("</li></p><p>", "</li>").Replace("<p><ul>", "<ul>").Replace("</ul></p>", "</ul>").Replace("\\t", " ").Replace("\t", " ");
             postData.description = descBrg;
 
             #region gambar induk
@@ -2309,7 +2314,7 @@ namespace MasterOnline.Controllers
         }
         [AutomaticRetry(Attempts = 0)]
         [Queue("1_create_product")]
-        [NotifyOnFailed("Create Product {obj} ke Tiktok gagal.")]
+        [NotifyOnFailed("Update Product {obj} ke Tiktok gagal.")]
         public async Task<string> UpdateProduct_tiktok(string dbPathEra, string kdbrgMO, string log_CUST, string log_ActionCategory, string log_ActionName, TTApiData iden)
         {
             SetupContext(iden.DatabasePathErasoft, iden.username);
@@ -2362,7 +2367,12 @@ namespace MasterOnline.Controllers
             {
                 descBrg = brg_stf02h.DESKRIPSI_MP;
             }
-            descBrg = System.Net.WebUtility.HtmlDecode(descBrg).Replace("&nbsp;", " ").Replace("</p>\r\n", "</p>").Replace("\r\n", "<p></p>");
+            //descBrg = System.Net.WebUtility.HtmlDecode(descBrg.Replace("&nbsp;", " ")).Replace("&nbsp;", " ").Replace("</p>\r\n", "</p>").Replace("\r\n", "<p></p>");
+            descBrg = System.Net.WebUtility.HtmlDecode(descBrg.Replace("&nbsp;", " ")).Replace("&nbsp;", " ").Replace("</p>", "").Replace("<p>", "").Replace("<br />", "").Replace("<br/>", "");
+            descBrg = "<p>" + descBrg.Replace("\r\n", "</p><p>") + "</p>";
+            descBrg = descBrg.Replace("<ul></p><p>", "<ul>").Replace("</p><p></ul>", "</ul>");
+            descBrg = descBrg.Replace("<li></p><p>", "<li>").Replace("</p><p></li>", "</li>").Replace("</p><p><li>", "<li>");
+            descBrg = descBrg.Replace("</li></p><p>", "</li>").Replace("<p><ul>", "<ul>").Replace("</ul></p>", "</ul>").Replace("\\t", " ").Replace("\t", " ");
             postData.description = descBrg;
 
             #region gambar induk
