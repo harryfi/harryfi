@@ -1933,7 +1933,7 @@ namespace MasterOnline.Controllers
             descBrg = "<p>" + descBrg.Replace("\r\n", "</p><p>") + "</p>";
             descBrg = descBrg.Replace("<ul><p></p>", "<ul>").Replace("<p></p></ul>", "</ul>");
             descBrg = descBrg.Replace("<li><p></p>", "<li>").Replace("<p></p></li>", "</li>").Replace("<p></p><li>", "<li>");
-            descBrg = descBrg.Replace("</li></p><p>", "</li>").Replace("<p><ul>", "<ul>").Replace("</ul></p>", "</ul>").Replace("\\t", " ");
+            descBrg = descBrg.Replace("</li></p><p>", "</li>").Replace("<p><ul>", "<ul>").Replace("</ul></p>", "</ul>").Replace("\\t", " ").Replace("\t", " ");
             postData.description = descBrg;
 
             #region gambar induk
@@ -2372,7 +2372,7 @@ namespace MasterOnline.Controllers
             descBrg = "<p>" + descBrg.Replace("\r\n", "</p><p>") + "</p>";
             descBrg = descBrg.Replace("<ul></p><p>", "<ul>").Replace("</p><p></ul>", "</ul>");
             descBrg = descBrg.Replace("<li></p><p>", "<li>").Replace("</p><p></li>", "</li>").Replace("</p><p><li>", "<li>");
-            descBrg = descBrg.Replace("</li></p><p>", "</li>").Replace("<p><ul>", "<ul>").Replace("</ul></p>", "</ul>").Replace("\\t", " ");
+            descBrg = descBrg.Replace("</li></p><p>", "</li>").Replace("<p><ul>", "<ul>").Replace("</ul></p>", "</ul>").Replace("\\t", " ").Replace("\t", " ");
             postData.description = descBrg;
 
             #region gambar induk
