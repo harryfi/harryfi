@@ -372,12 +372,12 @@ namespace MasterOnline.Controllers
 
                                                     if (order.fulfillments.Count() > 0)
                                                     {
-                                                        trackingCompany = Convert.ToString(order.fulfillments[0].tracking_company).Replace("'", "`");
+                                                        trackingCompany = Convert.ToString(order.fulfillments[0].tracking_company ?? "").Replace("'", "`");
                                                         if (trackingCompany.Length > 50)
                                                         {
                                                             trackingCompany = trackingCompany.Substring(0, 50);
                                                         }
-                                                        trackingNumber = Convert.ToString(order.fulfillments[0].tracking_number).Replace("'", "`");
+                                                        trackingNumber = Convert.ToString(order.fulfillments[0].tracking_number ?? "").Replace("'", "`");
                                                         if (trackingNumber.Length > 50)
                                                         {
                                                             trackingNumber = trackingNumber.Substring(0, 50);
@@ -881,12 +881,12 @@ namespace MasterOnline.Controllers
 
                                                         if (order.fulfillments.Count() > 0)
                                                         {
-                                                            trackingCompany = Convert.ToString(order.fulfillments[0].tracking_company).Replace("'", "`");
+                                                            trackingCompany = Convert.ToString(order.fulfillments[0].tracking_company ?? "").Replace("'", "`");
                                                             if (trackingCompany.Length > 50)
                                                             {
                                                                 trackingCompany = trackingCompany.Substring(0, 50);
                                                             }
-                                                            trackingNumber = Convert.ToString(order.fulfillments[0].tracking_number).Replace("'", "`");
+                                                            trackingNumber = Convert.ToString(order.fulfillments[0].tracking_number ?? "").Replace("'", "`");
                                                             if (trackingNumber.Length > 50)
                                                             {
                                                                 trackingNumber = trackingNumber.Substring(0, 50);
