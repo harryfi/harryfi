@@ -1928,7 +1928,9 @@ namespace MasterOnline.Controllers
             {
                 descBrg = brg_stf02h.DESKRIPSI_MP;
             }
-            descBrg = System.Net.WebUtility.HtmlDecode(descBrg.Replace("&nbsp;", " ")).Replace("&nbsp;", " ").Replace("</p>\r\n", "</p>").Replace("\r\n", "<p></p>");
+            //descBrg = System.Net.WebUtility.HtmlDecode(descBrg.Replace("&nbsp;", " ")).Replace("&nbsp;", " ").Replace("</p>\r\n", "</p>").Replace("\r\n", "<p></p>");
+            descBrg = System.Net.WebUtility.HtmlDecode(descBrg.Replace("&nbsp;", " ")).Replace("&nbsp;", " ").Replace("</p>", "").Replace("<p>", "").Replace("<br />", "").Replace("<br/>", "");
+            descBrg = "<p>" + descBrg.Replace("\r\n", "</p><p>") + "</p>";
             descBrg = descBrg.Replace("<ul><p></p>", "<ul>").Replace("<p></p></ul>", "</ul>");
             descBrg = descBrg.Replace("<li><p></p>", "<li>").Replace("<p></p></li>", "</li>").Replace("<p></p><li>", "<li>");
             postData.description = descBrg;
@@ -2364,7 +2366,9 @@ namespace MasterOnline.Controllers
             {
                 descBrg = brg_stf02h.DESKRIPSI_MP;
             }
-            descBrg = System.Net.WebUtility.HtmlDecode(descBrg.Replace("&nbsp;", " ")).Replace("&nbsp;", " ").Replace("</p>\r\n", "</p>").Replace("\r\n", "<p></p>");
+            //descBrg = System.Net.WebUtility.HtmlDecode(descBrg.Replace("&nbsp;", " ")).Replace("&nbsp;", " ").Replace("</p>\r\n", "</p>").Replace("\r\n", "<p></p>");
+            descBrg = System.Net.WebUtility.HtmlDecode(descBrg.Replace("&nbsp;", " ")).Replace("&nbsp;", " ").Replace("</p>", "").Replace("<p>", "").Replace("<br />", "").Replace("<br/>", "");
+            descBrg = "<p>" + descBrg.Replace("\r\n", "</p><p>") + "</p>";
             descBrg = descBrg.Replace("<ul><p></p>", "<ul>").Replace("<p></p></ul>", "</ul>");
             descBrg = descBrg.Replace("<li><p></p>", "<li>").Replace("<p></p></li>", "</li>").Replace("<p></p><li>", "<li>");
             postData.description = descBrg;
