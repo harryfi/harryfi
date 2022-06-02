@@ -5523,6 +5523,71 @@ namespace MasterOnline.Controllers
 
             return retAttr;
         }
+        public ATTRIBUTE_LAZADA getAttrLzdVar(string code)
+        {
+            var retAttr = new ATTRIBUTE_LAZADA();
+
+            var tbl = MoDbContext.CATEGORY_LAZADA.Where(c => c.CATEGORY_ID == code).FirstOrDefault();
+            if (tbl != null)
+            {
+                ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+                LazopRequest request = new LazopRequest();
+                request.SetApiName("/category/attributes/get");
+                request.SetHttpMethod("GET");
+                request.AddApiParameter("primary_category_id", code);
+                LazopResponse response = client.Execute(request);
+                //Console.WriteLine(response.IsError());
+                //Console.WriteLine(response.Body);
+                var bindAttr = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(AttributeBody)) as AttributeBody;
+                if (bindAttr != null)
+                {
+                    if (bindAttr.code == "0")
+                    {
+                        try
+                        {
+                            retAttr.CATEGORY_CODE = code;
+                            int i = 1;
+                            foreach (var attr in bindAttr.data)
+                            {
+                                if (i <= 33)
+                                    if (attr.name != "name" && attr.name != "description" && attr.name != "brand" && attr.name != "SellerSku" && attr.name != "price"
+                                    && attr.name != "package_weight" && attr.name != "package_length" && attr.name != "package_width" && attr.name != "package_height"
+                                    && attr.name != "__images__" && attr.name != "color_thumbnail" && attr.name != "special_price" && attr.name != "special_from_date"
+                                    && attr.name != "special_to_date" && attr.name != "seller_promotion" && attr.name != "tax_class" && attr.name.ToLower() != "quantity"
+                                    )
+                                    {
+                                        retAttr["ALABEL" + i] = attr.label;
+                                        retAttr["ANAME" + i] = attr.name;
+                                        retAttr["ATYPE" + i] = attr.attribute_type;
+                                        retAttr["AINPUT_TYPE" + i] = attr.input_type;
+                                        retAttr["ASALE_PROP" + i] = attr.is_sale_prop.ToString();
+                                        retAttr["AMANDATORY" + i] = attr.is_mandatory.ToString();
+                                        i++;
+                                    }
+
+                            }
+                            for (int j = i; j <= 50; j++)
+                            //for (int j = i; j <= 33; j++)
+                            {
+                                retAttr["ALABEL" + j] = "";
+                                retAttr["ANAME" + j] = "";
+                                retAttr["ATYPE" + j] = "";
+                                retAttr["AINPUT_TYPE" + j] = "";
+                                retAttr["ASALE_PROP" + j] = "0";
+                                retAttr["AMANDATORY" + j] = "0";
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+
+                    }
+                }
+            }
+
+            return retAttr;
+        }
         public BindingBase getMissingAttr(string code)
         {
             var ret = new BindingBase();
