@@ -372,12 +372,12 @@ namespace MasterOnline.Controllers
 
                                                     if (order.fulfillments.Count() > 0)
                                                     {
-                                                        trackingCompany = Convert.ToString(order.fulfillments[0].tracking_company).Replace("'", "`");
+                                                        trackingCompany = Convert.ToString(order.fulfillments[0].tracking_company ?? "").Replace("'", "`");
                                                         if (trackingCompany.Length > 50)
                                                         {
                                                             trackingCompany = trackingCompany.Substring(0, 50);
                                                         }
-                                                        trackingNumber = Convert.ToString(order.fulfillments[0].tracking_number).Replace("'", "`");
+                                                        trackingNumber = Convert.ToString(order.fulfillments[0].tracking_number ?? "").Replace("'", "`");
                                                         if (trackingNumber.Length > 50)
                                                         {
                                                             trackingNumber = trackingNumber.Substring(0, 50);
@@ -429,6 +429,8 @@ namespace MasterOnline.Controllers
                                                         NAMA_CUST = NAMA_CUST
                                                     };
                                                     foreach (var item in order.line_items)
+                                                    {
+                                                    if (item.product_exists)
                                                     {
                                                         //var product_id = "";
                                                         //var name_brg = "";
@@ -506,6 +508,7 @@ namespace MasterOnline.Controllers
                                                         //    }
                                                         //}
                                                         batchinsertItem.Add(newOrderItem);
+                                                    }
                                                     }
                                                     batchinsert = (newOrder);
 
@@ -706,8 +709,8 @@ namespace MasterOnline.Controllers
 
                 if (responseServer != null)
                 {
-                    //try
-                    //{
+                //try
+                //{
                     var listOrder = JsonConvert.DeserializeObject(responseServer, typeof(ResultOrderShopify)) as ResultOrderShopify;
                     if (listOrder != null)
                         if (listOrder.orders != null)
@@ -878,12 +881,12 @@ namespace MasterOnline.Controllers
 
                                                         if (order.fulfillments.Count() > 0)
                                                         {
-                                                            trackingCompany = Convert.ToString(order.fulfillments[0].tracking_company).Replace("'", "`");
+                                                            trackingCompany = Convert.ToString(order.fulfillments[0].tracking_company ?? "").Replace("'", "`");
                                                             if (trackingCompany.Length > 50)
                                                             {
                                                                 trackingCompany = trackingCompany.Substring(0, 50);
                                                             }
-                                                            trackingNumber = Convert.ToString(order.fulfillments[0].tracking_number).Replace("'", "`");
+                                                            trackingNumber = Convert.ToString(order.fulfillments[0].tracking_number ?? "").Replace("'", "`");
                                                             if (trackingNumber.Length > 50)
                                                             {
                                                                 trackingNumber = trackingNumber.Substring(0, 50);
@@ -936,6 +939,8 @@ namespace MasterOnline.Controllers
                                                             NAMA_CUST = NAMA_CUST
                                                         };
                                                         foreach (var item in order.line_items)
+                                                        {
+                                                        if (item.product_exists)
                                                         {
                                                             #region cut char
                                                             string item_name = !string.IsNullOrEmpty(item.title) ? item.title.Replace("'", "`") : "";
@@ -990,6 +995,7 @@ namespace MasterOnline.Controllers
                                                             };
 
                                                             batchinsertItem.Add(newOrderItem);
+                                                        }
                                                         }
 
                                                         batchinsert = (newOrder);
@@ -1074,7 +1080,12 @@ namespace MasterOnline.Controllers
                                 }
                             }
                         }
-                }
+                //}
+                //catch (Exception ex)
+                //{
+
+                //}
+            }
             //}catch(Exception ex)
             //{
             //    var log = new TABEL_LOG_GETORDERS()
@@ -1089,7 +1100,7 @@ namespace MasterOnline.Controllers
             //    MoDbContext.SaveChanges();
             //    throw ex;
             //}
-            return ret;
+                return ret;
         }
 
         [AutomaticRetry(Attempts = 2)]
@@ -4304,14 +4315,14 @@ namespace MasterOnline.Controllers
         public class Line_Items
         {
             public long id { get; set; }
-            public long variant_id { get; set; }
+            public long? variant_id { get; set; }
             public string title { get; set; }
             public int quantity { get; set; }
             public string sku { get; set; }
             public string variant_title { get; set; }
             public string vendor { get; set; }
             public string fulfillment_service { get; set; }
-            public long product_id { get; set; }
+            public long? product_id { get; set; }
             public bool requires_shipping { get; set; }
             public bool taxable { get; set; }
             public bool gift_card { get; set; }
