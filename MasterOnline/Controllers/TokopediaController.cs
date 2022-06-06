@@ -3126,6 +3126,25 @@ namespace MasterOnline.Controllers
                                 data.token = ret.access_token;
 
                                 ErasoftDbContext.SaveChanges();
+
+                                #region set tabel mapping
+                                var tblMapping = MoDbContext.TABEL_MAPPING_TOKPED.Where(m => m.DBPATHERA == DatabasePathErasoft && m.CUST == arf01inDB.CUST).FirstOrDefault();
+                                if (tblMapping != null)
+                                {
+                                    tblMapping.SHOPID = arf01inDB.API_KEY;
+                                }
+                                else
+                                {
+                                    tblMapping = new TABEL_MAPPING_TOKPED
+                                    {
+                                        CUST = arf01inDB.CUST,
+                                        SHOPID = arf01inDB.API_KEY,
+                                        DBPATHERA = DatabasePathErasoft
+                                    };
+                                    MoDbContext.TABEL_MAPPING_TOKPED.Add(tblMapping);
+                                }
+                                MoDbContext.SaveChanges();
+                                #endregion
                             }
                             else
                             {
