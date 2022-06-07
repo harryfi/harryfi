@@ -67,6 +67,9 @@ namespace MasterOnline.Controllers
             username = uname;
 
         }
+
+        [AutomaticRetry(Attempts = 0)]
+        [Queue("2_get_token")]
         public async Task<TiktokAuth> GetRefToken(string cust, string refreshToken, string dbpath, string username, DateTime? tanggal_exptoken, DateTime? tanggal_exprtok)
         {
             SetupContext(dbpath, username);
