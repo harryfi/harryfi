@@ -34,7 +34,7 @@ namespace MasterOnline.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int RECNUM { get; set; }
         public string DBPATHERA { get; set; }
-        public string SHOPID { get; set; }
+        public long SHOPID { get; set; }
         public string CUST { get; set; }
 
     }

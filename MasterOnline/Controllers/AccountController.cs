@@ -1499,9 +1499,22 @@ namespace MasterOnline.Controllers
                                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetSingleOrder(data, tblCustomer.CUST, tblCustomer.PERSO)), "33 * * * *", recurJobOpt);
                                         //end change by nurul 6/12/2021
                                     }
-                                //end add by nurul 1/4/2020
-
-                            }
+                                    //end add by nurul 1/4/2020
+                                    if (!string.IsNullOrEmpty(sync_pesanan_stok))//go live with webhook on
+                                    {
+                                        if (sync_pesanan_stok == tblCustomer.CUST)
+                                        {
+                                            if (tblCustomer.Sort2_Cust == "1")
+                                            {
+#if (AWS || DEV)
+                                client.Enqueue<TokopediaControllerJob>(x => x.GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0));
+#else
+                                                await new TokopediaControllerJob().GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
+#endif
+                                            }
+                                        }
+                                    }
+                                }
                             else
                             {
                                 //connId_JobId = dbPathEra + "_tokopedia_check_pending_" + Convert.ToString(tblCustomer.RecNum.Value);
