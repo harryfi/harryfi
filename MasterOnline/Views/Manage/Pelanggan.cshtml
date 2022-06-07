@@ -1376,11 +1376,14 @@
             </div>
             <div class="modal-body">
                 <div class="row text-center">
-                    <h4 id="txtConfirmSync"></h4>
+                    <h4 id="txtConfirmSync">Anda akan menghidupkan fitur sync pesanan dan stok dari MasterOnline ke akun marketplace Anda dengan stok yang sudah Anda lengkapi di MasterOnline</h4>
                 </div>
-                <div class="row">
-                    <div class="col-md-2 col-sm-2 col-xs-12">
-                        <h5>Webhook Order</h5>
+                <div class="row text-center">
+                    <div class="col-md-4 col-sm-4 col-xs-12">
+
+                    </div>
+                    <div class="col-md-3 col-sm-3 col-xs-12">
+                        <h4>Webhook Pesanan</h4>
                     </div>
                     <div class="col-md-3 col-sm-3 col-xs-12 form-group">
                         <label class="checkbox-container">
@@ -1389,7 +1392,11 @@
                         </label>
                     </div>
                 </div>
-            </div>
+                    <div class="row text-center">
+                        <h4>(Disarankan untuk ceklis webhook pesanan untuk fitur pesanan terbaru)</h4>
+                        <h4>Lanjutkan ?</h4>
+                    </div>
+                </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="CancelChangeSyncOrderStock()">Tidak</button>
                 <button type="button" class="btn btn-success" onclick="ConfirmChangeSyncOrderStock()">Ya</button>
@@ -1742,6 +1749,7 @@
                         if (response.success == true) {
                             alert(response.status.toString());
                             $("#konfSyncPesanan").modal('hide');
+                            $('#Customers_Sort2_Cust').val(ckwebhook);
 
                         } else {
                             alert(response.status.toString());
@@ -3296,7 +3304,7 @@
                     if (value == "true") {
                         if ($("#Customers_NAMA").val() == "15")//confirm modal webhook
                         {
-                            $('#txtConfirmSync').text("Anda akan menghidupkan fitur sync pesanan dan stok dari MasterOnline ke akun marketplace Anda dengan stok yang sudah Anda lengkapi di Master Online.\n\nLanjutkan ?");
+                            //$('#txtConfirmSync').text("Anda akan menghidupkan fitur sync pesanan dan stok dari MasterOnline ke akun marketplace Anda dengan stok yang sudah Anda lengkapi di Master Online.\n\nLanjutkan ?");
                             if ($("#Customers_Sort2_Cust").val() == "1") {
                                 $("#ckWebhook").prop('checked', true);
                             }
@@ -3321,19 +3329,19 @@
                         }
                     }
                     else if (value == "false") {
-                        if ($("#Customers_NAMA").val() == "15")//confirm modal webhook
-                        {
-                            $('#txtConfirmSync').text("Anda akan mematikan fitur sync pesanan dan stok dari MasterOnline ke akun marketplace Anda.\n\nLanjutkan ?");
-                            if ($("#Customers_Sort2_Cust").val() == "1") {
-                                $("#ckWebhook").prop('checked', true);
-                            }
-                            else {
-                                $("#ckWebhook").prop('checked', false);
-                            }
-                            $("#konfSyncPesanan").modal('show');
-                            //alert($('#Customers_TIDAK_HIT_UANG_R').val());
-                        }
-                        else
+                        //if ($("#Customers_NAMA").val() == "15")//confirm modal webhook
+                        //{
+                        //    $('#txtConfirmSync').text("Anda akan mematikan fitur sync pesanan dan stok dari MasterOnline ke akun marketplace Anda.\n\nLanjutkan ?");
+                        //    if ($("#Customers_Sort2_Cust").val() == "1") {
+                        //        $("#ckWebhook").prop('checked', true);
+                        //    }
+                        //    else {
+                        //        $("#ckWebhook").prop('checked', false);
+                        //    }
+                        //    $("#konfSyncPesanan").modal('show');
+                        //    //alert($('#Customers_TIDAK_HIT_UANG_R').val());
+                        //}
+                        //else
                         {
                             if (confirm("Anda akan mematikan fitur sync pesanan dan stok dari MasterOnline ke akun marketplace Anda.\n\nLanjutkan ?")) {
                                 $('#Customers_TIDAK_HIT_UANG_R').val("false");
