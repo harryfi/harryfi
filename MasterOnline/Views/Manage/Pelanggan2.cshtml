@@ -77,6 +77,75 @@
             color: orange;
             font-weight: bold;
         }
+        /* =============== Checkbox ================ */
+
+        /* Customize the label (the container) */
+        .checkbox-container {
+            display: block;
+            position: relative;
+            /*padding-left: 35px;*/
+            margin-top: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+            /* Hide the browser's default checkbox */
+            .checkbox-container input {
+                position: relative;
+                opacity: 100;
+                cursor: pointer;
+                display: none;
+            }
+
+        /* Create a custom checkbox */
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 18px;
+            height: 25px;
+            width: 25px;
+            background-color: #eee;
+            border: solid 1px #ccc;
+        }
+
+        /* On mouse-over, add a grey background color */
+        .checkbox-container:hover input ~ .checkmark {
+            background-color: #ccc;
+        }
+
+        /* When the checkbox is checked, add a blue background */
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: #2196F3;
+        }
+
+        /* Create the checkmark/indicator (hidden when not checked) */
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        /* Show the checkmark when checked */
+        .checkbox-container input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        /* Style the checkmark/indicator */
+        .checkbox-container .checkmark:after {
+            left: 9px;
+            top: 5px;
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            -webkit-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
+        }
     </style>
     <style>
         #modal-pricing {
@@ -1165,14 +1234,14 @@
                                         }
                                         <br>
                                         @*<div class="" role="tabpanel" data-example-id="togglable-tabs">
-                        <ul id="customerTab" class="nav nav-tabs" role="tablist">
-                            <li role="presentation" class="active">
-                                <a href="#tab_content_marketplace" id="marketplace-tab" role="tab" data-toggle="tab" aria-expanded="true">Detail Marketplace/Customer</a>
-                            </li>
-                            <li role="presentation" class="">
-                                <a href="#tab_content_gudang" role="tab" id="gudang-tab" data-toggle="tab" aria-expanded="false" >Gudang</a>
-                            </li>
-                        </ul>*@
+        <ul id="customerTab" class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active">
+                <a href="#tab_content_marketplace" id="marketplace-tab" role="tab" data-toggle="tab" aria-expanded="true">Detail Marketplace/Customer</a>
+            </li>
+            <li role="presentation" class="">
+                <a href="#tab_content_gudang" role="tab" id="gudang-tab" data-toggle="tab" aria-expanded="false" >Gudang</a>
+            </li>
+        </ul>*@
                                         @*<div id="customerTabContent" class="tab-content" style="padding-top:10px">*@
                                         @*<div role="tabpanel" class="tab-pane fade active in" id="tab_content_marketplace" aria-labelledby="marketplace-tab">*@
                                         @using (Html.BeginForm("SaveCustomer", "Manage", FormMethod.Post, new { @autocomplete = "off", enctype = "multipart/form-data", id = "form-customer" }))
@@ -1187,6 +1256,7 @@
                                             @Html.HiddenFor(m => m.Customers.KODEPOS, new { Value = "." })
                                             @Html.HiddenFor(m => m.Customers.KODEPROV, new { Value = "31" })
                                             @Html.HiddenFor(m => m.Customers.TOP, new { Value = "1" })
+                                            @Html.HiddenFor(m => m.Customers.Sort2_Cust, new { Value = "" })
 
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.Customers.CUST, "Kode", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
@@ -1252,53 +1322,53 @@
                                             // end add by fauzi, add selection untuk setting status sync pesanan stok marketplace 25 November 2019
 
                                             @*<div class="form-group">
-                                @Html.LabelFor(m => m.Customers.AL, "Alamat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                    @Html.TextAreaFor(m => m.Customers.AL, new { @class = "form-control", maxlength = 200, required = "required" })
-                                </div>
-                            </div>*@
+                @Html.LabelFor(m => m.Customers.AL, "Alamat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.TextAreaFor(m => m.Customers.AL, new { @class = "form-control", maxlength = 200, required = "required" })
+                </div>
+            </div>*@
                                             @*<div class="form-group">
-                                @Html.LabelFor(m => m.Customers.TOP, "Term Of Payment (TOP) *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                <div class="col-md-6 col-sm-6 col-xs-6">
-                                    @Html.TextBoxFor(m => m.Customers.TOP, new { @class = "form-control limited_number_textbox num-only", required = "required", maxlength = 3, min = 0, max = 999 })
-                                </div>
-                                <div class="col-md-2 col-sm-2 col-xs-6">
-                                    <h5>Hari</h5>
-                                </div>
-                            </div>*@
+                @Html.LabelFor(m => m.Customers.TOP, "Term Of Payment (TOP) *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    @Html.TextBoxFor(m => m.Customers.TOP, new { @class = "form-control limited_number_textbox num-only", required = "required", maxlength = 3, min = 0, max = 999 })
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-6">
+                    <h5>Hari</h5>
+                </div>
+            </div>*@
                                             @*<div class="form-group">
-                                @Html.LabelFor(m => m.Customers.KODEPROV, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                    @Html.HiddenFor(m => m.Customers.KODEPROV)
-                                    <div id="KODEPROV" class="selectivity-input" tabindex="0"></div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                @Html.LabelFor(m => m.Customers.KODEKABKOT, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                    @Html.HiddenFor(m => m.Customers.KODEKABKOT)
-                                    <div id="KODEKABKOT" class="selectivity-input" tabindex="0"></div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                @Html.LabelFor(m => m.Customers.KODEPOS, "Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                    @Html.TextBoxFor(m => m.Customers.KODEPOS, new { @class = "form-control", required = "required", type = "number" })
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                @Html.LabelFor(m => m.Customers.TLP, "Telepon *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                    @Html.TextBoxFor(m => m.Customers.TLP, new { @class = "form-control", required = "required", type = "number" })
-                                </div>
-                            </div>*@
+                @Html.LabelFor(m => m.Customers.KODEPROV, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.HiddenFor(m => m.Customers.KODEPROV)
+                    <div id="KODEPROV" class="selectivity-input" tabindex="0"></div>
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(m => m.Customers.KODEKABKOT, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.HiddenFor(m => m.Customers.KODEKABKOT)
+                    <div id="KODEKABKOT" class="selectivity-input" tabindex="0"></div>
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(m => m.Customers.KODEPOS, "Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.TextBoxFor(m => m.Customers.KODEPOS, new { @class = "form-control", required = "required", type = "number" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(m => m.Customers.TLP, "Telepon *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.TextBoxFor(m => m.Customers.TLP, new { @class = "form-control", required = "required", type = "number" })
+                </div>
+            </div>*@
                                             @*<div class="form-group">
-                                @Html.LabelFor(m => m.Customers.API_KEY, "API Key *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", @id = "lbl_Customers_API_KEY" })
-                                <div class="col-md-6 col-sm-6 col-xs-6">
-                                    @Html.TextBoxFor(m => m.Customers.API_KEY, new { @class = "form-control" })
-                                </div>
-                                <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
-                            </div>*@
+                @Html.LabelFor(m => m.Customers.API_KEY, "API Key *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", @id = "lbl_Customers_API_KEY" })
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    @Html.TextBoxFor(m => m.Customers.API_KEY, new { @class = "form-control" })
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
+            </div>*@
                                             @*add by nurul 28/4/2021*@
                                             <div id="JDShopId" class="form-group">
                                             </div>
@@ -1352,83 +1422,83 @@
                                         }
                                         @*</div>*@
                                         @*<div role="tabpanel" class="tab-pane fade in" id="tab_content_gudang" aria-labelledby="gudang-tab">
-                            <div class="row" style="padding-bottom:10px">
-                                @Html.Label("labelInfoCust", "Kode", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                <div class="col-md-7 col-sm-7 col-xs-12">
-                                    @Html.TextBox("txtInfoCust", "", new { @class = "form-control", disabled = "disabled" })
-                                </div>
-                            </div>
-                            <div class="row" style="padding-bottom:10px">
-                                @Html.Label("labelInfoNamaAkun", "Nama Akun", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                <div class="col-md-7 col-sm-7 col-xs-12">
-                                    @Html.TextBox("txtInfoNamaAkun", "", new { @class = "form-control", disabled = "disabled" })
-                                </div>
-                            </div>
-                            <input id="txtNewParent" style="display:none;" />
-                            <div class="row">
-                                <div class="col-md-12 col-sm-12 col-xs-12">
-                                    <div class="x_panel">
-                                        <div class="x_title">
-                                            <h2 style="font-size: 16px">Mapping Gudang</h2>
-                                            <ul class="nav navbar-right panel_toolbox">
-                                                <li>
-                                                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                                                </li>
-                                            </ul>
-                                            <div class="clearfix"></div>
-                                        </div>
-                                        <div class="x_content">
-                                            <div id="var-mapping-gudang">
-                                                <div class="col-md-12 col-sm-12 col-xs-12 center">
-                                                    <table id="table_tambah_opt_level_1" class="table table-bordered" role="grid">
-                                                        <thead>
-                                                            <tr>
-                                                                <th width="30%">Kode Gudang</th>
-                                                                <th width="50%">Warehouse ID Marketplace</th>
-                                                                <th width="20%" style="text-align:center">Simpan/Hapus</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
+            <div class="row" style="padding-bottom:10px">
+                @Html.Label("labelInfoCust", "Kode", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-7 col-sm-7 col-xs-12">
+                    @Html.TextBox("txtInfoCust", "", new { @class = "form-control", disabled = "disabled" })
+                </div>
+            </div>
+            <div class="row" style="padding-bottom:10px">
+                @Html.Label("labelInfoNamaAkun", "Nama Akun", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-7 col-sm-7 col-xs-12">
+                    @Html.TextBox("txtInfoNamaAkun", "", new { @class = "form-control", disabled = "disabled" })
+                </div>
+            </div>
+            <input id="txtNewParent" style="display:none;" />
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2 style="font-size: 16px">Mapping Gudang</h2>
+                            <ul class="nav navbar-right panel_toolbox">
+                                <li>
+                                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div id="var-mapping-gudang">
+                                <div class="col-md-12 col-sm-12 col-xs-12 center">
+                                    <table id="table_tambah_opt_level_1" class="table table-bordered" role="grid">
+                                        <thead>
+                                            <tr>
+                                                <th width="30%">Kode Gudang</th>
+                                                <th width="50%">Warehouse ID Marketplace</th>
+                                                <th width="20%" style="text-align:center">Simpan/Hapus</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
 
-                                                            @foreach (var item in Model.ListMappingGudang.Where(a => a.CUST == Model?.Customers?.CUST).ToList().OrderBy(p => p.RecNum))
-                                                            {
-                                                                <tr data-gudang-id="opt-@item.RecNum">
-                                                                    <td>@item.GD_MO</td>
-                                                                    <td>@item.GD_MP</td>
-                                                                    <td class="edit-hapus-col">
-                                                                        <button class="btn btn-danger" type="button" onclick="deleteMappingGudang('@item.RecNum')">
-                                                                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                                                                        </button>
-                                                                    </td>
-                                                                </tr>
-                                                            }
-                                                            <tr>
-                                                                <td class="kode-gd-mo">
-                                                                    <select id="selectGDMO" placeholder="Harap Pilih" required="required"></select>
-                                                                    @Html.HiddenFor(m => m.MappingGudang.GD_MO)
-                                                                </td>
-                                                                <td class="nama-gd-mp">
-                                                                    <select id="selectGDMP" placeholder="Harap Pilih" required="required"></select>
-                                                                    @Html.HiddenFor(m => m.MappingGudang.GD_MP)
-                                                                    @Html.HiddenFor(m => m.MappingGudang.NAMA_GD_MP)
-                                                                </td>
-                                                                <td class="edit-hapus-col">
-                                                                    <button type="button" class="btn btn-primary" onclick="simpanMappingGudang()">
-                                                                        <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
-                                                                    </button>
-                                                                </td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                            @foreach (var item in Model.ListMappingGudang.Where(a => a.CUST == Model?.Customers?.CUST).ToList().OrderBy(p => p.RecNum))
+                                            {
+                                                <tr data-gudang-id="opt-@item.RecNum">
+                                                    <td>@item.GD_MO</td>
+                                                    <td>@item.GD_MP</td>
+                                                    <td class="edit-hapus-col">
+                                                        <button class="btn btn-danger" type="button" onclick="deleteMappingGudang('@item.RecNum')">
+                                                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                            <tr>
+                                                <td class="kode-gd-mo">
+                                                    <select id="selectGDMO" placeholder="Harap Pilih" required="required"></select>
+                                                    @Html.HiddenFor(m => m.MappingGudang.GD_MO)
+                                                </td>
+                                                <td class="nama-gd-mp">
+                                                    <select id="selectGDMP" placeholder="Harap Pilih" required="required"></select>
+                                                    @Html.HiddenFor(m => m.MappingGudang.GD_MP)
+                                                    @Html.HiddenFor(m => m.MappingGudang.NAMA_GD_MP)
+                                                </td>
+                                                <td class="edit-hapus-col">
+                                                    <button type="button" class="btn btn-primary" onclick="simpanMappingGudang()">
+                                                        <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
-                            <hr />
-                            <input type="button" style="display:none" class="btn btn-primary pull-right" id="simpan_gudang" value="Simpan" onclick="simpanGudang(this)" />
-                        </div>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+            <input type="button" style="display:none" class="btn btn-primary pull-right" id="simpan_gudang" value="Simpan" onclick="simpanGudang(this)" />
+        </div>*@
                                         @*</div>*@
                                         @*</div>*@
                                         @*</div>*@
@@ -1439,58 +1509,59 @@
                         </div>
                         @if (Model.MULTILOKASI == "1")
                         {
-                        <div id="section-multisku">
-                            <div class="row">
-                                <div class="col-md-12 col-sm-12 col-xs-12">
-                                    <div class="x_panel">
-                                        <div class="x_title">
-                                            <h2 style="font-size: 16px">Multi Lokasi</h2>
-                                            <ul class="nav navbar-right panel_toolbox">
-                                                <li>
-                                                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                                                </li>
-                                            </ul>
-                                            <div class="clearfix"></div>
-                                        </div>
-                                        <div class="x_content">
-                                            @*<div class="form-group">
-                                                @Html.LabelFor(m => m.Customers.MULTI_LOKASI, "Multi Lokasi", new { @class = "control-label col-md-2 col-sm-2 col-xs-12", style = "text-align:left;" })
-                                                @Html.HiddenFor(m => m.Customers.MULTI_LOKASI, new { data_cbx = $"cbx-MultiLokasi", @class = "cbxMultiLokasi" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @if ((Model.Customers == null ? "" : Model.Customers.MULTI_LOKASI) == "1")
-                                                    {
-                                                        //memiliki multi lokasi
-                                                        <label class="checkbox-container">
-                                                            <input type="checkbox" id="cbxCustomerMultiLokasi" class="cbxMultiLokasi" name="@($"cbx-Customer-MultiLokasi")" checked />
-                                                            <span class="checkmark cm-multilokasi"></span>
-                                                        </label>
-                                                    }
-                                                    else
-                                                    {
-                                                        <label class="checkbox-container">
-                                                            <input type="checkbox" id="cbxCustomerMultiLokasi" class="cbxMultiLokasi" name="@($"cbx-Customer-MultiLokasi")" />
-                                                            <span class="checkmark cm-multilokasi"></span>
-                                                        </label>
-                                                    }
-                                                </div>
-                                            </div>*@
-                                            <div class="row" id="mapping-gudang" hidden="hidden">
-                                                <div class="col-md-12 col-sm-12 col-xs-12">
-                                                    <div class="x_panel">
-                                                        <div class="x_title">
-                                                            <h2 style="font-size: 16px">Mapping Gudang</h2>
-                                                            <ul class="nav navbar-right panel_toolbox">
-                                                                <li>
-                                                                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                                                                </li>
-                                                            </ul>
-                                                            <div class="clearfix"></div>
+                            <div id="section-multisku">
+                                <div class="row">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="x_panel">
+                                            <div class="x_title">
+                                                <h2 style="font-size: 16px">Multi Lokasi</h2>
+                                                <ul class="nav navbar-right panel_toolbox">
+                                                    <li>
+                                                        <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                                    </li>
+                                                </ul>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                            <div class="x_content">
+                                                @*<div class="form-group">
+                                                        @Html.LabelFor(m => m.Customers.MULTI_LOKASI, "Multi Lokasi", new { @class = "control-label col-md-2 col-sm-2 col-xs-12", style = "text-align:left;" })
+                                                        @Html.HiddenFor(m => m.Customers.MULTI_LOKASI, new { data_cbx = $"cbx-MultiLokasi", @class = "cbxMultiLokasi" })
+                                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                                            @if ((Model.Customers == null ? "" : Model.Customers.MULTI_LOKASI) == "1")
+                                                            {
+                                                                //memiliki multi lokasi
+                                                                <label class="checkbox-container">
+                                                                    <input type="checkbox" id="cbxCustomerMultiLokasi" class="cbxMultiLokasi" name="@($"cbx-Customer-MultiLokasi")" checked />
+                                                                    <span class="checkmark cm-multilokasi"></span>
+                                                                </label>
+                                                            }
+                                                            else
+                                                            {
+                                                                <label class="checkbox-container">
+                                                                    <input type="checkbox" id="cbxCustomerMultiLokasi" class="cbxMultiLokasi" name="@($"cbx-Customer-MultiLokasi")" />
+                                                                    <span class="checkmark cm-multilokasi"></span>
+                                                                </label>
+                                                            }
                                                         </div>
-                                                        <div id="var-mapping-gudang">
-                                                            <div class="col-md-12 col-sm-12 col-xs-12 center">
-                                                                <div id="form-mapping-gudang"></div>
+                                                    </div>*@
+                                                <div class="row" id="mapping-gudang" hidden="hidden">
+                                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                                        <div class="x_panel">
+                                                            <div class="x_title">
+                                                                <h2 style="font-size: 16px">Mapping Gudang</h2>
+                                                                <ul class="nav navbar-right panel_toolbox">
+                                                                    <li>
+                                                                        <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                                                    </li>
+                                                                </ul>
+                                                                <div class="clearfix"></div>
+                                                            </div>
+                                                            <div id="var-mapping-gudang">
+                                                                <div class="col-md-12 col-sm-12 col-xs-12 center">
+                                                                    <div id="form-mapping-gudang"></div>
 
-                                                                
+
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1500,7 +1571,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
                         }
                     </div>
                     <div class="form-horizontal" id="form_subs">
@@ -1558,6 +1628,43 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="konfSyncPesanan" tabindex="-1" role="dialog" aria-labelledby="konfirmasiSyncPesanan" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="CancelChangeSyncOrderStock()"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiSyncPesanan">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4 id="txtConfirmSync">Anda akan menghidupkan fitur sync pesanan dan stok dari MasterOnline ke akun marketplace Anda dengan stok yang sudah Anda lengkapi di MasterOnline</h4>
+                </div>
+                <div class="row text-center">
+                    <div class="col-md-4 col-sm-4 col-xs-12">
+
+                    </div>
+                    <div class="col-md-3 col-sm-3 col-xs-12">
+                        <h4>Webhook Pesanan</h4>
+                    </div>
+                    <div class="col-md-3 col-sm-3 col-xs-12 form-group">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="ckWebhook" name="ckWebhook" />
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="row text-center">
+                    <h4>(Disarankan untuk ceklis webhook pesanan untuk fitur pesanan terbaru)</h4>
+                    <h4>Lanjutkan ?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="CancelChangeSyncOrderStock()">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="ConfirmChangeSyncOrderStock()">Ya</button>
             </div>
         </div>
     </div>
@@ -1753,7 +1860,7 @@
     @*<script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>*@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
-<script type="text/javascript">
+    <script type="text/javascript">
         var getLink = "";
         var $Sort1_Cust = "";
         var $API_CLIENT_U = "";
@@ -1775,7 +1882,59 @@
             }
 
         }
-        
+
+    function CancelChangeSyncOrderStock() {
+        var currentStat = $('#Customers_TIDAK_HIT_UANG_R').val();
+        if (currentStat == 'true') {
+            $('#Customers_TIDAK_HIT_UANG_R')[0].selectize.setValue('false', true);
+        }
+        else {
+            $('#Customers_TIDAK_HIT_UANG_R')[0].selectize.setValue('true', true);
+        }
+        //statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+    }
+    function ConfirmChangeSyncOrderStock() {
+        var ckwebhook = '0';
+        if ($('#ckWebhook') != undefined) {
+            if ($('#ckWebhook')[0].checked) {
+                ckwebhook = '1';
+            }
+        }
+            var $link = '@Html.Raw(Url.Action("SaveStatusSyncPesananStok", "Manage", new { custID = "cust_ID", statusSync = "status_Sync" }))';
+            $link = $link.replace("cust_ID", $('#Customers_CUST').val());
+            $link = $link.replace("status_Sync", $('#Customers_TIDAK_HIT_UANG_R').val());
+        $link += "&webhook=" + ckwebhook;
+            var msg = null;
+
+            $.ajax({
+                type: "POST",
+                url: $link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    if (response.Errors == null) {
+                        $('#loading_spinner').hide();
+                        if (response.success == true) {
+                            alert(response.status.toString());
+                            $("#konfSyncPesanan").modal('hide');
+                            $('#Customers_Sort2_Cust').val(ckwebhook);
+                        } else {
+                            alert(response.status.toString());
+                        }
+                    } else {
+                        $('#loading_spinner').hide();
+                        alert(response.Errors);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $('#loading_spinner').hide();
+                    console.log(error);
+                }
+            });
+
+            return false;
+        }
 
         //add by fauzi 06/12/2019
         function simpanStatusSyncPesananStok(custID, status) {
@@ -2771,7 +2930,7 @@
             //        //if ($("#cbxCustomerMultiLokasi").is(":checked") == true) {
             //            if ($('#Customers_NAMA').val() != null && $('#Customers_NAMA').val() != "" && $('#Customers_CUST').val() != null && $('#Customers_CUST').val() != "" && $('#Customers_CUST').val() != "[AUTO]") {
             //                //refreshTableWarehouseId($('#Customers_NAMA').val());
-                            
+
             //                //$('#Customers_MULTI_LOKASI').val(1);
             //                if ($('#Customers_NAMA').val() == "15") {
             //                    $('#header-whid').show();
@@ -2785,7 +2944,7 @@
             //                    getGudangMO();
             //                }
             //                $('#mapping-gudang').show();
-                            
+
             //            } else {
             //                alert('Tolong isi dan simpan Detail Marketplace/Customer terlebih dahulu!');
             //                //$("#cbxCustomerMultiLokasi").attr('checked', false);
@@ -2859,7 +3018,7 @@
         //}
 
     function showMappingGudang() {
-        
+
         var link = '@Url.Action("showMappingGudang", "Manage", new { cust = "replaceId" })';
         link = link.replace("replaceId", encodeURIComponent($('#Customers_CUST').val()));
         $.ajax({
@@ -3257,6 +3416,7 @@
                 $('#Customers_KODEKABKOT').val(response.Customers.KODEKABKOT);
                 $('#Customers_TLP').val(response.Customers.TLP);
                 $('#Customers_TOP').val(response.Customers.TOP);
+                $('#Customers_Sort2_Cust').val(response.Customers.Sort2_Cust);
                 //add by nurul 16/7/2020
                 $('#Customers_CUST').attr('disabled', 'disabled');
                 //$('#MARKET').attr('disabled', 'disabled');
@@ -3746,29 +3906,58 @@
             //},
             onChange: function (value) {
                 if (value == "true") {
-                    if (confirm("Anda akan menghidupkan fitur sync pesanan dan stok dari MasterOnline ke akun marketplace Anda dengan stok yang sudah Anda lengkapi di Master Online.\n\nLanjutkan ?")) {
-                        $('#Customers_TIDAK_HIT_UANG_R').val("true");
-                        resultStatus = true;
-                        simpanStatusSyncPesananStok($('#Customers_CUST').val(), String(resultStatus));
-                        statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+                    if ($("#Customers_NAMA").val() == "15")//confirm modal webhook
+                    {
+                        //$('#txtConfirmSync').text("Anda akan menghidupkan fitur sync pesanan dan stok dari MasterOnline ke akun marketplace Anda dengan stok yang sudah Anda lengkapi di Master Online.\n\nLanjutkan ?");
+                        if ($("#Customers_Sort2_Cust").val() == "1") {
+                            $("#ckWebhook").prop('checked', true);
+                        }
+                        else {
+                            $("#ckWebhook").prop('checked', false);
+                        }
+                        $("#konfSyncPesanan").modal('show');
+                        //alert($('#Customers_TIDAK_HIT_UANG_R').val());
                     }
                     else {
-                        $('#Customers_TIDAK_HIT_UANG_R').val("false");
-                        resultStatus = false;
-                        statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+                        if (confirm("Anda akan menghidupkan fitur sync pesanan dan stok dari MasterOnline ke akun marketplace Anda dengan stok yang sudah Anda lengkapi di Master Online.\n\nLanjutkan ?")) {
+                            $('#Customers_TIDAK_HIT_UANG_R').val("true");
+                            resultStatus = true;
+                            simpanStatusSyncPesananStok($('#Customers_CUST').val(), String(resultStatus));
+                            statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+                        }
+                        else {
+                            $('#Customers_TIDAK_HIT_UANG_R').val("false");
+                            resultStatus = false;
+                            statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+                        }
                     }
                 }
                 else if (value == "false") {
-                    if (confirm("Anda akan mematikan fitur sync pesanan dan stok dari MasterOnline ke akun marketplace Anda.\n\nLanjutkan ?")) {
-                        $('#Customers_TIDAK_HIT_UANG_R').val("false");
-                        resultStatus = false;
-                        simpanStatusSyncPesananStok($('#Customers_CUST').val(), String(resultStatus));
-                        statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
-                    }
-                    else {
-                        $('#Customers_TIDAK_HIT_UANG_R').val("true");
-                        resultStatus = true;
-                        statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+                    //if ($("#Customers_NAMA").val() == "15")//confirm modal webhook
+                    //{
+                    //    $('#txtConfirmSync').text("Anda akan mematikan fitur sync pesanan dan stok dari MasterOnline ke akun marketplace Anda.\n\nLanjutkan ?");
+                    //    if ($("#Customers_Sort2_Cust").val() == "1") {
+                    //        $("#ckWebhook").prop('checked', true);
+                    //    }
+                    //    else {
+                    //        $("#ckWebhook").prop('checked', false);
+                    //    }
+                    //    $("#konfSyncPesanan").modal('show');
+                    //    //alert($('#Customers_TIDAK_HIT_UANG_R').val());
+                    //}
+                    //else
+                    {
+                        if (confirm("Anda akan mematikan fitur sync pesanan dan stok dari MasterOnline ke akun marketplace Anda.\n\nLanjutkan ?")) {
+                            $('#Customers_TIDAK_HIT_UANG_R').val("false");
+                            resultStatus = false;
+                            simpanStatusSyncPesananStok($('#Customers_CUST').val(), String(resultStatus));
+                            statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+                        }
+                        else {
+                            $('#Customers_TIDAK_HIT_UANG_R').val("true");
+                            resultStatus = true;
+                            statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+                        }
                     }
                 }
                 else if (value == "true01") {
@@ -4625,7 +4814,7 @@
                     MO[0].selectize.setValue(null, true);
                     var MP = $('#selectGDMP').selectize();
                     MP[0].selectize.setValue(null, true);
-                    $('#selectGDMO')[0].selectize.enable(); 
+                    $('#selectGDMO')[0].selectize.enable();
                     $('#selectGDMP')[0].selectize.enable();
                 });
                 //$('#MARKET')[0].selectize.enable();
