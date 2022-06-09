@@ -1127,13 +1127,15 @@ namespace MasterOnline.Controllers
 
         }
         #endregion
-        public List<TiktokBrand> getBrand(TTApiData apidata)
+        public List<TiktokBrand> getBrand(TTApiData apidata, string category_id)
         {
-            string urll = "https://open-api.tiktokglobalshop.com/api/products/brands?access_token={0}&timestamp={1}&sign={2}&app_key={3}&shop_id={4}";
+            string urll = "https://open-api.tiktokglobalshop.com/api/products/brands?access_token={0}&timestamp={1}&sign={2}&app_key={3}&category_id={4}&shop_id={5}";
             int timestamp = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
-            string sign = eraAppSecret + "/api/products/brandsapp_key" + eraAppKey + "shop_id" + apidata.shop_id + "timestamp" + timestamp + eraAppSecret;
+            //string sign = eraAppSecret + "/api/products/brandsapp_key" + eraAppKey + "shop_id" + apidata.shop_id + "timestamp" + timestamp + eraAppSecret;
+            string sign = eraAppSecret + "/api/products/brandsapp_key" + eraAppKey + "category_id" + category_id + "shop_id" + apidata.shop_id+ "timestamp" + timestamp + eraAppSecret;
+
             string signencry = GetHash(sign, eraAppSecret);
-            var vformatUrl = String.Format(urll, apidata.access_token, timestamp, signencry, eraAppKey, apidata.shop_id);
+            var vformatUrl = String.Format(urll, apidata.access_token, timestamp, signencry, eraAppKey, category_id, apidata.shop_id);
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
             myReq.Method = "GET";
             myReq.ContentType = "application/json";
