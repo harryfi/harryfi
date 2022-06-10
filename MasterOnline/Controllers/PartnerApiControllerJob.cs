@@ -585,7 +585,7 @@ namespace MasterOnline.Controllers
                                 //new StokControllerJob().updateStockMarketPlace(ConnId, DatabasePathErasoft, "WebhookStokOp");
                                 //new ManageController().updateStockMarketPlace(listBrgUpdate, ConnId);
 
-                                var EDB = new DatabaseSQL(dbPathEra);
+                                //var EDB = new DatabaseSQL(dbPathEra);
                                 string sSQLValues = "";
                                 var listbrg = listBrgUpdate.Distinct();
                                 foreach (var item in listbrg)
