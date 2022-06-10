@@ -356,7 +356,8 @@ namespace MasterOnline.Controllers
             string startIndex = (Prefix.Length + 3).ToString();
             
             ret = ErasoftDbContext.Database.SqlQuery<string>("SELECT ISNULL(SUBSTRING(MAX(" + FieldName + "), " + startIndex + ", 6), '0') FROM " + TableName + " (NOLOCK) WHERE " + FieldName + " LIKE '" + Prefix + tahun + "%'").First();
-            return ret;
+            string newNumber = Prefix + tahun + Convert.ToString(Convert.ToInt32(ret) + 1).PadLeft(6, '0');
+            return newNumber;
         }
         //start from "STATUS_LOADING" is fixValueProcess
         string queryProcess = @"INSERT INTO STT01A (Tgl, Ref, UserName, TglInput, Nobuk, JTran, MK, Jenis_Form, STATUS_LOADING, Satuan, Ket, ST_Cetak, ST_Posting, JRef, Retur_Penuh, Terima_Penuh, VALUTA, TUKAR, TERIMA_PENUH_PO_QC, JLH_KARYAWAN, NILAI_ANGKUTAN, KOLI, BERAT, VOLUME) VALUES ( ";
@@ -580,13 +581,15 @@ namespace MasterOnline.Controllers
                             {
                                 var listBrgJson = Newtonsoft.Json.JsonConvert.SerializeObject(listBrgUpdate);
                                 //UpdateStokMP(email, token, listBrgJson, isAccurate, dbID, "stokOpname");
+                                var connID    = "[UPDATESTOK_API_WH][" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddhhmmss") + "]";
                                 string ConnId = "[WBH_STOK_OP][" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddhhmmss") + "]";
                                 //new StokControllerJob().updateStockMarketPlace(ConnId, DatabasePathErasoft, "WebhookStokOp");
                                 //new ManageController().updateStockMarketPlace(listBrgUpdate, ConnId);
 
                                 var EDB = new DatabaseSQL(dbPathEra);
                                 string sSQLValues = "";
-                                foreach (var item in listBrgUpdate)
+                                var listbrg = listBrgUpdate.Distinct();
+                                foreach (var item in listbrg)
                                 {
                                     sSQLValues = sSQLValues + "('" + item + "', '" + ConnId + "'),";
                                 }
