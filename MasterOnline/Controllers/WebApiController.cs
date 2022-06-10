@@ -12,6 +12,15 @@ using MasterOnline.Models.Api;
 using MasterOnline.Utils;
 using MasterOnline.ViewModels;
 
+//add by nurul 10/6/2022
+using Hangfire;
+using Hangfire.SqlServer;
+using Hangfire.Server;
+using Hangfire.Common;
+using Hangfire.Client;
+using Hangfire.States;
+//end add by nurul 10/6/2022
+
 namespace MasterOnline.Controllers
 {
     public class WebApiController : ApiController
@@ -539,5 +548,118 @@ namespace MasterOnline.Controllers
             }
         }
 
+        //ADD BY NURUL 10/6/2022
+        [System.Web.Http.Route("api/prosesstokopname")]
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
+        public async Task<IHttpActionResult> ProsesStokOpname_Webhook([FromBody]JsonData_StokOP data)
+        {
+
+            try
+            {
+                JsonApi result;
+                string apiKey = "";
+                string dbPathEra = "";
+                string userName = "";
+
+                var re = Request;
+                var headers = re.Headers;
+
+                if (headers.Contains("X-API-KEY"))
+                {
+                    apiKey = headers.GetValues("X-API-KEY").First();
+                }
+
+                if (apiKey != "UPDATESTOKMP_M@STERONLINE4P1K3Y")
+                {
+                    result = new JsonApi()
+                    {
+                        code = 401,
+                        message = "Wrong API KEY!",
+                        data = null
+                    };
+
+                    return Json(result);
+                }
+
+                if (headers.Contains("DBPATHERA"))
+                {
+                    dbPathEra = headers.GetValues("DBPATHERA").First();
+                }
+                else
+                {
+                    result = new JsonApi()
+                    {
+                        code = 401,
+                        message = "DBPATHERA can not be empty!",
+                        data = null
+                    };
+
+                    return Json(result);
+                }
+
+                if (headers.Contains("USERNAME"))
+                {
+                    userName = headers.GetValues("USERNAME").First();
+                }
+                else
+                {
+                    result = new JsonApi()
+                    {
+                        code = 401,
+                        message = "USERNAME can not be empty!",
+                        data = null
+                    };
+
+                    return Json(result);
+                }
+
+                if (data == null)
+                {
+                    result = new JsonApi()
+                    {
+                        code = 401,
+                        message = "Stock can not be empty!",
+                        data = null
+                    };
+
+                    return Json(result);
+                }
+
+                result = new JsonApi();
+
+                try
+                {
+                    new PartnerApiControllerJob().prosesStokOpname(data.batch, data.noStok, data.email, data.token, data.isAccurate, data.DatabasePathErasoft, data.dbSourceEra);
+                    var EDB = new DatabaseSQL(dbPathEra);
+                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                    var Jobclient = new BackgroundJobClient(sqlStorage);
+
+#if (DEBUG || Debug_AWS)
+                    Task.Run(() => new PartnerApiControllerJob().prosesStokOpname(data.batch, data.noStok, data.email, data.token, data.isAccurate, data.DatabasePathErasoft, data.dbSourceEra)).Wait();                                                    
+#else
+                    Jobclient.Enqueue<PartnerApiControllerJob>(x => x.prosesStokOpname(data.batch, data.noStok, data.email, data.token, data.isAccurate, data.DatabasePathErasoft, data.dbSourceEra));
+#endif
+                    result.code = 200;
+                    result.message = "Success";
+                    result.data = null;
+                }
+                catch (Exception ex)
+                {
+                    result.code = 401;
+                    result.message = "Error API. Please check Support Masteronline";
+                    result.data = null;
+                }
+
+                return Json(result);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+        //END ADD BY NURUL 10/6/2022
     }
 }
