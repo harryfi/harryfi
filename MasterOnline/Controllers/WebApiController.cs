@@ -629,7 +629,6 @@ namespace MasterOnline.Controllers
 
                 try
                 {
-                    new PartnerApiControllerJob().prosesStokOpname(data.batch, data.noStok, data.email, data.token, data.isAccurate, data.DatabasePathErasoft, data.dbSourceEra);
                     var EDB = new DatabaseSQL(dbPathEra);
                     string EDBConnID = EDB.GetConnectionString("ConnId");
                     var sqlStorage = new SqlServerStorage(EDBConnID);

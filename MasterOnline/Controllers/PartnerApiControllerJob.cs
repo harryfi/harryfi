@@ -336,7 +336,7 @@ namespace MasterOnline.Controllers
         //add by nurul 9/6/2022
         public void logErrorFunction(string email, string modul, string nobukti, string keterangan, string json)
         {
-             ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, '" + modul + "', '" + nobukti + "', '" + keterangan + "', dateadd(hour, 7, getdate()), '" + json + "', 1) END ");
+             ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, '" + modul + " MO', '" + nobukti + "', '" + keterangan + "', dateadd(hour, 7, getdate()), '" + json + "', 1) END ");
         }
         public class getStokFisik
         {
@@ -581,8 +581,7 @@ namespace MasterOnline.Controllers
                             {
                                 var listBrgJson = Newtonsoft.Json.JsonConvert.SerializeObject(listBrgUpdate);
                                 //UpdateStokMP(email, token, listBrgJson, isAccurate, dbID, "stokOpname");
-                                var connID    = "[UPDATESTOK_API_WH][" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddhhmmss") + "]";
-                                string ConnId = "[WBH_STOK_OP][" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddhhmmss") + "]";
+                                string ConnId = "[WBH_STOK_OP_" + noStok + "][" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddhhmmss") + "]";
                                 //new StokControllerJob().updateStockMarketPlace(ConnId, DatabasePathErasoft, "WebhookStokOp");
                                 //new ManageController().updateStockMarketPlace(listBrgUpdate, ConnId);
 
