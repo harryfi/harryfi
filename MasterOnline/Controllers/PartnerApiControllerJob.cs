@@ -374,7 +374,7 @@ namespace MasterOnline.Controllers
             {
                 //SetupContext(DatabasePathErasoft, dbSourceEra);
                 MoDbContext = new MoDbContext("");
-                ErasoftDbContext = new ErasoftContext(dbSourceEra, dbPathEra);
+                ErasoftDbContext = new ErasoftContext(dbSourceEra, DatabasePathErasoft);
                 string json = "";
                 if (token.Contains("|"))
                 {
