@@ -349,6 +349,15 @@ namespace MasterOnline.Controllers
             public double harga_pb { get; set; }
             public double harga_st { get; set; }
         }
+        public string GenerateAutoNumber(string Prefix, string TableName, string FieldName)
+        {
+            string ret = "";
+            string tahun = DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2);
+            string startIndex = (Prefix.Length + 3).ToString();
+            
+            ret = ErasoftDbContext.Database.SqlQuery<string>("SELECT ISNULL(SUBSTRING(MAX(" + FieldName + "), " + startIndex + ", 6), '0') FROM " + TableName + " (NOLOCK) WHERE " + FieldName + " LIKE '" + Prefix + tahun + "%'").First();
+            return ret;
+        }
         //start from "STATUS_LOADING" is fixValueProcess
         string queryProcess = @"INSERT INTO STT01A (Tgl, Ref, UserName, TglInput, Nobuk, JTran, MK, Jenis_Form, STATUS_LOADING, Satuan, Ket, ST_Cetak, ST_Posting, JRef, Retur_Penuh, Terima_Penuh, VALUTA, TUKAR, TERIMA_PENUH_PO_QC, JLH_KARYAWAN, NILAI_ANGKUTAN, KOLI, BERAT, VOLUME) VALUES ( ";
         string fixValueProcess = "'0', '', '', '', '-', '6', 0, 0, 'IDR', 1, 0, 0, 0, 0, 0, 0)";
@@ -409,8 +418,8 @@ namespace MasterOnline.Controllers
                         logErrorFunction(email, "05. Cek stok fisik STF08A", noStok, "-", json);
                         //ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, '05. Cek stok fisik STF08A', '" + noStok + "', '-', dateadd(hour, 7, getdate()), NULL, 1) END ");
 
-                        var noStokOM = new ManageController().GenerateAutoNumber(ErasoftDbContext, "OM", "STT01A", "Nobuk");
-                        var noStokOK = new ManageController().GenerateAutoNumber(ErasoftDbContext, "OK", "STT01A", "Nobuk");
+                        var noStokOM = GenerateAutoNumber("OM", "STT01A", "Nobuk");
+                        var noStokOK = GenerateAutoNumber("OK", "STT01A", "Nobuk");
 
                         //change by nurul 28/4/2022
                         //string now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
