@@ -573,7 +573,37 @@ namespace MasterOnline.Controllers
                                 //UpdateStokMP(email, token, listBrgJson, isAccurate, dbID, "stokOpname");
                                 string ConnId = "[WBH_STOK_OP][" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddhhmmss") + "]";
                                 //new StokControllerJob().updateStockMarketPlace(ConnId, DatabasePathErasoft, "WebhookStokOp");
-                                new ManageController().updateStockMarketPlace(listBrgUpdate, ConnId);
+                                //new ManageController().updateStockMarketPlace(listBrgUpdate, ConnId);
+
+                                var EDB = new DatabaseSQL(dbPathEra);
+                                string sSQLValues = "";
+                                foreach (var item in listBrgUpdate)
+                                {
+                                    sSQLValues = sSQLValues + "('" + item + "', '" + ConnId + "'),";
+                                }
+
+                                if (sSQLValues != "")
+                                {
+                                    sSQLValues = sSQLValues.Substring(0, sSQLValues.Length - 1);
+                                    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + sSQLValues);
+                                    //stok bundling
+                                    var sSQLInsertTempBundling = "INSERT INTO TEMP_ALL_MP_ORDER_ITEM_BUNDLING ([BRG],[CONN_ID],[TGL]) " +
+                                                             "SELECT DISTINCT C.UNIT AS BRG, '" + ConnId + "' AS CONN_ID, DATEADD(HOUR, +7, GETUTCDATE()) AS TGL " +
+                                                             "FROM TEMP_ALL_MP_ORDER_ITEM A (NOLOCK) " +
+                                                             "LEFT JOIN TEMP_ALL_MP_ORDER_ITEM_BUNDLING B(NOLOCK) ON B.CONN_ID = '" + ConnId + "' AND A.BRG = B.BRG " +
+                                                             "INNER JOIN STF03 C(NOLOCK) ON A.BRG = C.BRG " +
+                                                             "WHERE ISNULL(A.CONN_ID,'') = '" + ConnId + "' " +
+                                                             "AND ISNULL(B.BRG,'') = '' AND A.BRG <> 'NOT_FOUND'";
+                                    var execInsertTempBundling = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLInsertTempBundling);
+                                    
+                                    if (execInsertTempBundling > 0)
+                                    {
+                                        new StokControllerJob().getQtyBundling(dbPathEra, "WebhookStokOp", "'" + ConnId + "'");
+                                    }
+                                    //end stok bundling
+
+                                    new StokControllerJob().updateStockMarketPlace(ConnId, DatabasePathErasoft, "WebhookStokOp");
+                                }
                             }
 
                             logErrorFunction(email, "09. API UpdateStokMP MO", noStok, "-", json);
