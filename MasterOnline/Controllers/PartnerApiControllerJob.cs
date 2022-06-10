@@ -579,7 +579,7 @@ namespace MasterOnline.Controllers
                             //add by nurul 19/11/2021
                             if (listBrgUpdate.Count() > 0)
                             {
-                                var listBrgJson = Newtonsoft.Json.JsonConvert.SerializeObject(listBrgUpdate);
+                                //var listBrgJson = Newtonsoft.Json.JsonConvert.SerializeObject(listBrgUpdate);
                                 //UpdateStokMP(email, token, listBrgJson, isAccurate, dbID, "stokOpname");
                                 string ConnId = "[WBH_STOK_OP_" + noStok + "][" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddhhmmss") + "]";
                                 //new StokControllerJob().updateStockMarketPlace(ConnId, DatabasePathErasoft, "WebhookStokOp");
@@ -595,25 +595,51 @@ namespace MasterOnline.Controllers
 
                                 if (sSQLValues != "")
                                 {
-                                    sSQLValues = sSQLValues.Substring(0, sSQLValues.Length - 1);
-                                    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + sSQLValues);
-                                    //stok bundling
-                                    var sSQLInsertTempBundling = "INSERT INTO TEMP_ALL_MP_ORDER_ITEM_BUNDLING ([BRG],[CONN_ID],[TGL]) " +
-                                                             "SELECT DISTINCT C.UNIT AS BRG, '" + ConnId + "' AS CONN_ID, DATEADD(HOUR, +7, GETUTCDATE()) AS TGL " +
-                                                             "FROM TEMP_ALL_MP_ORDER_ITEM A (NOLOCK) " +
-                                                             "LEFT JOIN TEMP_ALL_MP_ORDER_ITEM_BUNDLING B(NOLOCK) ON B.CONN_ID = '" + ConnId + "' AND A.BRG = B.BRG " +
-                                                             "INNER JOIN STF03 C(NOLOCK) ON A.BRG = C.BRG " +
-                                                             "WHERE ISNULL(A.CONN_ID,'') = '" + ConnId + "' " +
-                                                             "AND ISNULL(B.BRG,'') = '' AND A.BRG <> 'NOT_FOUND'";
-                                    var execInsertTempBundling = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLInsertTempBundling);
-                                    
-                                    if (execInsertTempBundling > 0)
+                                    try
                                     {
-                                        new StokControllerJob().getQtyBundling(dbPathEra, "WebhookStokOp", "'" + ConnId + "'");
+                                        sSQLValues = sSQLValues.Substring(0, sSQLValues.Length - 1);
+                                        //EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + sSQLValues);
+                                        var sSQL = "INSERT INTO TEMP_ALL_MP_ORDER_ITEM(BRG, CONN_ID) VALUES " + sSQLValues;
+                                        var ab = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
                                     }
-                                    //end stok bundling
+                                    catch (Exception ex)
+                                    {
+                                        ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, 'prosesStokOpname_exec_listBrgUpdate MO 1', '" + noStok + "', '" + ex.Message + " | " + ex.Source + " | " + ex.StackTrace + ".', dateadd(hour, 7, getdate()), '', 0) END ");
+                                        return ex.Message;
+                                    }
+                                    try
+                                    {
+                                        //stok bundling
+                                        var sSQLInsertTempBundling = "INSERT INTO TEMP_ALL_MP_ORDER_ITEM_BUNDLING ([BRG],[CONN_ID],[TGL]) " +
+                                                                 "SELECT DISTINCT C.UNIT AS BRG, '" + ConnId + "' AS CONN_ID, DATEADD(HOUR, +7, GETUTCDATE()) AS TGL " +
+                                                                 "FROM TEMP_ALL_MP_ORDER_ITEM A (NOLOCK) " +
+                                                                 "LEFT JOIN TEMP_ALL_MP_ORDER_ITEM_BUNDLING B(NOLOCK) ON B.CONN_ID = '" + ConnId + "' AND A.BRG = B.BRG " +
+                                                                 "INNER JOIN STF03 C(NOLOCK) ON A.BRG = C.BRG " +
+                                                                 "WHERE ISNULL(A.CONN_ID,'') = '" + ConnId + "' " +
+                                                                 "AND ISNULL(B.BRG,'') = '' AND A.BRG <> 'NOT_FOUND'";
+                                        var execInsertTempBundling = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLInsertTempBundling);
 
-                                    new StokControllerJob().updateStockMarketPlace(ConnId, DatabasePathErasoft, "WebhookStokOp");
+                                        if (execInsertTempBundling > 0)
+                                        {
+                                            new StokControllerJob().getQtyBundling(dbPathEra, "WebhookStokOp", "'" + ConnId + "'");
+                                        }
+                                        //end stok bundling
+                                    }
+                                    catch (Exception exy)
+                                    {
+                                        ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, 'prosesStokOpname_exec_listBrgUpdate MO 2', '" + noStok + "', '" + exy.Message + " | " + exy.Source + " | " + exy.StackTrace + ".', dateadd(hour, 7, getdate()), '', 0) END ");
+                                        return exy.Message;
+                                    }
+
+                                    try
+                                    {
+                                        new StokControllerJob().updateStockMarketPlace(ConnId, DatabasePathErasoft, "WebhookStokOp");
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, 'prosesStokOpname_exec_listBrgUpdate MO 3', '" + noStok + "', '" + ex.Message + " | " + ex.Source + " | " + ex.StackTrace + ".', dateadd(hour, 7, getdate()), '', 0) END ");
+                                        return ex.Message;
+                                    }
                                 }
                             }
 
@@ -626,6 +652,7 @@ namespace MasterOnline.Controllers
                             ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, 'prosesStokOpname_exec_listBrgUpdate MO', '" + noStok + "', '" + ez.Message + " | " + ez.Source + " | " + ez.StackTrace + ".', dateadd(hour, 7, getdate()), '', 0) END ");
                             return ez.Message;
                         }
+
 
                     }
                 }
