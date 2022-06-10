@@ -372,7 +372,9 @@ namespace MasterOnline.Controllers
         {
             try
             {
-                SetupContext(DatabasePathErasoft, dbSourceEra);
+                //SetupContext(DatabasePathErasoft, dbSourceEra);
+                MoDbContext = new MoDbContext("");
+                ErasoftDbContext = new ErasoftContext(dbSourceEra, dbPathEra);
                 string json = "";
                 if (token.Contains("|"))
                 {
@@ -617,7 +619,8 @@ namespace MasterOnline.Controllers
                                                                  "INNER JOIN STF03 C(NOLOCK) ON A.BRG = C.BRG " +
                                                                  "WHERE ISNULL(A.CONN_ID,'') = '" + ConnId + "' " +
                                                                  "AND ISNULL(B.BRG,'') = '' AND A.BRG <> 'NOT_FOUND'";
-                                        var execInsertTempBundling = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLInsertTempBundling);
+                                        //var execInsertTempBundling = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLInsertTempBundling);
+                                        var execInsertTempBundling = ErasoftDbContext.Database.ExecuteSqlCommand(sSQLInsertTempBundling); 
 
                                         if (execInsertTempBundling > 0)
                                         {
