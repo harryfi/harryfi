@@ -612,7 +612,7 @@ namespace MasterOnline.Controllers
                         }
                         catch (Exception ez)
                         {
-                            ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, 'prosesStokOpname_listBrgUpdate MO', '" + noStok + "', '" + ez.Message + " | " + ez.Source + " | " + ez.StackTrace + ".', dateadd(hour, 7, getdate()), '', 0) END ");
+                            ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, 'prosesStokOpname_exec_listBrgUpdate MO', '" + noStok + "', '" + ez.Message + " | " + ez.Source + " | " + ez.StackTrace + ".', dateadd(hour, 7, getdate()), '', 0) END ");
                             return ez.Message;
                         }
 
