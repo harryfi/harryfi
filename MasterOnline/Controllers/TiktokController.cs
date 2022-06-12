@@ -1301,6 +1301,7 @@ namespace MasterOnline.Controllers
             if (responseFromServer != null)
             {
                 ResProd res = JsonConvert.DeserializeObject<ResProd>(responseFromServer);
+                if(res.Data != null)
                 if (res.Data.Products != null)
                 {
                     if (res.Data.Products.Count == 10)
