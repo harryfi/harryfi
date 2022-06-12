@@ -1301,22 +1301,25 @@ namespace MasterOnline.Controllers
             if (responseFromServer != null)
             {
                 ResProd res = JsonConvert.DeserializeObject<ResProd>(responseFromServer);
-                if (res.Data.Products.Count == 10)
+                if (res.Data.Products != null)
                 {
-                    ret.nextPage = 1;
-                }
-                foreach (ProductTick ptick in res.Data.Products)
-                {
-                    //1 - draft、2 - pending、3 - failed、4 - live、5 - seller_deactivated、6 - platform_deactivated、7 - freeze 、8 - deleted
-                    if (ptick.Status == 4 || ptick.Status == 5)
+                    if (res.Data.Products.Count == 10)
                     {
-                        var bindGetProd = await getdetailproduct(ptick.Id, apidata, listnewrec, IdMarket);
-                        if (bindGetProd.exception == 1)
+                        ret.nextPage = 1;
+                    }
+                    foreach (ProductTick ptick in res.Data.Products)
+                    {
+                        //1 - draft、2 - pending、3 - failed、4 - live、5 - seller_deactivated、6 - platform_deactivated、7 - freeze 、8 - deleted
+                        if (ptick.Status == 4 || ptick.Status == 5)
                         {
-                            ret.exception = 1;
+                            var bindGetProd = await getdetailproduct(ptick.Id, apidata, listnewrec, IdMarket);
+                            if (bindGetProd.exception == 1)
+                            {
+                                ret.exception = 1;
+                            }
+                            ret.recordCount += bindGetProd.recordCount;
+                            ret.totalData += bindGetProd.totalData;
                         }
-                        ret.recordCount += bindGetProd.recordCount;
-                        ret.totalData += bindGetProd.totalData;
                     }
                 }
                 //if (listnewrec.Count() > 0)
