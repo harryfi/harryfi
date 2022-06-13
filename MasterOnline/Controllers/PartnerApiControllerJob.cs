@@ -903,11 +903,13 @@ namespace MasterOnline.Controllers
                                 sSQLValues = sSQLValues + "('" + item + "', '" + ConnId + "'),";
                             }
                             sSQLValues = sSQLValues.Substring(0, sSQLValues.Length - 1);
-                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + sSQLValues);
+                            //EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + sSQLValues);
+                            ErasoftDbContext.Database.ExecuteSqlCommand("INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + sSQLValues);
 
                             new StokControllerJob().updateStockMarketPlace(ConnId, dbPathEra, uname);
                         }
-                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM TEMP_ALL_MP_ORDER_ITEM_BUNDLING WHERE conn_id IN (" + conn_id + ")");
+                        //EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM TEMP_ALL_MP_ORDER_ITEM_BUNDLING WHERE conn_id IN (" + conn_id + ")");
+                        ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_ALL_MP_ORDER_ITEM_BUNDLING WHERE conn_id IN (" + conn_id + ")");
                     }
                 }
             }
