@@ -730,7 +730,7 @@ namespace MasterOnline.Controllers
         [HttpGet]
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> GetOrdersNew(BukaLapakKey data, string CUST, string NAMA_CUST, string username, int day)
+        public string GetOrdersNew(BukaLapakKey data, string CUST, string NAMA_CUST, string username, int day)
         {
             string ret = "";
             SetupContext(data.dbPathEra, username);
@@ -752,7 +752,7 @@ namespace MasterOnline.Controllers
             while (loop)
             {
                 data = RefreshToken(data);
-                var retOrder = await GetOrdersLoop(data, CUST, NAMA_CUST, username, page, dtNow.AddDays(day).ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.ToString("yyyy-MM-ddTHH:mm:ss"), 0);
+                var retOrder = GetOrdersLoop(data, CUST, NAMA_CUST, username, page, dtNow.AddDays(day).ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.ToString("yyyy-MM-ddTHH:mm:ss"), 0);
                 if (!string.IsNullOrEmpty(retOrder.ConnId))
                 {
                     connIdProses += "'" + retOrder.ConnId + "' , ";
@@ -783,7 +783,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<BindingBase> GetOrdersLoop(BukaLapakKey data, string CUST, string NAMA_CUST, string username, int page, string fromDt, string toDt, int retry)
+        public BindingBase GetOrdersLoop(BukaLapakKey data, string CUST, string NAMA_CUST, string username, int page, string fromDt, string toDt, int retry)
         {
             var ret = new BindingBase();
             ret.status = 0;
@@ -806,7 +806,8 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             try
             {
-                using (WebResponse response = await myReq.GetResponseAsync())
+                //using (WebResponse response = await myReq.GetResponseAsync())
+                using (WebResponse response = myReq.GetResponse())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {
@@ -832,7 +833,7 @@ namespace MasterOnline.Controllers
                         if (retry == 0)
                         {
                             data = RefreshToken(data);
-                            await GetOrdersLoop(data, CUST, NAMA_CUST, username, page, fromDt, toDt, 1);
+                            GetOrdersLoop(data, CUST, NAMA_CUST, username, page, fromDt, toDt, 1);
                         }
                         else
                         {
@@ -1191,7 +1192,7 @@ namespace MasterOnline.Controllers
         [HttpGet]
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> GetOrdersCompleted(BukaLapakKey data, string CUST, string NAMA_CUST, string username)
+        public string GetOrdersCompleted(BukaLapakKey data, string CUST, string NAMA_CUST, string username)
         {
             string ret = "";
             SetupContext(data.dbPathEra, username);
@@ -1201,7 +1202,7 @@ namespace MasterOnline.Controllers
             while (loop)
             {
                 data = RefreshToken(data);
-                var retOrder = await GetOrdersCompletedLoop(data, CUST, NAMA_CUST, username, page, dtNow.AddDays(-10).ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.ToString("yyyy-MM-ddTHH:mm:ss"), 0);
+                var retOrder = GetOrdersCompletedLoop(data, CUST, NAMA_CUST, username, page, dtNow.AddDays(-10).ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.ToString("yyyy-MM-ddTHH:mm:ss"), 0);
                 if (retOrder >= 50)
                 {
                     page = page + 1;
@@ -1218,7 +1219,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<int> GetOrdersCompletedLoop(BukaLapakKey data, string CUST, string NAMA_CUST, string username, int page, string fromDt, string toDt, int retry)
+        public int GetOrdersCompletedLoop(BukaLapakKey data, string CUST, string NAMA_CUST, string username, int page, string fromDt, string toDt, int retry)
         {
             var ret = 0;
             var conn_id = Guid.NewGuid().ToString();
@@ -1237,7 +1238,8 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             try
             {
-                using (WebResponse response = await myReq.GetResponseAsync())
+                //using (WebResponse response = await myReq.GetResponseAsync())
+                using (WebResponse response = myReq.GetResponse())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {
@@ -1263,7 +1265,7 @@ namespace MasterOnline.Controllers
                         if (retry == 0)
                         {
                             data = RefreshToken(data);
-                            await GetOrdersCompletedLoop(data, CUST, NAMA_CUST, username, page, fromDt, toDt, 1);
+                            GetOrdersCompletedLoop(data, CUST, NAMA_CUST, username, page, fromDt, toDt, 1);
                         }
                         else
                         {
@@ -1390,7 +1392,7 @@ namespace MasterOnline.Controllers
         [HttpGet]
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> GetOrdersCanceled(BukaLapakKey data, string CUST, string NAMA_CUST, string username)
+        public string GetOrdersCanceled(BukaLapakKey data, string CUST, string NAMA_CUST, string username)
         {
             string ret = "";
             SetupContext(data.dbPathEra, username);
@@ -1412,7 +1414,7 @@ namespace MasterOnline.Controllers
             while (loop)
             {
                 data = RefreshToken(data);
-                var retOrder = await GetOrdersCanceledLoop(data, CUST, NAMA_CUST, username, page, dtNow.ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.AddDays(7).ToString("yyyy-MM-ddTHH:mm:ss"), orderList, 0);
+                var retOrder = GetOrdersCanceledLoop(data, CUST, NAMA_CUST, username, page, dtNow.ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.AddDays(7).ToString("yyyy-MM-ddTHH:mm:ss"), orderList, 0);
                 if (!string.IsNullOrEmpty(retOrder.ConnId))
                 {
                     connIdProses += "'" + retOrder.ConnId + "' , ";
@@ -1440,7 +1442,7 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-        public async Task<BindingBase> GetOrdersCanceledLoop(BukaLapakKey data, string CUST, string NAMA_CUST, string username, int page, string fromDt, string toDt, List<string> orderList, int retry)
+        public BindingBase GetOrdersCanceledLoop(BukaLapakKey data, string CUST, string NAMA_CUST, string username, int page, string fromDt, string toDt, List<string> orderList, int retry)
         {
             var ret = new BindingBase();
             ret.status = 0;
@@ -1464,7 +1466,8 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             try
             {
-                using (WebResponse response = await myReq.GetResponseAsync())
+                //using (WebResponse response = await myReq.GetResponseAsync())
+                using (WebResponse response = myReq.GetResponse())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {
@@ -1490,7 +1493,7 @@ namespace MasterOnline.Controllers
                         if (retry == 0)
                         {
                             data = RefreshToken(data);
-                            await GetOrdersCanceledLoop(data, CUST, NAMA_CUST, username, page, fromDt, toDt, orderList, 1);
+                             GetOrdersCanceledLoop(data, CUST, NAMA_CUST, username, page, fromDt, toDt, orderList, 1);
                         }
                         else
                         {
