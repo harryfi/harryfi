@@ -30,4 +30,15 @@ namespace MasterOnline.Models.Api
         public List<string> listBrg { get; set; }
         //end add by nurul 19/11/2021
     }
+
+    public class JsonData_StokOP
+    {
+        public string batch { get; set; }
+        public string noStok { get; set; }
+        public string email { get; set; }
+        public string token { get; set; }
+        public bool isAccurate { get; set; }
+        public string DatabasePathErasoft { get; set; }
+        public string dbSourceEra { get; set; }
+    }
 }

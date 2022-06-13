@@ -333,6 +333,661 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        //add by nurul 9/6/2022
+        public void logErrorFunction(string email, string modul, string nobukti, string keterangan, string json)
+        {
+             ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, '" + modul + " MO', '" + nobukti + "', '" + keterangan + "', dateadd(hour, 7, getdate()), '" + json + "', 1) END ");
+        }
+        public class getStokFisik
+        {
+            public string BRG { get; set; }
+            public string GUD { get; set; }
+            public double STOK_FISIK { get; set; }
+        }
+        public class HargaPbSt
+        {
+            public double harga_pb { get; set; }
+            public double harga_st { get; set; }
+        }
+        public string GenerateAutoNumber(string Prefix, string TableName, string FieldName)
+        {
+            string ret = "";
+            string tahun = DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2);
+            string startIndex = (Prefix.Length + 3).ToString();
+            
+            ret = ErasoftDbContext.Database.SqlQuery<string>("SELECT ISNULL(SUBSTRING(MAX(" + FieldName + "), " + startIndex + ", 6), '0') FROM " + TableName + " (NOLOCK) WHERE " + FieldName + " LIKE '" + Prefix + tahun + "%'").First();
+            string newNumber = Prefix + tahun + Convert.ToString(Convert.ToInt32(ret) + 1).PadLeft(6, '0');
+            return newNumber;
+        }
+        //start from "STATUS_LOADING" is fixValueProcess
+        string queryProcess = @"INSERT INTO STT01A (Tgl, Ref, UserName, TglInput, Nobuk, JTran, MK, Jenis_Form, STATUS_LOADING, Satuan, Ket, ST_Cetak, ST_Posting, JRef, Retur_Penuh, Terima_Penuh, VALUTA, TUKAR, TERIMA_PENUH_PO_QC, JLH_KARYAWAN, NILAI_ANGKUTAN, KOLI, BERAT, VOLUME) VALUES ( ";
+        string fixValueProcess = "'0', '', '', '', '-', '6', 0, 0, 'IDR', 1, 0, 0, 0, 0, 0, 0)";
+
+        //start from "Satuan" is fixValueProcessDetail
+        string queryProcessDetail = @"INSERT INTO STT01B (Kobar, UserName, TglInput, Nobuk, Ke_Gd, Dr_Gd, Qty, Jenis_Form, Harsat, Harga, Satuan, Qty_Retur, Qty_Berat, TOTAL_LOT, TOTAL_QTY, QTY_TERIMA, QTY_CLAIM, NO_URUT_PO, NO_URUT_SJ, QTY_TERIMA_PO_QC) VALUES ";
+        string fixValueProcessDetail = "'2', 0, 0, 0, 0, 0, 0, 0, 0, 0)";
+
+        [Queue("1_create_product")]
+        public string prosesStokOpname(string batch, string noStok, string email, string token, bool isAccurate, string DatabasePathErasoft, string dbSourceEra)
+        {
+            try
+            {
+                SetupContext(DatabasePathErasoft, dbSourceEra);
+                //MoDbContext = new MoDbContext("");
+                //ErasoftDbContext = new ErasoftContext(dbSourceEra, DatabasePathErasoft);
+                string json = "";
+                if (token.Contains("|"))
+                {
+                    string[] token_fs_id = token.Split('|');
+                    token = token_fs_id[0];
+                    json = token_fs_id[1];
+                }
+                //add by nurul 19/11/2021
+                var listBrgUpdate = new List<string>();
+                //end add by nurul 19/11/2021
+                var stokOpDb = ErasoftDbContext.Database.SqlQuery<STT04A>("SELECT * FROM STT04A (NOLOCK) WHERE NOBUK = '" + noStok + "'").FirstOrDefault();
+                //change by nurul 28/4/2022
+                var stokDetailOpDb = ErasoftDbContext.STT04B.AsNoTracking().Where(b => b.NOBUK == noStok).ToList();
+                //var stokDetailOpDb = ErasoftDbContext.Database.SqlQuery<STT04B>("SELECT *FROM STT04B (NOLOCK) WHERE NOBUK='" + noStok + "' ORDER BY NO").ToList();
+                //end change by nurul 28/4/2022
+
+                string todayPrcs = DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd 23:59:59.999");
+
+                logErrorFunction(email, "03. Validasi STT04A", noStok, "-", json);
+                //ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, '03. Validasi STT04A', '" + noStok + "', '-', dateadd(hour, 7, getdate()), NULL, 1) END ");
+
+                if (stokOpDb != null)
+                {
+                    //int cekSTF09A = ErasoftDbContext.Database.SqlQuery<int>("SELECT COUNT(Bukti) FROM STF09A WHERE Tgl > '" + todayPrcs + "'").Single();
+                    int cekSTF09A = ErasoftDbContext.Database.SqlQuery<int>("select count(bukti) from stf09a (nolock) where tgl >= '" + stokOpDb.TGL?.AddDays(1).ToString("yyyy-MM-dd 00:00:00.000") + "'").Single();
+
+                    logErrorFunction(email, "04. Validasi STF09A", noStok, "-", json);
+                    //ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, '04. Validasi STF09A', '" + noStok + "', '-', dateadd(hour, 7, getdate()), NULL, 1) END ");
+
+                    if (cekSTF09A > 0)
+                    {
+                        return "Transaksi stok opname tidak dapat diproses karena sudah ada transaksi di atas tanggal " + stokOpDb.TGL?.ToString("dd/MM/yyyy") + " .";
+                    }
+                    else
+                    {
+                        //add by nurul 28/4/2022
+                        string sSQLStok = "SELECT B.BRG,B.GUD, " +
+                        "ISNULL((SELECT ISNULL(SUM(QAwal + QM1 + QM2 + QM3 + QM4 + QM5 + QM6 + QM7 + QM8 + QM9 + QM10 + QM11 + QM12) - SUM(QK1 + QK2 + QK3 + QK4 + QK5 + QK6 + QK7 + QK8 + QK9 + QK10 + QK11 + QK12), 0) FROM STF08A A(NOLOCK) " +
+                        "WHERE Tahun = YEAR(DATEADD(HOUR, +7, GETUTCDATE())) AND NOBUK = '" + noStok + "' AND BRG = B.BRG AND A.GD = B.GUD),0) AS STOK_FISIK " +
+                        "FROM STT04B B(NOLOCK) WHERE NOBUK = '" + noStok + "'";
+                        var stokFisik = ErasoftDbContext.Database.SqlQuery<getStokFisik>(sSQLStok).ToList();
+                        //end add by nurul 28/4/2022
+
+                        logErrorFunction(email, "05. Cek stok fisik STF08A", noStok, "-", json);
+                        //ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, '05. Cek stok fisik STF08A', '" + noStok + "', '-', dateadd(hour, 7, getdate()), NULL, 1) END ");
+
+                        var noStokOM = GenerateAutoNumber("OM", "STT01A", "Nobuk");
+                        var noStokOK = GenerateAutoNumber("OK", "STT01A", "Nobuk");
+
+                        //change by nurul 28/4/2022
+                        //string now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+                        string now = DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss.fff");
+                        //end change by nurul 28/4/2022
+                        string TGL = stokOpDb.TGL?.ToString("yyyy-MM-dd HH:mm:ss.fff");
+
+                        string comma = ",";
+                        string exec = "";
+
+                        int jmRowOM = 0; int jmRowOK = 0;
+                        foreach (var item in stokDetailOpDb)
+                        {
+                            string query = queryProcess;
+                            //change by nurul 28/4/2022
+                            //string sSQL = @"SELECT ISNULL(SUM(QAwal+QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12) - SUM(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12), 0) AS STOK_FISIK 
+                            //            FROM STF08A (NOLOCK) WHERE Tahun = YEAR(GETDATE()) AND BRG = '" + item.Brg + "' AND GD = '" + item.Gud + "'";
+                            //double stok = ErasoftDbContext.Database.SqlQuery<double>(sSQL).Single();
+                            var cekstok = stokFisik.Where(a => a.BRG == item.Brg && a.GUD == item.Gud).FirstOrDefault();
+                            double stok = 0;
+                            if (cekstok != null)
+                            {
+                                stok = cekstok.STOK_FISIK;
+                            }
+                            //end change by nurul 28/4/2022
+
+                            //if (stokDetailOpDb.IndexOf(item) == stokDetailOpDb.Count() - 1 && stok == item.Qty)
+                            //{
+                            //    exec.Remove(exec.Length - 3, 3);
+                            //    continue;
+                            //}
+
+                            //if (item.Qty == 0)
+                            //    continue;
+
+                            logErrorFunction(email, "06. Looping STT04B", noStok, item.Brg + ";F" + stok + ";S" + item.Qty, json);
+                            try
+                            {
+                                if (stok < item.Qty)
+                                {
+                                    double selisihOM = item.Qty - stok;
+
+                                    double Harsat = 0, Harga = 0;
+                                    var sSQL1 = "select isnull((select top 1 isnull(hbeli,0) harga_pb from pbt01a a (nolock) inner join pbt01b b (nolock) on a.inv=b.inv where brg='" + item.Brg + "' and hbeli > 0 order by a.tgl desc, a.inv desc),0) harga_pb " +
+                                            ", isnull((select top 1 isnull(harsat, 0) harga_st from stt01a a (nolock) inner join stt01b b (nolock) on a.nobuk = b.nobuk where kobar = '" + item.Brg + "' and harsat > 0 order by a.tgl desc, b.no desc),0) harga_st ";
+                                    var cekPb_St = ErasoftDbContext.Database.SqlQuery<HargaPbSt>(sSQL1).SingleOrDefault();
+                                    if (cekPb_St.harga_pb > 0)
+                                    {
+                                        Harsat = cekPb_St.harga_pb;
+                                        Harga = cekPb_St.harga_pb * selisihOM;
+                                    }
+                                    else if (cekPb_St.harga_st > 0)
+                                    {
+                                        Harsat = cekPb_St.harga_st;
+                                        Harga = cekPb_St.harga_st * selisihOM;
+                                    }
+
+                                    //comma = stokDetailOpDb.IndexOf(item) == stokDetailOpDb.Count() - 1 ? "" : ", \n";
+                                    exec += "('" + item.Brg + "', '" + batch.ToString() + "', '" + now + "', '" + noStokOM + "', '" + item.Gud + "', '', " + selisihOM + ", 1, " + Harsat + ", " + Harga + ", " + fixValueProcessDetail + comma;
+
+                                    jmRowOM++;
+                                    if (jmRowOM == 1)
+                                    {
+                                        query += "'" + TGL + "', '" + noStok + "', '" + batch.ToString() + "', '" + now + "', '" + noStokOM + "', 'M', 'M', 1, " + fixValueProcess;
+                                        //System.Threading.Thread.Sleep(5000);
+                                        ErasoftDbContext.Database.ExecuteSqlCommand(query);
+                                        query = "";
+
+                                        logErrorFunction(email, "07. Insert STT01A OM ", noStok, noStokOM + ";" + item.Brg + ";F" + stok + ";S" + item.Qty, json);
+                                        //ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, '05. Insert STT01A', '" + noStok + "', '"+ noStokOM + ";"+ item.Brg + ";F"+ stok + ";S"+ item.Qty + "', dateadd(hour, 7, getdate()), NULL, 1) END ");
+                                        //ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, '06. Insert STT01A', '" + noStok + "', '" + noStokOM + "', dateadd(hour, 7, getdate()), NULL, 1) END ");
+                                    }
+
+                                    //add by nurul 19/11/2021
+                                    listBrgUpdate.Add(item.Brg);
+                                    //end add by nurul 19/11/2021
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, '1. Webhook Update Stok MO', '" + noStokOM + "', '" + e.Message + " | " + e.Source + " | " + e.StackTrace + ".', dateadd(hour, 7, getdate()), '', 0) END ");
+                            }
+
+                            try
+                            {
+                                if (stok > item.Qty)
+                                {
+                                    double selisihOK = stok - item.Qty;
+                                    //comma = stokDetailOpDb.IndexOf(item) == stokDetailOpDb.Count() - 1 ? "" : ", \n";
+                                    exec += "('" + item.Brg + "', '" + batch.ToString() + "', '" + now + "', '" + noStokOK + "', '', '" + item.Gud + "', " + selisihOK + ", 0, 0, 0, " + fixValueProcessDetail + comma;
+
+                                    jmRowOK++;
+                                    if (jmRowOK == 1)
+                                    {
+                                        query += "'" + TGL + "', '" + noStok + "', '" + batch.ToString() + "', '" + now + "', '" + noStokOK + "', 'K', 'K', 0, " + fixValueProcess;
+                                        //System.Threading.Thread.Sleep(5000);
+                                        ErasoftDbContext.Database.ExecuteSqlCommand(query);
+                                        query = "";
+
+                                        logErrorFunction(email, "07. Insert STT01A OK ", noStok, noStokOK + ";" + item.Brg + ";F" + stok + ";S" + item.Qty, json);
+                                        //ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, '06. Insert STT01A', '" + noStok + "', '" + noStokOK + "', dateadd(hour, 7, getdate()), NULL, 1) END ");
+                                    }
+
+                                    //add by nurul 19/11/2021
+                                    listBrgUpdate.Add(item.Brg);
+                                    //end add by nurul 19/11/2021
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, '2. Webhook Update Stok MO', '" + noStokOK + "', '" + ex.Message + " | " + ex.Source + " | " + ex.StackTrace + ".', dateadd(hour, 7, getdate()), '', 0) END ");
+                            }
+                        }
+
+                        try
+                        {
+                            if (!string.IsNullOrEmpty(exec))
+                            {
+                                exec = exec.Substring(0, exec.Length - 1);
+                                string exec_insert = exec.Replace("'", "\"");
+
+                                //ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, '07,5. Pre-insert STT01B', '" + noStok + "', '" + exec_insert + "', dateadd(hour, 7, getdate()), NULL, 1) END ");
+                                logErrorFunction(email, "07,5. Pre-insert STT01B_0", noStok, exec_insert, json);
+
+                                //throw new Exception("TEST ERROR");
+
+                                //exec.Remove(exec.Length - 3, 3);
+                                ErasoftDbContext.Database.ExecuteSqlCommand(queryProcessDetail + exec);
+
+                                if (exec.Length > 65535)
+                                {
+                                    exec = exec.Substring(0, 65535);
+                                }
+                                logErrorFunction(email, "08. Insert STT01B_0", noStok, exec_insert, json);
+                                //ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, '07. Insert STT01B', '" + noStok + "', '" + exec_insert + "', dateadd(hour, 7, getdate()), NULL, 1) END ");
+                            }
+                        }
+                        catch (Exception ey)
+                        {
+                            string error = ey.Message + " | " + ey.Source + " | " + ey.StackTrace;
+                            ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, 'prosesStokOpname_exec_0 MO', '" + noStok + "', '" + error + ".', dateadd(hour, 7, getdate()), '', 1) END ");
+                            //return error;
+                            //if (error.Contains("Execution Timeout Expired"))
+                            //{
+                            string ret = retryInsertStt01b(email, "08. Insert STT01B_1", noStok, error, exec, json, 1);
+                            if (ret != "RETRY")
+                            {
+                                return ey.Message;
+                            }
+                            //}
+                        }
+
+
+                        try
+                        {
+                            //add by nurul 19/11/2021
+                            if (listBrgUpdate.Count() > 0)
+                            {
+                                //var listBrgJson = Newtonsoft.Json.JsonConvert.SerializeObject(listBrgUpdate);
+                                //UpdateStokMP(email, token, listBrgJson, isAccurate, dbID, "stokOpname");
+                                string ConnId = "[WBH_STOK_OP_" + noStok + "][" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddhhmmss") + "]";
+                                //new StokControllerJob().updateStockMarketPlace(ConnId, DatabasePathErasoft, "WebhookStokOp");
+                                //new ManageController().updateStockMarketPlace(listBrgUpdate, ConnId);
+
+                                //var EDB = new DatabaseSQL(dbPathEra);
+                                //string sSQLValues = "";
+                                //var listbrg = listBrgUpdate.Distinct();
+                                //foreach (var item in listbrg)
+                                //{
+                                //    sSQLValues = sSQLValues + "('" + item + "', '" + ConnId + "'),";
+                                //    UpdateStokMP(item, DatabasePathErasoft, ConnId);
+                                //}
+
+                                var listBrgJson = Newtonsoft.Json.JsonConvert.SerializeObject(listBrgUpdate);
+                                UpdateStokMP(listBrgJson, DatabasePathErasoft, ConnId);
+
+                                //if (sSQLValues != "")
+                                //{
+                                //    try
+                                //    {
+                                //        sSQLValues = sSQLValues.Substring(0, sSQLValues.Length - 1);
+                                //        //EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + sSQLValues);
+                                //        var sSQL = "INSERT INTO TEMP_ALL_MP_ORDER_ITEM(BRG, CONN_ID) VALUES " + sSQLValues;
+                                //        var ab = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                                //    }
+                                //    catch (Exception ex)
+                                //    {
+                                //        ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, 'prosesStokOpname_exec_listBrgUpdate MO 1', '" + noStok + "', '" + ex.Message + " | " + ex.Source + " | " + ex.StackTrace + ".', dateadd(hour, 7, getdate()), '', 0) END ");
+                                //        return ex.Message;
+                                //    }
+                                //    try
+                                //    {
+                                //        //stok bundling
+                                //        var sSQLInsertTempBundling = "INSERT INTO TEMP_ALL_MP_ORDER_ITEM_BUNDLING ([BRG],[CONN_ID],[TGL]) " +
+                                //                                 "SELECT DISTINCT C.UNIT AS BRG, '" + ConnId + "' AS CONN_ID, DATEADD(HOUR, +7, GETUTCDATE()) AS TGL " +
+                                //                                 "FROM TEMP_ALL_MP_ORDER_ITEM A (NOLOCK) " +
+                                //                                 "LEFT JOIN TEMP_ALL_MP_ORDER_ITEM_BUNDLING B(NOLOCK) ON B.CONN_ID = '" + ConnId + "' AND A.BRG = B.BRG " +
+                                //                                 "INNER JOIN STF03 C(NOLOCK) ON A.BRG = C.BRG " +
+                                //                                 "WHERE ISNULL(A.CONN_ID,'') = '" + ConnId + "' " +
+                                //                                 "AND ISNULL(B.BRG,'') = '' AND A.BRG <> 'NOT_FOUND'";
+                                //        //var execInsertTempBundling = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLInsertTempBundling);
+                                //        var execInsertTempBundling = ErasoftDbContext.Database.ExecuteSqlCommand(sSQLInsertTempBundling); 
+
+                                //        if (execInsertTempBundling > 0)
+                                //        {
+                                //            //new StokControllerJob().getQtyBundling(dbPathEra, "WebhookStokOp", "'" + ConnId + "'");
+                                //            getQtyBundlingLocal(dbPathEra, "WebhookStokOp", "'" + ConnId + "'"); 
+                                //        }
+                                //        //end stok bundling
+                                //    }
+                                //    catch (Exception exy)
+                                //    {
+                                //        ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, 'prosesStokOpname_exec_listBrgUpdate MO 2', '" + noStok + "', '" + exy.Message + " | " + exy.Source + " | " + exy.StackTrace + ".', dateadd(hour, 7, getdate()), '', 0) END ");
+                                //        return exy.Message;
+                                //    }
+
+                                //    try
+                                //    {
+                                //        new StokControllerJob().updateStockMarketPlace(ConnId, DatabasePathErasoft, "WebhookStokOp");
+                                //    }
+                                //    catch (Exception ex)
+                                //    {
+                                //        ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, 'prosesStokOpname_exec_listBrgUpdate MO 3', '" + noStok + "', '" + ex.Message + " | " + ex.Source + " | " + ex.StackTrace + ".', dateadd(hour, 7, getdate()), '', 0) END ");
+                                //        return ex.Message;
+                                //    }
+                                //}
+                            }
+
+                            logErrorFunction(email, "09. API UpdateStokMP MO", noStok, "-", json);
+                            //ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, '08. API UpdateStokMP MO', '" + noStok + "', '-', dateadd(hour, 7, getdate()), NULL, 1) END ");
+                            //end add by nurul 19/11/2021
+                        }
+                        catch (Exception ez)
+                        {
+                            ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, 'prosesStokOpname_exec_listBrgUpdate MO', '" + noStok + "', '" + ez.Message + " | " + ez.Source + " | " + ez.StackTrace + ".', dateadd(hour, 7, getdate()), '', 0) END ");
+                            return ez.Message;
+                        }
+
+
+                    }
+                }
+
+                //using (DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
+                //{
+                    try
+                    {
+                        ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE STT04A SET POSTING = '1' WHERE NOBUK = {0}", noStok);
+                        //transaction.Commit();
+
+                        logErrorFunction(email, "10. Update STT04A", noStok, "-", json);
+                        //ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, '09. Update STT04A', '" + noStok + "', '-', dateadd(hour, 7, getdate()), NULL, 1) END ");
+                    }
+                    catch (Exception ex)
+                    {
+                        //transaction.Rollback();
+                        ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, '3. Webhook Update Stok MO', '" + noStok + "', '" + ex.InnerException == null ? ex.Message : "Data tidak berhasil diproses, " + ex.InnerException.Message + ".', dateadd(hour, 7, getdate()), '', 0) END ");
+                        return ex.InnerException == null ? ex.Message : "Data tidak berhasil diproses, " + ex.InnerException.Message;
+                    }
+                //}
+
+                logErrorFunction(email, "11. Function berakhir", noStok, "-", json);
+                //ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, '10. Function berakhir', '" + noStok + "', '-', dateadd(hour, 7, getdate()), NULL, 1) END ");
+                return "OK";
+            }
+            catch (Exception e)
+            {
+                ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, '4. Webhook Update Stok MO', '" + noStok + "', '" + e.Message + " | " + e.Source + " | " + e.StackTrace + ".', dateadd(hour, 7, getdate()), '', 0) END ");
+                return e.Message;
+            }
+        }
+        public string retryInsertStt01b(string email, string modul, string nostok, string error, string exec, string json, int retry)
+        {
+            try
+            {
+                System.Threading.Thread.Sleep(5000);
+                string exec_insert = exec.Replace("'", "\"");
+
+                logErrorFunction(email, "07,5. Pre-insert STT01B_" + retry, nostok, exec_insert, json);
+                ErasoftDbContext.Database.ExecuteSqlCommand(queryProcessDetail + exec);
+
+                if (exec.Length > 65535)
+                {
+                    exec = exec.Substring(0, 65535);
+                }
+
+                logErrorFunction(email, "08. Insert STT01B_" + retry, nostok, exec_insert, json);
+                return "RETRY";
+            }
+            catch (Exception e)
+            {
+                string error_exception = e.Message + " | " + e.Source + " | " + e.StackTrace;
+                if (retry == 2)
+                {
+                    ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, 'prosesStokOpname_exec_" + retry + "', '" + nostok + "', '" + error_exception + ".', dateadd(hour, 7, getdate()), '', 0) END ");
+                }
+                else
+                {
+                    ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, 'prosesStokOpname_exec_" + retry + "', '" + nostok + "', '" + error_exception + ".', dateadd(hour, 7, getdate()), '', 1) END ");
+                }
+                if (retry < 2) //error_exception.Contains("Execution Timeout Expired") &&
+                {
+                    retryInsertStt01b(email, modul, nostok, error_exception, exec, json, retry + 1);
+                }
+                return error_exception;
+            }
+
+        }
+
+        public async Task<string> UpdateStokMP(string barang, string databasePathEra, string username)
+        {
+            ////add by nurul 18/11/2021
+            ////await Task.Delay(1000); //delay 1 detik 
+            ////end add by nurul 18/11/2021
+            //TokenChecker tc = new TokenChecker();
+            //(string, string, string) header;
+            //if (!isAccurate)
+            //{
+            //    header = tc.moDataSource(email, token);
+            //    //addby nurul 19/11/2021
+            //    checkErasoft(email, token);
+            //    //end add by nurul 19/11/2021
+            //}
+            //else
+            //{
+            //    header = tc.checkEmail(dbId);
+            //    if (header.Item1 == "INACTIVE")
+            //        return "Status PARTNER_API adalah tidak aktif";
+            //}
+            
+            string ret = "";
+
+#if(AWS)
+            string urldev = "https://masteronline.co.id/api/updatestokmp";
+#else
+            string urldev = "https://dev.masteronline.co.id/api/updatestokmp";
+#endif
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urldev);
+            myReq.Method = "POST";
+            myReq.Headers.Add("X-API-KEY", "UPDATESTOKMP_M@STERONLINE4P1K3Y");
+            myReq.Headers.Add("DBPATHERA", databasePathEra);
+            myReq.Headers.Add("USERNAME", username);
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+
+            string myData = "{\"brg\":\"" + barang + "\"}";
+
+            //if (type == "stokOpname")
+            //{
+                myData = "{\"listBrg\":" + barang + "}";
+            //}
+            string responseFromServer = "";
+
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return ret;
+        }
+
+        public void getQtyBundlingLocal(string DatabasePathErasoft, string uname, string conn_id)
+        {
+            //SetupContext(DatabasePathErasoft, uname);
+            //var MoDbContext = new MoDbContext("");
+            //var EDB = new DatabaseSQL(DatabasePathErasoft);
+            //string EraServerName = EDB.GetServerName("sConn");
+            //var ErasoftDbContext = new ErasoftContext(EraServerName, DatabasePathErasoft);
+            List<string> ret = new List<string>();
+            var cekBundling = ErasoftDbContext.STF03.Count();
+            if (cekBundling > 0)
+            {
+                #region remark by nurul 19/1/2021, pindah ke GetQOHSTF08A
+                #endregion remark by nurul 19/1/2021, pindah ke GetQOHSTF08A
+                if (!string.IsNullOrEmpty(conn_id))
+                {
+                    var cekListBrgBundling = ErasoftDbContext.Database.SqlQuery<string>("select distinct brg from TEMP_ALL_MP_ORDER_ITEM_BUNDLING (NOLOCK) where conn_id IN (" + conn_id + ")").ToList();
+                    if (cekListBrgBundling.Count() > 0)
+                    {
+                        List<string> listBrg = new List<string>();
+                        listBrg.AddRange(cekListBrgBundling);
+                        try
+                        {
+                            var default_gudang = "";
+                            var cekGudangBundling = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang == "GB" && a.Nama_Gudang == "Gudang Bundling" && a.KD_HARGA_JUAL != "1").FirstOrDefault();
+                            if (cekGudangBundling != null)
+                            {
+                                default_gudang = cekGudangBundling.Kode_Gudang;
+                            }
+                            else
+                            {
+                                var gudang_parsys = ErasoftDbContext.SIFSYS.FirstOrDefault().GUDANG;
+                                var cekgudang = ErasoftDbContext.STF18.Where(a => a.KD_HARGA_JUAL != "1").ToList();
+                                if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys && p.KD_HARGA_JUAL != "1").Count() > 0)
+                                {
+                                    default_gudang = gudang_parsys;
+                                }
+                                else
+                                {
+                                    default_gudang = cekgudang.FirstOrDefault().Kode_Gudang;
+                                }
+                            }
+                            var Tahun = Convert.ToInt16(DateTime.UtcNow.AddHours(7).ToString("yyyy"));
+                            //var cekStokSelainGudangBundling = ErasoftDbContext.Database.SqlQuery<int>("select count(*) from stf08a (nolock) where brg in (select distinct unit from stf03 (nolock)) and gd<>'GB' and tahun='2022'").FirstOrDefault();
+                            var cekStokSelainGudangBundling = ErasoftDbContext.Database.SqlQuery<int>("select count(*) from stf08a (nolock) where brg in (select distinct unit from stf03 (nolock)) and gd<>'" + default_gudang + "'").FirstOrDefault();
+                            if (cekStokSelainGudangBundling > 0)
+                            {
+                                try
+                                {
+                                    //var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03 (nolock)) and gd<>'" + default_gudang + "' and tahun='" + Tahun + "'";
+                                    var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03 (nolock)) and gd<>'" + default_gudang + "' ";
+                                    //var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) ";
+                                    var axy = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL3);
+                                    ErasoftDbContext.SaveChanges();
+                                }
+                                catch (Exception ex)
+                                {
+
+                                }
+                            }
+
+                            var string_brg = "";
+                            foreach (var brg in cekListBrgBundling)
+                            {
+                                if (string_brg != "")
+                                {
+                                    string_brg += ",";
+                                }
+
+                                string_brg += "'" + brg + "'";
+                            }
+
+                            var sSQL2 = "update a set a.QTY_SIAPJUAL = b.qty_sales, a.QTY_KOMPONEN=b.qty_komp from stf03 a (nolock) inner join ( " +
+                                        "select a.brg,a.qty, isnull(qoh - qoo, 0) as qty_sales, case when (qoh-qoo)/a.qty > 0 then convert(float,convert(int,round((qoh-qoo)/a.qty,2))) else 0 end as qty_komp from ( " +
+                                        "select (select SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] (nolock) where brg=a.brg ) qoh, " +
+                                        "(select SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] (nolock) where brg=a.brg )qoo,a.brg,a.qty from stf03 a " +
+                                        ")a )b on a.brg=b.brg and a.qty=b.qty " +
+                                        "where a.unit in (" + string_brg + ")";
+                            ErasoftDbContext.Database.ExecuteSqlCommand(sSQL2);
+                            ErasoftDbContext.SaveChanges();
+
+                            var cekListBrgBundlingSudahAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c (nolock) where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) inner join stf08a b (nolock) on a.unit=b.brg where b.tahun='" + Tahun + "' and b.gd ='" + default_gudang + "' and a.unit in (" + string_brg + ")").ToList();
+                            var cekListBrgBundlingBelumAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c (nolock) where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) left join stf08a b (nolock) on a.unit=b.brg where isnull(b.brg,'')='' and a.unit in (" + string_brg + ")").ToList();
+
+                            if (cekListBrgBundlingBelumAdaStok.Count() > 0)
+                            {
+                                foreach (var brg in cekListBrgBundlingBelumAdaStok)
+                                {
+                                    var stf08a = new STF08A()
+                                    {
+                                        GD = default_gudang,
+                                        BRG = brg.Unit,
+                                        Tahun = Convert.ToInt16(DateTime.UtcNow.AddHours(7).ToString("yyyy")),
+                                        QAwal = brg.qty_bundling,
+                                        NAwal = 0,
+                                        QM1 = 0,
+                                        QM2 = 0,
+                                        QM3 = 0,
+                                        QM4 = 0,
+                                        QM5 = 0,
+                                        QM6 = 0,
+                                        QM7 = 0,
+                                        QM8 = 0,
+                                        QM9 = 0,
+                                        QM10 = 0,
+                                        QM11 = 0,
+                                        QM12 = 0,
+                                        NM1 = 0,
+                                        NM2 = 0,
+                                        NM3 = 0,
+                                        NM4 = 0,
+                                        NM5 = 0,
+                                        NM6 = 0,
+                                        NM7 = 0,
+                                        NM8 = 0,
+                                        NM9 = 0,
+                                        NM10 = 0,
+                                        NM11 = 0,
+                                        NM12 = 0,
+                                        QK1 = 0,
+                                        QK2 = 0,
+                                        QK3 = 0,
+                                        QK4 = 0,
+                                        QK5 = 0,
+                                        QK6 = 0,
+                                        QK7 = 0,
+                                        QK8 = 0,
+                                        QK9 = 0,
+                                        QK10 = 0,
+                                        QK11 = 0,
+                                        QK12 = 0,
+                                        NK1 = 0,
+                                        NK2 = 0,
+                                        NK3 = 0,
+                                        NK4 = 0,
+                                        NK5 = 0,
+                                        NK6 = 0,
+                                        NK7 = 0,
+                                        NK8 = 0,
+                                        NK9 = 0,
+                                        NK10 = 0,
+                                        NK11 = 0,
+                                        NK12 = 0,
+                                    };
+                                    ErasoftDbContext.STF08A.Add(stf08a);
+                                    ErasoftDbContext.SaveChanges();
+                                }
+                            }
+
+                            if (cekListBrgBundlingSudahAdaStok.Count() > 0)
+                            {
+                                foreach (var brg in cekListBrgBundlingSudahAdaStok)
+                                {
+                                    var getStf08a = ErasoftDbContext.STF08A.Where(a => a.BRG == brg.Unit && a.GD == default_gudang && a.Tahun == Tahun).FirstOrDefault();
+                                    if (getStf08a != null)
+                                    {
+                                        getStf08a.QAwal = brg.qty_bundling;
+                                        ErasoftDbContext.SaveChanges();
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+
+                        if (!conn_id.Contains("all_item_with_mutation"))
+                        {
+                            var ConnId = "[BRG_BUNDLING][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]";
+                            string sSQLValues = "";
+
+                            foreach (var item in listBrg)
+                            {
+                                sSQLValues = sSQLValues + "('" + item + "', '" + ConnId + "'),";
+                            }
+                            sSQLValues = sSQLValues.Substring(0, sSQLValues.Length - 1);
+                            //EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + sSQLValues);
+                            ErasoftDbContext.Database.ExecuteSqlCommand("INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + sSQLValues);
+
+                            new StokControllerJob().updateStockMarketPlace(ConnId, dbPathEra, uname);
+                        }
+                        //EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM TEMP_ALL_MP_ORDER_ITEM_BUNDLING WHERE conn_id IN (" + conn_id + ")");
+                        ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_ALL_MP_ORDER_ITEM_BUNDLING WHERE conn_id IN (" + conn_id + ")");
+                    }
+                }
+            }
+        }
+        //end add by nurul 9/6/2022
+
         public class Order
         {
             public string NOBUK { get; set; }
