@@ -6472,7 +6472,10 @@ namespace MasterOnline.Controllers
                             {
                                 data.ManageJobEnqueued = Convert.ToInt32(dsCekQueue.Tables["QUEUE_COUNT_3"].Rows[0]["jumlah"]);
                             }
-                            sSQL = "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%' and InvocationData not like '%stok%'" + System.Environment.NewLine;
+                            //change by nurul 15/6/2022, include ProsesStokOpname from webhook
+                            //sSQL = "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%' and InvocationData not like '%stok%'" + System.Environment.NewLine;
+                            sSQL = "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and (InvocationData like '%Product%' or InvocationData like '%prosesStokOpname%') and InvocationData not like '%stok%'" + System.Environment.NewLine;
+                            //end change by nurul 15/6/2022, include ProsesStokOpname from webhook
                             dsCekQueue = EDB.GetDataSet("sCon", "QUEUE_COUNT_4", sSQL);
                             if (dsCekQueue.Tables["QUEUE_COUNT_4"].Rows.Count > 0)
                             {
