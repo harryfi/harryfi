@@ -291,6 +291,9 @@
                                 <option value="tanggal">Tgl. Pesanan</option>
                                 <option value="marketplace">Marketplace</option>
                                 <option value="tipe">Tipe Pesanan</option>
+                                @*//add by nurul 15/6/2022*@
+                                <option value="kurir">Kurir</option>
+                                @*//end add by nurul 15/6/2022*@
                             </select>
                         </div>
                         <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
@@ -323,6 +326,11 @@
                                     <option value="preorder">Preorder</option>
                                 </select>
                             </div>
+                            @*//add by nurul 15/6/2022*@
+                            <div class="col-12" id="filter_semua_field_kurir_div" style="display:none">
+                                <select class="form-group" id="filter_semua_field_kurir" placeholder="Harap Pilih" required="required"></select>
+                            </div>
+                            @*//end add by nurul 15/6/2022*@
                         </div>
                         <div class="col-lg-7 col-sm-7" style="margin-top:13px;">
                             <div class="input-group pull-right">
@@ -364,6 +372,9 @@
                                 <option value="tanggal">Tgl. Pesanan</option>
                                 <option value="marketplace">Marketplace</option>
                                 <option value="tipe">Tipe Pesanan</option>
+                                @*//add by nurul 15/6/2022*@
+                                <option value="kurir">Kurir</option>
+                                @*//end add by nurul 15/6/2022*@
                             </select>
                         </div>
                         <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
@@ -396,6 +407,11 @@
                                     <option value="preorder">Preorder</option>
                                 </select>
                             </div>
+                            @*//add by nurul 15/6/2022*@
+                            <div class="col-12" id="filter_belum_field_kurir_div" style="display:none">
+                                <select class="form-group" id="filter_belum_field_kurir" placeholder="Harap Pilih" required="required"></select>
+                            </div>
+                            @*//end add by nurul 15/6/2022*@
                         </div>
                         <div class="col-lg-7 col-sm-7" style="margin-top:13px;">
                             <div class="input-group pull-right">
@@ -439,6 +455,9 @@
                                 <option value="tanggal">Tgl. Pesanan</option>
                                 <option value="marketplace">Marketplace</option>
                                 <option value="tipe">Tipe Pesanan</option>
+                                @*//add by nurul 15/6/2022*@
+                                <option value="kurir">Kurir</option>
+                                @*//end add by nurul 15/6/2022*@
                             </select>
                         </div>
                         <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
@@ -471,6 +490,11 @@
                                     <option value="preorder">Preorder</option>
                                 </select>
                             </div>
+                            @*//add by nurul 15/6/2022*@
+                            <div class="col-12" id="filter_sudah_field_kurir_div" style="display:none">
+                                <select class="form-group" id="filter_sudah_field_kurir" placeholder="Harap Pilih" required="required"></select>
+                            </div>
+                            @*//end add by nurul 15/6/2022*@
                         </div>
                         <div class="col-lg-7 col-sm-7" style="margin-top:13px;">
                             <div class="input-group pull-right">
@@ -970,23 +994,34 @@
                         $('#filter_semua_field_tipe_div').hide();
                         $('#filter_semua_field_marketplace_div').hide();
                         $('#filter_semua_field_tanggal').val('Harap Pilih');
+                        $('#filter_semua_field_kurir_div').hide();
                         break;
                     case "marketplace":
                         $('#filter_semua_field_tanggal_div').hide();
                         $('#filter_semua_field_tipe_div').hide();
                         $('#filter_semua_field_marketplace_div').show();
                         $('#filter_semua_field_marketplace').val('Harap Pilih');
+                        $('#filter_semua_field_kurir_div').hide();
                         break;
                     case "tipe":
                         $('#filter_semua_field_tanggal_div').hide();
                         $('#filter_semua_field_marketplace_div').hide();
                         $('#filter_semua_field_tipe_div').show();
                         $('#filter_semua_field_tipe').val('Harap Pilih');
+                        $('#filter_semua_field_kurir_div').hide();
+                        break;
+                    case "kurir":
+                        $('#filter_semua_field_tanggal_div').hide();
+                        $('#filter_semua_field_marketplace_div').hide();
+                        $('#filter_semua_field_tipe_div').hide();
+                        $('#filter_semua_field_kurir_div').show();
+                        getKurir('semua');
                         break;
                     default:
                         $('#filter_semua_field_tanggal_div').hide();
                         $('#filter_semua_field_marketplace_div').hide();
                         $('#filter_semua_field_tipe_div').hide();
+                        $('#filter_semua_field_kurir_div').hide();
                         break;
                 }
 
@@ -1006,6 +1041,13 @@
                     searchTableSemuaDO();
                 }
             });
+            //add by nurul 15/6/2022
+            $('#filter_semua_field_kurir').change(function () {
+                if ($('#filter_semua_field_kurir').val() != "Harap Pilih" && $('#filter_semua_field').val() != "Harap Pilih") {
+                    searchTableSemuaDO();
+                }
+            });
+            //end add by nurul 15/6/2022
 
             $('#filter_belum_field').change(function () {
                 var filterBy = $(this).val();
@@ -1015,23 +1057,34 @@
                         $('#filter_belum_field_tipe_div').hide();
                         $('#filter_belum_field_marketplace_div').hide();
                         $('#filter_belum_field_tanggal').val('Harap Pilih');
+                        $('#filter_belum_field_kurir_div').hide();
                         break;
                     case "marketplace":
                         $('#filter_belum_field_tanggal_div').hide();
                         $('#filter_belum_field_tipe_div').hide();
                         $('#filter_belum_field_marketplace_div').show();
                         $('#filter_belum_field_marketplace').val('Harap Pilih');
+                        $('#filter_belum_field_kurir_div').hide();
                         break;
                     case "tipe":
                         $('#filter_belum_field_tanggal_div').hide();
                         $('#filter_belum_field_marketplace_div').hide();
                         $('#filter_belum_field_tipe_div').show();
                         $('#filter_belum_field_tipe').val('Harap Pilih');
+                        $('#filter_belum_field_kurir_div').hide();
+                        break;
+                    case "kurir":
+                        $('#filter_belum_field_tanggal_div').hide();
+                        $('#filter_belum_field_marketplace_div').hide();
+                        $('#filter_belum_field_tipe_div').hide();
+                        $('#filter_belum_field_kurir_div').show();
+                        getKurir('belum');
                         break;
                     default:
                         $('#filter_belum_field_tanggal_div').hide();
                         $('#filter_belum_field_marketplace_div').hide();
                         $('#filter_belum_field_tipe_div').hide();
+                        $('#filter_belum_field_kurir_div').hide();
                         break;
                 }
 
@@ -1051,6 +1104,13 @@
                     searchTableBelumDO();
                 }
             });
+            //add by nurul 15/6/2022
+            $('#filter_belum_field_kurir').change(function () {
+                if ($('#filter_belum_field_kurir').val() != "Harap Pilih" && $('#filter_belum_field').val() != "Harap Pilih") {
+                    searchTableBelumDO();
+                }
+            });
+            //end add by nurul 15/6/2022
 
             $('#filter_sudah_field').change(function () {
                 var filterBy = $(this).val();
@@ -1060,23 +1120,34 @@
                         $('#filter_sudah_field_tipe_div').hide();
                         $('#filter_sudah_field_marketplace_div').hide();
                         $('#filter_sudah_field_tanggal').val('Harap Pilih');
+                        $('#filter_sudah_field_kurir_div').hide();
                         break;
                     case "marketplace":
                         $('#filter_sudah_field_tanggal_div').hide();
                         $('#filter_sudah_field_tipe_div').hide();
                         $('#filter_sudah_field_marketplace_div').show();
                         $('#filter_sudah_field_marketplace').val('Harap Pilih');
+                        $('#filter_sudah_field_kurir_div').hide();
                         break;
                     case "tipe":
                         $('#filter_sudah_field_tanggal_div').hide();
                         $('#filter_sudah_field_marketplace_div').hide();
                         $('#filter_sudah_field_tipe_div').show();
                         $('#filter_sudah_field_tipe').val('Harap Pilih');
+                        $('#filter_sudah_field_kurir_div').hide();
+                        break;
+                    case "kurir":
+                        $('#filter_sudah_field_tanggal_div').hide();
+                        $('#filter_sudah_field_marketplace_div').hide();
+                        $('#filter_sudah_field_tipe_div').hide();
+                        $('#filter_sudah_field_kurir_div').show();
+                        getKurir('sudah');
                         break;
                     default:
                         $('#filter_sudah_field_tanggal_div').hide();
                         $('#filter_sudah_field_marketplace_div').hide();
                         $('#filter_sudah_field_tipe_div').hide();
+                        $('#filter_sudah_field_kurir_div').hide();
                         break;
                 }
 
@@ -1096,6 +1167,13 @@
                     searchTableSudahDO();
                 }
             });
+            //add by nurul 15/6/2022
+            $('#filter_sudah_field_kurir').change(function () {
+                if ($('#filter_sudah_field_kurir').val() != "Harap Pilih" && $('#filter_sudah_field').val() != "Harap Pilih") {
+                    searchTableSudahDO();
+                }
+            });
+            //end add by nurul 15/6/2022
 
             $('#close-editor').off('click').on('click', function () {
 
@@ -1120,6 +1198,39 @@
                 }
             });
         });
+
+        //add by nurul 15/6/2022
+        function getKurir($posisi) {
+            var link = '@Url.Action("getKurirSerahTerima", "Manage")';
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var mpList = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            mpList[i] = {
+                                id: item,
+                                text: item
+                            };
+                        });
+
+                    $('#filter_' + $posisi + '_field_kurir').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: mpList,
+                    });
+                    
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        //end add by nurul 15/6/2022
 
         function saveCutoff() {
             //if ($('#cutoffPengiriman').val() != null && $('#cutoffPengiriman').val() != "") {
@@ -1352,6 +1463,9 @@
                 case "tipe":
                     filtervalue = $('#filter_semua_field_tipe').val();
                     break;
+                case "kurir":
+                    filtervalue = $('#filter_semua_field_kurir').val();
+                    break;
                 default:
                     break;
             }
@@ -1433,6 +1547,9 @@
                 case "tipe":
                     filtervalue = $('#filter_belum_field_tipe').val();
                     break;
+                case "kurir":
+                    filtervalue = $('#filter_belum_field_kurir').val();
+                    break;
                 default:
                     break;
             }
@@ -1499,7 +1616,7 @@
         }
 
         function get_sudah_filterby() {
-            return $('#filter_belum_field').val();
+            return $('#filter_sudah_field').val();
         }
         function get_sudah_filtervalue(filterby) {
             var filtervalue = "";
@@ -1512,6 +1629,9 @@
                     break;
                 case "tipe":
                     filtervalue = $('#filter_sudah_field_tipe').val();
+                    break;
+                case "kurir":
+                    filtervalue = $('#filter_sudah_field_kurir').val();
                     break;
                 default:
                     break;
