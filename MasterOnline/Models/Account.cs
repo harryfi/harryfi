@@ -106,5 +106,8 @@ namespace MasterOnline.Models
         public string IP_ADDRESS_WL { get; set; }
 
         public string DatabaseId { get; set; }
+
+        public bool? Status_Webhook { get; set; }
+        public string PartnerAddress { get; set; }
     }
 }
