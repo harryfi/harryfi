@@ -108,6 +108,6 @@ namespace MasterOnline.Models
         public string DatabaseId { get; set; }
 
         //public bool? Status_Webhook { get; set; }
-        public string PartnerAddress { get; set; }
+        //public string PartnerAddress { get; set; }
     }
 }
