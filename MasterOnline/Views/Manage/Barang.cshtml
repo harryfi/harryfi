@@ -7847,12 +7847,21 @@
         var PromptBrandTiktokTextBox = "";
         function PromptBrandtiktok(i, r) {
             PromptBrandTiktokTextBox = i;
-            showPromptBrandTiktokTextBoxWindow(r);
+            //showPromptBrandTiktokTextBoxWindow(r);
+            var getCategory = $('#ListHargaJualPermarket_' + i + '__CATEGORY_CODE');
+            if ($(getCategory).val() != "" && $(getCategory).val() != null && $(getCategory).val() != undefined) {
+                var ValueCategory = $(getCategory).val();
+                showPromptBrandTiktokTextBoxWindow(ValueCategory, r);
+            }
+            else {
+                alert('Silahkan pilih kategori Tiktok terlebih dahulu.');
+            }
         }
 
-        function showPromptBrandTiktokTextBoxWindow(val) {
+        function showPromptBrandTiktokTextBoxWindow(ValueCategory, val) {
             var $link = '@Url.Action("PromptBrandTiktok", "Manage",new { recnum = "replaceRecnum"})';
             $link = $link.replace("replaceRecnum", encodeURIComponent(val));
+            $link += "&category_id=" + ValueCategory;
             window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
         }
         function afterPromptBrandTiktok(val) {

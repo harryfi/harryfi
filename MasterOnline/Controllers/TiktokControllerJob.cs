@@ -1929,11 +1929,14 @@ namespace MasterOnline.Controllers
                 descBrg = brg_stf02h.DESKRIPSI_MP;
             }
             //descBrg = System.Net.WebUtility.HtmlDecode(descBrg.Replace("&nbsp;", " ")).Replace("&nbsp;", " ").Replace("</p>\r\n", "</p>").Replace("\r\n", "<p></p>");
-            descBrg = System.Net.WebUtility.HtmlDecode(descBrg.Replace("&nbsp;", " ")).Replace("&nbsp;", " ").Replace("</p>", "").Replace("<p>", "").Replace("<br />", "").Replace("<br/>", "");
-            descBrg = "<p>" + descBrg.Replace("\r\n", "</p><p>") + "</p>";
+            descBrg = System.Net.WebUtility.HtmlDecode(descBrg.Replace("&nbsp;", "")).Replace("&nbsp;", "").Replace("</p>", "").Replace("<p>", "").Replace("<br />", "").Replace("<br/>", "");
+            descBrg = "<p>" + descBrg.Replace("\r\n", "</p><p>").Trim() + "</p>";
             descBrg = descBrg.Replace("<ul><p></p>", "<ul>").Replace("<p></p></ul>", "</ul>");
             descBrg = descBrg.Replace("<li><p></p>", "<li>").Replace("<p></p></li>", "</li>").Replace("<p></p><li>", "<li>");
-            descBrg = descBrg.Replace("</li></p><p>", "</li>").Replace("<p><ul>", "<ul>").Replace("</ul></p>", "</ul>").Replace("\\t", " ").Replace("\t", " ");
+            descBrg = descBrg.Replace("</li></p><p>", "</li>").Replace("<ul></p><p>", "<ul>").Replace("<p><ul>", "<ul>").Replace("</ul></p>", "</ul>");
+            descBrg = descBrg.Replace(">\\t", ">").Replace(">\t", ">").Replace("\\t<", "<").Replace("\t<", "<");
+            descBrg = descBrg.Replace("\\t", " ").Replace("\t", " ");
+            descBrg = descBrg.Replace("<strong>", "").Replace("</strong>", "");
             postData.description = descBrg;
 
             #region gambar induk
@@ -2368,11 +2371,14 @@ namespace MasterOnline.Controllers
                 descBrg = brg_stf02h.DESKRIPSI_MP;
             }
             //descBrg = System.Net.WebUtility.HtmlDecode(descBrg.Replace("&nbsp;", " ")).Replace("&nbsp;", " ").Replace("</p>\r\n", "</p>").Replace("\r\n", "<p></p>");
-            descBrg = System.Net.WebUtility.HtmlDecode(descBrg.Replace("&nbsp;", " ")).Replace("&nbsp;", " ").Replace("</p>", "").Replace("<p>", "").Replace("<br />", "").Replace("<br/>", "");
-            descBrg = "<p>" + descBrg.Replace("\r\n", "</p><p>") + "</p>";
+            descBrg = System.Net.WebUtility.HtmlDecode(descBrg.Replace("&nbsp;", "")).Replace("&nbsp;", "").Replace("</p>", "").Replace("<p>", "").Replace("<br />", "").Replace("<br/>", "");
+            descBrg = "<p>" + descBrg.Replace("\r\n", "</p><p>").Trim() + "</p>";
             descBrg = descBrg.Replace("<ul></p><p>", "<ul>").Replace("</p><p></ul>", "</ul>");
             descBrg = descBrg.Replace("<li></p><p>", "<li>").Replace("</p><p></li>", "</li>").Replace("</p><p><li>", "<li>");
-            descBrg = descBrg.Replace("</li></p><p>", "</li>").Replace("<p><ul>", "<ul>").Replace("</ul></p>", "</ul>").Replace("\\t", " ").Replace("\t", " ");
+            descBrg = descBrg.Replace("</li></p><p>", "</li>").Replace("<ul></p><p>", "<ul>").Replace("<p><ul>", "<ul>").Replace("</ul></p>", "</ul>");
+            descBrg = descBrg.Replace(">\\t", ">").Replace(">\t", ">").Replace("\\t<", "<").Replace("\t<", "<");
+            descBrg = descBrg.Replace("\\t", " ").Replace("\t", " ");
+            descBrg = descBrg.Replace("<strong>", "").Replace("</strong>", "");
             postData.description = descBrg;
 
             #region gambar induk
