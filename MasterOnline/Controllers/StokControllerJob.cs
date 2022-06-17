@@ -4813,7 +4813,8 @@ namespace MasterOnline.Controllers
                 {
                     sku = "",
                     product_id = product_id,
-                    new_stock = stok
+                    new_stock = stok,
+                    bypass_update_product_status = true
                 };
                 HttpBodies.Add(HttpBody);
 
@@ -5012,7 +5013,8 @@ namespace MasterOnline.Controllers
                 {
                     sku = "",
                     product_id = product_id,
-                    new_stock = stok
+                    new_stock = stok,
+                    bypass_update_product_status = true
                 };
                 HttpBodies.Add(HttpBody);
 
@@ -7674,7 +7676,7 @@ namespace MasterOnline.Controllers
             public string sku { get; set; }
             public long product_id { get; set; }
             public int new_stock { get; set; }
-
+            public bool bypass_update_product_status { get; set; }
         }
 
         //public class ShopifyAPIData
