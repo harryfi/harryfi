@@ -2927,7 +2927,7 @@ namespace MasterOnline.Controllers
                             DatabaseSQL EDB = new DatabaseSQL(dataAPI.DatabasePathErasoft);
                             var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', KD_ANALISA = '2', Sort1_Cust = '"
                                 + dataAPI.merchant_code + "', TOKEN_EXPIRED = '" + dateExpired + "', TGL_EXPIRED = '" + tglExpired + "', API_KEY = '" + dataAPI.API_secret_key
-                                 + "', TOKEN = '" + result.access_token + "', REFRESH_TOKEN = '" + result.refresh_token
+                                 + "', TOKEN = '" + result.access_token + "', Sort3_Cust = '', REFRESH_TOKEN = '" + result.refresh_token
                                 + "' WHERE CUST = '" + dataAPI.no_cust + "'");
                             if (resultquery != 0)
                             {
@@ -3175,7 +3175,7 @@ namespace MasterOnline.Controllers
                                 DatabaseSQL EDB = new DatabaseSQL(dataAPI.DatabasePathErasoft);
                                 var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', KD_ANALISA = '2', Sort1_Cust = '"
                                     + dataAPI.merchant_code + "', TOKEN_EXPIRED = '" + dateExpired + "', API_KEY = '" + dataAPI.API_secret_key
-                                     + "', TOKEN = '" + result.access_token + "', REFRESH_TOKEN = '" + result.refresh_token
+                                     + "', TOKEN = '" + result.access_token + "', Sort3_Cust = '', REFRESH_TOKEN = '" + result.refresh_token
                                     + "' WHERE CUST = '" + dataAPI.no_cust + "'");
                                 if (resultquery != 0)
                                 {
@@ -3207,6 +3207,16 @@ namespace MasterOnline.Controllers
                         }
                         else
                         {
+                            var cekSendEmail = ErasoftDbContext.ARF01.Where(m => m.CUST == dataAPI.no_cust).FirstOrDefault();
+                            if (cekSendEmail.Sort3_Cust != "1")
+                            {
+                                DatabaseSQL EDB = new DatabaseSQL(dataAPI.DatabasePathErasoft);
+                                var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET Sort3_Cust = '1' WHERE CUST = '"
+                                    + dataAPI.no_cust + "'");
+
+                                var accindb = MoDbContext.Account.Where(m => m.DatabasePathErasoft == dataAPI.DatabasePathErasoft).FirstOrDefault();
+                                SendEmailToCust(accindb.Email, "Reminder: Status akun marketplace Shopee (" + cekSendEmail.PERSO + ") sudah expired", "");
+                            }
                             if (!string.IsNullOrWhiteSpace(result.message.ToString()))
                             {
                                 //currentLog.REQUEST_EXCEPTION = result.message.ToString();

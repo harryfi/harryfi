@@ -294,7 +294,7 @@ namespace MasterOnline.Controllers
                                 DatabaseSQL EDB = new DatabaseSQL(dataAPI.DatabasePathErasoft);
                                 var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', KD_ANALISA = '2', Sort1_Cust = '"
                                     + dataAPI.merchant_code + "', TOKEN_EXPIRED = '" + dateExpired + "', API_KEY = '" + dataAPI.API_secret_key
-                                     + "', TOKEN = '" + result.access_token + "', REFRESH_TOKEN = '" + result.refresh_token
+                                     + "', TOKEN = '" + result.access_token + "', Sort3_Cust = '', REFRESH_TOKEN = '" + result.refresh_token
                                     + "' WHERE CUST = '" + dataAPI.no_cust + "'");
                             }
                             else
@@ -312,6 +312,18 @@ namespace MasterOnline.Controllers
                         }
                         else
                         {
+                            var cekSendEmail = ErasoftDbContext.ARF01.Where(m => m.CUST == dataAPI.no_cust).FirstOrDefault();
+                            if(cekSendEmail.Sort3_Cust != "1")
+                            {
+                                DatabaseSQL EDB = new DatabaseSQL(dataAPI.DatabasePathErasoft);
+                                var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET Sort3_Cust = '1' WHERE CUST = '"
+                                    + dataAPI.no_cust + "'");
+
+                                var accindb = MoDbContext.Account.Where(m => m.DatabasePathErasoft == dataAPI.DatabasePathErasoft).FirstOrDefault();
+                                SendEmailToCust(accindb.Email, "Reminder: Status akun marketplace Shopee (" + cekSendEmail.PERSO + ") sudah expired", "");
+                            }
+                            
+
                             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
                             {
                                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
@@ -333,7 +345,35 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+        public void SendEmailToCust(string emailAddress, string subject, string msg)
+        {
+            var email = new MailAddress(emailAddress);
+            var originPassword = accInDb.Password;
+            var nama = accInDb.Username;
+            var body = msg;
 
+            var message = new MailMessage();
+            message.To.Add(email);
+            message.From = new MailAddress("csmasteronline@gmail.com");
+            message.Subject = subject;
+            message.Body = string.Format(body, emailAddress, originPassword, nama);
+            message.IsBodyHtml = true;
+
+            using (var smtp = new SmtpClient())
+            {
+                var credential = new NetworkCredential
+                {
+                    UserName = "csmasteronline@gmail.com",
+                    Password = "kmblwexkeretrwxv"
+                };
+                smtp.Credentials = credential;
+                smtp.Host = "smtp.gmail.com";
+                smtp.Port = 587;
+                smtp.EnableSsl = true;
+                await smtp.SendMailAsync(message);
+            }
+
+        }
         public async Task<string> UploadImage(ShopeeAPIData iden, string[] imageUrl)
         {
             //SetupContext(iden);
