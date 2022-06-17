@@ -866,7 +866,7 @@ namespace MasterOnline.Controllers
             var paramQualityAsurance = "";
             if (!string.IsNullOrEmpty(detailBrg.ANAME_47))
             {
-                paramQualityAsurance = " \"qualityDays\":" + detailBrg.ANAME_47 + ", ";
+                paramQualityAsurance = " \"qualityDays\":" + detailBrg.ANAME_47 + " ";
             }
 
             var skeyword = "";
@@ -895,8 +895,11 @@ namespace MasterOnline.Controllers
                 "\"crossProductType\":\"1\", \"clearanceType\":\"2\" , \"taxesType\":\"2\", \"countryId\":\"10000000\", " +
                 paramHref +
                 "\"subtitle\":\"" + detailBrg.AVALUE_43 + "\", \"transportId\":42, \"isQuality\":" + detailBrg.AVALUE_47 + ", " +
-                paramQualityAsurance +
-                "\"warrantyPeriod\":" + detailBrg.ACODE_41 + ", \"afterSale\":" + detailBrg.ACODE_40 + ", \"whetherCod\":" + detailBrg.AVALUE_45 + ", " +
+                paramQualityAsurance;
+            sParamJson += (detailBrg.ACODE_41 == null ? "" : ",\"warrantyPeriod\":" + detailBrg.ACODE_41);
+            sParamJson += (detailBrg.ACODE_40 == null ? "" : ",\"afterSale\":" + detailBrg.ACODE_40) +
+                //"\"warrantyPeriod\":" + detailBrg.ACODE_41 + ", \"afterSale\":" + detailBrg.ACODE_40 
+                + ", \"whetherCod\":" + detailBrg.AVALUE_45 + ", " +
                 "\"weight\":\"" + weight + "\", \"netWeight\":\"" + weight + "\", \"packHeight\":\"" + brgInDb.TINGGI + "\", \"packLong\":\"" + brgInDb.PANJANG + "\", \"packWide\":\"" + brgInDb.LEBAR + "\", \"piece\":" + detailBrg.ACODE_39 + "}, " +
                 "\"skuList\":[ " +
                 paramSKUVariant +
@@ -1285,7 +1288,7 @@ namespace MasterOnline.Controllers
             var paramQualityAsurance = "";
             if (!string.IsNullOrEmpty(detailBrg.ANAME_47))
             {
-                paramQualityAsurance = " \"qualityDays\":" + detailBrg.ANAME_47 + ", ";
+                paramQualityAsurance = " \"qualityDays\":" + detailBrg.ANAME_47 + " ";
             }
 
             //var paramSKUVariant = "";
@@ -1380,8 +1383,10 @@ namespace MasterOnline.Controllers
                 "\"brandId\":" + detailBrg.AVALUE_38 + ", \"catId\":" + detailBrg.CATEGORY_CODE + ", " + commonAttribute + " \"isSequenceNumber\":1, \"keywords\":\"" + skeyword + "\", \"productArea\":\"" + detailBrg.ACODE_47 + "\", " +
                 "\"crossProductType\":\"1\", \"clearanceType\":\"2\" , \"taxesType\":\"2\", \"countryId\":\"10000000\", " +
                 "\"subtitle\":\"" + detailBrg.AVALUE_43 + "\", \"subtitleHref\":\"" + urlHref + "\", \"subtitleHrefM\":\"" + urlHref + "\", \"transportId\":42, \"isQuality\":" + detailBrg.AVALUE_47 + ", " +
-                paramQualityAsurance +
-                "\"warrantyPeriod\":" + detailBrg.ACODE_41 +
+                paramQualityAsurance;
+            sParamJson += (detailBrg.ACODE_41 == null ? "" : ",\"warrantyPeriod\":" + detailBrg.ACODE_41);
+            sParamJson += (detailBrg.ACODE_40 == null ? "" : ",\"afterSale\":" + detailBrg.ACODE_40) +
+                //"\"warrantyPeriod\":" + detailBrg.ACODE_41 +
                 //", \"afterSale\":" + Convert.ToInt32(detailBrg.ACODE_40) + 
                 ", \"whetherCod\":" + detailBrg.AVALUE_45 + ", " +
                 "\"weight\":\"" + weight + "\",  \"Piece\": " + detailBrg.ACODE_39 + ", \"netWeight\":\"" + weight + "\", \"packHeight\":\"" + brgInDb.TINGGI + "\", \"packLong\":\"" + brgInDb.PANJANG + "\", \"packWide\":\"" + brgInDb.LEBAR + "\"," +
@@ -7103,7 +7108,7 @@ namespace MasterOnline.Controllers
             var paramQualityAsurance = "";
             if (!string.IsNullOrEmpty(detailBrg.ANAME_47))
             {
-                paramQualityAsurance = " \"qualityDays\":" + detailBrg.ANAME_47 + ", ";
+                paramQualityAsurance = " \"qualityDays\":" + detailBrg.ANAME_47 + " ";
             }
 
             var skeyword = "";
@@ -7132,8 +7137,11 @@ namespace MasterOnline.Controllers
                 "\"crossProductType\":\"1\", \"clearanceType\":\"2\" , \"taxesType\":\"2\", \"countryId\":\"10000000\", " +
                 paramHref +
                 "\"subtitle\":\"" + detailBrg.AVALUE_43 + "\", \"transportId\":42, \"isQuality\":" + detailBrg.AVALUE_47 + ", " +
-                paramQualityAsurance +
-                "\"warrantyPeriod\":" + detailBrg.ACODE_41 + ", \"afterSale\":" + detailBrg.ACODE_40 + ", \"whetherCod\":" + detailBrg.AVALUE_45 + ", " +
+                paramQualityAsurance;
+            sParamJson += (detailBrg.ACODE_41 == null ? "" : ",\"warrantyPeriod\":" + detailBrg.ACODE_41);
+            sParamJson += (detailBrg.ACODE_40 == null ? "" : ",\"afterSale\":" + detailBrg.ACODE_40) +
+                //"\"warrantyPeriod\":" + detailBrg.ACODE_41 + ", \"afterSale\":" + detailBrg.ACODE_40 
+                + ", \"whetherCod\":" + detailBrg.AVALUE_45 + ", " +
                 "\"weight\":\"" + weight + "\", \"netWeight\":\"" + weight + "\", \"packHeight\":\"" + brgInDb.TINGGI + "\", \"packLong\":\"" + brgInDb.PANJANG + "\", \"packWide\":\"" + brgInDb.LEBAR + "\", \"piece\":" + detailBrg.ACODE_39 + "}, " +
                 "\"skuList\":[ " +
                 paramSKUVariant +
@@ -7761,7 +7769,7 @@ namespace MasterOnline.Controllers
             var paramQualityAsurance = "";
             if (!string.IsNullOrEmpty(detailBrg.ANAME_47))
             {
-                paramQualityAsurance = " \"qualityDays\":" + detailBrg.ANAME_47 + ", ";
+                paramQualityAsurance = " \"qualityDays\":" + detailBrg.ANAME_47 + " ";
             }
 
             //var paramSKUVariant = "";
@@ -7888,9 +7896,11 @@ namespace MasterOnline.Controllers
                 "\"brandId\":" + detailBrg.AVALUE_38 + ", \"catId\":" + detailBrg.CATEGORY_CODE + ", " + commonAttribute + " \"isSequenceNumber\":1, \"keywords\":\"" + skeyword + "\", \"productArea\":\"" + detailBrg.ACODE_47 + "\", " +
                 "\"crossProductType\":\"1\", \"clearanceType\":\"2\" , \"taxesType\":\"2\", \"countryId\":\"10000000\", " +
                 "\"subtitle\":\"" + detailBrg.AVALUE_43 + "\", \"subtitleHref\":\"" + urlHref + "\", \"subtitleHrefM\":\"" + urlHref + "\", \"transportId\":42, \"isQuality\":" + detailBrg.AVALUE_47 + ", " +
-                paramQualityAsurance +
-                "\"warrantyPeriod\":" + detailBrg.ACODE_41 +
-                ", \"afterSale\":" + Convert.ToInt32(detailBrg.ACODE_40) +
+                paramQualityAsurance;
+            sParamJson += (detailBrg.ACODE_41 == null ? "" : ",\"warrantyPeriod\":" + detailBrg.ACODE_41);
+            sParamJson += (detailBrg.ACODE_40 == null ? "" : ",\"afterSale\":" + detailBrg.ACODE_40) +
+            //"\"warrantyPeriod\":" + detailBrg.ACODE_41 +
+            //", \"afterSale\":" + Convert.ToInt32(detailBrg.ACODE_40) +
                 ", \"whetherCod\":" + detailBrg.AVALUE_45 + ", " +
                 "\"weight\":\"" + weight + "\",  \"Piece\": " + detailBrg.ACODE_39 + ", \"netWeight\":\"" + weight + "\", \"packHeight\":\"" + brgInDb.TINGGI + "\", \"packLong\":\"" + brgInDb.PANJANG + "\", \"packWide\":\"" + brgInDb.LEBAR + "\"," +
                 "\"appDescription\":\"" + vDescription + "\"" +
