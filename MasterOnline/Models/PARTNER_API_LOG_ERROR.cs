@@ -27,7 +27,7 @@
 
         public string JSON_String { get; set; }
         public bool Status { get; set; }
-        public string Partnerid { get; set; }
+        //public string Partnerid { get; set; }
     }
     public partial class PARTNER_API_LOG_ERROR_VIEW
     {
