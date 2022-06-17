@@ -63,7 +63,7 @@
         [StringLength(50)]
         public string WalletId { get; set; }
         public bool? isFaktur { get; set; }
-        //public bool? StatusWebhookPesanan { get; set; }
+        public bool? StatusWebhookPesanan { get; set; }
         //public bool? StatusWebhookPesananBatal { get; set; }
     }
 }
