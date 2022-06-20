@@ -897,7 +897,7 @@ namespace MasterOnline.Controllers
                 "\"subtitle\":\"" + detailBrg.AVALUE_43 + "\", \"transportId\":42, \"isQuality\":" + detailBrg.AVALUE_47 + ", " +
                 paramQualityAsurance;
             sParamJson += (detailBrg.ACODE_41 == null ? "" : ",\"warrantyPeriod\":" + detailBrg.ACODE_41);
-            sParamJson += (detailBrg.ACODE_40 == null ? "" : ",\"afterSale\":" + detailBrg.ACODE_40) +
+            sParamJson += (detailBrg.ACODE_40 == null ? "" : ",\"afterSale\":" + detailBrg.ACODE_40) 
                 //"\"warrantyPeriod\":" + detailBrg.ACODE_41 + ", \"afterSale\":" + detailBrg.ACODE_40 
                 + ", \"whetherCod\":" + detailBrg.AVALUE_45 + ", " +
                 "\"weight\":\"" + weight + "\", \"netWeight\":\"" + weight + "\", \"packHeight\":\"" + brgInDb.TINGGI + "\", \"packLong\":\"" + brgInDb.PANJANG + "\", \"packWide\":\"" + brgInDb.LEBAR + "\", \"piece\":" + detailBrg.ACODE_39 + "}, " +
@@ -7139,7 +7139,7 @@ namespace MasterOnline.Controllers
                 "\"subtitle\":\"" + detailBrg.AVALUE_43 + "\", \"transportId\":42, \"isQuality\":" + detailBrg.AVALUE_47 + ", " +
                 paramQualityAsurance;
             sParamJson += (detailBrg.ACODE_41 == null ? "" : ",\"warrantyPeriod\":" + detailBrg.ACODE_41);
-            sParamJson += (detailBrg.ACODE_40 == null ? "" : ",\"afterSale\":" + detailBrg.ACODE_40) +
+            sParamJson += (detailBrg.ACODE_40 == null ? "" : ",\"afterSale\":" + detailBrg.ACODE_40) 
                 //"\"warrantyPeriod\":" + detailBrg.ACODE_41 + ", \"afterSale\":" + detailBrg.ACODE_40 
                 + ", \"whetherCod\":" + detailBrg.AVALUE_45 + ", " +
                 "\"weight\":\"" + weight + "\", \"netWeight\":\"" + weight + "\", \"packHeight\":\"" + brgInDb.TINGGI + "\", \"packLong\":\"" + brgInDb.PANJANG + "\", \"packWide\":\"" + brgInDb.LEBAR + "\", \"piece\":" + detailBrg.ACODE_39 + "}, " +
