@@ -3308,7 +3308,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> JD_GetOrderByStatusPaid(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
+        public string JD_GetOrderByStatusPaid(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
         {
             string ret = "";
             SetupContext(iden.DatabasePathErasoft, iden.username);
@@ -3333,7 +3333,7 @@ namespace MasterOnline.Controllers
 
                 //change by nurul 20/1/2021, bundling 
                 //await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
-                var returnGetOrder = await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 0, 0, 0, dateFrom, dateTo);
+                var returnGetOrder =  JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 0, 0, 0, dateFrom, dateTo);
                 //change by nurul 20/1/2021, bundling 
 
                 //daysFrom -= 3;
@@ -3385,7 +3385,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> JD_GOLIVE_GetOrderByStatusPaid(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
+        public string JD_GOLIVE_GetOrderByStatusPaid(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
         {
             string ret = "";
             SetupContext(iden.DatabasePathErasoft, iden.username);
@@ -3406,7 +3406,7 @@ namespace MasterOnline.Controllers
                 var dateFrom = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
                 var dateTo = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
 
-                var returnGetOrder = await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 0, 0, 0, dateFrom, dateTo);
+                var returnGetOrder = JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 0, 0, 0, dateFrom, dateTo);
 
                 daysFrom -= 1;
                 daysTo -= 1;
@@ -3426,7 +3426,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> JD_GetOrderByStatusPaidList3Days(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, long daysFrom, long daysTo)
+        public string JD_GetOrderByStatusPaidList3Days(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, long daysFrom, long daysTo)
         {
             //1:Waiting for delivery, 2:Shipped, 3:Waiting_Cancel, 4:Waiting_Refuse, 5:Canceled, 6:Completed, 7:Ready to Ship
 
@@ -3594,7 +3594,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> JD_GetOrderByStatusRTS(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
+        public string JD_GetOrderByStatusRTS(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
         {
             string ret = "";
             SetupContext(iden.DatabasePathErasoft, iden.username);
@@ -3619,7 +3619,7 @@ namespace MasterOnline.Controllers
 
                 //change by nurul 20/1/2021, bundling 
                 //await JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
-                var returnGetOrder = await JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 0, 0, 0, dateFrom, dateTo);
+                var returnGetOrder = JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 0, 0, 0, dateFrom, dateTo);
                 //change by nurul 20/1/2021, bundling
                 //daysFrom -= 3;
                 //daysTo -= 3;
@@ -3670,7 +3670,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> JD_GOLIVE_GetOrderByStatusRTS(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
+        public string JD_GOLIVE_GetOrderByStatusRTS(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
         {
             string ret = "";
             SetupContext(iden.DatabasePathErasoft, iden.username);
@@ -3691,7 +3691,7 @@ namespace MasterOnline.Controllers
                 var dateFrom = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
                 var dateTo = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
 
-                var returnGetOrder = await JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 0, 0, 0, dateFrom, dateTo);
+                var returnGetOrder = JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 0, 0, 0, dateFrom, dateTo);
                 daysFrom -= 1;
                 daysTo -= 1;
 
@@ -3707,7 +3707,7 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-        public async Task<string> JD_GetOrderByStatusRTSList3Days(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, long daysFrom, long daysTo)
+        public string JD_GetOrderByStatusRTSList3Days(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, long daysFrom, long daysTo)
         {
             //1:Waiting for delivery, 2:Shipped, 3:Waiting_Cancel, 4:Waiting_Refuse, 5:Canceled, 6:Completed, 7:Ready to Ship
 
@@ -3873,7 +3873,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> JD_GetOrderByStatusCancel(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
+        public string JD_GetOrderByStatusCancel(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
         {
             string ret = "";
             SetupContext(iden.DatabasePathErasoft, iden.username);
@@ -3897,7 +3897,7 @@ namespace MasterOnline.Controllers
 
                 //change by nurul 20/1/2021, bundling 
                 //await JD_GetOrderByStatusCancelList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
-                var returnGetOrder = await JD_GetOrderByStatusCancelList3Days(iden, stat, CUST, NAMA_CUST, 0, 0, 0, dateFrom, dateTo);
+                var returnGetOrder = JD_GetOrderByStatusCancelList3Days(iden, stat, CUST, NAMA_CUST, 0, 0, 0, dateFrom, dateTo);
                 //change by nurul 20/1/2021, bundling 
 
                 //daysFrom -= 3;
@@ -3947,7 +3947,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> JD_GetOrderByStatusCancelList3Days(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, long daysFrom, long daysTo)
+        public string JD_GetOrderByStatusCancelList3Days(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, long daysFrom, long daysTo)
         {
             //1:Waiting for delivery, 2:Shipped, 3:Waiting_Cancel, 4:Waiting_Refuse, 5:Canceled, 6:Completed, 7:Ready to Ship
 
@@ -4157,7 +4157,7 @@ namespace MasterOnline.Controllers
         //add by nurul 9/8/2021
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_manage_pesanan")]
-        public async Task<string> JD_GetOrderByStatusComplete(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
+        public string JD_GetOrderByStatusComplete(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
         {
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
@@ -4179,7 +4179,7 @@ namespace MasterOnline.Controllers
                         string_listNoRef = string_listNoRef.Substring(0, string_listNoRef.Length - 1);
                         if (iden.versi == "2")
                         {
-                            await GetOrderByStatusCompletedAPIV2(iden, listNoRef.ToArray(), string_listNoRef, CUST);
+                            GetOrderByStatusCompletedAPIV2(iden, listNoRef.ToArray(), string_listNoRef, CUST);
                         }
                         else
                         {
@@ -4278,7 +4278,7 @@ namespace MasterOnline.Controllers
             return "";
         }
 
-        public async Task<string> GetOrderByStatusCompletedAPIV2(JDIDAPIDataJob data, string[] ordersn_list, string ordersn_string, string cust)
+        public string GetOrderByStatusCompletedAPIV2(JDIDAPIDataJob data, string[] ordersn_list, string ordersn_string, string cust)
         {
             string responseFromServer = "";
             bool responseApi = false;
@@ -4309,7 +4309,8 @@ namespace MasterOnline.Controllers
                 responseFromServer = "";
                 try
                 {
-                    using (WebResponse response = await myReq.GetResponseAsync())
+                    //using (WebResponse response = await myReq.GetResponseAsync())
+                    using (WebResponse response = myReq.GetResponse())
                     {
                         using (Stream stream = response.GetResponseStream())
                         {

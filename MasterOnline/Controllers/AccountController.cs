@@ -947,9 +947,9 @@ namespace MasterOnline.Controllers
                         {
 
 #if (DEBUG || Debug_AWS)
-                            await new BukaLapakControllerJob().GetOrdersNew(iden, tblCustomer.CUST, tblCustomer.PERSO, username, -1);
-                            await new BukaLapakControllerJob().GetOrdersCompleted(iden, tblCustomer.CUST, tblCustomer.PERSO, username);
-                            await new BukaLapakControllerJob().GetOrdersCanceled(iden, tblCustomer.CUST, tblCustomer.PERSO, username);
+                             new BukaLapakControllerJob().GetOrdersNew(iden, tblCustomer.CUST, tblCustomer.PERSO, username, -1);
+                             new BukaLapakControllerJob().GetOrdersCompleted(iden, tblCustomer.CUST, tblCustomer.PERSO, username);
+                             new BukaLapakControllerJob().GetOrdersCanceled(iden, tblCustomer.CUST, tblCustomer.PERSO, username);
 
                             //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BukaLapakControllerJob>(x => x.cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
                             //new BukaLapakControllerJob().cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, dbPathEra, username);
@@ -1856,13 +1856,13 @@ namespace MasterOnline.Controllers
                         iden.username = username;
                         iden.no_cust = tblCustomer.CUST;
 
-                        await new EightTwoCartControllerJob().E2Cart_GetOrderByStatus(iden, EightTwoCartControllerJob.StatusOrder.UNPAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
+                         new EightTwoCartControllerJob().E2Cart_GetOrderByStatus(iden, EightTwoCartControllerJob.StatusOrder.UNPAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
 
-                        await new EightTwoCartControllerJob().E2Cart_GetOrderByStatus(iden, EightTwoCartControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
+                         new EightTwoCartControllerJob().E2Cart_GetOrderByStatus(iden, EightTwoCartControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
 
-                        await new EightTwoCartControllerJob().E2Cart_GetOrderByStatusCompleted(iden, EightTwoCartControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
+                         new EightTwoCartControllerJob().E2Cart_GetOrderByStatusCompleted(iden, EightTwoCartControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
 
-                        await new EightTwoCartControllerJob().E2Cart_GetOrderByStatusCancelled(iden, EightTwoCartControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
+                         new EightTwoCartControllerJob().E2Cart_GetOrderByStatusCancelled(iden, EightTwoCartControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
 
 #endif
 
@@ -1999,21 +1999,21 @@ namespace MasterOnline.Controllers
                         }
                         //end add by nurul 4/5/2021, JDID versi 2
 
-                        await new JDIDControllerJob().JD_GetOrderByStatusPaid(iden, JDIDControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
+                         new JDIDControllerJob().JD_GetOrderByStatusPaid(iden, JDIDControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
 
-                        await new JDIDControllerJob().JD_GetOrderByStatusRTS(iden, JDIDControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
+                         new JDIDControllerJob().JD_GetOrderByStatusRTS(iden, JDIDControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
 
-                        await new JDIDControllerJob().JD_GetOrderByStatusComplete(iden, JDIDControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
+                         new JDIDControllerJob().JD_GetOrderByStatusComplete(iden, JDIDControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
 
-                        await new JDIDControllerJob().JD_GetOrderByStatusCancel(iden, JDIDControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
+                         new JDIDControllerJob().JD_GetOrderByStatusCancel(iden, JDIDControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
                         
                         if (!string.IsNullOrEmpty(sync_pesanan_stok))
                         {
                             if (sync_pesanan_stok == tblCustomer.CUST)
                             {
-                                await new JDIDControllerJob().JD_GOLIVE_GetOrderByStatusPaid(iden, JDIDControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
+                                 new JDIDControllerJob().JD_GOLIVE_GetOrderByStatusPaid(iden, JDIDControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
 
-                                await new JDIDControllerJob().JD_GOLIVE_GetOrderByStatusRTS(iden, JDIDControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
+                                 new JDIDControllerJob().JD_GOLIVE_GetOrderByStatusRTS(iden, JDIDControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
                             }
                         }
 #endif

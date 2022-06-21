@@ -1284,7 +1284,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> E2Cart_GetOrderByStatus(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar)
+        public string E2Cart_GetOrderByStatus(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar)
         {
             string ret = "";
             SetupContext(iden);
@@ -1309,7 +1309,7 @@ namespace MasterOnline.Controllers
 
                 //change by nurul 20/1/2021, bundling 
                 //await E2Cart_GetOrderByStatusList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
-                var returnGetOrder = await E2Cart_GetOrderByStatusList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+                var returnGetOrder = E2Cart_GetOrderByStatusList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
                 //change by nurul 20/1/2021, bundling 
                 //daysFrom -= 3;
                 //daysTo -= 3;
@@ -1363,7 +1363,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> E2Cart_GetOrderByStatusList3Days(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, string daysFrom, string daysTo)
+        public string E2Cart_GetOrderByStatusList3Days(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, string daysFrom, string daysTo)
         {
             string ret = "";
             string connID = Guid.NewGuid().ToString();
@@ -1433,7 +1433,7 @@ namespace MasterOnline.Controllers
                             if (stat == StatusOrder.UNPAID)
                             {
                                 //check state order
-                                var resultStatusAwaiting = await E2Cart_GetOrdersState(iden);
+                                var resultStatusAwaiting = E2Cart_GetOrdersState(iden);
                                 //end check state order
 
                                 if (resultStatusAwaiting.dataObject != null)
@@ -2171,7 +2171,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> E2Cart_GetOrderByStatusCompleted(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderCompeleted)
+        public string E2Cart_GetOrderByStatusCompleted(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderCompeleted)
         {
             string ret = "";
             SetupContext(iden);
@@ -2186,7 +2186,7 @@ namespace MasterOnline.Controllers
                 var dateFrom = daysNow.AddDays(daysFrom).ToString("yyyy-MM-dd HH:mm:ss");
                 var dateTo = daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToString("yyyy-MM-dd HH:mm:ss");
 
-                await E2Cart_GetOrderByStatusCompletedList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
+                 E2Cart_GetOrderByStatusCompletedList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
                 //daysFrom -= 3;
                 //daysTo -= 3;
                 daysFrom -= 2;
@@ -2317,7 +2317,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> E2Cart_GetOrderByStatusCancelled(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderCancel)
+        public string E2Cart_GetOrderByStatusCancelled(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderCancel)
         {
             string ret = "";
             SetupContext(iden);
@@ -2340,7 +2340,7 @@ namespace MasterOnline.Controllers
                 
                 //change by nurul 20/1/2021, bundling 
                 //await E2Cart_GetOrderByStatusCancelledList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
-                var returnGetOrder = await E2Cart_GetOrderByStatusCancelledList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
+                var returnGetOrder = E2Cart_GetOrderByStatusCancelledList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
                 //change by nurul 20/1/2021, bundling 
                 //daysFrom -= 3;
                 //daysTo -= 3;
@@ -2384,7 +2384,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> E2Cart_GetOrderByStatusCancelledList3Days(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderCancel, string daysFrom, string daysTo)
+        public string E2Cart_GetOrderByStatusCancelledList3Days(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderCancel, string daysFrom, string daysTo)
         {
             string ret = "";
 
@@ -2887,7 +2887,7 @@ namespace MasterOnline.Controllers
             return "";
         }
 
-        public async Task<BindingBase82Cart> E2Cart_GetOrdersState(E2CartAPIData iden)
+        public BindingBase82Cart E2Cart_GetOrdersState(E2CartAPIData iden)
         {
             var ret = new BindingBase82Cart
             {
