@@ -24,6 +24,8 @@ using Hangfire.SqlServer;
 using RestSharp;
 using Amazon.DynamoDBv2.Model;
 
+using System.Net.Mail;
+
 namespace MasterOnline.Controllers
 {
     public class ShopeeControllerJob : Controller
@@ -318,9 +320,23 @@ namespace MasterOnline.Controllers
                                 DatabaseSQL EDB = new DatabaseSQL(dataAPI.DatabasePathErasoft);
                                 var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET Sort3_Cust = '1' WHERE CUST = '"
                                     + dataAPI.no_cust + "'");
-
+                                var bodyEmail = "<p>Hi Kak {0},</p>" +
+                    "<p>Untuk menjaga keamanan data Toko, pihak Marketplace secara berkala melakukan pembaharuan / Refresh API Token. Integrasi Marketplace akan otomatis terputus saat API Token Marketplace tersebut sudah expired.</p>" +
+                    "<p>Akun Marketplace Kakak yang <span style='background-color: #FFFF00;text-decoration: underline;'>sudah expired</span> adalah sebagai berikut, mohon lakukan link ulang di Master Online :</p>" +
+                    "<p><span style='background-color: #FFFF00;text-decoration: underline;'>- Nama akun: {2} {1} sudah expired pada {3} </span></p>" +
+                    "<p>Silahkan segera melakukan link ulang agar integrasi marketplace tersambung kembali. Cara melakukan link ulang di Master Online:</p>" +
+                    "<p>1. Masuk menu Pengaturan > Link ke Marketplace</p>" +
+                    "<p>2. Edit akun Marketplace Anda</p>" +
+                    "<p>3. Lengkapi data Toko</p>" +
+                    "<p>4. Klik Simpan.</p>" +
+                    "<p>Terima kasih atas perhatian dan kerjasama nya. Sukses selalu bersama Master Online.</p>" +
+                    "<p>&nbsp;</p>" +
+                    "<p>Best regards,</p>" +
+                    "<p>&nbsp;</p>" +
+                    "<p>Master Online.</p>";
                                 var accindb = MoDbContext.Account.Where(m => m.DatabasePathErasoft == dataAPI.DatabasePathErasoft).FirstOrDefault();
-                                SendEmailToCust(accindb.Email, "Reminder: Status akun marketplace Shopee (" + cekSendEmail.PERSO + ") sudah expired", "");
+                                bodyEmail = string.Format(bodyEmail, accindb.Username, "Shopee", cekSendEmail.PERSO, cekSendEmail.TOKEN_EXPIRED);
+                                SendEmailToCust(accindb.Email, "(Penting) Status integrasi akun marketplace Shopee (" + cekSendEmail.PERSO + ") sudah expired", bodyEmail);
                             }
                             
 
@@ -342,21 +358,46 @@ namespace MasterOnline.Controllers
                         //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
                     }
                 }
+                else
+                {
+                    var cekSendEmail = ErasoftDbContext.ARF01.Where(m => m.CUST == dataAPI.no_cust).FirstOrDefault();
+                    if (cekSendEmail.Sort3_Cust != "1")
+                    {
+                        DatabaseSQL EDB = new DatabaseSQL(dataAPI.DatabasePathErasoft);
+                        var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET Sort3_Cust = '1' WHERE CUST = '"
+                            + dataAPI.no_cust + "'");
+                        var bodyEmail = "<p>Hi Kak {0},</p>" +
+            "<p>Untuk menjaga keamanan data Toko, pihak Marketplace secara berkala melakukan pembaharuan / Refresh API Token. Integrasi Marketplace akan otomatis terputus saat API Token Marketplace tersebut sudah expired.</p>" +
+            "<p>Akun Marketplace Kakak yang akan expired adalah sebagai berikut, mohon lakukan link ulang di Master Online :</p>" +
+            "<p><span style='background-color: #FFFF00;text-decoration: underline;'>- Nama akun: {2} {1} sudah expired pada {3} </span></p>" +
+            "<p>Silahkan segera melakukan link ulang agar integrasi marketplace tersambung kembali. Cara melakukan link ulang di Master Online:</p>" +
+            "<p>1. Masuk menu Pengaturan > Link ke Marketplace</p>" +
+            "<p>2. Edit akun Marketplace Anda</p>" +
+            "<p>3. Lengkapi data Toko</p>" +
+            "<p>4. Klik Simpan.</p>" +
+            "<p>Terima kasih atas perhatian dan kerjasama nya. Sukses selalu bersama Master Online.</p>" +
+            "<p>&nbsp;</p>" +
+            "<p>Best regards,</p>" +
+            "<p>&nbsp;</p>" +
+            "<p>Master Online.</p>";
+                        var accindb = MoDbContext.Account.Where(m => m.DatabasePathErasoft == dataAPI.DatabasePathErasoft).FirstOrDefault();
+                        bodyEmail = string.Format(bodyEmail, accindb.Username, "Shopee", cekSendEmail.PERSO, cekSendEmail.TOKEN_EXPIRED);
+                        SendEmailToCust(accindb.Email, "Reminder: Status akun marketplace Shopee (" + cekSendEmail.PERSO + ") sudah expired", bodyEmail);
+                    }
+                }
             }
             return ret;
         }
-        public void SendEmailToCust(string emailAddress, string subject, string msg)
+        public async Task<string> SendEmailToCust(string emailAddress, string subject, string msg)
         {
             var email = new MailAddress(emailAddress);
-            var originPassword = accInDb.Password;
-            var nama = accInDb.Username;
             var body = msg;
 
             var message = new MailMessage();
             message.To.Add(email);
             message.From = new MailAddress("csmasteronline@gmail.com");
             message.Subject = subject;
-            message.Body = string.Format(body, emailAddress, originPassword, nama);
+            message.Body = body;
             message.IsBodyHtml = true;
 
             using (var smtp = new SmtpClient())
@@ -372,7 +413,7 @@ namespace MasterOnline.Controllers
                 smtp.EnableSsl = true;
                 await smtp.SendMailAsync(message);
             }
-
+            return "";
         }
         public async Task<string> UploadImage(ShopeeAPIData iden, string[] imageUrl)
         {
