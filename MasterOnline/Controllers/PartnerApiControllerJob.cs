@@ -367,6 +367,7 @@ namespace MasterOnline.Controllers
         string queryProcessDetail = @"INSERT INTO STT01B (Kobar, UserName, TglInput, Nobuk, Ke_Gd, Dr_Gd, Qty, Jenis_Form, Harsat, Harga, Satuan, Qty_Retur, Qty_Berat, TOTAL_LOT, TOTAL_QTY, QTY_TERIMA, QTY_CLAIM, NO_URUT_PO, NO_URUT_SJ, QTY_TERIMA_PO_QC) VALUES ";
         string fixValueProcessDetail = "'2', 0, 0, 0, 0, 0, 0, 0, 0, 0)";
 
+        [AutomaticRetry(Attempts = 0)]
         [Queue("1_create_product")]
         public string prosesStokOpname(string batch, string noStok, string email, string token, bool isAccurate, string DatabasePathErasoft, string dbSourceEra)
         {
