@@ -2064,7 +2064,7 @@ namespace MasterOnline.Controllers
 
             if (Convert.ToString(stf02.TYPE) == "3" || Convert.ToString(stf02.TYPE) == "6")
             {
-                xmlString += "\"Skus\": { \"Sku\": [ { \"SellerSku\":\"" + HttpUtility.JavaScriptStringEncode(data.kdBrg) + "\",";
+                xmlString += "\"Skus\": { \"Sku\": [ { \"SellerSku\":\"" + HttpUtility.JavaScriptStringEncode(stf02h.BRG_MP) + "\",";
                 xmlString += "\"Status\":\"" + (data.activeProd ? "active" : "inactive") + "\",";
                 xmlString += "\"price\":\"" + data.harga + "\",";
                 xmlString += "\"package_length\":\"" + data.length + "\",\"package_height\":\"" + data.height + "\",";
