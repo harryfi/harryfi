@@ -549,7 +549,7 @@ namespace MasterOnline.Controllers
                                 }
                                 catch (Exception e)
                                 {
-                                    ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, '1. Webhook Update Stok MO', '" + noStokOM + "', '" + e.Message + " | " + e.Source + " | " + e.StackTrace + ".', dateadd(hour, 7, getdate()), '', 0) END ");
+                                    ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, 'prosesStokOpname_exec_" + noStokOM + "_0 MO', '" + noStok + "', '" + e.Message + " | " + e.Source + " | " + e.StackTrace + ".', dateadd(hour, 7, getdate()), '', 0) END ");
                                 }
 
                                 try
@@ -571,7 +571,7 @@ namespace MasterOnline.Controllers
                                             //ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, '06. Insert STT01A', '" + noStok + "', '" + noStokOK + "', dateadd(hour, 7, getdate()), NULL, 1) END ");
                                         }
 
-                                        exec += "('" + item.Brg + "', '" + batch.ToString() + "', '" + now + "', '" + noStokOK + "', '', '" + item.Gud + "', " + selisihOK + ", 0, 0, 0, " + fixValueProcessDetail + comma;
+                                        exec += "('" + item.Brg + "', '" + batch.ToString() + "', '" + now + "', '" + noStokOK + "', '', '" + item.Gud + "', " + selisihOK + ", 0, 0, 0, " + fixValueProcessDetail; //+ comma
 
                                         try
                                         {
@@ -621,7 +621,7 @@ namespace MasterOnline.Controllers
                                 }
                                 catch (Exception ex)
                                 {
-                                    ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, '2. Webhook Update Stok MO', '" + noStokOK + "', '" + ex.Message + " | " + ex.Source + " | " + ex.StackTrace + ".', dateadd(hour, 7, getdate()), '', 0) END ");
+                                    ErasoftDbContext.Database.ExecuteSqlCommand(@"BEGIN INSERT INTO PARTNER_API_LOG_ERROR (fs_id, Modul, No_Bukti, Keterangan, Created_Date, JSON_String, Status) VALUES (1, 'prosesStokOpname_exec_" + noStokOK + "_0 MO', '" + noStok + "', '" + ex.Message + " | " + ex.Source + " | " + ex.StackTrace + ".', dateadd(hour, 7, getdate()), '', 0) END ");
                                 }
                             }
                         }
