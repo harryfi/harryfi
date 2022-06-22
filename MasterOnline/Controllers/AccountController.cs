@@ -547,6 +547,11 @@ namespace MasterOnline.Controllers
                 dbSourceEra = _viewModel.Account.DataSourcePath;
 #endif
                 erasoftContext = _viewModel.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dbSourceEra, dbPathEra);
+                if (!erasoftContext.Database.Exists())
+                {
+                    ModelState.AddModelError(string.Empty, @"Akun Anda sudah dihapus, silahkan hubungi customer service kami.");
+                    return View("Login", account);
+                }
                 //add by calvin 1 april 2019
                 EDB = new DatabaseSQL(_viewModel.Account.DatabasePathErasoft);
                 accFromDb.LAST_LOGIN_DATE = DateTime.UtcNow;
@@ -565,7 +570,12 @@ namespace MasterOnline.Controllers
                 dbSourceEra = accFromUser.DataSourcePath;
 #endif
 
-                erasoftContext = new ErasoftContext(dbSourceEra, dbPathEra);
+                erasoftContext = new ErasoftContext(dbSourceEra, dbPathEra); 
+                if (!erasoftContext.Database.Exists())
+                {
+                    ModelState.AddModelError(string.Empty, @"Akun Anda sudah dihapus, silahkan hubungi customer service kami.");
+                    return View("Login", account);
+                }
                 //add by calvin 1 april 2019
                 EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                 accFromUser.LAST_LOGIN_DATE = DateTime.UtcNow;
