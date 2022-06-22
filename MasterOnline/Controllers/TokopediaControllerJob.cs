@@ -9747,7 +9747,14 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                try
+                {
+                    responseFromServer = retryListMessage(iden, filter, page, 0);
+                }
+                catch (Exception ex1)
+                {
 
+                }
             }
 
             //if (responseFromServer != null)
@@ -9902,7 +9909,14 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                try
+                {
+                    responseFromServer = retryListReply(iden, msgId, page, 0);
+                }
+                catch (Exception ex1)
+                {
 
+                }
             }
 
             //if (responseFromServer != null)
@@ -10136,6 +10150,119 @@ namespace MasterOnline.Controllers
             return ret;
         }
         //end add by nurul 20/9/2021
+
+        //add by nurul 17/6/2022
+        public string retryListMessage(TokopediaAPIData iden, string filter, int page, int retry)
+        {
+            string ret = "";
+            try
+            {
+                Task.Delay(60000); //delay 10 detik biar ga kena limit 8 request per menit 
+                                   //}
+                                   ////end add by nurul 1/3/2022
+
+                string connId = Guid.NewGuid().ToString();
+                var token = SetupContext(iden);
+                iden.token = token;
+                //filter: “all”, “read”, or “unread”.
+                string urll = "https://fs.tokopedia.net/v1/chat/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/messages?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&page=" + page + "&per_page=15&order=desc&filter=" + Uri.EscapeDataString(filter);
+
+
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+                myReq.Accept = "application/x-www-form-urlencoded";
+                myReq.ContentType = "application/json";
+
+                string responseFromServer = "";
+                try
+                {
+                    using (WebResponse response = myReq.GetResponse())
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                            ret = responseFromServer;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (retry < 4)
+                    {
+                        try
+                        {
+                            ret = retryListMessage(iden, filter, page, retry + 1);
+                        }
+                        catch (Exception ex1)
+                        {
+
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return ret;
+        }
+        public string retryListReply(TokopediaAPIData iden, string msgId, int page, int retry)
+        {
+            string ret = "";
+            try
+            {
+                Task.Delay(60000); //delay 10 detik biar ga kena limit 8 request per menit 
+                                   //}
+                                   ////end add by nurul 1/3/2022
+
+                string connId = Guid.NewGuid().ToString();
+                var token = SetupContext(iden);
+                iden.token = token;
+                string urll = "https://fs.tokopedia.net/v1/chat/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/messages/" + Uri.EscapeDataString(msgId) + "/replies?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&page=" + page + "&per_page=15&order=desc";
+
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+                myReq.Accept = "application/x-www-form-urlencoded";
+                myReq.ContentType = "application/json";
+
+                string responseFromServer = "";
+                try
+                {
+                    using (WebResponse response = myReq.GetResponse())
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                            ret = responseFromServer;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (retry < 4)
+                    {
+                        try
+                        {
+                            ret = retryListReply(iden, msgId, page, retry + 1);
+                        }
+                        catch (Exception ex1)
+                        {
+
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return ret;
+        }
+        //end add by nurul 17/6/2022
 
         public enum StatusOrder
         {
