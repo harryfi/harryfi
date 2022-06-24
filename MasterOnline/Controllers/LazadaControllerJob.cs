@@ -1059,18 +1059,18 @@ namespace MasterOnline.Controllers
 
                 xmlString += "\"price\":\"" + data.harga + "\",";
                 xmlString += "\"package_length\":\"" + data.length + "\",\"package_height\":\"" + data.height + "\",";
-                xmlString += "\"package_width\":\"" + data.width + "\",\"package_weight\":\"" + Convert.ToDouble(data.weight) / 1000 + "\",";//weight in kg
+                xmlString += "\"package_width\":\"" + data.width + "\",\"package_weight\":\"" + Convert.ToDouble(data.weight) / 1000 + "\"";//weight in kg
                 
                 foreach (var lzdSkuAttr in lzdAttrSkuWithVal)
                 {
-                    xmlString += "\"" + lzdSkuAttr.Key + "\":\"";
+                    xmlString += ",\"" + lzdSkuAttr.Key + "\":\"";
                     xmlString += HttpUtility.JavaScriptStringEncode(Convert.ToString(lzdSkuAttr.Value).Replace(System.Environment.NewLine, "<br>"));
-                    xmlString += "\",";
+                    xmlString += "\"";
                 }
-                if(lzdAttrSkuWithVal.Count > 0)
-                {
-                    xmlString = xmlString.Substring(0, xmlString.Length - 1);
-                }
+                //if(lzdAttrSkuWithVal.Count > 0)
+                //{
+                //    xmlString = xmlString.Substring(0, xmlString.Length - 1);
+                //}
                 xmlString += " } ] }";
             }
             else if (Convert.ToString(stf02.TYPE) == "4")
@@ -1142,14 +1142,14 @@ namespace MasterOnline.Controllers
                         if (string.IsNullOrEmpty(GetStf02h.BRG_MP))
                         {
                             xmlString += "{ \"SellerSku\":\"" + HttpUtility.JavaScriptStringEncode(item.BRG) + "\",";
-                            xmlString += "\"Status\":\"" + (data.activeProd ? "active" : "inactive") + "\",";
+                            xmlString += "\"Status\":\"" + (data.activeProd ? "active" : "inactive") + "\"";
 
                             foreach (var attribute in KombinasiAttribute)
                             {
                                 if (attribute.Value == item.BRG)
                                 {
                                     string[] getId = attribute.Key.Split(new string[] { "[;]" }, StringSplitOptions.None);
-                                    xmlString += "\"" + getId[0] + "\":\"" + HttpUtility.JavaScriptStringEncode(getId[1]) + "\",";
+                                    xmlString += ",\"" + getId[0] + "\":\"" + HttpUtility.JavaScriptStringEncode(getId[1]) + "\"";
                                     attributesAdded.Add(getId[0]);
                                 }
                             }
@@ -1169,9 +1169,9 @@ namespace MasterOnline.Controllers
                                         try
                                         {
                                             var getAttrValue = lzdAttrSkuWithVal[dsSku[i].ToString()].ToString();
-                                            xmlString += "\"" + dsSku[i].ToString() + "\":\"";
+                                            xmlString += ",\"" + dsSku[i].ToString() + "\":\"";
                                             xmlString += XmlEscape(getAttrValue);
-                                            xmlString += "\",";
+                                            xmlString += "\"";
                                         }
                                         catch (Exception ex)
                                         {
@@ -1196,10 +1196,10 @@ namespace MasterOnline.Controllers
 
                             if (qty_stock > 0)
                             {
-                                xmlString += "\"quantity\":\"" + Convert.ToString(qty_stock) + "\",";
+                                xmlString += ",\"quantity\":\"" + Convert.ToString(qty_stock) + "\"";
                             }
                             //change 1/8/2019, gunakan hjual stf02h
-                            xmlString += "\"price\":\"" + GetStf02h.HJUAL + "\",";
+                            xmlString += ",\"price\":\"" + GetStf02h.HJUAL + "\",";
                             //change 1/8/2019, gunakan hjual stf02h
                             xmlString += "\"package_length\":\"" + data.length + "\",\"package_height\":\"" + data.height + "\",";
                             xmlString += "\"package_width\":\"" + data.width + "\",\"package_weight\":\"" + Convert.ToDouble(data.weight) / 1000 + "\",";//weight in kg
@@ -1210,7 +1210,7 @@ namespace MasterOnline.Controllers
                                 var uploadImg = UploadImage(item.LINK_GAMBAR_1, data.token);
                                 if (uploadImg.status == 1)
                                 {
-                                    xmlString += "\"" + uploadImg.message + "\",";
+                                    xmlString += "\"" + uploadImg.message + "\"";
                                 }
                             }
                             //if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
@@ -1221,7 +1221,7 @@ namespace MasterOnline.Controllers
                             //        xmlString += "\"" + uploadImg.message + "\",";
                             //    }
                             //}
-                            xmlString = xmlString.Substring(0, xmlString.Length - 1);
+                            //xmlString = xmlString.Substring(0, xmlString.Length - 1);
 
                             xmlString += "] } } ,";
                         }
@@ -2068,18 +2068,18 @@ namespace MasterOnline.Controllers
                 xmlString += "\"Status\":\"" + (data.activeProd ? "active" : "inactive") + "\",";
                 xmlString += "\"price\":\"" + data.harga + "\",";
                 xmlString += "\"package_length\":\"" + data.length + "\",\"package_height\":\"" + data.height + "\",";
-                xmlString += "\"package_width\":\"" + data.width + "\",\"package_weight\":\"" + Convert.ToDouble(data.weight) / 1000 + "\",";//weight in kg
+                xmlString += "\"package_width\":\"" + data.width + "\",\"package_weight\":\"" + Convert.ToDouble(data.weight) / 1000 + "\"";//weight in kg
                
                 foreach (var lzdSkuAttr in lzdAttrSkuWithVal)
                 {
-                    xmlString += "\"" + lzdSkuAttr.Key + "\":\"";
+                    xmlString += ",\"" + lzdSkuAttr.Key + "\":\"";
                     xmlString += HttpUtility.JavaScriptStringEncode(Convert.ToString(lzdSkuAttr.Value).Replace(System.Environment.NewLine, "<br>"));
-                    xmlString += "\",";
+                    xmlString += "\"";
                 }
-                if (lzdAttrSkuWithVal.Count > 0)
-                {
-                    xmlString = xmlString.Substring(0, xmlString.Length - 1);
-                }
+                //if (lzdAttrSkuWithVal.Count > 0)
+                //{
+                //    xmlString = xmlString.Substring(0, xmlString.Length - 1);
+                //}
                 xmlString += " } ] }";
             }
             else if (Convert.ToString(stf02.TYPE) == "4")
@@ -2135,14 +2135,14 @@ namespace MasterOnline.Controllers
                         if (!string.IsNullOrEmpty(GetStf02h.BRG_MP))
                         {
                             xmlString += "{ \"SellerSku\":\"" + HttpUtility.JavaScriptStringEncode(GetStf02h.BRG_MP) + "\",";
-                            xmlString += "\"Status\":\"" + (data.activeProd ? "active" : "inactive") + "\",";
+                            xmlString += "\"Status\":\"" + (data.activeProd ? "active" : "inactive") + "\"";
 
                             foreach (var attribute in KombinasiAttribute)
                             {
                                 if (attribute.Value == item.BRG)
                                 {
                                     string[] getId = attribute.Key.Split(new string[] { "[;]" }, StringSplitOptions.None);
-                                    xmlString += "\"" + getId[0] + "\":\"" + HttpUtility.JavaScriptStringEncode(getId[1]) + "\",";
+                                    xmlString += ",\"" + getId[0] + "\":\"" + HttpUtility.JavaScriptStringEncode(getId[1]) + "\"";
                                     attributesAdded.Add(getId[0]);
                                 }
                             }
@@ -2159,16 +2159,16 @@ namespace MasterOnline.Controllers
                                     //end add by Tri 29 mei 2020, cek dl ada value atau tidak
                                     if (!attributesAdded.Contains(dsSku[i].ToString()))
                                     {
-                                        xmlString += "\"" + dsSku[i].ToString() + "\":\"";
+                                        xmlString += ",\"" + dsSku[i].ToString() + "\":\"";
                                         xmlString += HttpUtility.JavaScriptStringEncode(lzdAttrSkuWithVal[dsSku[i].ToString()].ToString());
-                                        xmlString += "\",";
+                                        xmlString += "\"";
                                     }
                             }
                             //end change 16 Mei 2019, get attr from api
 
                             //change 1/8/2019, gunakan hjual stf02h
                             //xmlString += "<price>" + data.harga + "</price>";
-                            xmlString += "\"price\":\"" + GetStf02h.HJUAL + "\",";
+                            xmlString += ",\"price\":\"" + GetStf02h.HJUAL + "\",";
                             //change 1/8/2019, gunakan hjual stf02h
                             xmlString += "\"package_length\":\"" + data.length + "\",\"package_height\":\"" + data.height + "\",";
                             xmlString += "\"package_width\":\"" + data.width + "\",\"package_weight\":\"" + Convert.ToDouble(data.weight) / 1000 + "\",";//weight in kg
@@ -2178,7 +2178,7 @@ namespace MasterOnline.Controllers
                                 var uploadImg = UploadImage(item.LINK_GAMBAR_1, data.token);
                                 if (uploadImg.status == 1)
                                 {
-                                    xmlString += "\"" + uploadImg.message + "\",";
+                                    xmlString += "\"" + uploadImg.message + "\"";
                                 }
                             }
                             //if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
@@ -2189,7 +2189,7 @@ namespace MasterOnline.Controllers
                             //        xmlString += "\"" + uploadImg.message + "\",";
                             //    }
                             //}
-                            xmlString = xmlString.Substring(0, xmlString.Length - 1);
+                            //xmlString = xmlString.Substring(0, xmlString.Length - 1);
                             xmlString += "] } } ,";
                         }
                     }
