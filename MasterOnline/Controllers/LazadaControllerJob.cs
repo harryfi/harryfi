@@ -3155,18 +3155,24 @@ namespace MasterOnline.Controllers
         }
         public BindingBase UploadImage(string imagePath, string accessToken)
         {
+            var ret = UploadImageWithRetry(imagePath, accessToken, 0);
+
+            return ret;
+        }
+        public BindingBase UploadImageWithRetry(string imagePath, string accessToken, int retry)
+        {
             var ret = new BindingBase();
             ret.status = 0;
 
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            {
-                REQUEST_ID = DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "Upload Image Product",
-                REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
-                REQUEST_ATTRIBUTE_1 = imagePath,
-                REQUEST_STATUS = "Pending",
-            };
-            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff"),
+            //    REQUEST_ACTION = "Upload Image Product",
+            //    REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
+            //    REQUEST_ATTRIBUTE_1 = imagePath,
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
 
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
@@ -3191,27 +3197,35 @@ namespace MasterOnline.Controllers
                 {
                     ret.status = 1;
                     ret.message = bindImg.data.image.url;
-                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
+                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
                 }
                 else
                 {
                     ret.message = bindImg.message;
-                    currentLog.REQUEST_EXCEPTION = ret.message;
-                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
-                    if (!string.IsNullOrWhiteSpace(ret.message))
+                    //currentLog.REQUEST_EXCEPTION = ret.message;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
+                    //if (!string.IsNullOrWhiteSpace(ret.message))
+                    //{
+                    //    if (ret.message.Contains("service timeout"))
+                    //    {
+                    //        ret = UploadImage(imagePath, accessToken);
+                    //    }
+                    //}
+                    if(retry == 0)
                     {
-                        if (ret.message.Contains("service timeout"))
-                        {
-                            ret = UploadImage(imagePath, accessToken);
-                        }
+                        ret = UploadImageWithRetry(imagePath, accessToken, 1);
                     }
                 }
             }
             catch (Exception ex)
             {
                 ret.message = ex.ToString();
-                currentLog.REQUEST_EXCEPTION = ex.Message;
-                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
+                //currentLog.REQUEST_EXCEPTION = ex.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
+                if (retry == 0)
+                {
+                    ret = UploadImageWithRetry(imagePath, accessToken, 1);
+                }
             }
             return ret;
         }
