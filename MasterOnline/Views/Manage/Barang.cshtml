@@ -2157,7 +2157,7 @@
         function FuncGetWarrantyJD(valueWarranty, selectWarrantyJDID, listMarket_i_RecNum, fieldWarrantyCode, fieldWarrantyName, listMarketRecNum, clear) {
 
             //buat select pertama
-            var nextselect = '<select id="' + selectWarrantyJDID + '" placeholder="Harap pilih"></select>';
+            var nextselect = '<select id="' + selectWarrantyJDID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select>';
             if (clear == false) {
                 $('#warranty_JD_' + listMarket_i_RecNum).append(nextselect);
             }
