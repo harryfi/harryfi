@@ -1223,6 +1223,22 @@ namespace MasterOnline.Controllers
                 ListCustAddons = MoDbContext.Addons_Customer.ToList()
             };
 
+            //ADD BY NURUL 24/6/2022
+            var cekAddon = MoDbContext.Addons.Where(a => a.RecNum == Convert.ToInt32(vm.Addons_Customer.ID_ADDON)).FirstOrDefault();
+            if(cekAddon != null)
+            {
+                if(cekAddon.Fitur.ToUpper() == "CHAT")
+                {
+                    var CekStatusSyncChat = MoDbContext.TOKPED_SHOPID.Where(a => a.EMAIL_ACCOUNT == vm.Addons_Customer.Account && a.STATUS_CHAT == "1").ToList();
+                    if(CekStatusSyncChat.Count() > 0)
+                    {
+                        MoDbContext.Database.ExecuteSqlCommand("update TOKPED_SHOPID set STATUS_CHAT ='0' where EMAIL_ACCOUNT='" + vm.Addons_Customer.Account + "' and STATUS_CHAT='1'");
+                        MoDbContext.SaveChanges();                        
+                    }
+                }
+            }
+            //END ADD BY NURUL 24/6/2022
+
             MoDbContext.Addons_Customer.Remove(vm.Addons_Customer);
             MoDbContext.SaveChanges();
 
@@ -1236,6 +1252,22 @@ namespace MasterOnline.Controllers
                 Addons_Customer = MoDbContext.Addons_Customer.Single(e => e.RecNum == eksId),
                 ListCustAddons = MoDbContext.Addons_Customer.ToList()
             };
+
+            //ADD BY NURUL 24/6/2022
+            var cekAddon = MoDbContext.Addons.Where(a => a.RecNum == Convert.ToInt32(vm.Addons_Customer.ID_ADDON)).FirstOrDefault();
+            if (cekAddon != null)
+            {
+                if (cekAddon.Fitur.ToUpper() == "CHAT")
+                {
+                    var CekStatusSyncChat = MoDbContext.TOKPED_SHOPID.Where(a => a.EMAIL_ACCOUNT == vm.Addons_Customer.Account && a.STATUS_CHAT == "1").ToList();
+                    if (CekStatusSyncChat.Count() > 0)
+                    {
+                        MoDbContext.Database.ExecuteSqlCommand("update TOKPED_SHOPID set STATUS_CHAT ='0' where EMAIL_ACCOUNT='" + vm.Addons_Customer.Account + "' and STATUS_CHAT='1'");
+                        MoDbContext.SaveChanges();
+                    }
+                }
+            }
+            //END ADD BY NURUL 24/6/2022
 
             MoDbContext.Addons_Customer.Remove(vm.Addons_Customer);
             MoDbContext.SaveChanges();

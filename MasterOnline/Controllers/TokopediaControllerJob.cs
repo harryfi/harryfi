@@ -9749,7 +9749,7 @@ namespace MasterOnline.Controllers
             {
                 try
                 {
-                    responseFromServer = retryListMessage(iden, filter, page, 0);
+                    responseFromServer = retryListMessage(iden, urll, 0);
                 }
                 catch (Exception ex1)
                 {
@@ -9911,7 +9911,7 @@ namespace MasterOnline.Controllers
             {
                 try
                 {
-                    responseFromServer = retryListReply(iden, msgId, page, 0);
+                    responseFromServer = retryListReply(iden, urll, 0);
                 }
                 catch (Exception ex1)
                 {
@@ -10152,7 +10152,7 @@ namespace MasterOnline.Controllers
         //end add by nurul 20/9/2021
 
         //add by nurul 17/6/2022
-        public string retryListMessage(TokopediaAPIData iden, string filter, int page, int retry)
+        public string retryListMessage(TokopediaAPIData iden, string urll, int retry)
         {
             string ret = "";
             try
@@ -10161,11 +10161,11 @@ namespace MasterOnline.Controllers
                                    //}
                                    ////end add by nurul 1/3/2022
 
-                string connId = Guid.NewGuid().ToString();
-                var token = SetupContext(iden);
-                iden.token = token;
-                //filter: “all”, “read”, or “unread”.
-                string urll = "https://fs.tokopedia.net/v1/chat/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/messages?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&page=" + page + "&per_page=15&order=desc&filter=" + Uri.EscapeDataString(filter);
+                //string connId = Guid.NewGuid().ToString();
+                //var token = SetupContext(iden);
+                //iden.token = token;
+                ////filter: “all”, “read”, or “unread”.
+                //string urll = "https://fs.tokopedia.net/v1/chat/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/messages?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&page=" + page + "&per_page=15&order=desc&filter=" + Uri.EscapeDataString(filter);
 
 
                 HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
@@ -10193,7 +10193,7 @@ namespace MasterOnline.Controllers
                     {
                         try
                         {
-                            ret = retryListMessage(iden, filter, page, retry + 1);
+                            ret = retryListMessage(iden, urll, retry + 1);
                         }
                         catch (Exception ex1)
                         {
@@ -10208,7 +10208,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public string retryListReply(TokopediaAPIData iden, string msgId, int page, int retry)
+        public string retryListReply(TokopediaAPIData iden, string urll, int retry)
         {
             string ret = "";
             try
@@ -10217,10 +10217,10 @@ namespace MasterOnline.Controllers
                                    //}
                                    ////end add by nurul 1/3/2022
 
-                string connId = Guid.NewGuid().ToString();
-                var token = SetupContext(iden);
-                iden.token = token;
-                string urll = "https://fs.tokopedia.net/v1/chat/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/messages/" + Uri.EscapeDataString(msgId) + "/replies?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&page=" + page + "&per_page=15&order=desc";
+                //string connId = Guid.NewGuid().ToString();
+                //var token = SetupContext(iden);
+                //iden.token = token;
+                //string urll = "https://fs.tokopedia.net/v1/chat/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/messages/" + Uri.EscapeDataString(msgId) + "/replies?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&page=" + page + "&per_page=15&order=desc";
 
                 HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
                 myReq.Method = "GET";
@@ -10247,7 +10247,7 @@ namespace MasterOnline.Controllers
                     {
                         try
                         {
-                            ret = retryListReply(iden, msgId, page, retry + 1);
+                            ret = retryListReply(iden, urll, retry + 1);
                         }
                         catch (Exception ex1)
                         {
