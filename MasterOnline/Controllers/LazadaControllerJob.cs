@@ -3653,6 +3653,7 @@ namespace MasterOnline.Controllers
                                 {
                                     var nobukCancel = orderInDB.NO_BUKTI;
                                     var newNoBuk = GenerateAutoNumber(ErasoftDbContext, "SC", "SOT01A", "NO_BUKTI");
+                                    newNoBuk = "SC" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(newNoBuk) + 1).PadLeft(6, '0');
                                     EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
                                             "UPDATE SOT01A SET NO_REFERENSI= NO_REFERENSI + '_" + nobukCancel + "' WHERE NO_BUKTI = '" + nobukCancel + "'");
 
@@ -3690,6 +3691,14 @@ namespace MasterOnline.Controllers
                                         EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLDetail);
 
                                     }
+
+                                    //update bruto netto header
+                                    var sSQLUpdateBN = "UPDATE A SET BRUTO = B.BRUTO, NETTO = B.NETTO,TOTAL_SEMUA=B.BRUTO FROM SOT01A A (NOLOCK) INNER JOIN (";
+                                    sSQLUpdateBN += "SELECT A.NO_BUKTI,BRUTO = SUM(B.HARGA), NETTO = SUM(B.HARGA) - A.NILAI_DISC + (((SUM(B.HARGA) - A.NILAI_DISC) * A.PPN )/ 100) + A.ONGKOS_KIRIM ";
+                                    sSQLUpdateBN += "FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B (NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE A.NO_BUKTI = '" + newNoBuk
+                                        + "' GROUP BY A.NO_BUKTI, A.NILAI_DISC, A.PPN, A.ONGKOS_KIRIM";
+                                    sSQLUpdateBN += ") B ON A.NO_BUKTI = B.NO_BUKTI ";
+                                    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLUpdateBN);
                                 }
                                 #endregion
                             }
@@ -6529,6 +6538,7 @@ namespace MasterOnline.Controllers
                                 {
                                     var nobukCancel = nobuk;
                                     var newNoBuk = GenerateAutoNumber(ErasoftDbContext, "SC", "SOT01A", "NO_BUKTI");
+                                    newNoBuk = "SC" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(newNoBuk) + 1).PadLeft(6, '0');
                                     EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
                                             "UPDATE SOT01A SET NO_REFERENSI= NO_REFERENSI + '_" + nobukCancel + "' WHERE NO_BUKTI = '" + nobukCancel + "'");
 
@@ -6566,6 +6576,14 @@ namespace MasterOnline.Controllers
                                         EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLDetail);
 
                                     }
+
+                                    //update bruto netto header
+                                    var sSQLUpdateBN = "UPDATE A SET BRUTO = B.BRUTO, NETTO = B.NETTO,TOTAL_SEMUA=B.BRUTO FROM SOT01A A (NOLOCK) INNER JOIN (";
+                                    sSQLUpdateBN += "SELECT A.NO_BUKTI,BRUTO = SUM(B.HARGA), NETTO = SUM(B.HARGA) - A.NILAI_DISC + (((SUM(B.HARGA) - A.NILAI_DISC) * A.PPN )/ 100) + A.ONGKOS_KIRIM ";
+                                    sSQLUpdateBN += "FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B (NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE A.NO_BUKTI = '" + newNoBuk 
+                                        + "' GROUP BY A.NO_BUKTI, A.NILAI_DISC, A.PPN, A.ONGKOS_KIRIM";
+                                    sSQLUpdateBN += ") B ON A.NO_BUKTI = B.NO_BUKTI ";
+                                    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLUpdateBN);
                                 }
                                 #endregion
                             }
