@@ -9865,6 +9865,13 @@ namespace MasterOnline.Controllers
 
                 }
             }
+            try
+            {
+                ErasoftDbContext.Database.ExecuteSqlCommand("update arf01 set tgl_expired_chat=DATEADD(HOUR, +7, GETUTCDATE()) where API_KEY='" + iden.API_secret_key + "' and Sort1_Cust='" + iden.merchant_code + "'");
+            }catch(Exception ex)
+            {
+
+            }
             return ret;
         }
 
