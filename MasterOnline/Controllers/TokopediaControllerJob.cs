@@ -9701,7 +9701,7 @@ namespace MasterOnline.Controllers
         //end add by Tri 11 Nov 2019, cancel order
 
         //add by nurul 20/9/2021
-        public async Task<string> ListMessage(TokopediaAPIData iden, string filter, int page)
+        public string ListMessage(TokopediaAPIData iden, string filter, int page)
         {
             ////add by nurul 1/3/2022
             //var hitung = 8;
@@ -9713,7 +9713,8 @@ namespace MasterOnline.Controllers
             //}
             //if (kelipatan8.Contains(page))
             //{
-                await Task.Delay(10000); //delay 10 detik biar ga kena limit 8 request per menit 
+                //await Task.Delay(10000); //delay 10 detik biar ga kena limit 8 request per menit 
+            System.Threading.Thread.Sleep(10000);
             //}
             ////end add by nurul 1/3/2022
 
@@ -9736,7 +9737,7 @@ namespace MasterOnline.Controllers
             try
             {
 
-                using (WebResponse response = await myReq.GetResponseAsync())
+                using (WebResponse response = myReq.GetResponse())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {
@@ -9851,7 +9852,7 @@ namespace MasterOnline.Controllers
                                 }
                                 if (!lastMessage)
                                 {
-                                    var nextMessage = await ListMessage(iden, filter, page + 1);
+                                    var nextMessage = ListMessage(iden, filter, page + 1);
                                     //ret.AddRange(nextOrders);
                                 }
 
@@ -9867,7 +9868,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> ListReply(TokopediaAPIData iden, string msgId, int page)
+        public string ListReply(TokopediaAPIData iden, string msgId, int page)
         {
             ////add by nurul 1/3/2022
             //var hitung = 8;
@@ -9879,7 +9880,8 @@ namespace MasterOnline.Controllers
             //}
             //if (kelipatan8.Contains(page))
             //{
-            await Task.Delay(10000); //delay 10 detik biar ga kena limit 8 request per menit 
+            //await Task.Delay(10000); //delay 10 detik biar ga kena limit 8 request per menit 
+            System.Threading.Thread.Sleep(10000);
             //}
             ////end add by nurul 1/3/2022
 
@@ -9898,7 +9900,7 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             try
             {
-                using (WebResponse response = await myReq.GetResponseAsync())
+                using (WebResponse response = myReq.GetResponse())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {
@@ -10141,7 +10143,7 @@ namespace MasterOnline.Controllers
                             }
                             if (!firstReply && result.data.Count() == 15)
                             {
-                                var nextReply = await ListReply(iden, msgId, page + 1);
+                                var nextReply = ListReply(iden, msgId, page + 1);
                             }
                         }
                     }
@@ -10152,6 +10154,11 @@ namespace MasterOnline.Controllers
         //end add by nurul 20/9/2021
 
         //add by nurul 17/6/2022
+        public async Task<string> GetAllMessage(TokopediaAPIData iden, string filter, int page)
+        {
+            ListMessage(iden, "ALL", 1);
+            return "OK";
+        }
         public string retryListMessage(TokopediaAPIData iden, string urll, int retry)
         {
             string ret = "";
