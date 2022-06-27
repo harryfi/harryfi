@@ -9714,7 +9714,7 @@ namespace MasterOnline.Controllers
             //if (kelipatan8.Contains(page))
             //{
                 //await Task.Delay(10000); //delay 10 detik biar ga kena limit 8 request per menit 
-            System.Threading.Thread.Sleep(10000);
+            //System.Threading.Thread.Sleep(10000);
             //}
             ////end add by nurul 1/3/2022
 
@@ -9881,7 +9881,7 @@ namespace MasterOnline.Controllers
             //if (kelipatan8.Contains(page))
             //{
             //await Task.Delay(10000); //delay 10 detik biar ga kena limit 8 request per menit 
-            System.Threading.Thread.Sleep(10000);
+            //System.Threading.Thread.Sleep(10000);
             //}
             ////end add by nurul 1/3/2022
 
@@ -10164,17 +10164,23 @@ namespace MasterOnline.Controllers
             string ret = "";
             try
             {
-                System.Threading.Thread.Sleep(60000);
-                //Task.Delay(60000); //delay 10 detik biar ga kena limit 8 request per menit 
-                                   //}
-                                   ////end add by nurul 1/3/2022
-
-                //string connId = Guid.NewGuid().ToString();
-                //var token = SetupContext(iden);
-                //iden.token = token;
-                ////filter: “all”, “read”, or “unread”.
-                //string urll = "https://fs.tokopedia.net/v1/chat/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/messages?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&page=" + page + "&per_page=15&order=desc&filter=" + Uri.EscapeDataString(filter);
-
+                //System.Threading.Thread.Sleep(60000);
+                if (retry == 3)
+                {
+                    System.Threading.Thread.Sleep(60000);
+                }
+                else if (retry == 2)
+                {
+                    System.Threading.Thread.Sleep(30000);
+                }
+                else if (retry == 1)
+                {
+                    System.Threading.Thread.Sleep(30000);
+                }
+                else
+                {
+                    System.Threading.Thread.Sleep(10000);
+                }
 
                 HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
                 myReq.Method = "GET";
@@ -10221,15 +10227,23 @@ namespace MasterOnline.Controllers
             string ret = "";
             try
             {
-                System.Threading.Thread.Sleep(60000);
-                //Task.Delay(60000); //delay 10 detik biar ga kena limit 8 request per menit 
-                                   //}
-                                   ////end add by nurul 1/3/2022
-
-                //string connId = Guid.NewGuid().ToString();
-                //var token = SetupContext(iden);
-                //iden.token = token;
-                //string urll = "https://fs.tokopedia.net/v1/chat/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/messages/" + Uri.EscapeDataString(msgId) + "/replies?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&page=" + page + "&per_page=15&order=desc";
+                //System.Threading.Thread.Sleep(60000);
+                if (retry == 3)
+                {
+                    System.Threading.Thread.Sleep(60000);
+                }
+                else if (retry == 2)
+                {
+                    System.Threading.Thread.Sleep(30000);
+                }
+                else if (retry == 1)
+                {
+                    System.Threading.Thread.Sleep(30000);
+                }
+                else
+                {
+                    System.Threading.Thread.Sleep(10000);
+                }
 
                 HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
                 myReq.Method = "GET";
