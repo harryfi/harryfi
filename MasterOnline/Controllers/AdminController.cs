@@ -1224,7 +1224,8 @@ namespace MasterOnline.Controllers
             };
 
             //ADD BY NURUL 24/6/2022
-            var cekAddon = MoDbContext.Addons.Where(a => a.RecNum == Convert.ToInt32(vm.Addons_Customer.ID_ADDON)).FirstOrDefault();
+            var id = Convert.ToInt32(vm.Addons_Customer.ID_ADDON);
+            var cekAddon = MoDbContext.Addons.Where(a => a.RecNum == id).FirstOrDefault();
             if(cekAddon != null)
             {
                 if(cekAddon.Fitur.ToUpper() == "CHAT")
@@ -1254,7 +1255,8 @@ namespace MasterOnline.Controllers
             };
 
             //ADD BY NURUL 24/6/2022
-            var cekAddon = MoDbContext.Addons.Where(a => a.RecNum == Convert.ToInt32(vm.Addons_Customer.ID_ADDON)).FirstOrDefault();
+            var id = Convert.ToInt32(vm.Addons_Customer.ID_ADDON);
+            var cekAddon = MoDbContext.Addons.Where(a => a.RecNum == id).FirstOrDefault();
             if (cekAddon != null)
             {
                 if (cekAddon.Fitur.ToUpper() == "CHAT")
