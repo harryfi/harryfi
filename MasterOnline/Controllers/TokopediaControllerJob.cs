@@ -10157,7 +10157,8 @@ namespace MasterOnline.Controllers
             string ret = "";
             try
             {
-                Task.Delay(60000); //delay 10 detik biar ga kena limit 8 request per menit 
+                System.Threading.Thread.Sleep(60000);
+                //Task.Delay(60000); //delay 10 detik biar ga kena limit 8 request per menit 
                                    //}
                                    ////end add by nurul 1/3/2022
 
@@ -10213,7 +10214,8 @@ namespace MasterOnline.Controllers
             string ret = "";
             try
             {
-                Task.Delay(60000); //delay 10 detik biar ga kena limit 8 request per menit 
+                System.Threading.Thread.Sleep(60000);
+                //Task.Delay(60000); //delay 10 detik biar ga kena limit 8 request per menit 
                                    //}
                                    ////end add by nurul 1/3/2022
 
