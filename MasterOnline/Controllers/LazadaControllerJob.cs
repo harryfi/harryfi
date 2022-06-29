@@ -3651,54 +3651,58 @@ namespace MasterOnline.Controllers
                                 #region cancel partial
                                 if (cekCancelPartial)// cancel partial : update no ref lama, buat no bukti baru
                                 {
-                                    var nobukCancel = orderInDB.NO_BUKTI;
-                                    var newNoBuk = GenerateAutoNumber(ErasoftDbContext, "SC", "SOT01A", "NO_BUKTI");
-                                    newNoBuk = "SC" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(newNoBuk) + 1).PadLeft(6, '0');
-                                    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
-                                            "UPDATE SOT01A SET NO_REFERENSI= NO_REFERENSI + '_" + nobukCancel + "' WHERE NO_BUKTI = '" + nobukCancel + "'");
-
-                                    var sSQLInduk = "INSERT INTO SOT01A ([NO_BUKTI],[TGL],[STATUS],[NO_PO_CUST],[CUST],[NAMA_CUST],[VLT],[NILAI_TUKAR],[KODE_SALES],"
-                                        + "[KODE_WIL],[KODE_ALAMAT],[KET],[DISCOUNT],[NILAI_DISC],[PPN],[NILAI_PPN],[BRUTO],[NETTO],[USER_NAME],[TGL_INPUT]"
-                                        + ",[PRINT_COUNT],[KIRIM_PENUH],[RETUR_PENUH],[AL],[AL1],[AL2],[AL3],[AL_CUST],[U_MUKA],[TERM],[CUST_QQ],[HARGA_FRANCO],[Status_Approve],"
-                                        + "[User_Approve],[Date_Approve],[NO_PENAWARAN],[INDENT],[PENGIRIM],[NAMAPENGIRIM],[ZONA],[JAMKIRIM],[UCAPAN],[N_UCAPAN],[PEMESAN],"
-                                        + "[NAMAPEMESAN],[KOMISI],[N_KOMISI],[N_KOMISI1],[EXPEDISI],[TIPE_KIRIM],[TOTAL_TITIPAN],[SUPP],[STATUS_TRANSAKSI],[ALAMAT_KIRIM],[PROPINSI],"
-                                        + "[KOTA],[KODE_POS],[SHIPMENT],[TRACKING_SHIPMENT],[TOTAL_SEMUA],[ONGKOS_KIRIM],[TGL_JTH_TEMPO],[NO_REFERENSI],"
-                                        + "[ORDER_EXPIRED_DATE],[WAREHOUSE_ID]) ";
-                                    sSQLInduk += "SELECT '" + newNoBuk + "',[TGL], 0,[NO_PO_CUST],[CUST],[NAMA_CUST],[VLT],[NILAI_TUKAR],[KODE_SALES],"
-                                        + "[KODE_WIL],[KODE_ALAMAT],[KET],[DISCOUNT],[NILAI_DISC],[PPN],[NILAI_PPN],[BRUTO],[NETTO],[USER_NAME],[TGL_INPUT]"
-                                        + ",[PRINT_COUNT],[KIRIM_PENUH],[RETUR_PENUH],[AL],[AL1],[AL2],[AL3],[AL_CUST],[U_MUKA],[TERM],[CUST_QQ],[HARGA_FRANCO],[Status_Approve],"
-                                        + "[User_Approve],[Date_Approve],[NO_PENAWARAN],[INDENT],[PENGIRIM],[NAMAPENGIRIM],[ZONA],[JAMKIRIM],[UCAPAN],[N_UCAPAN],[PEMESAN],"
-                                        + "[NAMAPEMESAN],[KOMISI],[N_KOMISI],[N_KOMISI1],[EXPEDISI],[TIPE_KIRIM],[TOTAL_TITIPAN],[SUPP], '01',[ALAMAT_KIRIM],[PROPINSI],"
-                                        + "[KOTA],[KODE_POS],[SHIPMENT],[TRACKING_SHIPMENT],[TOTAL_SEMUA],[ONGKOS_KIRIM],[TGL_JTH_TEMPO],'" + order.order_id + "',"
-                                        + "[ORDER_EXPIRED_DATE],[WAREHOUSE_ID] ";
-                                    sSQLInduk += "FROM SOT01A WHERE NO_BUKTI = '" + nobukCancel + "'";
-
-                                    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLInduk);
-
-                                    foreach (var ibrg in listBrgNotCancel)
+                                    var detailInDB = ErasoftDbContext.SOT01B.Where(m => m.NO_BUKTI == nobuk).Select(m => m.ORDER_ITEM_ID).ToList();
+                                    if (listBrgNotCancel.Count < detailInDB.Count)
                                     {
-                                        var sSQLDetail = "INSERT INTO SOT01B ([NO_BUKTI],[BRG],[BRG_CUST],[SATUAN],[H_SATUAN],[QTY],[DISCOUNT],[NILAI_DISC],"
-                                        + "[HARGA],[WRITE_KONFIG],[QTY_KIRIM],[QTY_RETUR],[USER_NAME],[TGL_INPUT],[TGL_KIRIM],[LOKASI],[DISCOUNT_2],[DISCOUNT_3],"
-                                        + "[DISCOUNT_4],[DISCOUNT_5],[NILAI_DISC_1],[NILAI_DISC_2],[NILAI_DISC_3],[NILAI_DISC_4],[NILAI_DISC_5],[CATATAN],"
-                                        + "[TRANS_NO_URUT],[SATUAN_N],[QTY_N],[NTITIPAN],[DISC_TITIPAN],[TOTAL],[PPN],[NETTO],[ORDER_ITEM_ID],[STATUS_BRG],"
-                                        + "[KET_DETAIL],[BRG_MULTISKU],[BRG_BUNDLING],[BRG_GANTI],[recnum_Bundling]) ";
-                                        sSQLDetail += "SELECT '" + newNoBuk + "',[BRG],[BRG_CUST],[SATUAN],[H_SATUAN],[QTY],[DISCOUNT],[NILAI_DISC],"
-                                        + "[HARGA],[WRITE_KONFIG],[QTY_KIRIM],[QTY_RETUR],[USER_NAME],[TGL_INPUT],[TGL_KIRIM],[LOKASI],[DISCOUNT_2],[DISCOUNT_3],"
-                                        + "[DISCOUNT_4],[DISCOUNT_5],[NILAI_DISC_1],[NILAI_DISC_2],[NILAI_DISC_3],[NILAI_DISC_4],[NILAI_DISC_5],[CATATAN],"
-                                        + "[TRANS_NO_URUT],[SATUAN_N],[QTY_N],[NTITIPAN],[DISC_TITIPAN],[TOTAL],[PPN],[NETTO],[ORDER_ITEM_ID],[STATUS_BRG],"
-                                        + "[KET_DETAIL],[BRG_MULTISKU],[BRG_BUNDLING],[BRG_GANTI],[recnum_Bundling] FROM SOT01B WHERE NO_BUKTI = '" + nobukCancel
-                                        + "' AND ORDER_ITEM_ID = '" + ibrg + "'";
-                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLDetail);
+                                        var nobukCancel = orderInDB.NO_BUKTI;
+                                        var newNoBuk = GenerateAutoNumber(ErasoftDbContext, "SC", "SOT01A", "NO_BUKTI");
+                                        newNoBuk = "SC" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(newNoBuk) + 1).PadLeft(6, '0');
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
+                                                "UPDATE SOT01A SET NO_REFERENSI= NO_REFERENSI + '_" + nobukCancel + "' WHERE NO_BUKTI = '" + nobukCancel + "'");
 
+                                        var sSQLInduk = "INSERT INTO SOT01A ([NO_BUKTI],[TGL],[STATUS],[NO_PO_CUST],[CUST],[NAMA_CUST],[VLT],[NILAI_TUKAR],[KODE_SALES],"
+                                            + "[KODE_WIL],[KODE_ALAMAT],[KET],[DISCOUNT],[NILAI_DISC],[PPN],[NILAI_PPN],[BRUTO],[NETTO],[USER_NAME],[TGL_INPUT]"
+                                            + ",[PRINT_COUNT],[KIRIM_PENUH],[RETUR_PENUH],[AL],[AL1],[AL2],[AL3],[AL_CUST],[U_MUKA],[TERM],[CUST_QQ],[HARGA_FRANCO],[Status_Approve],"
+                                            + "[User_Approve],[Date_Approve],[NO_PENAWARAN],[INDENT],[PENGIRIM],[NAMAPENGIRIM],[ZONA],[JAMKIRIM],[UCAPAN],[N_UCAPAN],[PEMESAN],"
+                                            + "[NAMAPEMESAN],[KOMISI],[N_KOMISI],[N_KOMISI1],[EXPEDISI],[TIPE_KIRIM],[TOTAL_TITIPAN],[SUPP],[STATUS_TRANSAKSI],[ALAMAT_KIRIM],[PROPINSI],"
+                                            + "[KOTA],[KODE_POS],[SHIPMENT],[TRACKING_SHIPMENT],[TOTAL_SEMUA],[ONGKOS_KIRIM],[TGL_JTH_TEMPO],[NO_REFERENSI],"
+                                            + "[ORDER_EXPIRED_DATE],[WAREHOUSE_ID]) ";
+                                        sSQLInduk += "SELECT '" + newNoBuk + "',[TGL], 0,[NO_PO_CUST],[CUST],[NAMA_CUST],[VLT],[NILAI_TUKAR],[KODE_SALES],"
+                                            + "[KODE_WIL],[KODE_ALAMAT],[KET],[DISCOUNT],[NILAI_DISC],[PPN],[NILAI_PPN],[BRUTO],[NETTO],[USER_NAME],[TGL_INPUT]"
+                                            + ",[PRINT_COUNT],[KIRIM_PENUH],[RETUR_PENUH],[AL],[AL1],[AL2],[AL3],[AL_CUST],[U_MUKA],[TERM],[CUST_QQ],[HARGA_FRANCO],[Status_Approve],"
+                                            + "[User_Approve],[Date_Approve],[NO_PENAWARAN],[INDENT],[PENGIRIM],[NAMAPENGIRIM],[ZONA],[JAMKIRIM],[UCAPAN],[N_UCAPAN],[PEMESAN],"
+                                            + "[NAMAPEMESAN],[KOMISI],[N_KOMISI],[N_KOMISI1],[EXPEDISI],[TIPE_KIRIM],[TOTAL_TITIPAN],[SUPP], '01',[ALAMAT_KIRIM],[PROPINSI],"
+                                            + "[KOTA],[KODE_POS],[SHIPMENT],[TRACKING_SHIPMENT],[TOTAL_SEMUA],[ONGKOS_KIRIM],[TGL_JTH_TEMPO],'" + order.order_id + "',"
+                                            + "[ORDER_EXPIRED_DATE],[WAREHOUSE_ID] ";
+                                        sSQLInduk += "FROM SOT01A WHERE NO_BUKTI = '" + nobukCancel + "'";
+
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLInduk);
+
+                                        foreach (var ibrg in listBrgNotCancel)
+                                        {
+                                            var sSQLDetail = "INSERT INTO SOT01B ([NO_BUKTI],[BRG],[BRG_CUST],[SATUAN],[H_SATUAN],[QTY],[DISCOUNT],[NILAI_DISC],"
+                                            + "[HARGA],[WRITE_KONFIG],[QTY_KIRIM],[QTY_RETUR],[USER_NAME],[TGL_INPUT],[TGL_KIRIM],[LOKASI],[DISCOUNT_2],[DISCOUNT_3],"
+                                            + "[DISCOUNT_4],[DISCOUNT_5],[NILAI_DISC_1],[NILAI_DISC_2],[NILAI_DISC_3],[NILAI_DISC_4],[NILAI_DISC_5],[CATATAN],"
+                                            + "[TRANS_NO_URUT],[SATUAN_N],[QTY_N],[NTITIPAN],[DISC_TITIPAN],[TOTAL],[PPN],[NETTO],[ORDER_ITEM_ID],[STATUS_BRG],"
+                                            + "[KET_DETAIL],[BRG_MULTISKU],[BRG_BUNDLING],[BRG_GANTI],[recnum_Bundling]) ";
+                                            sSQLDetail += "SELECT '" + newNoBuk + "',[BRG],[BRG_CUST],[SATUAN],[H_SATUAN],[QTY],[DISCOUNT],[NILAI_DISC],"
+                                            + "[HARGA],[WRITE_KONFIG],[QTY_KIRIM],[QTY_RETUR],[USER_NAME],[TGL_INPUT],[TGL_KIRIM],[LOKASI],[DISCOUNT_2],[DISCOUNT_3],"
+                                            + "[DISCOUNT_4],[DISCOUNT_5],[NILAI_DISC_1],[NILAI_DISC_2],[NILAI_DISC_3],[NILAI_DISC_4],[NILAI_DISC_5],[CATATAN],"
+                                            + "[TRANS_NO_URUT],[SATUAN_N],[QTY_N],[NTITIPAN],[DISC_TITIPAN],[TOTAL],[PPN],[NETTO],[ORDER_ITEM_ID],[STATUS_BRG],"
+                                            + "[KET_DETAIL],[BRG_MULTISKU],[BRG_BUNDLING],[BRG_GANTI],[recnum_Bundling] FROM SOT01B WHERE NO_BUKTI = '" + nobukCancel
+                                            + "' AND ORDER_ITEM_ID = '" + ibrg + "'";
+                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLDetail);
+
+                                        }
+
+                                        //update bruto netto header
+                                        var sSQLUpdateBN = "UPDATE A SET BRUTO = B.BRUTO, NETTO = B.NETTO,TOTAL_SEMUA=B.BRUTO FROM SOT01A A (NOLOCK) INNER JOIN (";
+                                        sSQLUpdateBN += "SELECT A.NO_BUKTI,BRUTO = SUM(B.HARGA), NETTO = SUM(B.HARGA) - A.NILAI_DISC + (((SUM(B.HARGA) - A.NILAI_DISC) * A.PPN )/ 100) + A.ONGKOS_KIRIM ";
+                                        sSQLUpdateBN += "FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B (NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE A.NO_BUKTI = '" + newNoBuk
+                                            + "' GROUP BY A.NO_BUKTI, A.NILAI_DISC, A.PPN, A.ONGKOS_KIRIM";
+                                        sSQLUpdateBN += ") B ON A.NO_BUKTI = B.NO_BUKTI ";
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLUpdateBN);
                                     }
-
-                                    //update bruto netto header
-                                    var sSQLUpdateBN = "UPDATE A SET BRUTO = B.BRUTO, NETTO = B.NETTO,TOTAL_SEMUA=B.BRUTO FROM SOT01A A (NOLOCK) INNER JOIN (";
-                                    sSQLUpdateBN += "SELECT A.NO_BUKTI,BRUTO = SUM(B.HARGA), NETTO = SUM(B.HARGA) - A.NILAI_DISC + (((SUM(B.HARGA) - A.NILAI_DISC) * A.PPN )/ 100) + A.ONGKOS_KIRIM ";
-                                    sSQLUpdateBN += "FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B (NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE A.NO_BUKTI = '" + newNoBuk
-                                        + "' GROUP BY A.NO_BUKTI, A.NILAI_DISC, A.PPN, A.ONGKOS_KIRIM";
-                                    sSQLUpdateBN += ") B ON A.NO_BUKTI = B.NO_BUKTI ";
-                                    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLUpdateBN);
                                 }
                                 #endregion
                             }
@@ -6536,54 +6540,58 @@ namespace MasterOnline.Controllers
                                 #region cancel partial
                                 if (cekCancelPartial)// cancel partial : update no ref lama, buat no bukti baru
                                 {
-                                    var nobukCancel = nobuk;
-                                    var newNoBuk = GenerateAutoNumber(ErasoftDbContext, "SC", "SOT01A", "NO_BUKTI");
-                                    newNoBuk = "SC" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(newNoBuk) + 1).PadLeft(6, '0');
-                                    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
-                                            "UPDATE SOT01A SET NO_REFERENSI= NO_REFERENSI + '_" + nobukCancel + "' WHERE NO_BUKTI = '" + nobukCancel + "'");
-
-                                    var sSQLInduk = "INSERT INTO SOT01A ([NO_BUKTI],[TGL],[STATUS],[NO_PO_CUST],[CUST],[NAMA_CUST],[VLT],[NILAI_TUKAR],[KODE_SALES],"
-                                        + "[KODE_WIL],[KODE_ALAMAT],[KET],[DISCOUNT],[NILAI_DISC],[PPN],[NILAI_PPN],[BRUTO],[NETTO],[USER_NAME],[TGL_INPUT]"
-                                        + ",[PRINT_COUNT],[KIRIM_PENUH],[RETUR_PENUH],[AL],[AL1],[AL2],[AL3],[AL_CUST],[U_MUKA],[TERM],[CUST_QQ],[HARGA_FRANCO],[Status_Approve],"
-                                        + "[User_Approve],[Date_Approve],[NO_PENAWARAN],[INDENT],[PENGIRIM],[NAMAPENGIRIM],[ZONA],[JAMKIRIM],[UCAPAN],[N_UCAPAN],[PEMESAN],"
-                                        + "[NAMAPEMESAN],[KOMISI],[N_KOMISI],[N_KOMISI1],[EXPEDISI],[TIPE_KIRIM],[TOTAL_TITIPAN],[SUPP],[STATUS_TRANSAKSI],[ALAMAT_KIRIM],[PROPINSI],"
-                                        + "[KOTA],[KODE_POS],[SHIPMENT],[TRACKING_SHIPMENT],[TOTAL_SEMUA],[ONGKOS_KIRIM],[TGL_JTH_TEMPO],[NO_REFERENSI],"
-                                        + "[ORDER_EXPIRED_DATE],[WAREHOUSE_ID]) ";
-                                    sSQLInduk += "SELECT '" + newNoBuk + "',[TGL], 0,[NO_PO_CUST],[CUST],[NAMA_CUST],[VLT],[NILAI_TUKAR],[KODE_SALES],"
-                                        + "[KODE_WIL],[KODE_ALAMAT],[KET],[DISCOUNT],[NILAI_DISC],[PPN],[NILAI_PPN],[BRUTO],[NETTO],[USER_NAME],[TGL_INPUT]"
-                                        + ",[PRINT_COUNT],[KIRIM_PENUH],[RETUR_PENUH],[AL],[AL1],[AL2],[AL3],[AL_CUST],[U_MUKA],[TERM],[CUST_QQ],[HARGA_FRANCO],[Status_Approve],"
-                                        + "[User_Approve],[Date_Approve],[NO_PENAWARAN],[INDENT],[PENGIRIM],[NAMAPENGIRIM],[ZONA],[JAMKIRIM],[UCAPAN],[N_UCAPAN],[PEMESAN],"
-                                        + "[NAMAPEMESAN],[KOMISI],[N_KOMISI],[N_KOMISI1],[EXPEDISI],[TIPE_KIRIM],[TOTAL_TITIPAN],[SUPP], '01',[ALAMAT_KIRIM],[PROPINSI],"
-                                        + "[KOTA],[KODE_POS],[SHIPMENT],[TRACKING_SHIPMENT],[TOTAL_SEMUA],[ONGKOS_KIRIM],[TGL_JTH_TEMPO],'" + order.order_id + "',"
-                                        + "[ORDER_EXPIRED_DATE],[WAREHOUSE_ID] ";
-                                    sSQLInduk += "FROM SOT01A WHERE NO_BUKTI = '" + nobukCancel + "'";
-
-                                    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLInduk);
-
-                                    foreach (var ibrg in listBrgNotCancel)
+                                    var detailInDB = ErasoftDbContext.SOT01B.Where(m => m.NO_BUKTI == nobuk).Select(m => m.ORDER_ITEM_ID).ToList();
+                                    if (listBrgNotCancel.Count < detailInDB.Count)
                                     {
-                                        var sSQLDetail = "INSERT INTO SOT01B ([NO_BUKTI],[BRG],[BRG_CUST],[SATUAN],[H_SATUAN],[QTY],[DISCOUNT],[NILAI_DISC],"
-                                        + "[HARGA],[WRITE_KONFIG],[QTY_KIRIM],[QTY_RETUR],[USER_NAME],[TGL_INPUT],[TGL_KIRIM],[LOKASI],[DISCOUNT_2],[DISCOUNT_3],"
-                                        + "[DISCOUNT_4],[DISCOUNT_5],[NILAI_DISC_1],[NILAI_DISC_2],[NILAI_DISC_3],[NILAI_DISC_4],[NILAI_DISC_5],[CATATAN],"
-                                        + "[TRANS_NO_URUT],[SATUAN_N],[QTY_N],[NTITIPAN],[DISC_TITIPAN],[TOTAL],[PPN],[NETTO],[ORDER_ITEM_ID],[STATUS_BRG],"
-                                        + "[KET_DETAIL],[BRG_MULTISKU],[BRG_BUNDLING],[BRG_GANTI],[recnum_Bundling]) ";
-                                        sSQLDetail += "SELECT '" + newNoBuk + "',[BRG],[BRG_CUST],[SATUAN],[H_SATUAN],[QTY],[DISCOUNT],[NILAI_DISC],"
-                                        + "[HARGA],[WRITE_KONFIG],[QTY_KIRIM],[QTY_RETUR],[USER_NAME],[TGL_INPUT],[TGL_KIRIM],[LOKASI],[DISCOUNT_2],[DISCOUNT_3],"
-                                        + "[DISCOUNT_4],[DISCOUNT_5],[NILAI_DISC_1],[NILAI_DISC_2],[NILAI_DISC_3],[NILAI_DISC_4],[NILAI_DISC_5],[CATATAN],"
-                                        + "[TRANS_NO_URUT],[SATUAN_N],[QTY_N],[NTITIPAN],[DISC_TITIPAN],[TOTAL],[PPN],[NETTO],[ORDER_ITEM_ID],[STATUS_BRG],"
-                                        + "[KET_DETAIL],[BRG_MULTISKU],[BRG_BUNDLING],[BRG_GANTI],[recnum_Bundling] FROM SOT01B WHERE NO_BUKTI = '" + nobukCancel
-                                        + "' AND ORDER_ITEM_ID = '" + ibrg + "'";
-                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLDetail);
+                                        var nobukCancel = nobuk;
+                                        var newNoBuk = GenerateAutoNumber(ErasoftDbContext, "SC", "SOT01A", "NO_BUKTI");
+                                        newNoBuk = "SC" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(newNoBuk) + 1).PadLeft(6, '0');
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
+                                                "UPDATE SOT01A SET NO_REFERENSI= NO_REFERENSI + '_" + nobukCancel + "' WHERE NO_BUKTI = '" + nobukCancel + "'");
 
+                                        var sSQLInduk = "INSERT INTO SOT01A ([NO_BUKTI],[TGL],[STATUS],[NO_PO_CUST],[CUST],[NAMA_CUST],[VLT],[NILAI_TUKAR],[KODE_SALES],"
+                                            + "[KODE_WIL],[KODE_ALAMAT],[KET],[DISCOUNT],[NILAI_DISC],[PPN],[NILAI_PPN],[BRUTO],[NETTO],[USER_NAME],[TGL_INPUT]"
+                                            + ",[PRINT_COUNT],[KIRIM_PENUH],[RETUR_PENUH],[AL],[AL1],[AL2],[AL3],[AL_CUST],[U_MUKA],[TERM],[CUST_QQ],[HARGA_FRANCO],[Status_Approve],"
+                                            + "[User_Approve],[Date_Approve],[NO_PENAWARAN],[INDENT],[PENGIRIM],[NAMAPENGIRIM],[ZONA],[JAMKIRIM],[UCAPAN],[N_UCAPAN],[PEMESAN],"
+                                            + "[NAMAPEMESAN],[KOMISI],[N_KOMISI],[N_KOMISI1],[EXPEDISI],[TIPE_KIRIM],[TOTAL_TITIPAN],[SUPP],[STATUS_TRANSAKSI],[ALAMAT_KIRIM],[PROPINSI],"
+                                            + "[KOTA],[KODE_POS],[SHIPMENT],[TRACKING_SHIPMENT],[TOTAL_SEMUA],[ONGKOS_KIRIM],[TGL_JTH_TEMPO],[NO_REFERENSI],"
+                                            + "[ORDER_EXPIRED_DATE],[WAREHOUSE_ID]) ";
+                                        sSQLInduk += "SELECT '" + newNoBuk + "',[TGL], 0,[NO_PO_CUST],[CUST],[NAMA_CUST],[VLT],[NILAI_TUKAR],[KODE_SALES],"
+                                            + "[KODE_WIL],[KODE_ALAMAT],[KET],[DISCOUNT],[NILAI_DISC],[PPN],[NILAI_PPN],[BRUTO],[NETTO],[USER_NAME],[TGL_INPUT]"
+                                            + ",[PRINT_COUNT],[KIRIM_PENUH],[RETUR_PENUH],[AL],[AL1],[AL2],[AL3],[AL_CUST],[U_MUKA],[TERM],[CUST_QQ],[HARGA_FRANCO],[Status_Approve],"
+                                            + "[User_Approve],[Date_Approve],[NO_PENAWARAN],[INDENT],[PENGIRIM],[NAMAPENGIRIM],[ZONA],[JAMKIRIM],[UCAPAN],[N_UCAPAN],[PEMESAN],"
+                                            + "[NAMAPEMESAN],[KOMISI],[N_KOMISI],[N_KOMISI1],[EXPEDISI],[TIPE_KIRIM],[TOTAL_TITIPAN],[SUPP], '01',[ALAMAT_KIRIM],[PROPINSI],"
+                                            + "[KOTA],[KODE_POS],[SHIPMENT],[TRACKING_SHIPMENT],[TOTAL_SEMUA],[ONGKOS_KIRIM],[TGL_JTH_TEMPO],'" + order.order_id + "',"
+                                            + "[ORDER_EXPIRED_DATE],[WAREHOUSE_ID] ";
+                                        sSQLInduk += "FROM SOT01A WHERE NO_BUKTI = '" + nobukCancel + "'";
+
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLInduk);
+
+                                        foreach (var ibrg in listBrgNotCancel)
+                                        {
+                                            var sSQLDetail = "INSERT INTO SOT01B ([NO_BUKTI],[BRG],[BRG_CUST],[SATUAN],[H_SATUAN],[QTY],[DISCOUNT],[NILAI_DISC],"
+                                            + "[HARGA],[WRITE_KONFIG],[QTY_KIRIM],[QTY_RETUR],[USER_NAME],[TGL_INPUT],[TGL_KIRIM],[LOKASI],[DISCOUNT_2],[DISCOUNT_3],"
+                                            + "[DISCOUNT_4],[DISCOUNT_5],[NILAI_DISC_1],[NILAI_DISC_2],[NILAI_DISC_3],[NILAI_DISC_4],[NILAI_DISC_5],[CATATAN],"
+                                            + "[TRANS_NO_URUT],[SATUAN_N],[QTY_N],[NTITIPAN],[DISC_TITIPAN],[TOTAL],[PPN],[NETTO],[ORDER_ITEM_ID],[STATUS_BRG],"
+                                            + "[KET_DETAIL],[BRG_MULTISKU],[BRG_BUNDLING],[BRG_GANTI],[recnum_Bundling]) ";
+                                            sSQLDetail += "SELECT '" + newNoBuk + "',[BRG],[BRG_CUST],[SATUAN],[H_SATUAN],[QTY],[DISCOUNT],[NILAI_DISC],"
+                                            + "[HARGA],[WRITE_KONFIG],[QTY_KIRIM],[QTY_RETUR],[USER_NAME],[TGL_INPUT],[TGL_KIRIM],[LOKASI],[DISCOUNT_2],[DISCOUNT_3],"
+                                            + "[DISCOUNT_4],[DISCOUNT_5],[NILAI_DISC_1],[NILAI_DISC_2],[NILAI_DISC_3],[NILAI_DISC_4],[NILAI_DISC_5],[CATATAN],"
+                                            + "[TRANS_NO_URUT],[SATUAN_N],[QTY_N],[NTITIPAN],[DISC_TITIPAN],[TOTAL],[PPN],[NETTO],[ORDER_ITEM_ID],[STATUS_BRG],"
+                                            + "[KET_DETAIL],[BRG_MULTISKU],[BRG_BUNDLING],[BRG_GANTI],[recnum_Bundling] FROM SOT01B WHERE NO_BUKTI = '" + nobukCancel
+                                            + "' AND ORDER_ITEM_ID = '" + ibrg + "'";
+                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLDetail);
+
+                                        }
+
+                                        //update bruto netto header
+                                        var sSQLUpdateBN = "UPDATE A SET BRUTO = B.BRUTO, NETTO = B.NETTO,TOTAL_SEMUA=B.BRUTO FROM SOT01A A (NOLOCK) INNER JOIN (";
+                                        sSQLUpdateBN += "SELECT A.NO_BUKTI,BRUTO = SUM(B.HARGA), NETTO = SUM(B.HARGA) - A.NILAI_DISC + (((SUM(B.HARGA) - A.NILAI_DISC) * A.PPN )/ 100) + A.ONGKOS_KIRIM ";
+                                        sSQLUpdateBN += "FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B (NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE A.NO_BUKTI = '" + newNoBuk
+                                            + "' GROUP BY A.NO_BUKTI, A.NILAI_DISC, A.PPN, A.ONGKOS_KIRIM";
+                                        sSQLUpdateBN += ") B ON A.NO_BUKTI = B.NO_BUKTI ";
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLUpdateBN);
                                     }
-
-                                    //update bruto netto header
-                                    var sSQLUpdateBN = "UPDATE A SET BRUTO = B.BRUTO, NETTO = B.NETTO,TOTAL_SEMUA=B.BRUTO FROM SOT01A A (NOLOCK) INNER JOIN (";
-                                    sSQLUpdateBN += "SELECT A.NO_BUKTI,BRUTO = SUM(B.HARGA), NETTO = SUM(B.HARGA) - A.NILAI_DISC + (((SUM(B.HARGA) - A.NILAI_DISC) * A.PPN )/ 100) + A.ONGKOS_KIRIM ";
-                                    sSQLUpdateBN += "FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B (NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE A.NO_BUKTI = '" + newNoBuk 
-                                        + "' GROUP BY A.NO_BUKTI, A.NILAI_DISC, A.PPN, A.ONGKOS_KIRIM";
-                                    sSQLUpdateBN += ") B ON A.NO_BUKTI = B.NO_BUKTI ";
-                                    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQLUpdateBN);
                                 }
                                 #endregion
                             }
