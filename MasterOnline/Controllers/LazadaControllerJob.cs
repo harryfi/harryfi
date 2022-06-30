@@ -3668,6 +3668,8 @@ namespace MasterOnline.Controllers
                                         newNoBuk = "SC" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(newNoBuk) + 1).PadLeft(6, '0');
                                         EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
                                                 "UPDATE SOT01A SET NO_REFERENSI= NO_REFERENSI + '_" + nobukCancel + "' WHERE NO_BUKTI = '" + nobukCancel + "'");
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
+                                                "UPDATE SIT01A SET NO_REF= NO_REF + '_" + nobukCancel + "' WHERE NO_SO = '" + nobukCancel + "'");
 
                                         var sSQLInduk = "INSERT INTO SOT01A ([NO_BUKTI],[TGL],[STATUS],[NO_PO_CUST],[CUST],[NAMA_CUST],[VLT],[NILAI_TUKAR],[KODE_SALES],"
                                             + "[KODE_WIL],[KODE_ALAMAT],[KET],[DISCOUNT],[NILAI_DISC],[PPN],[NILAI_PPN],[BRUTO],[NETTO],[USER_NAME],[TGL_INPUT]"
@@ -6567,6 +6569,8 @@ namespace MasterOnline.Controllers
                                         newNoBuk = "SC" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(newNoBuk) + 1).PadLeft(6, '0');
                                         EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
                                                 "UPDATE SOT01A SET NO_REFERENSI= NO_REFERENSI + '_" + nobukCancel + "' WHERE NO_BUKTI = '" + nobukCancel + "'");
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
+                                                "UPDATE SIT01A SET NO_REF= NO_REF + '_" + nobukCancel + "' WHERE NO_SO = '" + nobukCancel + "'");
 
                                         var sSQLInduk = "INSERT INTO SOT01A ([NO_BUKTI],[TGL],[STATUS],[NO_PO_CUST],[CUST],[NAMA_CUST],[VLT],[NILAI_TUKAR],[KODE_SALES],"
                                             + "[KODE_WIL],[KODE_ALAMAT],[KET],[DISCOUNT],[NILAI_DISC],[PPN],[NILAI_PPN],[BRUTO],[NETTO],[USER_NAME],[TGL_INPUT]"
