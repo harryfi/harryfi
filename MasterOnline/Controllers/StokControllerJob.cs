@@ -4806,7 +4806,8 @@ namespace MasterOnline.Controllers
 
                 long milis = CurrentTimeMillis();
                 DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
-                string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/stock/update?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
+                string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/stock/update?shop_id=" 
+                    + Uri.EscapeDataString(iden.API_secret_key) + "&bypass_update_product_status=true";
 
                 string responseFromServer = "";
                 List<TokopediaUpdateStockData> HttpBodies = new List<TokopediaUpdateStockData>();
@@ -4814,8 +4815,7 @@ namespace MasterOnline.Controllers
                 {
                     sku = "",
                     product_id = product_id,
-                    new_stock = stok,
-                    bypass_update_product_status = true
+                    new_stock = stok
                 };
                 HttpBodies.Add(HttpBody);
 
@@ -5006,7 +5006,8 @@ namespace MasterOnline.Controllers
 
                 long milis = CurrentTimeMillis();
                 DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
-                string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/stock/update?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&warehouse_id=" + Uri.EscapeDataString(gudangMP);
+                string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/stock/update?shop_id=" 
+                    + Uri.EscapeDataString(iden.API_secret_key) + "&warehouse_id=" + Uri.EscapeDataString(gudangMP) + "&bypass_update_product_status=true";
 
                 string responseFromServer = "";
                 List<TokopediaUpdateStockData> HttpBodies = new List<TokopediaUpdateStockData>();
@@ -5014,8 +5015,7 @@ namespace MasterOnline.Controllers
                 {
                     sku = "",
                     product_id = product_id,
-                    new_stock = stok,
-                    bypass_update_product_status = true
+                    new_stock = stok
                 };
                 HttpBodies.Add(HttpBody);
 
@@ -7678,7 +7678,7 @@ namespace MasterOnline.Controllers
             public string sku { get; set; }
             public long product_id { get; set; }
             public int new_stock { get; set; }
-            public bool bypass_update_product_status { get; set; }
+            //public bool bypass_update_product_status { get; set; }
         }
 
         //public class ShopifyAPIData
