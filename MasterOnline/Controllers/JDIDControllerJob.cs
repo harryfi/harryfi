@@ -7161,6 +7161,10 @@ namespace MasterOnline.Controllers
             spuInfoJD.description = vDescription;
             spuInfoJD.countryId = 10000000;
             spuInfoJD.warrantyPeriod = Convert.ToInt32(detailBrg.ACODE_41);
+            if (string.IsNullOrEmpty(detailBrg.ACODE_41))
+            {
+                spuInfoJD.warrantyPeriod = null;
+            }
             spuInfoJD.productArea = detailBrg.ACODE_47;
             spuInfoJD.minQuantity = 1;
             spuInfoJD.crossProductType = 1;
@@ -7185,6 +7189,10 @@ namespace MasterOnline.Controllers
             spuInfoJD.isQuality = Convert.ToInt32(detailBrg.AVALUE_47);
             spuInfoJD.packageInfo = "PAKET INFO";
             spuInfoJD.afterSale = Convert.ToInt32(detailBrg.ACODE_40);
+            if (string.IsNullOrEmpty(detailBrg.ACODE_40))
+            {
+                spuInfoJD.afterSale = null;
+            }
             spuInfoJD.clearanceType = 2;
             if (!string.IsNullOrEmpty(tempUrlHref))
             {
@@ -7960,7 +7968,14 @@ namespace MasterOnline.Controllers
             {
                 newData.subtitleHref = tempUrlHref;
             }
-
+            if (string.IsNullOrEmpty(detailBrg.ACODE_41))
+            {
+                newData.warrantyPeriod = null;
+            }
+            if (string.IsNullOrEmpty(detailBrg.ACODE_40))
+            {
+                newData.afterSale = null;
+            }
             string myData = JsonConvert.SerializeObject(newData);
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
@@ -9994,7 +10009,7 @@ namespace MasterOnline.Controllers
             public string keywords { get; set; }
             public string description { get; set; }
             public long countryId { get; set; }
-            public int warrantyPeriod { get; set; }
+            public int? warrantyPeriod { get; set; }
             public string productArea { get; set; }
             public long minQuantity { get; set; }
             public long crossProductType { get; set; }
@@ -10012,7 +10027,7 @@ namespace MasterOnline.Controllers
             public string subtitle { get; set; }
             public int isQuality { get; set; }
             public string packageInfo { get; set; }
-            public int afterSale { get; set; }
+            public int? afterSale { get; set; }
             public int clearanceType { get; set; }
             public string subtitleHref { get; set; }
             public long maxQuantity { get; set; }
@@ -10038,7 +10053,7 @@ namespace MasterOnline.Controllers
             public string keywords { get; set; }
             public string description { get; set; }
             public long countryId { get; set; }
-            public int warrantyPeriod { get; set; }
+            public int? warrantyPeriod { get; set; }
             public string productArea { get; set; }
             public long minQuantity { get; set; }
             public long crossProductType { get; set; }
@@ -10057,7 +10072,7 @@ namespace MasterOnline.Controllers
             public int isQuality { get; set; }
             public long spuId { get; set; }
             public string packageInfo { get; set; }
-            public int afterSale { get; set; }
+            public int? afterSale { get; set; }
             public int clearanceType { get; set; }
             public string subtitleHref { get; set; }
             public long maxQuantity { get; set; }

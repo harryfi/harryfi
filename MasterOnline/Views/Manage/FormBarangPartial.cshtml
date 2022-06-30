@@ -2406,7 +2406,7 @@
                                                                             </div>
                                                                             <div class="row">
                                                                                 <div class="col-md-1 col-sm-1 col-xs-12">
-                                                                                    @Html.Label("Warranty ", new { @class = "control-label" })
+                                                                                    @Html.Label("Warranty*", new { @class = "control-label" })
                                                                                 </div>
                                                                                 <div class="col-md-5 col-sm-5 col-xs-12 form-group">
                                                                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_41, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_41 })
