@@ -3557,7 +3557,16 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                nobuk = dsOrder.Tables[0].Rows[0]["NO_BUKTI"].ToString();
+                                nobuk = dsOrder.Tables[0].Rows[0]["NO_BUKTI"].ToString(); 
+                                var detailInDB = ErasoftDbContext.SOT01B.Where(m => m.NO_BUKTI == nobuk).Select(m => m.ORDER_ITEM_ID).Distinct().ToList();
+                                if (cekCancelPartial)
+                                {
+                                    if (listBrgNotCancel.Count >= detailInDB.Count)
+                                    {
+                                        cekCancelPartial = false;
+                                        continue;
+                                    }
+                                }
                                 if (dsOrder.Tables[0].Rows[0]["TIPE_KIRIM"].ToString() != "1")
                                 {
                                     rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
@@ -3651,8 +3660,8 @@ namespace MasterOnline.Controllers
                                 #region cancel partial
                                 if (cekCancelPartial)// cancel partial : update no ref lama, buat no bukti baru
                                 {
-                                    var detailInDB = ErasoftDbContext.SOT01B.Where(m => m.NO_BUKTI == nobuk).Select(m => m.ORDER_ITEM_ID).ToList();
-                                    if (listBrgNotCancel.Count < detailInDB.Count)
+                                    //var detailInDB = ErasoftDbContext.SOT01B.Where(m => m.NO_BUKTI == nobuk).Select(m => m.ORDER_ITEM_ID).ToList();
+                                    //if (listBrgNotCancel.Count < detailInDB.Count)
                                     {
                                         var nobukCancel = orderInDB.NO_BUKTI;
                                         var newNoBuk = GenerateAutoNumber(ErasoftDbContext, "SC", "SOT01A", "NO_BUKTI");
@@ -6419,6 +6428,7 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                             }
+
                             var dsOrder = EDB.GetDataSet("MOConnectionString", "ORDER", "SELECT P.NO_BUKTI, ISNULL(F.NO_BUKTI, '') NO_FAKTUR, ISNULL(TIPE_KIRIM,0) TIPE_KIRIM "
                                     + ",ISNULL(F.NO_FA_OUTLET, '-') NO_FA_OUTLET FROM SOT01A (NOLOCK) P LEFT JOIN SIT01A (NOLOCK) F ON P.NO_BUKTI = F.NO_SO "
                                     + "WHERE NO_REFERENSI = '" + order.order_id + "' AND P.CUST = '" + cust + "' AND STATUS_TRANSAKSI NOT IN ('11', '12')");
@@ -6433,7 +6443,16 @@ namespace MasterOnline.Controllers
                                 {
                                     //var orderDetail = GetSingleOrder(order.order_id, accessToken);
                                     nobuk = dsOrder.Tables[0].Rows[0]["NO_BUKTI"].ToString();
-                                    if (dsOrder.Tables[0].Rows[0]["TIPE_KIRIM"].ToString() != "1")
+                                var detailInDB = ErasoftDbContext.SOT01B.Where(m => m.NO_BUKTI == nobuk).Select(m => m.ORDER_ITEM_ID).Distinct().ToList();
+                                if (cekCancelPartial)
+                                {
+                                    if (listBrgNotCancel.Count >= detailInDB.Count)
+                                    {
+                                        cekCancelPartial = false;
+                                        continue;
+                                    }
+                                }
+                                if (dsOrder.Tables[0].Rows[0]["TIPE_KIRIM"].ToString() != "1")
                                     {
                                         rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text,
                                             "UPDATE SOT01A SET STATUS='2',ORDER_CANCEL_DATE = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('"
@@ -6540,8 +6559,8 @@ namespace MasterOnline.Controllers
                                 #region cancel partial
                                 if (cekCancelPartial)// cancel partial : update no ref lama, buat no bukti baru
                                 {
-                                    var detailInDB = ErasoftDbContext.SOT01B.Where(m => m.NO_BUKTI == nobuk).Select(m => m.ORDER_ITEM_ID).ToList();
-                                    if (listBrgNotCancel.Count < detailInDB.Count)
+                                    //var detailInDB = ErasoftDbContext.SOT01B.Where(m => m.NO_BUKTI == nobuk).Select(m => m.ORDER_ITEM_ID).ToList();
+                                    //if (listBrgNotCancel.Count < detailInDB.Count)
                                     {
                                         var nobukCancel = nobuk;
                                         var newNoBuk = GenerateAutoNumber(ErasoftDbContext, "SC", "SOT01A", "NO_BUKTI");
