@@ -3215,7 +3215,7 @@ namespace MasterOnline.Controllers
                                     + dataAPI.no_cust + "'");
                                 var bodyEmail = "<p>Hi Kak {0},</p>" +
                     "<p>Untuk menjaga keamanan data Toko, pihak Marketplace secara berkala melakukan pembaharuan / Refresh API Token. Integrasi Marketplace akan otomatis terputus saat API Token Marketplace tersebut sudah expired.</p>" +
-                    "<p>Akun Marketplace Kakak yang akan expired adalah sebagai berikut, mohon lakukan link ulang di Master Online :</p>" +
+                    "<p>Akun Marketplace Kakak yang <span style='background-color: #FFFF00;text-decoration: underline;'>sudah expired</span> adalah sebagai berikut, mohon lakukan link ulang di Master Online :</p>" +
                     "<p><span style='background-color: #FFFF00;text-decoration: underline;'>- Nama akun: {2} {1} sudah expired pada {3} </span></p>" +
                     "<p>Silahkan segera melakukan link ulang agar integrasi marketplace tersambung kembali. Cara melakukan link ulang di Master Online:</p>" +
                     "<p>1. Masuk menu Pengaturan > Link ke Marketplace</p>" +
@@ -3229,7 +3229,7 @@ namespace MasterOnline.Controllers
                     "<p>Master Online.</p>";
                                 var accindb = MoDbContext.Account.Where(m => m.DatabasePathErasoft == dataAPI.DatabasePathErasoft).FirstOrDefault();
                                 bodyEmail = string.Format(bodyEmail, accindb.Username, "Shopee", cekSendEmail.PERSO, cekSendEmail.TOKEN_EXPIRED);
-                                new ShopeeControllerJob().SendEmailToCust(accindb.Email, "Reminder: Status akun marketplace Shopee (" + cekSendEmail.PERSO + ") sudah expired", bodyEmail);
+                                new ShopeeControllerJob().SendEmailToCust(accindb.Email, "(Penting) Status integrasi akun marketplace Shopee (" + cekSendEmail.PERSO + ") sudah expired", bodyEmail);
                             }
                             if (!string.IsNullOrWhiteSpace(result.message.ToString()))
                             {
