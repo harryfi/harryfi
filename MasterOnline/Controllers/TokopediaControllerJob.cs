@@ -9701,7 +9701,7 @@ namespace MasterOnline.Controllers
         //end add by Tri 11 Nov 2019, cancel order
 
         //add by nurul 20/9/2021
-        public async Task<string> ListMessage(TokopediaAPIData iden, string filter, int page)
+        public string ListMessage(TokopediaAPIData iden, string filter, int page)
         {
             ////add by nurul 1/3/2022
             //var hitung = 8;
@@ -9713,7 +9713,8 @@ namespace MasterOnline.Controllers
             //}
             //if (kelipatan8.Contains(page))
             //{
-                await Task.Delay(10000); //delay 10 detik biar ga kena limit 8 request per menit 
+                //await Task.Delay(10000); //delay 10 detik biar ga kena limit 8 request per menit 
+            //System.Threading.Thread.Sleep(10000);
             //}
             ////end add by nurul 1/3/2022
 
@@ -9736,7 +9737,7 @@ namespace MasterOnline.Controllers
             try
             {
 
-                using (WebResponse response = await myReq.GetResponseAsync())
+                using (WebResponse response = myReq.GetResponse())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {
@@ -9747,7 +9748,14 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                try
+                {
+                    responseFromServer = retryListMessage(iden, urll, 0);
+                }
+                catch (Exception ex1)
+                {
 
+                }
             }
 
             //if (responseFromServer != null)
@@ -9844,7 +9852,7 @@ namespace MasterOnline.Controllers
                                 }
                                 if (!lastMessage)
                                 {
-                                    var nextMessage = await ListMessage(iden, filter, page + 1);
+                                    var nextMessage = ListMessage(iden, filter, page + 1);
                                     //ret.AddRange(nextOrders);
                                 }
 
@@ -9857,10 +9865,17 @@ namespace MasterOnline.Controllers
 
                 }
             }
+            try
+            {
+                ErasoftDbContext.Database.ExecuteSqlCommand("update arf01 set tgl_expired_chat=DATEADD(HOUR, +7, GETUTCDATE()) where API_KEY='" + iden.API_secret_key + "' and Sort1_Cust='" + iden.merchant_code + "'");
+            }catch(Exception ex)
+            {
+
+            }
             return ret;
         }
 
-        public async Task<string> ListReply(TokopediaAPIData iden, string msgId, int page)
+        public string ListReply(TokopediaAPIData iden, string msgId, int page)
         {
             ////add by nurul 1/3/2022
             //var hitung = 8;
@@ -9872,7 +9887,8 @@ namespace MasterOnline.Controllers
             //}
             //if (kelipatan8.Contains(page))
             //{
-            await Task.Delay(10000); //delay 10 detik biar ga kena limit 8 request per menit 
+            //await Task.Delay(10000); //delay 10 detik biar ga kena limit 8 request per menit 
+            //System.Threading.Thread.Sleep(10000);
             //}
             ////end add by nurul 1/3/2022
 
@@ -9891,7 +9907,7 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             try
             {
-                using (WebResponse response = await myReq.GetResponseAsync())
+                using (WebResponse response = myReq.GetResponse())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {
@@ -9902,7 +9918,14 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                try
+                {
+                    responseFromServer = retryListReply(iden, urll, 0);
+                }
+                catch (Exception ex1)
+                {
 
+                }
             }
 
             //if (responseFromServer != null)
@@ -10127,7 +10150,7 @@ namespace MasterOnline.Controllers
                             }
                             if (!firstReply && result.data.Count() == 15)
                             {
-                                var nextReply = await ListReply(iden, msgId, page + 1);
+                                var nextReply = ListReply(iden, msgId, page + 1);
                             }
                         }
                     }
@@ -10136,6 +10159,140 @@ namespace MasterOnline.Controllers
             return ret;
         }
         //end add by nurul 20/9/2021
+
+        //add by nurul 17/6/2022
+        public async Task<string> GetAllMessage(TokopediaAPIData iden, string filter, int page)
+        {
+            ListMessage(iden, "ALL", 1);
+            return "OK";
+        }
+        public string retryListMessage(TokopediaAPIData iden, string urll, int retry)
+        {
+            string ret = "";
+            try
+            {
+                //System.Threading.Thread.Sleep(60000);
+                if (retry == 3)
+                {
+                    System.Threading.Thread.Sleep(60000);
+                }
+                else if (retry == 2)
+                {
+                    System.Threading.Thread.Sleep(30000);
+                }
+                else if (retry == 1)
+                {
+                    System.Threading.Thread.Sleep(30000);
+                }
+                else
+                {
+                    System.Threading.Thread.Sleep(10000);
+                }
+
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+                myReq.Accept = "application/x-www-form-urlencoded";
+                myReq.ContentType = "application/json";
+
+                string responseFromServer = "";
+                try
+                {
+                    using (WebResponse response = myReq.GetResponse())
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                            ret = responseFromServer;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (retry < 4)
+                    {
+                        try
+                        {
+                            ret = retryListMessage(iden, urll, retry + 1);
+                        }
+                        catch (Exception ex1)
+                        {
+
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return ret;
+        }
+        public string retryListReply(TokopediaAPIData iden, string urll, int retry)
+        {
+            string ret = "";
+            try
+            {
+                //System.Threading.Thread.Sleep(60000);
+                if (retry == 3)
+                {
+                    System.Threading.Thread.Sleep(60000);
+                }
+                else if (retry == 2)
+                {
+                    System.Threading.Thread.Sleep(30000);
+                }
+                else if (retry == 1)
+                {
+                    System.Threading.Thread.Sleep(30000);
+                }
+                else
+                {
+                    System.Threading.Thread.Sleep(10000);
+                }
+
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+                myReq.Accept = "application/x-www-form-urlencoded";
+                myReq.ContentType = "application/json";
+
+                string responseFromServer = "";
+                try
+                {
+                    using (WebResponse response = myReq.GetResponse())
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                            ret = responseFromServer;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (retry < 4)
+                    {
+                        try
+                        {
+                            ret = retryListReply(iden, urll, retry + 1);
+                        }
+                        catch (Exception ex1)
+                        {
+
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return ret;
+        }
+        //end add by nurul 17/6/2022
 
         public enum StatusOrder
         {
