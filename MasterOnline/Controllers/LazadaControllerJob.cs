@@ -3531,7 +3531,7 @@ namespace MasterOnline.Controllers
                     foreach (var order in bindOrder.data.orders)
                     {
                         var orderInDB = ErasoftDbContext.SOT01A.AsNoTracking().Where(m => m.NO_REFERENSI == order.order_id && m.CUST == cust).FirstOrDefault();
-                        orderUnpaidList = new List<string>();
+                        //orderUnpaidList = new List<string>();
                         var cekCancelPartial = false;
                         var listBrgNotCancel = new List<string>();
 
