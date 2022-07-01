@@ -1611,7 +1611,7 @@ namespace MasterOnline.Controllers
                     //                    Task.Run(() => new ShopeeControllerJob().GetTokenShopee(iden, false)).Wait();
                     //#endif
                     //end remark, tidak perlu cek detail toko
-                    if (tblCustomer.KD_ANALISA == "2")
+                    if (tblCustomer.KD_ANALISA == "2" && !string.IsNullOrEmpty(tblCustomer.TOKEN))
                     {
                         iden = await new ShopeeControllerJob().RefreshTokenShopee_V2(iden, false);
                     }
