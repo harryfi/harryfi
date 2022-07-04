@@ -1613,7 +1613,7 @@ namespace MasterOnline.Controllers
                     //end remark, tidak perlu cek detail toko
                     if (tblCustomer.KD_ANALISA == "2" && !string.IsNullOrEmpty(tblCustomer.TOKEN))
                     {
-                        iden = await new ShopeeControllerJob().RefreshTokenShopee_V2(iden, false);
+                        iden = new ShopeeControllerJob().RefreshTokenShopee_V2(iden, false);
                     }
                     // proses reminder expired token
                     if (!string.IsNullOrWhiteSpace(tblCustomer.TGL_EXPIRED.ToString()))

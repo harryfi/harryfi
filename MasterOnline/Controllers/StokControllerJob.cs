@@ -5737,7 +5737,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/items/update_stock";
-                iden = await new ShopeeControllerJob().RefreshTokenShopee_V2(iden, false);
+                iden = new ShopeeControllerJob().RefreshTokenShopee_V2(iden, false);
             }
             string[] brg_mp_split = brg_mp.Split(';');
             ShopeeUpdateStockData HttpBody = new ShopeeUpdateStockData
@@ -5970,7 +5970,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/items/update_variation_stock";
-                iden = await new ShopeeControllerJob().RefreshTokenShopee_V2(iden, false);
+                iden = new ShopeeControllerJob().RefreshTokenShopee_V2(iden, false);
             }
             string[] brg_mp_split = brg_mp.Split(';');
             ShopeeUpdateVariationStockData HttpBody = new ShopeeUpdateVariationStockData
@@ -6184,7 +6184,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/item/get";
-                iden = await new ShopeeControllerJob().RefreshTokenShopee_V2(iden, false);
+                iden = new ShopeeControllerJob().RefreshTokenShopee_V2(iden, false);
             }
 
             ShopeeControllerJob.ShopeeGetItemDetailData HttpBody = new ShopeeControllerJob.ShopeeGetItemDetailData
@@ -6328,7 +6328,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/item/get";
-                iden = await new ShopeeControllerJob().RefreshTokenShopee_V2(iden, false);
+                iden = new ShopeeControllerJob().RefreshTokenShopee_V2(iden, false);
             }
 
             ShopeeControllerJob.ShopeeGetItemDetailData HttpBody = new ShopeeControllerJob.ShopeeGetItemDetailData
