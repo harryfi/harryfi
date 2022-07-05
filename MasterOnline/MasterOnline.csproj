@@ -7045,6 +7045,8 @@
     <Content Include="Views\Manage\PromptDeliveryProviderTiktok.cshtml" />
     <Content Include="Views\Manage\PromptWarehouseTiktok.cshtml" />
     <Content Include="Views\Manage\PromptBrandTiktok.cshtml" />
+    <Content Include="Views\Manage\SinkronisasiBarang.cshtml" />
+    <Content Include="Views\Manage\TabelSinkronisasiBarang.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
