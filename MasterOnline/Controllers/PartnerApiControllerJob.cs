@@ -537,7 +537,8 @@ namespace MasterOnline.Controllers
                                             string ret = retryInsertStt01b(email, "08. Insert STT01B_1", noStok, error, exec, json, 1);
                                             if (ret != "RETRY")
                                             {
-                                                return ey.Message;
+                                                continue;
+                                                //return ey.Message;
                                             }
                                             //}
                                         }
@@ -609,7 +610,8 @@ namespace MasterOnline.Controllers
                                             string ret = retryInsertStt01b(email, "08. Insert STT01B_1", noStok, error, exec, json, 1);
                                             if (ret != "RETRY")
                                             {
-                                                return ey.Message;
+                                                continue;
+                                                //return ey.Message;
                                             }
                                             //}
                                         }
