@@ -102,7 +102,7 @@ namespace MasterOnline.Controllers
             }
         }
 
-        public async Task<ShopeeAPIData> RefreshTokenShopee_V2(ShopeeAPIData dataAPI, bool bForceRefresh)
+        public ShopeeAPIData RefreshTokenShopee_V2(ShopeeAPIData dataAPI, bool bForceRefresh)
         {
             ShopeeAPIData ret = dataAPI;
             DateTime dateNow = DateTime.UtcNow.AddHours(7);
@@ -228,7 +228,8 @@ namespace MasterOnline.Controllers
                     {
                         dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
                     }
-                    using (WebResponse response = await myReq.GetResponseAsync())
+                    //using (WebResponse response = await myReq.GetResponseAsync())
+                    using (WebResponse response =  myReq.GetResponse())
                     {
                         using (Stream stream = response.GetResponseStream())
                         {
@@ -335,7 +336,7 @@ namespace MasterOnline.Controllers
                     "<p>&nbsp;</p>" +
                     "<p>Master Online.</p>";
                                 var accindb = MoDbContext.Account.Where(m => m.DatabasePathErasoft == dataAPI.DatabasePathErasoft).FirstOrDefault();
-                                bodyEmail = string.Format(bodyEmail, accindb.Username, "Shopee", cekSendEmail.PERSO, cekSendEmail.TOKEN_EXPIRED);
+                                bodyEmail = string.Format(bodyEmail, accindb.Username, "Shopee", cekSendEmail.PERSO, cekSendEmail.TOKEN_EXPIRED.Value.ToString("dd MMMM yyyy HH:mm tt"));
                                 SendEmailToCust(accindb.Email, "(Penting) Status integrasi akun marketplace Shopee (" + cekSendEmail.PERSO + ") sudah expired", bodyEmail);
                             }
                             
@@ -354,8 +355,18 @@ namespace MasterOnline.Controllers
                     }
                     catch (Exception ex)
                     {
+                        MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                        {
+                            REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+                            REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
+                            REQUEST_DATETIME = milisBack,
+                            REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code
+                        };
+                        currentLog.REQUEST_EXCEPTION = responseFromServer + ";" + ex.Message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
                         //currentLog.REQUEST_EXCEPTION = ex.Message.ToString();
                         //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
+
                     }
                 }
                 else
@@ -367,22 +378,22 @@ namespace MasterOnline.Controllers
                         var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET Sort3_Cust = '1' WHERE CUST = '"
                             + dataAPI.no_cust + "'");
                         var bodyEmail = "<p>Hi Kak {0},</p>" +
-            "<p>Untuk menjaga keamanan data Toko, pihak Marketplace secara berkala melakukan pembaharuan / Refresh API Token. Integrasi Marketplace akan otomatis terputus saat API Token Marketplace tersebut sudah expired.</p>" +
-            "<p>Akun Marketplace Kakak yang akan expired adalah sebagai berikut, mohon lakukan link ulang di Master Online :</p>" +
-            "<p><span style='background-color: #FFFF00;text-decoration: underline;'>- Nama akun: {2} {1} sudah expired pada {3} </span></p>" +
-            "<p>Silahkan segera melakukan link ulang agar integrasi marketplace tersambung kembali. Cara melakukan link ulang di Master Online:</p>" +
-            "<p>1. Masuk menu Pengaturan > Link ke Marketplace</p>" +
-            "<p>2. Edit akun Marketplace Anda</p>" +
-            "<p>3. Lengkapi data Toko</p>" +
-            "<p>4. Klik Simpan.</p>" +
-            "<p>Terima kasih atas perhatian dan kerjasama nya. Sukses selalu bersama Master Online.</p>" +
-            "<p>&nbsp;</p>" +
-            "<p>Best regards,</p>" +
-            "<p>&nbsp;</p>" +
-            "<p>Master Online.</p>";
+                    "<p>Untuk menjaga keamanan data Toko, pihak Marketplace secara berkala melakukan pembaharuan / Refresh API Token. Integrasi Marketplace akan otomatis terputus saat API Token Marketplace tersebut sudah expired.</p>" +
+                    "<p>Akun Marketplace Kakak yang <span style='background-color: #FFFF00;text-decoration: underline;'>sudah expired</span> adalah sebagai berikut, mohon lakukan link ulang di Master Online :</p>" +
+                    "<p><span style='background-color: #FFFF00;text-decoration: underline;'>- Nama akun: {2} {1} sudah expired pada {3} </span></p>" +
+                    "<p>Silahkan segera melakukan link ulang agar integrasi marketplace tersambung kembali. Cara melakukan link ulang di Master Online:</p>" +
+                    "<p>1. Masuk menu Pengaturan > Link ke Marketplace</p>" +
+                    "<p>2. Edit akun Marketplace Anda</p>" +
+                    "<p>3. Lengkapi data Toko</p>" +
+                    "<p>4. Klik Simpan.</p>" +
+                    "<p>Terima kasih atas perhatian dan kerjasama nya. Sukses selalu bersama Master Online.</p>" +
+                    "<p>&nbsp;</p>" +
+                    "<p>Best regards,</p>" +
+                    "<p>&nbsp;</p>" +
+                    "<p>Master Online.</p>";
                         var accindb = MoDbContext.Account.Where(m => m.DatabasePathErasoft == dataAPI.DatabasePathErasoft).FirstOrDefault();
-                        bodyEmail = string.Format(bodyEmail, accindb.Username, "Shopee", cekSendEmail.PERSO, cekSendEmail.TOKEN_EXPIRED);
-                        SendEmailToCust(accindb.Email, "Reminder: Status akun marketplace Shopee (" + cekSendEmail.PERSO + ") sudah expired", bodyEmail);
+                        bodyEmail = string.Format(bodyEmail, accindb.Username, "Shopee", cekSendEmail.PERSO, cekSendEmail.TOKEN_EXPIRED.Value.ToString("dd MMMM yyyy HH:mm tt"));
+                        SendEmailToCust(accindb.Email, "(Penting) Status integrasi akun marketplace Shopee (" + cekSendEmail.PERSO + ") sudah expired", bodyEmail);
                     }
                 }
             }
@@ -501,7 +512,7 @@ namespace MasterOnline.Controllers
         public async Task<string> UploadImage_V2(ShopeeAPIData dataAPI, string imageUrl)
         {
             SetupContext(dataAPI);
-            dataAPI = await RefreshTokenShopee_V2(dataAPI, false);
+            dataAPI = RefreshTokenShopee_V2(dataAPI, false);
             //ShopeeAPIData ret = dataAPI;
             var ret = "";
 
@@ -2330,7 +2341,7 @@ namespace MasterOnline.Controllers
 
             if (!string.IsNullOrEmpty(iden.token))
             {
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
             var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
             delQry += DateTime.UtcNow.AddHours(7).AddHours(-12).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + CUST + "'";
@@ -2418,7 +2429,7 @@ namespace MasterOnline.Controllers
 
             if (!string.IsNullOrEmpty(iden.token))
             {
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
             var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
             delQry += DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + CUST + "'";
@@ -2505,7 +2516,7 @@ namespace MasterOnline.Controllers
 
             if (!string.IsNullOrEmpty(iden.token))
             {
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-1).AddHours(-7).ToUnixTimeSeconds();
@@ -2561,7 +2572,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/orders/get";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
             string ret = "";
             string connID = Guid.NewGuid().ToString();
@@ -2786,7 +2797,7 @@ namespace MasterOnline.Controllers
             SetupContext(iden);
             if (!string.IsNullOrEmpty(iden.token))
             {
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
@@ -2865,7 +2876,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/orders/get";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
             string connID = Guid.NewGuid().ToString();
             SetupContext(iden);
@@ -3296,7 +3307,7 @@ namespace MasterOnline.Controllers
             SetupContext(iden);
             if (!string.IsNullOrEmpty(iden.token))
             {
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             var dsOrder = EDB.GetDataSet("CString", "SOT01", "SELECT NO_REFERENSI FROM SOT01A WHERE CUST = '" + CUST + "' AND USER_NAME = 'Auto Shopee"
@@ -3335,7 +3346,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/orders/detail";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             long seconds = CurrentTimeSecond();
@@ -3629,7 +3640,7 @@ namespace MasterOnline.Controllers
             SetupContext(iden);
             if (!string.IsNullOrEmpty(iden.token))
             {
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             string sSQL = "SELECT DISTINCT NO_REFERENSI FROM SOT01A (NOLOCK) A INNER JOIN SIT01A (NOLOCK) B ON  A.NO_BUKTI = B.NO_SO ";
@@ -3670,7 +3681,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/orders/detail";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -3928,7 +3939,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/orders/detail";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             long seconds = CurrentTimeSecond();
@@ -4062,7 +4073,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/orders/detail";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             long seconds = CurrentTimeSecond();
@@ -4138,7 +4149,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/orders/detail";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             //string urll = "https://partner.shopeemobile.com/api/v1/orders/detail";
@@ -4202,7 +4213,7 @@ namespace MasterOnline.Controllers
             string ret = "";
             if (!string.IsNullOrEmpty(iden.token))
             {
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
             //add by nurul 16/6/2020
             List<string> orderToProcess = new List<string>();
@@ -4547,7 +4558,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/orders/detail";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             long seconds = CurrentTimeSecond();
@@ -5029,7 +5040,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/orders/detail";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
             var ordersn_list = new string[0];
             long seconds = CurrentTimeSecond();
@@ -5131,7 +5142,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/orders/income";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             long seconds = CurrentTimeSecond();
@@ -5210,7 +5221,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/orders/my_income";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             long seconds = CurrentTimeSecond();
@@ -5356,7 +5367,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/logistics/airway_bill/get_mass";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
             //var result = new GetAirwayBillsBatchResult();
             var result = "";
@@ -5437,7 +5448,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/logistics/airway_bill/get_mass";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
             var result = new GetAirwayBillsBatchResult();
             result.batch_result = new GetAirwayBillsBatchResultBatch_Result();
@@ -5659,7 +5670,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/logistics/init_parameter/get";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
             ShopeeGetParameterForInitLogisticResult ret = null;
             long seconds = CurrentTimeSecond();
@@ -5734,7 +5745,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/logistics/init_info/get";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             //string urll = "https://partner.shopeemobile.com/api/v1/logistics/init_info/get";
@@ -5809,7 +5820,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/logistics/init";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             long seconds = CurrentTimeSecond();
@@ -6338,7 +6349,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/logistics/init";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             long seconds = CurrentTimeSecond();
@@ -6433,7 +6444,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/logistics/init";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             long seconds = CurrentTimeSecond();
@@ -6684,7 +6695,7 @@ namespace MasterOnline.Controllers
             SetupContext(iden);
             if (!string.IsNullOrEmpty(iden.token))
             {
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
             string ret = "";
             var sSQL = "SELECT A.NO_PESANAN AS NOBUK, A.NO_REFERENSI AS NOREF,A.NAMA_CUST FROM SOT01H A (NOLOCK) INNER JOIN SOT01A B (NOLOCK) ON A.NO_PESANAN=B.NO_BUKTI AND A.NO_REFERENSI=B.NO_REFERENSI AND A.CUST=B.CUST WHERE ISNULL(B.SHIPMENT,'')='' AND A.CUST='" + log_CUST + "' AND STATUS_TRANSAKSI IN ('01','02','03','04')";
@@ -6732,7 +6743,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/orders/detail";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             long seconds = CurrentTimeSecond();
@@ -6913,7 +6924,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/orders/detail";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             long seconds = CurrentTimeSecond();
@@ -7397,7 +7408,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/logistics/order/get";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             long seconds = CurrentTimeSecond();
@@ -8074,7 +8085,7 @@ namespace MasterOnline.Controllers
             int MOPartnerID = MOPartnerIDV2;
             string MOPartnerKey = MOPartnerKeyV2;
             ShopeeGetLogisticsResult ret = null;
-            iden = await RefreshTokenShopee_V2(iden, false);
+            iden = RefreshTokenShopee_V2(iden, false);
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -8233,7 +8244,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/orders/cancel";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
             //var MoDbContext = new MoDbContext();
             //var ErasoftDbContext = new ErasoftContext(dbPathEra);
@@ -8892,7 +8903,7 @@ namespace MasterOnline.Controllers
         {
             string ret = "";
             SetupContext(iden);
-            iden = await RefreshTokenShopee_V2(iden, false);
+            iden = RefreshTokenShopee_V2(iden, false);
 
             var brgInDb = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper() == brg.ToUpper()).FirstOrDefault();
             var marketplace = ErasoftDbContext.ARF01.Where(c => c.CUST.ToUpper() == cust.ToUpper()).FirstOrDefault();
@@ -9456,7 +9467,7 @@ namespace MasterOnline.Controllers
 
         public async Task<ShopeeController.ShopeeGetAttributeResult_V2> GetAttribute_V2(ShopeeAPIData dataAPI, string category)
         {
-            dataAPI = await RefreshTokenShopee_V2(dataAPI, false);
+            dataAPI = RefreshTokenShopee_V2(dataAPI, false);
             int MOPartnerID = MOPartnerIDV2;
             string MOPartnerKey = MOPartnerKeyV2;
             var ret = new ShopeeController.ShopeeGetAttributeResult_V2();
@@ -9999,7 +10010,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/item/tier_var/update_list";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             long seconds = CurrentTimeSecond();
@@ -10607,7 +10618,7 @@ namespace MasterOnline.Controllers
             string ret = "";
             string brg = brgInDb.BRG;
             SetupContext(iden);
-            iden = await RefreshTokenShopee_V2(iden, false);
+            iden = RefreshTokenShopee_V2(iden, false);
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -11108,7 +11119,7 @@ namespace MasterOnline.Controllers
         {
             string ret = "";
             SetupContext(iden);
-            iden = await RefreshTokenShopee_V2(iden, false);
+            iden = RefreshTokenShopee_V2(iden, false);
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -11244,7 +11255,7 @@ namespace MasterOnline.Controllers
         {
             string ret = "";
             SetupContext(iden);
-            iden = await RefreshTokenShopee_V2(iden, false);
+            iden = RefreshTokenShopee_V2(iden, false);
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -11890,7 +11901,7 @@ namespace MasterOnline.Controllers
             //add by nurul 28/1/2020
             SetupContext(iden);
             //end add by nurul 28/1/2020
-            iden = await RefreshTokenShopee_V2(iden, false);
+            iden = RefreshTokenShopee_V2(iden, false);
 
             var brgInDb = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper() == brg.ToUpper()).FirstOrDefault();
             var marketplace = ErasoftDbContext.ARF01.Where(c => c.CUST.ToUpper() == cust.ToUpper()).FirstOrDefault();
@@ -12487,7 +12498,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/items/update_price";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             long seconds = CurrentTimeSecond();
@@ -12599,7 +12610,7 @@ namespace MasterOnline.Controllers
         public async Task<string> UpdatePrice_Job_V2(string dbPathEra, string kdbrgMO, string log_CUST, string log_ActionCategory, string log_ActionName, string brg_mp, ShopeeAPIData iden, float price)
         {
             SetupContext(iden);
-            iden = await RefreshTokenShopee_V2(iden, false);
+            iden = RefreshTokenShopee_V2(iden, false);
 
             string ret = "";
 
@@ -12733,7 +12744,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/items/update_variation_price";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             long seconds = CurrentTimeSecond();
@@ -12832,7 +12843,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/items/update_variation_price";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             long seconds = CurrentTimeSecond();
@@ -12948,7 +12959,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/item/img/update";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
             string ret = "";
             SetupContext(iden);
@@ -13072,7 +13083,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/discount/add";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
             double promoPrice;
             long seconds = CurrentTimeSecond();
@@ -13241,7 +13252,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/discount/items/add";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
             double promoPrice;
             long seconds = CurrentTimeSecond();
@@ -13395,7 +13406,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/discount/delete";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             long seconds = CurrentTimeSecond();
@@ -13493,7 +13504,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/discount/item/delete";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             long seconds = CurrentTimeSecond();
@@ -13608,7 +13619,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/logistics/address/get";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             long seconds = CurrentTimeSecond();
@@ -13677,7 +13688,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/logistics/timeslot/get";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             long seconds = CurrentTimeSecond();
@@ -13774,7 +13785,7 @@ namespace MasterOnline.Controllers
                 MOPartnerID = MOPartnerIDV2;
                 MOPartnerKey = MOPartnerKeyV2;
                 urll = shopeeV2Url + "/api/v1/logistics/branch/get";
-                iden = await RefreshTokenShopee_V2(iden, false);
+                iden = RefreshTokenShopee_V2(iden, false);
             }
 
             long seconds = CurrentTimeSecond();

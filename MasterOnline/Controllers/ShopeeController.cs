@@ -376,7 +376,7 @@ namespace MasterOnline.Controllers
         }
         public async Task<BindingBase> GetItemsList_V2(ShopeeAPIData iden, int IdMarket, int page, int recordCount, int totalData, bool display)
         {
-            iden = await RefreshTokenShopee_V2(iden, false);
+            iden = RefreshTokenShopee_V2(iden, false);
 
             var ret = new BindingBase
             {
@@ -1587,7 +1587,7 @@ namespace MasterOnline.Controllers
                 totalData = 0//add 18 Juli 2019, show total record
             };
 
-            iden = await RefreshTokenShopee_V2(iden, false);
+            iden = RefreshTokenShopee_V2(iden, false);
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
@@ -1975,7 +1975,7 @@ namespace MasterOnline.Controllers
         }
         public async Task<ShopeeController.ShopeeGetAttributeResult_V2> GetAttribute_V2(ShopeeAPIData dataAPI, string category)
         {
-            dataAPI = await RefreshTokenShopee_V2(dataAPI, false);
+            dataAPI = RefreshTokenShopee_V2(dataAPI, false);
             int MOPartnerID = MOPartnerIDV2;
             string MOPartnerKey = MOPartnerKeyV2;
             var ret = new ShopeeController.ShopeeGetAttributeResult_V2();
@@ -2390,7 +2390,7 @@ namespace MasterOnline.Controllers
 
         public async Task<ATTRIBUTE_SHOPEE_AND_OPT_v2> GetAttributeToList_V2(ShopeeAPIData dataAPI, CATEGORY_SHOPEE_V2 category)
         {
-            dataAPI = await RefreshTokenShopee_V2(dataAPI, false);
+            dataAPI = RefreshTokenShopee_V2(dataAPI, false);
             int MOPartnerID = MOPartnerIDV2;
             string MOPartnerKey = MOPartnerKeyV2;
             var ret = new ATTRIBUTE_SHOPEE_AND_OPT_v2();
@@ -2510,7 +2510,7 @@ namespace MasterOnline.Controllers
 
         public async Task<ShopeeGetBrandResult_V2> GetBrand_V2(ShopeeAPIData dataAPI, string category, int page)
         {
-            dataAPI = await RefreshTokenShopee_V2(dataAPI, false);
+            dataAPI = RefreshTokenShopee_V2(dataAPI, false);
             int MOPartnerID = MOPartnerIDV2;
             string MOPartnerKey = MOPartnerKeyV2;
             ShopeeGetBrandResult_V2 ret = new ShopeeGetBrandResult_V2();
@@ -2963,7 +2963,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<ShopeeAPIData> RefreshTokenShopee_V2(ShopeeAPIData dataAPI, bool bForceRefresh)
+        public ShopeeAPIData RefreshTokenShopee_V2(ShopeeAPIData dataAPI, bool bForceRefresh)
         {
             ShopeeAPIData ret = dataAPI;
             DateTime dateNow = DateTime.UtcNow.AddHours(7);
@@ -3087,7 +3087,8 @@ namespace MasterOnline.Controllers
                     {
                         dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
                     }
-                    using (WebResponse response = await myReq.GetResponseAsync())
+                    //using (WebResponse response = await myReq.GetResponseAsync())
+                    using (WebResponse response = myReq.GetResponse())
                     {
                         using (Stream stream = response.GetResponseStream())
                         {
@@ -3215,7 +3216,7 @@ namespace MasterOnline.Controllers
                                     + dataAPI.no_cust + "'");
                                 var bodyEmail = "<p>Hi Kak {0},</p>" +
                     "<p>Untuk menjaga keamanan data Toko, pihak Marketplace secara berkala melakukan pembaharuan / Refresh API Token. Integrasi Marketplace akan otomatis terputus saat API Token Marketplace tersebut sudah expired.</p>" +
-                    "<p>Akun Marketplace Kakak yang akan expired adalah sebagai berikut, mohon lakukan link ulang di Master Online :</p>" +
+                    "<p>Akun Marketplace Kakak yang <span style='background-color: #FFFF00;text-decoration: underline;'>sudah expired</span> adalah sebagai berikut, mohon lakukan link ulang di Master Online :</p>" +
                     "<p><span style='background-color: #FFFF00;text-decoration: underline;'>- Nama akun: {2} {1} sudah expired pada {3} </span></p>" +
                     "<p>Silahkan segera melakukan link ulang agar integrasi marketplace tersambung kembali. Cara melakukan link ulang di Master Online:</p>" +
                     "<p>1. Masuk menu Pengaturan > Link ke Marketplace</p>" +
@@ -3228,8 +3229,8 @@ namespace MasterOnline.Controllers
                     "<p>&nbsp;</p>" +
                     "<p>Master Online.</p>";
                                 var accindb = MoDbContext.Account.Where(m => m.DatabasePathErasoft == dataAPI.DatabasePathErasoft).FirstOrDefault();
-                                bodyEmail = string.Format(bodyEmail, accindb.Username, "Shopee", cekSendEmail.PERSO, cekSendEmail.TOKEN_EXPIRED);
-                                new ShopeeControllerJob().SendEmailToCust(accindb.Email, "Reminder: Status akun marketplace Shopee (" + cekSendEmail.PERSO + ") sudah expired", bodyEmail);
+                                bodyEmail = string.Format(bodyEmail, accindb.Username, "Shopee", cekSendEmail.PERSO, cekSendEmail.TOKEN_EXPIRED.Value.ToString("dd MMMM yyyy HH:mm tt"));
+                                new ShopeeControllerJob().SendEmailToCust(accindb.Email, "(Penting) Status integrasi akun marketplace Shopee (" + cekSendEmail.PERSO + ") sudah expired", bodyEmail);
                             }
                             if (!string.IsNullOrWhiteSpace(result.message.ToString()))
                             {
@@ -3249,6 +3250,15 @@ namespace MasterOnline.Controllers
                     }
                     catch (Exception ex)
                     {
+                        MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                        {
+                            REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+                            REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
+                            REQUEST_DATETIME = milisBack,
+                            REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code
+                        };
+                        currentLog.REQUEST_EXCEPTION = responseFromServer + ";" + ex.Message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
                         //currentLog.REQUEST_EXCEPTION = ex.Message.ToString();
                         //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
                     }
@@ -3276,7 +3286,7 @@ namespace MasterOnline.Controllers
                     "<p>&nbsp;</p>" +
                     "<p>Master Online.</p>";
                         var accindb = MoDbContext.Account.Where(m => m.DatabasePathErasoft == dataAPI.DatabasePathErasoft).FirstOrDefault();
-                        bodyEmail = string.Format(bodyEmail, accindb.Username, "Shopee", cekSendEmail.PERSO, cekSendEmail.TOKEN_EXPIRED);
+                        bodyEmail = string.Format(bodyEmail, accindb.Username, "Shopee", cekSendEmail.PERSO, cekSendEmail.TOKEN_EXPIRED.Value.ToString("dd MMMM yyyy HH:mm tt"));
                         new ShopeeControllerJob().SendEmailToCust(accindb.Email, "(Penting) Status integrasi akun marketplace Shopee (" + cekSendEmail.PERSO + ") sudah expired", bodyEmail);
                     }
                 }
@@ -3285,7 +3295,7 @@ namespace MasterOnline.Controllers
         }
         public async Task<string> GetCategoryShopee_V2(ShopeeAPIData dataAPI)
         {
-            dataAPI = await RefreshTokenShopee_V2(dataAPI, false);
+            dataAPI = RefreshTokenShopee_V2(dataAPI, false);
             string ret = "";
             DateTime dateNow = DateTime.UtcNow.AddHours(7);
 
