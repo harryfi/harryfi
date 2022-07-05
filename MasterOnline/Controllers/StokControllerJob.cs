@@ -4807,7 +4807,7 @@ namespace MasterOnline.Controllers
                 long milis = CurrentTimeMillis();
                 DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
                 string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/stock/update?shop_id=" 
-                    + Uri.EscapeDataString(iden.API_secret_key) + "&bypass_update_product_status=true";
+                    + Uri.EscapeDataString(iden.API_secret_key) /*+ "&bypass_update_product_status=true"*/;
 
                 string responseFromServer = "";
                 List<TokopediaUpdateStockData> HttpBodies = new List<TokopediaUpdateStockData>();
@@ -5007,7 +5007,7 @@ namespace MasterOnline.Controllers
                 long milis = CurrentTimeMillis();
                 DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
                 string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/stock/update?shop_id=" 
-                    + Uri.EscapeDataString(iden.API_secret_key) + "&warehouse_id=" + Uri.EscapeDataString(gudangMP) + "&bypass_update_product_status=true";
+                    + Uri.EscapeDataString(iden.API_secret_key) + "&warehouse_id=" + Uri.EscapeDataString(gudangMP) /*+ "&bypass_update_product_status=true"*/;
 
                 string responseFromServer = "";
                 List<TokopediaUpdateStockData> HttpBodies = new List<TokopediaUpdateStockData>();
