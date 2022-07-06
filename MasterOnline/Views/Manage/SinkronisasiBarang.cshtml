@@ -198,7 +198,7 @@
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
             <div class="row barang_table_section">
-                <div class="col-lg-4 col-sm-4 col-md-4">
+                <div class="col-lg-8 col-sm-8 col-md-8">
                     <div class="col-md-2 col-sm-2 col-xs-6" style="padding-top:5px;">
                         <label>Akun</label>
                     </div>
@@ -222,7 +222,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-8 col-sm-8 col-md-8">
+                <div class="col-lg-4 col-sm-4 col-md-4">
                     <div class="pull-right">
                         <button class="btn btn-primary" id="get_data" onclick="$('#konfTarikData').modal('show'); setModalMode(2);">Submit</button>
                     </div>
@@ -232,7 +232,7 @@
                 <div id="lblPleasewait" class="text-center" style="display:none">
                     <label>Proses sinkronisasi sedang berlangsung, Dimohon tunggu beberapa saat.</label>
                 </div>
-                <div id="loading_barang_tab" class="text-center">
+                <div id="loading_barang_tab" class="text-center" style="display: none">
                     <img src="~/Content/Images/spinner.gif" width="100" />
                 </div>
                 <div class="col-sm-12 barang_table_section" id="table-sinkro-barang" style="overflow:scroll; height:400px;">
@@ -267,6 +267,31 @@
             $('#txtCustomer').val(val2);
 
             refreshTableBarangSinkro();
+        }
+
+        function refreshTableBarangSinkro() {
+            var $link = '@Html.Raw(Url.Action("RefreshTableBarangSinkro", "Manage", new { cust = "replaceCust", page = "replaceLastPage" }))';
+            $link = $link.replace("replaceCust", encodeURIComponent($('#promptHiddenField').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-sinkro-barang').hide();
+                    $('#loading_barang_tab').show();
+                    $('#loading_uploadbarang_tab').show();
+                },
+                success: function (response) {
+                    $('#table-sinkro-barang').html(response);
+                    $('#loading_barang_tab').hide();
+                    $('#table-sinkro-barang').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
         }
     </script>
 }

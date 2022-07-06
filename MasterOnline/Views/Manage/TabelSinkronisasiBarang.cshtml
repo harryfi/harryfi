@@ -40,7 +40,7 @@
         <tr role="row">
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 60px;">Seller Sku</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 60px;">Gambar</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 120px;">Nama</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 60px;">Nama</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 30px;">Pilih</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 60px;">Kode Barang Master</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Gambar Master</th>
@@ -52,7 +52,7 @@
         {
         <tr>
             <td>@barang.SELLER_SKU</td>
-            <td>@barang.BRG_MP</td>
+            <td class="text-center"><img width="50" height="50" src="@barang.GAMBAR" /></td>
             <td>@barang.NAMA @barang.NAMA2</td>
             <td class="edit-hapus-col">
                 <button class="btn btn-danger" onclick="pilihBrg('@barang.RECNUM')">
@@ -60,7 +60,7 @@
                 </button>
             </td>
             <td id="txtKodeBrgMO_@barang.RECNUM">@barang.BRG</td>
-            <td id="txtGambarBrgMO_@barang.RECNUM">@barang.GAMBAR_MO</td>
+            <td id="txtGambarBrgMO_@barang.RECNUM" class="text-center"><img width="50" height="50" src="@barang.GAMBAR_MO" /></td>
             <td id="txtNamaBrgMO_@barang.RECNUM">@barang.NAMABRG</td>
         </tr>
         }
