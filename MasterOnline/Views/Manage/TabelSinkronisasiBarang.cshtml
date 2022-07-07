@@ -60,7 +60,12 @@
                 </button>
             </td>
             <td id="txtKodeBrgMO_@barang.RECNUM">@barang.BRG</td>
-            <td id="txtGambarBrgMO_@barang.RECNUM" class="text-center"><img width="50" height="50" src="@barang.GAMBAR_MO" /></td>
+            <td id="txtGambarBrgMO_@barang.RECNUM" class="text-center">
+                @if (!string.IsNullOrEmpty(barang.GAMBAR_MO))
+                {
+                    <img width="50" height="50" src="@barang.GAMBAR_MO" />
+                }
+            </td>
             <td id="txtNamaBrgMO_@barang.RECNUM">@barang.NAMABRG</td>
         </tr>
         }
