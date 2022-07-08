@@ -240,6 +240,21 @@
             </div>
         </div>
         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+            <div id="divSearch" style="display:none;">
+                <div>
+                    Rekomendasi : Master Barang Master Online
+                </div>
+                <div class="row barang_table_section" style="padding-left:10px;">
+                    <div class="input-group col-sm-5 col-md-5">
+                        <input id="search_barang" type="text" class="form-control" placeholder="Pencarian">
+                        <span class="input-group-btn">
+                            <button type="button" id="search_barang_click" class="btn btn-primary">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
             <div id="form-rekomendasi">
 
             </div>
@@ -252,7 +267,19 @@
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
     <script src="~/Scripts/jquery.ajax-progress.js"></script>
     <script type="text/javascript">
-
+        $(document).ready(function () {
+            $('#search_barang').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    RefreshTableBarangSinkro('');
+                    return false;
+                }
+            });
+            $('#search_barang_click').click(function () {
+                RefreshTableBarangSinkro('');
+            });
+        });
         function PromptCustomer() {
             showPromptCustomerTextBoxWindow();
         }
@@ -268,7 +295,40 @@
 
             refreshTableBarangSinkro();
         }
+        var currentBrg = "";
+        function pilihBrg(recnum) {
+            currentBrg = recnum;
+            RefreshTableBarangSinkro(recnum);
+        }
+        function RefreshTableBarangSinkro(recnum) {
+            var $link = '@Html.Raw(Url.Action("RefreshTableBarangSinkroMaster", "Manage", new { cust = "replaceCust", page = "replaceLastPage", search = "replaceLastSearch" }))';
+            $link = $link.replace("replaceCust", encodeURIComponent($('#promptHiddenField').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
+            $link = $link.replace("replaceLastSearch", encodeURIComponent($('#search_barang').val()));
+            if (recnum != "") {
+                $link += "&recnum=" + recnum;
+            }
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#form-rekomendasi').hide();
+                    //$('#loading_barang_tab').show();
+                    //$('#loading_uploadbarang_tab').show();
+                },
+                success: function (response) {
+                    $('#divSearch').show();                    
+                    $('#form-rekomendasi').html(response);
+                    $('#form-rekomendasi').show();
+                    //$('#loading_barang_tab').hide();
+                    //$('#table-sinkro-barang').show();
 
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
         function refreshTableBarangSinkro() {
             var $link = '@Html.Raw(Url.Action("RefreshTableBarangSinkro", "Manage", new { cust = "replaceCust", page = "replaceLastPage" }))';
             $link = $link.replace("replaceCust", encodeURIComponent($('#promptHiddenField').val()));
