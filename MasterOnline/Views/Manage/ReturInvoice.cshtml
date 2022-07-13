@@ -2119,9 +2119,9 @@
 
         //add by nurul 13/7/2022
         function cekSudahLunasAtauBlm(bukti) {
-            var link = '@Url.Action("cekLunasFaktur", "Manage", new { noBukti = "replaceBrgId", tipe = "replaceTipe" })';
-            link = link.replace("replaceBrgId", encodeURIComponent(bukti));
-            link = link.replace("replaceTipe", encodeURIComponent("2"))
+            var link = '@Url.Action("cekLunasFaktur", "Manage", new { noBukti = "replaceBrgId" })';
+            var param = bukti + "|2";
+            link = link.replace("replaceBrgId", encodeURIComponent(param));
             $cekLunasFaktur = false;
             $.ajax({
                 type: "GET",
