@@ -7045,6 +7045,7 @@
     <Content Include="Views\Manage\PromptDeliveryProviderTiktok.cshtml" />
     <Content Include="Views\Manage\PromptWarehouseTiktok.cshtml" />
     <Content Include="Views\Manage\PromptBrandTiktok.cshtml" />
+    <Content Include="Views\Manage\ListBayarPerFaktur.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

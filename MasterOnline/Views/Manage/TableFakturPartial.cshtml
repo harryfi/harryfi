@@ -70,6 +70,7 @@
                 <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 40px; align-self:flex-start"><input type="checkbox" class="dt-checkboxes-select-all" id="all_checkbox_print" style="margin-top: 20px; align-self:flex-start; width:30px; height:28px;" /></th>
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 90px;">No. Faktur</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tanggal Faktur</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 90px;">No. Pembayaran</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 90px;">Marketplace</th>
                 @*add by nurul 7/11/2018*@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 90px;">No. Referensi</th>
@@ -165,6 +166,18 @@
                 </td>
                 <td>@faktur.NO_FAKTUR</td>
                 <td>@(faktur.TGL?.ToString("dd/MM/yyyy"))</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(faktur.PEMBAYARAN))
+                    {
+                        <div data-tip="Lihat Detail">
+                            <a class="user-link" href="#" data-toggle="modal" data-target="#modalDetailBayar" onclick="LihatDetailBayar('@faktur.NO_FAKTUR')">@faktur.PEMBAYARAN</a>
+                        </div>
+                    }
+                    else
+                    {
+                        @faktur.PEMBAYARAN
+                    }
+                </td>
                 @*<td>@NamaMarket</td>*@
                 @*<td>@(NamaMarket + " (" + perso + ")")</td>*@
                 <td>@(faktur.MARKET + " (" + faktur.PERSO + ")")</td>

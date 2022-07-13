@@ -147,4 +147,14 @@ namespace MasterOnline.ViewModels
         public double TotalLebihBayar { get; set; }
     }
     //END ADD BY NURUL 2/10/2020
+
+    public class DetailBayarPerFaktur
+    {
+        public List<detail__> bayar = new List<detail__>();
+    }
+    public class detail__
+    {
+        public string bukti { get; set; }
+        public DateTime? tgl { get; set; }
+    }
 }

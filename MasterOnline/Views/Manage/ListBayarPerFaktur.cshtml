@@ -1,0 +1,24 @@
+﻿@using System.Globalization
+@model MasterOnline.ViewModels.DetailBayarPerFaktur
+@{ 
+
+}
+    <div id="div-scroll-list">
+        <table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+            <thead>
+                <tr role="row">
+                    <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 115px;">No. Bukti</th>
+                    <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 100px;">Tanggal</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model.bayar)
+                {
+                    <tr>
+                        <td>@user.bukti</td>
+                        <td>@(user.tgl?.ToString("dd/MM/yyyy"))</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
