@@ -198,6 +198,7 @@ namespace MasterOnline.Controllers
         public string updateHarsat0()
         {
             var ret = "";
+            //UPDATE HARSAT 0
             try
             {
                 var sSQL = "select b.no from stt01a a (nolock) inner join stt01b b (nolock) on a.nobuk=b.nobuk where harsat =0 and harga > 0 and qty > 0 and isnull(st_POSTING,'') <> 'Y' and year(a.tgl) > 2019 order by a.tgl";
@@ -215,6 +216,17 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.SaveChanges();
                 }
             }catch(Exception ex)
+            {
+
+            }
+
+            //SIMPAN TGL POSTING 
+            try
+            {
+                var updateHarsat = ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE SIFSYS SET TGL_POSTING=DATEADD(HOUR, +7, GETUTCDATE())");
+                ErasoftDbContext.SaveChanges();
+            }
+            catch(Exception ex)
             {
 
             }
