@@ -2130,6 +2130,15 @@
                     if (response == "1") {
                         $cekLunasFaktur = true;
                     }
+                    if ($cekLunasFaktur) {
+                        if (confirm("No Bukti " + bukti + " hutangnya sudah lunas, apakah Anda yakin ingin melanjutkan?")) {
+                            $('#Invoice_REF').val(bukti);
+                            $('#tambah-brg').removeAttr('disabled');
+                        }
+                    } else {
+                        $('#Invoice_REF').val(bukti);
+                        $('#tambah-brg').removeAttr('disabled');
+                    }
                 },
                 error: function (xhr) {
                     console.log(xhr);
@@ -2144,16 +2153,18 @@
                 //var tempValue = tempVal.split('|');
 
                 //add by nurul 13/7/2022
-                cekSudahLunasAtauBlm(tempValue[0]);
-                if ($cekLunasFaktur) {
-                    if (confirm("No Bukti " + tempValue[0] + " hutangnya sudah lunas, apakah Anda yakin ingin melanjutkan?")) {
-                        $('#Invoice_REF').val(tempVal);
-                        $('#tambah-brg').removeAttr('disabled');
-                    }
-                } else {
-                    $('#Invoice_REF').val(tempVal);
-                    $('#tambah-brg').removeAttr('disabled');
-                }
+                cekSudahLunasAtauBlm(tempVal);
+                //if ($cekLunasFaktur) {
+                //    if (confirm("No Bukti " + tempVal + " hutangnya sudah lunas, apakah Anda yakin ingin melanjutkan?")) {
+                //        $('#Invoice_REF').val(tempVal);
+                //        $('#tambah-brg').removeAttr('disabled');
+                //    }
+                //} else {
+                //    $('#Invoice_REF').val(tempVal);
+                //    $('#tambah-brg').removeAttr('disabled');
+                //}
+
+
                 //end add by nurul 13/7/2022
 
                 //$('#Invoice_REF').val(tempVal);
