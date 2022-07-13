@@ -222,7 +222,20 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-4 col-sm-4 col-md-4">
+                <div class="col-lg-1 col-sm-1">
+                    <div class="input-group text" style="padding-top:13px">
+                        <select class="form-control" id="TakeRecord" name="TakeRecord" required="required">
+                            @*
+        <option>--Pilih--</option>*@
+                            <option value="10">10</option>
+                            <option value="100">100</option>
+                            <option value="200">200</option>
+                            <option value="500">500</option>
+                            <option value="1000">1000</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-3 col-md-3">
                     <div class="pull-right">
                         <button class="btn btn-primary" id="get_data" onclick="$('#konfTarikData').modal('show'); setModalMode(2);">Submit</button>
                     </div>
@@ -272,12 +285,17 @@
                 var key = e.which;
                 if (key == 13)// the enter key code
                 {
-                    RefreshTableBarangSinkro('');
+                    RefreshTableBarangSinkroMaster('');
                     return false;
                 }
             });
             $('#search_barang_click').click(function () {
-                RefreshTableBarangSinkro('');
+                RefreshTableBarangSinkroMaster('');
+            });
+
+            $('#TakeRecord').change(function () {
+                //searchTablePesananSudahDibayar();
+                refreshTableBarangSinkro("1");
             });
         });
         function PromptCustomer() {
@@ -298,12 +316,13 @@
         var currentBrg = "";
         function pilihBrg(recnum) {
             currentBrg = recnum;
-            RefreshTableBarangSinkro(recnum);
+            RefreshTableBarangSinkroMaster(recnum);
         }
-        function RefreshTableBarangSinkro(recnum) {
+        function RefreshTableBarangSinkroMaster(recnum) {
+
             var $link = '@Html.Raw(Url.Action("RefreshTableBarangSinkroMaster", "Manage", new { cust = "replaceCust", page = "replaceLastPage", search = "replaceLastSearch" }))';
             $link = $link.replace("replaceCust", encodeURIComponent($('#promptHiddenField').val()));
-            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_master').val()));
             $link = $link.replace("replaceLastSearch", encodeURIComponent($('#search_barang').val()));
             if (recnum != "") {
                 $link += "&recnum=" + recnum;
@@ -317,7 +336,7 @@
                     //$('#loading_uploadbarang_tab').show();
                 },
                 success: function (response) {
-                    $('#divSearch').show();                    
+                    $('#divSearch').show();
                     $('#form-rekomendasi').html(response);
                     $('#form-rekomendasi').show();
                     //$('#loading_barang_tab').hide();
@@ -330,9 +349,17 @@
             });
         }
         function refreshTableBarangSinkro() {
-            var $link = '@Html.Raw(Url.Action("RefreshTableBarangSinkro", "Manage", new { cust = "replaceCust", page = "replaceLastPage" }))';
+
+            var $setPage = "";
+            if ($pageAwal != undefined) {
+                $setPage = $pageAwal;
+            } else {
+                $setPage = $('#txt_last_page').val();
+            }
+            var $link = '@Html.Raw(Url.Action("RefreshTableBarangSinkro", "Manage", new { take = "replaceLastTake", cust = "replaceCust", page = "replaceLastPage" }))';
             $link = $link.replace("replaceCust", encodeURIComponent($('#promptHiddenField').val()));
-            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($setPage));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecord').val()));
 
             $.ajax({
                 type: "GET",
@@ -347,6 +374,41 @@
                     $('#loading_barang_tab').hide();
                     $('#table-sinkro-barang').show();
 
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function pilihBrgMaster(value) {
+
+            var $link = '@Html.Raw(Url.Action("SetMappingSinkro", "Manage"))';
+            $link += "?recnumbrg=" + value + "&currenttemp=" + currentBrg + "&cust=" + encodeURIComponent($('#promptHiddenField').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    //$('#table-sinkro-barang').hide();
+                    //$('#loading_barang_tab').show();
+                    //$('#loading_uploadbarang_tab').show();
+                },
+                success: function (response) {
+                    //$('#table-sinkro-barang').html(response);
+                    //$('#loading_barang_tab').hide();
+                    //$('#table-sinkro-barang').show();
+                    if (response.error != "") {
+                        alert(response.error);
+                    }
+                    else {
+                        if (response.cekOtherTemp != null) {
+                            // remove other link
+
+                        }
+                        $('#txtKodeBrgMO_' + currentBrg).val(response.currentBrg);
+                        $('#txtGambarBrgMO_' + currentBrg).val(response.image);
+                        $('#txtNamaBrgMO_' + currentBrg).val(response.namaBrg);
+                    }
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

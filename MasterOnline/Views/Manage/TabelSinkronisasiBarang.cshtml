@@ -33,12 +33,13 @@
         word-wrap: break-word;
         max-width: 90px;
     }
+
     .kolom_brg {
         word-wrap: break-word;
         max-width: 45px;
     }
 </style>
-<div id="loading_uploadbarang_tab" style="display:none;">
+<div id="loading_sinkrobarang_tab" style="display:none;">
     <div id="loading_sinkrobarang_tab_image">
         <img src="~/Content/Images/spinner.gif" />
     </div>
@@ -57,26 +58,74 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var barang in Model)
+        @foreach (var barang in Model.Content)
         {
-        <tr>
-            <td class="kolom_brg">@barang.SELLER_SKU</td>
-            <td class="text-center"><img width="50" height="50" src="@barang.GAMBAR" /></td>
-            <td class="kolom_nama">@barang.NAMA @barang.NAMA2</td>
-            <td class="edit-hapus-col">
-                <button class="btn btn-danger" onclick="pilihBrg('@barang.RECNUM')">
-                    <span>V</span>
-                </button>
-            </td>
-            <td class="kolom_brg" id="txtKodeBrgMO_@barang.RECNUM">@barang.BRG</td>
-            <td id="txtGambarBrgMO_@barang.RECNUM" class="text-center">
-                @if (!string.IsNullOrEmpty(barang.GAMBAR_MO))
-                {
-                    <img width="50" height="50" src="@barang.GAMBAR_MO" />
-                }
-            </td>
-            <td id="txtNamaBrgMO_@barang.RECNUM">@barang.NAMABRG</td>
-        </tr>
+            <tr>
+                <td class="kolom_brg">@barang.SELLER_SKU</td>
+                <td class="text-center"><img width="50" height="50" src="@barang.GAMBAR" /></td>
+                <td class="kolom_nama">@barang.NAMA @barang.NAMA2</td>
+                <td class="edit-hapus-col">
+                    <button class="btn btn-danger" onclick="pilihBrg('@barang.RECNUM')">
+                        <span>V</span>
+                    </button>
+                </td>
+                <td class="kolom_brg" id="txtKodeBrgMO_@barang.RECNUM">@barang.BRG</td>
+                <td id="txtGambarBrgMO_@barang.RECNUM" class="text-center">
+                    @if (!string.IsNullOrEmpty(barang.GAMBAR_MO))
+                    {
+                        <img width="50" height="50" src="@barang.GAMBAR_MO" />
+                    }
+                </td>
+                <td id="txtNamaBrgMO_@barang.RECNUM">@barang.NAMABRG</td>
+            </tr>
         }
     </tbody>
 </table>
+@if (Model.Content.PageCount > 1)
+{
+    <div id="tabelsinkrobarangpartialpager" class="pager">
+        @Html.PagedListPager(Model.Content, page => Url.Action("RefreshTableBarangSinkro", new
+   {
+       page,
+       search = ViewData["searchParam"],
+       take = ViewData["takeRecord"]
+   }),
+             new PagedListRenderOptions
+             {
+                 LinkToFirstPageFormat = "<<",
+            LinkToPreviousPageFormat = "prev",
+            LinkToNextPageFormat = "next",
+            LinkToLastPageFormat = ">>",
+            DisplayEllipsesWhenNotShowingAllPageNumbers = false
+        })
+        Page @(Model.Content.PageCount < Model.Content.PageNumber ? 0 : Model.Content.PageNumber) of @Model.Content.PageCount
+
+    </div>
+}
+<script type="text/javascript">
+    $(function () {
+        $('#tabelsinkrobarangpartialpager').on('click', 'a', function () {
+            if (this.href != "") {
+                var link = this.href;
+                link += "&cust=replaceCust";
+                link = link.replace("replaceCust", encodeURIComponent($('#promptHiddenField').val()));
+
+                $.ajax({
+                    //url: this.href,
+                    url: link,
+                    type: 'GET',
+                    cache: false,
+                    beforeSend: function () {
+                        $('#loading_sinkrobarang_tab').show();
+                    },
+                    success: function (response) {
+                        $('#table-sinkro-barang').html(response);
+                        $('#loading_sinkrobarang_tab').hide();
+                    }
+                });
+            }
+            return false;
+
+        });
+    });
+</script>
