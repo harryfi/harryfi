@@ -4887,9 +4887,9 @@
 
         //ADD BY NURUL 13/7/2022
         function LihatDetailBayar(BUKTI) {
-            var link = '@Url.Action("LihatDetailBayar", "Manage", new { nobuk = "replaceId", tipe = "replaceTipe" })';
-            link = link.replace("replaceId", encodeURIComponent(BUKTI));
-            link = link.replace("replaceTipe", encodeURIComponent("2"));
+            var link = '@Url.Action("LihatDetailBayar", "Manage", new { nobuk = "replaceId" })';
+            var param = BUKTI + "|2";
+            link = link.replace("replaceId", encodeURIComponent(param));
             $.ajax({
                 type: "GET",
                 url: link,
