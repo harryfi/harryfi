@@ -436,21 +436,6 @@
     </div>
 </div>
 
-<div class="modal fade" id="modalDetailBayar" style="margin:0;padding:0;" tabindex="-1" role="dialog" aria-labelledby="modalDetailBayarLabel">
-    <div class="modal-dialog" role="document" style="margin:auto;width:700px;margin-top:20px;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="modalDetailBayarLabel">Detail Pembayaran</h4>
-            </div>
-            <div class="modal-body">
-                <div id="list-detail-bayar"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" id="close-detail-stok" data-dismiss="modal">Tutup</button>
-            </div>
-        </div>
-    </div>
-</div>
 @section scripts
 {
     <script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
@@ -2080,27 +2065,6 @@
         }
         //end add by nurul 8/6/2020
 
-        //ADD BY NURUL 13/7/2022
-        function LihatDetailBayar(BUKTI) {
-            var link = '@Url.Action("LihatDetailBayar", "Manage", new { nobuk = "replaceId", tipe = "replaceTipe" })';
-            link = link.replace("replaceId", encodeURIComponent(BUKTI));
-            link = link.replace("replaceTipe", encodeURIComponent("1"));
-            $.ajax({
-                type: "GET",
-                url: link,
-                beforeSend: function () {
-                    $('#list-detail-bayar').html('');
-                },
-                success: function (response) {
-                    $('#list-detail-bayar').html(value);
-                },
-                error: function (xhr) {
-                    console.log(xhr);
-                    $('#loading_spinner').hide();
-                }
-            });
-        }
-        //END ADD BY NURUL 13/7/2022
     </script>
 
     <script>
