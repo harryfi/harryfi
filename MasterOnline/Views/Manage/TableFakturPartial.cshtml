@@ -169,7 +169,7 @@
                 <td>
                     @if (!string.IsNullOrEmpty(faktur.PEMBAYARAN))
                     {
-                        <div data-tip="Lihat Detail">
+                        <div data-tip-bayar="Lihat Detail">
                             <a class="user-link" href="#" data-toggle="modal" data-target="#modalDetailBayar" onclick="LihatDetailBayar('@faktur.NO_FAKTUR')">@faktur.PEMBAYARAN</a>
                         </div>
                     }

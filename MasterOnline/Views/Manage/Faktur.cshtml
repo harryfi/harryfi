@@ -112,6 +112,56 @@
                 white-space: pre-line;
             }
 
+        [data-tip-bayar] {
+            position: relative;
+        }
+
+            [data-tip-stok]:before {
+                content: '';
+                /* hides the tooltip when not hovered */
+                display: none;
+                content: '';
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-bottom: 5px solid #1a1a1a;
+                position: absolute;
+                top: 30px;
+                z-index: 8;
+                font-size: 0;
+                line-height: 0;
+                left: 30%;
+                margin-left: -30px;
+            }
+
+            [data-tip-bayar]:after {
+                display: none;
+                content: attr(data-tip-stok);
+                position: absolute;
+                top: 35px;
+                padding: 2px 5px;
+                background: #1a1a1a;
+                color: #fff;
+                z-index: 1;
+                font-size: 0.85em;
+                height: auto;
+                line-break: normal;
+                max-width: 300px;
+                line-height: 18px;
+                -webkit-border-radius: 3px;
+                -moz-border-radius: 3px;
+                border-radius: 3px;
+                white-space: normal;
+                word-wrap: normal;
+                left: 50px;
+                margin-left: -80px;
+                width: 68px;
+            }
+
+            [data-tip-bayar]:hover:before,
+            [data-tip-bayar]:hover:after {
+                display: block;
+            }
+
         /*add by nurul 22/10/2020*/
         #BRG_BUNDLING,
         #BRG_BUNDLING .selectivity-single-select-input,
