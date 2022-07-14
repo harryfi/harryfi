@@ -58,14 +58,14 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var barang in Model.Content)
+        @foreach (var barang in Model)
         {
             <tr>
                 <td class="kolom_brg">@barang.SELLER_SKU</td>
                 <td class="text-center"><img width="50" height="50" src="@barang.GAMBAR" /></td>
                 <td class="kolom_nama">@barang.NAMA @barang.NAMA2</td>
                 <td class="edit-hapus-col">
-                    <button class="btn btn-danger" onclick="pilihBrg('@barang.RECNUM')">
+                    <button class="btn btn-danger" onclick="pilihBrg('@barang.RECNUM', '@barang.NAMA')">
                         <span>V</span>
                     </button>
                 </td>
@@ -81,10 +81,10 @@
         }
     </tbody>
 </table>
-@if (Model.Content.PageCount > 1)
+@if (Model.PageCount > 1)
 {
     <div id="tabelsinkrobarangpartialpager" class="pager">
-        @Html.PagedListPager(Model.Content, page => Url.Action("RefreshTableBarangSinkro", new
+        @Html.PagedListPager(Model, page => Url.Action("RefreshTableBarangSinkro", new
    {
        page,
        search = ViewData["searchParam"],
@@ -98,7 +98,7 @@
             LinkToLastPageFormat = ">>",
             DisplayEllipsesWhenNotShowingAllPageNumbers = false
         })
-        Page @(Model.Content.PageCount < Model.Content.PageNumber ? 0 : Model.Content.PageNumber) of @Model.Content.PageCount
+        Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
 
     </div>
 }

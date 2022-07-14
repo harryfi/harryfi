@@ -222,12 +222,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-1 col-sm-1">
-                    <div class="input-group text" style="padding-top:13px">
+                <div class="col-lg-2 col-sm-2 col-md-2">
+                    <div class="input-group text pull-right">
                         <select class="form-control" id="TakeRecord" name="TakeRecord" required="required">
-                            @*
-        <option>--Pilih--</option>*@
-                            <option value="10">10</option>
+                            <option value="10" selected>10</option>
                             <option value="100">100</option>
                             <option value="200">200</option>
                             <option value="500">500</option>
@@ -235,7 +233,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-lg-3 col-sm-3 col-md-3">
+                <div class="col-lg-2 col-sm-2 col-md-2">
                     <div class="pull-right">
                         <button class="btn btn-primary" id="get_data" onclick="$('#konfTarikData').modal('show'); setModalMode(2);">Submit</button>
                     </div>
@@ -258,7 +256,7 @@
                     Rekomendasi : Master Barang Master Online
                 </div>
                 <div class="row barang_table_section" style="padding-left:10px;">
-                    <div class="input-group col-sm-5 col-md-5">
+                    <div class="input-group col-sm-8 col-md-8">
                         <input id="search_barang" type="text" class="form-control" placeholder="Pencarian">
                         <span class="input-group-btn">
                             <button type="button" id="search_barang_click" class="btn btn-primary">
@@ -314,8 +312,9 @@
             refreshTableBarangSinkro();
         }
         var currentBrg = "";
-        function pilihBrg(recnum) {
+        function pilihBrg(recnum, nama) {
             currentBrg = recnum;
+            $('#search_barang').val(nama);
             RefreshTableBarangSinkroMaster(recnum);
         }
         function RefreshTableBarangSinkroMaster(recnum) {
@@ -348,7 +347,7 @@
                 }
             });
         }
-        function refreshTableBarangSinkro() {
+        function refreshTableBarangSinkro($pageAwal) {
 
             var $setPage = "";
             if ($pageAwal != undefined) {
@@ -403,11 +402,17 @@
                     else {
                         if (response.cekOtherTemp != null) {
                             // remove other link
-
+                            response.cekOtherTemp.forEach(function () {
+                                            var $value2 = $(this);
+                                $('#txtKodeBrgMO_' + $value2).text('');
+                                $('#txtGambarBrgMO_' + $value2).html('');
+                                $('#txtNamaBrgMO_' + $value2).text('');
+                                        });
                         }
-                        $('#txtKodeBrgMO_' + currentBrg).val(response.currentBrg);
-                        $('#txtGambarBrgMO_' + currentBrg).val(response.image);
-                        $('#txtNamaBrgMO_' + currentBrg).val(response.namaBrg);
+                        $('#txtKodeBrgMO_' + currentBrg).text(response.currentBrg);
+                        $('#txtGambarBrgMO_' + currentBrg).html('');
+                        $('#txtGambarBrgMO_' + currentBrg).append('<img width="50" height="50" src="' + response.image + '" />');
+                        $('#txtNamaBrgMO_' + currentBrg).text(response.namaBrg);
                     }
                 },
                 error: function (xhr, status, error) {
