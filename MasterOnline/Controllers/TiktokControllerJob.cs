@@ -1939,7 +1939,9 @@ namespace MasterOnline.Controllers
             descBrg = descBrg.Replace("</li></p><p>", "</li>").Replace("<ul></p><p>", "<ul>").Replace("<p><ul>", "<ul>").Replace("</ul></p>", "</ul>");
             descBrg = descBrg.Replace(">\\t", ">").Replace(">\t", ">").Replace("\\t<", "<").Replace("\t<", "<");
             descBrg = descBrg.Replace("\\t", " ").Replace("\t", " ");
-            descBrg = descBrg.Replace("<strong>", "").Replace("</strong>", "");
+            descBrg = descBrg.Replace("<strong>", "").Replace("</strong>", "").Replace("<li></p>", "<li>").Replace("<p></li>", "</li>").Replace("<em>", "").Replace("</em>", "").Replace("<u>", "").Replace("</u>", "");
+            descBrg = descBrg.Replace("<h1>", "").Replace("</h1>", "").Replace("<h2>", "").Replace("</h2>", "").Replace("<h3>", "").Replace("</h3>", "");
+            descBrg = descBrg.Replace("<h4>", "").Replace("</h4>", "").Replace("<h5>", "").Replace("</h5>", "").Replace("<h6>", "").Replace("</h6>", "");
             postData.description = descBrg;
 
             #region gambar induk
@@ -2381,7 +2383,9 @@ namespace MasterOnline.Controllers
             descBrg = descBrg.Replace("</li></p><p>", "</li>").Replace("<ul></p><p>", "<ul>").Replace("<p><ul>", "<ul>").Replace("</ul></p>", "</ul>");
             descBrg = descBrg.Replace(">\\t", ">").Replace(">\t", ">").Replace("\\t<", "<").Replace("\t<", "<");
             descBrg = descBrg.Replace("\\t", " ").Replace("\t", " ");
-            descBrg = descBrg.Replace("<strong>", "").Replace("</strong>", "");
+            descBrg = descBrg.Replace("<strong>", "").Replace("</strong>", "").Replace("<li></p>", "<li>").Replace("<p></li>", "</li>").Replace("<em>", "").Replace("</em>", "").Replace("<u>", "").Replace("</u>", "");
+            descBrg = descBrg.Replace("<h1>", "").Replace("</h1>", "").Replace("<h2>", "").Replace("</h2>", "").Replace("<h3>", "").Replace("</h3>", "");
+            descBrg = descBrg.Replace("<h4>", "").Replace("</h4>", "").Replace("<h5>", "").Replace("</h5>", "").Replace("<h6>", "").Replace("</h6>", "");
             postData.description = descBrg;
 
             #region gambar induk
