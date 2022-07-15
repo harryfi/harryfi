@@ -112,6 +112,60 @@
                 white-space: pre-line;
             }
 
+        .user-link {
+            text-decoration: underline;
+        }
+
+        [data-tip-bayar] {
+            position: relative;
+        }
+
+            [data-tip-bayar]:before {
+                content: '';
+                /* hides the tooltip when not hovered */
+                display: none;
+                content: '';
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-bottom: 5px solid #1a1a1a;
+                position: absolute;
+                top: 30px;
+                z-index: 8;
+                font-size: 0;
+                line-height: 0;
+                left: 30%;
+                margin-left: -30px;
+            }
+
+            [data-tip-bayar]:after {
+                display: none;
+                content: attr(data-tip-bayar);
+                position: absolute;
+                top: 35px;
+                padding: 2px 5px;
+                background: #1a1a1a;
+                color: #fff;
+                z-index: 1;
+                font-size: 0.85em;
+                height: auto;
+                line-break: normal;
+                max-width: 300px;
+                line-height: 18px;
+                -webkit-border-radius: 3px;
+                -moz-border-radius: 3px;
+                border-radius: 3px;
+                white-space: normal;
+                word-wrap: normal;
+                left: 50px;
+                margin-left: -80px;
+                width: 68px;
+            }
+
+            [data-tip-bayar]:hover:before,
+            [data-tip-bayar]:hover:after {
+                display: block;
+            }
+
         /*add by nurul 22/10/2020*/
         #BRG_BUNDLING,
         #BRG_BUNDLING .selectivity-single-select-input,
@@ -2367,6 +2421,22 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
                 <button type="button" class="btn btn-success" onclick="deleteBarangBundling();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDetailBayar" style="margin:0;padding:0;" tabindex="-1" role="dialog" aria-labelledby="modalDetailBayarLabel">
+    <div class="modal-dialog" role="document" style="margin:auto;width:700px;margin-top:20px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalDetailBayarLabel">Detail Pembayaran</h4>
+            </div>
+            <div class="modal-body">
+                <div id="list-detail-bayar"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="close-detail-stok" data-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>
@@ -7130,6 +7200,29 @@
             }
         }
         //end add by nurul 26/10/2020, bundling
+
+    
+        //ADD BY NURUL 13/7/2022
+        function LihatDetailBayar(BUKTI) {
+            var link = '@Url.Action("LihatDetailBayar", "Manage", new { nobuk = "replaceId" })';
+            var param = BUKTI + "|1";
+            link = link.replace("replaceId", encodeURIComponent(param));
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#list-detail-bayar').html('');
+                },
+                success: function (response) {
+                    $('#list-detail-bayar').html(response);
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                    $('#loading_spinner').hide();
+                }
+            });
+        }
+        //END ADD BY NURUL 13/7/2022
 </script>
     <script>
         //Disable Enter Key Submit Form
