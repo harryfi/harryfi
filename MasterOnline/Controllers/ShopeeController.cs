@@ -3117,10 +3117,11 @@ namespace MasterOnline.Controllers
                         REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
                         REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
                         REQUEST_DATETIME = milisBack,
-                        REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code
+                        REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
+                        REQUEST_STATUS = "Failed"
                     };
                     currentLog.REQUEST_EXCEPTION = err;
-                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
+                    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
                 }
 
                 if (responseFromServer != "")
@@ -3200,10 +3201,11 @@ namespace MasterOnline.Controllers
                                     REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
                                     REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
                                     REQUEST_DATETIME = milisBack,
-                                    REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code
+                                    REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
+                                    REQUEST_STATUS = "Failed"
                                 };
                                 currentLog.REQUEST_EXCEPTION = responseFromServer;
-                                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
+                                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
                             }
                         }
                         else
@@ -3242,10 +3244,11 @@ namespace MasterOnline.Controllers
                                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
                                 REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
                                 REQUEST_DATETIME = milisBack,
-                                REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code
+                                REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
+                                REQUEST_STATUS = "Failed"
                             };
                             currentLog.REQUEST_EXCEPTION = responseFromServer;
-                            manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
+                            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
                         }
                     }
                     catch (Exception ex)
@@ -3255,10 +3258,11 @@ namespace MasterOnline.Controllers
                             REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
                             REQUEST_ACTION = "Refresh Token Shopee V2", //ganti
                             REQUEST_DATETIME = milisBack,
-                            REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code
+                            REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
+                            REQUEST_STATUS = "Failed"
                         };
                         currentLog.REQUEST_EXCEPTION = responseFromServer + ";" + ex.Message;
-                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
+                        manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
                         //currentLog.REQUEST_EXCEPTION = ex.Message.ToString();
                         //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
                     }
