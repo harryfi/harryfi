@@ -159,97 +159,98 @@
                     tlp = pesanan.TLP;
                 }
                 //end by nurul 25/8/2021
-            <tr>
-                <td>@pesanan.NOSO</td>
-                <td>@pesanan.REFERENSI</td>
-                <td>@(pesanan.TGL?.ToString("dd/MM/yyyy HH:mm"))</td>
-                <td>@pesanan.NO_FAKTUR</td>
-                <td>@pesanan.NO_FAKTUR_RETUR</td>
-                @*<td>@NamaMarket</td> 'change by nurul 14/2/2019*@
-                <td>
-                    @if (pesanan?.PERSO != "")
-                    {
-                        @(pesanan.MARKET + " (" + pesanan.PERSO + ")")
-                    }
-                    else
-                    {
-                        @pesanan.MARKET
-                    }
-                </td>
-                <td>
-                    @*remark by nurul 24/9/2018 @(buyer.NAMA + " (" + buyer.PERSO + ")")*@
-                    @*@(buyer.NAMA + " (" + pelanggan.PERSO + ")")*@
-                    @*@(buyer == null ? "" : buyer.NAMA)*@
-                    @*//change by nurul 17/6/2021*@
-                    @*@pesanan.PEMBELI*@
-
-                    @*//change by nurul 25/8/2021*@
-                    @*@if (!string.IsNullOrEmpty(pesanan.TLP))
-            {
-                @(pesanan.PEMBELI + " (" + pesanan.TLP + ")")
-            }
-            else
-            {
-                @pesanan.PEMBELI
-            }*@
-                    @if (!string.IsNullOrEmpty(tlp))
-                    {
-                        @(pembeli + " (" + tlp + ")")
-                    }
-                    else
-                    {
-                        @pembeli
-                    }
-                    @*//end change by nurul 25/8/2021*@
-                    @*//end change by nurul 17/6/2021*@
-                </td>
-                <td>@tipe_pesanan</td>
-                @*add by nurul 23/11/2021*@
-                <td>@pesanan.WAREHOUSE_ID</td>
-                @*end add by nurul 23/11/2021*@
-                <td>@pesanan.SHIPMENT</td>
-                <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.TOTAL)</td>
-                <td>
-                    @if (!string.IsNullOrEmpty(pesanan.CancelReason))
-                    {
-                        @*if (pesanan.CancelReason.Length < 100)
-                {
-                    @pesanan.CancelReason
-                }
-                else
-                {
-                    @(pesanan.CancelReason.Substring(0, 97) + "...")
-                    <button onclick="alert('Alasan batal :' + '@pesanan.CancelReason')"><span class="glyphicon glyphicon-option-horizontal"></span></button>
-                }*@
-                        <div data-tip="'@req_ex' + ' KLIK UNTUK LIHAT DETAIL'">
-                            <a class="user-link" href="#" data-toggle="modal" data-target="#modalError" onclick="LihatException('@pesanan.NOSO')">@req_ex</a>
-                        </div>
-                    }
-                </td>
-                <td class="edit-hapus-col">
-                    @if (pesanan.NO_FAKTUR != "")
-                    {
-                        if (!pesanan.NO_FAKTUR_RETUR.Contains("-"))
+                <tr>
+                    <td>@pesanan.NOSO</td>
+                    <td>@pesanan.REFERENSI</td>
+                    <td>@(pesanan.TGL?.ToString("dd/MM/yyyy HH:mm"))</td>
+                    <td>@pesanan.NO_FAKTUR</td>
+                    <td>@pesanan.NO_FAKTUR_RETUR</td>
+                    @*<td>@NamaMarket</td> 'change by nurul 14/2/2019*@
+                    <td>
+                        @if (pesanan?.PERSO != "")
                         {
-                            <button class="btn btn-warning btnReturCOD" disabled>
-                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                            </button>
+                            @(pesanan.MARKET + " (" + pesanan.PERSO + ")")
                         }
                         else
                         {
-                            <button class="btn btn-warning btnReturCOD" onclick="passNoFaktur('@pesanan.NO_FAKTUR');">
+                            @pesanan.MARKET
+                        }
+                    </td>
+                    <td>
+                        @*remark by nurul 24/9/2018 @(buyer.NAMA + " (" + buyer.PERSO + ")")*@
+                        @*@(buyer.NAMA + " (" + pelanggan.PERSO + ")")*@
+                        @*@(buyer == null ? "" : buyer.NAMA)*@
+                        @*//change by nurul 17/6/2021*@
+                        @*@pesanan.PEMBELI*@
+
+                        @*//change by nurul 25/8/2021*@
+                        @*@if (!string.IsNullOrEmpty(pesanan.TLP))
+                            {
+                                @(pesanan.PEMBELI + " (" + pesanan.TLP + ")")
+                            }
+                            else
+                            {
+                                @pesanan.PEMBELI
+                            }*@
+                        @if (!string.IsNullOrEmpty(tlp))
+                        {
+                            @(pembeli + " (" + tlp + ")")
+                        }
+                        else
+                        {
+                            @pembeli
+                        }
+                        @*//end change by nurul 25/8/2021*@
+                        @*//end change by nurul 17/6/2021*@
+                    </td>
+                    <td>@tipe_pesanan</td>
+                    @*add by nurul 23/11/2021*@
+                    <td>@pesanan.WAREHOUSE_ID</td>
+                    @*end add by nurul 23/11/2021*@
+                    <td>@pesanan.SHIPMENT</td>
+                    <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.TOTAL)</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(pesanan.CancelReason))
+                        {
+                            @*if (pesanan.CancelReason.Length < 100)
+                                {
+                                    @pesanan.CancelReason
+                                }
+                                else
+                                {
+                                    @(pesanan.CancelReason.Substring(0, 97) + "...")
+                                    <button onclick="alert('Alasan batal :' + '@pesanan.CancelReason')"><span class="glyphicon glyphicon-option-horizontal"></span></button>
+                                }*@
+                            <div data-tip="'@req_ex' + ' KLIK UNTUK LIHAT DETAIL'">
+                                <a class="user-link" href="#" data-toggle="modal" data-target="#modalError" onclick="LihatException('@pesanan.NOSO')">@req_ex</a>
+                            </div>
+                        }
+                    </td>
+                    <td class="edit-hapus-col">
+                        @if (pesanan.NO_FAKTUR != "")
+                        {
+                            if (!pesanan.NO_FAKTUR_RETUR.Contains("-"))
+                            {
+                                <button class="btn btn-warning btnReturCOD" disabled>
+                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-warning btnReturCOD" onclick="passNoFaktur('@pesanan.NO_FAKTUR');">
+                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                </button>
+                            }
+                        }
+                        else
+                        {
+                            @*<button class="btn btn-warning" onclick="alert('Pesanan ini belum dibuat Faktur. Silahkan buat transaksi masuk barang.')">*@
+                            <button class="btn btn-warning" onclick="ConfirmBatal('@pesanan.NOSO')">
                                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                             </button>
                         }
-                    }
-                    else
-                    {
-                        <button class="btn btn-warning" onclick="alert('Pesanan ini belum dibuat Faktur. Silahkan buat transaksi masuk barang.')">
-                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                        </button>
-                    }
-                </td>
-            </tr>
+                    </td>
+                </tr>
             }
         </tbody>
     </table>
@@ -337,6 +338,33 @@
             }
         });
     });
+
+    function ConfirmBatal(value) {
+        if (confirm("Apakah Anda sudah menerima kembali barang dari pesanan batal ini?"))
+        {
+            var link = '@Url.Action("KonfirmBatalCOD", "Manage", new { bukti = "replaceSt"})';
+            link = link.replace("replaceSt", encodeURIComponent(value));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    if (response.Errors[0] == "") {
+                        refreshTableCancelCOD();
+                    } else {
+                        alert(response.Errors[0]);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+
+        }
+        else {
+
+        }
+    }
 </script>
 @* end add by nurul 30/4/2019, paging *@
 
