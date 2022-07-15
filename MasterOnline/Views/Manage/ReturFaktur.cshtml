@@ -457,6 +457,8 @@
         var $nettoSebelumnya = 0;
         var $modeEdit = 0; // 0 new, 1 edit
 
+        var $cekLunasFaktur = false;
+
         //var table = $('#datatable').DataTable({
         //    "order": [[0,1, "desc"]], //or asc
         //    "columnDefs": [{ "targets": 1, "type": "date-eu" }],
@@ -1948,19 +1950,79 @@
             });
         }
 
+        //add by nurul 13/7/2022
+        function cekSudahLunasAtauBlm(bukti, ref, buyer) {
+            var link = '@Url.Action("cekLunasFaktur", "Manage", new { noBukti = "replaceBrgId", tipe = "replaceTipe" })';
+            var param = bukti + "|1";
+            link = link.replace("replaceBrgId", encodeURIComponent(param));
+            $cekLunasFaktur = false;
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    if (response == "1") {
+                        $cekLunasFaktur = true;
+                    } else {
+
+                    }
+                    if ($cekLunasFaktur) {
+                        if (confirm("Piutang pada No Bukti " + bukti + " sudah lunas, apakah Anda yakin ingin melanjutkan?")) {
+                            $('#Faktur_NO_REF').val(bukti);
+                            $('#TEMP_NOREF').val(ref.pop());
+                            $('#text_noref').show();
+                            $('#TEMP_PEMBELI').val(buyer);
+                            $('#text_pembeli').show();
+                            $('#tambah-brg').removeAttr('disabled');
+                        }
+                    } else {
+                        $('#Faktur_NO_REF').val(bukti);
+                        $('#TEMP_NOREF').val(ref.pop());
+                        $('#text_noref').show();
+                        $('#TEMP_PEMBELI').val(buyer);
+                        $('#text_pembeli').show();
+                        $('#tambah-brg').removeAttr('disabled');
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        //end add by nurul 13/7/2022
+
         //add by nurul 8/6/2020
         function afterPromptFaktur(tempVal) {
             if (promptFaktur == "1") {
                 var tempValue = tempVal.split('|');
-                $('#Faktur_NO_REF').val(tempValue[0]);
-
                 var noref = tempValue[1].split(';');
-                //$('#TEMP_NOREF').val(tempValue[1]);
-                $('#TEMP_NOREF').val(noref.pop());
-                $('#text_noref').show();
-                $('#TEMP_PEMBELI').val(tempValue[2]);
-                $('#text_pembeli').show();
-                $('#tambah-brg').removeAttr('disabled');
+                cekSudahLunasAtauBlm(tempValue[0], noref, tempValue[2]);
+                //if ($cekLunasFaktur) {
+                //    if (confirm("No Bukti " + tempValue[0] + " piutangnya sudah lunas, apakah Anda yakin ingin melanjutkan?")) {
+                //        $('#Faktur_NO_REF').val(tempValue[0]);
+                //        $('#TEMP_NOREF').val(noref.pop());
+                //        $('#text_noref').show();
+                //        $('#TEMP_PEMBELI').val(tempValue[2]);
+                //        $('#text_pembeli').show();
+                //        $('#tambah-brg').removeAttr('disabled');
+                //    }
+                //} else {
+                //    $('#Faktur_NO_REF').val(tempValue[0]);
+                //    $('#TEMP_NOREF').val(noref.pop());
+                //    $('#text_noref').show();
+                //    $('#TEMP_PEMBELI').val(tempValue[2]);
+                //    $('#text_pembeli').show();
+                //    $('#tambah-brg').removeAttr('disabled');
+                //}
+
+
+                //$('#Faktur_NO_REF').val(tempValue[0]);
+
+                ////$('#TEMP_NOREF').val(tempValue[1]);
+                //$('#TEMP_NOREF').val(noref.pop());
+                //$('#text_noref').show();
+                //$('#TEMP_PEMBELI').val(tempValue[2]);
+                //$('#text_pembeli').show();
+                //$('#tambah-brg').removeAttr('disabled');
             }
             promptFaktur = "";
         }

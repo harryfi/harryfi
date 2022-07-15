@@ -486,6 +486,8 @@
         var $page = window.text;
             //end add by nurul 12/2/2019
 
+        var $cekLunasFaktur = false;
+
         $(document).ready(function () {
             refreshTableInvoice1();
             //add by nurul 12/2/2019
@@ -2115,12 +2117,58 @@
             }
         }
 
+        //add by nurul 13/7/2022
+        function cekSudahLunasAtauBlm(bukti) {
+            var link = '@Url.Action("cekLunasFaktur", "Manage", new { noBukti = "replaceBrgId" })';
+            var param = bukti + "|2";
+            link = link.replace("replaceBrgId", encodeURIComponent(param));
+            $cekLunasFaktur = false;
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    if (response == "1") {
+                        $cekLunasFaktur = true;
+                    }
+                    if ($cekLunasFaktur) {
+                        if (confirm("Hutang pada No Bukti " + bukti + " sudah lunas, apakah Anda yakin ingin melanjutkan?")) {
+                            $('#Invoice_REF').val(bukti);
+                            $('#tambah-brg').removeAttr('disabled');
+                        }
+                    } else {
+                        $('#Invoice_REF').val(bukti);
+                        $('#tambah-brg').removeAttr('disabled');
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        //end add by nurul 13/7/2022
+
         //add by nurul 8/6/2020
         function afterPromptFaktur(tempVal) {
             if (promptFaktur == "1") {
                 //var tempValue = tempVal.split('|');
-                $('#Invoice_REF').val(tempVal);
-                $('#tambah-brg').removeAttr('disabled');
+
+                //add by nurul 13/7/2022
+                cekSudahLunasAtauBlm(tempVal);
+                //if ($cekLunasFaktur) {
+                //    if (confirm("No Bukti " + tempVal + " hutangnya sudah lunas, apakah Anda yakin ingin melanjutkan?")) {
+                //        $('#Invoice_REF').val(tempVal);
+                //        $('#tambah-brg').removeAttr('disabled');
+                //    }
+                //} else {
+                //    $('#Invoice_REF').val(tempVal);
+                //    $('#tambah-brg').removeAttr('disabled');
+                //}
+
+
+                //end add by nurul 13/7/2022
+
+                //$('#Invoice_REF').val(tempVal);
+                //$('#tambah-brg').removeAttr('disabled');
             }
             promptFaktur = "";
         }
