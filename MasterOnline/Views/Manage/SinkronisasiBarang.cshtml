@@ -196,33 +196,32 @@
 
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
-            <div class="row barang_table_section">
-                <div class="col-lg-8 col-sm-8 col-md-8">
-                    <div class="col-md-2 col-sm-2 col-xs-6" style="padding-top:5px;">
-                        <label>Akun</label>
-                    </div>
-                    <div class="col-md-8 col-sm-8 col-xs-6">
-                        <input value="" data-val="true" id="promptHiddenField" name="promptHiddenField" type="hidden" maxlength="10">
-                        <div class="input-group text">
-                            <table>
-                                <tr>
-                                    <td>
-                                        <input maxlength="10" value="" class="form-control" disabled="disabled" id="txtCustomer" name="txtCustomer" type="text">
-                                    </td>
-                                    <td>
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-default" id="btnPromptCust" type="button" style="height: 34px;" onclick="PromptCustomer();">
-                                                <span class="glyphicon glyphicon-option-horizontal"></span>
-                                            </button>
-                                        </span>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
+        <div class="row barang_table_section">
+            <div class="col-lg-6 col-sm-6 col-md-6">
+                <div class="col-md-2 col-sm-2 col-xs-2" style="padding-top:5px;">
+                    <label>Pilih Akun</label>
+                </div>
+                <div class="col-md-10 col-sm-10 col-xs-10">
+                    <input value="" data-val="true" id="promptHiddenField" name="promptHiddenField" type="hidden" maxlength="10">
+                    <div class="input-group text">
+                        <table>
+                            <tr>
+                                <td>
+                                    <input maxlength="10" value="" class="form-control" disabled="disabled" id="txtCustomer" name="txtCustomer" type="text">
+                                </td>
+                                <td>
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default" id="btnPromptCust" type="button" style="height: 34px;" onclick="PromptCustomer();">
+                                            <span class="glyphicon glyphicon-option-horizontal"></span>
+                                        </button>
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
-                <div class="col-lg-2 col-sm-2 col-md-2">
+            </div>
+            @*<div class="col-lg-2 col-sm-2 col-md-2">
                     <div class="input-group text pull-right">
                         <select class="form-control" id="TakeRecord" name="TakeRecord" required="required">
                             <option value="10" selected>10</option>
@@ -232,28 +231,112 @@
                             <option value="1000">1000</option>
                         </select>
                     </div>
-                </div>
-                <div class="col-lg-2 col-sm-2 col-md-2">
-                    <div class="pull-right">
-                        <button class="btn btn-primary" id="get_data" onclick="$('#konfTarikData').modal('show'); setModalMode(2);">Submit</button>
-                    </div>
+                </div>*@
+            <div class="col-lg-6 col-sm-6 col-md-6">
+                <div class="pull-right">
+                    <label onclick=""><u>kembali ke menu sinkronisasi lama</u></label>
+                    <button class="btn btn-primary" id="get_data" onclick="">Simpan</button>
+                    <button class="btn btn-primary" id="get_data" onclick="$('#konfTarikData').modal('show'); setModalMode(2);">Ambil data dari Marketplace</button>
                 </div>
             </div>
-            <div class="row" style="margin-top: 5px;">
+        </div>
+    </div>
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+            @*<div class="row barang_table_section">
+                    <div class="col-lg-8 col-sm-8 col-md-8">
+                        <div class="col-md-2 col-sm-2 col-xs-6" style="padding-top:5px;">
+                            <label>Akun</label>
+                        </div>
+                        <div class="col-md-8 col-sm-8 col-xs-6">
+                            <input value="" data-val="true" id="promptHiddenField" name="promptHiddenField" type="hidden" maxlength="10">
+                            <div class="input-group text">
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <input maxlength="10" value="" class="form-control" disabled="disabled" id="txtCustomer" name="txtCustomer" type="text">
+                                        </td>
+                                        <td>
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-default" id="btnPromptCust" type="button" style="height: 34px;" onclick="PromptCustomer();">
+                                                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                                                </button>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-2 col-md-2">
+                        <div class="input-group text pull-right">
+                            <select class="form-control" id="TakeRecord" name="TakeRecord" required="required">
+                                <option value="10" selected>10</option>
+                                <option value="100">100</option>
+                                <option value="200">200</option>
+                                <option value="500">500</option>
+                                <option value="1000">1000</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-2 col-md-2">
+                        <div class="pull-right">
+                            <button class="btn btn-primary" id="get_data" onclick="$('#konfTarikData').modal('show'); setModalMode(2);">Submit</button>
+                        </div>
+                    </div>
+                </div>*@
+            <div id="divSearch2">
+                <div style="padding-bottom:15px;">
+                    <label style="font-size:15px;"></label>
+                </div>
+                <div class="row barang_table_section" style="padding-left:10px;">
+                    <div class="input-group col-lg-12 col-sm-12 col-md-12">
+                        <input id="search_barang2" type="text" class="form-control" placeholder="Pencarian">
+                        <span class="input-group-btn">
+                            <button type="button" id="search_barang_click2" class="btn btn-primary">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </span>
+                        <div class=" col-lg-5 col-sm-5 col-md-5 pull-right">
+                            <div class="text">
+                                <select class="form-control" id="TakeRecord" name="TakeRecord" required="required">
+                                    <option value="10" selected>10</option>
+                                    <option value="100">100</option>
+                                    <option value="200">200</option>
+                                    <option value="500">500</option>
+                                    <option value="1000">1000</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    @*<div class="input-group col-lg-2 col-sm-2 col-md-2">
+                            <div class="input-group text">
+                                <select class="form-control" id="TakeRecord" name="TakeRecord" required="required">
+                                    <option value="10" selected>10</option>
+                                    <option value="100">100</option>
+                                    <option value="200">200</option>
+                                    <option value="500">500</option>
+                                    <option value="1000">1000</option>
+                                </select>
+                            </div>
+                        </div>*@
+                </div>
+            </div>
+            <div class="row" @*style="margin-top: 5px;*@>
                 <div id="lblPleasewait" class="text-center" style="display:none">
                     <label>Proses sinkronisasi sedang berlangsung, Dimohon tunggu beberapa saat.</label>
                 </div>
                 <div id="loading_barang_tab" class="text-center" style="display: none">
                     <img src="~/Content/Images/spinner.gif" width="100" />
                 </div>
-                <div class="col-sm-12 barang_table_section" id="table-sinkro-barang" style="overflow-y:scroll; height:400px;">
+                <div class="col-sm-12 barang_table_section" id="table-sinkro-barang" style="overflow-y:scroll; height:930px;">
                 </div>
             </div>
         </div>
         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
             <div id="divSearch" style="display:none;">
-                <div>
-                    Rekomendasi : Master Barang Master Online
+                <div style="padding-bottom:15px;">
+                    <label style="font-size:15px;">Rekomendasi : Master Barang Master Online</label>
                 </div>
                 <div class="row barang_table_section" style="padding-left:10px;">
                     <div class="input-group col-sm-8 col-md-8">
@@ -273,6 +356,46 @@
     </div>
 </div>
 
+<div class="modal fade" id="konfTarikData" tabindex="-1" role="dialog" aria-labelledby="konfTarikDataLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfTarikDataLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4 id="txtDeskripsi">Apakah Anda ingin mengambil semua data barang dari Akun ini?</h4>
+                </div>
+                <div class="row text-center">
+                    <div class="col-md-3 col-sm-3 col-xs-12"></div>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <div class="input-group text">
+                            <table>
+                                <tr>
+                                    <td>
+                                        <input maxlength="10" value="" class="form-control" disabled="disabled" id="txtCustomer2" name="txtCustomer2" type="text">
+                                    </td>
+                                    <td>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptCustomer();">
+                                                <span class="glyphicon glyphicon-option-horizontal"></span>
+                                            </button>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnGetDataBrg" class="btn btn-success" onclick="GetDataBrgWithRecord(0, 0, 1, 0);exGetData = 0;">Ya</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+            </div>
+        </div>
+    </div>
+</div>
 @section scripts{
     <script src="~/Content/selectize.js" type="text/javascript"></script>
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
