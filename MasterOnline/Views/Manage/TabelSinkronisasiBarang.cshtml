@@ -65,8 +65,8 @@
                 <td class="text-center"><img width="50" height="50" src="@barang.GAMBAR" /></td>
                 <td class="kolom_nama">@barang.NAMA @barang.NAMA2</td>
                 <td class="edit-hapus-col">
-                    <button class="btn btn-danger" onclick="pilihBrg('@barang.RECNUM', '@barang.NAMA')">
-                        <span>V</span>
+                    <button class="btn btn-primary" id="btnPilih_@barang.RECNUM" onclick="pilihBrg('@barang.RECNUM', '@barang.NAMA')">
+                        <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
                     </button>
                 </td>
                 <td class="kolom_brg" id="txtKodeBrgMO_@barang.RECNUM">@barang.BRG</td>
